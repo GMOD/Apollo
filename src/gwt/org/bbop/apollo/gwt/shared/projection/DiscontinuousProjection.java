@@ -1,6 +1,5 @@
-package org.bbop.apollo.gwt.client.projection;
+package org.bbop.apollo.gwt.shared.projection;
 
-import com.google.gwt.core.client.GWT;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -206,8 +205,7 @@ public class DiscontinuousProjection extends AbstractProjection {
                 if (max > floorMaxCoord.getMax()) {
                     return replaceCoordinate(floorMinCoord, floorMinCoord.getMin(), max);
                 }
-                GWT.log("not sure how to handle this piece ");
-            }
+                            }
             return null;
         }
         // if we are right on the right edge
@@ -216,11 +214,9 @@ public class DiscontinuousProjection extends AbstractProjection {
                 if (min < floorMaxCoord.getMin()) {
                     return replaceCoordinate(floorMaxCoord, min, floorMaxCoord.getMax());
                 }
-                GWT.log("not sure how we got here");
-                return null;
+                                return null;
             }
-            GWT.log("or here either");
-            return null;
+                        return null;
         }
         // if we are at the right edge
         if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord == null) {
@@ -234,8 +230,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             if (min >= floorMinCoord.getMin() && max <= ceilMaxCoord.getMax()) {
                 return null;
             }
-            GWT.log("Not sure what to do with this");
-            return null;
+                        return null;
         }
         // overlapping without?
         if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
@@ -388,19 +383,12 @@ public class DiscontinuousProjection extends AbstractProjection {
         Iterator<Coordinate> minKeyIterator = minMap.values().iterator();
         minCoordinate = minCoordinate >= 0 ? minCoordinate : 0;
         maxCoordinate = maxCoordinate >= 0 ? maxCoordinate : inputSequence.length();
-        GWT.log("minCoordinate = ${minCoordinate}");
-        GWT.log("maxCoordinate = ${maxCoordinate}");
-        GWT.log("offset = ${offset}");
-        GWT.log("# of min maps ${minMap.size()}");
 
         while (minKeyIterator.hasNext()) {
             Coordinate coordinate = minKeyIterator.next();
-            GWT.log("coodinate coord ${coordinate.min}::${coordinate.max} vs ${inputSequence.length()}");
-            Long offsetMinCoordinate = coordinate.getMin() + offset;
+                        Long offsetMinCoordinate = coordinate.getMin() + offset;
             Long offsetMaxCoordinate = coordinate.getMax() + offset;
-            GWT.log("offset coord ${offsetMinCoordinate}::${offsetMaxCoordinate} vs ${inputSequence.length()}");
-            GWT.log("min/max ${minCoordinate}::${maxCoordinate} vs ${inputSequence.length()}");
-            // 6 cases
+                                    // 6 cases
             // case 1, max < minCoordinate . . .ignore
             // case 5, min > maxCoordinate  . . .ignore
             if (offsetMaxCoordinate < minCoordinate || offsetMinCoordinate > maxCoordinate) {
@@ -422,8 +410,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             else if (offsetMinCoordinate <= maxCoordinate && offsetMaxCoordinate > maxCoordinate) {
                 returnSequence += inputSequence.substring(offsetMinCoordinate.intValue(), maxCoordinate.intValue() + 1);
             } else {
-                GWT.log("what is this error case? ");
-            }
+                            }
 
         }
 

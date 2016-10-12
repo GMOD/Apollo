@@ -4,11 +4,13 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.*;
-import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.projection.Coordinate;
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection;
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence;
 
 import java.util.ArrayList;
 import java.util.HashMap;

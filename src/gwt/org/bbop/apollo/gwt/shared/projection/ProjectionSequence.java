@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client.projection;
+package org.bbop.apollo.gwt.shared.projection;
 
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
     }
 
 
-    Long getLength() {
+    public Long getLength() {
         return end - start;
     }
 

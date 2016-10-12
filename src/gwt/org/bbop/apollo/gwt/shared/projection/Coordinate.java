@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.client.projection;
+package org.bbop.apollo.gwt.shared.projection;
 
 /**
  * Created by nathandunn on 10/10/16.
