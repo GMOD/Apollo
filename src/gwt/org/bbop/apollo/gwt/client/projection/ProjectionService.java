@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.*;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
@@ -19,25 +20,25 @@ import java.util.Map;
 
 /**
  * This class is responsible for generating projection libraries.
- *
+ * <p>
  * Created by nathandunn on 10/10/16.
  */
 public class ProjectionService {
 
 
-    private static Map<String,MultiSequenceProjection> projectionMap = new HashMap<>();
+    private static Map<String, MultiSequenceProjection> projectionMap = new HashMap<>();
 
-    public ProjectionService(){
+    public ProjectionService() {
         exportStaticMethod();
     }
 
-    static MultiSequenceProjection createProjectionFromAssemblageInfo(AssemblageInfo assemblageInfo){
+    static MultiSequenceProjection createProjectionFromAssemblageInfo(AssemblageInfo assemblageInfo) {
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection();
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
 
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
         List<Coordinate> coordinates = new ArrayList<>();
-        for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
+        for (int i = 0; i < assemblageSequenceList.size(); i++) {
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
 
             ProjectionSequence projectionSequence = generateProjectSequenceFromAssemblageSequence(assemblageSequence);
@@ -45,13 +46,12 @@ public class ProjectionService {
             projectionSequenceList.add(projectionSequence);
 
             SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
-            if(sequenceFeatureInfo!=null && sequenceFeatureInfo.hasLocation()){
+            if (sequenceFeatureInfo != null && sequenceFeatureInfo.hasLocation()) {
                 FeatureLocations featureLocations = sequenceFeatureInfo.getLocation();
-                List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations,projectionSequence);
+                List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
                 coordinates.addAll(theseCoordinates);
-            }
-            else{
-                Coordinate fullCoordinate = new Coordinate(projectionSequence.getStart(),projectionSequence.getEnd(),projectionSequence);
+            } else {
+                Coordinate fullCoordinate = new Coordinate(projectionSequence.getStart(), projectionSequence.getEnd(), projectionSequence);
                 coordinates.add(fullCoordinate);
             }
         }
@@ -82,15 +82,15 @@ public class ProjectionService {
         return multiSequenceProjection;
     }
 
-    private static List<Coordinate> generateCoordinatesFromFeatureLocations(FeatureLocations featureLocations,ProjectionSequence projectionSequence) {
+    private static List<Coordinate> generateCoordinatesFromFeatureLocations(FeatureLocations featureLocations, ProjectionSequence projectionSequence) {
 
         List<Coordinate> coordinateList = new ArrayList<>();
-        for(int i = 0 ; i < featureLocations.size() ; i++){
+        for (int i = 0; i < featureLocations.size(); i++) {
             FeatureLocationInfo featureLocationInfo = featureLocations.getFeatureLocationInfo(i);
-            Coordinate coordinate = new Coordinate(featureLocationInfo.getMin(),featureLocationInfo.getMax(),projectionSequence);
+            Coordinate coordinate = new Coordinate(featureLocationInfo.getMin(), featureLocationInfo.getMax(), projectionSequence);
             coordinateList.add(coordinate);
         }
-        return coordinateList ;
+        return coordinateList;
     }
 
     private static ProjectionSequence generateProjectSequenceFromAssemblageSequence(AssemblageSequence assemblageSequence) {
@@ -101,14 +101,14 @@ public class ProjectionService {
         projectionSequence.setUnprojectedLength(assemblageSequence.getLength());
         projectionSequence.setReverse(assemblageSequence.getReverse());
 
-        if(assemblageSequence.getFeature()!=null){
+        if (assemblageSequence.getFeature() != null) {
             String featureName = assemblageSequence.getFeature().getName();
             List<String> featureNameList = new ArrayList<>();
             featureNameList.add(featureName);
             projectionSequence.setFeatures(featureNameList);
         }
 
-        return projectionSequence ;
+        return projectionSequence;
     }
 
     /**
@@ -119,75 +119,99 @@ public class ProjectionService {
      */
     static MultiSequenceProjection getProjectionForString(String projectionString) {
         Integer index = projectionString.lastIndexOf(":");
-        projectionString = projectionString.substring(0,index);
+        projectionString = projectionString.substring(0, index);
         JSONObject projectionObject = JSONParser.parseStrict(projectionString).isObject();
         AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(projectionObject);
         return createProjectionFromAssemblageInfo(assemblageInfo);
     }
 
-    public static Long projectValue(String referenceString,String otherType) {
+    public static Long projectValue(String referenceString, String otherType) {
         Integer input = Integer.parseInt(otherType);
-        return projectValue(referenceString,(long) input);
+        return projectValue(referenceString, (long) input);
     }
 
-    public static Long projectValue(String referenceString,Long input){
-        GWT.log("trying to project a value in GWT: "+input);
+    public static Long projectValue(String referenceString, Long input) {
+        GWT.log("trying to project a value in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
-        Long projectedValue = projection.projectValue( input);
-        GWT.log("projected a value "+ projectedValue + " for " + input);
-        return projectedValue ;
+        Long projectedValue = projection.projectValue(input);
+        GWT.log("projected a value " + projectedValue + " for " + input);
+        return projectedValue;
     }
 
-    public static Long projectReverseValue(String referenceString,String otherType) {
+    public static Long projectReverseValue(String referenceString, String otherType) {
         Integer input = Integer.parseInt(otherType);
-        return projectReverseValue(referenceString,(long) input);
+        return projectReverseValue(referenceString, (long) input);
     }
 
 
-    public static Long projectReverseValue(String referenceString,Long input){
-        GWT.log("trying to project a value in GWT: "+input);
+    public static Long projectReverseValue(String referenceString, Long input) {
+        GWT.log("trying to project a value in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
-        Long projectedValue = projection.projectReverseValue( input);
-        GWT.log("projected a value "+ projectedValue + " for " + input);
-        return projectedValue ;
+        Long projectedValue = projection.projectReverseValue(input);
+        GWT.log("projected a value " + projectedValue + " for " + input);
+        return projectedValue;
     }
 
-    public static String projectReverseSequence(String referenceString,String otherType) {
+    public static String projectReverseSequence(String referenceString, String otherType) {
         Integer input = Integer.parseInt(otherType);
-        return projectReverseSequence(referenceString,(long) input);
+        return projectReverseSequence(referenceString, (long) input);
     }
 
 
-    public static String projectReverseSequence(String referenceString, Long input){
-        GWT.log("trying to project a sequence in GWT: "+input);
+    public static String projectReverseSequence(String referenceString, Long input) {
+        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
-        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence( input);
+        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(input);
 //        GWT.log("projected a value "+ projectedValue + " for " + input);
         // TODO: convert to a JSON object
         return projectionSequence.getName();
     }
 
-    public static JavaScriptObject getReverseProjection(String referenceString, String inputString){
+    public static JavaScriptObject getReverseProjection(String referenceString, String inputString) {
         Integer input = Integer.parseInt(inputString);
-        return getReverseProjection(referenceString,(long) input);
+        return getReverseProjection(referenceString, (long) input);
     }
 
-    public static JavaScriptObject getReverseProjection(String referenceString, Long input){
-        GWT.log("trying to project a sequence in GWT: "+input);
+    public static JavaScriptObject getReverseProjection(String referenceString, Long input) {
+        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("originalValue",new JSONNumber(input));
+        jsonObject.put("originalValue", new JSONNumber(input));
 
-        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence( input);
-        if(projectionSequence!=null){
-            Long reverseValue = projection.projectReverseValue(input);
-            if(projectionSequence.getReverse()){
-                reverseValue = projectionSequence.getLength()-reverseValue;
-            }
-//            reverseValue += projectionSequence.getOriginalOffset();
-            jsonObject.put("sequence",convertToJsonObject(projectionSequence));
-            jsonObject.put("reverseValue",new JSONNumber(reverseValue));
+        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(input);
+        assert projectionSequence != null;
+//        if(projectionSequence!=null){
+        Integer order = projectionSequence.getOrder();
+        Integer numberOfSequences = projection.size();
+        Long reverseValue = projection.projectReverseValue(input);
+        reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
+        // TODO: looking at RefSeqProjectionService::projectSequence()
+        // need to take into account order?
+        if (projectionSequence.getReverse()) {
+            reverseValue = projectionSequence.getUnprojectedLength() - reverseValue ;
+//            // ??
+//            reverseValue = reverseValue + projectionSequence.getOriginalOffset();
+////            reverseValue = reverseValue - projectionSequence.getOriginalOffset();
+//            if (order == 0) {
+//            } else if (order == numberOfSequences - 1) {
+//
+//            }
+//            // one of the middle ones
+//            else{
+//
+//            }
+//
+        } else {
+
         }
+
+
+        Window.alert("input["+input + "]->["+reverseValue+"]");
+
+//            reverseValue += projectionSequence.getOriginalOffset();
+
+        jsonObject.put("sequence", convertToJsonObject(projectionSequence));
+        jsonObject.put("reverseValue", new JSONNumber(reverseValue));
 
 
         JavaScriptObject javaScriptObject = JsonUtils.safeEval(jsonObject.toString());
@@ -197,12 +221,12 @@ public class ProjectionService {
 
     private static JSONObject convertToJsonObject(ProjectionSequence projectionSequence) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(projectionSequence.getName()));
-        jsonObject.put(FeatureStringEnum.START.getValue(),new JSONNumber(projectionSequence.getStart()));
-        jsonObject.put(FeatureStringEnum.END.getValue(),new JSONNumber(projectionSequence.getEnd()));
-        jsonObject.put(FeatureStringEnum.REVERSE.getValue(),JSONBoolean.getInstance(projectionSequence.getReverse()));
-        jsonObject.put("offset",new JSONNumber(projectionSequence.getOffset()));
-        jsonObject.put("originalOffset",new JSONNumber(projectionSequence.getOriginalOffset()));
+        jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(projectionSequence.getName()));
+        jsonObject.put(FeatureStringEnum.START.getValue(), new JSONNumber(projectionSequence.getStart()));
+        jsonObject.put(FeatureStringEnum.END.getValue(), new JSONNumber(projectionSequence.getEnd()));
+        jsonObject.put(FeatureStringEnum.REVERSE.getValue(), JSONBoolean.getInstance(projectionSequence.getReverse()));
+        jsonObject.put("offset", new JSONNumber(projectionSequence.getOffset()));
+        jsonObject.put("originalOffset", new JSONNumber(projectionSequence.getOriginalOffset()));
         return jsonObject;
     }
 

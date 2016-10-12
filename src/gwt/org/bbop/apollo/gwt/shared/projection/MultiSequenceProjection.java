@@ -202,7 +202,7 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
 
-    Integer size() {
+    public Integer size() {
         Integer count = 0;
         for (DiscontinuousProjection projection : sequenceDiscontinuousProjectionMap.values()) {
             count += projection.size();
