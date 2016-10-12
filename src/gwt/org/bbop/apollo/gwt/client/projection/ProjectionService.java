@@ -186,11 +186,22 @@ public class ProjectionService {
         Integer order = projectionSequence.getOrder();
         Integer numberOfSequences = projection.size();
         Long reverseValue = projection.projectReverseValue(input);
+//        Window.alert("0 input["+input + "]->["+reverseValue+"]");
         reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
+//        Window.alert("0a input["+input + "]->["+reverseValue+"]");
         // TODO: looking at RefSeqProjectionService::projectSequence()
         // need to take into account order?
         if (projectionSequence.getReverse()) {
-            reverseValue = projectionSequence.getUnprojectedLength() - reverseValue ;
+
+            // reverse value in feature by:
+            // input - (input - sequenceEnd) + (input - sequenceStart)
+            // = input + sequenceStart - sequenceEnd
+            // = input - (sequenceLength )
+            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
+//            reverseValue = reverseValue  - projectionSequence.getLength() ;
+
+
+
 //            // ??
 //            reverseValue = reverseValue + projectionSequence.getOriginalOffset();
 ////            reverseValue = reverseValue - projectionSequence.getOriginalOffset();
@@ -204,11 +215,18 @@ public class ProjectionService {
 //            }
 //
         } else {
+//            reverseValue = reverseValue - projectionSequence.getOriginalOffset() - projectionSequence.getStart();
 
         }
 
 
-//        Window.alert("input["+input + "]->["+reverseValue+"]");
+//        Window.alert(convertToJsonObject(projectionSequence).toString());
+
+//        Window.alert("1 input["+input + "]->["+reverseValue+"]");
+
+        reverseValue = reverseValue + projectionSequence.getStart();
+
+//        Window.alert("2 input["+input + "]->["+reverseValue+"]");
 
 //            reverseValue += projectionSequence.getOriginalOffset();
 
