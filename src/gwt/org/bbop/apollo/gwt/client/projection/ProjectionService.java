@@ -183,22 +183,17 @@ public class ProjectionService {
             GWT.log("no sequence found for "+input);
             return JsonUtils.safeEval(new JSONObject().toString());
         }
+
         Long reverseValue = projection.projectReverseValue(input);
-        reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
-        // TODO: looking at RefSeqProjectionService::projectSequence()
-        // need to take into account order?
         if (projectionSequence.getReverse()) {
-            // reverse value in feature by:
-            // input - (input - sequenceEnd) + (input - sequenceStart)
-            // = input + sequenceStart - sequenceEnd
-            // = input - (sequenceLength )
+            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
             reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
+            reverseValue = reverseValue + projectionSequence.getStart();
 //
         } else {
-            reverseValue = reverseValue - projectionSequence.getStart();
+            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
         }
 
-        reverseValue = reverseValue + projectionSequence.getStart();
 
         jsonObject.put("sequence", convertToJsonObject(projectionSequence));
         jsonObject.put("reverseValue", new JSONNumber(reverseValue));
