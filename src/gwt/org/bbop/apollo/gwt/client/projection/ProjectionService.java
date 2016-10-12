@@ -183,56 +183,25 @@ public class ProjectionService {
             GWT.log("no sequence found for "+input);
             return JsonUtils.safeEval(new JSONObject().toString());
         }
-        Integer order = projectionSequence.getOrder();
-        Integer numberOfSequences = projection.size();
         Long reverseValue = projection.projectReverseValue(input);
-//        Window.alert("0 input["+input + "]->["+reverseValue+"]");
         reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
-//        Window.alert("0a input["+input + "]->["+reverseValue+"]");
         // TODO: looking at RefSeqProjectionService::projectSequence()
         // need to take into account order?
         if (projectionSequence.getReverse()) {
-
             // reverse value in feature by:
             // input - (input - sequenceEnd) + (input - sequenceStart)
             // = input + sequenceStart - sequenceEnd
             // = input - (sequenceLength )
             reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
-//            reverseValue = reverseValue  - projectionSequence.getLength() ;
-
-
-
-//            // ??
-//            reverseValue = reverseValue + projectionSequence.getOriginalOffset();
-////            reverseValue = reverseValue - projectionSequence.getOriginalOffset();
-//            if (order == 0) {
-//            } else if (order == numberOfSequences - 1) {
-//
-//            }
-//            // one of the middle ones
-//            else{
-//
-//            }
 //
         } else {
-//            reverseValue = reverseValue - projectionSequence.getOriginalOffset() - projectionSequence.getStart();
-
+            reverseValue = reverseValue - projectionSequence.getStart();
         }
-
-
-//        Window.alert(convertToJsonObject(projectionSequence).toString());
-
-//        Window.alert("1 input["+input + "]->["+reverseValue+"]");
 
         reverseValue = reverseValue + projectionSequence.getStart();
 
-//        Window.alert("2 input["+input + "]->["+reverseValue+"]");
-
-//            reverseValue += projectionSequence.getOriginalOffset();
-
         jsonObject.put("sequence", convertToJsonObject(projectionSequence));
         jsonObject.put("reverseValue", new JSONNumber(reverseValue));
-
 
         JavaScriptObject javaScriptObject = JsonUtils.safeEval(jsonObject.toString());
         // TODO: convert to a JSON object
