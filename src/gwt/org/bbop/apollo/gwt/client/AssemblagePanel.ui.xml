@@ -61,15 +61,15 @@
                         <b:TextBox ui:field="searchBox" enabled="true"
                                    placeholder="Search for Bookmarks"/>
                     </b:Column>
-                    <b:Column size="MD_6">
+                    <b:Column size="MD_7">
                         <b:ButtonGroup dataToggle="BUTTONS" addStyleNames="{style.inline-button}">
                             <b:RadioButton name="AssemblageFilter" text="Scaffold" type="DEFAULT"
                                            ui:field="showOnlyScaffoldButton" addStyleNames="{style.inline-button}"/>
-                            <b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING"
+                            <b:RadioButton name="AssemblageFilter" text="Combined" type="WARNING" icon="COMPRESS"
                                            ui:field="showOnlyCombinedButton" addStyleNames="{style.inline-button}"/>
-                            <b:RadioButton name="AssemblageFilter" text="Feature" type="INFO"
+                            <b:RadioButton name="AssemblageFilter" text="Feature" type="INFO" icon="SCISSORS"
                                            ui:field="showOnlyFeatureButton" addStyleNames="{style.inline-button}"/>
-                            <b:RadioButton name="AssemblageFilter" text="All" type="SUCCESS"
+                            <b:RadioButton name="AssemblageFilter" text="All" type="DEFAULT" icon="BAN"
                                            ui:field="showAllAssemblagesButton" addStyleNames="{style.inline-button}"/>
                         </b:ButtonGroup>
                     </b:Column>

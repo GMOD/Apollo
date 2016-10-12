@@ -196,7 +196,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return coordinateList;
     }
 
-    void addInterval(Long min, Long max, ProjectionSequence sequence) {
+    public void addInterval(Long min, Long max, ProjectionSequence sequence) {
                 Coordinate coordinate = new Coordinate(min, max, sequence);
         addCoordinate(coordinate);
     }

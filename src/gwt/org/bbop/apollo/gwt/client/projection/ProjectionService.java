@@ -179,8 +179,10 @@ public class ProjectionService {
         jsonObject.put("originalValue", new JSONNumber(input));
 
         ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(input);
-        assert projectionSequence != null;
-//        if(projectionSequence!=null){
+        if(projectionSequence==null){
+            GWT.log("no sequence found for "+input);
+            return JsonUtils.safeEval(new JSONObject().toString());
+        }
         Integer order = projectionSequence.getOrder();
         Integer numberOfSequences = projection.size();
         Long reverseValue = projection.projectReverseValue(input);
@@ -206,7 +208,7 @@ public class ProjectionService {
         }
 
 
-        Window.alert("input["+input + "]->["+reverseValue+"]");
+//        Window.alert("input["+input + "]->["+reverseValue+"]");
 
 //            reverseValue += projectionSequence.getOriginalOffset();
 
