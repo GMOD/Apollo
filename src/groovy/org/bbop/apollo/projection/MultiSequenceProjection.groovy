@@ -125,6 +125,23 @@ class MultiSequenceProjection extends AbstractProjection {
         return projectValue(input, projectionSequence.originalOffset, projectionSequence.offset)
     }
 
+    public Integer projectLocalReverseValue(Integer input) {
+        ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
+        if (projectionSequence == null) {
+            return UNMAPPED_VALUE;
+        }
+        Long reverseValue = projectReverseValue(input, projectionSequence.getOffset(), projectionSequence.getOriginalOffset());
+        if (projectionSequence.getReverse()) {
+//            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
+//            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
+//            reverseValue = reverseValue + projectionSequence.getStart();
+            // simplifies to this
+            return projectionSequence.getLength() - reverseValue + projectionSequence.getOriginalOffset()  + 2 * projectionSequence.getStart() ;
+        } else {
+            return reverseValue - projectionSequence.getOriginalOffset() ;
+        }
+    }
+
     Integer projectReverseValue(Integer input) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input)
         if (!projectionSequence) {

@@ -61,23 +61,6 @@ public class ProjectionService {
         multiSequenceProjection.addCoordinates(coordinates);
         multiSequenceProjection.calculateOffsets();
 
-//        List<ProjectionSequence> projectionSequenceList = convertJsonArrayToSequences((JSON.parse(assemblage.sequenceList) as JSONArray),assemblage.organism.commonName)
-//
-//        MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
-//        multiSequenceProjection.addProjectionSequences(projectionSequenceList)
-//        multiSequenceProjection.addCoordinates(coordinates)
-//        multiSequenceProjection.calculateOffsets()
-//        Map<String,ProjectionSequence> projectionSequenceMap = [:]
-//
-//        multiSequenceProjection.projectedSequences.each {
-//            projectionSequenceMap.put(it.name,it)
-//        }
-////        List<String> sequenceNames = multiSequenceProjection.projectedSequences.name
-//        // TODO: speed this up by caching sequences
-//        Sequence.findAllByNameInList(projectionSequenceMap.keySet() as List<String>).each {
-//            def projectionSequence = projectionSequenceMap.get(it.name)
-//            projectionSequence.unprojectedLength = it.length
-//        }
 
         return multiSequenceProjection;
     }
@@ -184,17 +167,7 @@ public class ProjectionService {
             return JsonUtils.safeEval(new JSONObject().toString());
         }
 
-        Long reverseValue = projection.projectReverseValue(input);
-        if (projectionSequence.getReverse()) {
-//            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
-//            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
-//            reverseValue = reverseValue + projectionSequence.getStart();
-            // simplifies to this
-            reverseValue = projectionSequence.getLength() - reverseValue + projectionSequence.getOriginalOffset()  + 2 * projectionSequence.getStart() ;
-        } else {
-            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
-        }
-
+        Long reverseValue = projection.projectLocalReverseValue(input);
 
         jsonObject.put("sequence", convertToJsonObject(projectionSequence));
         jsonObject.put("reverseValue", new JSONNumber(reverseValue));
