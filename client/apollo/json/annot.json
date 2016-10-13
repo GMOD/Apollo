@@ -38,14 +38,21 @@
       //          }
     },
     {
-      "label": "Legend2",
-      "key": "Legend2",
-      "type": "WebApollo/View/Track/Projection/LocationScaleProjection2",
+      "label": "ProjectionGrid",
+      "key": "ProjectionGrid",
+      "type": "WebApollo/View/Track/Projection/ProjectionGrid",
       "storeClass": "JBrowse/Store/SeqFeature",
-      "baseUrl": "@SERVER@projectionGrid",
-      "style": {
-        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
-      },
+      "noCache": true,
+      "pinned": true
+      //          "query": {
+      //            "organism": "tyrannosaurus"
+      //          }
+    },
+    {
+      "label": "ProjectionBoundary",
+      "key": "ProjectionBoundary",
+      "type": "WebApollo/View/Track/Projection/ProjectionBoundary",
+      "storeClass": "JBrowse/Store/SeqFeature",
       "noCache": true,
       "pinned": true
       //          "query": {
@@ -166,7 +173,7 @@
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
-  "alwaysOnTracks": "DNA,Legend2,Legend,Annotations",
+  "alwaysOnTracks": "DNA,Legend2,ProjectionGrid,ProjectionBoundary,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
   "assemblageService": "getSeqBoundaries",
   "classicMenu" : 1,
