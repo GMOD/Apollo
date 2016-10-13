@@ -4,7 +4,7 @@ define([
         'JBrowse/View/Track/BlockBased',
         'JBrowse/Util'],
     function (declare,
-              dom,
+              domConstruct,
               BlockBased,
               Util) {
         return declare(BlockBased,
@@ -32,6 +32,65 @@ define([
                 makeTrackMenu: function () {
                 },
 
+                renderGridlines: function(block,leftBase,rightBase,seq) {
+                    var base_span = rightBase-leftBase;
+                    var minor_count =
+                        !( base_span % 20 ) ? 20 :
+                            !( base_span % 10 ) ? 10 :
+                                !( base_span % 5  ) ? 5  :
+                                    !( base_span % 2  ) ? 2  :
+                                        5; // can happen at weird zoom levels (i.e. 13)
+                    var major_count = base_span == 20 ? 2 : base_span > 0 ? 1 : 0;
+
+                    var new_gridline = function( glclass, position ) {
+                        var gridline = document.createElement("div");
+                        gridline.style.cssText = "left: " + position + "%; width: 10px; color: green; border: 5px solid blue;";
+                        gridline.className = "gridline "+glclass;
+                        return gridline;
+                    };
+
+                    // for( var i=0; i<minor_count; i++ ) {
+                    //     var pos = 100/minor_count*i;
+                    //     var cls = pos == 0 || (minor_count == 20 && i == 10)
+                    //         ? "gridline_major"
+                    //         : "gridline_minor";
+                    //
+                    //     block.domNode.appendChild( new_gridline( cls, pos) );
+                    // }
+                    // var child = new_gridline( "boundary_right", seq.end);
+                    var child = new_gridline( "boundary_right", 7);
+                    block.domNode.appendChild( child );
+
+                },
+
+                renderBoundary: function (args, projectedValue) {
+                    var blockIndex = args.blockIndex;
+                    var block = args.block;
+                    var leftBase = args.leftBase;
+                    var rightBase = args.rightBase;
+                    var scale = args.scale;
+                    var thisB = this;
+
+
+                    // TODO: may need to pre-calculate offsets
+                    var lastIndex = this.refSeq.name.lastIndexOf(":");
+                    var nameString = this.refSeq.name.substring(0,lastIndex);
+                    var projectionObject = JSON.parse(nameString);
+
+                    // copy from BlockBased / Bookmark
+
+                    var offset = 0 ;
+                    for(i in projectionObject.sequenceList){
+                        var seq = projectionObject.sequenceList[i];
+                        var start = seq.start ;
+                        var end = seq.end ;
+                        var length = end - start ;
+                        console.log("boundary to project: " +i + ": " + leftBase  + "-" + rightBase + " seq: "+ start + "-"+end);
+                        this.renderGridlines(block,leftBase,rightBase,seq);
+                    }
+
+                },
+
                 fillBlock: function (args) {
                     var blockIndex = args.blockIndex;
                     var block = args.block;
@@ -42,7 +101,7 @@ define([
                     // find the number that is within 2 px of the left boundary of
                     // the block that ends with the most zeroes, or a 5 if no
                     // zeroes
-                    var labelNumber = this.chooseLabel(args);
+                    var labelNumber = this.chooseLeftLabel(args);
                     var labelOffset = (leftBase + 1 - labelNumber) * scale / 10;
                     // console.log( leftBase+1, labelNumber, labelOffset );
 
@@ -82,6 +141,10 @@ define([
                         block.domNode.appendChild(posLabel);
                     }
 
+                    // can we render a highlight for the start / end?
+                    // this.renderBoundary(args,projectedValue);
+
+
                     var highlight = this.browser.getHighlight();
                     if (highlight && highlight.ref == this.refSeq.name) {
                         this.renderRegionHighlight(args, highlight);
@@ -98,7 +161,7 @@ define([
                     args.finishCallback();
                 },
 
-                chooseLabel: function (viewArgs) {
+                chooseLeftLabel: function (viewArgs) {
                     // if(true) return ;
                     var left = viewArgs.leftBase + 1;
                     var width = viewArgs.rightBase - left + 1;

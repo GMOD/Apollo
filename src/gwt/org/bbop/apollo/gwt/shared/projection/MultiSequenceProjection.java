@@ -28,10 +28,18 @@ public class MultiSequenceProjection extends AbstractProjection {
         return !projectionSequenceList.isEmpty() ? projectionSequenceList.get(projectionSequenceList.size() - 1) : null;
     }
 
-    List<ProjectionSequence> getReverseProjectionSequences(Long minInput, Long maxInput) {
+    public List<ProjectionSequence> getReverseProjectionSequences(Long minInput, Long maxInput) {
         List<ProjectionSequence> orderedSequences = new ArrayList<>();
-        Integer startOrder = getReverseProjectionSequence(minInput).getOrder();
-        Integer endOrder = getReverseProjectionSequence(maxInput).getOrder();
+
+        ProjectionSequence minProjectionSequence = getReverseProjectionSequence(minInput);
+        ProjectionSequence maxProjectionSequence = getReverseProjectionSequence(maxInput);
+
+
+        Integer startOrder = minProjectionSequence != null ? minProjectionSequence.getOrder() : null ;
+        if(startOrder==null) {
+            return orderedSequences ;
+        }
+        Integer endOrder = maxProjectionSequence != null ? maxProjectionSequence.getOrder() : null ;
         if (endOrder == null) {
             endOrder = getLastSequence().getOrder();
         }

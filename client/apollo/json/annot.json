@@ -52,7 +52,10 @@
       "label": "ProjectionBoundary",
       "key": "ProjectionBoundary",
       "type": "WebApollo/View/Track/Projection/ProjectionBoundary",
-      "storeClass": "JBrowse/Store/SeqFeature",
+//      "storeClass": "JBrowse/Store/SeqFeature",
+//      "storeClass": "WebApollo/Store/SeqFeature/Projection/Boundary",
+      "storeClass": "JBrowse/Store/SeqFeature/REST",
+      "baseUrl": "@SERVER@projectionGrid",
       "noCache": true,
       "pinned": true
       //          "query": {
@@ -173,7 +176,7 @@
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
-  "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Legend,Annotations",
+  "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
   "assemblageService": "getSeqBoundaries",
   "classicMenu" : 1,

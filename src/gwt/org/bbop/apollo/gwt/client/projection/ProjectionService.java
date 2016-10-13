@@ -177,6 +177,63 @@ public class ProjectionService {
         return javaScriptObject;
     }
 
+    public static JavaScriptObject getBorders(String referenceString,String leftBorder,String rightBorder){
+
+        Long projectedLeft = (long) Integer.parseInt(leftBorder) +1 ;
+        Long projectedRight  = (long) Integer.parseInt(rightBorder) +1 ;
+        JSONArray returnArray = new JSONArray();
+
+        if(projectedLeft>=0 && projectedRight>=0 ){
+            GWT.log(projectedLeft + " " + projectedRight);
+            MultiSequenceProjection projection = getProjectionForString(referenceString);
+            projection.calculateOffsets();
+
+            List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(projectedLeft,projectedRight);
+
+            GWT.log("returned value: "+projectedLeft + " "+projectedRight + " -> "+ projectionSequenceList.size());
+
+            // TODO: getting these to generate the boundaries
+//            Long reverseProjectionLeft = projection.projectReverseValue(projectedLeft);
+//            Long reverseProjectionRight = projection.projectReverseValue(projectedRight);
+
+            // assume that these are returned by order
+            for(int i = 0 ; i < projectionSequenceList.size() ; i++){
+                ProjectionSequence projectionSequence = projectionSequenceList.get(i);
+
+                Long offset = projectionSequence.getOffset();
+                Long length = projectionSequence.getLength();
+
+                // in this case we have both a left and a right boundary at projected right
+                if(projectedLeft >= offset && projectedLeft <= offset + length && projectedRight > offset + length){
+                    // generate both a left and a right one
+                    JSONObject sequenceObject1 = convertToJsonObject(projectionSequence);
+                    sequenceObject1.put("type", new JSONString("right"));
+                    // (A2 - N1 ) / (N2 - N1 )
+                    Float position = (projectionSequence.getLength() - projectedLeft) / (float) (projectedRight - projectedLeft);
+                    sequenceObject1.put("position", new JSONNumber(position));
+                    returnArray.set(returnArray.size(),sequenceObject1);
+
+                    JSONObject sequenceObject2 = convertToJsonObject(projectionSequence);
+                    sequenceObject2.put("type", new JSONString("left"));
+//                    position += 1 ;
+                    sequenceObject2.put("position", new JSONNumber(position));
+                    returnArray.set(returnArray.size(),sequenceObject2);
+                }
+
+//                Integer position = 80;
+//                sequenceObject.put("position", new JSONNumber(position));
+//                sequenceObject.put("type", new JSONString("left"));
+            }
+//        jsonObject.put("sequence", convertToJsonObject(projectionSequence));
+//        jsonObject.put("position", new JSONNumber(reverseValue)); // returned as a percentage
+        }
+
+        JavaScriptObject javaScriptObject = JsonUtils.safeEval(returnArray.toString());
+        // TODO: convert to a JSON object
+        return javaScriptObject;
+    }
+
+
     private static JSONObject convertToJsonObject(ProjectionSequence projectionSequence) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(projectionSequence.getName()));
@@ -194,5 +251,6 @@ public class ProjectionService {
         $wnd.projectReverseValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseValue(Ljava/lang/String;Ljava/lang/String;));
         $wnd.projectReverseSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseSequence(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 }

@@ -1,13 +1,35 @@
 define([
         'dojo/_base/declare',
+        'dojo/_base/array',
+        'dojo/_base/lang',
+        'dojo/_base/event',
         'dojo/dom-construct',
-        'JBrowse/View/Track/BlockBased',
-        'JBrowse/Util'],
+        'dojo/dom-style',
+        'JBrowse/View/Track/SVGTrackSimpleBase',
+        'JBrowse/View/Track/SVG/SVGLayerCoords',
+        'JBrowse/View/Track/SVG/SVGLayerBpSpace',
+        'JBrowse/View/Track/SVG/SVGLayerPxSpace'
+    ],
     function (declare,
-              dom,
-              BlockBased,
-              Util) {
-        return declare(BlockBased,
+              array,
+              lang,
+              domEvent,
+              domConstruct,
+              domStyle,
+              SVGTrackBase,
+              SVGLayerCoords,
+              SVGLayerBpSpace,
+              SVGLayerPxSpace
+    ) {
+
+        // TODO: move to util funciton
+        function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        return declare(
+            [SVGTrackBase]
+            ,
             /**
              * @lends JBrowse.View.Track.LocationScale.prototype
              */
@@ -20,10 +42,13 @@ define([
                  */
 
                 constructor: function (args) {//name, labelClass, posHeight) {
+                    console.log('legend3 args: ');
+                    console.log(args);
                     this.loaded = true;
                     this.labelClass = args.labelClass;
-                    this.posHeight = args.posHeight;
-                    this.height = Math.round(args.posHeight * 1.2);
+                    this.pinned = true;
+                    this.posHeight = 30;
+                    this.height = 30;
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -32,83 +57,241 @@ define([
                 makeTrackMenu: function () {
                 },
 
-                fillBlock: function (args) {
-                    var blockIndex = args.blockIndex;
-                    var block = args.block;
-                    var leftBase = args.leftBase;
-                    var scale = args.scale;
-                    var thisB = this;
-
-                    // find the number that is within 2 px of the left boundary of
-                    // the block that ends with the most zeroes, or a 5 if no
-                    // zeroes
-                    var labelNumber = this.chooseLabel(args);
-                    var labelOffset = (leftBase + 1 - labelNumber) * scale / 10;
-                    // console.log( leftBase+1, labelNumber, labelOffset );
-
-                    var posLabel = document.createElement("div");
-
-                    var projectedValue = window.parent.getReverseProjection(this.refSeq.name,labelNumber);
-                    labelNumber = projectedValue.reverseValue ;
-
-                    if(labelNumber>=0){
-                        var numtext = Util.addCommas(labelNumber);
-                        posLabel.className = this.labelClass;
-
-                        // give the position label a negative left offset in ex's to
-                        // more-or-less center it over the left boundary of the block
-                        posLabel.style.left = "-" + Number(numtext.length) / 1.7 + labelOffset + "ex";
-
-                        var sequenceLabel = document.createElement("div");
-                        sequenceLabel.innerHTML = projectedValue.sequence.name ;
-                        sequenceLabel.style.display = "inline-block";
-                        sequenceLabel.style.marginLeft  = "5px";
-                        sequenceLabel.style.marginRight = "5px";
-
-                        var arrowLabel = document.createElement("div");
-                        arrowLabel.style.display = "inline-block";
-                        if(projectedValue.sequence.reverse){
-                            arrowLabel.innerHTML = "&larr;&nbsp;";
-                            posLabel.appendChild(arrowLabel);
-                            posLabel.appendChild(document.createTextNode(numtext));
-                            posLabel.appendChild(sequenceLabel);
-                        }
-                        else{
-                            arrowLabel.innerHTML = "&nbsp;&rarr;";
-                            posLabel.appendChild(document.createTextNode(numtext));
-                            posLabel.appendChild(sequenceLabel);
-                            posLabel.appendChild(arrowLabel);
-                        }
-                        block.domNode.appendChild(posLabel);
-                    }
-
-                    var highlight = this.browser.getHighlight();
-                    if (highlight && highlight.ref == this.refSeq.name) {
-                        this.renderRegionHighlight(args, highlight);
-                    }
-
-
-                    var bookmarks = this.browser.getBookmarks();
-                    if (bookmarks) {
-                        this.renderRegionBookmark(args, bookmarks, this.refSeq.name, true);
-                    }
-
-                    // this.heightUpdate(Math.round(this.posHeight * 1.2), blockIndex);
-
-                    args.finishCallback();
+                _trackMenuOptions: function () {
                 },
 
-                chooseLabel: function (viewArgs) {
-                    // if(true) return ;
-                    var left = viewArgs.leftBase + 1;
-                    var width = viewArgs.rightBase - left + 1;
-                    var scale = viewArgs.scale;
-                    for (var mod = 1000000; mod > 0; mod /= 10) {
-                        if (left % mod * scale <= 3)
-                            return left - left % mod;
+                _defaultConfig: function () {
+                    var thisConfig = this.inherited(arguments);
+                    thisConfig.menuTemplate = null;
+                    thisConfig.noExport = true;  // turn off default "Save track data" "
+                    //thisConfig.style.centerChildrenVertically = false;
+                    thisConfig.pinned = true;
+                    return thisConfig;
+                },
+                heightUpdate: function (height, blockIndex) {
+                    //console.log("SVGFeatures::heightUpdate("+height+")");
+                    //console.dir(arguments);
+                    //var err = new Error();
+                    //console.log(err.stack);
+
+                    this.inherited(arguments);
+                    if (this.svgSpace) {
+                        //this.svgCanvas.height = this.svgCanvas.offsetHeight;
+                        //console.log('has height ');
+                        this.svgSpace.height = 30;
                     }
-                    return left;
+                    else {
+                        console.log('has no space ');
+                        //this.svgCanvas.height = 200 ;
+                    }
+                    this.height = 30;
+                },
+
+                setViewInfo: function (genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale) {
+                    console.log("SVGLollipop::setViewInfo");
+                    console.log(numBlocks + " " + widthPct + " " + widthPx + " " + scale);
+
+                    this.inherited(arguments);
+
+                    // this.svgCoords = new ProjectionCoordinates(this);
+                    // this.svgCoords.setViewInfo(genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale);
+
+                    this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
+                    //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
+                    this.svgSpace.setViewInfo(genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale);
+
+                },
+
+                showRange: function (first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
+                    console.log("SVGLollipop::showRange");
+                    console.log(first + " " + last + " " + startBase + " " + bpPerBlock + " " + scale + " " + containerStart + " " + containerEnd);
+
+                    this.displayContext = {
+                        first: first,
+                        last: last,
+                        startBase: startBase,
+                        bpPerBlock: bpPerBlock,
+                        scale: scale,
+                        containerStart: containerStart,
+                        containerEnd: containerEnd
+                    };
+
+                    this.svgScale = scale;
+
+                    this.inherited(arguments);      // call the superclass's showRange
+
+                    // this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+                    this.svgSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
+
+                },
+                /*
+                 id = unique string of object
+                 bpCoord = basepair coordinate of object
+                 width = width of object
+                 height = height of object
+                 callback = function that returns object
+
+                 */
+                addSVGObject: function (id, bpCoord, width, height, callback) {
+                    this.svgSpace.addSVGObject(id, bpCoord, width, height, callback);
+                },
+                fixId: function (val) {
+                    return val.replace(",", "-");
+                },
+                computeHeight: function () {
+                    //return this.svgSpace.getHeight();
+                    return this.height;
+                },
+                fillFeatures: function (args) {
+                    this.inherited(arguments);      // call the superclass's
+                },
+
+
+                renderRegion: function (context, fRect) {
+                    var thisB = this;
+                    // create svg element new
+                    var feature = fRect.f;
+                    //var data = feature.sequence;
+                    var sequence = feature.data.sequence;
+                    console.log(feature);
+
+
+                    // draw line
+                    //var svgSpace = this.svgSpace;
+
+                    var padding = sequence.padding ? sequence.padding : 0;
+                    var startLabel = sequence.start-padding;
+
+                    // compute the x coord given the bpCoord
+                    var start = feature.get("start");
+                    var label = feature.get("label");
+                    var color = feature.get("color");
+                    var end = feature.get("end");
+
+                    // this is the left boundary
+                    var id = "R-" + this.fixId(fRect.f.id());
+
+                    this.addSVGObject(id, start, 100, 100, function () {
+                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        svgItem.setAttribute('d', 'M0 0 L0 50 L160 50 L160 25 L5 25 L5 0');
+                        svgItem.setAttribute('fill', color);
+                        svgItem.setAttribute('stroke', 'black');
+                        svgItem.setAttribute('fill-opacity', 1);
+                        return svgItem;
+                    });
+
+                    // var id2 = "RL-" + this.fixId(fRect.f.id());
+                    // //console.log("cx=" + nativeStart + " color=" + color);
+                    // this.addSVGObject(id2, start, 100, 100, function () {
+                    //     var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    //     leftLabelSvg.setAttribute('x', 30);
+                    //     leftLabelSvg.setAttribute('y', 42);
+                    //     leftLabelSvg.setAttribute('fill','white');
+                    //     leftLabelSvg.setAttribute('stroke', 'white');
+                    //     leftLabelSvg.setAttribute('stroke-width', 0);
+                    //     leftLabelSvg.setAttribute('display', 'block');
+                    //     leftLabelSvg.innerHTML = label;
+                    //     return leftLabelSvg;
+                    // });
+
+                    var id4 = "RLL-" + this.fixId(fRect.f.id());
+                    //console.log("cx=" + nativeStart + " color=" + color);
+                    this.addSVGObject(id4, start, 100, 100, function () {
+                        var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        var formattedLabel = numberWithCommas(startLabel);
+                        rightEdgeText.setAttribute('x', 5);
+                        rightEdgeText.setAttribute('y', 42);
+                        rightEdgeText.setAttribute('font-size', 'x-small');
+                        rightEdgeText.setAttribute('fill','white');
+                        rightEdgeText.setAttribute('stroke-width', 0);
+                        rightEdgeText.setAttribute('stroke', 'white');
+                        rightEdgeText.setAttribute('display', 'block');
+                        rightEdgeText.innerHTML = formattedLabel;
+                        return rightEdgeText;
+                    });
+                },
+
+
+                renderRegionRight: function (context, fRect) {
+                    var thisB = this;
+                    // create svg element new
+                    var feature = fRect.f;
+                    var sequence = feature.data.sequence;
+
+                    // draw line
+                    //var svgSpace = this.svgSpace;
+
+                    var endLabel = sequence.end;
+
+                    // compute the x coord given the bpCoord
+                    var start = feature.get("start");
+                    var end = feature.get("end");
+                    var label = feature.get("label");
+                    var color = feature.get("color");
+
+                    var id5 = "RRD-" + this.fixId(fRect.f.id());
+
+                    this.addSVGObject(id5, start, 100, 100, function () {
+                        var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 26 L-5 26 L-5 0 Z');
+                        svgItem.setAttribute('fill', color);
+                        svgItem.setAttribute('stroke', 'black');
+                        return svgItem;
+                    });
+
+                    var id3 = "RR-" + this.fixId(fRect.f.id());
+
+                    //console.log("cx=" + cx + " color=" + color);
+                    // this.addSVGObject(id3, start, 100, 100, function () {
+                    //     var rightLabelRegion = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    //     var formattedLabel = label;
+                    //     var xlength = -((formattedLabel.length - 1) * 14 + 30);
+                    //     rightLabelRegion.setAttribute('x', xlength);
+                    //     rightLabelRegion.setAttribute('y', 42);
+                    //     rightLabelRegion.setAttribute('fill', 'white');
+                    //     rightLabelRegion.setAttribute('stroke', 'white');
+                    //     rightLabelRegion.setAttribute('stroke-width', 0);
+                    //     rightLabelRegion.setAttribute('display', 'block');
+                    //     rightLabelRegion.innerHTML = formattedLabel;
+                    //     return rightLabelRegion;
+                    // });
+
+                    var id4 = "RRR-" + this.fixId(fRect.f.id());
+                    //console.log("cx=" + cx + " color=" + color);
+                    this.addSVGObject(id4, start, 100, 100, function () {
+                        var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        var formattedLabel = numberWithCommas(endLabel);
+                        var xlength = -((formattedLabel.length - 1) * 8);
+                        rightEdgeText.setAttribute('x', xlength);
+                        rightEdgeText.setAttribute('y', 42);
+                        rightEdgeText.setAttribute('font-size', 'x-small');
+                        rightEdgeText.setAttribute('fill', 'white');
+                        rightEdgeText.setAttribute('stroke-width', 0);
+                        rightEdgeText.setAttribute('stroke', 'white');
+                        rightEdgeText.setAttribute('display', 'block');
+                        rightEdgeText.innerHTML = formattedLabel;
+                        return rightEdgeText;
+                    });
+
+                },
+
+                // draw each feature
+                renderFeature: function (context, fRect) {
+
+                    this.inherited(arguments);      // call the superclass
+
+                    var feature = fRect.f;
+                    var type = feature.get("type");
+                    if (type == 'region') {
+                        console.log('render region');
+                        this.renderRegion(context, fRect);
+                    }
+                    else if (type == 'region-right') {
+                        console.log('render region right');
+                        this.renderRegionRight(context, fRect, 3);
+                    }
                 }
 
             });
     });
+
