@@ -186,10 +186,11 @@ public class ProjectionService {
 
         Long reverseValue = projection.projectReverseValue(input);
         if (projectionSequence.getReverse()) {
-            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
-            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
-            reverseValue = reverseValue + projectionSequence.getStart();
-//
+//            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
+//            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
+//            reverseValue = reverseValue + projectionSequence.getStart();
+            // simplifies to this
+            reverseValue = projectionSequence.getLength() - reverseValue + projectionSequence.getOriginalOffset()  + 2 * projectionSequence.getStart() ;
         } else {
             reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
         }
