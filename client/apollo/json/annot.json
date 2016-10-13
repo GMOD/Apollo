@@ -173,7 +173,7 @@
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",
-  "alwaysOnTracks": "DNA,Legend2,ProjectionGrid,ProjectionBoundary,Annotations",
+  "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Legend,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
   "assemblageService": "getSeqBoundaries",
   "classicMenu" : 1,
