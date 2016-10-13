@@ -47,8 +47,8 @@ define([
                     this.loaded = true;
                     this.labelClass = args.labelClass;
                     this.pinned = true;
-                    this.posHeight = 30;
-                    this.height = 30;
+                    this.posHeight = 20;
+                    this.height = 20;
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -69,32 +69,19 @@ define([
                     return thisConfig;
                 },
                 heightUpdate: function (height, blockIndex) {
-                    //console.log("SVGFeatures::heightUpdate("+height+")");
-                    //console.dir(arguments);
-                    //var err = new Error();
-                    //console.log(err.stack);
-
                     this.inherited(arguments);
                     if (this.svgSpace) {
-                        //this.svgCanvas.height = this.svgCanvas.offsetHeight;
-                        //console.log('has height ');
-                        this.svgSpace.height = 30;
+                        this.svgSpace.height = 20;
                     }
                     else {
                         console.log('has no space ');
                         //this.svgCanvas.height = 200 ;
                     }
-                    this.height = 30;
+                    this.height = 20;
                 },
 
                 setViewInfo: function (genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale) {
-                    console.log("SVGLollipop::setViewInfo");
-                    console.log(numBlocks + " " + widthPct + " " + widthPx + " " + scale);
-
                     this.inherited(arguments);
-
-                    // this.svgCoords = new ProjectionCoordinates(this);
-                    // this.svgCoords.setViewInfo(genomeView, heightUpdate, numBlocks, trackDiv, widthPct, widthPx, scale);
 
                     this.svgSpace = new SVGLayerPxSpace(this);      // px-space svg layer
                     //this.svgSpace = new SVGLayerBpSpace(this);    // bp-space svg layer
@@ -103,8 +90,6 @@ define([
                 },
 
                 showRange: function (first, last, startBase, bpPerBlock, scale, containerStart, containerEnd) {
-                    console.log("SVGLollipop::showRange");
-                    console.log(first + " " + last + " " + startBase + " " + bpPerBlock + " " + scale + " " + containerStart + " " + containerEnd);
 
                     this.displayContext = {
                         first: first,
@@ -120,18 +105,9 @@ define([
 
                     this.inherited(arguments);      // call the superclass's showRange
 
-                    // this.svgCoords.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
                     this.svgSpace.showRange(first, last, startBase, bpPerBlock, scale, containerStart, containerEnd);
 
                 },
-                /*
-                 id = unique string of object
-                 bpCoord = basepair coordinate of object
-                 width = width of object
-                 height = height of object
-                 callback = function that returns object
-
-                 */
                 addSVGObject: function (id, bpCoord, width, height, callback) {
                     this.svgSpace.addSVGObject(id, bpCoord, width, height, callback);
                 },
@@ -149,15 +125,8 @@ define([
 
                 renderRegion: function (context, fRect) {
                     var thisB = this;
-                    // create svg element new
                     var feature = fRect.f;
-                    //var data = feature.sequence;
                     var sequence = feature.data.sequence;
-                    console.log(feature);
-
-
-                    // draw line
-                    //var svgSpace = this.svgSpace;
 
                     var padding = sequence.padding ? sequence.padding : 0;
                     var startLabel = sequence.start-padding;
@@ -173,38 +142,24 @@ define([
 
                     this.addSVGObject(id, start, 100, 100, function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        svgItem.setAttribute('d', 'M0 0 L0 50 L160 50 L160 25 L5 25 L5 0');
+                        svgItem.setAttribute('d', 'M0 0 L0 20 L10 20 L10 0');
                         svgItem.setAttribute('fill', color);
                         svgItem.setAttribute('stroke', 'black');
                         svgItem.setAttribute('fill-opacity', 1);
                         return svgItem;
                     });
 
-                    // var id2 = "RL-" + this.fixId(fRect.f.id());
-                    // //console.log("cx=" + nativeStart + " color=" + color);
-                    // this.addSVGObject(id2, start, 100, 100, function () {
-                    //     var leftLabelSvg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    //     leftLabelSvg.setAttribute('x', 30);
-                    //     leftLabelSvg.setAttribute('y', 42);
-                    //     leftLabelSvg.setAttribute('fill','white');
-                    //     leftLabelSvg.setAttribute('stroke', 'white');
-                    //     leftLabelSvg.setAttribute('stroke-width', 0);
-                    //     leftLabelSvg.setAttribute('display', 'block');
-                    //     leftLabelSvg.innerHTML = label;
-                    //     return leftLabelSvg;
-                    // });
-
                     var id4 = "RLL-" + this.fixId(fRect.f.id());
                     //console.log("cx=" + nativeStart + " color=" + color);
                     this.addSVGObject(id4, start, 100, 100, function () {
                         var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         var formattedLabel = numberWithCommas(startLabel);
-                        rightEdgeText.setAttribute('x', 5);
-                        rightEdgeText.setAttribute('y', 42);
-                        rightEdgeText.setAttribute('font-size', 'x-small');
-                        rightEdgeText.setAttribute('fill','white');
+                        rightEdgeText.setAttribute('x', 15);
+                        rightEdgeText.setAttribute('y', 12);
+                        rightEdgeText.setAttribute('font-size', 'small');
+                        rightEdgeText.setAttribute('fill',color);
                         rightEdgeText.setAttribute('stroke-width', 0);
-                        rightEdgeText.setAttribute('stroke', 'white');
+                        rightEdgeText.setAttribute('stroke', 'black');
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;
@@ -218,9 +173,6 @@ define([
                     var feature = fRect.f;
                     var sequence = feature.data.sequence;
 
-                    // draw line
-                    //var svgSpace = this.svgSpace;
-
                     var endLabel = sequence.end;
 
                     // compute the x coord given the bpCoord
@@ -233,41 +185,24 @@ define([
 
                     this.addSVGObject(id5, start, 100, 100, function () {
                         var svgItem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 26 L-5 26 L-5 0 Z');
+                        // svgItem.setAttribute('d', 'M0 0 L0 50 L-160 50 L-160 26 L-5 26 L-5 0 Z');
+                        svgItem.setAttribute('d', 'M0 0 L0 20 L-10 20 L-10 0 Z');
                         svgItem.setAttribute('fill', color);
                         svgItem.setAttribute('stroke', 'black');
                         return svgItem;
                     });
 
-                    var id3 = "RR-" + this.fixId(fRect.f.id());
-
-                    //console.log("cx=" + cx + " color=" + color);
-                    // this.addSVGObject(id3, start, 100, 100, function () {
-                    //     var rightLabelRegion = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    //     var formattedLabel = label;
-                    //     var xlength = -((formattedLabel.length - 1) * 14 + 30);
-                    //     rightLabelRegion.setAttribute('x', xlength);
-                    //     rightLabelRegion.setAttribute('y', 42);
-                    //     rightLabelRegion.setAttribute('fill', 'white');
-                    //     rightLabelRegion.setAttribute('stroke', 'white');
-                    //     rightLabelRegion.setAttribute('stroke-width', 0);
-                    //     rightLabelRegion.setAttribute('display', 'block');
-                    //     rightLabelRegion.innerHTML = formattedLabel;
-                    //     return rightLabelRegion;
-                    // });
-
                     var id4 = "RRR-" + this.fixId(fRect.f.id());
-                    //console.log("cx=" + cx + " color=" + color);
                     this.addSVGObject(id4, start, 100, 100, function () {
                         var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         var formattedLabel = numberWithCommas(endLabel);
-                        var xlength = -((formattedLabel.length - 1) * 8);
+                        var xlength = -((formattedLabel.length - 1) * 10);
                         rightEdgeText.setAttribute('x', xlength);
-                        rightEdgeText.setAttribute('y', 42);
-                        rightEdgeText.setAttribute('font-size', 'x-small');
-                        rightEdgeText.setAttribute('fill', 'white');
+                        rightEdgeText.setAttribute('y', 12);
+                        rightEdgeText.setAttribute('font-size', 'small');
+                        rightEdgeText.setAttribute('fill', color);
                         rightEdgeText.setAttribute('stroke-width', 0);
-                        rightEdgeText.setAttribute('stroke', 'white');
+                        rightEdgeText.setAttribute('stroke', color);
                         rightEdgeText.setAttribute('display', 'block');
                         rightEdgeText.innerHTML = formattedLabel;
                         return rightEdgeText;
