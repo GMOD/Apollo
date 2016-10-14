@@ -17,10 +17,6 @@
         "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
       },
       "pinned": true
-
-      //          "query": {
-      //            "organism": "tyrannosaurus"
-      //          }
     },
     {
       "label": "Legend",
@@ -33,9 +29,6 @@
       },
       "noCache": true,
       "pinned": true
-      //          "query": {
-      //            "organism": "tyrannosaurus"
-      //          }
     },
     {
       "label": "ProjectionGrid",
@@ -44,23 +37,15 @@
       "storeClass": "JBrowse/Store/SeqFeature",
       "noCache": true,
       "pinned": true
-      //          "query": {
-      //            "organism": "tyrannosaurus"
-      //          }
     },
     {
       "label": "ProjectionBoundary",
       "key": "ProjectionBoundary",
       "type": "WebApollo/View/Track/Projection/ProjectionBoundary",
-//      "storeClass": "JBrowse/Store/SeqFeature",
-//      "storeClass": "WebApollo/Store/SeqFeature/Projection/Boundary",
       "storeClass": "JBrowse/Store/SeqFeature/REST",
       "baseUrl": "@SERVER@projectionGrid",
       "noCache": true,
       "pinned": true
-      //          "query": {
-      //            "organism": "tyrannosaurus"
-      //          }
     },
     {
       "label": "LegendTrack",
@@ -162,17 +147,6 @@
       "type": "WebApollo/View/Track/AnnotTrack",
       "subfeatures": 1
     }
-    //    ,
-    //    {
-    //      "label":      "Projection",
-    //      "key":        "REST Test Track",
-    //      "type":       "JBrowse/View/Track/HTMLFeatures",
-    //      "storeClass": "JBrowse/Store/SeqFeature/REST",
-    //      "baseUrl":    "http://localhost:8080/apollo/sequence/",
-    //      "query": {
-    //        "organism": "tyrannosaurus"
-    //      }
-    //    }
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
   "locationBox": "searchBox",

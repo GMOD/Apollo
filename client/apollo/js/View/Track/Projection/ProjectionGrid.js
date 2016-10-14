@@ -112,11 +112,7 @@ define([
 
                     if(labelNumber>=0){
                         var numtext = Util.addCommas(labelNumber);
-                        posLabel.className = this.labelClass;
 
-                        // give the position label a negative left offset in ex's to
-                        // more-or-less center it over the left boundary of the block
-                        posLabel.style.left = "-" + Number(numtext.length) / 1.7 + labelOffset + "ex";
 
                         var sequenceLabel = document.createElement("div");
                         sequenceLabel.innerHTML = projectedValue.sequence.name ;
@@ -124,21 +120,27 @@ define([
                         sequenceLabel.style.marginLeft  = "5px";
                         sequenceLabel.style.marginRight = "5px";
 
+                        // give the position label a negative left offset in ex's to
+                        // more-or-less center it over the left boundary of the block
+                        // first is for the arrow
+
                         var arrowLabel = document.createElement("div");
                         arrowLabel.style.display = "inline-block";
+                        // posLabel.appendChild(document.createTextNode("[ "));
                         if(projectedValue.sequence.reverse){
-                            arrowLabel.innerHTML = "&larr;&nbsp;";
-                            posLabel.appendChild(arrowLabel);
                             posLabel.appendChild(document.createTextNode(numtext));
+                            arrowLabel.innerHTML = "&nbsp;&larr;";
+                            posLabel.appendChild(arrowLabel);
                             posLabel.appendChild(sequenceLabel);
                         }
                         else{
-                            arrowLabel.innerHTML = "&nbsp;&rarr;";
                             posLabel.appendChild(document.createTextNode(numtext));
                             posLabel.appendChild(sequenceLabel);
+                            arrowLabel.innerHTML = "&rarr;";
                             posLabel.appendChild(arrowLabel);
                         }
                         block.domNode.appendChild(posLabel);
+
                     }
 
                     // can we render a highlight for the start / end?
