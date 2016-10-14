@@ -256,52 +256,13 @@ class JbrowseController {
                 regionObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
                 regionObject.start = currentPosition + offset
-                // TODO: if it has an end use that . . otherwise use the sequence value
-//                regionObject.end = projection ? projection.projectValue(thisSeq.end) : Sequence.findByName(thisSeq.name)?.end
                 regionObject.end = currentPosition + offset + 1
                 regionObject.ref = refererLoc
-                regionObject.color = 'none'
-                regionObject.background = 'red'
-//                regionObject.type = 'region-edge'
-                regionObject.type = 'region'
+                regionObject.'background-color' = 'yellow'
+                regionObject.type = 'left-edge'
 
-//                Sequence sequence = Sequence.findByName(thisSeq.name)
-//                JSONObject leftObject = new JSONObject(thisSeq.toString())
-//                leftObject.refseq = generateRefSeqLabel(thisSeq)
-//                int currentPosition =  thisSeq.start ?: 0
-//                leftObject.originalPosition = currentPosition
-//                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-//                leftObject.start = currentPosition + offset
-//                leftObject.end = leftObject.start + 1 + offset
-//                leftObject.ref = refererLoc
-//                leftObject.color = 'white'
-//                leftObject.background = 'red'
-//                leftObject.type = 'left-edge'
-//
-//                JSONObject rightObject = new JSONObject(leftObject.toString())
-//                // this will change and should come off of the JSONObject
-//                currentPosition = thisSeq.end ?: currentPosition + sequence.length
-//                rightObject.originalPosition = currentPosition
-//                currentPosition = projection ? projection.projectValue(currentPosition) : currentPosition
-//                rightObject.start = currentPosition -1 + offset
-//                rightObject.end = currentPosition + offset
-//                rightObject.color = 'white'
-//                rightObject.background = 'blue'
-//                rightObject.type = 'right-edge'
+                currentPosition += regionObject.end
 
-//                JSONObject nextSeq = sequenceList.get(i + 1)
-//                pos += projection.findProjectSequenceLength(thisSeq.name)
-//                displayArray.add(i,
-//                        [label: thisSeq.name, rlabel: nextSeq.name, start: pos, end: pos + 1, ref: refererLoc, color: 'black'] as JSONObject
-
-//                )
-//                thisSeq.put()
-                // probably should come from the JSON object
-
-                currentPosition += regionObject.end + 1
-
-//                displayArray.add(leftObject)
-//                displayArray.add(rightObject)
                 displayArray.add(regionObject)
                 offset = currentPosition
                 projectedOffset = thisSeq.end - thisSeq.start
