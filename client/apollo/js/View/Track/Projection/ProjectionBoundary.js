@@ -196,7 +196,7 @@ define([
                     this.addSVGObject(id4, start, 100, 100, function () {
                         var rightEdgeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                         var formattedLabel = numberWithCommas(endLabel);
-                        var xlength = -((formattedLabel.length - 1) * 10);
+                        var xlength = -((formattedLabel.length - 1) * 8 + 20);
                         rightEdgeText.setAttribute('x', xlength);
                         rightEdgeText.setAttribute('y', 12);
                         rightEdgeText.setAttribute('font-size', 'small');
