@@ -95,6 +95,7 @@ define([
                     var blockIndex = args.blockIndex;
                     var block = args.block;
                     var leftBase = args.leftBase;
+                    var rightBase = args.rightBase;
                     var scale = args.scale;
                     var thisB = this;
 
@@ -103,14 +104,18 @@ define([
                     // zeroes
                     var labelNumber = this.chooseLeftLabel(args);
                     var labelOffset = (leftBase + 1 - labelNumber) * scale / 10;
-                    // console.log( leftBase+1, labelNumber, labelOffset );
 
                     var posLabel = document.createElement("div");
 
                     var projectedValue = window.parent.getReverseProjection(this.refSeq.name,labelNumber);
                     labelNumber = projectedValue.reverseValue ;
 
-                    if(labelNumber>=0){
+                    var filterNumber = -1 ;
+                    if(projectedValue.sequence){
+                        filterNumber = (projectedValue.sequence.end - labelNumber) * scale ;
+                    }
+
+                    if(labelNumber>=0 && (filterNumber<0 || filterNumber > 100) ){
                         var numtext = Util.addCommas(labelNumber);
 
 
