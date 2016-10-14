@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.dto.assemblage;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.*;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;

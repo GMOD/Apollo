@@ -236,7 +236,8 @@ class ProjectionService {
             if(sequenceObject.location){
                 JSONArray locationArray = sequenceObject.location
                 for(JSONObject locationObject in locationArray){
-                    coordinates.add(new Coordinate(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
+//                    coordinates.add(new Coordinate(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
+                    coordinates.add(new Coordinate(min: locationObject.min, max: locationObject.max, sequence: projectionSequence))
                 }
             }
             else{
@@ -388,6 +389,7 @@ class ProjectionService {
  */
     @Transactional
     MultiSequenceProjection getProjection(JSONObject assemblageObject) {
+        println "input object ${assemblageObject as JSON}"
         Assemblage assemblage = assemblageService.convertJsonToAssemblage(assemblageObject)
         return createMultiSequenceProjection(assemblage)
     }

@@ -33,9 +33,12 @@ public class AssemblageSequence extends JSONObject {
                     , sequenceFeatureInfo
             );
         }
-//        if (jsonObject.containsKey(FeatureStringEnum.FEATURES.getValue())) {
-//            this.put(FeatureStringEnum.FEATURES.getValue(), jsonObject.get(FeatureStringEnum.FEATURES.getValue()).isArray());
-//        }
+        if (jsonObject.containsKey(FeatureStringEnum.ORGANISM.getValue())) {
+            this.put(FeatureStringEnum.ORGANISM.getValue(), jsonObject.get(FeatureStringEnum.ORGANISM.getValue()));
+        }
+        if (jsonObject.containsKey(FeatureStringEnum.LOCATION.getValue())) {
+            this.put(FeatureStringEnum.LOCATION.getValue(), jsonObject.get(FeatureStringEnum.LOCATION.getValue()));
+        }
     }
 
     public AssemblageSequence(SequenceInfo sequenceInfo) {
