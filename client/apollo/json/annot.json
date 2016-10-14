@@ -178,7 +178,7 @@
   "locationBox": "searchBox",
   "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
-  "assemblageService": "getSeqBoundaries",
+  "bookmarkService": "getSeqBoundaries",
   "classicMenu" : 1,
   "formatVersion" : 1
 }
