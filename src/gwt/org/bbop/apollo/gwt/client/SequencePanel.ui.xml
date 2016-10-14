@@ -119,11 +119,16 @@
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:Row marginLeft="1">
-                        <select:Select ui:field="selectedSequenceDisplay" liveSearch="true" visibleSize="5"
+                        <select:MultipleSelect ui:field="selectedSequenceDisplay" liveSearch="true" maxOptions="5"
                                        enabled="false"  title="Selected sequences" width="165px"
                                        marginLeft="1"
 
                         />
+                            <!--<select:Select ui:field="selectedSequenceDisplay" liveSearch="true" visibleSize="5"-->
+                                           <!--enabled="false"  title="Selected sequences" width="165px"-->
+                                           <!--marginLeft="1"-->
+
+                            <!--/>-->
                         </b:Row>
                         <b:ButtonGroup>
                             <b:Button ui:field="clearSelectionButton" icon="BAN" size="EXTRA_SMALL" title="Clear Selection" marginLeft="1"/>

@@ -121,10 +121,15 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <b:Column size="MD_8">
-                                <select:Select width="100%" title="Membership" multiple="true"
-                                               selectedTextFormat="count > 2" visibleSize="5" ui:field="availableUsers"
+                                <select:MultipleSelect width="100%" title="Membership" maxOptions="5" selectedTextFormat="COUNT"
+                                                       countSelectedTextFormat="2"
+                                                       ui:field="availableUsers"
                                                liveSearch="true">
-                                </select:Select>
+                                </select:MultipleSelect>
+                                <!--<select:Select width="100%" title="Membership" multiple="true"-->
+                                               <!--selectedTextFormat="count > 2" visibleSize="5" ui:field="availableUsers"-->
+                                               <!--liveSearch="true">-->
+                                <!--</select:Select>-->
                             </b:Column>
                             <b:Column size="MD_2">
                                 <b:Button ui:field="updateUsers" icon="SAVE" type="PRIMARY">Update Membership</b:Button>

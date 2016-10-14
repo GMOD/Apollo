@@ -38,6 +38,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
 
@@ -84,7 +85,7 @@ public class GroupPanel extends Composite {
     @UiField
     Button cancelUpdateButton;
     @UiField
-    Select availableUsers;
+    MultipleSelect availableUsers;
     @UiField
     Button updateUsers;
 
@@ -201,7 +202,7 @@ public class GroupPanel extends Composite {
 
     @UiHandler("updateUsers")
     public void updateUsers(ClickEvent clickEvent) {
-        List<String> selectedValues = availableUsers.getAllSelectedValues();
+        List<Option> selectedValues = availableUsers.getSelectedItems();
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -351,11 +352,11 @@ public class GroupPanel extends Composite {
             availableUsers.clear();
 //            userData.removeAllRows();
 
-            List<Option> optionsList = new ArrayList<>();
+            List<String> optionsList = new ArrayList<>();
             for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
                 Option option = new Option();
                 option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
-                optionsList.add(option);
+                optionsList.add(option.getValue());
             }
 
             for (UserInfo userInfo : allUsersList) {
@@ -365,8 +366,9 @@ public class GroupPanel extends Composite {
             }
 
 
-            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
-            availableUsers.setValues(options);
+//            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
+            availableUsers.setValue(optionsList);
+//            availableUsers.setValues(options);
             availableUsers.refresh();
 
             // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540
