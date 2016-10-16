@@ -36,6 +36,7 @@ import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.html.Span;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
 
@@ -69,7 +70,7 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportSelectedButton;
     @UiField
-    Select selectedSequenceDisplay;
+    MultipleSelect selectedSequenceDisplay;
     @UiField
     Button clearSelectionButton;
     @UiField
