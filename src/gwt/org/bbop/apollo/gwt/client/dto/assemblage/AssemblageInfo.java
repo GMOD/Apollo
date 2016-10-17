@@ -161,17 +161,6 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
         return this;
     }
 
-    public Long getProjectedLength(){
-        if(projection==null){
-            projection = ProjectionService.createProjectionFromAssemblageInfo(this);
-        }
-        return projection.getLength();
-    }
-
-    public MultiSequenceProjection getProjection() {
-        return projection;
-    }
-
     public Long getLength(){
         return sequenceList == null ? null : sequenceList.getLength();
     }

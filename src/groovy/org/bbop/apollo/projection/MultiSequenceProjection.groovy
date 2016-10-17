@@ -173,6 +173,10 @@ class MultiSequenceProjection extends AbstractProjection {
         return entry.key.offset + entry.value.length
     }
 
+    Long getLengthForSequence(ProjectionSequence projectionSequence){
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence)?.length
+    }
+
     String projectSequence(String inputSequence, Integer minCoordinate, Integer maxCoordinate, Integer offset) {
         Integer index = 0
         List<String> sequenceList = []

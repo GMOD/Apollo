@@ -40,7 +40,7 @@ class RefSeqProjectorService {
                     sequence.length = sequence.end - sequence.start
                     // tODO: use the sequenceLength here
 //                    length += sequenceLength
-                    length += sequence.length
+                    length += projection.getLengthForSequence(projectionSequence)
                     sequenceObject.end = length
 
                     sequence.order = projectionSequence.order
@@ -53,6 +53,7 @@ class RefSeqProjectorService {
                 sequenceObject.end = projection.length
             }
             sequenceObject.start = 0
+            sequenceObject.end = length
             sequenceObject.length = length
             sequenceObject.name = refererLoc
 
@@ -60,20 +61,6 @@ class RefSeqProjectorService {
                 sequenceObject.seqChunkSize = sequenceObject.length
             }
 
-//            for (int i = 0; i < refSeqJsonObject.size(); i++) {
-//
-//                JSONObject sequenceValue = refSeqJsonObject.getJSONObject(i)
-//
-//                String sequenceName = sequenceValue.getString("name")
-//                if (projection && projection.containsSequence(sequenceName, sequenceValue.id, currentOrganism)) {
-//                    Integer projectedSequenceLength = projection.findProjectSequenceLength(sequenceName)
-//                    sequenceValue.put("length", projectedSequenceLength)
-//                    sequenceValue.put("end", projectedSequenceLength)
-//                    sequenceValue.put("start", 0)
-//                    sequenceValue.put("name", refererLoc)
-//                    projectedArray = mergeRefseqProjections(projectedArray, sequenceValue)
-//                }
-//            }
             projectedArray.add(sequenceObject)
             return projectedArray.toString()
         } else {

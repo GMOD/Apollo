@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.EditTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.SafeHtmlCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -10,7 +12,9 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.*;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -20,23 +24,28 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.bbop.apollo.gwt.client.assemblage.AssemblageDetailPanel;
-import org.bbop.apollo.gwt.client.dto.assemblage.*;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.projection.ProjectionService;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.RadioButton;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
-import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -96,7 +105,7 @@ public class AssemblagePanel extends Composite {
 
     // TODO: probably a more clever way to do this
     private static List<AssemblageInfo> assemblageInfoList = dataProvider.getList();
-    private static Map<String,AssemblageInfo> assemblageInfoMap = new HashMap<>();
+    private static Map<String, AssemblageInfo> assemblageInfoMap = new HashMap<>();
 
     private MultiSelectionModel<AssemblageInfo> selectionModel = new MultiSelectionModel<AssemblageInfo>();
 
@@ -113,21 +122,21 @@ public class AssemblagePanel extends Composite {
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
         dataGrid.setEmptyTableWidget(new Label("No assemblages!"));
 
-        Column<AssemblageInfo,String> nameColumn = new Column<AssemblageInfo,String>(new EditTextCell()) {
+        Column<AssemblageInfo, String> nameColumn = new Column<AssemblageInfo, String>(new EditTextCell()) {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
                 String name = assemblageInfo.getName();
-                if(name == null || name.startsWith("Unnamed")){
+                if (name == null || name.startsWith("Unnamed")) {
                     return "Unnamed";
                 }
-                return  name ;
+                return name;
             }
         };
         nameColumn.setFieldUpdater(new FieldUpdater<AssemblageInfo, String>() {
             @Override
             public void update(int index, AssemblageInfo object, String value) {
                 // Called when the user changes the value.
-                if(!value.equals(object.getName())){
+                if (!value.equals(object.getName())) {
                     object.setName(value);
                     AssemblageRestService.saveAssemblage(object);
                 }
@@ -138,13 +147,16 @@ public class AssemblagePanel extends Composite {
         TextColumn<AssemblageInfo> lengthColumn = new TextColumn<AssemblageInfo>() {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
-                Long length = assemblageInfo.getLength();
-                if(assemblageInfo.getName().startsWith("Collapsed")){
-                    GWT.log("name: "+assemblageInfo.getName()+ " length ["+assemblageInfo.getLength() + "] projected length["+assemblageInfo.getProjectedLength()+"]");
-                    GWT.log("assemblage info: "+assemblageInfo.toString());
-                    GWT.log("projection string: " +assemblageInfo.getProjection().toString());
-                }
-                return length == null ? "N/A" : length.toString() ;
+//                Long length = assemblageInfo.getLength();
+//                if(assemblageInfo.getName().startsWith("Collapsed")){
+                Long length = ProjectionService.calculatedProjectedLength(assemblageInfo);
+//                if (assemblageInfo.getName().contains("GB52238")) {
+//                    Long realLeath = projection.getLength();
+//                    GWT.log("name: " + assemblageInfo.getName() + " length [" + assemblageInfo.getLength() + "] projected length[" + realLeath + "]");
+//                    GWT.log("sequence string: " + assemblageInfo.getSequenceList().toString());
+//                    GWT.log("projectionString string: " + projection.toString());
+//                }
+                return length == null ? "N/A" : length.toString();
             }
         };
         lengthColumn.setSortable(true);
@@ -152,10 +164,10 @@ public class AssemblagePanel extends Composite {
         final Column<AssemblageInfo, SafeHtml> descriptionColumn = new Column<AssemblageInfo, SafeHtml>(new SafeHtmlCell()) {
             @Override
             public SafeHtml getValue(AssemblageInfo assemblageInfo) {
-                Widget widget = buildDescriptionWidget(assemblageInfo,getUsedSequences());
+                Widget widget = buildDescriptionWidget(assemblageInfo, getUsedSequences());
                 return SafeHtmlUtils.fromTrustedString(widget.getElement().getInnerHTML());
             }
-        } ;
+        };
 
         descriptionColumn.setSortable(false);
 
@@ -164,9 +176,9 @@ public class AssemblagePanel extends Composite {
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.addColumn(descriptionColumn, "Description");
 
-        dataGrid.setColumnWidth(nameColumn,"30%");
-        dataGrid.setColumnWidth(lengthColumn,"20%");
-        dataGrid.setColumnWidth(descriptionColumn,"50%");
+        dataGrid.setColumnWidth(nameColumn, "30%");
+        dataGrid.setColumnWidth(lengthColumn, "20%");
+        dataGrid.setColumnWidth(descriptionColumn, "50%");
 
         dataGrid.setSelectionModel(selectionModel);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -222,15 +234,15 @@ public class AssemblagePanel extends Composite {
 
     }
 
-    private void clearUsedSequences(){
+    private void clearUsedSequences() {
         usedSequences.clear();
     }
 
     public Set<String> getUsedSequences() {
-        if(usedSequences.size()==0){
-            for(AssemblageInfo assemblageInfo : dataProvider.getList()){
-                if(assemblageInfo.getSequenceList().size()>1){
-                    for(int i = 0 ; i < assemblageInfo.getSequenceList().size() ; i++){
+        if (usedSequences.size() == 0) {
+            for (AssemblageInfo assemblageInfo : dataProvider.getList()) {
+                if (assemblageInfo.getSequenceList().size() > 1) {
+                    for (int i = 0; i < assemblageInfo.getSequenceList().size(); i++) {
                         AssemblageSequence assemblageSequence = assemblageInfo.getSequenceList().getSequence(i);
                         usedSequences.add(assemblageSequence.getName());
                     }
@@ -242,8 +254,8 @@ public class AssemblagePanel extends Composite {
 
 
     @UiHandler("deleteButton")
-    public void delete(ClickEvent clickEvent){
-        AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(),dataProvider.getList().toArray(new AssemblageInfo[dataProvider.getList().size()]) );
+    public void delete(ClickEvent clickEvent) {
+        AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(), dataProvider.getList().toArray(new AssemblageInfo[dataProvider.getList().size()]));
         resetPanel();
     }
 
@@ -273,10 +285,9 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("lockButton")
     public void lock(ClickEvent event) {
-        if(lockButton.getIcon()== IconType.LOCK){
+        if (lockButton.getIcon() == IconType.LOCK) {
             unlock();
-        }
-        else{
+        } else {
             lock();
         }
     }
@@ -340,7 +351,7 @@ public class AssemblagePanel extends Composite {
         Set<AssemblageInfo> assemblageInfoSet = selectionModel.getSelectedSet();
         // merge rule 1 . . . take largest padding
         // merge rule 2 . . . take exon -> transcript -> none
-        long start = 0,end = 0 ;
+        long start = 0, end = 0;
         for (AssemblageInfo assemblageInfo1 : assemblageInfoSet) {
             end += assemblageInfo1.getEnd();
             Integer padding = assemblageInfo.getPadding();
@@ -369,7 +380,7 @@ public class AssemblagePanel extends Composite {
         addAssemblageLocally(assemblageInfo);
     }
 
-    private void clearAssemblageLocally(){
+    private void clearAssemblageLocally() {
         assemblageInfoMap.clear();
         assemblageInfoList.clear();
     }
@@ -381,7 +392,7 @@ public class AssemblagePanel extends Composite {
     }
 
     private void addAssemblageLocally(List<AssemblageInfo> assemblageInfos) {
-        for(AssemblageInfo assemblageInfo : assemblageInfos){
+        for (AssemblageInfo assemblageInfo : assemblageInfos) {
             assemblageInfoMap.put(assemblageInfo.getDescription(), assemblageInfo);
             assemblageInfoList.add(assemblageInfo);
         }
@@ -389,7 +400,7 @@ public class AssemblagePanel extends Composite {
 
     public void setAssemableInfo(AssemblageInfo currentAssemblage) {
         selectionModel.clear();
-        selectionModel.setSelected(currentAssemblage,true);
+        selectionModel.setSelected(currentAssemblage, true);
         Set<AssemblageInfo> assemblageInfos = new HashSet<>();
         assemblageInfos.add(currentAssemblage);
         setAssemblageInfo(assemblageInfos);
@@ -448,13 +459,12 @@ public class AssemblagePanel extends Composite {
         rightLockButton.setEnabled(enabled);
 
 
-        if(enabled){
+        if (enabled) {
             rightLockButton.setEnabled(false);
             leftLockButton.setEnabled(true);
             rightLockButton.setType(ButtonType.PRIMARY);
             leftLockButton.setType(ButtonType.DEFAULT);
-        }
-        else{
+        } else {
             // disable
             rightLockButton.setEnabled(false);
             leftLockButton.setEnabled(false);
@@ -462,7 +472,6 @@ public class AssemblagePanel extends Composite {
             leftLockButton.setType(ButtonType.DEFAULT);
         }
     }
-
 
 
     private class UpdateAssemblagesCallback implements RequestCallback {
@@ -500,26 +509,26 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("searchBox")
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
-        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(),getFilter());
+        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(), getFilter());
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         clearUsedSequences();
         dataGrid.redraw();
     }
 
     private String getFilter() {
-        if(showOnlyScaffoldButton.isActive()){
+        if (showOnlyScaffoldButton.isActive()) {
             return "Scaffold";
         }
-        if(showOnlyCombinedButton.isActive()){
+        if (showOnlyCombinedButton.isActive()) {
             return "Combined";
         }
-        if(showOnlyFeatureButton.isActive()){
+        if (showOnlyFeatureButton.isActive()) {
             return "Feature";
         }
         return "";
     }
 
-    @UiHandler({"showOnlyScaffoldButton","showOnlyCombinedButton","showOnlyFeatureButton","showAllAssemblagesButton"})
+    @UiHandler({"showOnlyScaffoldButton", "showOnlyCombinedButton", "showOnlyFeatureButton", "showAllAssemblagesButton"})
     public void showOnlyScaffoldButtonClick(ClickEvent event) {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override

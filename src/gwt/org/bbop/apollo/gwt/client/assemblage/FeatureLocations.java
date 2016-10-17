@@ -20,11 +20,11 @@ public class FeatureLocations extends JSONArray {
 
     public FeatureLocationInfo getFeatureLocationInfo(int i) {
         JSONObject jsonObject = get(i).isObject();
-        return (FeatureLocationInfo) jsonObject;
-//        if(jsonObject instanceof FeatureLocationInfo){
-//            return (FeatureLocationInfo) jsonObject;
-//        }
-//
-//        return new FeatureLocationInfo(jsonObject);
+//        return (FeatureLocationInfo) jsonObject;
+        if(jsonObject instanceof FeatureLocationInfo){
+            return (FeatureLocationInfo) jsonObject;
+        }
+
+        return new FeatureLocationInfo(jsonObject);
     }
 }

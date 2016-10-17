@@ -50,19 +50,14 @@ public class ProjectionService {
             // TODO: simplify these two lines
             if (assemblageSequence.hasLocation()) {
                 try {
-                    GWT.log("HAS LOCATIOON");
-//                    Window.alert(assemblageSequence.get(FeatureStringEnum.LOCATION.getValue()).isArray().toString());
                     FeatureLocations featureLocations = assemblageSequence.getLocation();
-                    GWT.log("ABCDEFG" );
-                    GWT.log("gto locations: " + featureLocations.size());
                     List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
-                    GWT.log("gto coordinates: " + theseCoordinates.size());
                     coordinates.addAll(theseCoordinates);
                 } catch (Exception e) {
-                    GWT.log("has erro!"+e.fillInStackTrace().toString());
+                    GWT.log("has error!: "+e.fillInStackTrace().toString());
                 }
             }
-//            else
+            else
             if (sequenceFeatureInfo != null && sequenceFeatureInfo.hasLocation()) {
                 FeatureLocations featureLocations = sequenceFeatureInfo.getLocation();
                 List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
@@ -86,14 +81,9 @@ public class ProjectionService {
 
         List<Coordinate> coordinateList = new ArrayList<>();
         for (int i = 0; i < featureLocations.size(); i++) {
-            GWT.log("AAAAA: "+i);
             FeatureLocationInfo featureLocationInfo = featureLocations.getFeatureLocationInfo(i);
-            GWT.log("BBBBB: "+i);
-            GWT.log("location object: "+featureLocationInfo);
-            GWT.log("location object values: "+featureLocationInfo.getMin() + " "+featureLocationInfo.getMax());
             Coordinate coordinate = new Coordinate(featureLocationInfo.getMin(), featureLocationInfo.getMax(), projectionSequence);
             coordinateList.add(coordinate);
-            GWT.log("CCCCC: "+i);
         }
         return coordinateList;
     }
@@ -275,4 +265,9 @@ public class ProjectionService {
         $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
     }-*/;
+
+    public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {
+        MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
+        return multiSequenceProjection.getLength();
+    }
 }
