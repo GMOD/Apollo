@@ -59,7 +59,7 @@ class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
         JSONObject isoform3Features = isoform3ReturnObject.get("features")
         String isoform3Parent = isoform3Features.parent_id
 
-        assert isoform3Parent != mrna1Parent
+        assert isoform3Parent == mrna1Parent
 
         when: "we add isoform4: au12.g286.t1"
         JSONObject isoform4ReturnObject = requestHandlingService.addTranscript(JSON.parse(isoform4) as JSONObject)
@@ -77,8 +77,8 @@ class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
         String mainTranscript1 = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":787022,\"strand\":-1,\"fmax\":836988},\"name\":\"GB40740-RA\",\"children\":[{\"location\":{\"fmin\":787022,\"strand\":-1,\"fmax\":787740},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":787022,\"strand\":-1,\"fmax\":788349},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":789768,\"strand\":-1,\"fmax\":790242},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":791007,\"strand\":-1,\"fmax\":791466},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":791853,\"strand\":-1,\"fmax\":792220},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":793652,\"strand\":-1,\"fmax\":793876},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":806935,\"strand\":-1,\"fmax\":807266},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":836953,\"strand\":-1,\"fmax\":836988},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":787740,\"strand\":-1,\"fmax\":836988},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
 
         // isoforms for mainTranscript1
-        String isoform1 = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"name\":\"fgeneshpp_with_rnaseq_Group1.10_188_mRNA\",\"children\":[{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
-        String isoform2 = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":825210,\"strand\":-1,\"fmax\":831086},\"name\":\"fgeneshpp_with_rnaseq_Group1.10_188_mRNA\",\"children\":[{\"location\":{\"fmin\":827237,\"strand\":-1,\"fmax\":827327},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":825210,\"strand\":-1,\"fmax\":825237},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":831083,\"strand\":-1,\"fmax\":831086},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":825210,\"strand\":-1,\"fmax\":831086},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
+        String overlappingTranscript1 = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"name\":\"fgeneshpp_with_rnaseq_Group1.10_188_mRNA\",\"children\":[{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
+        String overlappingTranscript2 = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":825210,\"strand\":-1,\"fmax\":831086},\"name\":\"fgeneshpp_with_rnaseq_Group1.10_188_mRNA\",\"children\":[{\"location\":{\"fmin\":827237,\"strand\":-1,\"fmax\":827327},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":825210,\"strand\":-1,\"fmax\":825237},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":831083,\"strand\":-1,\"fmax\":831086},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":828378,\"strand\":-1,\"fmax\":829272},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":825210,\"strand\":-1,\"fmax\":831086},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",\"clientToken\":\"123123\"}"
 
         when: "we add mainTranscript1"
         JSONObject mainTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(mainTranscript1) as JSONObject)
@@ -89,23 +89,23 @@ class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
         JSONObject features1 = mainTranscript1ReturnObject.get("features")
         String mrna1Parent = features1.parent_id
 
-        when: "we add isoform1: fgeneshpp_with_rnaseq_Group1.10_188_mRNA"
-        JSONObject isoform1ReturnObject = requestHandlingService.addTranscript(JSON.parse(isoform1) as JSONObject)
+        when: "we add overlappingTranscript1: fgeneshpp_with_rnaseq_Group1.10_188_mRNA"
+        JSONObject overlappingTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(overlappingTranscript1) as JSONObject)
 
-        then: "we should expect the added isoform to have its parent similar to mainTranscript1"
-        JSONObject isoform1Features = isoform1ReturnObject.get("features")
-        String isoform1Parent = isoform1Features.parent_id
+        then: "we should expect the added transcript to have its parent different from mainTranscript1"
+        JSONObject overlappingTranscript1Features = overlappingTranscript1ReturnObject.get("features")
+        String overlappingTranscript1Parent = overlappingTranscript1Features.parent_id
 
-        assert isoform1Parent == mrna1Parent
+        assert overlappingTranscript1Parent != mrna1Parent
 
-        when: "we add isoform2: fgeneshpp_with_rnaseq_Group1.10_188_mRNA"
-        JSONObject isoform2ReturnObject = requestHandlingService.addTranscript(JSON.parse(isoform2) as JSONObject)
+        when: "we add overlappingTranscript2: fgeneshpp_with_rnaseq_Group1.10_188_mRNA"
+        JSONObject overlappingTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(overlappingTranscript2) as JSONObject)
 
-        then: "we should expect the added isoform to have its parent similar to mainTranscript1"
-        JSONObject isoform2Features = isoform2ReturnObject.get("features")
-        String isoform2Parent = isoform2Features.parent_id
+        then: "we should expect the added transcript to have its parent different from mainTranscript1"
+        JSONObject overlappingTranscript2Features = overlappingTranscript2ReturnObject.get("features")
+        String overlappingTranscript2Parent = overlappingTranscript2Features.parent_id
 
-        assert isoform2Parent != mrna1Parent
+        assert overlappingTranscript2Parent != mrna1Parent
     }
 
     void "isoform overlap test for GB40730-RA loci"() {
@@ -145,16 +145,16 @@ class OverlapperServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we add isoform2: fgeneshpp_with_rnaseq_Group1.10_219_mRNA"
         JSONObject isoform2ReturnObject = requestHandlingService.addTranscript(JSON.parse(isoform2) as JSONObject)
 
-        then: "we should expect the added isoform to have its parent similar to mainTranscript1"
+        then: "we should expect the added isoform to not have its parent similar to mainTranscript2"
         JSONObject isoform2Features = isoform2ReturnObject.get("features")
         String isoform2Parent = isoform2Features.parent_id
 
-        assert isoform2Parent == mrna2Parent
+        assert isoform2Parent != mrna2Parent
 
         when: "we add isoform3: fgeneshpp_with_rnaseq_Group1.10_219_mRNA"
         JSONObject isoform3ReturnObject = requestHandlingService.addTranscript(JSON.parse(isoform3) as JSONObject)
 
-        then: "we should expect the added isoform to have its parent similar to mainTranscript1"
+        then: "we should expect the added isoform to have its parent similar to mainTranscript2"
         JSONObject isoform3Features = isoform3ReturnObject.get("features")
         String isoform3Parent = isoform3Features.parent_id
 
