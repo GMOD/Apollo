@@ -26,11 +26,11 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
 
     private void handleCollapsed() {
         if (sequenceFeatureInfo.isCollapsed()) {
-            collapseImage.setVisible(false);
-            expandImage.setVisible(true);
-        } else {
             collapseImage.setVisible(true);
             expandImage.setVisible(false);
+        } else {
+            collapseImage.setVisible(false);
+            expandImage.setVisible(true);
         }
         Annotator.eventBus.fireEvent(new AssemblageViewEvent());
     }
@@ -54,7 +54,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
         collapseImage.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                sequenceFeatureInfo.setCollapsed(true);
+                sequenceFeatureInfo.setCollapsed(false);
                 handleCollapsed();
             }
 
@@ -71,7 +71,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
         expandImage.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                sequenceFeatureInfo.setCollapsed(false);
+                sequenceFeatureInfo.setCollapsed(true);
                 handleCollapsed();
             }
 

@@ -32,7 +32,6 @@ class AssemblageController {
 
     def getAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-//        MultiSequenceProjection projection = projectionService.getProjection(inputObject)
         inputObject = featureProjectionService.expandProjectionJson(inputObject)
 
 
