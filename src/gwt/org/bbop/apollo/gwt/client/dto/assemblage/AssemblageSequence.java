@@ -1,9 +1,8 @@
 package org.bbop.apollo.gwt.client.dto.assemblage;
 
-import com.google.gwt.json.client.JSONBoolean;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.*;
+import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
+import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
@@ -108,5 +107,25 @@ public class AssemblageSequence extends JSONObject {
         }
 
         return assemblageSequence;
+    }
+
+    public FeatureLocations getLocation(){
+        JSONArray jsonArray = get(FeatureStringEnum.LOCATION.getValue()).isArray();
+        if(jsonArray instanceof FeatureLocations){
+            return (FeatureLocations) jsonArray;
+        }
+        FeatureLocations featureLocations = new FeatureLocations();
+        for(int i = 0 ; i < jsonArray.size() ; i++){
+            featureLocations.set(i,new FeatureLocationInfo(jsonArray.get(i).isObject()));
+        }
+        return featureLocations;
+    }
+
+    public void setLocation(FeatureLocations featureLocations){
+        put(FeatureStringEnum.LOCATION.getValue(),featureLocations);
+    }
+
+    public boolean hasLocation() {
+        return containsKey(FeatureStringEnum.LOCATION.getValue());
     }
 }

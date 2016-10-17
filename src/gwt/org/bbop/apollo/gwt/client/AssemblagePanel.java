@@ -20,6 +20,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -138,6 +139,11 @@ public class AssemblagePanel extends Composite {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
                 Long length = assemblageInfo.getLength();
+                if(assemblageInfo.getName().startsWith("Collapsed")){
+                    GWT.log("name: "+assemblageInfo.getName()+ " length ["+assemblageInfo.getLength() + "] projected length["+assemblageInfo.getProjectedLength()+"]");
+                    GWT.log("assemblage info: "+assemblageInfo.toString());
+                    GWT.log("projection string: " +assemblageInfo.getProjection().toString());
+                }
                 return length == null ? "N/A" : length.toString() ;
             }
         };
@@ -207,7 +213,7 @@ public class AssemblagePanel extends Composite {
                     @Override
                     public boolean execute() {
                         reload();
-                        dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
+                        dataGrid.setEmptyTableWidget(new Label("No assemblages found!"));
                         return false;
                     }
                 }, 2000);

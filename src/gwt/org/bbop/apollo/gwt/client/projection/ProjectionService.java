@@ -26,13 +26,14 @@ import java.util.Map;
 public class ProjectionService {
 
 
+    // TODO: cache this instead of rebuilding
     private static Map<String, MultiSequenceProjection> projectionMap = new HashMap<>();
 
     public ProjectionService() {
         exportStaticMethod();
     }
 
-    static MultiSequenceProjection createProjectionFromAssemblageInfo(AssemblageInfo assemblageInfo) {
+    public static MultiSequenceProjection createProjectionFromAssemblageInfo(AssemblageInfo assemblageInfo) {
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection();
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
 
@@ -46,6 +47,22 @@ public class ProjectionService {
             projectionSequenceList.add(projectionSequence);
 
             SequenceFeatureInfo sequenceFeatureInfo = assemblageSequence.getFeature();
+            // TODO: simplify these two lines
+            if (assemblageSequence.hasLocation()) {
+                try {
+                    GWT.log("HAS LOCATIOON");
+//                    Window.alert(assemblageSequence.get(FeatureStringEnum.LOCATION.getValue()).isArray().toString());
+                    FeatureLocations featureLocations = assemblageSequence.getLocation();
+                    GWT.log("ABCDEFG" );
+                    GWT.log("gto locations: " + featureLocations.size());
+                    List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
+                    GWT.log("gto coordinates: " + theseCoordinates.size());
+                    coordinates.addAll(theseCoordinates);
+                } catch (Exception e) {
+                    GWT.log("has erro!"+e.fillInStackTrace().toString());
+                }
+            }
+//            else
             if (sequenceFeatureInfo != null && sequenceFeatureInfo.hasLocation()) {
                 FeatureLocations featureLocations = sequenceFeatureInfo.getLocation();
                 List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
@@ -69,9 +86,14 @@ public class ProjectionService {
 
         List<Coordinate> coordinateList = new ArrayList<>();
         for (int i = 0; i < featureLocations.size(); i++) {
+            GWT.log("AAAAA: "+i);
             FeatureLocationInfo featureLocationInfo = featureLocations.getFeatureLocationInfo(i);
+            GWT.log("BBBBB: "+i);
+            GWT.log("location object: "+featureLocationInfo);
+            GWT.log("location object values: "+featureLocationInfo.getMin() + " "+featureLocationInfo.getMax());
             Coordinate coordinate = new Coordinate(featureLocationInfo.getMin(), featureLocationInfo.getMax(), projectionSequence);
             coordinateList.add(coordinate);
+            GWT.log("CCCCC: "+i);
         }
         return coordinateList;
     }
@@ -162,8 +184,8 @@ public class ProjectionService {
         jsonObject.put("originalValue", new JSONNumber(input));
 
         ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(input);
-        if(projectionSequence==null){
-            GWT.log("no sequence found for "+input);
+        if (projectionSequence == null) {
+            GWT.log("no sequence found for " + input);
             return JsonUtils.safeEval(new JSONObject().toString());
         }
 
@@ -177,47 +199,47 @@ public class ProjectionService {
         return javaScriptObject;
     }
 
-    public static JavaScriptObject getBorders(String referenceString,String leftBorder,String rightBorder){
+    public static JavaScriptObject getBorders(String referenceString, String leftBorder, String rightBorder) {
 
-        Long projectedLeft = (long) Integer.parseInt(leftBorder) +1 ;
-        Long projectedRight  = (long) Integer.parseInt(rightBorder) +1 ;
+        Long projectedLeft = (long) Integer.parseInt(leftBorder) + 1;
+        Long projectedRight = (long) Integer.parseInt(rightBorder) + 1;
         JSONArray returnArray = new JSONArray();
 
-        if(projectedLeft>=0 && projectedRight>=0 ){
+        if (projectedLeft >= 0 && projectedRight >= 0) {
             GWT.log(projectedLeft + " " + projectedRight);
             MultiSequenceProjection projection = getProjectionForString(referenceString);
             projection.calculateOffsets();
 
-            List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(projectedLeft,projectedRight);
+            List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(projectedLeft, projectedRight);
 
-            GWT.log("returned value: "+projectedLeft + " "+projectedRight + " -> "+ projectionSequenceList.size());
+            GWT.log("returned value: " + projectedLeft + " " + projectedRight + " -> " + projectionSequenceList.size());
 
             // TODO: getting these to generate the boundaries
 //            Long reverseProjectionLeft = projection.projectReverseValue(projectedLeft);
 //            Long reverseProjectionRight = projection.projectReverseValue(projectedRight);
 
             // assume that these are returned by order
-            for(int i = 0 ; i < projectionSequenceList.size() ; i++){
+            for (int i = 0; i < projectionSequenceList.size(); i++) {
                 ProjectionSequence projectionSequence = projectionSequenceList.get(i);
 
                 Long offset = projectionSequence.getOffset();
                 Long length = projectionSequence.getLength();
 
                 // in this case we have both a left and a right boundary at projected right
-                if(projectedLeft >= offset && projectedLeft <= offset + length && projectedRight > offset + length){
+                if (projectedLeft >= offset && projectedLeft <= offset + length && projectedRight > offset + length) {
                     // generate both a left and a right one
                     JSONObject sequenceObject1 = convertToJsonObject(projectionSequence);
                     sequenceObject1.put("type", new JSONString("right"));
                     // (A2 - N1 ) / (N2 - N1 )
                     Float position = (projectionSequence.getLength() - projectedLeft) / (float) (projectedRight - projectedLeft);
                     sequenceObject1.put("position", new JSONNumber(position));
-                    returnArray.set(returnArray.size(),sequenceObject1);
+                    returnArray.set(returnArray.size(), sequenceObject1);
 
                     JSONObject sequenceObject2 = convertToJsonObject(projectionSequence);
                     sequenceObject2.put("type", new JSONString("left"));
 //                    position += 1 ;
                     sequenceObject2.put("position", new JSONNumber(position));
-                    returnArray.set(returnArray.size(),sequenceObject2);
+                    returnArray.set(returnArray.size(), sequenceObject2);
                 }
 
 //                Integer position = 80;

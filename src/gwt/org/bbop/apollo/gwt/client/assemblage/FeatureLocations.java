@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.assemblage;
 
 
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
 
 
 /**
@@ -18,6 +19,12 @@ public class FeatureLocations extends JSONArray {
 
 
     public FeatureLocationInfo getFeatureLocationInfo(int i) {
-        return (FeatureLocationInfo) get(i);
+        JSONObject jsonObject = get(i).isObject();
+        return (FeatureLocationInfo) jsonObject;
+//        if(jsonObject instanceof FeatureLocationInfo){
+//            return (FeatureLocationInfo) jsonObject;
+//        }
+//
+//        return new FeatureLocationInfo(jsonObject);
     }
 }

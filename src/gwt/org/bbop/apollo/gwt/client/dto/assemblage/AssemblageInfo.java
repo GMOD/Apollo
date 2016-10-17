@@ -2,6 +2,8 @@ package org.bbop.apollo.gwt.client.dto.assemblage;
 
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
+import org.bbop.apollo.gwt.client.projection.ProjectionService;
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection;
 
 import java.util.Set;
 
@@ -20,6 +22,8 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
     private String organismName;
     private Long start;
     private Long end;
+
+    private MultiSequenceProjection projection; // internal projection
 
     @Override
     public int compareTo(AssemblageInfo o) {
@@ -155,6 +159,17 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
         }
 
         return this;
+    }
+
+    public Long getProjectedLength(){
+        if(projection==null){
+            projection = ProjectionService.createProjectionFromAssemblageInfo(this);
+        }
+        return projection.getLength();
+    }
+
+    public MultiSequenceProjection getProjection() {
+        return projection;
     }
 
     public Long getLength(){
