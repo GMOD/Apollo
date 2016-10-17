@@ -364,12 +364,10 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                         // introns -- filter out?  leave unchanged?
                         converted_subtype = null;  // filter out
                     }
-                    /*
                     else if (SeqOnto.utrTerms[subtype]) {
                         // filter out UTR
                         converted_subtype = null;
                     }
-                    */
                     else  { 
                         // convert everything else to exon???
                         // need to do this since server only creates exons for "exon" and descendant terms

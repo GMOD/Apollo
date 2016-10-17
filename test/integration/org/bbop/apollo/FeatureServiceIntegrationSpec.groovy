@@ -191,4 +191,24 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
             it.featureLocation.strand == Strand.POSITIVE.value
         }
     }
+
+    void "setLongestORF should set the longest possible ORF of a transcript"() {
+        given: "transcript GB40820-RA"
+        String addTranscriptString = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":588729,\"strand\":1,\"fmax\":594164},\"name\":\"GB40820-RA\",\"children\":[{\"location\":{\"fmin\":588729,\"strand\":1,\"fmax\":588910},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":592526,\"strand\":1,\"fmax\":592731},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":593507,\"strand\":1,\"fmax\":594164},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":588729,\"strand\":1,\"fmax\":592678},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the transcript"
+        assert MRNA.all.size() == 1
+
+        then: "the CDS of the transcript should be as expected"
+        MRNA mrna = MRNA.all.get(0)
+        CDS cds = transcriptService.getCDS(mrna)
+
+        assert cds.featureLocation.fmin == 588729
+        assert cds.featureLocation.fmax == 592678
+        assert !cds.featureLocation.isFminPartial
+        assert !cds.featureLocation.isFmaxPartial
+    }
 }
