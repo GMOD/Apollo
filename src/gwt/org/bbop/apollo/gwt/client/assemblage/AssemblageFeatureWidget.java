@@ -48,6 +48,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
         collapseImage.setType(ImageType.DEFAULT);
         collapseImage.setSize("20px", "20px");
         collapseImage.setPull(Pull.RIGHT);
+        collapseImage.addStyleName("assemblage-collapse-state");
         featureButton.add(collapseImage);
 
         collapseImage.addClickHandler(new ClickHandler() {
@@ -64,6 +65,7 @@ public class AssemblageFeatureWidget extends HorizontalPanel {
         expandImage.setType(ImageType.DEFAULT);
         expandImage.setSize("20px", "20px");
         expandImage.setPull(Pull.RIGHT);
+        expandImage.addStyleName("assemblage-expand-state");
         featureButton.add(expandImage);
 
         expandImage.addClickHandler(new ClickHandler() {

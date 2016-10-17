@@ -30,11 +30,13 @@ public class AssemblageDragHandler implements DragHandler{
     /**
      * Text area where event messages are shown.
      */
-    private final HTML eventTextArea;
+    private HTML eventTextArea  = null ;
 
     AssemblageDragHandler(HTML dragHandlerHTML) {
         eventTextArea = dragHandlerHTML;
     }
+
+    AssemblageDragHandler(){ }
 
     /**
      * Log the drag end event.
@@ -79,10 +81,12 @@ public class AssemblageDragHandler implements DragHandler{
     }
 
     public void clear() {
+        if(eventTextArea==null) return ;
         eventTextArea.setHTML("");
     }
 
     public void log(String text, String color) {
+        if(eventTextArea==null) return ;
         eventTextArea.setHTML(eventTextArea.getHTML()
                 + (eventTextArea.getHTML().length() == 0 ? "" : "<br>") + "<span style='color: " + color
                 + "'>" + text + "</span>");

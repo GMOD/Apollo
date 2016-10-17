@@ -134,7 +134,6 @@ class ProjectionGridTrackController {
         int stepsPerView = 10
         double buffer = 1d/stepsPerView
         int step = Math.round(buffer * range)
-        println "STEP: ${step}"
 
 
         projectionSequences.each{ ProjectionSequence projectionSequence  ->

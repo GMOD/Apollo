@@ -36,6 +36,16 @@
 }
 
 /*.assemblage-detail-vertical-spacer{*/
+.assemblage-detail-root-absolute .assemblage-collapse-state{
+    background-color: green;
+    border-radius: 5px;
+}
+
+/*.assemblage-detail-vertical-spacer{*/
+.assemblage-detail-root-absolute .assemblage-expand-state{
+  background-color: orange;
+  border-radius: 5px;
+}
 
 /*}*/
 /**

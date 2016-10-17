@@ -27,22 +27,20 @@ import java.util.Set;
 public class AssemblageDetailPanel extends Composite {
 
 
-    interface AssemblageDetailPanelUiBinder extends UiBinder<Widget, AssemblageDetailPanel> {
-
-    }
+    interface AssemblageDetailPanelUiBinder extends UiBinder<Widget, AssemblageDetailPanel> { }
 
     private static AssemblageDetailPanelUiBinder ourUiBinder = GWT.create(AssemblageDetailPanelUiBinder.class);
 
-
     @UiField(provided = true)
     AbsolutePanel boundaryPanel = new AbsolutePanel();
-    @UiField(provided = true)
-    HTML logField = new HTML();
+//    @UiField(provided = true)
+//    HTML logField = new HTML();
 
 
     private static final int SPACING = 0;
 
-    private AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler(logField);
+//    private AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler(logField);
+    private AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler();
     private AssemblageWidget assemblageWidget = new AssemblageWidget();
     private PickupDragController featureDragController = new PickupDragController(boundaryPanel, false);
     private PickupDragController assemblageSequenceDragController = new PickupDragController(boundaryPanel, false);
