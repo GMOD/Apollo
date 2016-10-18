@@ -8,12 +8,13 @@
         .northPanel {
             padding: 0px;
             margin: 10px;
+            display: inline;
         }
 
         .widgetPanel {
             padding: 5px;
             margin: 5px;
-            display: inline-block;
+            display: inline;
         }
 
         .trackTable {
@@ -56,12 +57,12 @@
     </ui:style>
     <gwt:DockLayoutPanel>
         <gwt:north size="60">
-            <b:Container fluid="true" styleName="{style.northPanel}">
+            <b:Container fluid="true" addStyleNames="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    <b:Column size="MD_6" addStyleNames="{style.widgetPanel}">
+                        <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
                     </b:Column>
-                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
+                    <b:Column size="MD_2" addStyleNames="{style.widgetPanel}">
                         <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
                         <b:Button text="Create User" icon="PLUS" ui:field="createButton"/>
                     </b:Column>

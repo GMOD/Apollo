@@ -407,6 +407,10 @@ class PermissionService {
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
+            if(!jsonObject.username){
+                log.debug "Username not supplied so can not authenticate."
+                return false
+            }
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
                 Subject subject = SecurityUtils.getSubject();
@@ -414,7 +418,7 @@ class PermissionService {
 
                 subject.login(authToken)
                 if (!subject.authenticated) {
-                    log.error "Failed to authenticate user ${jsonObject.username}"
+                    log.warn "Failed to authenticate user ${jsonObject.username}"
                     return false
                 }
             } catch (Exception ae) {
@@ -524,7 +528,7 @@ class PermissionService {
         def authentications = configWrapperService.authentications
         for (auth in authentications) {
             if (auth.active) {
-                println "class name ${auth.className}"
+                log.info "Authenticating with ${auth.className}"
                 def authenticationService
                 if("remoteUserAuthenticatorService" == auth.className ){
                     authenticationService = remoteUserAuthenticatorService

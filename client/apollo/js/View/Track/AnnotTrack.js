@@ -427,14 +427,18 @@ define([
                     }
 
                     if (changeData.operation == "logout" && changeData.username == track.username) {
-                        alert("You have been logged out or your session has expired");
-                        if (window.parent) {
-                            parent.location.reload();
+                        if(track.getClientToken()!=changeData.clientToken){
+                            track.logout();
                         }
-                        else {
-                            location.reload();
+                        else{
+                            alert("You have been logged out or your session has expired");
+                            if (window.parent) {
+                                parent.location.reload();
+                            }
+                            else {
+                                location.reload();
+                            }
                         }
-
                         return;
                     }
 
@@ -6080,7 +6084,7 @@ define([
                         else window.location.reload();
                     },
                     error: function (response, ioArgs) { //
-                        alert('Failed to log out cleanly.  Please refresh your browser.');
+                        console.log('Failed to log out cleanly.  May already be logged out.');
                     }
                 });
             },

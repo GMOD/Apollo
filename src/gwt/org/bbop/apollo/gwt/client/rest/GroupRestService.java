@@ -14,6 +14,7 @@ import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,13 +176,13 @@ public class GroupRestService {
         RestService.sendRequest(requestCallback, "group/updateOrganismPermission", "data=" + object.toJSON());
     }
 
-    public static void updateUserGroups(RequestCallback requestCallback, GroupInfo selectedGroupInfo, List<String> selectedValues) {
+    public static void updateUserGroups(RequestCallback requestCallback, GroupInfo selectedGroupInfo, List<Option> selectedValues) {
 //        RestService.sendRequest(requestCallback, "group/updateMembership", "data=" + object.toJSON());
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("groupId", new JSONNumber(selectedGroupInfo.getId()));
         JSONArray userArray = new JSONArray();
-        for (String userData : selectedValues) {
-            String emailValue = userData.split("\\(")[1].trim();
+        for (Option userData : selectedValues) {
+            String emailValue = userData.getValue().split("\\(")[1].trim();
             emailValue = emailValue.substring(0, emailValue.length() - 1);
             userArray.set(userArray.size(), new JSONString(emailValue));
         }

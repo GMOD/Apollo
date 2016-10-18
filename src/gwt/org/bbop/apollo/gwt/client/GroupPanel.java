@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -17,7 +18,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
@@ -38,6 +38,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
 
@@ -68,6 +69,8 @@ public class GroupPanel extends Composite {
     //    @UiField
 //    FlexTable userData;
     @UiField(provided = true)
+    WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
+    @UiField(provided = true)
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
     DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
@@ -82,7 +85,7 @@ public class GroupPanel extends Composite {
     @UiField
     Button cancelUpdateButton;
     @UiField
-    Select availableUsers;
+    MultipleSelect availableUsers;
     @UiField
     Button updateUsers;
 
@@ -100,7 +103,7 @@ public class GroupPanel extends Composite {
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        availableUsers.getElement().setAttribute("data-dropup-auto",Boolean.toString(false));
+        availableUsers.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
 
         TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override
@@ -124,6 +127,7 @@ public class GroupPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
         organismPager.setDisplay(organismPermissionsGrid);
+        pager.setDisplay(dataGrid);
 
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -180,16 +184,25 @@ public class GroupPanel extends Composite {
             }
         });
 
-        // TODO: not sure why this is not being set or if it matters
-//        if (MainPanel.getInstance().getCurrentUser() != null) {
-            GroupRestService.loadGroups(groupInfoList);
-            UserRestService.loadUsers(allUsersList);
-//        }
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if (MainPanel.getInstance().getCurrentUser() != null) {
+//        Window.alert("Has current user: " + (MainPanel.getInstance().getCurrentUser()==null ? "is null " : "exists"));
+                    if(MainPanel.getInstance().isCurrentUserAdmin()) {
+                        GroupRestService.loadGroups(groupInfoList);
+                        UserRestService.loadUsers(allUsersList);
+                    }
+                    return false;
+                }
+                return true;
+            }
+        }, 100);
     }
 
     @UiHandler("updateUsers")
     public void updateUsers(ClickEvent clickEvent) {
-        List<String> selectedValues = availableUsers.getAllSelectedValues();
+        List<Option> selectedValues = availableUsers.getSelectedItems();
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -339,11 +352,11 @@ public class GroupPanel extends Composite {
             availableUsers.clear();
 //            userData.removeAllRows();
 
-            List<Option> optionsList = new ArrayList<>();
+            List<String> optionsList = new ArrayList<>();
             for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
                 Option option = new Option();
                 option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
-                optionsList.add(option);
+                optionsList.add(option.getValue());
             }
 
             for (UserInfo userInfo : allUsersList) {
@@ -353,8 +366,9 @@ public class GroupPanel extends Composite {
             }
 
 
-            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
-            availableUsers.setValues(options);
+//            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
+            availableUsers.setValue(optionsList);
+//            availableUsers.setValues(options);
             availableUsers.refresh();
 
             // only show organisms that this user is an admin on . . . https://github.com/GMOD/Apollo/issues/540

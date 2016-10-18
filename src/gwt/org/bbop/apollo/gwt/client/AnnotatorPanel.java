@@ -322,15 +322,15 @@ public class AnnotatorPanel extends Composite {
         );
 
         // TODO: not sure if this was necessary, leaving it here until it fails
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-            @Override
-            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                if (organismChangeEvent.getAction() == OrganismChangeEvent.Action.LOADED_ORGANISMS) {
-                    sequenceList.setText(organismChangeEvent.getCurrentSequence());
-                    reload();
-                }
-            }
-        });
+//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+//            @Override
+//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+//                if (organismChangeEvent.getAction() == OrganismChangeEvent.Action.LOADED_ORGANISMS) {
+//                    sequenceList.setText(organismChangeEvent.getCurrentSequence());
+//                    reload();
+//                }
+//            }
+//        });
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
@@ -547,9 +547,16 @@ public class AnnotatorPanel extends Composite {
         return internalData.get("type").isObject().get("name").isString().stringValue();
     }
 
+    public void reload(Boolean forceReload) {
+        if(MainPanel.annotatorPanel.isVisible() || forceReload){
+//            updateAnnotationInfo(null);
+            pager.setPageStart(0);
+            dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        }
+    }
+
     public void reload() {
-        pager.setPageStart(0);
-        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        reload(false);
     }
 
 

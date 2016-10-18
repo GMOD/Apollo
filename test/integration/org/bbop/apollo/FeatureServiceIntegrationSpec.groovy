@@ -5,6 +5,8 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
@@ -190,5 +192,127 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         exonList.each {
             it.featureLocation.strand == Strand.POSITIVE.value
         }
+    }
+
+    void "When adding a transcript (on the reverse strand) and transcript fragment, all the fragments should be isoforms of the main transcript and have their CDS set as expected"() {
+
+        given: "1 transcript and 3 transcript fragments"
+        String addTranscript1String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":693859},\"name\":\"GB40750-RA\",\"children\":[{\"location\":{\"fmin\":693543,\"strand\":-1,\"fmax\":693859},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":692451,\"strand\":-1,\"fmax\":692480},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":690442},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":690739},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":690844,\"strand\":-1,\"fmax\":691015},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691158,\"strand\":-1,\"fmax\":691354},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691436,\"strand\":-1,\"fmax\":691587},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691674,\"strand\":-1,\"fmax\":691846},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691974,\"strand\":-1,\"fmax\":692181},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":692310,\"strand\":-1,\"fmax\":692480},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":693543,\"strand\":-1,\"fmax\":693859},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":690442,\"strand\":-1,\"fmax\":692451},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addTranscriptFragment1String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":690739},\"name\":\"GB40750-RA\",\"children\":[{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":690739},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addTranscriptFragment2String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":691158,\"strand\":-1,\"fmax\":691354},\"name\":\"GB40750-RA\",\"children\":[{\"location\":{\"fmin\":691158,\"strand\":-1,\"fmax\":691354},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addTranscriptFragment3String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":691674,\"strand\":-1,\"fmax\":691846},\"name\":\"GB40750-RA\",\"children\":[{\"location\":{\"fmin\":691674,\"strand\":-1,\"fmax\":691846},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add the complete transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+
+        then: "we should see the transcript"
+        assert MRNA.all.size() == 1
+        Gene parentGene = Gene.all.get(0)
+
+        when: "we add transcript fragment 1"
+        JSONObject addTranscriptFragment1ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment1String) as JSONObject)
+        String transcriptFragment1UniqueName = addTranscriptFragment1ReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "we should see the transcript fragment"
+        assert MRNA.all.size() == 2
+        MRNA transcriptFragment1 = MRNA.findByUniqueName(transcriptFragment1UniqueName)
+        CDS transcriptFragment1Cds = transcriptService.getCDS(transcriptFragment1)
+
+        assert transcriptService.getGene(transcriptFragment1) == parentGene
+        assert transcriptFragment1Cds.featureLocation.fmin == 690442
+        assert transcriptFragment1Cds.featureLocation.fmax == 690739
+        assert !transcriptFragment1Cds.featureLocation.isFminPartial
+        assert transcriptFragment1Cds.featureLocation.isFmaxPartial
+
+        when: "we add transcript fragment 2"
+        JSONObject addTranscriptFragment2ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment2String) as JSONObject)
+        String transcriptFragment2UniqueName = addTranscriptFragment2ReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "we should see the transcript fragment"
+        assert MRNA.all.size() == 3
+        MRNA transcriptFragment2 = MRNA.findByUniqueName(transcriptFragment2UniqueName)
+        CDS transcriptFragment2Cds = transcriptService.getCDS(transcriptFragment2)
+
+        assert transcriptService.getGene(transcriptFragment2) == parentGene
+        assert transcriptFragment2Cds.featureLocation.fmin == 691158
+        assert transcriptFragment2Cds.featureLocation.fmax == 691353
+        assert transcriptFragment2Cds.featureLocation.isFminPartial
+        assert transcriptFragment2Cds.featureLocation.isFmaxPartial
+
+        when: "we add transcript fragment 3"
+        JSONObject addTranscriptFragment3ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment3String) as JSONObject)
+        String transcriptFragment3UniqueName = addTranscriptFragment3ReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "we should see the transcript fragment"
+        assert MRNA.all.size() == 4
+        MRNA transcriptFragment3 = MRNA.findByUniqueName(transcriptFragment3UniqueName)
+        CDS transcriptFragment3Cds = transcriptService.getCDS(transcriptFragment3)
+
+        assert transcriptService.getGene(transcriptFragment3) == parentGene
+        assert transcriptFragment3Cds.featureLocation.fmin == 691674
+        assert transcriptFragment3Cds.featureLocation.fmax == 691846
+        assert transcriptFragment3Cds.featureLocation.isFminPartial
+        assert transcriptFragment3Cds.featureLocation.isFmaxPartial
+    }
+
+    void "When adding a transcript (on the forward strand) and transcript fragment, all the fragments should be isoforms of the main transcript and have their CDS set as expected"() {
+
+        given: "a transcript and 3 transcript fragments"
+        String addTranscriptString = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":577493,\"strand\":1,\"fmax\":583605},\"name\":\"GB40819-RA\",\"children\":[{\"location\":{\"fmin\":583280,\"strand\":1,\"fmax\":583605},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":577493,\"strand\":1,\"fmax\":577643},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":582506,\"strand\":1,\"fmax\":582677},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":583187,\"strand\":1,\"fmax\":583605},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":577493,\"strand\":1,\"fmax\":583280},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addTranscriptFragment1String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":577493,\"strand\":1,\"fmax\":577643},\"name\":\"GB40819-RA\",\"children\":[{\"location\":{\"fmin\":577493,\"strand\":1,\"fmax\":577643},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addTranscriptFragment2String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":582506,\"strand\":1,\"fmax\":582677},\"name\":\"GB40819-RA\",\"children\":[{\"location\":{\"fmin\":582506,\"strand\":1,\"fmax\":582677},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addTranscriptFragment3String = "{ ${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":583187,\"strand\":1,\"fmax\":583605},\"name\":\"GB40819-RA\",\"children\":[{\"location\":{\"fmin\":583187,\"strand\":1,\"fmax\":583605},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+
+        when: "we add transcript GB40819-RA"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the transcript"
+        assert MRNA.all.size() == 1
+        Gene parentGene = Gene.all.get(0)
+
+        when: "we add transcript fragment 1"
+        JSONObject addTranscriptFragment1ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment1String) as JSONObject)
+        String transcriptFragment1UniqueName = addTranscriptFragment1ReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "we should see the transcript fragment"
+        assert MRNA.all.size() == 2
+        MRNA transcriptFragment1 = MRNA.findByUniqueName(transcriptFragment1UniqueName)
+        CDS transcriptFragment1Cds = transcriptService.getCDS(transcriptFragment1)
+
+        assert transcriptService.getGene(transcriptFragment1) == parentGene
+        assert transcriptFragment1Cds.featureLocation.fmin == 577493
+        assert transcriptFragment1Cds.featureLocation.fmax == 577643
+        assert !transcriptFragment1Cds.featureLocation.isFminPartial
+        assert transcriptFragment1Cds.featureLocation.isFmaxPartial
+
+        when: "we add transcript fragment 2"
+        JSONObject addTranscriptFragment2ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment2String) as JSONObject)
+        String transcriptFragment2UniqueName = addTranscriptFragment2ReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "we should see the transcript fragment"
+        assert MRNA.all.size() == 3
+        MRNA transcriptFragment2 = MRNA.findByUniqueName(transcriptFragment2UniqueName)
+        CDS transcriptFragment2Cds = transcriptService.getCDS(transcriptFragment2)
+
+        assert transcriptService.getGene(transcriptFragment2) == parentGene
+        assert transcriptFragment2Cds.featureLocation.fmin == 582506
+        assert transcriptFragment2Cds.featureLocation.fmax == 582677
+        assert transcriptFragment2Cds.featureLocation.isFminPartial
+        assert transcriptFragment2Cds.featureLocation.isFmaxPartial
+
+        when: "we add transcript fragment 3"
+        JSONObject addTranscriptFragment3ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment3String) as JSONObject)
+        String transcriptFragment3UniqueName = addTranscriptFragment3ReturnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "we should see the transcript fragment but it shouldn't be an isoform of the main transcript"
+        assert MRNA.all.size() == 4
+        MRNA transcriptFragment3 = MRNA.findByUniqueName(transcriptFragment3UniqueName)
+        CDS transcriptFragment3Cds = transcriptService.getCDS(transcriptFragment3)
+
+        assert transcriptService.getGene(transcriptFragment3) != parentGene
+        assert transcriptFragment3Cds.featureLocation.fmin == 583188
+        assert transcriptFragment3Cds.featureLocation.fmax == 583554
+        assert transcriptFragment3Cds.featureLocation.isFminPartial
+        assert !transcriptFragment3Cds.featureLocation.isFmaxPartial
     }
 }

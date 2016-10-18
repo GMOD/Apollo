@@ -10,13 +10,13 @@ import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.hibernate.FetchMode
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
-import org.hibernate.FetchMode
 
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
@@ -32,6 +32,13 @@ class AnnotatorController {
     def reportService
     def featureRelationshipService
 
+    private List<String> reservedList = ["loc",
+                                         FeatureStringEnum.CLIENT_TOKEN.value,
+                                         FeatureStringEnum.ORGANISM.value,
+                                         "action",
+                                         "controller",
+                                         "format"]
+
     /**
      * This is a public method, but is really used only internally.
      *
@@ -42,12 +49,11 @@ class AnnotatorController {
     def loadLink() {
         String clientToken
         try {
-            if(params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)){
+            if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
                 clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
-            }
-            else{
+            } else {
                 clientToken = ClientTokenGenerator.generateRandomString()
-                println 'generating client token on the backend: '+clientToken
+                println 'generating client token on the backend: ' + clientToken
             }
             Organism organism
             // check organism first
@@ -58,8 +64,20 @@ class AnnotatorController {
             if(!organism){
                 organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             }
+            def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+            if(!allowedOrganisms){
+                throw new RuntimeException("User does have permissions to access any organisms.")
+            }
+
+
+            if(!allowedOrganisms.contains(organism)){
+                log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
+                params.loc = null
+                organism = allowedOrganisms.first()
+            }
+
             log.debug "loading organism: ${organism}"
-            preferenceService.setCurrentOrganism(permissionService.currentUser, organism,clientToken)
+            preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             if (params.loc) {
                 String location = params.loc
                 String[] splitString = location.split(":")
@@ -80,14 +98,30 @@ class AnnotatorController {
                 }
                 log.debug "fmin ${fmin} . . fmax ${fmax} . . ${sequence}"
 
-                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax,clientToken)
+                preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax, clientToken)
             }
 
         } catch (e) {
             log.error "problem parsing the string ${e}"
         }
 
-        redirect uri: "/annotator/index?clientToken="+clientToken
+        String queryParamString = ""
+        for (p in params) {
+            if (!reservedList.contains(p.key)) {
+                queryParamString += "&" + p
+            }
+        }
+
+//        String uri = "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
+
+//        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
+        if(queryParamString.contains("addTracks")){
+            redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
+        }
+        else{
+            redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
+        }
+
     }
 
     /**
@@ -97,7 +131,7 @@ class AnnotatorController {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
         String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
-        [userKey: uuid,clientToken:clientToken]
+        [userKey: uuid, clientToken: clientToken]
     }
 
 
@@ -127,7 +161,7 @@ class AnnotatorController {
     @Transactional
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
-        JSONObject data = permissionService.handleInput(request,params)
+        JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -189,7 +223,7 @@ class AnnotatorController {
     )
     def updateFeatureLocation() {
         log.info "updateFeatureLocation ${params.data}"
-        JSONObject data = permissionService.handleInput(request,params)
+        JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
@@ -243,7 +277,7 @@ class AnnotatorController {
      * @param sort
      * @return
      */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort,String clientToken) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -285,48 +319,48 @@ class AnnotatorController {
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
-                    if(sequenceName) {
-                        eq('sequence',sequenceObj)
+                    if (sequenceName) {
+                        eq('sequence', sequenceObj)
                     }
-                    if(sort=="length") {
+                    if (sort == "length") {
                         order('length', sortorder)
                     }
                     sequence {
-                        if(sort=="sequence") {
-                            order('name',sortorder)
+                        if (sort == "sequence") {
+                            order('name', sortorder)
                         }
                         eq('organism', organism)
                     }
                 }
-                if(sort=="name") {
+                if (sort == "name") {
                     order('name', sortorder)
                 }
-                if(sort=="date") {
+                if (sort == "date") {
                     order('lastUpdated', sortorder)
                 }
-                if(annotationName) {
-                    ilike('name','%'+annotationName+'%')
+                if (annotationName) {
+                    ilike('name', '%' + annotationName + '%')
                 }
                 'in'('class', viewableTypes)
             }
 
             //step 2 does a distinct query with extra attributes added in
-            def features = pagination.size()==0 ? [] : Feature.createCriteria().listDistinct {
+            def features = pagination.size() == 0 ? [] : Feature.createCriteria().listDistinct {
                 'in'('id', pagination.collect { it.id })
                 featureLocations {
-                    if(sort=="length") {
+                    if (sort == "length") {
                         order('length', sortorder)
                     }
                     sequence {
-                        if(sort=="sequence") {
-                            order('name',sortorder)
+                        if (sort == "sequence") {
+                            order('name', sortorder)
                         }
                     }
                 }
-                if(sort=="name") {
+                if (sort == "name") {
                     order('name', sortorder)
                 }
-                if(sort=="date") {
+                if (sort == "date") {
                     order('lastUpdated', sortorder)
                 }
                 fetchMode 'owners', FetchMode.JOIN
@@ -360,9 +394,9 @@ class AnnotatorController {
 
             render returnObject
         }
-        catch(PermissionException e) {
-            def error=[error: e.message]
-            log.warn "Permission exception: "+e.message
+        catch (PermissionException e) {
+            def error = [error: e.message]
+            log.warn "Permission exception: " + e.message
             render error as JSON
         }
         catch (Exception e) {
@@ -435,7 +469,7 @@ class AnnotatorController {
     @Transactional
     def setCurrentOrganism(Organism organismInstance) {
         // set the current organism
-        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance,params[FeatureStringEnum.CLIENT_TOKEN.value])
+        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance, params[FeatureStringEnum.CLIENT_TOKEN.value])
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
 
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
@@ -457,7 +491,7 @@ class AnnotatorController {
             return
         }
         // set the current organism and sequence Id (if both)
-        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance,params[FeatureStringEnum.CLIENT_TOKEN.value])
+        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance, params[FeatureStringEnum.CLIENT_TOKEN.value])
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, sequenceInstance.organism.directory)
 
         render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value]) as JSON
@@ -479,10 +513,10 @@ class AnnotatorController {
         List<User> annotators = User.list(params)
 
         annotators.each {
-            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it,true))
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
         }
 
-        render view:"report", model:[annotatorInstanceList:annotatorSummaryList,annotatorInstanceCount:User.count]
+        render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
     def detail(User user) {
@@ -491,7 +525,7 @@ class AnnotatorController {
             redirect(uri: "/auth/login")
             return
         }
-        render view:"detail", model:[annotatorInstance:reportService.generateAnnotatorSummary(user)]
+        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
     }
 
     def ping(){

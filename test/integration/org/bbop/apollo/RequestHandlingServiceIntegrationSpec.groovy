@@ -1689,9 +1689,9 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String originalCdsString = "ATGTTAGGCAAGCTGCTTCTGATGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
 
         String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1039024,\"strand\":1,\"fmax\":1039031},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String deletion1PeptideString = "MSKQIRMELNENVATRDKDVEVIKEWLSKQPHLPQFDDDYRLLTFLRGCKFSLEKCKKKLDMYFTMRTAIPEFFTNRDVTLPELKEITKIIQIPPLPGLTKNGRRVIVMRGINKDLPTPNVAELMKLVLMIGDVRLKEELMGVAGDVYILDASVATPSHFAKFTPALVKKFLVCVQEAYPVKLKEVHVVNISPLVDTIVNFVKPFIKEKIRNRIFMHSDLNTLYEYIPREILPAEYGGDAGPLQNIHETWIKKLEEYGPWFVEQESIKTNEALRPGKPKTHDDLFGLDGSFRQLVID"
+        String deletion1PeptideString = "VRQAASVLLIQPSEEMSKQIRMELNENVATRDKDVEVIKEWLSKQPHLPQFDDDYRLLTFLRGCKFSLEKCKKKLDMYFTMRTAIPEFFTNRDVTLPELKEITKIIQIPPLPGLTKNGRRVIVMRGINKDLPTPNVAELMKLVLMIGDVRLKEELMGVAGDVYILDASVATPSHFAKFTPALVKKFLVCVQEAYPVKLKEVHVVNISPLVDTIVNFVKPFIKEKIRNRIFMHSDLNTLYEYIPREILPAEYGGDAGPLQNIHETWIKKLEEYGPWFVEQESIKTNEALRPGKPKTHDDLFGLDGSFRQLVID"
         String deletion1CdnaString = "ATGTTAGGCAAGCTGCTTCTGTGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAAACCTAGAAATCTTCTGTCAATGATGACAACTTGATTAATTTTCATCTCGGTGCTAATTTGAAGAAAAATCGCTGGAAAGAATGGAAGAGAGATGAAACATCCGTATCGCAATTTTTTTTTTCCGACATACAATTTGAATATATTAACCTAACCTTTTTATACTTTTTTTAAATCGAAATTAATTTTATAGATATTTTATAGATTTTTAAAAATTTATTTTAATTCCGTGGAAAAAATCTAAATTCTTAAGATAAAATAACTGCCAAAATTTCATAAAGTCAGTATTAGATAATATCCAATTATTAAATTAACTTGAATATTTTTAATACTGCTTAAAGTATAATTCCAAACTTTTTATTGGAAATGCATATTTGTATATGTTTTATATTTTTATAAGAATCTCTATTTATCTTTTATATGCTTGTTTGTTTTATATGTTTATTGATAGATTCTTAACTCTGTATTTTGTAGAATTTTGCGTAGAATAGTTATTTTTCATTCAATTATTTTTTTATTCATTATACAATTGGTTAAAAACGTTAAGAGACATAAATATACAGAATCATTTCGAGTTTATTATAACCTAATTGATCCATTTAAATTTTTTCATTCCAAAGTTCTGAATTCGTGACAATTTCACTCGAATTTTTCCGATCAATTCGAAATTGATAATATCTTTGATATACTTTTAATTGTGAATATTTATAATAAATGCAACTCTTTGTGCGATTAAATAGATGATATTTACTTGGATAAATTCTTGATTATGAATAAATTTTTATAGTTGATATTGACCATATACGAAGGAACATAACCTTAAGAATTTTAAAATAATTTTGATTGTAATTTTAATACACGTTACTTTAAAACTCTGCAT"
-        String deletion1CdsString = "ATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
+        String deletion1CdsString = "GTTAGGCAAGCTGCTTCTGTGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
 
         String addDeletion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1039645,\"strand\":1,\"fmax\":1039648},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
         String deletion2PeptideString = "MRGINKDLPTPNVAELMKLVLMIGDVRLKEELMGVAGDVYILDASVATPSHFAKFTPALVKKFLVCVQEAYPVKLKEVHVVNISPLVDTIVNFVKPFIKEKIRNRIFMHSDLNTLYEYIPREILPAEYGGDAGPLQNIHETWIKKLEEYGPWFVEQESIKTNEALRPGKPKTHDDLFGLDGSFRQLVID"
@@ -2240,36 +2240,37 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we add transcript2"
         JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript2) as JSONObject).get("features")
-
-        then: "we should have 2 Gene and 2 MRNA"
-        assert Gene.count == 2
+        
+        then: "we should have 1 Gene and 2 MRNA"
+        assert Gene.count == 1
         assert MRNA.count == 2
         String transcript2Name = addTranscript2ReturnObject.name
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
+        
+//        when: "we set exon boundary of transcript2"
+//        Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+//        setExonBoundary1ForTranscript2 = setExonBoundary1ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
+//        JSONObject setExonBoundary1ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary1ForTranscript2) as JSONObject).get("features")
+//
+//        then: "transcript2 should now be an isoform of transcript1 indicated by transcript1 and transcript2 having the same parent gene"
+//        String modifiedTranscript2Name = setExonBoundary1ForTranscript2ReturnObject.name
+//        String modifiedTranscript2UniqueName = setExonBoundary1ForTranscript2ReturnObject.uniquename
+//        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
+//        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(modifiedTranscript2UniqueName))
+//        assert transcript1Gene.uniqueName == transcript2Gene.uniqueName
+//
+//        then: "name for transcript2 changes to reflect its updated parent gene name as prefix"
+//        Boolean sameBaseName = false
+//        if (modifiedTranscript2Name.contains(transcript1Gene.name)) {sameBaseName = true}
+//        assert sameBaseName
 
         when: "we set exon boundary of transcript2"
         Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
-        setExonBoundary1ForTranscript2 = setExonBoundary1ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
-        JSONObject setExonBoundary1ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary1ForTranscript2) as JSONObject).get("features")
-
-        then: "transcript2 should now be an isoform of transcript1 indicated by transcript1 and transcript2 having the same parent gene"
-        String modifiedTranscript2Name = setExonBoundary1ForTranscript2ReturnObject.name
-        String modifiedTranscript2UniqueName = setExonBoundary1ForTranscript2ReturnObject.uniquename
-        Gene transcript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
-        Gene transcript2Gene = transcriptService.getGene(MRNA.findByUniqueName(modifiedTranscript2UniqueName))
-        assert transcript1Gene.uniqueName == transcript2Gene.uniqueName
-
-        then: "name for transcript2 changes to reflect its updated parent gene name as prefix"
-        Boolean sameBaseName = false
-        if (modifiedTranscript2Name.contains(transcript1Gene.name)) {sameBaseName = true}
-        assert sameBaseName
-
-        when: "we set exon boundary of transcript2 again"
         setExonBoundary2ForTranscript2 = setExonBoundary2ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
         JSONObject setExonBoundary2ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary2ForTranscript2) as JSONObject).get("features")
-        modifiedTranscript2Name = setExonBoundary2ForTranscript2ReturnObject.name
-        modifiedTranscript2UniqueName = setExonBoundary2ForTranscript2ReturnObject.uniquename
-
+        String modifiedTranscript2Name = setExonBoundary2ForTranscript2ReturnObject.name
+        String modifiedTranscript2UniqueName = setExonBoundary2ForTranscript2ReturnObject.uniquename
+        
         then: "transcript2 should NOT be an isoform of transcript1"
         Gene updatedTranscript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
         Gene updatedTranscript2Gene = transcriptService.getGene(MRNA.findByUniqueName(modifiedTranscript2UniqueName))
@@ -2408,7 +2409,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         given: "Two transcripts that overlap but are not isoforms of each other"
         String transcript1 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":583280,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        String transcript2 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583194},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583554,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583194,\"fmax\":583554},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"5:geneid_mRNA_CM000054.5_467\",\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String transcript2 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":576168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583194},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583554,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583194,\"fmax\":583554},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"5:geneid_mRNA_CM000054.5_467\",\"location\":{\"strand\":1,\"fmin\":576138,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}, \"use_cds\":\"true\"}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String setTranslationStartForTranscript2 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":582521}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
 
         //String setSymbolOperation = "{\"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"symbol\":\"@SYMBOL_VALUE@\"}],\"track\":\"Group1.10\",\"operation\":\"set_symbol\",\"username\":\"demo@demo.com\"}"
@@ -3325,5 +3326,54 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrna.description == "PCG1 isoform 2A"
         assert mrna.featureDBXrefs.size() == 2
         assert mrna.featureProperties.size() == 4
+    }
+
+    void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {
+        given: "a transcript whose CDS is incorrect"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}, \"use_cds\":\"true\"}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addSequenceAlterationString = "{ ${testCredentials} \"features\":[{\"residues\":\"TGA\",\"location\":{\"strand\":1,\"fmin\":582665,\"fmax\":582665},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String cdsSequenceString = "ATGACAGGTCATATCTGGTTCTGCTTCTTATTGTTCTTAACGGGCTACTGTGATTGCTCACTAACGGGGACAATATCATCGTTCCCGATAAACCTCGAGAACAATCCTTACTGTCGTATTTGCCCCAATCACACCATGTGCCGATTTCCGCTCGATACTGATGGCATTAGATGTATAAACCTCCAGCATGCTGATCTGGACGACAAAGATATTGAAACTATACTCCATTGGCACAATACTTATCGCAATACTGTGGCAAGTGGAAAAGAAATACGAGGAAATCCAGGTCCACAACGTCCAGCAAAATTTATGATGGAAGTG"
+        String recalculatedCdsSequenceString = "ATGACGAACTTGCTCTTATCGCGAGACGATGGGTGGTACAGTGCAACCTTCTCGAGAAAGATCAGTGCAGAGATGTTGGCAAGTAACTCCCACGGATACATATCATTTTTCATTTCCCTTAGTCGTCCCTATCATTTTTCAATATCCATCGCGTATACGTTCGAACACGAAATTGTTCCTCCTGTAACAGGATCAATGTGTCTGTGTGTTCTCCTCTTTTTATCGCAATTTCTCTCCTTCTTGTTTACGAATACCACTCTCTTCCAACCTATCTTCTTCCTTTTCCATCCCCTTATAACTCGTTTTGGCTTCGTTTCAATTTGCAATCGTAAGCCGCAAAAACGATATTGGCGCTTGTAA"
+
+        when: "we add the transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see the transcript"
+        assert Gene.all.size() == 1
+        assert MRNA.all.size() == 1
+        MRNA mrna = MRNA.all.iterator().next()
+
+        then: "the CDS should have the original fmin and fmax"
+        CDS cds = transcriptService.getCDS(mrna)
+        assert cds.fmin == 577493
+        assert cds.fmax == 582677
+        String cdsSequence = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_CDS.value)
+        assert cdsSequence == cdsSequenceString
+
+        when: "we add an insertion that has an in-frame stop codon w.r.t. the current transcript"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString) as JSONObject)
+
+        then: "we should see the insertion"
+        assert Insertion.all.size() == 1
+
+        then: "previously added transcript's CDS should recalculate itself"
+        cds.attach()
+        assert cds.fmin == 583194
+        assert cds.fmax == 583554
+        String updatedCdsSequence = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_CDS.value)
+        assert updatedCdsSequence == recalculatedCdsSequenceString
+
+        when: "we add the same transcript again"
+        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        println returnObject.toString()
+        String transcript2UniqueName = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        then: "due to the presence of an overlapping sequence alteration, the transcript's CDS should be recalculated automatically"
+        MRNA mrna2 = MRNA.findByUniqueName(transcript2UniqueName)
+        CDS mrna2Cds = transcriptService.getCDS(mrna2)
+        assert mrna2Cds.fmin == 583194
+        assert mrna2Cds.fmax == 583554
+        String mrna2CdsSequence = sequenceService.getSequenceForFeature(mrna2, FeatureStringEnum.TYPE_CDS.value)
+        assert mrna2CdsSequence == recalculatedCdsSequenceString
     }
 }

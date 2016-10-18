@@ -36,6 +36,7 @@ import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.html.Span;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.select.client.ui.Select;
 
@@ -69,7 +70,7 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportSelectedButton;
     @UiField
-    Select selectedSequenceDisplay;
+    MultipleSelect selectedSequenceDisplay;
     @UiField
     Button clearSelectionButton;
     @UiField
@@ -229,7 +230,7 @@ public class SequencePanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS) && (organismChangeEvent.getCurrentOrganism()==null || !organismChangeEvent.getCurrentOrganism().equals(MainPanel.getInstance().getCurrentOrganism().getName()))){
                     Scheduler.get().scheduleDeferred(new Command() {
                         @Override
                         public void execute() {
@@ -240,9 +241,10 @@ public class SequencePanel extends Composite {
                             reload();
                         }
                     });
-                } else {
-                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
                 }
+//                else {
+//                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
+//                }
             }
         });
 
@@ -415,9 +417,15 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
-        pager.setPageStart(0);
-        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-        dataGrid.redraw();
+        reload(false);
+    }
+
+    public void reload(Boolean forceReload) {
+        if(MainPanel.getInstance().getSequencePanel().isVisible() || forceReload){
+            pager.setPageStart(0);
+            dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+            dataGrid.redraw();
+        }
     }
 
     public void getChadoExportStatus() {

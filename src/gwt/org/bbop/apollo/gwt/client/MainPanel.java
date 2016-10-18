@@ -36,10 +36,7 @@ import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -61,10 +58,12 @@ public class MainPanel extends Composite {
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static SequenceInfo currentSequence;
-    private static Integer currentStartBp; // list of organisms for user
-    private static Integer currentEndBp; // list of organisms for user
-    public static boolean useNativeTracklist; // list of organisms for user
+    private static Integer currentStartBp; // start base pair
+    private static Integer currentEndBp; // end base pair
+    private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
+    public static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
+    private static final String trackListViewString = "&tracklist=";
 
     private static boolean handlingNavEvent = false;
 
@@ -73,6 +72,7 @@ public class MainPanel extends Composite {
     private int maxUsernameLength = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
+    private static List<String> reservedList = new ArrayList<>();
 
 
     @UiField
@@ -226,6 +226,12 @@ public class MainPanel extends Composite {
             e.printStackTrace();
         }
 
+
+        currentQueryParams = Window.Location.getParameterMap();
+
+        reservedList.add("loc");
+        reservedList.add("trackList");
+
         loginUser();
     }
 
@@ -273,7 +279,7 @@ public class MainPanel extends Composite {
                 sequenceSuggestBox.setText(currentSequence.getName());
 
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
                     updateGenomicViewer();
@@ -440,13 +446,50 @@ public class MainPanel extends Composite {
         trackListString += "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
-        trackListString += "&highlight=&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
-//        trackListString += "&clientToken=" + Annotator.getClientToken();
 
-        final String finalString = trackListString;
-//        Window.alert(finalString);
+        trackListString += getCurrentQueryParamsAsString();
 
-        frame.setUrl(finalString);
+
+        // if the trackList contains a string, it should over-ride and set?
+        if(trackListString.contains(trackListViewString)){
+            // replace with whatever is in the toggle ? ? ?
+            Boolean showTrackValue = trackPanel.trackListToggle.getValue();
+
+            String positiveString = trackListViewString+"1";
+            String negativeString = trackListViewString+"0";
+            if(trackListString.contains(positiveString) && !showTrackValue){
+                trackListString = trackListString.replace(positiveString,negativeString);
+            }
+            else
+            if(trackListString.contains(negativeString) && showTrackValue){
+                trackListString = trackListString.replace(negativeString,positiveString);
+            }
+
+            MainPanel.useNativeTracklist = showTrackValue ;
+        }
+        // otherwise we use the nativeTrackList
+        else{
+            trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
+        }
+
+        frame.setUrl(trackListString);
+    }
+
+
+    private static String getCurrentQueryParamsAsString() {
+        String returnString = "";
+        if(currentQueryParams==null){
+            return returnString;
+        }
+
+        for(String key : currentQueryParams.keySet()){
+            if(!reservedList.contains(key)){
+                for(String value : currentQueryParams.get(key)){
+                    returnString += "&"+key + "=" + value;
+                }
+            }
+        }
+        return returnString;
     }
 
     public static void updateGenomicViewer(boolean forceReload) {
@@ -618,13 +661,13 @@ public class MainPanel extends Composite {
     private void reloadTabPerIndex(Integer selectedItem) {
         switch (selectedItem) {
             case 0:
-                annotatorPanel.reload();
+                annotatorPanel.reload(true);
                 break;
             case 1:
                 trackPanel.reload();
                 break;
             case 2:
-                sequencePanel.reload();
+                sequencePanel.reload(true);
                 break;
             case 3:
                 organismPanel.reload();
@@ -955,5 +998,7 @@ public class MainPanel extends Composite {
         this.organismInfoList = organismInfoList;
     }
 
-
+    public static SequencePanel getSequencePanel() {
+        return sequencePanel;
+    }
 }
