@@ -5,6 +5,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
+import spock.lang.IgnoreRest
 
 class VariantServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -39,7 +40,7 @@ class VariantServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert SNV.all.size() == 1
         assert Allele.all.size() == 3
 
-        SNV snv = SNV.findByName("rs0000000")
+        SNV snv = SNV.all.get(0)
         assert snv.alternateAlleles.size() == 3
     }
 
@@ -54,7 +55,7 @@ class VariantServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert SNV.all.size() == 1
         assert Allele.all.size() == 3
 
-        SNV snv = SNV.findByName("rs0000000")
+        SNV snv = SNV.all.get(0)
         assert snv.alternateAlleles.size() == 3
 
         snv.alternateAlleles.each {
