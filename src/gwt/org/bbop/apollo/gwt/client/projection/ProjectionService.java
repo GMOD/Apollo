@@ -112,12 +112,19 @@ public class ProjectionService {
      * @param projectionString
      * @return
      */
-    static MultiSequenceProjection getProjectionForString(String projectionString) {
+    public static MultiSequenceProjection getProjectionForString(String projectionString) {
         Integer index = projectionString.lastIndexOf(":");
-        projectionString = projectionString.substring(0, index);
+        if(index>0){
+            projectionString = projectionString.substring(0, index);
+        }
         JSONObject projectionObject = JSONParser.parseStrict(projectionString).isObject();
         AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(projectionObject);
         return createProjectionFromAssemblageInfo(assemblageInfo);
+    }
+
+    public static Long getProjectionLength(String projectionString){
+        MultiSequenceProjection multiSequenceProjection = getProjectionForString(projectionString);
+        return multiSequenceProjection.getLength();
     }
 
     public static Long projectValue(String referenceString, String otherType) {
@@ -264,6 +271,7 @@ public class ProjectionService {
         $wnd.projectReverseSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseSequence(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+        $wnd.getProjectionLength = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getProjectionLength(Ljava/lang/String;));
     }-*/;
 
     public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {

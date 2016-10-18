@@ -261,14 +261,13 @@ return declare( [JBPlugin, HelpMixin],
 
 
         browser.afterMilestone( 'completely initialized', function() {
-            // alert(browser.view.maxPxPerBp);
-            // alert(browser.view.pxPerBp);
-            // alert(window.location.href);
-            browser.view.pxPerBp = 0.1 ;
+            var view  = browser.view ;
+            var projectionString = view.ref.name ;
+            var projectionLength = window.parent.getProjectionLength(projectionString);
+            var ratio = view.elem.clientWidth  / projectionLength  ;
+
+            browser.view.pxPerBp = ratio ;
             browser.view.onResize();
-            // browser.view.zoomIn();
-            // browser.view.zoomOut();
-            // browser.browserZoomFix(100);
         });
 
         this.monkeyPatchRegexPlugin();
