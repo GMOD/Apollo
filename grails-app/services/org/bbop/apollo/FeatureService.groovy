@@ -146,7 +146,7 @@ class FeatureService {
             else {
                 // if there are any sequence alterations that overlaps this transcript then
                 // recalculate the CDS to account for these changes
-                def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
+                def sequenceAlterations = getSequenceAlterationsForFeature(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                 if (sequenceAlterations.size() > 0) {
                     calculateCDS(transcript)
                 }
@@ -191,7 +191,7 @@ class FeatureService {
                     else {
                         // if there are any sequence alterations that overlaps this transcript then
                         // recalculate the CDS to account for these changes
-                        def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
+                        def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                         if (sequenceAlterations.size() > 0) {
                             calculateCDS(tmpTranscript)
                         }
@@ -323,7 +323,7 @@ class FeatureService {
             else {
                 // if there are any sequence alterations that overlaps this transcript then
                 // recalculate the CDS to account for these changes
-                def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
+                def sequenceAlterations = getSequenceAlterationsForFeature(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                 if (sequenceAlterations.size() > 0) {
                     calculateCDS(transcript)
                 }
@@ -1049,7 +1049,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Timed
     @Transactional
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
-        String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
+        String mrna = getResiduesWithAlterationsAndFrameshifts(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value]);
         if (!mrna) {
             return;
         }
