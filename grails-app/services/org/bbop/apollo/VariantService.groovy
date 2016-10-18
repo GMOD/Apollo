@@ -14,6 +14,7 @@ class VariantService {
     def permissionService
     def sequenceService
     def variantAnnotationService
+    def nameService
 
     def createVariant(JSONObject jsonFeature, Sequence sequence, Boolean suppressHistory) {
         SequenceAlteration variant = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
@@ -100,6 +101,8 @@ class VariantService {
                 log.error "Unexpected type of variant"
             }
         }
+
+        variant.name = nameService.makeUniqueVariantName(variant)
 
         User owner = permissionService.getCurrentUser(jsonFeature)
 

@@ -143,4 +143,22 @@ class NameService {
         return name
     }
 
+    /**
+     * Generates name for a given variant based on its properties
+     * @param variant
+     * @return
+     */
+    String makeUniqueVariantName(SequenceAlteration variant) {
+        String name
+        String position = variant.featureLocation.fmin + 1
+        name = position + " " + variant.referenceBases + " > "
+        def alternateAlleles = []
+        for (Allele allele : variant.alternateAlleles) {
+            alternateAlleles.add(allele.bases)
+        }
+        name += alternateAlleles.join(",")
+        log.info "Name for variant: ${name}"
+        return name
+    }
+
 }
