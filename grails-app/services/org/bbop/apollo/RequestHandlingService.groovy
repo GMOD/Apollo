@@ -557,7 +557,20 @@ class RequestHandlingService {
             fetchMode 'parentFeatureRelationships.childFeature.featureDBXrefs', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
             'in'('class', viewableAnnotationTranscriptList+viewableAnnotationFeatureList+viewableAlterations)
-            eq("alterationType", FeatureStringEnum.VARIANT.value)
+
+        }
+
+        // TODO: optimize
+        def finalFeatures = []
+        features.each {
+            if (it instanceof SequenceAlteration) {
+                if (it.alterationType == FeatureStringEnum.VARIANT.value) {
+                    finalFeatures.add(it)
+                }
+            }
+            else {
+                finalFeatures.add(it)
+            }
         }
 
         JSONArray jsonFeatures = new JSONArray()
@@ -2323,7 +2336,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = features.getJSONObject(i)
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
             SequenceAlteration variant = variantService.createVariant(jsonFeature, sequence, suppressHistory)
-            variantAnnotationService.calculateVariantEffects(variant)
+            //variantAnnotationService.calculateEffectOfVariant(variant)
 
             if (variant.fmin < 0 || variant.fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");
