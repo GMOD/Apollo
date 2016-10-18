@@ -207,6 +207,7 @@ return declare( [JBPlugin, HelpMixin],
         this.replaceSearchBoxes();
 
 
+
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
             if (browser.poweredByLink)  {
@@ -255,10 +256,16 @@ return declare( [JBPlugin, HelpMixin],
                     }
             };
 
+
         });
 
 
         browser.afterMilestone( 'completely initialized', function() {
+            // alert(browser.view.maxPxPerBp);
+            // alert(browser.view.pxPerBp);
+            // alert(window.location.href);
+            browser.view.pxPerBp = 0.1 ;
+            browser.view.onResize();
             // browser.view.zoomIn();
             // browser.view.zoomOut();
             // browser.browserZoomFix(100);
