@@ -214,7 +214,7 @@ define([
                     // draw delicious candy
                     var id2 = "C-"+this.fixId(fRect.f.id());
 
-                    console.log("cx="+cx+" color="+color);
+                    // console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id2,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
                         var xlength = 3 ; // for 0 case only
@@ -248,8 +248,8 @@ define([
                     var end = feature.get("end");
                     var len = (end - start ) * 0.18 ;
                     len = svgSpace.getHeight() - len;
-                    console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
-                    console.log("rendering region "+label + " from "+ start + " to "+end) ;
+                    // console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
+                    // console.log("rendering region "+label + " from "+ start + " to "+end) ;
 
                     // draw stems
                     var id = "R-"+this.fixId(fRect.f.id());
@@ -268,7 +268,7 @@ define([
 
                     var id2 = "RL-"+this.fixId(fRect.f.id());
 
-                    console.log("cx="+cx+" color="+color);
+                    // console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id2,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
                         var xlength = (end-start)/ 2.0 ; // for 0 case only
@@ -344,12 +344,12 @@ define([
                     var end = feature.get("end");
                     var len = (end - start ) * 0.18 ;
                     len = svgSpace.getHeight() - len;
-                    console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
-                    console.log("rendering region "+label + " from "+ start + " to "+end) ;
+                    // console.log("bpCoord="+bpCoord+" cx="+cx+" len="+len+" scale="+this.svgScale);
+                    // console.log("rendering region "+label + " from "+ start + " to "+end) ;
 
                     var id3 = "RR-"+this.fixId(fRect.f.id());
 
-                    console.log("cx="+cx+" color="+color);
+                    // console.log("cx="+cx+" color="+color);
                     this.addSVGObject(id3,bpCoord,100,100,function () {
                         var apple = document.createElementNS('http://www.w3.org/2000/svg','text');
                         var formattedLabel = JSONUtils.numberWithCommas(label);
@@ -378,17 +378,17 @@ define([
                     }
                     else
                     if(type=='region'){
-                        console.log('render region');
+                        // console.log('render region');
                         this.renderRegion(context,fRect,5);
                     }
                     else
                     if(type=='region-right'){
-                        console.log('render region right');
+                        // console.log('render region right');
                         this.renderRegionRight(context,fRect,3);
                     }
                     else
                     if(type=='grid-right'){
-                        console.log('render region right');
+                        // console.log('render region right');
                         this.renderGrid(context,fRect,7);
                     }
                 }

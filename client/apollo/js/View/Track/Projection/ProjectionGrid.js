@@ -85,7 +85,7 @@ define([
                         var start = seq.start ;
                         var end = seq.end ;
                         var length = end - start ;
-                        console.log("boundary to project: " +i + ": " + leftBase  + "-" + rightBase + " seq: "+ start + "-"+end);
+                        // console.log("boundary to project: " +i + ": " + leftBase  + "-" + rightBase + " seq: "+ start + "-"+end);
                         this.renderGridlines(block,leftBase,rightBase,seq);
                     }
 
