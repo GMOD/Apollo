@@ -3801,7 +3801,6 @@ define([
             showInAnnotatorPanel: function () {
                 var selected = this.selectionManager.getSelection();
                 var selectedFeature = selected[0].feature.afeature ;
-                //alert(JSON.stringify(selected));
                 window.parent.showInAnnotatorPanel(selectedFeature.name,selected[0].feature.afeature.sequence);
             },
 

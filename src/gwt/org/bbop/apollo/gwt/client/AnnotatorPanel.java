@@ -637,8 +637,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
     public static void showInAnnotatorPanel(String featureName,String scaffold){
-        Window.alert(featureName + " " + scaffold);
-
+//        Window.alert(featureName + " " + scaffold);
         sequenceList.setText(scaffold);
         nameSearchBox.setText(featureName);
         reload();
