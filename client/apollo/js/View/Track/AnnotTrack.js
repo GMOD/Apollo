@@ -4626,6 +4626,50 @@ define([
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
+
+
+                    // START COLLAPSE SECTION
+                    contextMenuItems["fold_feature"] = index++;
+                    var collapseFeaturesMenuItem = new dijitMenuItem( {
+                        label: "Fold Feature",
+                        onClick: function(event){
+                            alert('Collapsing entire feature.');
+                        }
+                    });
+                    annot_context_menu.addChild(collapseFeaturesMenuItem);
+
+                    contextMenuItems["fold_between_features"] = index++;
+                    var collapseBetweenFeaturesMenuItem = new dijitMenuItem( {
+                        label: "Fold Between Features",
+                        onClick: function(event){
+                            alert('Collapsing between features.');
+                        }
+                    });
+                    annot_context_menu.addChild(collapseBetweenFeaturesMenuItem);
+
+                    contextMenuItems["remove_folds"] = index++;
+                    var removeFoldingMenuItem = new dijitMenuItem( {
+                        label: "Remove Folds",
+                        onClick: function(event){
+                            alert('Removing folds of selected features.');
+                        }
+                    });
+                    annot_context_menu.addChild(removeFoldingMenuItem);
+
+                    contextMenuItems["view_only_features"] = index++;
+                    var viewOnlyFeaturesMenuItem = new dijitMenuItem( {
+                        label: "View Only Features",
+                        onClick: function(event){
+                            alert('Viewing only selected features.');
+                        }
+                    });
+                    annot_context_menu.addChild(viewOnlyFeaturesMenuItem);
+
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+                    // END COLLAPSE SECTION
+
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
@@ -4640,13 +4684,6 @@ define([
                         }
                     }));
                     contextMenuItems["merge"] = index++;
-                    //annot_context_menu.addChild(new dijit.MenuItem({
-                    //    label: "Fold",
-                    //    onClick: function () {
-                    //        thisB.foldSelectedFeatures();
-                    //    }
-                    //}));
-                    //contextMenuItems["fold"] = index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Split",
                         onClick: function (event) {
@@ -5005,6 +5042,61 @@ define([
                 AnnotTrack.popupDialog.hide();
             },
 
+            // determine if a feature is folded
+            isFolded: function(selected){
+                if(selected.length==0) return false ;
+                // for each selection, if a fold falls within projeciton region, then it is folded
+                 for(var selection in selected){
+                     // var start = selection.feature[0].fmin ;
+                     // var end = selection.feature[0].fmax ;
+                     // var regionFolded = window.parent.foldedInRegion(start,end,this.refSeq);
+                     // if(!regionFolded){
+                     //     return false ;
+                     // }
+                 }
+                 return true ;
+            },
+
+            // folds an entire transcript only
+            // if features are all transcript types (contains child exons) and is not folded
+            updateFoldSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_feature");
+
+                var disabled = true ;
+                // TODO: if every feature selected ia a transcript / contains exons AND
+                // TODO: if every feature is not folded
+
+                menuItem.set("disabled", !this.isFolded(selected));
+            },
+
+            updateFoldBetweenSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_between_features");
+
+                // TODO: if 2 selected only
+                // TODO: if both are exons, and there is no folding inbetween
+                // TODO: if both are transcripts from the same scaffold and there is no folding inbetween
+                menuItem.set("disabled", selected.length!=2);
+            },
+            updateUnfoldSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("remove_folds");
+
+                // TODO: if a transcript and has folded regions within it
+                // TODO: if two exons and has a folded region within it
+                // TODO: if two transcripts projected as separate views
+
+                menuItem.set("disabled", this.isFolded(selected));
+            },
+            updateCreateViewFromFeaturesMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("view_only_features");
+
+                // TODO: if every feature selected is a transcript
+
+                menuItem.set("disabled", selected.length==0);
+            },
             updateMenu: function () {
                 this.updateDeleteMenuItem();
                 this.updateSetTranslationStartMenuItem();
@@ -5028,6 +5120,10 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+                this.updateFoldSelectedMenuItem();
+                this.updateFoldBetweenSelectedMenuItem();
+                this.updateUnfoldSelectedMenuItem();
+                this.updateCreateViewFromFeaturesMenuItem();
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
