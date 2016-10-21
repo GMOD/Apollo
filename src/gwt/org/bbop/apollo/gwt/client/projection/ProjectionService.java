@@ -8,6 +8,7 @@ import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
+import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.projection.Coordinate;
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection;
@@ -54,11 +55,9 @@ public class ProjectionService {
                     List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
                     coordinates.addAll(theseCoordinates);
                 } catch (Exception e) {
-                    GWT.log("has error!: "+e.fillInStackTrace().toString());
+                    GWT.log("has error!: " + e.fillInStackTrace().toString());
                 }
-            }
-            else
-            if (sequenceFeatureInfo != null && sequenceFeatureInfo.hasLocation()) {
+            } else if (sequenceFeatureInfo != null && sequenceFeatureInfo.hasLocation()) {
                 FeatureLocations featureLocations = sequenceFeatureInfo.getLocation();
                 List<Coordinate> theseCoordinates = generateCoordinatesFromFeatureLocations(featureLocations, projectionSequence);
                 coordinates.addAll(theseCoordinates);
@@ -114,7 +113,7 @@ public class ProjectionService {
      */
     public static MultiSequenceProjection getProjectionForString(String projectionString) {
         Integer index = projectionString.lastIndexOf(":");
-        if(index>0){
+        if (index > 0) {
             projectionString = projectionString.substring(0, index);
         }
         JSONObject projectionObject = JSONParser.parseStrict(projectionString).isObject();
@@ -122,7 +121,7 @@ public class ProjectionService {
         return createProjectionFromAssemblageInfo(assemblageInfo);
     }
 
-    public static Long getProjectionLength(String projectionString){
+    public static Long getProjectionLength(String projectionString) {
         MultiSequenceProjection multiSequenceProjection = getProjectionForString(projectionString);
         return multiSequenceProjection.getLength();
     }
@@ -264,8 +263,17 @@ public class ProjectionService {
         return jsonObject;
     }
 
-    private static void projectFeatures(String features,String refSeqString){
-        Window.alert("project ONLY "+features + " using the ref " + refSeqString);
+    private static void projectFeatures(String features, String refSeqString) {
+        Window.alert("project ONLY " + features + " using the ref " + refSeqString);
+        JSONObject projectionCommand = new JSONObject();
+
+        JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
+
+        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
+        projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
+        projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+        AssemblageRestService.projectFeatures(projectionCommand);
     }
 
     public static native void exportStaticMethod() /*-{

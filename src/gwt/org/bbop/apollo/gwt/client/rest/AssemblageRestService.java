@@ -92,4 +92,18 @@ public class AssemblageRestService {
         addAssemblageAndReturn(requestCallback,assemblageInfo);
     }
 
+    public static void projectFeatures(JSONObject projectionCommand) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                MainPanel.getInstance().setCurrentAssemblageAndView(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject()));
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        RestService.sendRequest(requestCallback, "assemblage/projectFeatures", projectionCommand);
+    }
 }

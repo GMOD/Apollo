@@ -1394,12 +1394,15 @@ define([
                 var array = [] ;
                 for(var s in selected){
                     var selfeature = selected[0].feature ;
-                    var seltrack = selected[0].track ;
+                    // alert(JSONUtils.flattenFeature(selfeature));
+                    // var seltrack = selected[0].track ;
                     var uniqueName = selfeature.getUniqueName();
-                    array.push(uniqueName);
+                    array.push({
+                        'uniquename':uniqueName
+                    });
                 }
 
-                this.getApollo().projectFeatures(array,this.refSeq.name);
+                this.getApollo().projectFeatures(JSON.stringify(array),this.refSeq.name);
             },
 
             deleteAnnotations: function (records) {

@@ -30,6 +30,28 @@ class AssemblageController {
 
     }
 
+    def projectFeatures(){
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        JSONArray featuresArray = JSON.parse(inputObject.getString(FeatureStringEnum.FEATURES.value)) as JSONArray
+//        println "featuresArray: ${featuresString}"
+        List<String> featureList = []
+        for(JSONObject featureObject in featuresArray){
+            featureList.add(featureObject.getString(FeatureStringEnum.UNIQUENAME.value))
+        }
+        println "featuresList : ${featureList}"
+        def features = Feature.findAllByUniqueNameInList(featureList)
+        println "features : ${features.name}"
+
+        JSONObject projectionObject = new JSONObject()
+        // TODO: create a projection assemblage for this object
+        JSONArray sequenceListArray = new JSONArray()
+        projectionObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceListArray)
+
+        projectionObject = featureProjectionService.expandProjectionJson(projectionObject)
+
+        render projectionObject as JSON
+    }
+
     def getAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         inputObject = featureProjectionService.expandProjectionJson(inputObject)
