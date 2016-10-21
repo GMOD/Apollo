@@ -33,22 +33,23 @@ class AssemblageService {
         return generateAssemblageForSequence(sequenceList)
     }
 
-    Assemblage generateAssemblageForFeatureRegions(List<Feature> features,Integer padding=org.bbop.apollo.gwt.shared.projection.ProjectionDefaults.DEFAULT_PADDING) {
-        Map<Feature,Sequence> featureSequenceMap = new HashMap<>()
+    Assemblage generateAssemblageForFeatureRegions(List<Feature> features, Integer padding = org.bbop.apollo.gwt.shared.projection.ProjectionDefaults.DEFAULT_PADDING) {
+        Map<Feature, Sequence> featureSequenceMap = new HashMap<>()
         List<FeatureLocation> featureLocationList = new ArrayList<>()
         features.each { feature ->
             feature.featureLocations.each { featureLocation ->
-                if (!featureLocationList.contains(featureLocation)) {
+                // if the feature does not contain an identical feature location by feature and rank
+//                if ( featureLocationList.find() { return it.rank == featureLocation.rank && it.featureId == featureLocation.featureId } == null ){
                     featureLocationList.add(featureLocation)
-                }
+//                }
             }
         }
 
         featureLocationList.sort() { a, b ->
             a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
         }.each {
-            if( !featureSequenceMap.containsKey(it.feature) ){
-                featureSequenceMap.put(it.feature,it.sequence)
+            if (!featureSequenceMap.containsKey(it.feature)) {
+                featureSequenceMap.put(it.feature, it.sequence)
             }
         }
 
@@ -81,14 +82,14 @@ class AssemblageService {
             locationObject.strand = feature.strand
             locationArray.add(locationObject)
 
-            sequenceObject.put(FeatureStringEnum.LOCATION.value,locationArray)
+            sequenceObject.put(FeatureStringEnum.LOCATION.value, locationArray)
 
 
             JSONObject featureObject = new JSONObject()
             featureObject.name = feature.name
             featureObject.fmin = minValue
             featureObject.fmax = maxValue
-            sequenceObject.put(FeatureStringEnum.FEATURE.value,featureObject)
+            sequenceObject.put(FeatureStringEnum.FEATURE.value, featureObject)
 
 
             sequenceObject.start = minValue
@@ -142,8 +143,6 @@ class AssemblageService {
 
         return generateAssemblageForSequence(sequenceList)
     }
-
-
 
     /**
      * Here we want to guarantee that the sequence list exists in the same order as the
@@ -313,8 +312,7 @@ class AssemblageService {
         if (assemblage == null) {
             log.info "creating assemblage from ${jsonObject as JSON} "
             assemblage = new Assemblage()
-        }
-        else{
+        } else {
             return assemblage
         }
 //        assemblage.id = jsonObject.id

@@ -1393,7 +1393,7 @@ define([
                 // var array = selected.map(function (sel) { return sel.feature; });
                 var array = [] ;
                 for(var s in selected){
-                    var selfeature = selected[0].feature ;
+                    var selfeature = selected[s].feature ;
                     // alert(JSONUtils.flattenFeature(selfeature));
                     // var seltrack = selected[0].track ;
                     var uniqueName = selfeature.getUniqueName();
@@ -1401,7 +1401,6 @@ define([
                         'uniquename':uniqueName
                     });
                 }
-
                 this.getApollo().projectFeatures(JSON.stringify(array),this.refSeq.name);
             },
 
@@ -4671,15 +4670,6 @@ define([
                     });
                     annot_context_menu.addChild(collapseBetweenExonsMenuItem);
 
-                    contextMenuItems["fold_between_features"] = index++;
-                    var collapseBetweenFeaturesMenuItem = new dijitMenuItem( {
-                        label: "Fold Between Features",
-                        onClick: function(event){
-                            alert('Collapsing between features.');
-                        }
-                    });
-                    annot_context_menu.addChild(collapseBetweenFeaturesMenuItem);
-
 
                     contextMenuItems["remove_folds"] = index++;
                     var removeFoldingMenuItem = new dijitMenuItem( {
@@ -5081,7 +5071,7 @@ define([
                 if(selected.length==0) return false ;
                 // for each selection, if a fold falls within projeciton region, then it is folded
                  for(var selection in selected){
-                     
+
                      // var start = selection.feature[0].fmin ;
                      // var end = selection.feature[0].fmax ;
                      // var regionFolded = window.parent.foldedInRegion(start,end,this.refSeq);
@@ -5122,30 +5112,6 @@ define([
 
             },
 
-            updateFoldBetweenFeaturesMenuItem: function () {
-                var selected = this.selectionManager.getSelection();
-                var menuItem = this.getMenuItem("fold_between_features");
-
-                // TODO: if 2 selected only
-                // TODO: if both are features that are not exons and do not overlap fmin / fmax
-                if(selected.length==2){
-                    var afeature1 = selected[0].feature.afeature;
-                    var afeature2 = selected[1].feature.afeature;
-                    var type1 = afeature1.type.name ;
-                    var type2 = afeature2.type.name ;
-                    var fmin1 = afeature1.location.fmin;
-                    var fmax1 = afeature1.location.fmax;
-                    var fmin2 = afeature2.location.fmin;
-                    var fmax2 = afeature2.location.fmax;
-                    if(type2!="exon" && type1!="exon" && fmin2 > fmax1){
-                        menuItem.set("disabled", false);
-                        return ;
-                    }
-
-                }
-                menuItem.set("disabled", true);
-            },
-
             updateFoldBetweenExonsMenuItem: function () {
                 var selected = this.selectionManager.getSelection();
                 var menuItem = this.getMenuItem("fold_between_exons");
@@ -5175,9 +5141,6 @@ define([
             updateCreateViewFromFeaturesMenuItem: function () {
                 var selected = this.selectionManager.getSelection();
                 var menuItem = this.getMenuItem("view_only_features");
-
-                // TODO: if every feature selected is a transcript
-
                 menuItem.set("disabled", selected.length==0);
             },
             updateMenu: function () {
@@ -5204,7 +5167,6 @@ define([
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
                 this.updateFoldSelectedMenuItem();
-                this.updateFoldBetweenFeaturesMenuItem();
                 this.updateFoldBetweenExonsMenuItem();
                 this.updateUnfoldSelectedMenuItem();
                 this.updateCreateViewFromFeaturesMenuItem();

@@ -33,6 +33,7 @@ class Assemblage {
 
     static mapping = {
         sequenceList type: "text"
+        name type: "text"
 //        referenceTrack type: "text"
         payload type: "text"
         start column: "startbp"

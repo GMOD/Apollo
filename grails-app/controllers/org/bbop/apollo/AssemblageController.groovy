@@ -34,7 +34,7 @@ class AssemblageController {
     def projectFeatures(){
         JSONObject inputObject = permissionService.handleInput(request, params)
         JSONArray featuresArray = JSON.parse(inputObject.getString(FeatureStringEnum.FEATURES.value)) as JSONArray
-//        println "featuresArray: ${featuresString}"
+        println "featuresArray: ${featuresArray as JSON}"
         List<String> featureList = []
         for(JSONObject featureObject in featuresArray){
             featureList.add(featureObject.getString(FeatureStringEnum.UNIQUENAME.value))

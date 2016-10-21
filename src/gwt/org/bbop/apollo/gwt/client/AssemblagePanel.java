@@ -129,6 +129,9 @@ public class AssemblagePanel extends Composite {
                 if (name == null || name.startsWith("Unnamed")) {
                     return "Unnamed";
                 }
+                if(name.length()>50){
+                    return name.substring(0,50)+"...";
+                }
                 return name;
             }
         };
