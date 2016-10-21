@@ -1088,12 +1088,12 @@ public class MainPanel extends Composite {
         return currentAssemblage;
     }
 
-    public void setcurrentAssemblage(AssemblageInfo assemblage) {
+    public void setCurrentAssemblage(AssemblageInfo assemblage) {
         currentAssemblage = assemblage;
     }
 
     public void setCurrentAssemblageAndView(AssemblageInfo assemblageInfo) {
-        setcurrentAssemblage(assemblageInfo);
+        setCurrentAssemblage(assemblageInfo);
         updateGenomicViewerForAssemblage(assemblageInfo);
     }
 

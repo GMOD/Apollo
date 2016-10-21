@@ -9,7 +9,9 @@ import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.MainPanel;
+import org.bbop.apollo.gwt.client.assemblage.AssemblageViewEvent;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -96,7 +98,12 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                MainPanel.getInstance().setCurrentAssemblageAndView(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject()));
+                Window.alert(response.getText());
+                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
+//                MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
+//                Annotator.eventBus.fireEvent(new AssemblageViewEvent());
+
+                MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
             }
 
             @Override

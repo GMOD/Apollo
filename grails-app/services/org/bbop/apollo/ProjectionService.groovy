@@ -177,9 +177,9 @@ class ProjectionService {
         for (JSONObject sequenceObject in sequenceArray) {
 //            DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
             ProjectionSequence projectionSequence = projectionSequenceList.get(sequenceObject.name)
-            if (sequenceObject.feature) {
+            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value)) {
                 // add lots of coordinates
-                for (JSONObject loc in sequenceObject.feature.location) {
+                for (JSONObject loc in sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value)) {
                     Coordinate coordinate = new Coordinate(
                             min: loc.getInt(FeatureStringEnum.FMIN.value)
                             , max: loc.getInt(FeatureStringEnum.FMAX.value)
@@ -187,7 +187,9 @@ class ProjectionService {
                     )
                     multiSequenceProjection.addCoordinate(coordinate)
                 }
-            } else {
+            }
+            else {
+                if(true) throw new RuntimeException("Should never get here")
                 Coordinate coordinate = new Coordinate(
                         min: sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMIN.value)
                         , max: sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMAX.value)
@@ -218,6 +220,7 @@ class ProjectionService {
      * @param assemblage
      * @return
      */
+    @Transactional
     List<Coordinate> getCoordinatesFromAssemblage(Assemblage assemblage) {
         List<Coordinate> coordinates = new ArrayList<>()
 
@@ -389,7 +392,6 @@ class ProjectionService {
  */
     @Transactional
     MultiSequenceProjection getProjection(JSONObject assemblageObject) {
-        println "input object ${assemblageObject as JSON}"
         Assemblage assemblage = assemblageService.convertJsonToAssemblage(assemblageObject)
         return createMultiSequenceProjection(assemblage)
     }

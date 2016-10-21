@@ -45,6 +45,7 @@ import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
@@ -354,7 +355,7 @@ public class AnnotatorPanel extends Composite {
         AssemblageInfo assemblageInfo = new AssemblageInfo();
         AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
 
-        assemblageInfo.setPadding(50);
+        assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
         assemblageInfo.setType("Exon");
 
         SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();

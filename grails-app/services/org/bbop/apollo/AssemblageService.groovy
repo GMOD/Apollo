@@ -33,6 +33,88 @@ class AssemblageService {
         return generateAssemblageForSequence(sequenceList)
     }
 
+    Assemblage generateAssemblageForFeatureRegions(List<Feature> features,Integer padding=org.bbop.apollo.gwt.shared.projection.ProjectionDefaults.DEFAULT_PADDING) {
+        Map<Feature,Sequence> featureSequenceMap = new HashMap<>()
+        List<FeatureLocation> featureLocationList = new ArrayList<>()
+        features.each { feature ->
+            feature.featureLocations.each { featureLocation ->
+                if (!featureLocationList.contains(featureLocation)) {
+                    featureLocationList.add(featureLocation)
+                }
+            }
+        }
+
+        featureLocationList.sort() { a, b ->
+            a.isFmaxPartial <=> b.isFmaxPartial ?: b.isFminPartial <=> a.isFminPartial ?: a.fmin <=> b.fmin
+        }.each {
+            if( !featureSequenceMap.containsKey(it.feature) ){
+                featureSequenceMap.put(it.feature,it.sequence)
+            }
+        }
+
+        // TODO: validate sequenceList against each feature and their location
+//        features.each {
+//            validateFeatureVsSequenceList(it, sequenceList)
+//        }
+
+        Organism organism = featureSequenceMap.values().first().organism
+        JSONArray sequenceArray = new JSONArray()
+        int end = 0;
+        for (Feature feature in featureSequenceMap.keySet()) {
+            Sequence seq = featureSequenceMap.get(feature)
+
+            Integer minValue = feature.fmin - padding
+            minValue = minValue >= seq.start ? minValue : seq.start
+            Integer maxValue = feature.fmax + padding
+            maxValue = maxValue < seq.end ? maxValue : seq.end
+
+            // note this creates the proper JSON string
+            JSONObject sequenceObject = JSON.parse((seq as JSON).toString()) as JSONObject
+            sequenceObject.reverse = false
+
+            JSONArray locationArray = new JSONArray()
+
+            // TODO: for multiple locations or folding, you would add multiple of these
+            JSONObject locationObject = new JSONObject()
+            locationObject.fmin = minValue
+            locationObject.fmax = maxValue
+            locationObject.strand = feature.strand
+            locationArray.add(locationObject)
+
+            sequenceObject.put(FeatureStringEnum.LOCATION.value,locationArray)
+
+
+            JSONObject featureObject = new JSONObject()
+            featureObject.name = feature.name
+            featureObject.fmin = minValue
+            featureObject.fmax = maxValue
+            sequenceObject.put(FeatureStringEnum.FEATURE.value,featureObject)
+
+
+            sequenceObject.start = minValue
+            sequenceObject.end = maxValue
+
+            sequenceArray.add(sequenceObject)
+            organism = organism ?: seq.organism
+            end += maxValue - minValue
+        }
+        JSONObject testSequence = new JSONObject()
+        testSequence.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray)
+        testSequence.put(FeatureStringEnum.ORGANISM.value, organism.id)
+        testSequence = standardizeSequenceList(testSequence)
+
+        Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, sequenceArray.toString())
+        assemblage = assemblage ?: new Assemblage(
+                organism: organism
+                , sequenceList: sequenceArray.toString()
+                , start: 0
+                , name: generateAssemblageName(sequenceArray)
+                , end: end
+        ).save(flush: true, failOnError: true)
+
+        return assemblage
+//        return generateAssemblageForSequence(sequenceList)
+    }
 
     Assemblage generateAssemblageForFeatures(Feature... features) {
         List<Sequence> sequenceList = new ArrayList<>()
@@ -60,6 +142,8 @@ class AssemblageService {
 
         return generateAssemblageForSequence(sequenceList)
     }
+
+
 
     /**
      * Here we want to guarantee that the sequence list exists in the same order as the
@@ -104,11 +188,13 @@ class AssemblageService {
         testSequence.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray)
         testSequence.put(FeatureStringEnum.ORGANISM.value, organism.id)
         testSequence = standardizeSequenceList(testSequence)
+//        sequenceArray = testSequence.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+        String sanitizedSequenceArrayString = testSequence.getString(FeatureStringEnum.SEQUENCE_LIST.value)
 
-        Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, testSequence.get(FeatureStringEnum.SEQUENCE_LIST.value).toString())
+        Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, sanitizedSequenceArrayString)
         assemblage = assemblage ?: new Assemblage(
                 organism: organism
-                , sequenceList: sequenceArray.toString()
+                , sequenceList: sanitizedSequenceArrayString
                 , start: 0
                 , name: generateAssemblageName(sequenceArray)
                 , end: end
@@ -227,6 +313,9 @@ class AssemblageService {
         if (assemblage == null) {
             log.info "creating assemblage from ${jsonObject as JSON} "
             assemblage = new Assemblage()
+        }
+        else{
+            return assemblage
         }
 //        assemblage.id = jsonObject.id
         assemblage.projection = jsonObject.projection

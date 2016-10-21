@@ -38,6 +38,7 @@ import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults;
 import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -331,7 +332,7 @@ public class SequencePanel extends Composite {
         long start = 0;
         long end = 0;
         for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
-            assemblageInfo.setPadding(50);
+            assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
             assemblageInfo.setType("Exon");
             AssemblageSequence sequenceObject = new AssemblageSequence();
             sequenceObject.setName(sequenceInfo.getName());
