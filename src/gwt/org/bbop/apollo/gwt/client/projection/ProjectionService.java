@@ -11,6 +11,7 @@ import org.bbop.apollo.gwt.client.dto.assemblage.*;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.projection.Coordinate;
+import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection;
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection;
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence;
 
@@ -276,6 +277,23 @@ public class ProjectionService {
         AssemblageRestService.projectFeatures(projectionCommand);
     }
 
+    public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {
+        MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
+        return multiSequenceProjection.getLength();
+    }
+
+    public static boolean regionContainsFolds(String fminString,String fmaxString,String referenceSequenceString) {
+//        Window.alert("input strings: ["+fminString + "] ["+ fmaxString+"]");
+        Integer fmin = Integer.parseInt(fminString);
+        Integer fmax = Integer.parseInt(fmaxString);
+        MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
+        Coordinate reverseCoordinate = multiSequenceProjection.projectReverseCoordinate((long) fmin,(long) fmax);
+//        Window.alert("fmax: "+fmax + " fmin: "+ fmin);
+//        Window.alert("coordinate fmax: "+reverseCoordinate.getMax()+ " fmin: "+ reverseCoordinate.getMin());
+//        Window.alert(fmax-fmin + " vs "+ (reverseCoordinate.getMax()-reverseCoordinate.getMin()));
+        return (fmax-fmin != reverseCoordinate.getMax()-reverseCoordinate.getMin());
+    }
+
     public static native void exportStaticMethod() /*-{
         $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
         $wnd.projectReverseValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseValue(Ljava/lang/String;Ljava/lang/String;));
@@ -284,10 +302,7 @@ public class ProjectionService {
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
         $wnd.getProjectionLength = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getProjectionLength(Ljava/lang/String;));
         $wnd.projectFeatures = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectFeatures(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.regionContainsFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::regionContainsFolds(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
-    public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {
-        MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
-        return multiSequenceProjection.getLength();
-    }
 }

@@ -545,10 +545,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return true;
     }
 
-//    DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence) {
-//        //                sequenceDiscontinuousProjectionMap.keySet().eachWithIndex {
-//            ProjectionSequence it, int i ->
-//            //        }
-//        return sequenceDiscontinuousProjectionMap.get(projectionSequence)
-//    }
+    public DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence) {
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence);
+    }
 }

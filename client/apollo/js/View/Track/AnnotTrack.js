@@ -5067,10 +5067,20 @@ define([
             },
 
             // determine if a feature is folded
+            // if they are ALL folded return folded
             isFolded: function(selected){
-                if(selected.length==0) return false ;
                 // for each selection, if a fold falls within projeciton region, then it is folded
-                 for(var selection in selected){
+                if(selected.length==0) return false ;
+
+                 for(var s in selected){
+                     var feature = selected[s].feature.afeature;
+                     var fmin = feature.location.fmin;
+                     var fmax = feature.location.fmax;
+
+                     var regionFolded = window.parent.regionContainsFolds(fmin,fmax,this.refSeq.name);
+                     if(regionFolded===false) {
+                         return false ;
+                     }
 
                      // var start = selection.feature[0].fmin ;
                      // var end = selection.feature[0].fmax ;
@@ -5079,7 +5089,7 @@ define([
                      //     return false ;
                      // }
                  }
-                 return false ;
+                 return true ;
             },
 
             isFoldable: function(selectedType){
@@ -5130,12 +5140,7 @@ define([
             updateUnfoldSelectedMenuItem: function () {
                 var selected = this.selectionManager.getSelection();
                 var menuItem = this.getMenuItem("remove_folds");
-
-                // TODO: if a transcript and has folded regions within it
-                // TODO: if two exons and has a folded region within it
-                // TODO: if two transcripts projected as separate views
-
-                menuItem.set("disabled", this.isFolded(selected));
+                menuItem.set("disabled", !this.isFolded(selected));
             },
 
             updateCreateViewFromFeaturesMenuItem: function () {
