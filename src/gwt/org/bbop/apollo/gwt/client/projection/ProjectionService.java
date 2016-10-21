@@ -265,6 +265,20 @@ public class ProjectionService {
         return jsonObject;
     }
 
+
+    public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {
+        MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
+        return multiSequenceProjection.getLength();
+    }
+
+    public static boolean regionContainsFolds(String fminString,String fmaxString,String referenceSequenceString) {
+        Integer fmin = Integer.parseInt(fminString);
+        Integer fmax = Integer.parseInt(fmaxString);
+        MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
+        Coordinate reverseCoordinate = multiSequenceProjection.projectReverseCoordinate((long) fmin,(long) fmax);
+        return (fmax-fmin != reverseCoordinate.getMax()-reverseCoordinate.getMin());
+    }
+
     private static void projectFeatures(String features, String refSeqString) {
         JSONObject projectionCommand = new JSONObject();
 
@@ -277,21 +291,45 @@ public class ProjectionService {
         AssemblageRestService.projectFeatures(projectionCommand);
     }
 
-    public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {
-        MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
-        return multiSequenceProjection.getLength();
+    private static void foldSelectedTranscript(String features, String refSeqString) {
+        JSONObject projectionCommand = new JSONObject();
+
+        JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
+
+        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
+        projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
+        projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+
+        Window.alert("folding selected transcripts: "+featuresArray.toString());
+
+        AssemblageRestService.foldTranscripts(projectionCommand);
     }
 
-    public static boolean regionContainsFolds(String fminString,String fmaxString,String referenceSequenceString) {
-//        Window.alert("input strings: ["+fminString + "] ["+ fmaxString+"]");
-        Integer fmin = Integer.parseInt(fminString);
-        Integer fmax = Integer.parseInt(fmaxString);
-        MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
-        Coordinate reverseCoordinate = multiSequenceProjection.projectReverseCoordinate((long) fmin,(long) fmax);
-//        Window.alert("fmax: "+fmax + " fmin: "+ fmin);
-//        Window.alert("coordinate fmax: "+reverseCoordinate.getMax()+ " fmin: "+ reverseCoordinate.getMin());
-//        Window.alert(fmax-fmin + " vs "+ (reverseCoordinate.getMax()-reverseCoordinate.getMin()));
-        return (fmax-fmin != reverseCoordinate.getMax()-reverseCoordinate.getMin());
+    private static void foldBetweenExons(String features, String refSeqString) {
+        JSONObject projectionCommand = new JSONObject();
+
+        JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
+
+        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
+        projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
+        projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+        Window.alert("folding between exons: "+featuresArray.toString());
+        AssemblageRestService.foldBetweenExons(projectionCommand);
+    }
+
+    private static void removeFolds(String features, String refSeqString) {
+        JSONObject projectionCommand = new JSONObject();
+
+        JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
+
+        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
+        projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
+        projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+        Window.alert("removing folds: "+featuresArray.toString());
+        AssemblageRestService.removeFolds(projectionCommand);
     }
 
     public static native void exportStaticMethod() /*-{
@@ -301,8 +339,12 @@ public class ProjectionService {
         $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
         $wnd.getProjectionLength = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getProjectionLength(Ljava/lang/String;));
-        $wnd.projectFeatures = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectFeatures(Ljava/lang/String;Ljava/lang/String;));
         $wnd.regionContainsFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::regionContainsFolds(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+        $wnd.projectFeatures = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectFeatures(Ljava/lang/String;Ljava/lang/String;));
+
+        $wnd.foldSelectedTranscript = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::foldSelectedTranscript(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.foldBetweenExons = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::foldBetweenExons(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.removeFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::removeFolds(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
 }

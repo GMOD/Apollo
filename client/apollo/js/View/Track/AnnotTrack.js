@@ -1386,7 +1386,7 @@ define([
                 return window.parent;
             },
 
-            projectSelectedFeatures: function () {
+            createArrayOfUniqueNamesFromSelection: function () {
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
 
@@ -1401,7 +1401,29 @@ define([
                         'uniquename':uniqueName
                     });
                 }
+                return array;
+            },
+
+            projectSelectedFeatures: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
                 this.getApollo().projectFeatures(JSON.stringify(array),this.refSeq.name);
+            },
+
+            // fold selected transcript and
+            foldSelectedTranscript: function () {
+                // we'll assume that each type is a transcript
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().foldSelectedTranscript(JSON.stringify(array),this.refSeq.name);
+            },
+
+            foldBetweenSelectedExons: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().foldBetweenExons(JSON.stringify(array),this.refSeq.name);
+            },
+
+            removeSelectedFolds: function(){
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().removeFolds(JSON.stringify(array),this.refSeq.name);
             },
 
             deleteAnnotations: function (records) {
@@ -1492,12 +1514,15 @@ define([
                 });
             },
 
+
+            // TODO: I think this can be removed
             foldSelectedFeatures: function () {
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 this.foldExons(selected);
             },
 
+            // TODO: I think this can be removed
             foldExons: function (selections) {
                 // add folding to current refSeq . .. and reload
                 console.log(selections);
@@ -4656,7 +4681,7 @@ define([
                     var collapseFeaturesMenuItem = new dijitMenuItem( {
                         label: "Fold Feature",
                         onClick: function(event){
-                            alert('Collapsing entire feature.');
+                            thisB.foldSelectedTranscript();
                         }
                     });
                     annot_context_menu.addChild(collapseFeaturesMenuItem);
@@ -4665,7 +4690,7 @@ define([
                     var collapseBetweenExonsMenuItem = new dijitMenuItem( {
                         label: "Fold Between Exons",
                         onClick: function(event){
-                            alert('Collapsing between exons.');
+                            thisB.foldBetweenSelectedExons();
                         }
                     });
                     annot_context_menu.addChild(collapseBetweenExonsMenuItem);
@@ -4675,7 +4700,7 @@ define([
                     var removeFoldingMenuItem = new dijitMenuItem( {
                         label: "Remove Folds",
                         onClick: function(event){
-                            alert('Removing folds of selected features.');
+                            thisB.removeSelectedFolds();
                         }
                     });
                     annot_context_menu.addChild(removeFoldingMenuItem);

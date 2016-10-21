@@ -110,4 +110,53 @@ public class AssemblageRestService {
         };
         RestService.sendRequest(requestCallback, "assemblage/projectFeatures", projectionCommand);
     }
+
+    public static void foldTranscripts(JSONObject projectionCommand) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
+                MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        RestService.sendRequest(requestCallback, "assemblage/foldTranscripts", projectionCommand);
+    }
+
+    public static void removeFolds(JSONObject projectionCommand) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
+                MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        RestService.sendRequest(requestCallback, "assemblage/removeFolds", projectionCommand);
+    }
+
+    public static void foldBetweenExons(JSONObject projectionCommand) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
+                MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        RestService.sendRequest(requestCallback, "assemblage/foldBetweenExons", projectionCommand);
+    }
+
 }

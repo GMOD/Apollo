@@ -47,6 +47,22 @@ class AssemblageController {
         render assemblageService.convertAssemblageToJson(assemblage) as JSON
     }
 
+
+    @Transactional
+    def foldBetweenTranscripts(){
+        render getAssemblage()
+    }
+
+    @Transactional
+    def removeFolds(){
+        render getAssemblage()
+    }
+
+    @Transactional
+    def foldBetweenExons(){
+        render getAssemblage()
+    }
+
     def getAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         inputObject = featureProjectionService.expandProjectionJson(inputObject)
