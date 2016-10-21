@@ -272,8 +272,8 @@ define([
             },
 
             getClientToken: function () {
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    var token = window.parent.getClientToken();
+                if (typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                    var token = this.getApollo().getClientToken();
                     //alert("AnnotTrack have to get client token in AnnotTrack.js using GWT function: "+token);
                     return token ;
                 }
@@ -311,11 +311,12 @@ define([
                 var track = this;
                 var browser = this.gview.browser;
 
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                if (typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                    var apolloMainPanel = this.getApollo();
                     console.log('Registering embedded system with ApolloGwt-2.0.');
 
                     browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                        window.parent.handleNavigationEvent(JSON.stringify(currRegion));
+                        apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
                     }));
 
 
@@ -336,8 +337,8 @@ define([
 
                         // if for some reason this method is called in the wrong place, we catch the error
                         try {
-                            if (window.parent) {
-                                window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                            if (apolloMainPanel) {
+                                apolloMainPanel.loadTracks(JSON.stringify(filteredTrackList));
                             }
                         } catch (e) {
                             console.log("window.parent invalid, ignoring");
@@ -372,16 +373,16 @@ define([
                         console.log("hide update");
                         handleTrackVisibility({command: "list"});
                     });
-                    window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+                    apolloMainPanel.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
 
 
                     client.connect({}, function () {
                         // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        var organism = JSON.parse(window.parent.getCurrentOrganism());
-                        //var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        var assemblage= JSON.parse(window.parent.getCurrentAssemblage());
-                        var user = JSON.parse(window.parent.getCurrentUser());
+                        var organism = JSON.parse(apolloMainPanel.getCurrentOrganism());
+                        //var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                        var assemblage= JSON.parse(apolloMainPanel.getCurrentAssemblage());
+                        var user = JSON.parse(apolloMainPanel.getCurrentUser());
                         assemblage.sequenceList.forEach(function(obj){
                             client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
                         });
@@ -440,7 +441,7 @@ define([
                         }
                         else{
                             alert("You have been logged out or your session has expired");
-                            if (window.parent) {
+                            if (this.getApollo()) {
                                 parent.location.reload();
                             }
                             else {
@@ -463,7 +464,7 @@ define([
                         else {
                             track.annotationsAddedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                        if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureAdded(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "DELETE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -472,7 +473,7 @@ define([
                         else {
                             track.annotationsDeletedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "UPDATE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -481,7 +482,7 @@ define([
                         else {
                             track.annotationsUpdatedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else {
                         console.log('unknown command: ', changeData.operation);
@@ -1379,6 +1380,26 @@ define([
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 this.deleteAnnotations(selected);
+            },
+
+            getApollo: function(){
+                return window.parent;
+            },
+
+            projectSelectedFeatures: function () {
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+
+                // var array = selected.map(function (sel) { return sel.feature; });
+                var array = [] ;
+                for(var s in selected){
+                    var selfeature = selected[0].feature ;
+                    var seltrack = selected[0].track ;
+                    var uniqueName = selfeature.getUniqueName();
+                    array.push(uniqueName);
+                }
+
+                this.getApollo().projectFeatures(array,this.refSeq.name);
             },
 
             deleteAnnotations: function (records) {
@@ -3801,7 +3822,7 @@ define([
             showInAnnotatorPanel: function () {
                 var selected = this.selectionManager.getSelection();
                 var selectedFeature = selected[0].feature.afeature ;
-                window.parent.showInAnnotatorPanel(selectedFeature.name,selected[0].feature.afeature.sequence);
+                this.getApollo().showInAnnotatorPanel(selectedFeature.name,selected[0].feature.afeature.sequence);
             },
 
             getGff3ForSelectedFeatures: function (records) {
@@ -4356,7 +4377,7 @@ define([
                     timeout: 5 * 1000, // Time in milliseconds
                     // The LOAD function will be called on a successful response.
                     load: function (response, ioArgs) { //
-                        if (window.parent) window.parent.location.reload();
+                        if (this.getApollo()) this.getApollo().location.reload();
                         else window.location.reload();
                     },
                     error: function (response, ioArgs) { //
@@ -4423,7 +4444,7 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (window.parent) window.parent.location.reload();
+                                        if (this.getApollo()) this.getApollo().location.reload();
                                         else window.location.reload();
                                     },
                                     error: function (response, ioArgs) { //
@@ -4660,7 +4681,7 @@ define([
                     var viewOnlyFeaturesMenuItem = new dijitMenuItem( {
                         label: "View Only Features",
                         onClick: function(event){
-                            alert('Viewing only selected features.');
+                            thisB.projectSelectedFeatures();
                         }
                     });
                     annot_context_menu.addChild(viewOnlyFeaturesMenuItem);

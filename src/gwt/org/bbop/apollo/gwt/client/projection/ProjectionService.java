@@ -264,6 +264,9 @@ public class ProjectionService {
         return jsonObject;
     }
 
+    private static void projectFeatures(String features,String refSeqString){
+        Window.alert("project ONLY "+features + " using the ref " + refSeqString);
+    }
 
     public static native void exportStaticMethod() /*-{
         $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
@@ -272,6 +275,7 @@ public class ProjectionService {
         $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
         $wnd.getProjectionLength = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getProjectionLength(Ljava/lang/String;));
+        $wnd.projectFeatures = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectFeatures(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     public static Long calculatedProjectedLength(AssemblageInfo assemblageInfo) {
