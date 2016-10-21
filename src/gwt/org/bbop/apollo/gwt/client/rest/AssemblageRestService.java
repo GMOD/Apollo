@@ -98,10 +98,7 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.alert(response.getText());
                 AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
-//                MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
-//                Annotator.eventBus.fireEvent(new AssemblageViewEvent());
 
                 MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
             }

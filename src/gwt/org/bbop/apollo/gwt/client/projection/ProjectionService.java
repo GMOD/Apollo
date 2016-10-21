@@ -265,7 +265,6 @@ public class ProjectionService {
     }
 
     private static void projectFeatures(String features, String refSeqString) {
-        Window.alert("project ONLY " + features + " using the ref " + refSeqString);
         JSONObject projectionCommand = new JSONObject();
 
         JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
