@@ -4662,6 +4662,15 @@ define([
                     });
                     annot_context_menu.addChild(collapseFeaturesMenuItem);
 
+                    contextMenuItems["fold_between_exons"] = index++;
+                    var collapseBetweenExonsMenuItem = new dijitMenuItem( {
+                        label: "Fold Between Exons",
+                        onClick: function(event){
+                            alert('Collapsing between exons.');
+                        }
+                    });
+                    annot_context_menu.addChild(collapseBetweenExonsMenuItem);
+
                     contextMenuItems["fold_between_features"] = index++;
                     var collapseBetweenFeaturesMenuItem = new dijitMenuItem( {
                         label: "Fold Between Features",
@@ -4670,6 +4679,7 @@ define([
                         }
                     });
                     annot_context_menu.addChild(collapseBetweenFeaturesMenuItem);
+
 
                     contextMenuItems["remove_folds"] = index++;
                     var removeFoldingMenuItem = new dijitMenuItem( {
@@ -5071,6 +5081,7 @@ define([
                 if(selected.length==0) return false ;
                 // for each selection, if a fold falls within projeciton region, then it is folded
                  for(var selection in selected){
+                     
                      // var start = selection.feature[0].fmin ;
                      // var end = selection.feature[0].fmax ;
                      // var regionFolded = window.parent.foldedInRegion(start,end,this.refSeq);
@@ -5078,7 +5089,18 @@ define([
                      //     return false ;
                      // }
                  }
-                 return true ;
+                 return false ;
+            },
+
+            isFoldable: function(selectedType){
+                return selectedType === "miRNA"
+                    || selectedType == "snRNA"
+                    || selectedType === "snoRNA"
+                    || selectedType === "rRNA"
+                    || selectedType === "tRNA"
+                    || selectedType === "ncRNA"
+                    || selectedType === "transcript"
+                    || selectedType === "mRNA";
             },
 
             // folds an entire transcript only
@@ -5088,21 +5110,57 @@ define([
                 var menuItem = this.getMenuItem("fold_feature");
 
                 var disabled = true ;
-                // TODO: if every feature selected ia a transcript / contains exons AND
-                // TODO: if every feature is not folded
+                if(selected.length==1 ){
+                    var type1 = selected[0].feature.afeature.type.name ;
+                    if(this.isFoldable(type1) && !this.isFolded(selected)){
+                        menuItem.set("disabled", false );
+                        return ;
+                    }
 
-                menuItem.set("disabled", !this.isFolded(selected));
+                }
+                menuItem.set("disabled", true);
+
             },
 
-            updateFoldBetweenSelectedMenuItem: function () {
+            updateFoldBetweenFeaturesMenuItem: function () {
                 var selected = this.selectionManager.getSelection();
                 var menuItem = this.getMenuItem("fold_between_features");
 
                 // TODO: if 2 selected only
-                // TODO: if both are exons, and there is no folding inbetween
-                // TODO: if both are transcripts from the same scaffold and there is no folding inbetween
-                menuItem.set("disabled", selected.length!=2);
+                // TODO: if both are features that are not exons and do not overlap fmin / fmax
+                if(selected.length==2){
+                    var afeature1 = selected[0].feature.afeature;
+                    var afeature2 = selected[1].feature.afeature;
+                    var type1 = afeature1.type.name ;
+                    var type2 = afeature2.type.name ;
+                    var fmin1 = afeature1.location.fmin;
+                    var fmax1 = afeature1.location.fmax;
+                    var fmin2 = afeature2.location.fmin;
+                    var fmax2 = afeature2.location.fmax;
+                    if(type2!="exon" && type1!="exon" && fmin2 > fmax1){
+                        menuItem.set("disabled", false);
+                        return ;
+                    }
+
+                }
+                menuItem.set("disabled", true);
             },
+
+            updateFoldBetweenExonsMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_between_exons");
+                if(selected.length==2){
+                    var type1 = selected[0].feature.afeature.type.name ;
+                    var type2 = selected[1].feature.afeature.type.name ;
+                    if(type1===type2 && type1==="exon"){
+                        menuItem.set("disabled", false);
+                        return ;
+                    }
+                }
+                menuItem.set("disabled", true);
+
+            },
+
             updateUnfoldSelectedMenuItem: function () {
                 var selected = this.selectionManager.getSelection();
                 var menuItem = this.getMenuItem("remove_folds");
@@ -5113,6 +5171,7 @@ define([
 
                 menuItem.set("disabled", this.isFolded(selected));
             },
+
             updateCreateViewFromFeaturesMenuItem: function () {
                 var selected = this.selectionManager.getSelection();
                 var menuItem = this.getMenuItem("view_only_features");
@@ -5145,7 +5204,8 @@ define([
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
                 this.updateFoldSelectedMenuItem();
-                this.updateFoldBetweenSelectedMenuItem();
+                this.updateFoldBetweenFeaturesMenuItem();
+                this.updateFoldBetweenExonsMenuItem();
                 this.updateUnfoldSelectedMenuItem();
                 this.updateCreateViewFromFeaturesMenuItem();
             },
