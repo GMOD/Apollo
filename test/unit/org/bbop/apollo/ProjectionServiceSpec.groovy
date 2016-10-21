@@ -78,10 +78,10 @@ class ProjectionServiceSpec extends Specification {
         assert firstProjection.order == 0
         assert firstProjection.feature != null
         assert firstProjection.feature.location.size() == 2
-        assert firstProjection.feature.location[0].min==12
-        assert firstProjection.feature.location[0].max==15
-        assert firstProjection.feature.location[1].min==30
-        assert firstProjection.feature.location[1].max==50
+        assert firstProjection.feature.location[0].fmin==12
+        assert firstProjection.feature.location[0].fmax==15
+        assert firstProjection.feature.location[1].fmin==30
+        assert firstProjection.feature.location[1].fmax==50
 
         assert lastProjection.name == "Group2"
         assert lastProjection.start == 30
@@ -90,10 +90,10 @@ class ProjectionServiceSpec extends Specification {
         assert lastProjection.order == 1
         assert lastProjection.feature != null
         assert lastProjection.feature.location.size() == 2
-        assert lastProjection.feature.location[0].min==30
-        assert lastProjection.feature.location[0].max==130
-        assert lastProjection.feature.location[1].min==135
-        assert lastProjection.feature.location[1].max==150
+        assert lastProjection.feature.location[0].fmin==30
+        assert lastProjection.feature.location[0].fmax==130
+        assert lastProjection.feature.location[1].fmin==135
+        assert lastProjection.feature.location[1].fmax==150
 
 
         when: "de-serialize it"

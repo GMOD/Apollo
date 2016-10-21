@@ -150,8 +150,8 @@ class ProjectionService {
             JSONArray coordinateArray = new JSONArray()
             for (Coordinate coordinate in coordinateList) {
                 JSONObject coordinateObject = new JSONObject(
-                        min: coordinate.min
-                        , max: coordinate.max
+                        fmin: coordinate.min
+                        , fmax: coordinate.max
                         , sequence: projectionSequence
                 )
                 coordinateArray.add(coordinateObject)
@@ -177,9 +177,21 @@ class ProjectionService {
         for (JSONObject sequenceObject in sequenceArray) {
 //            DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
             ProjectionSequence projectionSequence = projectionSequenceList.get(sequenceObject.name)
-            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value)) {
+//            if(sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)){
+//                for (JSONObject loc in sequenceObject.getJSONArray(FeatureStringEnum.LOCATION.value)) {
+//                    Coordinate coordinate = new Coordinate(
+//                            min: loc.getInt(FeatureStringEnum.FMIN.value)
+//                            , max: loc.getInt(FeatureStringEnum.FMAX.value)
+//                            , sequence: projectionSequence
+//                    )
+//                    multiSequenceProjection.addCoordinate(coordinate)
+//                }
+//            }
+//            else
+            if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value) && sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).containsKey(FeatureStringEnum.LOCATION.value)) {
                 // add lots of coordinates
                 for (JSONObject loc in sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value)) {
+//                    println "loc: ${loc as JSON}"
                     Coordinate coordinate = new Coordinate(
                             min: loc.getInt(FeatureStringEnum.FMIN.value)
                             , max: loc.getInt(FeatureStringEnum.FMAX.value)
