@@ -76,7 +76,7 @@ define([
                     var projectionObject = JSON.parse(nameString);
 
                     var offset = 0 ;
-                    for(i in projectionObject.sequenceList){
+                    for(var i in projectionObject.sequenceList){
                         var seq = projectionObject.sequenceList[i];
                         var start = seq.start ;
                         var end = seq.end ;
