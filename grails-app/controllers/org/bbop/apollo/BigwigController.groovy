@@ -3,7 +3,7 @@ package org.bbop.apollo
 import edu.unc.genomics.io.BigWigFileReader
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 

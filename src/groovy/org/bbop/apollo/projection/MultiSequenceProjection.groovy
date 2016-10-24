@@ -17,6 +17,8 @@ import org.bbop.apollo.Organism
  *
  *
  * Created by nathandunn on 9/24/15.
+ *
+ * @deprecated
  */
 class MultiSequenceProjection extends AbstractProjection {
 

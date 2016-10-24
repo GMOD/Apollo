@@ -4,7 +4,8 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.*
+import org.bbop.apollo.gwt.shared.projection.*
+import org.bbop.apollo.projection.TrackIndex
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -146,7 +147,7 @@ class ProjectionService {
                 featureObject.name = discontinuousProjectionObject.name
             }
 
-            List<Coordinate> coordinateList = discontinuousProjection.getCoordinates()
+            List<Coordinate> coordinateList = discontinuousProjection.getCoordinates() as List<Coordinate>
             JSONArray coordinateArray = new JSONArray()
             for (Coordinate coordinate in coordinateList) {
                 JSONObject coordinateObject = new JSONObject(
@@ -195,9 +196,9 @@ class ProjectionService {
             } else {
                 if (true) throw new RuntimeException("Should never get here")
                 Coordinate coordinate = new Coordinate(
-                        min: sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMIN.value)
-                        , max: sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMAX.value)
-                        , sequence: projectionSequence
+                        sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMIN.value)
+                        , sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMAX.value)
+                        , projectionSequence
                 )
                 multiSequenceProjection.addCoordinate(coordinate)
             }
@@ -211,9 +212,9 @@ class ProjectionService {
         for (JSONObject loc in jsonArray) {
 //                    println "loc: ${loc as JSON}"
             Coordinate coordinate = new Coordinate(
-                    min: loc.getInt(FeatureStringEnum.FMIN.value)
-                    , max: loc.getInt(FeatureStringEnum.FMAX.value)
-                    , sequence: projectionSequence
+                    loc.getInt(FeatureStringEnum.FMIN.value)
+                    , loc.getInt(FeatureStringEnum.FMAX.value)
+                    , projectionSequence
             )
             projection.addCoordinate(coordinate)
         }
@@ -253,16 +254,21 @@ class ProjectionService {
             if (sequenceObject.location) {
                 JSONArray locationArray = sequenceObject.location
                 for (JSONObject locationObject in locationArray) {
-//                    coordinates.add(new Coordinate(min: locationObject.start, max: locationObject.end, sequence: projectionSequence))
                     coordinates.add(
-                            new Coordinate(min: locationObject.getInt(FeatureStringEnum.FMIN.value)
-                                    , max: locationObject.getInt(FeatureStringEnum.FMAX.value)
-                                    , sequence: projectionSequence
+                            new Coordinate(
+                                    locationObject.getInt(FeatureStringEnum.FMIN.value)
+                                    , locationObject.getInt(FeatureStringEnum.FMAX.value)
+                                    , projectionSequence
                             )
                     )
                 }
             } else {
-                coordinates.add(new Coordinate(min: sequenceObject.start, max: sequenceObject.end, sequence: projectionSequence))
+                coordinates.add(
+                        new Coordinate(
+                                sequenceObject.start
+                                , sequenceObject.end,
+                                projectionSequence)
+                )
             }
         }
 
@@ -351,9 +357,9 @@ class ProjectionService {
             )
             coordinates.add(
                     new Coordinate(
-                            min: coordinate.getInt(trackIndex.start)
-                            , max: coordinate.getInt(trackIndex.end) - 1 // the end is exclusive from track, we store inclusive
-                            , sequence: projectionSequence1
+                            coordinate.getInt(trackIndex.start)
+                            , coordinate.getInt(trackIndex.end) - 1 // the end is exclusive from track, we store inclusive
+                            , projectionSequence1
                     )
             )
         }

@@ -447,8 +447,16 @@ public class DiscontinuousProjection extends AbstractProjection {
         return returnValue;
     }
 
-    Collection<Coordinate> getCoordinates() {
+    public Collection<Coordinate> getCoordinates() {
         assert minMap.size() == maxMap.size();
         return minMap.values();
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 }

@@ -501,12 +501,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect to get sane results"
         assert trackObject.featureCount == 10
         assert trackObject.intervals.nclist.size() == 3
-        assert trackObject.intervals.nclist.getJSONArray(0).getInt(1)==6709 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==15048+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==200+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==6309+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==15448+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(0).getInt(1)==6709 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==15048+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==200+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==6309+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==15448+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
     }
 
@@ -529,8 +529,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==16408
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==16808
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==25147
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==25547 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==25547 + org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
     }
 }

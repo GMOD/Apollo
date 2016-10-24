@@ -61,7 +61,7 @@ public class MultiSequenceProjection extends AbstractProjection {
      * @param input
      * @return
      */
-    ProjectionSequence getProjectionSequence(Long input) {
+    public ProjectionSequence getProjectionSequence(Long input) {
 
         Long offset = 0l;
         // should deliver these : order
@@ -213,7 +213,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return returnString;
     }
 
-    List<Coordinate> listCoordinates() {
+    public List<Coordinate> listCoordinates() {
         List<Coordinate> coordinateList = new ArrayList<>();
         for (DiscontinuousProjection projection : sequenceDiscontinuousProjectionMap.values()) {
             coordinateList.addAll(projection.minMap.values());
@@ -441,7 +441,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return getProjectedSequences().get(sequenceDiscontinuousProjectionMap.keySet().size() - 1);
     }
 
-    List<ProjectionSequence> getProjectedSequences() {
+    public List<ProjectionSequence> getProjectedSequences() {
 //        List<ProjectionSequence> orderedSequences = sequenceDiscontinuousProjectionMap.keySet().sort() {
 //            a, b -> a.order <= > b.order
 //        }
@@ -529,7 +529,7 @@ public class MultiSequenceProjection extends AbstractProjection {
      *
      * @return
      */
-    Boolean isValid() {
+    public Boolean isValid() {
 
         Map<String, Boolean> reverseMap = new HashMap<>();
 

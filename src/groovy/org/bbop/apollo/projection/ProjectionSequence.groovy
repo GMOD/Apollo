@@ -6,6 +6,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
  * Created by nathandunn on 9/24/15.
+ * @deprecated
  */
 @ToString
 class ProjectionSequence implements Comparable<ProjectionSequence> {

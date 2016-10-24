@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 
@@ -132,7 +133,7 @@ class ExonService {
      */
     @Transactional
     public void setFmin(Exon exon, Integer fmin, Assemblage assemblage) {
-        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         featureService.setFmin(exon,fmin,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmin < transcript.getFmin()) {
@@ -147,7 +148,7 @@ class ExonService {
      */
     @Transactional
     public void setFmax(Exon exon, Integer fmax, Assemblage assemblage) {
-        org.bbop.apollo.projection.MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         featureService.setFmax(exon,fmax,projection)
         Transcript transcript = getTranscript(exon)
         if (transcript != null && fmax > transcript.getFmax()) {

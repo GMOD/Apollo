@@ -3,7 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.projection.ProjectionChunk
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONArray

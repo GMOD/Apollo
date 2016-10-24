@@ -1,8 +1,8 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed

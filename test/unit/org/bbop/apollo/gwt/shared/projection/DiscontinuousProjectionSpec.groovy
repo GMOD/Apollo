@@ -1,10 +1,9 @@
-package org.bbop.apollo
+package org.bbop.apollo.gwt.shared.projection
 
-import org.bbop.apollo.projection.AbstractProjection
-import org.bbop.apollo.projection.Coordinate
-import org.bbop.apollo.projection.DiscontinuousProjection
-
-import org.bbop.apollo.projection.ProjectionInterface
+import org.bbop.apollo.gwt.shared.projection.AbstractProjection
+import org.bbop.apollo.gwt.shared.projection.Coordinate
+import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionInterface
 import spock.lang.Specification
 
 /**

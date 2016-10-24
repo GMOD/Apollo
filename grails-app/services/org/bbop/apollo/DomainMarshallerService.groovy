@@ -2,8 +2,8 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.bbop.apollo.projection.ProjectionSequence
-import org.bbop.apollo.projection.Coordinate
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.Coordinate
 
 @Transactional
 class DomainMarshallerService {

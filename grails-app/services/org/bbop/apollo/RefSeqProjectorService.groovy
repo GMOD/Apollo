@@ -5,9 +5,9 @@ import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.ColorGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.Coordinate
-import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.Coordinate
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 

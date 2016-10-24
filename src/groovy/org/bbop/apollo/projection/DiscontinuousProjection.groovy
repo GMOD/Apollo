@@ -22,6 +22,7 @@ public class DiscontinuousProjection extends AbstractProjection {
      *
      * @param input
      * @return
+     * @deprecated
      */
     @Override
     public Integer projectReverseValue(Integer input) {

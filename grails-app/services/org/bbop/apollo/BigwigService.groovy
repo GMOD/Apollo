@@ -3,10 +3,8 @@ package org.bbop.apollo
 import edu.unc.genomics.io.BigWigFileReader
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import org.bbop.apollo.projection.DiscontinuousProjection
-import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import edu.unc.genomics.Interval
 import org.codehaus.groovy.grails.web.json.JSONObject

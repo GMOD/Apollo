@@ -1,6 +1,6 @@
-package org.bbop.apollo
+package org.bbop.apollo.gwt.shared.projection
 
-import org.bbop.apollo.projection.*
+import org.bbop.apollo.gwt.shared.projection.*
 import spock.lang.Specification
 
 /**
@@ -24,8 +24,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "it shows up"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 45
-        assert coordinate.max == 55
+        assert coordinate.min == 45l
+        assert coordinate.max == 55l
 
         when: "we add within that one"
         projection.addInterval(47, 53, projectionSequence)
@@ -34,8 +34,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "nothing happens"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 45
-        assert coordinate.max == 55
+        assert coordinate.min == 45l
+        assert coordinate.max == 55l
 
         when: "we add a larger one over it"
         projection.addInterval(40, 60, projectionSequence)
@@ -44,8 +44,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we merge and expand on both sides"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 40
-        assert coordinate.max == 60
+        assert coordinate.min == 40l
+        assert coordinate.max == 60l
 
 
         when: "we add to the continuous right edge"
@@ -55,8 +55,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we merge the two on the right edge"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 40
-        assert coordinate.max == 65
+        assert coordinate.min == 40l
+        assert coordinate.max == 65l
 
         when: "we add to the continuous left edge"
         projection.addInterval(35, 40, projectionSequence)
@@ -65,8 +65,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we merge the two on the left edge"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 35
-        assert coordinate.max == 65
+        assert coordinate.min == 35l
+        assert coordinate.max == 65l
 
         when: "we add to the continuous right overlap"
         projection.addInterval(62, 70, projectionSequence)
@@ -75,8 +75,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we merge the two on the right overlap"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 35
-        assert coordinate.max == 70
+        assert coordinate.min == 35l
+        assert coordinate.max == 70l
 
         when: "we add to the continuous left overlap"
         projection.addInterval(30, 37, projectionSequence)
@@ -85,8 +85,8 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we merge the two on the left overlap"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 30
-        assert coordinate.max == 70
+        assert coordinate.min == 30l
+        assert coordinate.max == 70l
 
         when: "we add another one to the left of all of the others"
         projection.addInterval(10, 15, projectionSequence)
@@ -97,10 +97,10 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we see another one to the left"
         projection.minMap.size() == 2
         projection.maxMap.size() == 2
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 30
-        assert coordinate1.max == 70
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 30l
+        assert coordinate1.max == 70l
 
 
         when: "we add another one to the right of all of the others"
@@ -114,12 +114,12 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we see another one to the right"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 30
-        assert coordinate1.max == 70
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 30l
+        assert coordinate1.max == 70l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
 
 
@@ -133,14 +133,14 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we see another one in the middle"
         assert projection.minMap.size() == 4
         assert projection.maxMap.size() == 4
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 30
-        assert coordinate1.max == 70
-        assert coordinate2.min == 75
-        assert coordinate2.max == 77
-        assert coordinate3.min == 80
-        assert coordinate3.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 30l
+        assert coordinate1.max == 70l
+        assert coordinate2.min == 75l
+        assert coordinate2.max == 77l
+        assert coordinate3.min == 80l
+        assert coordinate3.max == 85l
 
 
         when: "we add another one in the middle of all of the others again"
@@ -154,16 +154,16 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we see another one in the middle"
         assert projection.minMap.size() == 5
         assert projection.maxMap.size() == 5
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 20
-        assert coordinate1.max == 25
-        assert coordinate2.min == 30
-        assert coordinate2.max == 70
-        assert coordinate3.min == 75
-        assert coordinate3.max == 77
-        assert coordinate4.min == 80
-        assert coordinate4.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 20l
+        assert coordinate1.max == 25l
+        assert coordinate2.min == 30l
+        assert coordinate2.max == 70l
+        assert coordinate3.min == 75l
+        assert coordinate3.max == 77l
+        assert coordinate4.min == 80l
+        assert coordinate4.max == 85l
 
 
         when: "we project outside of the center on both sides"
@@ -178,16 +178,16 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "it should provide both on most sides"
         assert projection.minMap.size() == 5
         assert projection.maxMap.size() == 5
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 19
-        assert coordinate1.max == 26
-        assert coordinate2.min == 30
-        assert coordinate2.max == 70
-        assert coordinate3.min == 75
-        assert coordinate3.max == 77
-        assert coordinate4.min == 80
-        assert coordinate4.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 19l
+        assert coordinate1.max == 26l
+        assert coordinate2.min == 30l
+        assert coordinate2.max == 70l
+        assert coordinate3.min == 75l
+        assert coordinate3.max == 77l
+        assert coordinate4.min == 80l
+        assert coordinate4.max == 85l
 
 
         when: "we add another to overlap "
@@ -199,12 +199,12 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "we merge overlapping ones"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 19
-        assert coordinate1.max == 77
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 19l
+        assert coordinate1.max == 77l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
         when: "we add LHS to center"
         projection.addInterval(18, 22, projectionSequence)
@@ -215,12 +215,12 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "should extend center one to the left"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 18
-        assert coordinate1.max == 77
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 18l
+        assert coordinate1.max == 77l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
         when: "we add RHS to center"
         projection.addInterval(76, 78, projectionSequence)
@@ -231,12 +231,12 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "should extend center one to the left"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 18
-        assert coordinate1.max == 78
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 18l
+        assert coordinate1.max == 78l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
 
 
@@ -250,12 +250,12 @@ class MultiSequenceProjectionSpec extends Specification {
         then: "nothing should happen"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 18
-        assert coordinate1.max == 78
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 18l
+        assert coordinate1.max == 78l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
     }
 
@@ -370,17 +370,17 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 4
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970l
+                    assert coordinate.max == 427960l
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428349
+                case 1: assert coordinate.min == 427987l
+                    assert coordinate.max == 428349l
                     break
-                case 2: assert coordinate.min == 428394
-                    assert coordinate.max == 428830
+                case 2: assert coordinate.min == 428394l
+                    assert coordinate.max == 428830l
                     break
-                case 3: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 3: assert coordinate.min == 428905l
+                    assert coordinate.max == 429609l
                     break
             }
             ++index
@@ -394,14 +394,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970l
+                    assert coordinate.max == 427960l
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987l
+                    assert coordinate.max == 428830l
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 2: assert coordinate.min == 428905l
+                    assert coordinate.max == 429609l
                     break
             }
             ++index
@@ -416,14 +416,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970l
+                    assert coordinate.max == 427960l
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987l
+                    assert coordinate.max == 428830l
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 2: assert coordinate.min == 428905l
+                    assert coordinate.max == 429609l
                     break
             }
             ++index
@@ -439,14 +439,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970l
+                    assert coordinate.max == 427960l
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987l
+                    assert coordinate.max == 428830l
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 2: assert coordinate.min == 428905l
+                    assert coordinate.max == 429609l
                     break
             }
             ++index
@@ -467,14 +467,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970l
+                    assert coordinate.max == 427960l
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987l
+                    assert coordinate.max == 428830l
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 430007
+                case 2: assert coordinate.min == 428905l
+                    assert coordinate.max == 430007l
                     break
             }
             ++index
@@ -516,14 +516,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 285235
-                    assert coordinate.max == 286954
+                case 0: assert coordinate.min == 285235l
+                    assert coordinate.max == 286954l
                     break
-                case 1: assert coordinate.min == 286965
-                    assert coordinate.max == 287209
+                case 1: assert coordinate.min == 286965l
+                    assert coordinate.max == 287209l
                     break
-                case 2: assert coordinate.min == 287225
-                    assert coordinate.max == 287371
+                case 2: assert coordinate.min == 287225l
+                    assert coordinate.max == 287371l
                     break
             }
             ++index
@@ -539,14 +539,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 285192
-                    assert coordinate.max == 286954
+                case 0: assert coordinate.min == 285192l
+                    assert coordinate.max == 286954l
                     break
-                case 1: assert coordinate.min == 286965
-                    assert coordinate.max == 287209
+                case 1: assert coordinate.min == 286965l
+                    assert coordinate.max == 287209l
                     break
-                case 2: assert coordinate.min == 287225
-                    assert coordinate.max == 287371
+                case 2: assert coordinate.min == 287225l
+                    assert coordinate.max == 287371l
                     break
             }
             ++index
@@ -560,14 +560,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 285192
-                    assert coordinate.max == 286954
+                case 0: assert coordinate.min == 285192l
+                    assert coordinate.max == 286954l
                     break
-                case 1: assert coordinate.min == 286965
-                    assert coordinate.max == 287209
+                case 1: assert coordinate.min == 286965l
+                    assert coordinate.max == 287209l
                     break
-                case 2: assert coordinate.min == 287225
-                    assert coordinate.max == 288061
+                case 2: assert coordinate.min == 287225l
+                    assert coordinate.max == 288061l
                     break
             }
             ++index
@@ -613,20 +613,20 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 5
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 1764232
-                    assert coordinate.max == 1764723
+                case 0: assert coordinate.min == 1764232l
+                    assert coordinate.max == 1764723l
                     break
-                case 1: assert coordinate.min == 1764736
-                    assert coordinate.max == 1765195
+                case 1: assert coordinate.min == 1764736l
+                    assert coordinate.max == 1765195l
                     break
-                case 2: assert coordinate.min == 1765229
-                    assert coordinate.max == 1765487
+                case 2: assert coordinate.min == 1765229l
+                    assert coordinate.max == 1765487l
                     break
-                case 2: assert coordinate.min == 1765511
-                    assert coordinate.max == 1765761
+                case 2: assert coordinate.min == 1765511l
+                    assert coordinate.max == 1765761l
                     break
-                case 4: assert coordinate.min == 1765764
-                    assert coordinate.max == 1766416
+                case 4: assert coordinate.min == 1765764l
+                    assert coordinate.max == 1766416l
                     break
             }
             ++index
@@ -642,17 +642,17 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 4
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 1764232
-                    assert coordinate.max == 1765195
+                case 0: assert coordinate.min == 1764232l
+                    assert coordinate.max == 1765195l
                     break
-                case 1: assert coordinate.min == 1765229
-                    assert coordinate.max == 1765487
+                case 1: assert coordinate.min == 1765229l
+                    assert coordinate.max == 1765487l
                     break
-                case 2: assert coordinate.min == 1765511
-                    assert coordinate.max == 1765761
+                case 2: assert coordinate.min == 1765511l
+                    assert coordinate.max == 1765761l
                     break
-                case 3: assert coordinate.min == 1765764
-                    assert coordinate.max == 1766416
+                case 3: assert coordinate.min == 1765764l
+                    assert coordinate.max == 1766416l
                     break
             }
             ++index
@@ -666,11 +666,11 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 2
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 1764232
-                    assert coordinate.max == 1765195
+                case 0: assert coordinate.min == 1764232l
+                    assert coordinate.max == 1765195l
                     break
-                case 1: assert coordinate.min == 1765229
-                    assert coordinate.max == 1766416
+                case 1: assert coordinate.min == 1765229l
+                    assert coordinate.max == 1766416l
                     break
             }
             ++index
@@ -706,14 +706,14 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 322874
-                    assert coordinate.max == 324541
+                case 0: assert coordinate.min == 322874l
+                    assert coordinate.max == 324541l
                     break
-                case 1: assert coordinate.min == 324636
-                    assert coordinate.max == 325100
+                case 1: assert coordinate.min == 324636l
+                    assert coordinate.max == 325100l
                     break
-                case 2: assert coordinate.min == 325109
-                    assert coordinate.max == 329527
+                case 2: assert coordinate.min == 325109l
+                    assert coordinate.max == 329527l
                     break
             }
             ++index
@@ -727,8 +727,8 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 1
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 322874
-                    assert coordinate.max == 329527
+                case 0: assert coordinate.min == 322874l
+                    assert coordinate.max == 329527l
                     break
             }
             ++index
@@ -762,20 +762,20 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 5
         for (Coordinate coordinate in projection.listCoordinates()) {
             switch (index) {
-                case 0: assert coordinate.min == 411456
-                    assert coordinate.max == 411745
+                case 0: assert coordinate.min == 411456l
+                    assert coordinate.max == 411745l
                     break
-                case 1: assert coordinate.min == 411775
-                    assert coordinate.max == 411934
+                case 1: assert coordinate.min == 411775l
+                    assert coordinate.max == 411934l
                     break
-                case 2: assert coordinate.min == 412094
-                    assert coordinate.max == 412542
+                case 2: assert coordinate.min == 412094l
+                    assert coordinate.max == 412542l
                     break
-                case 3: assert coordinate.min == 412570
-                    assert coordinate.max == 412901
+                case 3: assert coordinate.min == 412570l
+                    assert coordinate.max == 412901l
                     break
-                case 4: assert coordinate.min == 412977
-                    assert coordinate.max == 414637
+                case 4: assert coordinate.min == 412977l
+                    assert coordinate.max == 414637l
                     break
             }
             ++index
@@ -790,20 +790,20 @@ class MultiSequenceProjectionSpec extends Specification {
         assert projection.size() == 5
         for (Coordinate coordinate in projection.listCoordinates()) {
             switch (index) {
-                case 0: assert coordinate.min == 411456
-                    assert coordinate.max == 411745
+                case 0: assert coordinate.min == 411456l
+                    assert coordinate.max == 411745l
                     break
-                case 1: assert coordinate.min == 411775
-                    assert coordinate.max == 411934
+                case 1: assert coordinate.min == 411775l
+                    assert coordinate.max == 411934l
                     break
-                case 2: assert coordinate.min == 412094
-                    assert coordinate.max == 412542
+                case 2: assert coordinate.min == 412094l
+                    assert coordinate.max == 412542l
                     break
-                case 3: assert coordinate.min == 412570
-                    assert coordinate.max == 412901
+                case 3: assert coordinate.min == 412570l
+                    assert coordinate.max == 412901l
                     break
-                case 4: assert coordinate.min == 412977
-                    assert coordinate.max == 414637
+                case 4: assert coordinate.min == 412977l
+                    assert coordinate.max == 414637l
                     break
             }
             ++index
@@ -851,10 +851,10 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence1)
-        Coordinate location3 = new Coordinate(min: 23, max: 27, sequence: sequence2)
-        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence2)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
+        Coordinate location2 = new Coordinate(22, 25, sequence1)
+        Coordinate location3 = new Coordinate(23, 27, sequence2)
+        Coordinate location4 = new Coordinate(60, 63, sequence2)
 
 
 
@@ -865,46 +865,46 @@ class MultiSequenceProjectionSpec extends Specification {
         multiSequenceProjection.addCoordinate(location4)
         multiSequenceProjection.calculateOffsets()
         List<Coordinate> coordinateCollection = multiSequenceProjection.listCoordinates()
-        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.sequenceDiscontinuousProjectionMap.keySet() as List<ProjectionSequence>
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getProjectedSequences()
         Integer offset = multiSequenceProjection.projectedSequences.first().unprojectedLength
         ProjectionSequence projectionSequence1 = multiSequenceProjection.getProjectionSequence(10)
         ProjectionSequence projectionSequence2 = multiSequenceProjection.getProjectionSequence(60 + offset)
 
         then: "we should get a single projection of size 4"
         assert multiSequenceProjection.size() == 4
-        coordinateCollection.get(0).min == 10
-        coordinateCollection.get(0).max == 12
-        coordinateCollection.get(1).min == 22
-        coordinateCollection.get(1).max == 25
-        coordinateCollection.get(2).min == 23
-        coordinateCollection.get(2).max == 27
-        coordinateCollection.get(3).min == 60
-        coordinateCollection.get(3).max == 63
-        assert 0 == projectionSequenceList.get(0).offset
-        assert 6 == multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(0)).bufferedLength
-        assert 6 == projectionSequenceList.get(1).offset
-        assert 8 == multiSequenceProjection.sequenceDiscontinuousProjectionMap.get(projectionSequenceList.get(1)).bufferedLength
+        coordinateCollection.get(0).min == 10l
+        coordinateCollection.get(0).max == 12l
+        coordinateCollection.get(1).min == 22l
+        coordinateCollection.get(1).max == 25l
+        coordinateCollection.get(2).min == 23l
+        coordinateCollection.get(2).max == 27l
+        coordinateCollection.get(3).min == 60l
+        coordinateCollection.get(3).max == 63l
+        assert 0l == projectionSequenceList.get(0).offset
+        assert 6l == multiSequenceProjection.getProjectionForSequence(projectionSequenceList.get(0)).bufferedLength
+        assert 6l == projectionSequenceList.get(1).offset
+        assert 8l == multiSequenceProjection.getProjectionForSequence(projectionSequenceList.get(1)).bufferedLength
         assert "Sequence1" == projectionSequence1.name
         assert "Sequence2" == projectionSequence2.name
-        assert 0 == projectionSequence1.offset
-        assert 6 == projectionSequence2.offset
-        assert 0 == projectionSequence1.originalOffset
-        assert 100 == projectionSequence2.originalOffset
-        assert 6 == multiSequenceProjection.getProjectionSequence(60 + offset).offset
+        assert 0l == projectionSequence1.offset
+        assert 6l == projectionSequence2.offset
+        assert 0l == projectionSequence1.originalOffset
+        assert 100l == projectionSequence2.originalOffset
+        assert 6l == multiSequenceProjection.getProjectionSequence(60 + offset).offset
 
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
-        assert 3 == multiSequenceProjection.projectValue(22)
-        assert 6 == multiSequenceProjection.projectValue(25)
-        assert 6 == multiSequenceProjection.projectValue(offset + 23)
-        assert 10 == multiSequenceProjection.projectValue(offset + 27)
-        assert 11 == multiSequenceProjection.projectValue(offset + 60)
-        assert 14 == multiSequenceProjection.projectValue(offset + 63)
+        assert 0l == multiSequenceProjection.projectValue(10)
+        assert 2l == multiSequenceProjection.projectValue(12)
+        assert 3l == multiSequenceProjection.projectValue(22)
+        assert 6l == multiSequenceProjection.projectValue(25)
+        assert 6l == multiSequenceProjection.projectValue(offset + 23)
+        assert 10l == multiSequenceProjection.projectValue(offset + 27)
+        assert 11l == multiSequenceProjection.projectValue(offset + 60)
+        assert 14l == multiSequenceProjection.projectValue(offset + 63)
 
 
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 22 == multiSequenceProjection.projectReverseValue(3)
+        assert 10l == multiSequenceProjection.projectReverseValue(0)
+        assert 12l == multiSequenceProjection.projectReverseValue(2)
+        assert 22l == multiSequenceProjection.projectReverseValue(3)
         assert 23 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(6)
         assert 24 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(7)
         assert 27 + sequence1.unprojectedLength == multiSequenceProjection.projectReverseValue(10)
@@ -977,12 +977,12 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 150-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3, sequence4])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1) // 3
-        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence1) // 4
-        Coordinate location3 = new Coordinate(min: 23, max: 27, sequence: sequence2)  // 5
-        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence2)  // 4
-        Coordinate location5 = new Coordinate(min: 5, max: 10, sequence: sequence3)   // 6
-        Coordinate location6 = new Coordinate(min: 10, max: 12, sequence: sequence4)  // 3
+        Coordinate location1 = new Coordinate(10, 12, sequence1) // 3
+        Coordinate location2 = new Coordinate(22, 25, sequence1) // 4
+        Coordinate location3 = new Coordinate(23, 27, sequence2)  // 5
+        Coordinate location4 = new Coordinate(60, 63, sequence2)  // 4
+        Coordinate location5 = new Coordinate(5, 10, sequence3)   // 6
+        Coordinate location6 = new Coordinate(10, 12, sequence4)  // 3
         // total 25
 
 
@@ -1070,9 +1070,9 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-300
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence2)
-        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence3)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
+        Coordinate location2 = new Coordinate(22, 25, sequence2)
+        Coordinate location4 = new Coordinate(60, 63, sequence3)
 
         when: "we add the locations"
         multiSequenceProjection.addCoordinate(location1)
@@ -1087,11 +1087,11 @@ class MultiSequenceProjectionSpec extends Specification {
         assert "Sequence1" == projectionSequence1.name
         assert "Sequence1" == projectionSequence2.name
         assert "Sequence2" == projectionSequence3.name
-        assert 0 == projectionSequence1.offset
-        assert 2 == projectionSequence2.offset
-        assert 2 + 3 == projectionSequence3.offset
-        assert 0 == projectionSequence1.originalOffset
-        assert 0 == projectionSequence2.originalOffset
+        assert 0l == projectionSequence1.offset
+        assert 2l == projectionSequence2.offset
+        assert 2 + 3l == projectionSequence3.offset
+        assert 0l == projectionSequence1.originalOffset
+        assert 0l == projectionSequence2.originalOffset
         assert projectionSequence1.unprojectedLength == projectionSequence3.originalOffset
         multiSequenceProjection.getProjectionSequence(10).order == 0
         multiSequenceProjection.getProjectionSequence(12).order == 0
@@ -1141,9 +1141,9 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence2)
-        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence3)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
+        Coordinate location2 = new Coordinate(22, 25, sequence2)
+        Coordinate location4 = new Coordinate(60, 63, sequence3)
 
         when: "we add the locations"
         multiSequenceProjection.addCoordinate(location1)
@@ -1201,9 +1201,9 @@ class MultiSequenceProjectionSpec extends Specification {
         ) // from 100-200
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 22, max: 25, sequence: sequence2)
-        Coordinate location4 = new Coordinate(min: 60, max: 63, sequence: sequence3)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
+        Coordinate location2 = new Coordinate(22, 25, sequence2)
+        Coordinate location4 = new Coordinate(60, 63, sequence3)
 
         when: "we add the locations"
         multiSequenceProjection.addCoordinate(location1)
@@ -1233,18 +1233,18 @@ class MultiSequenceProjectionSpec extends Specification {
         multiSequenceProjection.getProjectionSequence(63).name == "Sequence1"
 
         // we should be able to project the proper value as well
-        assert 0 == projectionSequence3.offset
-        assert 0 == projectionSequence3.originalOffset
-        assert 3 == projectionSequence1.offset
-        assert 0 == projectionSequence1.originalOffset
-        assert 5 == projectionSequence2.offset
-        assert 0 == projectionSequence2.originalOffset
-        assert 0 == multiSequenceProjection.projectValue(60)
-        assert 3 == multiSequenceProjection.projectValue(63)
-        assert 3 == multiSequenceProjection.projectValue(10)
-        assert 5 == multiSequenceProjection.projectValue(12)
-        assert 5 == multiSequenceProjection.projectValue(22)
-        assert 8 == multiSequenceProjection.projectValue(25)
+        assert 0l == projectionSequence3.offset
+        assert 0l == projectionSequence3.originalOffset
+        assert 3l == projectionSequence1.offset
+        assert 0l == projectionSequence1.originalOffset
+        assert 5l == projectionSequence2.offset
+        assert 0l == projectionSequence2.originalOffset
+        assert 0l == multiSequenceProjection.projectValue(60)
+        assert 3l == multiSequenceProjection.projectValue(63)
+        assert 3l == multiSequenceProjection.projectValue(10)
+        assert 5l == multiSequenceProjection.projectValue(12)
+        assert 5l == multiSequenceProjection.projectValue(22)
+        assert 8l == multiSequenceProjection.projectValue(25)
 
     }
 
@@ -1263,7 +1263,7 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection1 = new MultiSequenceProjection()
         multiSequenceProjection1.addProjectionSequences([sequence1])
-        Coordinate location1 = new Coordinate(min: 0, max: 100, sequence: sequence1)
+        Coordinate location1 = new Coordinate(0, 100, sequence1)
 
         when: "we add a location "
         multiSequenceProjection1.addCoordinate(location1)
@@ -1321,9 +1321,9 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Coordinate location1 = new Coordinate(min: 0, max: 100, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 0, max: 50, sequence: sequence2)
-        Coordinate location3 = new Coordinate(min: 0, max: 75, sequence: sequence3)
+        Coordinate location1 = new Coordinate(0, 100, sequence1)
+        Coordinate location2 = new Coordinate(0, 50, sequence2)
+        Coordinate location3 = new Coordinate(0, 75, sequence3)
 
         when: "we add a location "
         multiSequenceProjection.addCoordinate(location1)
@@ -1443,7 +1443,7 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
 
         when: "we add a single location "
         multiSequenceProjection.addCoordinate(location1)
@@ -1496,8 +1496,8 @@ class MultiSequenceProjectionSpec extends Specification {
         )
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 5, max: 7, sequence: sequence2)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
+        Coordinate location2 = new Coordinate(5, 7, sequence2)
 
         when: "we add a single location "
         multiSequenceProjection.addCoordinate(location1)
@@ -1596,9 +1596,9 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2, sequence3])
-        Coordinate location1 = new Coordinate(min: 10, max: 12, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 4, max: 25, sequence: sequence2)
-        Coordinate location3 = new Coordinate(min: 40, max: 60, sequence: sequence3)
+        Coordinate location1 = new Coordinate(10, 12, sequence1)
+        Coordinate location2 = new Coordinate(4, 25, sequence2)
+        Coordinate location3 = new Coordinate(40, 60, sequence3)
 
         when: "we add a location "
         multiSequenceProjection.addCoordinate(location1)
@@ -1612,10 +1612,10 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "if we retrieve the projection it should be fine"
         // sequence 1
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 0l == multiSequenceProjection.projectValue(10l)
+        assert 2l == multiSequenceProjection.projectValue(12l)
         assert multiSequenceProjection.isValid()
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
+        assert 10l == multiSequenceProjection.projectReverseValue(0l)
         assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(2)
 
         // sequence 2
@@ -1739,21 +1739,21 @@ class MultiSequenceProjectionSpec extends Specification {
         when: "it should render normally"
         multiSequenceProjection.addProjectionSequences([sequence1])
         sequence1.reverse = false
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 10, max: 12, sequence: sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 15, max: 20, sequence: sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(10, 12, sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(15, 20, sequence1))
         multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
+        assert 0l == multiSequenceProjection.projectValue(10l)
+        assert 2l == multiSequenceProjection.projectValue(12l)
         assert multiSequenceProjection.isValid()
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 3 == multiSequenceProjection.projectValue(15)
-        assert 8 == multiSequenceProjection.projectValue(20)
+        assert 10l == multiSequenceProjection.projectReverseValue(0l)
+        assert 12l == multiSequenceProjection.projectReverseValue(2l)
+        assert 3l == multiSequenceProjection.projectValue(15l)
+        assert 8l == multiSequenceProjection.projectValue(20l)
         assert multiSequenceProjection.isValid()
-        assert 15 == multiSequenceProjection.projectReverseValue(3)
-        assert 20 == multiSequenceProjection.projectReverseValue(8)
+        assert 15l == multiSequenceProjection.projectReverseValue(3l)
+        assert 20l == multiSequenceProjection.projectReverseValue(8l)
 
 
         when: "we reverse it"
@@ -1766,18 +1766,18 @@ class MultiSequenceProjectionSpec extends Specification {
         println multiSequenceProjection.projectReverseValue(0)
 
         then: "we expect the projections coordinates to reverse B2B1A2A1"
-        assert 8 == multiSequenceProjection.projectValue(10)
-        assert 7 == multiSequenceProjection.projectValue(11)
-        assert 6 == multiSequenceProjection.projectValue(12)
+        assert 8l == multiSequenceProjection.projectValue(10)
+        assert 7l == multiSequenceProjection.projectValue(11)
+        assert 6l == multiSequenceProjection.projectValue(12)
         assert multiSequenceProjection.isValid()
-        assert 5 == multiSequenceProjection.projectValue(15)
-        assert 0 == multiSequenceProjection.projectValue(20)
+        assert 5l == multiSequenceProjection.projectValue(15)
+        assert 0l == multiSequenceProjection.projectValue(20)
 
-        assert 10 == multiSequenceProjection.projectReverseValue(8)
-        assert 11 == multiSequenceProjection.projectReverseValue(7)
-        assert 12 == multiSequenceProjection.projectReverseValue(6)
-        assert 15 == multiSequenceProjection.projectReverseValue(5)
-        assert 20 == multiSequenceProjection.projectReverseValue(0)
+        assert 10l == multiSequenceProjection.projectReverseValue(8)
+        assert 11l == multiSequenceProjection.projectReverseValue(7)
+        assert 12l == multiSequenceProjection.projectReverseValue(6)
+        assert 15l == multiSequenceProjection.projectReverseValue(5)
+        assert 20l == multiSequenceProjection.projectReverseValue(0)
 
 
     }
@@ -1808,27 +1808,27 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "it should render normally"
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 10,max: 12,sequence: sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 14,max: 18,sequence: sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 2,max: 4,sequence: sequence2))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 6,max: 9,sequence: sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(10,12,sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(14,18,sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(2,4,sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(6,9,sequence2))
         multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
         assert multiSequenceProjection.isValid()
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
-        assert 3 == multiSequenceProjection.projectValue(14)
-        assert 7 == multiSequenceProjection.projectValue(18)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 0l == multiSequenceProjection.projectValue(10)
+        assert 2l == multiSequenceProjection.projectValue(12)
+        assert 3l == multiSequenceProjection.projectValue(14)
+        assert 7l == multiSequenceProjection.projectValue(18)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 14 == multiSequenceProjection.projectReverseValue(3)
-        assert 17 == multiSequenceProjection.projectReverseValue(6)
+        assert 10l == multiSequenceProjection.projectReverseValue(0)
+        assert 12l == multiSequenceProjection.projectReverseValue(2)
+        assert 14l == multiSequenceProjection.projectReverseValue(3)
+        assert 17l == multiSequenceProjection.projectReverseValue(6)
 //        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
         assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
@@ -1841,19 +1841,19 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "we expect the projections coordinates to reverse B2B1A2A1,C1C2D1D2"
         assert multiSequenceProjection.isValid()
-        assert 7 == multiSequenceProjection.projectValue(10)
-        assert 5 == multiSequenceProjection.projectValue(12)
-        assert 4 == multiSequenceProjection.projectValue(14)
-        assert 0 == multiSequenceProjection.projectValue(18)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 7l == multiSequenceProjection.projectValue(10)
+        assert 5l == multiSequenceProjection.projectValue(12)
+        assert 4l == multiSequenceProjection.projectValue(14)
+        assert 0l == multiSequenceProjection.projectValue(18)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 18 == multiSequenceProjection.projectReverseValue(0)
-        assert 16 == multiSequenceProjection.projectReverseValue(2)
-        assert 15 == multiSequenceProjection.projectReverseValue(3)
-        assert 14 == multiSequenceProjection.projectReverseValue(4)
+        assert 18l == multiSequenceProjection.projectReverseValue(0)
+        assert 16l == multiSequenceProjection.projectReverseValue(2)
+        assert 15l == multiSequenceProjection.projectReverseValue(3)
+        assert 14l == multiSequenceProjection.projectReverseValue(4)
         assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
         assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
@@ -1864,19 +1864,19 @@ class MultiSequenceProjectionSpec extends Specification {
         sequence2.reverse = true
 
         then: "we expect the projections coordinates to reverse A1A2B1B2,D2D1C2C1"
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
-        assert 3 == multiSequenceProjection.projectValue(14)
-        assert 7 == multiSequenceProjection.projectValue(18)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 0l == multiSequenceProjection.projectValue(10)
+        assert 2l == multiSequenceProjection.projectValue(12)
+        assert 3l == multiSequenceProjection.projectValue(14)
+        assert 7l == multiSequenceProjection.projectValue(18)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 14 == multiSequenceProjection.projectReverseValue(3)
-        assert 17 == multiSequenceProjection.projectReverseValue(6)
+        assert 10l == multiSequenceProjection.projectReverseValue(0)
+        assert 12l == multiSequenceProjection.projectReverseValue(2)
+        assert 14l == multiSequenceProjection.projectReverseValue(3)
+        assert 17l == multiSequenceProjection.projectReverseValue(6)
 //        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
         assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
@@ -1888,19 +1888,19 @@ class MultiSequenceProjectionSpec extends Specification {
         sequence2.reverse = true
 
         then: "we expect the projections coordinates to reverse B2B1A2A1,D2D1C2C1"
-        assert 7 == multiSequenceProjection.projectValue(10)
-        assert 5 == multiSequenceProjection.projectValue(12)
-        assert 4 == multiSequenceProjection.projectValue(14)
-        assert 0 == multiSequenceProjection.projectValue(18)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 7l == multiSequenceProjection.projectValue(10)
+        assert 5l == multiSequenceProjection.projectValue(12)
+        assert 4l == multiSequenceProjection.projectValue(14)
+        assert 0l == multiSequenceProjection.projectValue(18)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 18 == multiSequenceProjection.projectReverseValue(0)
-        assert 16 == multiSequenceProjection.projectReverseValue(2)
-        assert 15 == multiSequenceProjection.projectReverseValue(3)
-        assert 14 == multiSequenceProjection.projectReverseValue(4)
+        assert 18l == multiSequenceProjection.projectReverseValue(0)
+        assert 16l == multiSequenceProjection.projectReverseValue(2)
+        assert 15l == multiSequenceProjection.projectReverseValue(3)
+        assert 14l == multiSequenceProjection.projectReverseValue(4)
 
         assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
@@ -1921,7 +1921,7 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1])
-        Coordinate location1 = new Coordinate(min: 30, max: 70, sequence: sequence1)
+        Coordinate location1 = new Coordinate(30, 70, sequence1)
 
         when: "we add a location"
         multiSequenceProjection.addCoordinate(location1)
@@ -1929,16 +1929,16 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "we should see only the limited range"
         assert multiSequenceProjection.isValid()
-        assert 0==multiSequenceProjection.projectValue(30)
-        assert 40==multiSequenceProjection.projectValue(70)
+        assert 0==multiSequenceProjection.projectValue(30l)
+        assert 40==multiSequenceProjection.projectValue(70l)
 
         when: "we reverse the sequence"
         sequence1.reverse = true
 
         then: "we should see only the reversed range"
         assert multiSequenceProjection.isValid()
-        assert 40==multiSequenceProjection.projectValue(30)
-        assert 0==multiSequenceProjection.projectValue(70)
+        assert 40==multiSequenceProjection.projectValue(30l)
+        assert 0==multiSequenceProjection.projectValue(70l)
     }
 
 
@@ -1964,8 +1964,8 @@ class MultiSequenceProjectionSpec extends Specification {
         )// from 0-99
         MultiSequenceProjection multiSequenceProjection = new MultiSequenceProjection()
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        Coordinate location1 = new Coordinate(min: 30, max: 70, sequence: sequence1)
-        Coordinate location2 = new Coordinate(min: 20, max: 30, sequence: sequence2)
+        Coordinate location1 = new Coordinate(30, 70, sequence1)
+        Coordinate location2 = new Coordinate(20, 30, sequence2)
 
         when: "we add both locations"
         multiSequenceProjection.addCoordinate(location1)
@@ -1973,30 +1973,30 @@ class MultiSequenceProjectionSpec extends Specification {
         multiSequenceProjection.calculateOffsets()
 
         then: "we should see everyting in the right order"
-        assert 0==multiSequenceProjection.projectValue(30)
-        assert 40==multiSequenceProjection.projectValue(70)
-        assert 40==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
-        assert 50==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
+        assert 0l==multiSequenceProjection.projectValue(30)
+        assert 40l==multiSequenceProjection.projectValue(70)
+        assert 40l==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
+        assert 50l==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
 
         when: "we reverse the first one"
         sequence1.reverse = true
         sequence2.reverse = false
 
         then: "we should see everyting in the right order"
-        assert 40==multiSequenceProjection.projectValue(30)
-        assert 0==multiSequenceProjection.projectValue(70)
-        assert 40==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
-        assert 50==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
+        assert 40l==multiSequenceProjection.projectValue(30)
+        assert 0l==multiSequenceProjection.projectValue(70)
+        assert 40l==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
+        assert 50l==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
 
         when: "we reverse the second one"
         sequence1.reverse = false
         sequence2.reverse = true
 
         then: "we should see everyting in the right order"
-        assert 0==multiSequenceProjection.projectValue(30)
-        assert 40==multiSequenceProjection.projectValue(70)
-        assert 50==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
-        assert 40==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
+        assert 0l==multiSequenceProjection.projectValue(30)
+        assert 40l==multiSequenceProjection.projectValue(70)
+        assert 50l==multiSequenceProjection.projectValue(20+sequence1.unprojectedLength)
+        assert 40l==multiSequenceProjection.projectValue(30+sequence1.unprojectedLength)
     }
 
     void "limited range project reverse projection with two exons / discontinuous regions over two projection sequences"() {
@@ -2025,27 +2025,27 @@ class MultiSequenceProjectionSpec extends Specification {
 
 
         when: "it should render normally"
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 10,max: 12,sequence: sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 14,max: 18,sequence: sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 2,max: 4,sequence: sequence2))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 6,max: 9,sequence: sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(10,12,sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(14,18,sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(2,4,sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(6,9,sequence2))
         multiSequenceProjection.calculateOffsets()
 
         then: "it should render forward in a familiar manner"
         assert multiSequenceProjection.isValid()
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
-        assert 3 == multiSequenceProjection.projectValue(14)
-        assert 7 == multiSequenceProjection.projectValue(18)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 0l == multiSequenceProjection.projectValue(10)
+        assert 2l == multiSequenceProjection.projectValue(12)
+        assert 3l == multiSequenceProjection.projectValue(14)
+        assert 7l == multiSequenceProjection.projectValue(18)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 14 == multiSequenceProjection.projectReverseValue(3)
-        assert 17 == multiSequenceProjection.projectReverseValue(6)
+        assert 10l == multiSequenceProjection.projectReverseValue(0)
+        assert 12l == multiSequenceProjection.projectReverseValue(2)
+        assert 14l == multiSequenceProjection.projectReverseValue(3)
+        assert 17l == multiSequenceProjection.projectReverseValue(6)
 //        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
         assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
@@ -2058,19 +2058,19 @@ class MultiSequenceProjectionSpec extends Specification {
 
         then: "we expect the projections coordinates to reverse B2B1A2A1,C1C2D1D2"
         assert multiSequenceProjection.isValid()
-        assert 7 == multiSequenceProjection.projectValue(10)
-        assert 5 == multiSequenceProjection.projectValue(12)
-        assert 4 == multiSequenceProjection.projectValue(14)
-        assert 0 == multiSequenceProjection.projectValue(18)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 9 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 7l == multiSequenceProjection.projectValue(10)
+        assert 5l == multiSequenceProjection.projectValue(12)
+        assert 4l == multiSequenceProjection.projectValue(14)
+        assert 0l == multiSequenceProjection.projectValue(18)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 9l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 18 == multiSequenceProjection.projectReverseValue(0)
-        assert 16 == multiSequenceProjection.projectReverseValue(2)
-        assert 15 == multiSequenceProjection.projectReverseValue(3)
-        assert 14 == multiSequenceProjection.projectReverseValue(4)
+        assert 18l == multiSequenceProjection.projectReverseValue(0)
+        assert 16l == multiSequenceProjection.projectReverseValue(2)
+        assert 15l == multiSequenceProjection.projectReverseValue(3)
+        assert 14l == multiSequenceProjection.projectReverseValue(4)
         assert sequence1.unprojectedLength + 2 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 4 == multiSequenceProjection.projectReverseValue(9)
         assert sequence1.unprojectedLength + 6 == multiSequenceProjection.projectReverseValue(10)
@@ -2081,19 +2081,19 @@ class MultiSequenceProjectionSpec extends Specification {
         sequence2.reverse = true
 
         then: "we expect the projections coordinates to reverse A1A2B1B2,D2D1C2C1"
-        assert 0 == multiSequenceProjection.projectValue(10)
-        assert 2 == multiSequenceProjection.projectValue(12)
-        assert 3 == multiSequenceProjection.projectValue(14)
-        assert 7 == multiSequenceProjection.projectValue(18)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 0l == multiSequenceProjection.projectValue(10)
+        assert 2l == multiSequenceProjection.projectValue(12)
+        assert 3l == multiSequenceProjection.projectValue(14)
+        assert 7l == multiSequenceProjection.projectValue(18)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 10 == multiSequenceProjection.projectReverseValue(0)
-        assert 12 == multiSequenceProjection.projectReverseValue(2)
-        assert 14 == multiSequenceProjection.projectReverseValue(3)
-        assert 17 == multiSequenceProjection.projectReverseValue(6)
+        assert 10l == multiSequenceProjection.projectReverseValue(0)
+        assert 12l == multiSequenceProjection.projectReverseValue(2)
+        assert 14l == multiSequenceProjection.projectReverseValue(3)
+        assert 17l == multiSequenceProjection.projectReverseValue(6)
 //        assert 18 == multiSequenceProjection.projectReverseValue(7) // projected to the second one
         assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
@@ -2105,19 +2105,19 @@ class MultiSequenceProjectionSpec extends Specification {
         sequence2.reverse = true
 
         then: "we expect the projections coordinates to reverse B2B1A2A1,D2D1C2C1"
-        assert 7 == multiSequenceProjection.projectValue(10)
-        assert 5 == multiSequenceProjection.projectValue(12)
-        assert 4 == multiSequenceProjection.projectValue(14)
-        assert 0 == multiSequenceProjection.projectValue(18)
-        assert 13 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
-        assert 11 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
-        assert 10 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
-        assert 7 == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
+        assert 7l == multiSequenceProjection.projectValue(10)
+        assert 5l == multiSequenceProjection.projectValue(12)
+        assert 4l == multiSequenceProjection.projectValue(14)
+        assert 0l == multiSequenceProjection.projectValue(18)
+        assert 13l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 2)
+        assert 11l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 4)
+        assert 10l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 6)
+        assert 7l == multiSequenceProjection.projectValue(sequence1.unprojectedLength + 9)
 
-        assert 18 == multiSequenceProjection.projectReverseValue(0)
-        assert 16 == multiSequenceProjection.projectReverseValue(2)
-        assert 15 == multiSequenceProjection.projectReverseValue(3)
-        assert 14 == multiSequenceProjection.projectReverseValue(4)
+        assert 18l == multiSequenceProjection.projectReverseValue(0)
+        assert 16l == multiSequenceProjection.projectReverseValue(2)
+        assert 15l == multiSequenceProjection.projectReverseValue(3)
+        assert 14l == multiSequenceProjection.projectReverseValue(4)
 
         assert sequence1.unprojectedLength + 9 == multiSequenceProjection.projectReverseValue(7)
         assert sequence1.unprojectedLength + 7 == multiSequenceProjection.projectReverseValue(9)
@@ -2149,18 +2149,18 @@ class MultiSequenceProjectionSpec extends Specification {
 
         when: "when we set the same projections"
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 5,max:10,sequence:sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 12,max:14,sequence:sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(5,10,sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(12,14,sequence2))
         multiSequenceProjection.calculateOffsets()
 
 
         then: "it is still valid and we have two projection sequences"
         assert multiSequenceProjection.isValid()
         assert multiSequenceProjection.getProjectedSequences().size()==2
-        assert multiSequenceProjection.getProjectedSequences().first().start==5
-        assert multiSequenceProjection.getProjectedSequences().first().end==10
-        assert multiSequenceProjection.getProjectedSequences().last().start==12
-        assert multiSequenceProjection.getProjectedSequences().last().end==14
+        assert multiSequenceProjection.getProjectedSequences().first().start==5l
+        assert multiSequenceProjection.getProjectedSequences().first().end==10l
+        assert multiSequenceProjection.getProjectedSequences().last().start==12l
+        assert multiSequenceProjection.getProjectedSequences().last().end==14l
 
         when: "we change the reverse of one"
         sequence1.reverse = true
@@ -2200,16 +2200,16 @@ class MultiSequenceProjectionSpec extends Specification {
 
         when: "when we set the same projections"
         multiSequenceProjection.addProjectionSequences([sequence1, sequence2])
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 5,max:10,sequence:sequence1))
-        multiSequenceProjection.addCoordinate(new Coordinate(min: 8,max:15,sequence:sequence2))
+        multiSequenceProjection.addCoordinate(new Coordinate(5,10,sequence1))
+        multiSequenceProjection.addCoordinate(new Coordinate(8,15,sequence2))
         multiSequenceProjection.calculateOffsets()
 
 
         then: "it is still valid and we have two projection sequences"
         assert multiSequenceProjection.isValid()
         assert multiSequenceProjection.getProjectedSequences().size()==1
-        assert multiSequenceProjection.getProjectedSequences().first().start==5
-        assert multiSequenceProjection.getProjectedSequences().first().end==15
+        assert multiSequenceProjection.getProjectedSequences().first().start==5l
+        assert multiSequenceProjection.getProjectedSequences().first().end==15l
 
         when: "we change the reverse of one"
         sequence1.reverse = true

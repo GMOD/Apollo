@@ -7,9 +7,9 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
-import org.bbop.apollo.projection.Coordinate
-import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.Coordinate
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -1616,7 +1616,7 @@ class RequestHandlingService {
         MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
         Integer genomicMaxPosition = exonLocation.getInt(FeatureStringEnum.FMAX.value)
         Integer genomicMinPosition = exonLocation.getInt(FeatureStringEnum.FMIN.value)
-        org.bbop.apollo.projection.ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(genomicMaxPosition)
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(genomicMaxPosition)
         genomicMaxPosition = genomicMaxPosition - projectionSequence.originalOffset
         genomicMinPosition = genomicMinPosition - projectionSequence.originalOffset
 

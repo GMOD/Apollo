@@ -42,9 +42,11 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
                 return test;
             }
         }
-        test = name.compareTo(o.name);
-        if (test != 0) {
-            return test;
+        if(name !=null && o.name !=null){
+            test = name.compareTo(o.name);
+            if (test != 0) {
+                return test;
+            }
         }
         test = start.compareTo(o.start);
         if (test != 0) {

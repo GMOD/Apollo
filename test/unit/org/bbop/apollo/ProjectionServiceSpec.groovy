@@ -1,10 +1,10 @@
 package org.bbop.apollo
 
 import grails.test.mixin.TestFor
-import org.bbop.apollo.projection.Coordinate
-import org.bbop.apollo.projection.DiscontinuousProjection
-import org.bbop.apollo.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.Coordinate
+import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Specification
@@ -15,11 +15,6 @@ import spock.lang.Specification
 @TestFor(ProjectionService)
 class ProjectionServiceSpec extends Specification {
 
-    def setup() {
-    }
-
-    def cleanup() {
-    }
 
     void "get track name"() {
         when: "if we have a trackData name"

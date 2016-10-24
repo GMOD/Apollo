@@ -2,11 +2,11 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
-import spock.lang.IgnoreRest
 
 class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -1603,7 +1603,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         jsonObject.put(FeatureStringEnum.FMAX.value, 113)
         jsonObject.put(FeatureStringEnum.STRAND.value, org.bbop.apollo.sequence.Strand.POSITIVE.value)
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
-        org.bbop.apollo.projection.ProjectionSequence projectionSequence = projection.getProjectionSequence("Chr3", Organism.first())
+        ProjectionSequence projectionSequence = projection.getProjectionSequence("Chr3", Organism.first())
 
 
         then: "We should return a valid FeatureLocation"
