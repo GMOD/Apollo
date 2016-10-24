@@ -1,9 +1,6 @@
 package org.bbop.apollo.gwt.shared.projection
 
-import org.bbop.apollo.gwt.shared.projection.AbstractProjection
-import org.bbop.apollo.gwt.shared.projection.Coordinate
-import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
-import org.bbop.apollo.gwt.shared.projection.ProjectionInterface
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
@@ -11,11 +8,6 @@ import spock.lang.Specification
  */
 class DiscontinuousProjectionSpec extends Specification {
 
-    def setup() {
-    }
-
-    def cleanup() {
-    }
 
 
     void "try a difference discontinuous projection capable of reverse projection"() {
@@ -29,44 +21,44 @@ class DiscontinuousProjectionSpec extends Specification {
         discontinuousProjection.addInterval(8, 9)
 
         then: "values should be mapped appropriately"
-        assert 0 == discontinuousProjection.projectValue(0)
-        assert 1 == discontinuousProjection.projectValue(1)
-        assert 2 == discontinuousProjection.projectValue(2)
+        assert 0l == discontinuousProjection.projectValue(0)
+        assert 1l == discontinuousProjection.projectValue(1)
+        assert 2l == discontinuousProjection.projectValue(2)
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(3)
-        assert 3 == discontinuousProjection.projectValue(4)
-        assert 4 == discontinuousProjection.projectValue(5)
-        assert 5 == discontinuousProjection.projectValue(6)
+        assert 3l == discontinuousProjection.projectValue(4)
+        assert 4l == discontinuousProjection.projectValue(5)
+        assert 5l == discontinuousProjection.projectValue(6)
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(7)
-        assert 6 == discontinuousProjection.projectValue(8)
-        assert 7 == discontinuousProjection.projectValue(9)
+        assert 6l == discontinuousProjection.projectValue(8)
+        assert 7l == discontinuousProjection.projectValue(9)
         assert AbstractProjection.UNMAPPED_VALUE == discontinuousProjection.projectValue(10)
 
         // in-phase
-        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(4, 5)
+        assert new Coordinate(3,4) == discontinuousProjection.projectCoordinate(4, 5)
         // right-edge
         assert null == discontinuousProjection.projectCoordinate(2, 3)
         // left-edge
         assert null == discontinuousProjection.projectCoordinate(3, 4)
         // right-edge overlap
-        assert new Coordinate(min: 1, max: 2) == discontinuousProjection.projectCoordinate(1, 3)
+        assert new Coordinate(1,2) == discontinuousProjection.projectCoordinate(1, 3)
         // right-edge overlap
-        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(4, 5)
+        assert new Coordinate(3, 4) == discontinuousProjection.projectCoordinate(4, 5)
         // left-edge overlap
-        assert new Coordinate(min: 3, max: 4) == discontinuousProjection.projectCoordinate(3, 5)
+        assert new Coordinate(3, 4) == discontinuousProjection.projectCoordinate(3, 5)
         // AB overlap
-        assert new Coordinate(min: 1, max: 4) == discontinuousProjection.projectCoordinate(1, 5)
+        assert new Coordinate(1, 4) == discontinuousProjection.projectCoordinate(1, 5)
         // AC overlap
-        assert new Coordinate(min: 1, max: 7) == discontinuousProjection.projectCoordinate(1, 9)
+        assert new Coordinate(1,  7) == discontinuousProjection.projectCoordinate(1, 9)
 
         // test reverse values
-        assert 0 == discontinuousProjection.projectReverseValue(0)
-        assert 1 == discontinuousProjection.projectReverseValue(1)
-        assert 2 == discontinuousProjection.projectReverseValue(2)
-        assert 4 == discontinuousProjection.projectReverseValue(3)
-        assert 5 == discontinuousProjection.projectReverseValue(4)
-        assert 6 == discontinuousProjection.projectReverseValue(5)
-        assert 8 == discontinuousProjection.projectReverseValue(6)
-        assert 9 == discontinuousProjection.projectReverseValue(7)
+        assert 0l == discontinuousProjection.projectReverseValue(0)
+        assert 1l == discontinuousProjection.projectReverseValue(1)
+        assert 2l == discontinuousProjection.projectReverseValue(2)
+        assert 4l == discontinuousProjection.projectReverseValue(3)
+        assert 5l == discontinuousProjection.projectReverseValue(4)
+        assert 6l == discontinuousProjection.projectReverseValue(5)
+        assert 8l == discontinuousProjection.projectReverseValue(6)
+        assert 9l == discontinuousProjection.projectReverseValue(7)
 
     }
 
@@ -84,8 +76,8 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "it shows up"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 45
-        assert coordinate.max == 55
+        assert coordinate.min == 45l
+        assert coordinate.max == 55l
 
         when: "we add within that one"
         projection.addInterval(47, 53)
@@ -94,18 +86,20 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "nothing happens"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 45
-        assert coordinate.max == 55
+        assert coordinate.min == 45l
+        assert coordinate.max == 55l
 
         when: "we add a larger one over it"
+        println "A values: ${projection}"
         projection.addInterval(40, 60)
+        println "B values: ${projection}"
         coordinate = projection.minMap.values().iterator().next()
 
         then: "we merge and expand on both sides"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 40
-        assert coordinate.max == 60
+        assert coordinate.min == 40l
+        assert coordinate.max == 60l
 
 
         when: "we add to the continuous right edge"
@@ -115,8 +109,8 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we merge the two on the right edge"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 40
-        assert coordinate.max == 65
+        assert coordinate.min == 40l
+        assert coordinate.max == 65l
 
         when: "we add to the continuous left edge"
         projection.addInterval(35, 40)
@@ -125,8 +119,8 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we merge the two on the left edge"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 35
-        assert coordinate.max == 65
+        assert coordinate.min == 35l
+        assert coordinate.max == 65l
 
         when: "we add to the continuous right overlap"
         projection.addInterval(62, 70)
@@ -135,8 +129,8 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we merge the two on the right overlap"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 35
-        assert coordinate.max == 70
+        assert coordinate.min == 35l
+        assert coordinate.max == 70l
 
         when: "we add to the continuous left overlap"
         projection.addInterval(30, 37)
@@ -145,8 +139,8 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we merge the two on the left overlap"
         projection.minMap.size() == 1
         projection.maxMap.size() == 1
-        assert coordinate.min == 30
-        assert coordinate.max == 70
+        assert coordinate.min == 30l
+        assert coordinate.max == 70l
 
         when: "we add another one to the left of all of the others"
         projection.addInterval(10, 15)
@@ -157,10 +151,10 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we see another one to the left"
         projection.minMap.size() == 2
         projection.maxMap.size() == 2
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 30
-        assert coordinate1.max == 70
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 30l
+        assert coordinate1.max == 70l
 
 
         when: "we add another one to the right of all of the others"
@@ -174,12 +168,12 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we see another one to the right"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 30
-        assert coordinate1.max == 70
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 30l
+        assert coordinate1.max == 70l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
 
 
@@ -193,14 +187,14 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we see another one in the middle"
         assert projection.minMap.size() == 4
         assert projection.maxMap.size() == 4
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 30
-        assert coordinate1.max == 70
-        assert coordinate2.min == 75
-        assert coordinate2.max == 77
-        assert coordinate3.min == 80
-        assert coordinate3.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 30l
+        assert coordinate1.max == 70l
+        assert coordinate2.min == 75l
+        assert coordinate2.max == 77l
+        assert coordinate3.min == 80l
+        assert coordinate3.max == 85l
 
 
         when: "we add another one in the middle of all of the others again"
@@ -214,16 +208,16 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we see another one in the middle"
         assert projection.minMap.size() == 5
         assert projection.maxMap.size() == 5
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 20
-        assert coordinate1.max == 25
-        assert coordinate2.min == 30
-        assert coordinate2.max == 70
-        assert coordinate3.min == 75
-        assert coordinate3.max == 77
-        assert coordinate4.min == 80
-        assert coordinate4.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 20l
+        assert coordinate1.max == 25l
+        assert coordinate2.min == 30l
+        assert coordinate2.max == 70l
+        assert coordinate3.min == 75l
+        assert coordinate3.max == 77l
+        assert coordinate4.min == 80l
+        assert coordinate4.max == 85l
 
 
         when: "we project outside of the center on both sides"
@@ -238,16 +232,16 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "it should provide both on most sides"
         assert projection.minMap.size() == 5
         assert projection.maxMap.size() == 5
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 19
-        assert coordinate1.max == 26
-        assert coordinate2.min == 30
-        assert coordinate2.max == 70
-        assert coordinate3.min == 75
-        assert coordinate3.max == 77
-        assert coordinate4.min == 80
-        assert coordinate4.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 19l
+        assert coordinate1.max == 26l
+        assert coordinate2.min == 30l
+        assert coordinate2.max == 70l
+        assert coordinate3.min == 75l
+        assert coordinate3.max == 77l
+        assert coordinate4.min == 80l
+        assert coordinate4.max == 85l
 
 
         when: "we add another to overlap "
@@ -259,12 +253,12 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "we merge overlapping ones"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 19
-        assert coordinate1.max == 77
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 19l
+        assert coordinate1.max == 77l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
         when: "we add LHS to center"
         projection.addInterval(18, 22)
@@ -275,12 +269,12 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "should extend center one to the left"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 18
-        assert coordinate1.max == 77
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 18l
+        assert coordinate1.max == 77l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
         when: "we add RHS to center"
         projection.addInterval(76, 78)
@@ -291,12 +285,12 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "should extend center one to the left"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 18
-        assert coordinate1.max == 78
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 18l
+        assert coordinate1.max == 78l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
 
 
@@ -310,12 +304,12 @@ class DiscontinuousProjectionSpec extends Specification {
         then: "nothing should happen"
         assert projection.minMap.size() == 3
         assert projection.maxMap.size() == 3
-        assert coordinate0.min == 10
-        assert coordinate0.max == 15
-        assert coordinate1.min == 18
-        assert coordinate1.max == 78
-        assert coordinate2.min == 80
-        assert coordinate2.max == 85
+        assert coordinate0.min == 10l
+        assert coordinate0.max == 15l
+        assert coordinate1.min == 18l
+        assert coordinate1.max == 78l
+        assert coordinate2.min == 80l
+        assert coordinate2.max == 85l
 
     }
 

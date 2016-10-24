@@ -13,7 +13,7 @@ public class DiscontinuousProjection extends AbstractProjection {
     TreeMap<Long, Coordinate> minMap = new TreeMap<>();
     TreeMap<Long, Coordinate> maxMap = new TreeMap<>();
 
-    String metadata; // metadata, potentially JSON
+    private String metadata; // metadata, potentially JSON
 
     /**
      * Get the coordinate value out and add some to min
@@ -51,7 +51,7 @@ public class DiscontinuousProjection extends AbstractProjection {
 
     @Override
     public Long projectValue(Long input) {
-        if (!minMap.isEmpty() && !maxMap.isEmpty()) {
+        if (minMap.isEmpty() && maxMap.isEmpty()) {
             return input;
         }
 
@@ -125,6 +125,8 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @return
      */
     private Coordinate replaceCoordinate(Coordinate coordinate, Long min, Long max) {
+        assert minMap.containsKey(coordinate.getMin());
+        assert maxMap.containsKey(coordinate.getMax());
         assert minMap.remove(coordinate.getMin()) != null;
         assert maxMap.remove(coordinate.getMax()) != null;
 
