@@ -115,7 +115,9 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                Window.alert("folded a transcript: "+response.getText());
                 AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
+                Window.alert("folded assemblge: "+assemblageInfo.getSequenceList().toString());
                 MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
             }
 

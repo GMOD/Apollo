@@ -230,7 +230,7 @@ class FeatureProjectionService {
      */
     def addLocationsForFeature(Feature feature, MultiSequenceProjection projection) {
 
-        splitRegionForCoordinates(projection,feature.fmin,feature.fmax)
+        splitRegionForCoordinates(projection,feature.fmin,feature.fmax,feature.name)
 
         if(feature instanceof Gene){
             addLocationsForGene((Gene) feature,projection)
@@ -254,12 +254,15 @@ class FeatureProjectionService {
      * @return
      */
     @NotTransactional
-    def splitRegionForCoordinates(MultiSequenceProjection projection, int fmin, int fmax) {
+    def splitRegionForCoordinates(MultiSequenceProjection projection, int fmin, int fmax,String name = null) {
         // TODO: this does not work if we cross the sequence boundary, but good enough for now
         ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
         // first we have to clear out all of the projections for that region
         DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence)
         discontinuousProjection.clear()
+        if(name){
+            discontinuousProjection.metadata = "{'name':${name}}"
+        }
 
         int count = 0
         // project on the LHS

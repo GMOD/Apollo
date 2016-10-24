@@ -189,19 +189,11 @@ class ProjectionService {
 //            }
 //            else
             if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value) && sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).containsKey(FeatureStringEnum.LOCATION.value)) {
-                // add lots of coordinates
-                for (JSONObject loc in sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value)) {
-//                    println "loc: ${loc as JSON}"
-                    Coordinate coordinate = new Coordinate(
-                            min: loc.getInt(FeatureStringEnum.FMIN.value)
-                            , max: loc.getInt(FeatureStringEnum.FMAX.value)
-                            , sequence: projectionSequence
-                    )
-                    multiSequenceProjection.addCoordinate(coordinate)
-                }
-            }
-            else {
-                if(true) throw new RuntimeException("Should never get here")
+                addCoordinates(sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value),multiSequenceProjection,projectionSequence)
+            } else if (sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)) {
+                addCoordinates(sequenceObject.getJSONArray(FeatureStringEnum.LOCATION.value),multiSequenceProjection,projectionSequence)
+            } else {
+                if (true) throw new RuntimeException("Should never get here")
                 Coordinate coordinate = new Coordinate(
                         min: sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMIN.value)
                         , max: sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMAX.value)
@@ -214,6 +206,19 @@ class ProjectionService {
         return multiSequenceProjection
 
     }
+
+    def addCoordinates(JSONArray jsonArray,MultiSequenceProjection projection,ProjectionSequence projectionSequence) {
+        for (JSONObject loc in jsonArray) {
+//                    println "loc: ${loc as JSON}"
+            Coordinate coordinate = new Coordinate(
+                    min: loc.getInt(FeatureStringEnum.FMIN.value)
+                    , max: loc.getInt(FeatureStringEnum.FMAX.value)
+                    , sequence: projectionSequence
+            )
+            projection.addCoordinate(coordinate)
+        }
+    }
+
 
     @NotTransactional
     def convertToProjectSequenceFromSequenceJsonObject(MultiSequenceProjection multiSequenceProjection, JSONObject sequenceObject) {

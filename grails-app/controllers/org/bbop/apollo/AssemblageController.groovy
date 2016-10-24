@@ -3,8 +3,11 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+
+import javax.servlet.http.HttpServletRequest
 
 @Transactional(readOnly = true)
 class AssemblageController {
@@ -30,9 +33,7 @@ class AssemblageController {
 
     }
 
-    @Transactional
-    def projectFeatures(){
-        JSONObject inputObject = permissionService.handleInput(request, params)
+    private static List<Feature> extractFeaturesFromRequest(JSONObject inputObject){
         JSONArray featuresArray = JSON.parse(inputObject.getString(FeatureStringEnum.FEATURES.value)) as JSONArray
         println "featuresArray: ${featuresArray as JSON}"
         List<String> featureList = []
@@ -42,25 +43,66 @@ class AssemblageController {
         println "featuresList : ${featureList}"
         List<Feature> features = Feature.findAllByUniqueNameInList(featureList)
         println "features : ${features.name}"
-        Assemblage assemblage = assemblageService.generateAssemblageForFeatureRegions(features)
+        return features
+    }
 
+    @Transactional
+    def projectFeatures(){
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        List<Feature> features = extractFeaturesFromRequest(inputObject)
+        Assemblage assemblage = assemblageService.generateAssemblageForFeatureRegions(features)
         render assemblageService.convertAssemblageToJson(assemblage) as JSON
     }
 
 
     @Transactional
-    def foldBetweenTranscripts(){
-        render getAssemblage()
+    def foldTranscripts(){
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        println "folding transcript ${inputObject as JSON}"
+        List<Feature> features = extractFeaturesFromRequest(inputObject)
+
+        // in the projection, add "collapsed=true" for the features in question and expand
+        JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
+        println "proj sequence object ${projectionSequenceObject as JSON}"
+        MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
+        for(feature in features){
+            projection = featureProjectionService.addLocationsForFeature(feature,projection)
+        }
+        render projectionService.convertToJsonFromProjection(projection) as JSON
     }
 
     @Transactional
     def removeFolds(){
-        render getAssemblage()
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        println "folding transcript ${inputObject as JSON}"
+        List<Feature> features = extractFeaturesFromRequest(inputObject)
+
+        // in the projection, add "collapsed=true" for the features in question and expand
+        JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
+        println "proj sequence object ${projectionSequenceObject as JSON}"
+        MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
+        for(feature in features){
+            projection = featureProjectionService.clearLocationForCoordinate(projection,feature.fmin,feature.fmax)
+        }
+        render projectionService.convertToJsonFromProjection(projection) as JSON
+        render getAssemblage() as JSON
     }
 
     @Transactional
     def foldBetweenExons(){
-        render getAssemblage()
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        println "folding exons ${inputObject as JSON}"
+        List<Feature> features = extractFeaturesFromRequest(inputObject)
+
+        // in the projection, add "collapsed=true" for the features in question and expand
+        JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
+        println "proj sequence object ${projectionSequenceObject as JSON}"
+        MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
+        for(feature in features){
+            projection = featureProjectionService.addLocationsForFeature(feature,projection)
+        }
+        render projectionService.convertToJsonFromProjection(projection) as JSON
+        render getAssemblage() as JSON
     }
 
     def getAssemblage() {
