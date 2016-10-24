@@ -14,7 +14,7 @@ public class MultiSequenceProjection extends AbstractProjection {
     private List<String> chunks = new ArrayList<>();
 //    ProjectionChunkList projectionChunkList = new ProjectionChunkList()
 
-    private static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
+    public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
 
     public ProjectionSequence getReverseProjectionSequence(Long input) {
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
