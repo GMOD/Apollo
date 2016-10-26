@@ -97,11 +97,11 @@ class ProjectionServiceSpec extends Specification {
         List<ProjectionSequence> retrievedProjectionSequenceList = retrievedProjection.getProjectedSequences()
         ProjectionSequence firstSequence = retrievedProjectionSequenceList.first()
         DiscontinuousProjection firstDiscontinuousProjection = retrievedProjection.getProjectionForSequence(firstSequence)
-        List<Coordinate> firstCoordinates = firstDiscontinuousProjection.getCoordinates()
+        Collection<Coordinate> firstCoordinates = firstDiscontinuousProjection.getCoordinates()
 
         ProjectionSequence lastSequence = retrievedProjectionSequenceList.last()
         DiscontinuousProjection lastDiscontinuousProjection = retrievedProjection.getProjectionForSequence(lastSequence)
-        List<Coordinate> lastCoordinates = lastDiscontinuousProjection.getCoordinates()
+        Collection<Coordinate> lastCoordinates = lastDiscontinuousProjection.getCoordinates()
 
         then: "we should have created the exact same object"
         assert retrievedProjectionSequenceList.size()==2

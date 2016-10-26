@@ -222,12 +222,11 @@ class ProjectionService {
 
 
     @NotTransactional
-    def convertToProjectSequenceFromSequenceJsonObject(MultiSequenceProjection multiSequenceProjection, JSONObject sequenceObject) {
-
+    List<ProjectionSequence> convertToProjectSequenceFromSequenceJsonObject(MultiSequenceProjection multiSequenceProjection, JSONObject sequenceObject) {
         JSONArray jsonArray = sequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
         List<ProjectionSequence> projectionSequenceList = convertJsonArrayToSequences(jsonArray)
         multiSequenceProjection.addProjectionSequences(projectionSequenceList)
-
+        return projectionSequenceList
     }
 
     /**
