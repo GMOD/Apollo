@@ -89,7 +89,7 @@ class FeatureService {
         MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
         int rank = 0
         sequenceListString.each{ String sequenceNameEntry ->
-            ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,assemblage.organism)
+            ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,assemblage.organism.commonName)
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, fullProjection, projectionSequence, defaultStrand)
             if(featureLocation){
                 featureLocation.rank = rank

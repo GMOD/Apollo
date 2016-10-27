@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.shared.projection;
 
+import org.bbop.apollo.projection.ProjectionChunk;
+
 import java.util.*;
 
 /**
@@ -330,6 +332,29 @@ public class MultiSequenceProjection extends AbstractProjection {
         }
 
         return returnMap;
+    }
+
+    public ProjectionSequence getProjectionSequence(String sequenceName, String organismName) {
+        return getProjectionSequence(sequenceName,null,organismName);
+    }
+
+    public ProjectionSequence getProjectionSequence(String sequenceName,String sequenceId, String organismName) {
+        for (ProjectionSequence projectionSequence : sequenceDiscontinuousProjectionMap.keySet()) {
+            if (projectionSequence.getName().equals(sequenceName)) {
+                if (projectionSequence.getOrganism()!=null && organismName!=null) {
+                    if (!projectionSequence.getOrganism().equals(organismName)) {
+                        return projectionSequence;
+                    }
+                }
+                if (projectionSequence.getId()!=null && sequenceId!=null) {
+                    if (!projectionSequence.getId().equals(sequenceId)) {
+                        return null;
+                    }
+                }
+                return projectionSequence;
+            }
+        }
+        return null;
     }
 
 //    ProjectionSequence getProjectionSequence(String sequenceName, Organism organism) {
