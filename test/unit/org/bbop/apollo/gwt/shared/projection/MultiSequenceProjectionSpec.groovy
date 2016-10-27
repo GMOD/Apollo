@@ -1,6 +1,6 @@
 package org.bbop.apollo.gwt.shared.projection
 
-import org.bbop.apollo.gwt.shared.projection.*
+import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**

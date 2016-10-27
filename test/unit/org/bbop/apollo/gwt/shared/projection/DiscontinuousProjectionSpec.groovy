@@ -8,6 +8,42 @@ import spock.lang.Specification
  */
 class DiscontinuousProjectionSpec extends Specification {
 
+    void "we can remove tree maps"(){
+        given: "a treemaps"
+        TreeMap<Long,Coordinate> treeMap = new TreeMap<>()
+        Coordinate coordinate1 = new Coordinate(45,55)
+
+        when: "we add a var"
+        treeMap.put(45l,coordinate1)
+
+        then: "we should have size 1"
+        assert treeMap.size()==1
+
+        when: "we remove it"
+        treeMap.remove(45l)
+
+        then: "we should have size 0"
+        assert treeMap.size()==0
+    }
+
+    void "replace coordinates should work properly"(){
+        given: "a projection"
+        DiscontinuousProjection projection = new DiscontinuousProjection()
+        Coordinate coordinate1 = new Coordinate(45,55)
+        Coordinate coordinate2 = new Coordinate(40,60)
+
+        when: "we add the first coordinate"
+        projection.addCoordinate(45,55)
+
+        then: "we should only have the first coordinate"
+        assert projection.size()==1
+
+        when: "we replace that coordinate"
+        projection.replaceCoordinate(coordinate1,40l,60l)
+
+        then: "we should ust have the one"
+        assert projection.size()==1
+    }
 
 
     void "try a difference discontinuous projection capable of reverse projection"() {
@@ -63,6 +99,7 @@ class DiscontinuousProjectionSpec extends Specification {
     }
 
 
+    @IgnoreRest
     void "when adding intervals overlapping intervals should merge"() {
 
         given: "some intervals"

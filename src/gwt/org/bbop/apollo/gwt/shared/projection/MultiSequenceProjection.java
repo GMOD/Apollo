@@ -35,11 +35,11 @@ public class MultiSequenceProjection extends AbstractProjection {
         ProjectionSequence maxProjectionSequence = getReverseProjectionSequence(maxInput);
 
 
-        Integer startOrder = minProjectionSequence != null ? minProjectionSequence.getOrder() : null ;
-        if(startOrder==null) {
-            return orderedSequences ;
+        Integer startOrder = minProjectionSequence != null ? minProjectionSequence.getOrder() : null;
+        if (startOrder == null) {
+            return orderedSequences;
         }
-        Integer endOrder = maxProjectionSequence != null ? maxProjectionSequence.getOrder() : null ;
+        Integer endOrder = maxProjectionSequence != null ? maxProjectionSequence.getOrder() : null;
         if (endOrder == null) {
             endOrder = getLastSequence().getOrder();
         }
@@ -68,7 +68,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
         for (List<ProjectionSequence> projectionSequenceList : getOrderedSequences().values()) {
             for (ProjectionSequence projectionSequence : projectionSequenceList) {
-                                if (input >= projectionSequence.getStart() + offset && input <= projectionSequence.getEnd() + offset) {
+                if (input >= projectionSequence.getStart() + offset && input <= projectionSequence.getEnd() + offset) {
                     return projectionSequence;
                 }
             }
@@ -130,9 +130,9 @@ public class MultiSequenceProjection extends AbstractProjection {
 //            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
 //            reverseValue = reverseValue + projectionSequence.getStart();
             // simplifies to this
-            return projectionSequence.getLength() - reverseValue + projectionSequence.getOriginalOffset()  + 2 * projectionSequence.getStart() ;
+            return projectionSequence.getLength() - reverseValue + projectionSequence.getOriginalOffset() + 2 * projectionSequence.getStart();
         } else {
-            return reverseValue - projectionSequence.getOriginalOffset() ;
+            return reverseValue - projectionSequence.getOriginalOffset();
         }
     }
 
@@ -181,7 +181,7 @@ public class MultiSequenceProjection extends AbstractProjection {
             // case 5: no overlap
             if (index > maxCoordinate || index + sequenceLength < minCoordinate) {
                 // do nothing
-                            }
+            }
             // case 3: inbetween
             else if (minCoordinate > index && maxCoordinate < index + sequenceLength) {
                 sequenceList.add(discontinuousProjection.projectSequence(inputSequence, minCoordinate - index + offset, maxCoordinate - index + offset, offset));
@@ -222,7 +222,7 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
     public void addInterval(Long min, Long max, ProjectionSequence sequence) {
-                Coordinate coordinate = new Coordinate(min, max, sequence);
+        Coordinate coordinate = new Coordinate(min, max, sequence);
         addCoordinate(coordinate);
     }
 
@@ -455,7 +455,7 @@ public class MultiSequenceProjection extends AbstractProjection {
      *
      * @return
      */
-    Map<String, Integer> getOrderedSequenceMap() {
+    public Map<String, Integer> getOrderedSequenceMap() {
         Map<String, Integer> returnMap = new HashMap<>();
         for (ProjectionSequence projectionSequence : sequenceDiscontinuousProjectionMap.keySet()) {
             if (!returnMap.containsKey(projectionSequence.getName())) {

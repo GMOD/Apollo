@@ -103,7 +103,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         return UNMAPPED_VALUE;
     }
 
-    private Coordinate addCoordinate(Long min, Long max) {
+    Coordinate addCoordinate(Long min, Long max) {
         Coordinate coordinate = new Coordinate(min, max);
         if (minMap.containsKey(min) && !maxMap.containsKey(max)) {
             throw new RuntimeException("minKey is dupe and should be replaced ${min}::${max}");
@@ -124,11 +124,12 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @param max
      * @return
      */
-    private Coordinate replaceCoordinate(Coordinate coordinate, Long min, Long max) {
+    Coordinate replaceCoordinate(Coordinate coordinate, Long min, Long max) {
         assert minMap.containsKey(coordinate.getMin());
         assert maxMap.containsKey(coordinate.getMax());
-        assert minMap.remove(coordinate.getMin()) != null;
-        assert maxMap.remove(coordinate.getMax()) != null;
+
+        minMap.remove(coordinate.getMin());
+        maxMap.remove(coordinate.getMax());
 
         Long nextMin = !minMap.isEmpty() ? minMap.higherKey(coordinate.getMin()) : null;
 
@@ -137,8 +138,8 @@ public class DiscontinuousProjection extends AbstractProjection {
         while (nextMin != null && !minMap.isEmpty() && !maxMap.isEmpty() && nextMin < max && !doBreak) {
             Coordinate nextMinCoord = minMap.get(nextMin);
             if (nextMinCoord.getMax() > min) {
-                assert minMap.remove(nextMinCoord.getMin()) != null;
-                assert maxMap.remove(nextMinCoord.getMax()) != null;
+                minMap.remove(nextMinCoord.getMin()) ;
+                maxMap.remove(nextMinCoord.getMax()) ;
             } else {
                 doBreak = true;
             }
