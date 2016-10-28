@@ -11,17 +11,16 @@ import groovyx.net.http.RESTClient
 
 String usageString = "get_new_features.groovy <options>" +
         "Example: \n" +
-        "./get_new_features.groovy -username admin -password somepass -url http://localhost/apollo -date 2014-05-17:00:00:00 -beforeDate=true -output thisFile.txt"
+        "./get_new_features.groovy -username admin -password somepass -url http://localhost/apollo -date 2014-05-17:00:00:00 -afterDate=true -output thisFile.txt"
 
 def cli = new CliBuilder(usage: 'get_fasta.groovy <options>')
 cli.setStopAtNonOption(true)
-cli.url('URL of Apollo from which FASTA is to be fetched', required: true, args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.url('url', required: true, args: 1)
 cli.date('date', required: true, args: 1)
-cli.beforeDate('beforeDate', required: false, args: 1)
-cli.output('output', required: true, args: 1)
+cli.afterDate('afterDate', required: false, args: 1)
+cli.output('output', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 def admin_username
@@ -63,7 +62,7 @@ def post = [
     username: admin_username,
     password: admin_password,
     date: options.date,
-    beforeDate: options.beforeDate
+    afterDate: options.afterDate ?: true
 ]
 def response = client.post(path:options.url+'/featureEvent/findChanges',body: post)
 
