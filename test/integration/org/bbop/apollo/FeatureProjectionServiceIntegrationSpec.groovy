@@ -7,6 +7,7 @@ import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -45,8 +46,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "a transcript"
         String addTranscriptString = "{${testCredentials} \"organism\":${Organism.first().id},\"track\":\"GroupUn87\",\"features\":[{\"location\":{\"fmin\":29396,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53498-RA\",\"children\":[{\"location\":{\"fmin\":30271,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":29403,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29927,\"fmax\":30329,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":29396,\"fmax\":30271,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-        String getFeaturesString = "{${testCredentials} \"track\":{\"id\":6723, \"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
-        String getFeaturesInFeaturesViewString = "{${testCredentials} \"track\":{\"name\":\"GB53498-RA (GroupUn87)\", \"padding\":0, \"start\":29396, \"end\":30329, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":29396, \"end\":30329, \"feature\":{\"name\":\"GB53498-RA\"}}]},\"operation\":\"get_features\"}"
+        String getFeaturesString = "{${testCredentials} \"track\":{\"id\":6723, \"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085,\"reverse\":false},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258,\"reverse\":false}]},\"operation\":\"get_features\"}"
+        String getFeaturesInFeaturesViewString = "{${testCredentials} \"track\":{\"name\":\"GB53498-RA (GroupUn87)\", \"padding\":0, \"start\":29396, \"end\":30329, \"sequenceList\":[{\"name\":\"GroupUn87\",\"reverse\":false,\"start\":29396, \"end\":30329, \"feature\":{\"name\":\"GB53498-RA\"}}]},\"operation\":\"get_features\"}"
 
         when: "You add a transcript via JSON"
         JSONObject addTranscriptJsonObject = JSON.parse(addTranscriptString) as JSONObject

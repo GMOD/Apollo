@@ -360,16 +360,6 @@ class PermissionService {
             organism = preferenceService.getOrganismFromPreferences(user, trackName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
 
-//        List<Sequence> sequences = Sequence.findAllByNameInListAndOrganism(sequenceStrings.keySet() as List, organism)
-        // re-order sequences by original input
-//        List<Sequence> orderedSequences = new ArrayList<>(sequences.size())
-////        sequences.each {
-////            foundSequences.add(it)
-////        }
-//        sequences.each {
-//            Integer index = sequenceStrings.(it.name)
-//            orderedSequences.set(index, it)
-//        }
         Sequence sequence
         if (!trackName) {
             sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence

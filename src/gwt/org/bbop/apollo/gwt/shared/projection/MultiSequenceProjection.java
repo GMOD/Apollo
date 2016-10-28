@@ -105,10 +105,16 @@ public class MultiSequenceProjection extends AbstractProjection {
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
         // TODO: DEFAULT_FOLDING_BUFFER for scaffolds is currently 1 . . the order
         Long returnValue = discontinuousProjection.projectValue(input - inputOffset);
-        if (projectionSequence.getReverse() && returnValue != UNMAPPED_VALUE) {
+        if(returnValue==null){
+            System.out.println("return value is null for "+input + " and "+ inputOffset);
+        }
+        System.out.println("returnValue: "+returnValue);
+        System.out.println("reversed: "+projectionSequence.getReverse());
+        System.out.println("equals: "+!returnValue.equals(UNMAPPED_VALUE));
+        if (projectionSequence.getReverse() && !returnValue.equals(UNMAPPED_VALUE)) {
             returnValue = discontinuousProjection.getLength() + (discontinuousProjection.size() - 1) - returnValue;
         }
-        return returnValue == UNMAPPED_VALUE ? returnValue : returnValue + outputOffset;
+        return returnValue.equals(UNMAPPED_VALUE) ? returnValue : returnValue + outputOffset;
     }
 
     public Long projectValue(Long input) {

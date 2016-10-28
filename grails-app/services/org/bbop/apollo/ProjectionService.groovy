@@ -93,7 +93,13 @@ class ProjectionService {
         }
         projectionSequence.order = index
         projectionSequence.name = jSONObject.name
-        projectionSequence.reverse = jSONObject.reverse
+        if(jSONObject.reverse==null){
+            log.warn("'reverse' parameter not passed in, so setting to false")
+            projectionSequence.reverse = false
+        }
+        else{
+            projectionSequence.reverse = jSONObject.reverse
+        }
         projectionSequence.organism = organismCommonName
 
         JSONArray featureArray = jSONObject.features

@@ -33,9 +33,9 @@ public class DiscontinuousProjection extends AbstractProjection {
 
         // TODO: for speed generate a reverse map for quick lookup whilst doing this or another operation
         // here we can assume that the input maps onto the current length
-        Long currentLength = 0l;
-        Long bucketCount = 0l;
-        Long previousLength = 0l;
+        Long currentLength = 0L;
+        Long bucketCount = 0L;
+        Long previousLength = 0L;
         while (minIterator.hasNext()) {
             min = minIterator.next();
             max = maxIterator.next();
@@ -70,9 +70,9 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
 
         // if is a hit for min and no max hit, then it is the left-most
-        if (floorMinKey == ceilMinKey) {
+        if (floorMinKey.equals(ceilMinKey)) {
             if (floorMaxKey == null) {
-                return 0l;
+                return 0L;
             } else {
 //                return input - floorMaxKey
                 return projectValue(floorMaxKey) + 1;
@@ -80,12 +80,12 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
 
         // this is the left-most still
-        if (floorMinKey != ceilMinKey && floorMaxKey == null) {
+        if (!floorMinKey.equals(ceilMinKey) && floorMaxKey == null) {
             return input - floorMinKey;
         }
 
         // if we are at the max border
-        if (floorMaxKey == ceilMaxKey) {
+        if (floorMaxKey.equals(ceilMaxKey)) {
             return input - floorMinKey + projectValue(floorMinKey);
         }
 
@@ -95,7 +95,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         }
 
         // if we are inbetween for the last large one on the RHS
-        if (floorMaxKey != ceilMaxKey && ceilMinKey == null) {
+        if (!floorMaxKey.equals(ceilMaxKey) && ceilMinKey == null) {
             return input - floorMinKey + projectValue(floorMinKey);
         }
 

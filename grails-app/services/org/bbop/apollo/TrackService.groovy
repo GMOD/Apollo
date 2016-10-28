@@ -258,7 +258,7 @@ class TrackService {
 
         // TODO: it should look up the OGS track either default or variable
         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-        ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName, currentOrganism)
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName, currentOrganism.commonName)
 
         if (projection && projectionSequence) {
             println "found a projection ${projection.size()}"

@@ -467,16 +467,6 @@ class RequestHandlingService {
 
         Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         List<Sequence> sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
-//        if (!sequencesMatchNames(sequenceNameList, sequenceList)) {
-//            sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceNameList, sequenceList.first().organism)
-//            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-//            // TODO: remember to set a projection or a assemblage here !
-////        String sequenceName = permissionService.getSequenceNameFromInput(inputObject)
-////        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
-////        if (sequenceName != sequence.name) {
-////            sequence = Sequence.findByNameAndOrganism(sequenceName, sequence.organism)
-////            preferenceService.setCurrentSequence(permissionService.getCurrentUser(inputObject), sequence,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-//        }
 
         JSONArray sequenceListObject = new JSONArray(assemblage.sequenceList)
 
@@ -508,20 +498,20 @@ class RequestHandlingService {
                         // inbetween the projection
                         featureLocations {
                             'eq'('sequence', sequence)
-                            'ge'('fmin', coordinate.min)
-                            'le'('fmax', coordinate.max)
+                            'ge'('fmin', coordinate.min as Integer)
+                            'le'('fmax', coordinate.max as Integer)
                         }
                         // overlaps the min edge
                         featureLocations {
                             'eq'('sequence', sequence)
-                            'lt'('fmin', coordinate.min)
-                            'gt'('fmax', coordinate.min)
+                            'lt'('fmin', coordinate.min as Integer)
+                            'gt'('fmax', coordinate.min as Integer)
                         }
                         // overlaps the max edge
                         featureLocations {
                             'eq'('sequence', sequence)
-                            'lt'('fmin', coordinate.max)
-                            'gt'('fmax', coordinate.max)
+                            'lt'('fmin', coordinate.max as Integer)
+                            'gt'('fmax', coordinate.max as Integer)
                         }
                     }
                 }

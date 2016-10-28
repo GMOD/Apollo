@@ -235,22 +235,13 @@ public class ProjectionService {
 
                     JSONObject sequenceObject2 = convertToJsonObject(projectionSequence);
                     sequenceObject2.put("type", new JSONString("left"));
-//                    position += 1 ;
                     sequenceObject2.put("position", new JSONNumber(position));
                     returnArray.set(returnArray.size(), sequenceObject2);
                 }
-
-//                Integer position = 80;
-//                sequenceObject.put("position", new JSONNumber(position));
-//                sequenceObject.put("type", new JSONString("left"));
             }
-//        jsonObject.put("sequence", convertToJsonObject(projectionSequence));
-//        jsonObject.put("position", new JSONNumber(reverseValue)); // returned as a percentage
         }
 
-        JavaScriptObject javaScriptObject = JsonUtils.safeEval(returnArray.toString());
-        // TODO: convert to a JSON object
-        return javaScriptObject;
+        return JsonUtils.safeEval(returnArray.toString());
     }
 
 

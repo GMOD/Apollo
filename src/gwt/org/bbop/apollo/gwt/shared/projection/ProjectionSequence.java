@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class ProjectionSequence implements Comparable<ProjectionSequence>{
     private String id;
-    private String name;
+    public String name;
     private String organism;
     private Integer order ; // what order this should be processed as
     private Long offset = 0l;  // projected offset from originalOffset
@@ -188,6 +188,9 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
     }
 
     public void setReverse(Boolean reverse) {
+        if(reverse==null){
+            throw new RuntimeException("setting a null reverse value");
+        }
         this.reverse = reverse;
     }
 
