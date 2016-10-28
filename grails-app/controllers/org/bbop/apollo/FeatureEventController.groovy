@@ -1,10 +1,21 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 
 @Transactional(readOnly = true)
 class FeatureEventController {
+
+    static final String DAY_DATE_FORMAT = 'yyyy-MM-dd'
+    static final String FULL_DATE_FORMAT = DAY_DATE_FORMAT + ' HH:mm:ss'
 
     def requestHandlingService
     def permissionService
@@ -12,6 +23,48 @@ class FeatureEventController {
 
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+
+    /**
+     * Returns a JSON representation of all "current" Genome Annotations before or after a given date.
+     *
+     * @param compareDateString
+     * @param beforeDate
+     * @return
+     */
+    @RestApiMethod(description="Returns a JSON representation of all 'current' Genome Annotations before or after a given date." ,path="/featureEvent/findChanges",verb = RestApiVerb.POST )
+    @RestApiParams(params=[
+            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name="compareDateString", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query ${FULL_DATE_FORMAT} or ${DAY_DATE_FORMAT}")
+            ,@RestApiParam(name="afterDate", type="Boolean", paramType = RestApiParamType.QUERY,description = "Search after the given date.")
+    ] )
+    def findChanges(String compareDateString,Boolean afterDate){
+
+        Date date = Date.parse( compareDateString.contains(":")?FULL_DATE_FORMAT:DAY_DATE_FORMAT,compareDateString)
+        params.max = params.max ?: 50
+
+        def c = FeatureEvent.createCriteria()
+
+        def list = c.list(max: params.max, offset:params.offset) {
+            eq('current',true)
+            if(afterDate){
+                lte('lastUpdated',date)
+            }
+            else{
+                gte('lastUpdated',date)
+            }
+            order('lastUpdated',params.sort ?: "lastUpdated",params.order ?: "desc")
+        }
+
+        JSONArray returnList = new JSONArray()
+
+        list.each { FeatureEvent featureEvent ->
+            JSONArray entry = JSON.parse(featureEvent.newFeaturesJsonArray) as JSONArray
+            returnList.add(entry)
+        }
+
+        render returnList as JSON
+    }
 
     /**
      * Permissions handled upstream
