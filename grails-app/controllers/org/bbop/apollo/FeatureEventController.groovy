@@ -27,7 +27,7 @@ class FeatureEventController {
     /**
      * Returns a JSON representation of all "current" Genome Annotations before or after a given date.
      *
-     * @param compareDateString
+     * @param date
      * @param beforeDate
      * @return
      */
@@ -35,12 +35,12 @@ class FeatureEventController {
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="compareDateString", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
+            ,@RestApiParam(name="date", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
             ,@RestApiParam(name="afterDate", type="Boolean", paramType = RestApiParamType.QUERY,description = "Search after the given date.")
     ] )
-    def findChanges(String compareDateString,Boolean afterDate){
-
-        Date date = Date.parse( compareDateString.contains(":")?FULL_DATE_FORMAT:DAY_DATE_FORMAT,compareDateString)
+    def findChanges(String date,Boolean afterDate){
+        date = date ?: params.date
+        Date compareDate = Date.parse( date.contains(":")?FULL_DATE_FORMAT:DAY_DATE_FORMAT,date)
         params.max = params.max ?: 50
 
         def c = FeatureEvent.createCriteria()
@@ -48,10 +48,10 @@ class FeatureEventController {
         def list = c.list(max: params.max, offset:params.offset) {
             eq('current',true)
             if(afterDate){
-                lte('lastUpdated',date)
+                lte('lastUpdated',compareDate)
             }
             else{
-                gte('lastUpdated',date)
+                gte('lastUpdated',compareDate)
             }
             order('lastUpdated',params.sort ?: "lastUpdated",params.order ?: "desc")
         }
