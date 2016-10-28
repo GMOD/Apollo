@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
@@ -37,24 +38,37 @@ class FeatureEventController {
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="date", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
             ,@RestApiParam(name="afterDate", type="Boolean", paramType = RestApiParamType.QUERY,description = "Search after the given date.")
+            ,@RestApiParam(name="max", type="Integer", paramType = RestApiParamType.QUERY,description = "Max to return")
+            ,@RestApiParam(name="sort", type="String", paramType = RestApiParamType.QUERY,description = "Sort parameter (lastUpdated).  See FeatureEvent object/table.")
+            ,@RestApiParam(name="order", type="String", paramType = RestApiParamType.QUERY,description = "desc/asc sort order by sort param")
     ] )
-    def findChanges(String date,Boolean afterDate){
-        date = date ?: params.date
+    def findChanges(){
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(inputObject, org.bbop.apollo.gwt.shared.PermissionEnum.ADMINISTRATE)) {
+            render status: org.springframework.http.HttpStatus.UNAUTHORIZED
+            return
+        }
+        String date = inputObject.date
+        Boolean afterDate = inputObject.afterDate
         Date compareDate = Date.parse( date.contains(":")?FULL_DATE_FORMAT:DAY_DATE_FORMAT,date)
-        params.max = params.max ?: 50
+        params.max = params.max ?: 200
 
         def c = FeatureEvent.createCriteria()
 
         def list = c.list(max: params.max, offset:params.offset) {
             eq('current',true)
             if(afterDate){
-                lte('lastUpdated',compareDate)
+                ge('lastUpdated',compareDate)
             }
             else{
-                gte('lastUpdated',compareDate)
+                le('lastUpdated',compareDate)
             }
-            order('lastUpdated',params.sort ?: "lastUpdated",params.order ?: "desc")
+            order(params.sort ?: "lastUpdated",params.order ?: "desc")
         }
+
+        println compareDate
+
+        println list.size()
 
         JSONArray returnList = new JSONArray()
 
