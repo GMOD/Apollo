@@ -1603,7 +1603,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         jsonObject.put(FeatureStringEnum.FMAX.value, 113)
         jsonObject.put(FeatureStringEnum.STRAND.value, org.bbop.apollo.sequence.Strand.POSITIVE.value)
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
-        ProjectionSequence projectionSequence = projection.getProjectionSequence("Chr3", Organism.first())
+        ProjectionSequence projectionSequence = projection.getProjectionSequence("Chr3", Organism.first().commonName)
 
 
         then: "We should return a valid FeatureLocation"

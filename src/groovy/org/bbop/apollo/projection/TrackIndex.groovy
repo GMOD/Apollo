@@ -2,6 +2,7 @@ package org.bbop.apollo.projection
 
 /**
  * Created by nathandunn on 12/2/15.
+ * @deprecated
  */
 class TrackIndex {
     // index locations . . .

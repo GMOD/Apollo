@@ -1,7 +1,5 @@
 package org.bbop.apollo.gwt.shared.projection;
 
-import org.bbop.apollo.projection.ProjectionChunk;
-
 import java.util.*;
 
 /**
@@ -14,7 +12,7 @@ public class MultiSequenceProjection extends AbstractProjection {
     private TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>();
 
     private List<String> chunks = new ArrayList<>();
-//    ProjectionChunkList projectionChunkList = new ProjectionChunkList()
+    private ProjectionChunkList projectionChunkList = new ProjectionChunkList();
 
     public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
 
@@ -447,20 +445,20 @@ public class MultiSequenceProjection extends AbstractProjection {
 //        return sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.firstEntry().value
 //    }
 
-//    Long getOffsetForSequence(String sequenceName) {
-//        if (projectionChunkList) {
-//            ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName)
-//            if (projectionChunk) {
-//                return projectionChunk.sequenceOffset
-//            }
-//        }
-//        for (ProjectionSequence projectionSequence : sequenceDiscontinuousProjectionMap.keySet()) {
-//            if (sequenceName == projectionSequence.name) {
-//                return projectionSequence.originalOffset
-//            }
-//        }
-//        return 0
-//    }
+    public Long getOffsetForSequence(String sequenceName) {
+        if (projectionChunkList!=null) {
+            ProjectionChunk projectionChunk = projectionChunkList.findProjectChunkForName(sequenceName);
+            if (projectionChunk!=null) {
+                return projectionChunk.getSequenceOffset();
+            }
+        }
+        for (ProjectionSequence projectionSequence : sequenceDiscontinuousProjectionMap.keySet()) {
+            if (sequenceName.equals(projectionSequence.getName())) {
+                return projectionSequence.getOriginalOffset();
+            }
+        }
+        return 0l ;
+    }
 
     ProjectionSequence getLastSequence() {
         return getProjectedSequences().get(sequenceDiscontinuousProjectionMap.keySet().size() - 1);

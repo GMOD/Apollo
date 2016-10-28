@@ -2,6 +2,7 @@ package org.bbop.apollo.projection
 
 /**
  * Created by nathandunn on 12/3/15.
+ * @deprecated
  */
 enum NclistColumnEnum {
 

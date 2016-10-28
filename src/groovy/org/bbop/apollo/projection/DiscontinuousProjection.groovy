@@ -122,6 +122,7 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @param min
      * @param max
      * @return
+     * @deprecated
      */
     private Coordinate replaceCoordinate(Coordinate coordinate, int min, int max) {
         assert minMap.remove(coordinate.min) != null

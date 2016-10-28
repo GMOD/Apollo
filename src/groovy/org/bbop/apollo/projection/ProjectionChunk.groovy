@@ -2,6 +2,7 @@ package org.bbop.apollo.projection
 
 /**
  * Created by nathandunn on 11/10/15.
+ * @deprecated
  */
 class ProjectionChunk {
 

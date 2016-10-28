@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils
  * Created by Nathan Dunn on 9/1/15.
  *
  * Responsible for handling chunks.
+ * @deprecated
  *
  * TODO: refactor into the chunk manager service?
  */

@@ -492,9 +492,9 @@ class RequestHandlingService {
                     name: it.name
             )
             Coordinate coordinate = new Coordinate(
-                    min:it.start,
-                    max:it.end,
-                    sequence: projectionSequence
+                    it.start,
+                    it.end,
+                    projectionSequence
             )
             sequenceOrder.put(i,coordinate)
         }

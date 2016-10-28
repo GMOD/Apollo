@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 
 /**
  * Created by Nathan Dunn on 8/24/15.
+ * @deprecated
  */
 @CompileStatic
 abstract class AbstractProjection implements ProjectionInterface{

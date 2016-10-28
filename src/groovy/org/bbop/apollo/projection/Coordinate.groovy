@@ -3,6 +3,7 @@ package org.bbop.apollo.projection
 /**
  * Both the min/max should be treated as inclusive coordinates
  * Created by Nathan Dunn on 8/24/15.
+ * @deprecated
  */
 class Coordinate implements Comparable<Coordinate>{
 

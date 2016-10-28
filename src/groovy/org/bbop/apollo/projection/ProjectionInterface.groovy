@@ -5,6 +5,7 @@ import groovy.transform.CompileStatic
 
 /**
  * Created by nathandunn on 8/14/15.
+ * @deprecated
  */
 @CompileStatic
 interface ProjectionInterface {
