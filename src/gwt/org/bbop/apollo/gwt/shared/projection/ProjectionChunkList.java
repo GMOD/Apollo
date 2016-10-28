@@ -10,15 +10,15 @@ import java.util.List;
  * could be made of un non-chunked data.
  */
 
-class ProjectionChunkList {
+public class ProjectionChunkList {
 
-    List<ProjectionChunk> projectionChunkList = new ArrayList<>();
+    public List<ProjectionChunk> projectionChunkList = new ArrayList<>();
 
-    void addChunk(ProjectionChunk projectionChunk){
+    public void addChunk(ProjectionChunk projectionChunk){
         projectionChunkList.add(projectionChunk);
     }
 
-    ProjectionChunk findProjectChunkForIndex(Integer index){
+    public ProjectionChunk findProjectChunkForIndex(Integer index){
         for(ProjectionChunk projectionChunk : projectionChunkList){
             if(index >= projectionChunk.chunkArrayOffset && index <= projectionChunk.numChunks + projectionChunk.chunkArrayOffset){
                 return projectionChunk;

@@ -6,10 +6,10 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.Coordinate
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
-import org.bbop.apollo.projection.ProjectionChunk
-import org.bbop.apollo.projection.ProjectionChunkList
+import org.bbop.apollo.gwt.shared.projection.ProjectionChunk
+import org.bbop.apollo.gwt.shared.projection.ProjectionChunkList
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
-import org.bbop.apollo.projection.TrackIndex
+import org.bbop.apollo.gwt.shared.projection.TrackIndex
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -658,7 +658,7 @@ class TrackService {
 
         int calculatedEnd = 0
         int calculatedStart = 0
-        Map<JSONObject,Integer> sequenceMap = new HashMap<>()
+        Map<JSONObject,Long> sequenceMap = new HashMap<>()
         if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             for(int i = 0 ; i < sequenceArray.size() ; i++){
                 def sequenceObject = sequenceArray.getJSONObject(i)

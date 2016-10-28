@@ -12,7 +12,7 @@ public class MultiSequenceProjection extends AbstractProjection {
     private TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>();
 
     private List<String> chunks = new ArrayList<>();
-    private ProjectionChunkList projectionChunkList = new ProjectionChunkList();
+    public ProjectionChunkList projectionChunkList = new ProjectionChunkList();
 
     public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
 
@@ -97,7 +97,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return map;
     }
 
-    Long projectValue(Long input, Long inputOffset, Long outputOffset) {
+    public Long projectValue(Long input, Long inputOffset, Long outputOffset) {
         ProjectionSequence projectionSequence = getProjectionSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
@@ -144,7 +144,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         return projectReverseValue(input, projectionSequence.getOffset(), projectionSequence.getOriginalOffset());
     }
 
-    Long projectReverseValue(Long input, Long inputOffset, Long outputOffset) {
+    public Long projectReverseValue(Long input, Long inputOffset, Long outputOffset) {
         ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
@@ -394,8 +394,8 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
 
-    Map<Long, Coordinate> getMinMap() {
-        Map<Long, Coordinate> minMap = new TreeMap<>();
+    TreeMap<Long, Coordinate> getMinMap() {
+        TreeMap<Long, Coordinate> minMap = new TreeMap<>();
         List<ProjectionSequence> projectionSequenceList = getProjectedSequences();
 
         for (ProjectionSequence projectionSequence : projectionSequenceList) {
@@ -412,8 +412,8 @@ public class MultiSequenceProjection extends AbstractProjection {
         return minMap;
     }
 
-    Map<Long, Coordinate> getMaxMap() {
-        Map<Long, Coordinate> maxMap = new TreeMap<>();
+    TreeMap<Long, Coordinate> getMaxMap() {
+        TreeMap<Long, Coordinate> maxMap = new TreeMap<>();
 
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
             Map<Long, Coordinate> returnMap = new TreeMap<>();
@@ -431,19 +431,32 @@ public class MultiSequenceProjection extends AbstractProjection {
         return maxMap;
     }
 
-//    Coordinate getMaxCoordinate(ProjectionSequence projectionSequence =null) {
+    public Coordinate getMaxCoordinate() {
+//        return getMaxCoordinate(null);
+        return getMaxMap().lastEntry().getValue();
+    }
+
+    public Coordinate getMinCoordinate() {
+//        return getMinCoordinate(null);
+        return getMinMap().firstEntry().getValue();
+    }
+
+    public Coordinate getMaxCoordinate(ProjectionSequence projectionSequence ) {
+        assert projectionSequence!=null ;
 //        if (projectionSequence == null) {
-//            return getMaxMap().lastEntry().value;
+////            getMaxMap().keySet().
+//            return getMaxMap().lastEntry().getValue();
 //        }
-//        return sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.lastEntry().value
-//    }
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).maxMap.lastEntry().getValue();
+    }
 //
-//    Coordinate getMinCoordinate(ProjectionSequence projectionSequence =null) {
+    public Coordinate getMinCoordinate(ProjectionSequence projectionSequence) {
+        assert projectionSequence!=null ;
 //        if (projectionSequence == null) {
-//            return getMinMap().firstEntry().value
+//            return getMinMap().firstEntry().getValue();
 //        }
-//        return sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.firstEntry().value
-//    }
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).minMap.firstEntry().getValue();
+    }
 
     public Long getOffsetForSequence(String sequenceName) {
         if (projectionChunkList!=null) {

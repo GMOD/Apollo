@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.shared.projection;
 /**
  * Created by nathandunn on 11/10/15.
  */
-class ProjectionChunk {
+public class ProjectionChunk {
 
     // what is the sequence name
     String sequence = null;

@@ -20,11 +20,11 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
     private Boolean reverse = false ;// this is the reverse complement value of the projection sequence
 
 
-    Long getOriginalOffsetStart(){
+    public Long getOriginalOffsetStart(){
         return start + originalOffset;
     }
 
-    Long getOriginalOffsetEnd(){
+    public Long getOriginalOffsetEnd(){
         return end + originalOffset;
     }
 

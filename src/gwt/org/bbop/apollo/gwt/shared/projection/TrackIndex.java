@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.shared.projection;
 /**
  * Created by nathandunn on 12/2/15.
  */
-class TrackIndex {
+public class TrackIndex {
     // index locations . . .
     private Integer start;
     private Integer end;
@@ -15,7 +15,7 @@ class TrackIndex {
     private Integer score;
     private Integer chunk;
     private Integer id;
-    private Integer subFeaturesColumn;
+    public Integer subFeaturesColumn;
 
     private Integer sublistColumn ;// unclear if this has a column . . I think its just the last column . . or just implies "chunk"
 
@@ -23,6 +23,7 @@ class TrackIndex {
     private String trackName;
     private String organism;
     private Integer classIndex;
+
 
     public void fixCoordinates() {
 //        properties.each {
