@@ -287,8 +287,8 @@ public class MultiSequenceProjection extends AbstractProjection {
      */
     public List<ProjectionSequence> calculateOffsets() {
         Integer currentOrder = 0;
-        Long lastLength = 0l;
-        Long originalLength = 0l;
+        Long lastLength = 0L;
+        Long originalLength = 0L;
 //        def projectionSequences = sequenceDiscontinuousProjectionMap.keySet().sort() { a, b ->
 //                a.order <=> b.order
 //        }

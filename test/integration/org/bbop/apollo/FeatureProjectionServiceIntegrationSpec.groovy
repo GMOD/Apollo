@@ -743,8 +743,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "if we create transcripts from one gene"
         String transcriptUn87Gb53499InProjection = "{${testCredentials} \"track\":{\"id\":30621, \"name\":\"GB53499-RA (GroupUn87)\", \"padding\":0, \"start\":45455, \"end\":45575, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}}]},\"features\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53499-RA\",\"children\":[{\"location\":{\"fmin\":200,\"fmax\":320,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
-//        String getFeaturesString = "{ ${testCredentials} \"track\":{\"name\":\"Group11.4::GroupUn87\", \"padding\":0, \"start\":0, \"end\":153343, \"sequenceList\":[{\"name\":\"Group11.4\", \"start\":0, \"end\":75085},{\"name\":\"GroupUn87\", \"start\":0, \"end\":78258}]},\"operation\":\"get_features\"}"
-//        String getFeaturesInProjectionString = "{ ${testCredentials} \"track\":{\"name\":\"GB53499-RA (GroupUn87)::GB52238-RA (Group11.4)\", \"padding\":0, \"start\":45455, \"end\":64171, \"sequenceList\":[{\"name\":\"GroupUn87\", \"start\":45255, \"end\":45775, \"feature\":{\"name\":\"GB53499-RA\"}},{\"name\":\"Group11.4\", \"start\":10057, \"end\":18796, \"feature\":{\"name\":\"GB52238-RA\"}}]},\"operation\":\"get_features\"}"
 
         when: "we add one transcript"
         requestHandlingService.addTranscript(JSON.parse(transcriptUn87Gb53499InProjection) as JSONObject)
