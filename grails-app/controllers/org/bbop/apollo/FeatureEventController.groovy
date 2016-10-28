@@ -31,11 +31,11 @@ class FeatureEventController {
      * @param beforeDate
      * @return
      */
-    @RestApiMethod(description="Returns a JSON representation of all 'current' Genome Annotations before or after a given date." ,path="/featureEvent/findChanges",verb = RestApiVerb.POST )
+    @RestApiMethod(description="Returns a JSON representation of all current Annotations before or after a given date." ,path="/featureEvent/findChanges",verb = RestApiVerb.POST )
     @RestApiParams(params=[
             @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="compareDateString", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query ${FULL_DATE_FORMAT} or ${DAY_DATE_FORMAT}")
+            ,@RestApiParam(name="compareDateString", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
             ,@RestApiParam(name="afterDate", type="Boolean", paramType = RestApiParamType.QUERY,description = "Search after the given date.")
     ] )
     def findChanges(String compareDateString,Boolean afterDate){
