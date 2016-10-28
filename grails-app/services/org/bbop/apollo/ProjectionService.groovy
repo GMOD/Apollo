@@ -94,7 +94,7 @@ class ProjectionService {
         projectionSequence.order = index
         projectionSequence.name = jSONObject.name
         if(jSONObject.reverse==null){
-            log.warn("'reverse' parameter not passed in, so setting to false")
+//            log.warn("'reverse' parameter not passed in, so setting to false")
             projectionSequence.reverse = false
         }
         else{

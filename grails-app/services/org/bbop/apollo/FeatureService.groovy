@@ -41,7 +41,7 @@ class FeatureService {
     public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
 
     /**
-     * If a json feature location extends across two scaffolds, we need a feature locaiton for each
+     * If a json feature location extends across two scaffolds, we need a feature location for each
      * @param jsonLocation
      * @param assemblage
      * @param projected
@@ -86,11 +86,11 @@ class FeatureService {
         List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceListString, organism).sort(){ a,b ->
                orderedSequenceMap.get(a.name) <=> orderedSequenceMap.get(b.name)
         }
-        MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
+//        MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
         int rank = 0
         sequenceListString.each{ String sequenceNameEntry ->
             ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,assemblage.organism.commonName)
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, fullProjection, projectionSequence, defaultStrand)
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, multiSequenceProjection, projectionSequence, defaultStrand)
             if(featureLocation){
                 featureLocation.rank = rank
                 featureLocationList.add(featureLocation)
