@@ -66,10 +66,6 @@ class FeatureEventController {
             order(params.sort ?: "lastUpdated",params.order ?: "desc")
         }
 
-        println compareDate
-
-        println list.size()
-
         JSONArray returnList = new JSONArray()
 
         list.each { FeatureEvent featureEvent ->
