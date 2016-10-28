@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.shared.projection;
 /**
  * Created by nathandunn on 12/3/15.
  */
-enum NclistColumnEnum {
+public enum NclistColumnEnum {
 
     START,
     END,
@@ -28,7 +28,7 @@ enum NclistColumnEnum {
         this.value = name().substring(0, 1).toUpperCase() + name().substring(1);
     }
 
-    String getValue() {
+    public String getValue() {
         return value;
     }
 

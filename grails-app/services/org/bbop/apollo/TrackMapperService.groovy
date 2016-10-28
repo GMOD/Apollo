@@ -2,9 +2,8 @@ package org.bbop.apollo
 
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import org.bbop.apollo.projection.NclistColumnEnum
-import org.bbop.apollo.projection.TrackIndex
-
+import org.bbop.apollo.gwt.shared.projection.TrackIndex
+import org.bbop.apollo.gwt.shared.projection.NclistColumnEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
