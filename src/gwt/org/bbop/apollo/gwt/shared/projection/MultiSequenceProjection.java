@@ -17,6 +17,9 @@ public class MultiSequenceProjection extends AbstractProjection {
     public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
 
     public ProjectionSequence getReverseProjectionSequence(Long input) {
+        if(input ==null ) {
+            return null;
+        }
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
             Long bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).getBufferedLength();
@@ -34,7 +37,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         ProjectionSequence minProjectionSequence = getReverseProjectionSequence(minInput);
         ProjectionSequence maxProjectionSequence = getReverseProjectionSequence(maxInput);
 
-
+        // TODO this is hacky as we should be more accurately determining this by using the offset
         Integer startOrder = minProjectionSequence != null ? minProjectionSequence.getOrder() : null;
         if (startOrder == null) {
             startOrder = 0 ;
