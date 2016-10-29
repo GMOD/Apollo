@@ -532,7 +532,7 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONArray nudgeNcListArray(JSONArray coordinate, Integer nudgeAmount, Integer nudgeIndex,String organismName,String trackName) {
+    JSONArray nudgeNcListArray(JSONArray coordinate, Long nudgeAmount, Long nudgeIndex,String organismName,String trackName) {
         // see if there are any subarrays of size >4 where the first one is a number 0-5 and do the same  . . .
         for (int subIndex = 0; subIndex < coordinate.size(); ++subIndex) {
             def subArray = coordinate.get(subIndex)
@@ -547,9 +547,9 @@ class TrackService {
         }
 
         if (coordinate.size() > 3
-                && coordinate.get(0) instanceof Integer
-                && coordinate.get(1) instanceof Integer
-                && coordinate.get(2) instanceof Integer
+                && coordinate.get(0) instanceof Long
+                && coordinate.get(1) instanceof Long
+                && coordinate.get(2) instanceof Long
 //                && coordinate.get(3) instanceof Integer
         ) {
             TrackIndex trackIndex = trackMapperService.getIndices(organismName, trackName, coordinate.getInt(0))
@@ -577,7 +577,7 @@ class TrackService {
      * @param second
      * @return
      */
-    JSONObject mergeIntervals(JSONObject first, JSONObject second, int endSize,Organism organism,String trackName) {
+    JSONObject mergeIntervals(JSONObject first, JSONObject second, Long endSize,Organism organism,String trackName) {
         first.put("minStart", first.getInt("minStart") + endSize)
         first.put("maxEnd", first.getInt("maxEnd") + endSize)
         first.put("count", first.getInt("count") + second.getInt("count"))
@@ -608,7 +608,7 @@ class TrackService {
      * @param secondNcListArray
      * @return
      */
-    JSONArray mergeCoordinateArray(JSONArray firstNcListArray, JSONArray secondNcListArray, int endSize,String organismName,String trackName) {
+    JSONArray mergeCoordinateArray(JSONArray firstNcListArray, JSONArray secondNcListArray, Long endSize,String organismName,String trackName) {
         int nudgeIndex = firstNcListArray.size()
         for (int i = 0; i < secondNcListArray.size(); i++) {
             def ncListArray = secondNcListArray.get(i)

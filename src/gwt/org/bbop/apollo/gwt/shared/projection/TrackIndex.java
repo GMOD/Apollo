@@ -42,7 +42,7 @@ public class TrackIndex {
     }
 
     public Boolean hasChunk() {
-        return chunk > 0;
+        return chunk != null && chunk > 0;
     }
 
     public Boolean hasSubFeatures() {

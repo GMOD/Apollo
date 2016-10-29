@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import spock.lang.Ignore
 import spock.lang.IgnoreRest
 
