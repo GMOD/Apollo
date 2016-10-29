@@ -153,7 +153,6 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert thirdLocation.fmax == 30329 - overallFmin
     }
 
-    @IgnoreRest
     void "add transcript to second contiguous sequence"() {
         given: "a transcript add operation"
         String addTranscriptString = "{${testCredentials}\"organism\":${Organism.first().id}, \"track\":{\"start\":0,\"end\":${78258 + 75085},\"padding\":0, \"projection\":\"None\", \"referenceTrack\":[\"Official Gene Set v3.2\"], \"sequenceList\":[{\"name\":\"Group11.4\"},{\"name\":\"GroupUn87\"}], \"label\":\"Group11.4::GroupUn87\"},\"features\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB53496-RA\",\"children\":[{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":85051,\"fmax\":85264,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"

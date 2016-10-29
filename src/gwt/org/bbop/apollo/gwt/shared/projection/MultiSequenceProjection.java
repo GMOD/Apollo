@@ -37,7 +37,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
         Integer startOrder = minProjectionSequence != null ? minProjectionSequence.getOrder() : null;
         if (startOrder == null) {
-            return orderedSequences;
+            startOrder = 0 ;
         }
         Integer endOrder = maxProjectionSequence != null ? maxProjectionSequence.getOrder() : null;
         if (endOrder == null) {
