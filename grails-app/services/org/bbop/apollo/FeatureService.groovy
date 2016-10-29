@@ -81,17 +81,17 @@ class FeatureService {
         }
 
 
-//        Map<String, Integer> orderedSequenceMap = multiSequenceProjection.getOrderedSequenceMap()
-//        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceListString, organism).sort(){ a,b ->
-//               orderedSequenceMap.get(a.name) <=> orderedSequenceMap.get(b.name)
-//        }
-//        MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
+        Map<String, Integer> orderedSequenceMap = multiSequenceProjection.getOrderedSequenceMap()
+        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceListString, organism).sort(){ a,b ->
+               orderedSequenceMap.get(a.name) <=> orderedSequenceMap.get(b.name)
+        }
+        MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
 
         int rank = 0
         List<FeatureLocation> featureLocationList = new ArrayList<>()
         sequenceListString.each{ String sequenceNameEntry ->
             ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,assemblage.organism.commonName)
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, multiSequenceProjection, projectionSequence, defaultStrand)
+            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, fullProjection, projectionSequence, defaultStrand)
             if(featureLocation){
                 featureLocation.rank = rank
                 featureLocationList.add(featureLocation)
