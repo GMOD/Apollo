@@ -11,43 +11,50 @@ public class TrackIndex {
     private Integer strand;
     private Integer phase;
     private Integer type;
-    private Integer seqId;
     private Integer score;
     private Integer chunk;
     private Integer id;
-    public Integer subFeaturesColumn;
+    private Integer subFeaturesColumn;
 
-    private Integer sublistColumn ;// unclear if this has a column . . I think its just the last column . . or just implies "chunk"
+    private Integer seqId;
+    private Integer classIndex;
+
+
+    private Integer sublistColumn;// unclear if this has a column . . I think its just the last column . . or just implies "chunk"
 
     // set from intake
     private String trackName;
     private String organism;
-    private Integer classIndex;
 
 
     public void fixCoordinates() {
-//        properties.each {
-//            if(it.value instanceof Integer && it.value==0){
-//                it.value = null
-//            }
-//        }
+        start = start == 0 ? null : start;
+        end = end == 0 ? null : end;
+        source = source == 0 ? null : source;
+        strand = strand == 0 ? null : strand;
+        phase = phase == 0 ? null : phase;
+        type = type == 0 ? null : type;
+        score = score == 0 ? null : score;
+        chunk = chunk == 0 ? null : chunk;
+        id = id == 0 ? null : id;
+        subFeaturesColumn = subFeaturesColumn == 0 ? null : subFeaturesColumn;
+        sublistColumn = sublistColumn == 0 ? null : sublistColumn;
     }
 
     public Boolean hasChunk() {
-        return chunk>0;
-//        return sublistColumn && sublistColumn>0
+        return chunk > 0;
     }
 
     public Boolean hasSubFeatures() {
-        return subFeaturesColumn!=null && subFeaturesColumn>0;
+        return subFeaturesColumn != null && subFeaturesColumn > 0;
     }
 
     public Boolean hasSubList() {
-        return sublistColumn!=null && sublistColumn > 0;
+        return sublistColumn != null && sublistColumn > 0;
     }
 
     public Integer getStart() {
-        return start == 0 ? null : start ;
+        return start;
     }
 
     public void setStart(Integer start) {
@@ -55,7 +62,7 @@ public class TrackIndex {
     }
 
     public Integer getEnd() {
-        return end == 0 ? null : end ;
+        return end;
     }
 
     public void setEnd(Integer end) {
@@ -63,7 +70,7 @@ public class TrackIndex {
     }
 
     public Integer getSource() {
-        return source == 0 ? null : source ;
+        return source;
     }
 
     public void setSource(Integer source) {
@@ -71,7 +78,7 @@ public class TrackIndex {
     }
 
     public Integer getStrand() {
-        return strand == 0 ? null : strand ;
+        return strand;
     }
 
     public void setStrand(Integer strand) {
@@ -79,7 +86,7 @@ public class TrackIndex {
     }
 
     public Integer getPhase() {
-        return phase == 0 ? null : phase ;
+        return phase;
     }
 
     public void setPhase(Integer phase) {
@@ -87,23 +94,15 @@ public class TrackIndex {
     }
 
     public Integer getType() {
-        return type == 0 ? null : type ;
+        return type;
     }
 
     public void setType(Integer type) {
         this.type = type;
     }
 
-//    public Integer getSeqId() {
-//        return seqId == 0 ? null : seqId ;
-//    }
-
-    public void setSeqId(Integer seqId) {
-        this.seqId = seqId;
-    }
-
     public Integer getScore() {
-        return score == 0 ? null : score ;
+        return score;
     }
 
     public void setScore(Integer score) {
@@ -111,7 +110,7 @@ public class TrackIndex {
     }
 
     public Integer getChunk() {
-        return chunk == 0 ? null : chunk ;
+        return chunk;
     }
 
     public void setChunk(Integer chunk) {
@@ -119,24 +118,24 @@ public class TrackIndex {
     }
 
     public Integer getId() {
-        return id == 0 ? null : id ;
+        return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
     }
 
-//    public Integer getSubFeaturesColumn() {
-//        return subFeaturesColumn;
-//    }
+    public Integer getSubFeaturesColumn() {
+        return subFeaturesColumn;
+    }
 
     public void setSubFeaturesColumn(Integer subFeaturesColumn) {
         this.subFeaturesColumn = subFeaturesColumn;
     }
 
-//    public Integer getSublistColumn() {
-//        return sublistColumn;
-//    }
+    public Integer getSublistColumn() {
+        return sublistColumn;
+    }
 
     public void setSublistColumn(Integer sublistColumn) {
         this.sublistColumn = sublistColumn;
@@ -158,9 +157,18 @@ public class TrackIndex {
         this.organism = organism;
     }
 
-//    public Integer getClassIndex() {
-//        return classIndex;
-//    }
+
+    public Integer getSeqId() {
+        return seqId;
+    }
+
+    public void setSeqId(Integer seqId) {
+        this.seqId = seqId;
+    }
+
+    public Integer getClassIndex() {
+        return classIndex;
+    }
 
     public void setClassIndex(Integer classIndex) {
         this.classIndex = classIndex;

@@ -367,6 +367,9 @@ class TrackService {
 //                && coordinate.get(2) instanceof Integer
         ) {
             TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism, trackName, coordinate.getInt(0))
+            if(trackIndex==null || trackIndex.start == null || projectionSequence==null || projectionSequence.originalOffset==null){
+                println "something is null "
+            }
             Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
             assert oldMin <= oldMax
