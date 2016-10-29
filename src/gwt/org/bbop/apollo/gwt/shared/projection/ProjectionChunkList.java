@@ -20,7 +20,7 @@ public class ProjectionChunkList {
 
     public ProjectionChunk findProjectChunkForIndex(Integer index){
         for(ProjectionChunk projectionChunk : projectionChunkList){
-            if(index >= projectionChunk.chunkArrayOffset && index <= projectionChunk.numChunks + projectionChunk.chunkArrayOffset){
+            if(index >= projectionChunk.getChunkArrayOffset() && index <= projectionChunk.getNumChunks()+ projectionChunk.getChunkArrayOffset()){
                 return projectionChunk;
             }
         }
@@ -29,7 +29,7 @@ public class ProjectionChunkList {
 
     ProjectionChunk findProjectChunkForName(String sequenceName) {
         for(ProjectionChunk projectionChunk : projectionChunkList){
-            if(projectionChunk.sequence.equals(sequenceName)){
+            if(projectionChunk.getSequence().equals(sequenceName)){
                 return projectionChunk;
             }
         }

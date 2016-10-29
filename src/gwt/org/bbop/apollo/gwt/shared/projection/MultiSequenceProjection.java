@@ -473,7 +473,7 @@ public class MultiSequenceProjection extends AbstractProjection {
                 return projectionSequence.getOriginalOffset();
             }
         }
-        return 0l ;
+        return 0L ;
     }
 
     ProjectionSequence getLastSequence() {
