@@ -161,8 +161,9 @@ class ProjectionService {
                 )
                 coordinateArray.add(coordinateObject)
             }
-            featureObject.put(FeatureStringEnum.LOCATION.value, coordinateArray)
+//            featureObject.put(FeatureStringEnum.LOCATION.value, coordinateArray)
             sequenceJsonObject.feature = featureObject
+            sequenceJsonObject.put(FeatureStringEnum.LOCATION.value, coordinateArray)
         }
 
         return sequenceJsonObject

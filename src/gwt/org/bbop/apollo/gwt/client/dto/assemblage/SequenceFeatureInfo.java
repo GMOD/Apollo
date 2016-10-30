@@ -12,16 +12,20 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
  */
 public class SequenceFeatureInfo extends JSONObject {
 
-    public SequenceFeatureInfo() { }
+    public SequenceFeatureInfo() {
+    }
 
-    public SequenceFeatureInfo(JSONObject fromJson){
+    public SequenceFeatureInfo(JSONObject fromJson) {
         for (String key : fromJson.keySet()) {
             this.put(key, fromJson.get(key));
         }
     }
 
     public String getName() {
-        return get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+        if (containsKey(FeatureStringEnum.NAME.getValue())) {
+            return get(FeatureStringEnum.NAME.getValue()).isString().stringValue();
+        }
+        return null;
     }
 
     public void setName(String groupName) {
@@ -41,7 +45,6 @@ public class SequenceFeatureInfo extends JSONObject {
     }
 
 
-
     public Long getStart() {
         return Math.round(get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
     }
@@ -51,30 +54,30 @@ public class SequenceFeatureInfo extends JSONObject {
     }
 
     public void setCollapsed(boolean collapsed) {
-        put(FeatureStringEnum.COLLAPSED.getValue(),JSONBoolean.getInstance(collapsed));
+        put(FeatureStringEnum.COLLAPSED.getValue(), JSONBoolean.getInstance(collapsed));
     }
 
     public boolean isCollapsed() {
-        if(containsKey(FeatureStringEnum.COLLAPSED.getValue())){
+        if (containsKey(FeatureStringEnum.COLLAPSED.getValue())) {
             return get(FeatureStringEnum.COLLAPSED.getValue()).isBoolean().booleanValue();
         }
-        return false ;
+        return false;
     }
 
-    public void setParentId(String parentId){
-        put(FeatureStringEnum.PARENT_ID.getValue(),new JSONString(parentId));
+    public void setParentId(String parentId) {
+        put(FeatureStringEnum.PARENT_ID.getValue(), new JSONString(parentId));
     }
 
-    public String getParentId(){
+    public String getParentId() {
         return get(FeatureStringEnum.PARENT_ID.getValue()).isString().stringValue();
     }
 
-    public FeatureLocations getLocation(){
+    public FeatureLocations getLocation() {
         return (FeatureLocations) get(FeatureStringEnum.LOCATION.getValue()).isArray();
     }
 
-    public void setLocation(FeatureLocations featureLocations){
-        put(FeatureStringEnum.LOCATION.getValue(),featureLocations);
+    public void setLocation(FeatureLocations featureLocations) {
+        put(FeatureStringEnum.LOCATION.getValue(), featureLocations);
     }
 
     public boolean hasLocation() {

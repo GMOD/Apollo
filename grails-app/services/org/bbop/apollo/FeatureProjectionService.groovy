@@ -346,8 +346,7 @@ class FeatureProjectionService {
                 else {
                     // TODO: we need a proper method for doing this.
 //                    multiSequenceProjection.clear()
-                    clearLocationForCoordinate(multiSequenceProjection,feature.fmin,feature.fmax)
-
+                    clearLocationForCoordinateForFeature(multiSequenceProjection,feature)
                 }
             }
         }
@@ -384,6 +383,26 @@ class FeatureProjectionService {
      */
     def clearLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax) {
         ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
+
+        Coordinate location = new Coordinate(
+                projectionSequence.start,
+                projectionSequence.end,
+                projectionSequence
+        )
+        projection.addCoordinate(location)
+        return projection
+    }
+
+    /**
+     * TODO: use fmax only if we need to cross sequence boundaries.
+     *
+     * @param projection
+     * @param fmin
+     * @param fmax
+     * @return
+     */
+    def clearLocationForCoordinateForFeature(MultiSequenceProjection projection, Feature feature) {
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(feature.fmin)
 
         Coordinate location = new Coordinate(
                 projectionSequence.start,

@@ -292,8 +292,6 @@ public class ProjectionService {
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
 
-        Window.alert("folding selected transcripts: "+featuresArray.toString());
-
         AssemblageRestService.foldTranscripts(projectionCommand);
     }
 
@@ -319,7 +317,6 @@ public class ProjectionService {
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-        Window.alert("removing folds: "+featuresArray.toString());
         AssemblageRestService.removeFolds(projectionCommand);
     }
 

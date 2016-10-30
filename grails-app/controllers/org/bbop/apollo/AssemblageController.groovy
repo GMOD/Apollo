@@ -81,7 +81,7 @@ class AssemblageController {
         println "proj sequence object ${projectionSequenceObject as JSON}"
         MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
         for(feature in features){
-            projection = featureProjectionService.clearLocationForCoordinate(projection,feature.fmin,feature.fmax)
+            projection = featureProjectionService.clearLocationForCoordinateForFeature(projection,feature)
         }
         render projectionService.convertToJsonFromProjection(projection) as JSON
         render getAssemblage() as JSON

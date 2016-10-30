@@ -175,7 +175,7 @@ public class AssemblageInfo implements Comparable<AssemblageInfo> {
             AssemblageSequence sequenceObject = sequenceList.getSequence(i);
 
             SequenceFeatureInfo sequenceFeatureInfo = sequenceObject.getFeature();
-            if (sequenceFeatureInfo != null) {
+            if (sequenceFeatureInfo != null && sequenceFeatureInfo.getName()!=null) {
                 name += sequenceFeatureInfo.getName();
                 name += " (";
             }
