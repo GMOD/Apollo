@@ -89,15 +89,16 @@ public class DiscontinuousProjection extends AbstractProjection {
             return input - floorMinKey + projectValue(floorMinKey);
         }
 
-        // if we are inbetween a ceiling max and floor min, then we are in a viable block
-        if (input > floorMinKey && input < ceilMaxKey && ceilMinKey >= ceilMaxKey) {
-            return input - floorMinKey + projectValue(floorMinKey);
-        }
-
         // if we are inbetween for the last large one on the RHS
         if (!floorMaxKey.equals(ceilMaxKey) && ceilMinKey == null) {
             return input - floorMinKey + projectValue(floorMinKey);
         }
+
+        // if we are inbetween a ceiling max and floor min, then we are in a viable block
+        if (ceilMinKey!=null && input > floorMinKey && input < ceilMaxKey && ceilMinKey >= ceilMaxKey) {
+            return input - floorMinKey + projectValue(floorMinKey);
+        }
+
 
 //        log.debug "${input} unable to find match, returning UNMAPPED"
         return UNMAPPED_VALUE;
