@@ -99,7 +99,6 @@ class DiscontinuousProjectionSpec extends Specification {
     }
 
 
-    @IgnoreRest
     void "when adding intervals overlapping intervals should merge"() {
 
         given: "some intervals"
