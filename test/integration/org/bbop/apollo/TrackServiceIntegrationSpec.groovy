@@ -42,7 +42,6 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
      *
      *  Group11.4: Projected: 0,2538 <-> 14574,15734  (5 groups), Unprojected: 10257,18596 (first) 62507,64197 (last)
      */
-    @IgnoreRest
     void "non-projection of contiguous tracks should work"() {
 
         given: "proper inputs"

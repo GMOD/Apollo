@@ -544,9 +544,9 @@ class TrackService {
         }
 
         if (coordinate.size() > 3
-                && coordinate.get(0) instanceof Long
-                && coordinate.get(1) instanceof Long
-                && coordinate.get(2) instanceof Long
+                && coordinate.get(0) instanceof Number
+                && coordinate.get(1) instanceof Number
+                && coordinate.get(2) instanceof Number
 //                && coordinate.get(3) instanceof Integer
         ) {
             TrackIndex trackIndex = trackMapperService.getIndices(organismName, trackName, coordinate.getInt(0))
