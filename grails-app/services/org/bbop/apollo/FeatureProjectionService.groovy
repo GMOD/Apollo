@@ -386,9 +386,9 @@ class FeatureProjectionService {
         ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
 
         Coordinate location = new Coordinate(
-                min: projectionSequence.start,
-                max: projectionSequence.end,
-                sequence: projectionSequence
+                projectionSequence.start,
+                projectionSequence.end,
+                projectionSequence
         )
         projection.addCoordinate(location)
         return projection

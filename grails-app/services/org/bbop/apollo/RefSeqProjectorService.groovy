@@ -30,7 +30,7 @@ class RefSeqProjectorService {
                 JSONArray sequenceArray = sequenceObject.sequenceList
                 for (int i = 0; i < sequenceArray.size(); ++i) {
                     JSONObject sequence = sequenceArray.getJSONObject(i)
-                    ProjectionSequence projectionSequence = projection.getProjectionSequence(sequence.name, currentOrganism)
+                    ProjectionSequence projectionSequence = projection.getProjectionSequence(sequence.name, currentOrganism.commonName)
                     sequence.start = sequence.start ?: projectionSequence.start
                     sequence.end = sequence.end ?: projectionSequence.end
 

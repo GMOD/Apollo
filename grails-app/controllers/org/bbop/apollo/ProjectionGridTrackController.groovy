@@ -138,7 +138,7 @@ class ProjectionGridTrackController {
 
         projectionSequences.each{ ProjectionSequence projectionSequence  ->
 
-            println "projection: ${projectionSequence.toJSONObject() as JSON}"
+//            println "projection: ${projectionSequence.toJSONObject() as JSON}"
 
             Long projectedLength = multiSequenceProjection.getLengthForSequence(projectionSequence)
 
@@ -152,7 +152,7 @@ class ProjectionGridTrackController {
                     label: projectionSequence.name,
                     color: ColorGenerator.getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString()+index,
-                    sequence: projectionSequence.toJSONObject()
+                    sequence: projectionService.convertSequenceToJson(projectionSequence)
             )
             jsonObject.features.add(region)
             JSONObject regionRight = new JSONObject(
@@ -164,7 +164,7 @@ class ProjectionGridTrackController {
                     color: ColorGenerator.getColorForIndex(index),
                     uniqueID: projectionSequence.name + sequenceObject.toString()+index,
 //                    data: sequenceObject,
-                    sequence: projectionSequence.toJSONObject()
+                    sequence: projectionService.convertSequenceToJson(projectionSequence)
             )
             jsonObject.features.add(regionRight)
 

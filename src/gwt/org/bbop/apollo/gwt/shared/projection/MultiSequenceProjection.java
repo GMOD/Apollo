@@ -114,6 +114,13 @@ public class MultiSequenceProjection extends AbstractProjection {
         return returnValue.equals(UNMAPPED_VALUE) ? returnValue : returnValue + outputOffset;
     }
 
+    public Long getLengthForSequence(ProjectionSequence projectionSequence){
+        if(!sequenceDiscontinuousProjectionMap.containsKey(projectionSequence)){
+            return null ;
+        }
+        return sequenceDiscontinuousProjectionMap.get(projectionSequence).getLength();
+    }
+
     public Long projectValue(Long input) {
         ProjectionSequence projectionSequence = getProjectionSequence(input);
         if (projectionSequence == null) {
@@ -381,12 +388,13 @@ public class MultiSequenceProjection extends AbstractProjection {
 //        return null
 //    }
 //
-//    Boolean containsSequence(String sequenceName, Organism organism) {
-//        return containsSequence(sequenceName, null, organism)
-//    }
+    public Boolean containsSequence(String sequenceName, String organismName) {
+//        return containsSequence(sequenceName, null, organismName);
+        return getProjectionSequence(sequenceName, null , organismName) != null;
+    }
 //
-//    Boolean containsSequence(String sequenceName, Long sequenceId, Organism organism) {
-//        return getProjectionSequence(sequenceName, sequenceId, organism) != null
+//    public Boolean containsSequence(String sequenceName, String sequenceId, String organismName) {
+//        return getProjectionSequence(sequenceName, sequenceId, organismName) != null
 //    }
 
 
@@ -586,5 +594,9 @@ public class MultiSequenceProjection extends AbstractProjection {
 
     public DiscontinuousProjection getProjectionForSequence(ProjectionSequence projectionSequence) {
         return sequenceDiscontinuousProjectionMap.get(projectionSequence);
+    }
+
+    public TreeMap<ProjectionSequence, DiscontinuousProjection> getSequenceDiscontinuousProjectionMap() {
+        return sequenceDiscontinuousProjectionMap;
     }
 }

@@ -8,6 +8,8 @@ public class Coordinate implements Comparable<Coordinate>{
     private Long max;
     private ProjectionSequence sequence;
 
+    public Coordinate(){}
+
     public Coordinate(Long min,Long max){
         this.min = min ;
         this.max = max ;

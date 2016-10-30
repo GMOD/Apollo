@@ -235,8 +235,8 @@ class TrackService {
         // TODO: it should look up the OGS track either default or variable
         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
-        if (projection && projection.containsSequence(sequenceName, currentOrganism)) {
-            ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName, currentOrganism)
+        if (projection && projection.containsSequence(sequenceName, currentOrganism.commonName)) {
+            ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName, currentOrganism.commonName)
             println "found a projection ${projection.size()}"
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
@@ -730,7 +730,6 @@ class TrackService {
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
-
         if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
             trackObject.intervals.minStart = calculatedStart
             trackObject.intervals.maxEnd = calculatedEnd
@@ -747,8 +746,6 @@ class TrackService {
             trackObject.intervals.minStart = trackObject.intervals.maxEnd
             trackObject.intervals.maxEnd = temp
         }
-//        reverseIntervalDimensions(trackObject,multiSequenceProjection)
-
 
         return trackObject
 

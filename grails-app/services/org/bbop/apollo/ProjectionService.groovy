@@ -93,11 +93,10 @@ class ProjectionService {
         }
         projectionSequence.order = index
         projectionSequence.name = jSONObject.name
-        if(jSONObject.reverse==null){
+        if (jSONObject.reverse == null) {
 //            log.warn("'reverse' parameter not passed in, so setting to false")
             projectionSequence.reverse = false
-        }
-        else{
+        } else {
             projectionSequence.reverse = jSONObject.reverse
         }
         projectionSequence.organism = organismCommonName
@@ -195,9 +194,9 @@ class ProjectionService {
 //            }
 //            else
             if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value) && sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).containsKey(FeatureStringEnum.LOCATION.value)) {
-                addCoordinates(sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value),multiSequenceProjection,projectionSequence)
+                addCoordinates(sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value), multiSequenceProjection, projectionSequence)
             } else if (sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)) {
-                addCoordinates(sequenceObject.getJSONArray(FeatureStringEnum.LOCATION.value),multiSequenceProjection,projectionSequence)
+                addCoordinates(sequenceObject.getJSONArray(FeatureStringEnum.LOCATION.value), multiSequenceProjection, projectionSequence)
             } else {
                 if (true) throw new RuntimeException("Should never get here")
                 Coordinate coordinate = new Coordinate(
@@ -213,7 +212,7 @@ class ProjectionService {
 
     }
 
-    def addCoordinates(JSONArray jsonArray,MultiSequenceProjection projection,ProjectionSequence projectionSequence) {
+    def addCoordinates(JSONArray jsonArray, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
         for (JSONObject loc in jsonArray) {
 //                    println "loc: ${loc as JSON}"
             Coordinate coordinate = new Coordinate(
@@ -542,4 +541,24 @@ class ProjectionService {
         }
         return sequenceList
     }
+
+    @NotTransactional
+    JSONObject convertSequenceToJson(ProjectionSequence projectionSequence) {
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.id = projectionSequence.id
+        jsonObject.name = projectionSequence.name
+        jsonObject.organism = projectionSequence.organism
+        jsonObject.order = projectionSequence.order
+        jsonObject.offset = projectionSequence.offset
+        jsonObject.originalOffset = projectionSequence.originalOffset
+        jsonObject.start = projectionSequence.start
+        jsonObject.end = projectionSequence.end
+
+        JSONArray featuresArray = new JSONArray()
+        projectionSequence.features.each {
+            featuresArray.add(it)
+        }
+        jsonObject.features = featuresArray
+        return jsonObject
+   }
 }
