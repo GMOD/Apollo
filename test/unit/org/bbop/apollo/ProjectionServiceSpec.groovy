@@ -5,6 +5,7 @@ import org.bbop.apollo.gwt.shared.projection.Coordinate
 import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Specification
@@ -60,7 +61,7 @@ class ProjectionServiceSpec extends Specification {
 
         when: "we serialize to JSON objects"
         JSONObject projectionJsonObject = service.convertToJsonFromProjection(projection)
-        JSONArray projectionSequenceListArray = projectionJsonObject.getJSONArray(org.bbop.apollo.gwt.shared.FeatureStringEnum.SEQUENCE_LIST.value)
+        JSONArray projectionSequenceListArray = projectionJsonObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
         JSONObject firstProjection = projectionSequenceListArray.getJSONObject(0)
         JSONObject lastProjection = projectionSequenceListArray.getJSONObject(1)
 
@@ -72,11 +73,11 @@ class ProjectionServiceSpec extends Specification {
         assert firstProjection.organism == "Bug"
         assert firstProjection.order == 0
         assert firstProjection.feature != null
-        assert firstProjection.feature.location.size() == 2
-        assert firstProjection.feature.location[0].fmin==12
-        assert firstProjection.feature.location[0].fmax==15
-        assert firstProjection.feature.location[1].fmin==30
-        assert firstProjection.feature.location[1].fmax==50
+        assert firstProjection.location.size() == 2
+        assert firstProjection.location[0].fmin==12
+        assert firstProjection.location[0].fmax==15
+        assert firstProjection.location[1].fmin==30
+        assert firstProjection.location[1].fmax==50
 
         assert lastProjection.name == "Group2"
         assert lastProjection.start == 30
@@ -84,11 +85,11 @@ class ProjectionServiceSpec extends Specification {
         assert lastProjection.organism == "Bug"
         assert lastProjection.order == 1
         assert lastProjection.feature != null
-        assert lastProjection.feature.location.size() == 2
-        assert lastProjection.feature.location[0].fmin==30
-        assert lastProjection.feature.location[0].fmax==130
-        assert lastProjection.feature.location[1].fmin==135
-        assert lastProjection.feature.location[1].fmax==150
+        assert lastProjection.location.size() == 2
+        assert lastProjection.location[0].fmin==30
+        assert lastProjection.location[0].fmax==130
+        assert lastProjection.location[1].fmin==135
+        assert lastProjection.location[1].fmax==150
 
 
         when: "de-serialize it"

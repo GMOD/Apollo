@@ -7,6 +7,7 @@ import org.bbop.apollo.gwt.shared.projection.Coordinate
 import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -407,14 +408,16 @@ class FeatureProjectionService {
         Coordinate coordinate = projection.getCoordinateForPosition(featureLeft.fmin)
         Long oldMax = coordinate.max
         // shift the right
-        coordinate.max = (long) featureLeft.fmax
+        coordinate.max = (long) featureLeft.fmax + ProjectionDefaults.DEFAULT_PADDING
+        coordinate.max = coordinate.max > oldMax ? oldMax : coordinate.max
 
         // clear between the two regions
         Coordinate rightCoordinate = new Coordinate(
-                featureRight.fmin,
+                featureRight.fmin - ProjectionDefaults.DEFAULT_PADDING,
                 oldMax,
                 projectionSequence
         )
+        rightCoordinate = rightCoordinate < 0 ? 0 : rightCoordinate
         projection.addCoordinate(rightCoordinate)
 
         // add coordinates for the two rgions
