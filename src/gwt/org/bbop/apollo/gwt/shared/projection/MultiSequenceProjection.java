@@ -260,16 +260,18 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
     // here we are adding a location to project
-    public void addCoordinate(Coordinate coordinate) {
+    public DiscontinuousProjection addCoordinate(Coordinate coordinate) {
         // if a single projection . . the default .. then assert that it is the same sequence / projection
         ProjectionSequence projectionSequence = getProjectionSequenceForCoordinate(coordinate);
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
         if (discontinuousProjection != null) {
             discontinuousProjection.addInterval(coordinate.getMin(), coordinate.getMax(), 0);
+            return discontinuousProjection;
         } else {
             DiscontinuousProjection thisDiscontinuousProjection = new DiscontinuousProjection();
             thisDiscontinuousProjection.addInterval(coordinate.getMin(), coordinate.getMax(), 0);
             sequenceDiscontinuousProjectionMap.put(projectionSequence, thisDiscontinuousProjection);
+            return thisDiscontinuousProjection;
         }
     }
 

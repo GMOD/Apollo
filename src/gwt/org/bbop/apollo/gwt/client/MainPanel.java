@@ -267,7 +267,7 @@ public class MainPanel extends Composite {
 
     }
 
-    private static void setLabelForcurrentAssemblage() {
+    private static void setLabelForCurrentAssemblage() {
         SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(AssemblageInfoService.buildDescriptionWidget(currentAssemblage,assemblagePanel.getUsedSequences()).getElement().getInnerHTML());
         currentSequenceLabel.setHTML(labelHtml);
     }
@@ -287,7 +287,7 @@ public class MainPanel extends Composite {
                 currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(sequenceInfoJson);
                 currentStartBp = start != null ? start : 0;
                 currentEndBp = end != null ? end : currentAssemblage.getEnd().intValue();
-                setLabelForcurrentAssemblage();
+                setLabelForCurrentAssemblage();
 
 
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(),currentOrganism.getName()));
@@ -577,7 +577,7 @@ public class MainPanel extends Composite {
         currentEndBp = appStateInfo.getCurrentEndBp();
 
         if (currentAssemblage != null) {
-            setLabelForcurrentAssemblage();
+            setLabelForCurrentAssemblage();
 //            currentSequenceLabel.setText(currentAssemblage.getDescription());
         }
 

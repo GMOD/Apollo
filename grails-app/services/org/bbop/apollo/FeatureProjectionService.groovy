@@ -409,7 +409,8 @@ class FeatureProjectionService {
                 projectionSequence.end,
                 projectionSequence
         )
-        projection.addCoordinate(location)
+        DiscontinuousProjection discontinuousProjection = projection.addCoordinate(location)
+        discontinuousProjection.metadata = (new JSONObject(name:feature.name)).toString()
         return projection
     }
 }
