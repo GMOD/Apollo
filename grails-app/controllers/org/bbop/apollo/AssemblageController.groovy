@@ -84,7 +84,7 @@ class AssemblageController {
             projection = featureProjectionService.clearLocationForCoordinateForFeature(projection,feature)
         }
         render projectionService.convertToJsonFromProjection(projection) as JSON
-        render getAssemblage() as JSON
+//        render getAssemblage() as JSON
     }
 
     @Transactional
@@ -92,16 +92,17 @@ class AssemblageController {
         JSONObject inputObject = permissionService.handleInput(request, params)
         println "folding exons ${inputObject as JSON}"
         List<Feature> features = extractFeaturesFromRequest(inputObject)
+        assert features.size()==2
+        assert features[0] instanceof Exon
+        assert features[1] instanceof Exon
 
         // in the projection, add "collapsed=true" for the features in question and expand
         JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
         println "proj sequence object ${projectionSequenceObject as JSON}"
         MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
-        for(feature in features){
-            projection = featureProjectionService.addLocationsForFeature(feature,projection)
-        }
+        projection = featureProjectionService.foldBetweenExons(features[0] as Exon,features[1] as Exon,projection)
         render projectionService.convertToJsonFromProjection(projection) as JSON
-        render getAssemblage() as JSON
+//        render getAssemblage() as JSON
     }
 
     def getAssemblage() {

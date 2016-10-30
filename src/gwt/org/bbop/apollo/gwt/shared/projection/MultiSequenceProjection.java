@@ -601,4 +601,10 @@ public class MultiSequenceProjection extends AbstractProjection {
     public TreeMap<ProjectionSequence, DiscontinuousProjection> getSequenceDiscontinuousProjectionMap() {
         return sequenceDiscontinuousProjectionMap;
     }
+
+    public Coordinate getCoordinateForPosition(Long input) {
+        ProjectionSequence projectionSequence = getProjectionSequence(input);
+        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
+        return discontinuousProjection.getCoordinateForInput(input);
+    }
 }

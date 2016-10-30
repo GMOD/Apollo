@@ -435,7 +435,7 @@ public class DiscontinuousProjection extends AbstractProjection {
         return returnString;
     }
 
-    Integer size() {
+    public Integer size() {
         if (minMap.isEmpty()) {
             return 0;
         }
@@ -462,5 +462,15 @@ public class DiscontinuousProjection extends AbstractProjection {
 
     public void setMetadata(String metadata) {
         this.metadata = metadata;
+    }
+
+    Coordinate getCoordinateForInput(Long input) {
+        for(Long minBp : minMap.keySet()){
+            Coordinate coordinate = minMap.get(minBp);
+            if(input >= coordinate.getMin() && input <= coordinate.getMax()){
+                return coordinate ;
+            }
+        }
+        return null ;
     }
 }

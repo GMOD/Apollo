@@ -230,18 +230,15 @@ class FeatureProjectionService {
      */
     def addLocationsForFeature(Feature feature, MultiSequenceProjection projection) {
 
-        splitRegionForCoordinates(projection,feature.fmin,feature.fmax,feature.name)
+        splitRegionForCoordinates(projection, feature)
 
-        if(feature instanceof Gene){
-            addLocationsForGene((Gene) feature,projection)
-        }
-        else
-        if(feature instanceof Transcript){
-            addLocationsForTranscript((Transcript) feature,projection)
-        }
-        else{
+        if (feature instanceof Gene) {
+            addLocationsForGene((Gene) feature, projection)
+        } else if (feature instanceof Transcript) {
+            addLocationsForTranscript((Transcript) feature, projection)
+        } else {
             // here, we are essentially clearing it
-            addLocationForCoordinate(projection,feature.fmin,feature.fmax)
+            addLocationForCoordinate(projection, feature.fmin, feature.fmax)
         }
 
         return projection
@@ -254,22 +251,22 @@ class FeatureProjectionService {
      * @return
      */
     @NotTransactional
-    def splitRegionForCoordinates(MultiSequenceProjection projection, int fmin, int fmax,String name = null) {
+    def splitRegionForCoordinates(MultiSequenceProjection projection, Feature feature) {
         // TODO: this does not work if we cross the sequence boundary, but good enough for now
-        ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(feature.fmin)
         // first we have to clear out all of the projections for that region
         DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence)
         discontinuousProjection.clear()
-        if(name){
-            discontinuousProjection.metadata = "{'name':${name}}"
+        if (feature.name) {
+            discontinuousProjection.metadata = new JSONObject(name: feature.name).toString()
         }
 
         int count = 0
         // project on the LHS
-        if(fmin > projectionSequence.start){
+        if (feature.fmin > projectionSequence.start) {
             Coordinate locationLeft = new Coordinate(
                     min: projectionSequence.start,
-                    max: fmin,
+                    max: feature.fmin,
                     sequence: projectionSequence
             )
             // if it already has this then it won't matter
@@ -277,10 +274,10 @@ class FeatureProjectionService {
             ++count
         }
 
-        if(fmax < projectionSequence.end){
+        if (feature.fmax < projectionSequence.end) {
             // project on the RHS
             Coordinate locationRight = new Coordinate(
-                    min: fmax,
+                    min: feature.fmax,
                     max: projectionSequence.end,
                     sequence: projectionSequence
             )
@@ -294,24 +291,24 @@ class FeatureProjectionService {
     }
 
     def addLocationsForGene(Gene gene, MultiSequenceProjection projection) {
-        for(Transcript transcript in transcriptService.getTranscripts(gene)){
-            addLocationsForTranscript(transcript,projection)
+        for (Transcript transcript in transcriptService.getTranscripts(gene)) {
+            addLocationsForTranscript(transcript, projection)
         }
         return projection
     }
 
     def addLocationsForTranscript(Transcript transcript, MultiSequenceProjection projection) {
-        for(Exon exon in transcriptService.getExons(transcript)){
-            addLocationForCoordinate(projection,exon.fmin,exon.fmax)
+        for (Exon exon in transcriptService.getExons(transcript)) {
+            addLocationForCoordinate(projection, exon.fmin, exon.fmax)
         }
     }
 
-    def addLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax ) {
+    def addLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax) {
         // TODO: this does not work if we cross th sequence boundary, but good enough for now
         ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
         Coordinate coordinate = new Coordinate(
-                min: fmin-DEFAULT_FOLDING_BUFFER,
-                max: fmax+DEFAULT_FOLDING_BUFFER,
+                min: fmin - DEFAULT_FOLDING_BUFFER,
+                max: fmax + DEFAULT_FOLDING_BUFFER,
                 sequence: projectionSequence
         )
         // if it already has this then it won't matter
@@ -346,7 +343,7 @@ class FeatureProjectionService {
                 else {
                     // TODO: we need a proper method for doing this.
 //                    multiSequenceProjection.clear()
-                    clearLocationForCoordinateForFeature(multiSequenceProjection,feature)
+                    clearLocationForCoordinateForFeature(multiSequenceProjection, feature)
                 }
             }
         }
@@ -354,48 +351,27 @@ class FeatureProjectionService {
         JSONArray generatedSequenceArray = projectionService.generateSequenceListFromProjection(multiSequenceProjection)
 
         // merge the two:
-        for(int i = 0 ; i < sequenceList.size() ; i++){
+        for (int i = 0; i < sequenceList.size(); i++) {
             JSONObject sequenceObject = sequenceList.getJSONObject(i)
             JSONObject generatedSequenceObject = generatedSequenceArray.getJSONObject(i)
             // copy all non-null, non-empty features from the generate to te non-generated
-            generatedSequenceObject.entrySet().each{
-                if(it.value){
-                    sequenceObject.put(it.key,it.value)
+            generatedSequenceObject.entrySet().each {
+                if (it.value) {
+                    sequenceObject.put(it.key, it.value)
                 }
             }
 
         }
 
 
-        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceList)
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceList)
 
 
         return jsonObject
     }
 
     /**
-     * TODO: use fmax only if we need to cross sequence boundaries.
-     *
-     * @param projection
-     * @param fmin
-     * @param fmax
-     * @return
-     */
-    def clearLocationForCoordinate(MultiSequenceProjection projection, int fmin, int fmax) {
-        ProjectionSequence projectionSequence = projection.getProjectionSequence(fmin)
-
-        Coordinate location = new Coordinate(
-                projectionSequence.start,
-                projectionSequence.end,
-                projectionSequence
-        )
-        projection.addCoordinate(location)
-        return projection
-    }
-
-    /**
-     * TODO: use fmax only if we need to cross sequence boundaries.
-     *
+     * TODO: handle crossing scaffold case
      * @param projection
      * @param fmin
      * @param fmax
@@ -410,7 +386,39 @@ class FeatureProjectionService {
                 projectionSequence
         )
         DiscontinuousProjection discontinuousProjection = projection.addCoordinate(location)
-        discontinuousProjection.metadata = (new JSONObject(name:feature.name)).toString()
+        discontinuousProjection.metadata = (new JSONObject(name: feature.name)).toString()
         return projection
+    }
+
+    /**
+     * TODO: handle crossing scaffold case
+     * @param featureLeft
+     * @param featureRight
+     * @param multiSequenceProjection
+     * @return
+     */
+    MultiSequenceProjection foldBetweenExons(Exon featureLeft, Exon featureRight, MultiSequenceProjection projection) {
+
+
+        // assuming they're on the same one for now
+        ProjectionSequence projectionSequence = projection.getProjectionSequence(featureLeft.fmin)
+
+        // TODO: confirm they are the same coordinate
+        Coordinate coordinate = projection.getCoordinateForPosition(featureLeft.fmin)
+        Long oldMax = coordinate.max
+        // shift the right
+        coordinate.max = (long) featureLeft.fmax
+
+        // clear between the two regions
+        Coordinate rightCoordinate = new Coordinate(
+                featureRight.fmin,
+                oldMax,
+                projectionSequence
+        )
+        projection.addCoordinate(rightCoordinate)
+
+        // add coordinates for the two rgions
+        return projection
+
     }
 }
