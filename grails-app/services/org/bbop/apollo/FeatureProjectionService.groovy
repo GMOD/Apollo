@@ -417,7 +417,7 @@ class FeatureProjectionService {
                 oldMax,
                 projectionSequence
         )
-        rightCoordinate = rightCoordinate < 0 ? 0 : rightCoordinate
+        rightCoordinate.min = rightCoordinate.min < 0 ? 0 : rightCoordinate.min
         projection.addCoordinate(rightCoordinate)
 
         // add coordinates for the two rgions
