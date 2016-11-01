@@ -304,7 +304,7 @@ public class ProjectionService {
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-        Window.alert("folding between exons: "+featuresArray.toString());
+        Window.alert("folding between exons: "+featuresArray.toString() + " with command \n "+projectionCommand);
         AssemblageRestService.foldBetweenExons(projectionCommand);
     }
 

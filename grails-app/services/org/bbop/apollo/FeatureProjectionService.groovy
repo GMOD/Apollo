@@ -420,7 +420,7 @@ class FeatureProjectionService {
         rightCoordinate.min = rightCoordinate.min < 0 ? 0 : rightCoordinate.min
         projection.addCoordinate(rightCoordinate)
 
-        // add coordinates for the two rgions
+        // add coordinates for the two regions
         return projection
 
     }

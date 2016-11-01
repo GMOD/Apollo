@@ -94,6 +94,12 @@ public class AssemblageRestService {
         addAssemblageAndReturn(requestCallback,assemblageInfo);
     }
 
+    private static void updateForAssemblage(Response response){
+        AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
+        MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
+        MainPanel.updateGenomicViewer(true);
+    }
+
     public static void projectFeatures(JSONObject projectionCommand) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -115,9 +121,7 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
-                MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
-                MainPanel.updateGenomicViewer(true);
+                updateForAssemblage(response);
             }
 
             @Override
@@ -132,9 +136,7 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
-                MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
-                MainPanel.updateGenomicViewer(true);
+                updateForAssemblage(response);
             }
 
             @Override
@@ -149,8 +151,11 @@ public class AssemblageRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+//                updateForAssemblage(response);
+                Window.alert(response.getText());
                 AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
-                MainPanel.getInstance().setCurrentAssemblageAndView(assemblageInfo);
+                MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
+                MainPanel.updateGenomicViewer(true);
             }
 
             @Override
