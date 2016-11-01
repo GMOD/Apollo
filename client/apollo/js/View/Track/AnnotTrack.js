@@ -1515,55 +1515,6 @@ define([
             },
 
 
-            // TODO: I think this can be removed
-            foldSelectedFeatures: function () {
-                var selected = this.selectionManager.getSelection();
-                this.selectionManager.clearSelection();
-                this.foldExons(selected);
-            },
-
-            // TODO: I think this can be removed
-            foldExons: function (selections) {
-                // add folding to current refSeq . .. and reload
-                console.log(selections);
-                console.log(this.refSeq);
-                var name = this.refSeq.name;
-                var selection1 = selections[0].feature.data;
-                var selection2 = selections[1].feature.data;
-
-                var minValue, maxValue ;
-                if(selection1.start > selection2.end){
-                    minValue = selection2.end ;
-                    maxValue = selection1.start ;
-                }
-                else{
-                    minValue = selection1.end ;
-                    maxValue = selection2.start ;
-                }
-
-
-                if(name[0]=="{"){
-                    window.location.href = context_path + "/jbrowse/index.html?loc="+name ;
-                }
-                else{
-                    var newName = {
-                        sequenceList : [
-                            {
-                                name:name,
-                                folding: [
-                                    {
-                                        fmin: minValue,
-                                        fmax: maxValue
-                                    }
-                                ]
-                            }
-                        ]
-                    };
-                    window.location.href = context_path + "/jbrowse/index.html?loc="+JSON.stringify(newName);
-                }
-
-            },
-
             mergeSelectedFeatures: function () {
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
