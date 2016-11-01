@@ -482,7 +482,7 @@ class ProjectionService {
     // TODO: constant / read-only, so could always move to a database cache
     @NotTransactional
     def cacheProjection(String projectionString, MultiSequenceProjection multiSequenceProjection) {
-        multiSequenceProjectionMap.put(getSequenceListJSON(projectionString), multiSequenceProjection)
+        multiSequenceProjectionMap.put(getSequenceListJSON(projectionString).toString(), multiSequenceProjection)
     }
 
     @NotTransactional
