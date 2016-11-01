@@ -563,15 +563,17 @@ class ProjectionService {
         return jsonObject
    }
 
-    def splitProjection(MultiSequenceProjection projection , int leftMax, int rightMin) {
+    def splitProjection(MultiSequenceProjection projection , Long leftMax, Long rightMin) {
         // TODO: confirm they are the same coordinate
         ProjectionSequence projectionSequence = projection.getProjectionSequence(leftMax)
 
         Coordinate coordinate = projection.getCoordinateForPosition(leftMax)
         Long oldMax = coordinate.max
         // shift the right
-        coordinate.max = (long) leftMax + ProjectionDefaults.DEFAULT_PADDING
-        coordinate.max = coordinate.max > oldMax ? oldMax : coordinate.max
+        Long newLeftMax  = (long) leftMax + ProjectionDefaults.DEFAULT_PADDING
+        newLeftMax = newLeftMax > oldMax ? oldMax : newLeftMax
+
+        projection.replaceCoordinate(coordinate,coordinate.min,newLeftMax)
 
         // clear between the two regions
         Coordinate rightCoordinate = new Coordinate(

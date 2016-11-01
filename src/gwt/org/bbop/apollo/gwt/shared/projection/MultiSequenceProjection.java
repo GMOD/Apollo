@@ -281,7 +281,7 @@ public class MultiSequenceProjection extends AbstractProjection {
      * @param coordinate
      * @return
      */
-    ProjectionSequence getProjectionSequenceForCoordinate(Coordinate coordinate) {
+    private ProjectionSequence getProjectionSequenceForCoordinate(Coordinate coordinate) {
         ProjectionSequence matchSequence = coordinate.getSequence();
         TreeMap<Integer, ProjectionSequence> projectionSequenceTreeMap = new TreeMap<>();
         for (ProjectionSequence it : sequenceDiscontinuousProjectionMap.keySet()) {
@@ -606,5 +606,13 @@ public class MultiSequenceProjection extends AbstractProjection {
         ProjectionSequence projectionSequence = getProjectionSequence(input);
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
         return discontinuousProjection.getCoordinateForInput(input);
+    }
+
+
+    public Coordinate replaceCoordinate(Coordinate coordinate, Long min, Long max) {
+        // TODO: handle cross-sequence?
+        ProjectionSequence projectionSequence = getProjectionSequence(min);
+        DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
+        return discontinuousProjection.replaceCoordinate(coordinate,min,max);
     }
 }

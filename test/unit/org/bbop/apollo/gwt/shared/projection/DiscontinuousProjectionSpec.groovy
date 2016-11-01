@@ -449,17 +449,17 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 4
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970L
+                    assert coordinate.max == 427960L
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428349
+                case 1: assert coordinate.min == 427987L
+                    assert coordinate.max == 428349L
                     break
-                case 2: assert coordinate.min == 428394
-                    assert coordinate.max == 428830
+                case 2: assert coordinate.min == 428394L
+                    assert coordinate.max == 428830L
                     break
-                case 3: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 3: assert coordinate.min == 428905L
+                    assert coordinate.max == 429609L
                     break
             }
             ++index
@@ -473,14 +473,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970L
+                    assert coordinate.max == 427960L
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987L
+                    assert coordinate.max == 428830L
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 2: assert coordinate.min == 428905L
+                    assert coordinate.max == 429609L
                     break
             }
             ++index
@@ -495,14 +495,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970L
+                    assert coordinate.max == 427960L
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987L
+                    assert coordinate.max == 428830L
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 2: assert coordinate.min == 428905L
+                    assert coordinate.max == 429609L
                     break
             }
             ++index
@@ -518,14 +518,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970L
+                    assert coordinate.max == 427960L
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987L
+                    assert coordinate.max == 428830L
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 429609
+                case 2: assert coordinate.min == 428905L
+                    assert coordinate.max == 429609L
                     break
             }
             ++index
@@ -546,14 +546,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 426970
-                    assert coordinate.max == 427960
+                case 0: assert coordinate.min == 426970L
+                    assert coordinate.max == 427960L
                     break
-                case 1: assert coordinate.min == 427987
-                    assert coordinate.max == 428830
+                case 1: assert coordinate.min == 427987L
+                    assert coordinate.max == 428830L
                     break
-                case 2: assert coordinate.min == 428905
-                    assert coordinate.max == 430007
+                case 2: assert coordinate.min == 428905L
+                    assert coordinate.max == 430007L
                     break
             }
             ++index
@@ -588,14 +588,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 285235
-                    assert coordinate.max == 286954
+                case 0: assert coordinate.min == 285235L
+                    assert coordinate.max == 286954L
                     break
-                case 1: assert coordinate.min == 286965
-                    assert coordinate.max == 287209
+                case 1: assert coordinate.min == 286965L
+                    assert coordinate.max == 287209L
                     break
-                case 2: assert coordinate.min == 287225
-                    assert coordinate.max == 287371
+                case 2: assert coordinate.min == 287225L
+                    assert coordinate.max == 287371L
                     break
             }
             ++index
@@ -611,14 +611,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 285192
-                    assert coordinate.max == 286954
+                case 0: assert coordinate.min == 285192L
+                    assert coordinate.max == 286954L
                     break
-                case 1: assert coordinate.min == 286965
-                    assert coordinate.max == 287209
+                case 1: assert coordinate.min == 286965L
+                    assert coordinate.max == 287209L
                     break
-                case 2: assert coordinate.min == 287225
-                    assert coordinate.max == 287371
+                case 2: assert coordinate.min == 287225L
+                    assert coordinate.max == 287371L
                     break
             }
             ++index
@@ -632,14 +632,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 285192
-                    assert coordinate.max == 286954
+                case 0: assert coordinate.min == 285192L
+                    assert coordinate.max == 286954L
                     break
-                case 1: assert coordinate.min == 286965
-                    assert coordinate.max == 287209
+                case 1: assert coordinate.min == 286965L
+                    assert coordinate.max == 287209L
                     break
-                case 2: assert coordinate.min == 287225
-                    assert coordinate.max == 288061
+                case 2: assert coordinate.min == 287225L
+                    assert coordinate.max == 288061L
                     break
             }
             ++index
@@ -685,20 +685,20 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 5
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 1764232
-                    assert coordinate.max == 1764723
+                case 0: assert coordinate.min == 1764232L
+                    assert coordinate.max == 1764723L
                     break
-                case 1: assert coordinate.min == 1764736
-                    assert coordinate.max == 1765195
+                case 1: assert coordinate.min == 1764736L
+                    assert coordinate.max == 1765195L
                     break
-                case 2: assert coordinate.min == 1765229
-                    assert coordinate.max == 1765487
+                case 2: assert coordinate.min == 1765229L
+                    assert coordinate.max == 1765487L
                     break
-                case 2: assert coordinate.min == 1765511
-                    assert coordinate.max == 1765761
+                case 2: assert coordinate.min == 1765511L
+                    assert coordinate.max == 1765761L
                     break
-                case 4: assert coordinate.min == 1765764
-                    assert coordinate.max == 1766416
+                case 4: assert coordinate.min == 1765764L
+                    assert coordinate.max == 1766416L
                     break
             }
             ++index
@@ -714,17 +714,17 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 4
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 1764232
-                    assert coordinate.max == 1765195
+                case 0: assert coordinate.min == 1764232L
+                    assert coordinate.max == 1765195L
                     break
-                case 1: assert coordinate.min == 1765229
-                    assert coordinate.max == 1765487
+                case 1: assert coordinate.min == 1765229L
+                    assert coordinate.max == 1765487L
                     break
-                case 2: assert coordinate.min == 1765511
-                    assert coordinate.max == 1765761
+                case 2: assert coordinate.min == 1765511L
+                    assert coordinate.max == 1765761L
                     break
-                case 3: assert coordinate.min == 1765764
-                    assert coordinate.max == 1766416
+                case 3: assert coordinate.min == 1765764L
+                    assert coordinate.max == 1766416L
                     break
             }
             ++index
@@ -738,11 +738,11 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 2
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 1764232
-                    assert coordinate.max == 1765195
+                case 0: assert coordinate.min == 1764232L
+                    assert coordinate.max == 1765195L
                     break
-                case 1: assert coordinate.min == 1765229
-                    assert coordinate.max == 1766416
+                case 1: assert coordinate.min == 1765229L
+                    assert coordinate.max == 1766416L
                     break
             }
             ++index
@@ -771,14 +771,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 3
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 322874
-                    assert coordinate.max == 324541
+                case 0: assert coordinate.min == 322874L
+                    assert coordinate.max == 324541L
                     break
-                case 1: assert coordinate.min == 324636
-                    assert coordinate.max == 325100
+                case 1: assert coordinate.min == 324636L
+                    assert coordinate.max == 325100L
                     break
-                case 2: assert coordinate.min == 325109
-                    assert coordinate.max == 329527
+                case 2: assert coordinate.min == 325109L
+                    assert coordinate.max == 329527L
                     break
             }
             ++index
@@ -792,8 +792,8 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 1
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 322874
-                    assert coordinate.max == 329527
+                case 0: assert coordinate.min == 322874L
+                    assert coordinate.max == 329527L
                     break
             }
             ++index
@@ -820,20 +820,20 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 5
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 411456
-                    assert coordinate.max == 411745
+                case 0: assert coordinate.min == 411456L
+                    assert coordinate.max == 411745L
                     break
-                case 1: assert coordinate.min == 411775
-                    assert coordinate.max == 411934
+                case 1: assert coordinate.min == 411775L
+                    assert coordinate.max == 411934L
                     break
-                case 2: assert coordinate.min == 412094
-                    assert coordinate.max == 412542
+                case 2: assert coordinate.min == 412094L
+                    assert coordinate.max == 412542L
                     break
-                case 3: assert coordinate.min == 412570
-                    assert coordinate.max == 412901
+                case 3: assert coordinate.min == 412570L
+                    assert coordinate.max == 412901L
                     break
-                case 4: assert coordinate.min == 412977
-                    assert coordinate.max == 414637
+                case 4: assert coordinate.min == 412977L
+                    assert coordinate.max == 414637L
                     break
             }
             ++index
@@ -848,24 +848,45 @@ class DiscontinuousProjectionSpec extends Specification {
         assert projection.size() == 5
         for (Coordinate coordinate in projection.minMap.values()) {
             switch (index) {
-                case 0: assert coordinate.min == 411456
-                    assert coordinate.max == 411745
+                case 0: assert coordinate.min == 411456L
+                    assert coordinate.max == 411745L
                     break
-                case 1: assert coordinate.min == 411775
-                    assert coordinate.max == 411934
+                case 1: assert coordinate.min == 411775L
+                    assert coordinate.max == 411934L
                     break
-                case 2: assert coordinate.min == 412094
-                    assert coordinate.max == 412542
+                case 2: assert coordinate.min == 412094L
+                    assert coordinate.max == 412542L
                     break
-                case 3: assert coordinate.min == 412570
-                    assert coordinate.max == 412901
+                case 3: assert coordinate.min == 412570L
+                    assert coordinate.max == 412901L
                     break
-                case 4: assert coordinate.min == 412977
-                    assert coordinate.max == 414637
+                case 4: assert coordinate.min == 412977L
+                    assert coordinate.max == 414637L
                     break
             }
             ++index
         }
+    }
+
+    void "we should be able to add an existing coordinate to the right of this one"(){
+
+        given: "a projection"
+        DiscontinuousProjection discontinuousProjection = new DiscontinuousProjection()
+
+        when: "we add the first coordinate"
+        discontinuousProjection.addInterval(52803,57034)
+
+        then: "we expect to see this reflected"
+        assert discontinuousProjection.minMap.size()==1
+
+
+        when: "we add the second coordinate to the right"
+        discontinuousProjection.addInterval(58420,59012)
+
+
+        then: "we should now see two adjacent with a gap"
+        assert discontinuousProjection.minMap.size()==2
+
     }
 
 }

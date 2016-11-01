@@ -213,7 +213,7 @@ public class DiscontinuousProjection extends AbstractProjection {
             return null;
         }
         // if we are right on the right edge
-        if (floorMinCoord == null && ceilMinCoord != null && floorMaxCoord != null && ceilMaxCoord != null) {
+        if (floorMinCoord == null && ceilMinCoord != null && floorMaxCoord != null) {
             if (floorMaxCoord == ceilMaxCoord && ceilMaxCoord == ceilMinCoord) {
                 if (min < floorMaxCoord.getMin()) {
                     return replaceCoordinate(floorMaxCoord, min, floorMaxCoord.getMax());
@@ -223,21 +223,21 @@ public class DiscontinuousProjection extends AbstractProjection {
                         return null;
         }
         // if we are at the right edge
-        if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null && ceilMaxCoord == null) {
+        if (floorMinCoord == null && ceilMinCoord == null && floorMaxCoord != null) {
             if (min > floorMaxKey) {
                 return addCoordinate(min, max);
             }
             return replaceCoordinate(floorMaxCoord, floorMaxCoord.getMin(), max);
         }
         // if we are at the right edge
-        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord != null && ceilMaxCoord == floorMinCoord) {
+        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord == null && ceilMaxCoord.equals(floorMinCoord)) {
             if (min >= floorMinCoord.getMin() && max <= ceilMaxCoord.getMax()) {
                 return null;
             }
                         return null;
         }
         // overlapping without?
-        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null && ceilMaxCoord != null) {
+        if (floorMinCoord != null && floorMaxCoord != null && ceilMinCoord != null) {
             // this overlaps on both sides
             if (floorMinCoord != floorMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord == ceilMinCoord) {
 
@@ -268,7 +268,7 @@ public class DiscontinuousProjection extends AbstractProjection {
                 return replaceCoordinate(floorMinCoord, Math.min(min, floorMinCoord.getMin()), Math.max(max, ceilMaxCoord.getMax()));
             }
             // if we have coordinates on either side
-            else if (floorMinCoord == floorMaxCoord && ceilMinCoord == ceilMaxCoord && ceilMinCoord != floorMinCoord) {
+            else if (floorMinCoord.equals(floorMaxCoord) && ceilMinCoord.equals(ceilMaxCoord) && !ceilMinCoord.equals(floorMinCoord)) {
                 // in-between all, so just add
                 if (min > floorMaxKey && max < ceilMinKey) {
                     return addCoordinate(min, max);
@@ -291,17 +291,17 @@ public class DiscontinuousProjection extends AbstractProjection {
                 }
             }
             // sitting on the right edge, internal
-            else if (floorMinCoord == floorMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord == ceilMaxCoord) {
+            else if (floorMinCoord.equals(floorMaxCoord) && !ceilMinCoord.equals(ceilMaxCoord) && floorMaxCoord.equals(ceilMaxCoord)) {
                 return null;
             }
             // in the case they are in-between an existing scaffold
-            else if (floorMinCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+            else if (floorMinCoord.equals(ceilMaxCoord) && !ceilMinCoord.equals(ceilMaxCoord) && !floorMaxCoord.equals(floorMinCoord) && !floorMaxCoord.equals(ceilMinCoord)) {
                 return null;
-            } else if (floorMinCoord == ceilMinCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMaxCoord != ceilMinCoord) {
+            } else if (floorMinCoord.equals(ceilMinCoord) && !ceilMinCoord.equals(ceilMaxCoord) && !floorMaxCoord.equals(floorMinCoord) && !floorMaxCoord.equals(ceilMinCoord)) {
                 return replaceCoordinate(floorMinCoord, min, ceilMaxCoord.getMax());
-            } else if (floorMaxCoord == ceilMaxCoord && ceilMinCoord != ceilMaxCoord && floorMaxCoord != floorMinCoord && floorMinCoord != ceilMinCoord) {
+            } else if (floorMaxCoord.equals(ceilMaxCoord) && !ceilMinCoord.equals(ceilMaxCoord) && !floorMaxCoord.equals(floorMinCoord) && !floorMinCoord.equals(ceilMinCoord)) {
                 return replaceCoordinate(floorMinCoord, floorMinCoord.getMin(), ceilMaxCoord.getMax());
-            } else if (floorMinCoord == floorMaxCoord && floorMaxCoord == ceilMinCoord && floorMinCoord != ceilMaxCoord) {
+            } else if (floorMinCoord.equals(floorMaxCoord) && floorMaxCoord.equals(ceilMinCoord) && !floorMinCoord.equals(ceilMaxCoord)) {
                 return null;
             }
 

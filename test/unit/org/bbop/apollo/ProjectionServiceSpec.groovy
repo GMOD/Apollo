@@ -118,16 +118,47 @@ class ProjectionServiceSpec extends Specification {
         assert lastSequence.order == 1
 
         assert firstCoordinates.size()==2
-        assert firstCoordinates.first().min==12
-        assert firstCoordinates.first().max==15
-        assert firstCoordinates.last().min==30
-        assert firstCoordinates.last().max==50
+        assert firstCoordinates.first().min==12L
+        assert firstCoordinates.first().max==15L
+        assert firstCoordinates.last().min==30L
+        assert firstCoordinates.last().max==50L
         assert lastCoordinates.size()==2
-        assert lastCoordinates.first().min==30
-        assert lastCoordinates.first().max==130
-        assert lastCoordinates.last().min==135
-        assert lastCoordinates.last().max==150
+        assert lastCoordinates.first().min==30L
+        assert lastCoordinates.first().max==130L
+        assert lastCoordinates.last().min==135L
+        assert lastCoordinates.last().max==150L
 
 
     }
+
+
+    void "split projection from service"(){
+        given: "a projection"
+        MultiSequenceProjection projection = new MultiSequenceProjection()
+        ProjectionSequence projectionSequence1 = new ProjectionSequence(
+                start: 52803,
+                end: 59012,
+                name: 'Group11.4',
+                organism: 'Bug',
+                order: 0
+        )
+        projection.addProjectionSequences([projectionSequence1])
+
+
+        when: "we add a coordinate"
+        projection.addInterval(52803L,57034L,projectionSequence1)
+
+        then: "we should see it"
+        assert projection.size()==1
+
+        when: "we add a coordinate"
+        projection.addInterval(58420l,59012l,projectionSequence1)
+
+        then: "we should see it"
+        assert projection.size()==2
+
+    }
+
+
+
 }

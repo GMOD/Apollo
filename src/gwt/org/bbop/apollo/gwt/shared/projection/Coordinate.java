@@ -32,6 +32,19 @@ public class Coordinate implements Comparable<Coordinate>{
         return 0 ;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Coordinate that = (Coordinate) o;
+
+        if (!min.equals(that.min)) return false;
+        if (!max.equals(that.max)) return false;
+        return sequence != null ? sequence.equals(that.sequence) : that.sequence == null;
+
+    }
+
 //    boolean equals(Object o) {
 //        if (this.is(o)) return true
 //        if (!(o instanceof Coordinate)) return false
