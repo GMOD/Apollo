@@ -32,11 +32,11 @@ class AssemblageController {
 
     }
 
-    private static List<Feature> extractFeaturesFromRequest(JSONObject inputObject){
+    private static List<Feature> extractFeaturesFromRequest(JSONObject inputObject) {
         JSONArray featuresArray = JSON.parse(inputObject.getString(FeatureStringEnum.FEATURES.value)) as JSONArray
         println "featuresArray: ${featuresArray as JSON}"
         List<String> featureList = []
-        for(JSONObject featureObject in featuresArray){
+        for (JSONObject featureObject in featuresArray) {
             featureList.add(featureObject.getString(FeatureStringEnum.UNIQUENAME.value))
         }
         println "featuresList : ${featureList}"
@@ -46,7 +46,7 @@ class AssemblageController {
     }
 
     @Transactional
-    def projectFeatures(){
+    def projectFeatures() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         List<Feature> features = extractFeaturesFromRequest(inputObject)
         Assemblage assemblage = assemblageService.generateAssemblageForFeatureRegions(features)
@@ -55,7 +55,7 @@ class AssemblageController {
 
 
     @Transactional
-    def foldTranscripts(){
+    def foldTranscripts() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         println "folding transcript ${inputObject as JSON}"
         List<Feature> features = extractFeaturesFromRequest(inputObject)
@@ -63,15 +63,15 @@ class AssemblageController {
         // in the projection, add "collapsed=true" for the features in question and expand
         JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
         println "proj sequence object ${projectionSequenceObject as JSON}"
-        MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
-        for(feature in features){
-            projection = featureProjectionService.addLocationsForFeature(feature,projection)
+        MultiSequenceProjection projection = projectionService.convertToProjectionFromJson(projectionSequenceObject)
+        for (feature in features) {
+            projection = featureProjectionService.addLocationsForFeature(feature, projection)
         }
         render projectionService.convertToJsonFromProjection(projection) as JSON
     }
 
     @Transactional
-    def removeFolds(){
+    def removeFolds() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         println "folding transcript ${inputObject as JSON}"
         List<Feature> features = extractFeaturesFromRequest(inputObject)
@@ -79,28 +79,28 @@ class AssemblageController {
         // in the projection, add "collapsed=true" for the features in question and expand
         JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
         println "proj sequence object ${projectionSequenceObject as JSON}"
-        MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
-        for(feature in features){
-            projection = featureProjectionService.clearLocationForCoordinateForFeature(projection,feature)
+        MultiSequenceProjection projection = projectionService.convertToProjectionFromJson(projectionSequenceObject)
+        for (feature in features) {
+            projection = featureProjectionService.clearLocationForCoordinateForFeature(projection, feature)
         }
         render projectionService.convertToJsonFromProjection(projection) as JSON
 //        render getAssemblage() as JSON
     }
 
     @Transactional
-    def foldBetweenExons(){
+    def foldBetweenExons() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         println "folding exons ${inputObject as JSON}"
         List<Feature> features = extractFeaturesFromRequest(inputObject)
-        assert features.size()==2
+        assert features.size() == 2
         assert features[0] instanceof Exon
         assert features[1] instanceof Exon
 
         // in the projection, add "collapsed=true" for the features in question and expand
         JSONObject projectionSequenceObject = inputObject.getJSONObject(FeatureStringEnum.SEQUENCE.value)
         println "proj sequence object ${projectionSequenceObject as JSON}"
-        MultiSequenceProjection projection= projectionService.convertToProjectionFromJson(projectionSequenceObject)
-        projection = featureProjectionService.foldBetweenExons(features[0] as Exon,features[1] as Exon,projection)
+        MultiSequenceProjection projection = projectionService.convertToProjectionFromJson(projectionSequenceObject)
+        projection = featureProjectionService.foldBetweenExons(features[0] as Exon, features[1] as Exon, projection)
         render projectionService.convertToJsonFromProjection(projection) as JSON
 //        render getAssemblage() as JSON
     }
@@ -123,7 +123,8 @@ class AssemblageController {
     @Transactional
     def addAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        Assemblage assemblage = assemblageService.convertJsonToAssemblage(inputObject) // this will save a new assemblage
+        Assemblage assemblage = assemblageService.convertJsonToAssemblage(inputObject)
+        // this will save a new assemblage
         User user = permissionService.currentUser
         user.addToAssemblages(assemblage)
         user.save(flush: true)
@@ -140,7 +141,8 @@ class AssemblageController {
     @Transactional
     def saveAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        Assemblage storedAssemblage = assemblageService.convertJsonToAssemblage(inputObject) // this will save a new assemblage
+        Assemblage storedAssemblage = assemblageService.convertJsonToAssemblage(inputObject)
+        // this will save a new assemblage
         render assemblageService.convertAssemblageToJson(storedAssemblage) as JSON
     }
 
@@ -149,22 +151,22 @@ class AssemblageController {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
 
-        inputObject.id.each{
-            assemblageService.removeAssemblageById(it,user)
+        inputObject.id.each {
+            assemblageService.removeAssemblageById(it, user)
         }
 
         render list() as JSON
     }
 
-    def searchAssemblage(String searchQuery,String filter) {
+    def searchAssemblage(String searchQuery, String filter) {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject);
 
         ArrayList<Assemblage> assemblages = new ArrayList<Assemblage>();
         Organism currentOrganism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        for (Assemblage assemblage : assemblageService.getAssemblagesForUserAndOrganism(user,currentOrganism)) {
+        for (Assemblage assemblage : assemblageService.getAssemblagesForUserAndOrganism(user, currentOrganism)) {
             if (assemblage.sequenceList.toLowerCase().contains(searchQuery)) {
-                if(filter){
+                if (filter) {
                     JSONArray jsonArray = JSON.parse(assemblage.sequenceList) as JSONArray
                     Integer numberSequences = jsonArray.size()
                     Boolean leftEdge
@@ -173,27 +175,26 @@ class AssemblageController {
                     leftEdge = jsonArray.getJSONObject(0).start > 0
                     rightEdge = jsonArray.getJSONObject(0).end < jsonArray.getJSONObject(0).length
 
-                    switch (filter){
+                    switch (filter) {
                         case "Feature":
-                            if(leftEdge || rightEdge){
+                            if (leftEdge || rightEdge) {
                                 assemblages.add(assemblage);
                             }
                             break
                         case "Combined":
-                            if(numberSequences>1 && !leftEdge && !rightEdge){
+                            if (numberSequences > 1 && !leftEdge && !rightEdge) {
                                 assemblages.add(assemblage);
                             }
                             break
                         case "Scaffold":
-                            if(numberSequences==1 && !leftEdge && !rightEdge){
+                            if (numberSequences == 1 && !leftEdge && !rightEdge) {
                                 assemblages.add(assemblage);
                             }
                             break
                         default:
                             assemblages.add(assemblage);
                     }
-                }
-                else{
+                } else {
                     assemblages.add(assemblage);
                 }
             }
