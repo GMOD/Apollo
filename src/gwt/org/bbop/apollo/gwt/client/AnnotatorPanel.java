@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
@@ -36,24 +36,38 @@ import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.dto.assemblage.*;
-import org.bbop.apollo.gwt.client.event.*;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.CellPreviewEvent;
+import com.google.gwt.view.client.HasData;
+import com.google.gwt.view.client.Range;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
+import org.bbop.apollo.gwt.client.dto.assemblage.SequenceFeatureInfo;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Nathan Dunn on 12/17/14.
@@ -111,6 +125,8 @@ public class AnnotatorPanel extends Composite {
     static Button addToView;
     @UiField
     static Button viewAnnotation;
+    @UiField
+    static Button gotoAnnotation;
     @UiField
     Button showAllSequences;
 
@@ -204,7 +220,7 @@ public class AnnotatorPanel extends Composite {
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
                             Bootbox.alert(e.getMessage());
-                            return ;
+                            return;
                         }
                         JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
                         if (localRequestObject != null) {
@@ -346,11 +362,24 @@ public class AnnotatorPanel extends Composite {
     @UiHandler("viewAnnotation")
     void viewAnnotation(ClickEvent clickEvent) {
         AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(currentAnnotationInfo);
-        expandAssemblage(assemblageInfo,2d);
+        expandAssemblage(assemblageInfo, 2d);
         AssemblageRestService.addAssemblageAndView(assemblageInfo);
     }
 
-    static AssemblageInfo collectAssemblageFromSelectedFeature(AnnotationInfo annotationInfo){
+    @UiHandler("gotoAnnotation")
+    void gotoAnnotation(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage();
+
+        Long min = currentAnnotationInfo.getMin() - ProjectionDefaults.DEFAULT_PADDING;
+        Long max = currentAnnotationInfo.getMax() + ProjectionDefaults.DEFAULT_PADDING;
+        min = min < 0 ? 0L : min;
+        assemblageInfo.setStart(min);
+        assemblageInfo.setEnd(max);
+
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false);
+    }
+
+    static AssemblageInfo collectAssemblageFromSelectedFeature(AnnotationInfo annotationInfo) {
 
         AssemblageInfo assemblageInfo = new AssemblageInfo();
         AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
@@ -364,7 +393,7 @@ public class AnnotatorPanel extends Composite {
         sequenceObject.setStart(annotationInfo.getMin());
         sequenceObject.setEnd(annotationInfo.getMax());
 
-        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo() ;
+        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo();
         featuresObject.setName(annotationInfo.getName());
 
         sequenceObject.setFeature(featuresObject);
@@ -377,7 +406,7 @@ public class AnnotatorPanel extends Composite {
         return assemblageInfo;
     }
 
-    void expandAssemblage(AssemblageInfo assemblageInfo, Double expansionFactor){
+    void expandAssemblage(AssemblageInfo assemblageInfo, Double expansionFactor) {
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
         AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(0);
         Long start = assemblageSequence.getStart();
@@ -387,11 +416,11 @@ public class AnnotatorPanel extends Composite {
 //        Double desiredWidth = width * expansionFactor ;
 //        Long desiredStart = start - (long) (desiredWidth / 2.0) ;
 //        Long desiredEnd = end + (long) (desiredWidth / 2.0) ;
-        Long buffer = 200L ;
-        Long desiredStart = start - (long) (buffer ) ;
-        Long desiredEnd = end + (long) (buffer) ;
-        start = desiredStart < 0 ? 0 : desiredStart ;
-        end = desiredEnd ;  // can we maximize this?
+        Long buffer = 200L;
+        Long desiredStart = start - (long) (buffer);
+        Long desiredEnd = end + (long) (buffer);
+        start = desiredStart < 0 ? 0 : desiredStart;
+        end = desiredEnd;  // can we maximize this?
         assemblageSequence.setStart(start);
         assemblageSequence.setEnd(end);
         assemblageSequenceList.set(0, assemblageSequence);
@@ -401,7 +430,7 @@ public class AnnotatorPanel extends Composite {
     @UiHandler("addNewAssemblage")
     void addNewAssemblage(ClickEvent clickEvent) {
         AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(currentAnnotationInfo);
-        expandAssemblage(assemblageInfo,2d);
+        expandAssemblage(assemblageInfo, 2d);
 
 
         RequestCallback requestCallback = new RequestCallback() {
@@ -412,7 +441,7 @@ public class AnnotatorPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("Error adding assemblage: "+exception);
+                Window.alert("Error adding assemblage: " + exception);
             }
         };
 
@@ -459,6 +488,7 @@ public class AnnotatorPanel extends Composite {
         currentAnnotationInfo = annotationInfo;
         addNewAssemblage.setEnabled(currentAnnotationInfo != null);
         viewAnnotation.setEnabled(currentAnnotationInfo != null);
+        gotoAnnotation.setEnabled(currentAnnotationInfo != null);
         addToView.setEnabled(currentAnnotationInfo != null);
         if (currentAnnotationInfo == null) {
             return;
@@ -610,7 +640,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     public static void reload(Boolean forceReload) {
-        if(MainPanel.annotatorPanel.isVisible() || forceReload){
+        if (MainPanel.annotatorPanel.isVisible() || forceReload) {
 //            updateAnnotationInfo(null);
             dataGrid.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
@@ -633,11 +663,12 @@ public class AnnotatorPanel extends Composite {
     }
 
     @UiHandler("showAllSequences")
-    public void setShowAllSequences(ClickEvent clickEvent){
+    public void setShowAllSequences(ClickEvent clickEvent) {
         sequenceList.setText("");
         reload();
     }
-    public static void showInAnnotatorPanel(String featureName,String scaffold){
+
+    public static void showInAnnotatorPanel(String featureName, String scaffold) {
 //        Window.alert(featureName + " " + scaffold);
         sequenceList.setText(scaffold);
         nameSearchBox.setText(featureName);
@@ -645,7 +676,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     // TODO: need to cache these or retrieve from the backend
-    public static void displayTranscript(String geneIndex, String uniqueName,String displayString) {
+    public static void displayTranscript(String geneIndex, String uniqueName, String displayString) {
         int geneInt = Integer.parseInt(geneIndex);
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
 
