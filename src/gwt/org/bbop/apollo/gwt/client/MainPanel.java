@@ -484,7 +484,7 @@ public class MainPanel extends Composite {
         currentAssemblage = assemblageInfo;
         minRegion = currentAssemblage.getStart() != null ? currentAssemblage.getStart() : -1;
         maxRegion = currentAssemblage.getEnd() != null ? currentAssemblage.getEnd() : -1;
-        trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString());
+        trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString().replaceAll(", ",","));
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 
         trackListString += getCurrentQueryParamsAsString();
