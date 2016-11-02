@@ -476,14 +476,24 @@ public class MainPanel extends Composite {
             }
         }
 
-        currentStartBp = minRegion;
-        currentEndBp = maxRegion;
 
 
         String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() + "/jbrowse/index.html?loc=";
         currentAssemblage = assemblageInfo;
-        minRegion = currentAssemblage.getStart() != null ? currentAssemblage.getStart() : -1;
-        maxRegion = currentAssemblage.getEnd() != null ? currentAssemblage.getEnd() : -1;
+        if(currentAssemblage.getStart()!=null
+                && currentAssemblage.getEnd()!=null
+                ){
+            if(currentAssemblage.getStart()>minRegion){
+                minRegion = currentAssemblage.getStart();
+            }
+            if(maxRegion < 0 || currentAssemblage.getEnd() < maxRegion){
+                maxRegion = currentAssemblage.getEnd() ;
+            }
+//            minRegion = currentAssemblage.getStart() != null ? currentAssemblage.getStart() : -1;
+//            maxRegion = currentAssemblage.getEnd() != null ? currentAssemblage.getEnd() : -1;
+        }
+        currentStartBp = minRegion;
+        currentEndBp = maxRegion;
         trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString().replaceAll(", ",","));
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 
