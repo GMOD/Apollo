@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 
 /**
  * Created by Nathan Dunn on 8/24/15.
+ * deprecated
  */
 @CompileStatic
 public class DiscontinuousProjection extends AbstractProjection {
@@ -22,7 +23,6 @@ public class DiscontinuousProjection extends AbstractProjection {
      *
      * @param input
      * @return
-     * @deprecated
      */
     @Override
     public Integer projectReverseValue(Integer input) {

@@ -146,6 +146,19 @@ define([
                         }
                         block.domNode.appendChild(posLabel);
 
+                        // create a tick here
+                        // we can just move around a certain number of ticks
+                        var gridLine = dojo.create('div',{ className: 'projectionGridline'}, this.browser.view.staticTrack.div);
+                        gridLine.style.display = 'block';
+
+                        var shiftValue = labelNumber * scale ;
+                        // alert(scale);
+                        // alert(shiftValue);
+                        gridLine.style.left = shiftValue + 'px';
+
+                        // var scaleTrackPos = dojo.position( this.browser.view.scaleTrackDiv );
+                        // gridLine.style.top =  scaleTrackPos.y + 'px';
+                        // gridLine.style.top =  '50px';
                     }
 
                     // can we render a highlight for the start / end?

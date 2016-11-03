@@ -65,3 +65,29 @@ div.locationThumb {
 #menubar_about {
     display: none;
 }
+
+.projectionGridline{
+    position: fixed;
+    display: none;
+    cursor: crosshair;
+    left: -2px;
+    height: 100%;
+    width: 5px;
+    background-color: #FF0000;
+    z-index: 15;
+    top: 0;
+}
+
+.projectionLabel {
+    color: black;
+    position: fixed;
+    font-weight: bold;
+    font-size: 9px;
+    display: none;
+    background: #fefefe;
+    padding: 0 0.7em;
+    z-index: 1000;
+    text-align: center;
+    cursor: crosshair;
+    border: 1px solid #888;
+}
