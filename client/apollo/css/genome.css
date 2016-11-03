@@ -67,7 +67,7 @@ div.locationThumb {
 }
 
 .projectionGridline{
-    position: fixed;
+    position: absolute;
     display: none;
     cursor: crosshair;
     left: -2px;
