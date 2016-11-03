@@ -82,7 +82,7 @@ public class AssemblageInfoConverter {
         return assemblageInfo;
     }
 
-    private static AssemblageSequenceList convertJSONArrayToSequenceList(JSONArray sequenceListArray) {
+    public static AssemblageSequenceList convertJSONArrayToSequenceList(JSONArray sequenceListArray) {
         AssemblageSequenceList assemblageSequenceList = new AssemblageSequenceList();
         for (int i = 0; i < sequenceListArray.size(); i++) {
             AssemblageSequence assemblageSequence = new AssemblageSequence(sequenceListArray.get(i).isObject());

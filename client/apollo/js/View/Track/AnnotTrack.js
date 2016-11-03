@@ -565,6 +565,17 @@ define([
                         }
                     }
                 }
+
+                // should return a left and a right fold
+                var folds = this.getApollo().getFolds(JSON.stringify(feature.afeature.location));
+                if(folds && folds.length>0 ){
+                    alert('has folds: '+JSON.stringify(folds));
+                }
+                else{
+                    GWT.log("No folds detected");
+                }
+
+
                 var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, rclass, clsName);
 
                 if (featDiv && featDiv != null && !history) {

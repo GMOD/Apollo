@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.shared.projection;
 
+import com.google.gwt.user.client.Window;
+
 import java.util.*;
 
 /**
@@ -615,4 +617,5 @@ public class MultiSequenceProjection extends AbstractProjection {
         DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
         return discontinuousProjection.replaceCoordinate(coordinate,min,max);
     }
+
 }

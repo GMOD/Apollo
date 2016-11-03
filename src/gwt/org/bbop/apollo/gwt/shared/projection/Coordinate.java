@@ -70,14 +70,14 @@ public class Coordinate implements Comparable<Coordinate>{
     }
 
 
-//    @Override
-//    public String toString() {
-//        return "Coordinate{" +
-//                "min=" + min +
-//                ", max=" + max +
-//                sequence ? ", sequence=" + sequence : "" +
-//                '}';
-//    }
+    @Override
+    public String toString() {
+        return "Coordinate{" +
+                "min=" + min +
+                ", max=" + max +
+                (sequence!=null ? ", sequence=" + sequence.toString() : "") +
+                '}';
+    }
 
     Boolean isValid() {
         return min>=0 && max>=0;

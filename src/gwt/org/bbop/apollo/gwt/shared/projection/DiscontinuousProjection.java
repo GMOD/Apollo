@@ -1,9 +1,7 @@
 package org.bbop.apollo.gwt.shared.projection;
 
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created by nathandunn on 10/10/16.
@@ -451,9 +449,17 @@ public class DiscontinuousProjection extends AbstractProjection {
         return returnValue;
     }
 
-    public Collection<Coordinate> getCoordinates() {
+    public List<Coordinate> getCoordinates() {
         assert minMap.size() == maxMap.size();
-        return minMap.values();
+        List<Coordinate> coordinateList = new ArrayList<>(minMap.values());
+        Collections.sort(coordinateList, new Comparator<Coordinate>() {
+            @Override
+            public int compare(Coordinate o1, Coordinate o2) {
+                return (int) (o2.getMin()-o1.getMin());
+            }
+        });
+
+        return coordinateList ;
     }
 
     public String getMetadata() {
