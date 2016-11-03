@@ -24,6 +24,7 @@ define([
                     this.labelClass = args.labelClass;
                     this.posHeight = args.posHeight;
                     this.height = Math.round(args.posHeight * 1.2);
+                    // this.style.cssText = "top: 0px;height: 100%";
                 },
 
                 // this track has no track label or track menu, stub them out
@@ -148,13 +149,40 @@ define([
 
                         // create a tick here
                         // we can just move around a certain number of ticks
-                        var gridLine = dojo.create('div',{ className: 'projectionGridline'}, this.browser.view.staticTrack.div);
-                        gridLine.style.display = 'block';
+                        // var gridLine = dojo.create('div',{ className: 'projectionGridline'}, this.browser.view.staticTrack.div);
+                        // gridLine.style.display = 'block';
+                        //
+                        // var shiftValue = labelNumber * scale ;
+                        // // alert(scale);
+                        // // alert(shiftValue);
+                        // gridLine.style.left = shiftValue + 'px';
 
-                        var shiftValue = labelNumber * scale ;
-                        // alert(scale);
-                        // alert(shiftValue);
-                        gridLine.style.left = shiftValue + 'px';
+                        // var new_gridline = function( glclass, position ) {
+                        //     var gridline = document.createElement("div");
+                        //     gridline.style.cssText = "left: " + position + "%; width: 10px";
+                        //     gridline.className = "projectionGridline "+glclass;
+                        //     return gridline;
+                        // };
+                        //
+                        // block.domNode.appendChild( new_gridline('projectionGridline_major',20 ) ) ;
+                        // block.domNode.appendChild( new_gridline('projectionGridline_minor',70 ) ) ;
+
+                        // var gridTrackDiv = document.createElement("div");
+                        // // gridTrackDiv.className = "track";
+                        // gridTrackDiv.style.cssText = "left: 20%; width: 10px; display: block; top: 0px; height: 100%;";
+                        // gridTrackDiv.className = "projectionGridline" ;
+
+                        // this.browser.view.trackContainer.appendChild(gridTrackDiv);
+                        // block.domNode.appendChild(gridTrackDiv);
+                        // this.trackContainer.appendChild(gridTrackDiv);
+
+                        // gridline.style.cssText = "left: 20%; width: 10px; display: block; className: 'projectionGridline'; ";
+                        // // gridline.style.display = "block";
+                        // // gridline.className = "projectionGridline" ;
+                        // block.domNode.appendChild(gridline);
+                        // var gridLine = dojo.create('div',{ className: 'projectionGridline'}, block.domNode );
+                        // gridLine.style.cssText = "left: 20%; width: 10px; display: block; className: 'projectionGridline'; ";
+
 
                         // var scaleTrackPos = dojo.position( this.browser.view.scaleTrackDiv );
                         // gridLine.style.top =  scaleTrackPos.y + 'px';
