@@ -21,14 +21,12 @@ Complete Apollo installation and configuration instructions are available from t
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
 
 
-## Quick-start guide
+## Quick-start guides
 
-The [quick-start developer's guide](docs/Apollo2Build.md) shows how develeopr's get started with Apollo. 
+The [quick-start developer's guide](docs/Apollo2Build.md) shows how developer's get started with Apollo. 
 
-Setting up on a production server with customized settings in the [setup guide](docs/Setup.md) and
-[configuration guide](docs/Configure.md).
-
-
+[Setup guide for a production server](docs/Setup.md) with customized settings and a custom 
+[configuration guide](docs/Configure.md) for when your team is ready to begin curating.
 
 ## Migrating data from older versions
 
