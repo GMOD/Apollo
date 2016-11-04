@@ -569,10 +569,13 @@ define([
                 // should return a left and a right fold
                 var folds = this.getApollo().getFolds(JSON.stringify(feature.afeature.location));
                 if(folds && folds.length>0 ){
-                    alert('has folds: '+JSON.stringify(folds));
-                }
-                else{
-                    GWT.log("No folds detected");
+                    console.log('has folds: '+JSON.stringify(folds));
+                    // var content = dojo.create("div");
+                    var content = document.createElement("div");
+                    content.style.cssText = "position: absolute ; display: block; top: 0px; height: 100%; left: 110%; width: 20px; color: green; border 5px; z-index: 50; background-color: white;";
+                    content.innerHTML = "Fold" ;
+                    content.id = 'projectionGrid'+folds ;
+                    block.domNode.appendChild(content);
                 }
 
 
