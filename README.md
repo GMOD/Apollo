@@ -7,9 +7,9 @@
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-<h1>
-<a href="https://github.com/GMOD/Apollo/releases/latest"><img src="https://github.com/GMOD/Apollo/blob/master/docs/images/download.png" width="35px" valign="bottom">&nbsp;Download the latest release<a>
-</h1>
+
+[![Download the latest release](https://github.com/GMOD/Apollo/releases/latest)](https://github.com/GMOD/Apollo/blob/master/docs/images/download.png)
+
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
@@ -21,11 +21,11 @@ Complete Apollo installation and configuration instructions are available from t
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
 
 
-## Quick-start guide
+## Setup guide
 
-The [quick-start guide](docs/Apollo2Build.md) shows how to easily get started with Apollo, and further setup steps are
-shown how to deploy on a production server with customized settings in the [setup guide](docs/Setup.md) and
-[configuration guide](docs/Configure.md).
+[Setup guide](docs/Setup.md) for deploying on production and [custom configuration guide](docs/Configure.md).
+
+The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
 
 ## Migrating data from older versions
 
