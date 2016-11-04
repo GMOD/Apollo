@@ -318,7 +318,14 @@ public class ProjectionService {
         AssemblageRestService.removeFolds(projectionCommand);
     }
 
-    private static JSONArray getReversedFolds(MultiSequenceProjection projection) {
+    /**
+     *
+     * @param projection
+     * @param startBase - start projected value
+     * @param endBase - end projected value
+     * @return
+     */
+    private static JSONArray getReversedFolds(MultiSequenceProjection projection,Long startBase,Long endBase) {
         JSONArray foldValues = new JSONArray();
         for(ProjectionSequence projectionSequence : projection.getProjectedSequences()){
             DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence);
@@ -332,11 +339,13 @@ public class ProjectionService {
                     lastCoordinate = firstCoordate;
                     firstCoordate = coordinate ;
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("foldPoint",new JSONNumber(projection.projectReverseValue(firstCoordate.getMax())));
-                    jsonObject.put("left",new JSONNumber(firstCoordate.getMax()));
-                    jsonObject.put("right",new JSONNumber(lastCoordinate.getMin()));
-
-                    foldValues.set(foldValues.size(),jsonObject);
+                    Long foldPoint = projection.projectReverseValue(firstCoordate.getMax());
+//                    if(foldPoint>=startBase && foldPoint <= endBase){
+                        jsonObject.put("foldPoint",new JSONNumber(foldPoint));
+                        jsonObject.put("left",new JSONNumber(firstCoordate.getMax()));
+                        jsonObject.put("right",new JSONNumber(lastCoordinate.getMin()));
+                        foldValues.set(foldValues.size(),jsonObject);
+//                    }
                 }
             }
         }
@@ -344,7 +353,7 @@ public class ProjectionService {
         return foldValues;
     }
 
-    private static JavaScriptObject getFolds(String locationString) {
+    private static JavaScriptObject getFolds(String locationString,String startBaseString,String endBaseString) {
 
         JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
 
@@ -362,7 +371,9 @@ public class ProjectionService {
         MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
 
         // TODO: filter for between fmin / fmax ?
-        JSONArray foldPoints = getReversedFolds(multiSequenceProjection);
+        Long startBase = Long.parseLong(startBaseString);
+        Long endBase = Long.parseLong(endBaseString);
+        JSONArray foldPoints = getReversedFolds(multiSequenceProjection,startBase,endBase);
 
         return JsonUtils.safeEval(foldPoints.toString());
     }
@@ -380,7 +391,7 @@ public class ProjectionService {
         $wnd.foldSelectedTranscript = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::foldSelectedTranscript(Ljava/lang/String;Ljava/lang/String;));
         $wnd.foldBetweenExons = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::foldBetweenExons(Ljava/lang/String;Ljava/lang/String;));
         $wnd.removeFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::removeFolds(Ljava/lang/String;Ljava/lang/String;));
-        $wnd.getFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getFolds(Ljava/lang/String;));
+        $wnd.getFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getFolds(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
 }

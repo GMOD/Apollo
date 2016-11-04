@@ -567,15 +567,49 @@ define([
                 }
 
                 // should return a left and a right fold
-                var folds = this.getApollo().getFolds(JSON.stringify(feature.afeature.location));
+                var folds = this.getApollo().getFolds(JSON.stringify(feature.afeature.location),block.startBase,block.endBase);
                 if(folds && folds.length>0 ){
                     console.log('has folds: '+JSON.stringify(folds));
-                    // var content = dojo.create("div");
-                    var content = document.createElement("div");
-                    content.style.cssText = "position: absolute ; display: block; top: 0px; height: 100%; left: 110%; width: 20px; color: green; border 5px; z-index: 50; background-color: white;";
-                    content.innerHTML = "Fold" ;
-                    content.id = 'projectionGrid'+folds ;
-                    block.domNode.appendChild(content);
+
+                    var startBlock = block.startBase ;
+                    var endBlock = block.endBase ;
+
+                    for(var i in folds){
+                        var fold = folds[i] ;
+
+                        var foldPoint = fold.foldPoint ;
+                        if(foldPoint >= startBlock && foldPoint <= endBlock){
+                            console.log('block values: '+startBlock + ' - '+ endBlock + ' vs fold poit: '+ foldPoint);
+                            var percentage = (foldPoint - startBlock ) / (endBlock - startBlock) * 100.0 ;
+                            console.log(percentage);
+
+                            var content = document.createElement("div");
+                            content.style.position = 'absolute';
+                            content.style.display = 'block';
+                            content.style.top = 0;
+                            content.style.height = '100%';
+                            content.style.width = '2px';
+                            content.style.backgroundColor = 'blue';
+                            content.style.color = 'gray';
+
+                            // content.style.borderStyle = 'solid';
+                            // content.style.borderWidth = '2px 10px 4px 20px';
+                            // content.style.borderWidth = '1px';
+
+                            content.style.zIndex = 15;
+                            // content.style.cssText = "block; top: 0px; height: 100%; left: 110%; width: 20px; color: green; border 5px; z-index: 50; background-color: blue;";
+                            content.id = 'projectionGrid'+folds ;
+
+                            // content.style.left = '120%';
+                            content.style.left = percentage+'%';
+
+                            // TODO: move to added innerHTML
+                            content.innerHTML = '&larr;' + fold.left + "<br/><br/>" + fold.right + '&rarr;' ;
+
+
+                            block.domNode.appendChild(content);
+                        }
+                    }
                 }
 
 
