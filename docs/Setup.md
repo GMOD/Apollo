@@ -20,14 +20,22 @@ also provided.
 **Important note**:  The default memory for Tomcat and Jetty is insufficient to run Apollo (and most other web apps).   
 You should [increase the memory according to these instructions](Troubleshooting.md#tomcat-memory).
 
-Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configuration_Guide) (an Ubuntu install):
+Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configuration_Guide) (based on an Ubuntu 16 install):
 
-     sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential nodejs git 
+     sudo apt-get update && sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential git python-software-properties 
+     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
+     sudo apt-get install nodejs 
      
-Build settings for Apollo specifically.  Recent versions of tomcat7 will work.  [Oracle 7+ Java](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04) versions of java) will work as will Open-JDK 7:
-     
-     sudo apt-get install tomcat8 ant openjdk-8-jdk 
+Note that npm (installed with nodejs) must be version 2 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
 
+    sudo npm install -g bower 
+     
+Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat8 is preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
+     
+    sudo apt-get install ant openjdk-8-jdk 
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
+
+Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  To setup for production continue onto configuration below after install . 
 
 ### Database configuration
 
