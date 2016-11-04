@@ -74,10 +74,10 @@ class ProjectionServiceSpec extends Specification {
         assert firstProjection.order == 0
         assert firstProjection.feature != null
         assert firstProjection.location.size() == 2
-        assert firstProjection.location[0].fmin==12
-        assert firstProjection.location[0].fmax==15
-        assert firstProjection.location[1].fmin==30
-        assert firstProjection.location[1].fmax==50
+        assert firstProjection.location[0].fmin==30
+        assert firstProjection.location[0].fmax==50
+        assert firstProjection.location[1].fmin==12
+        assert firstProjection.location[1].fmax==15
 
         assert lastProjection.name == "Group2"
         assert lastProjection.start == 30
@@ -86,10 +86,10 @@ class ProjectionServiceSpec extends Specification {
         assert lastProjection.order == 1
         assert lastProjection.feature != null
         assert lastProjection.location.size() == 2
-        assert lastProjection.location[0].fmin==30
-        assert lastProjection.location[0].fmax==130
-        assert lastProjection.location[1].fmin==135
-        assert lastProjection.location[1].fmax==150
+        assert lastProjection.location[0].fmin==135
+        assert lastProjection.location[0].fmax==150
+        assert lastProjection.location[1].fmin==30
+        assert lastProjection.location[1].fmax==130
 
 
         when: "de-serialize it"
@@ -118,15 +118,15 @@ class ProjectionServiceSpec extends Specification {
         assert lastSequence.order == 1
 
         assert firstCoordinates.size()==2
-        assert firstCoordinates.first().min==12L
-        assert firstCoordinates.first().max==15L
-        assert firstCoordinates.last().min==30L
-        assert firstCoordinates.last().max==50L
+        assert firstCoordinates.first().min==30L
+        assert firstCoordinates.first().max==50L
+        assert firstCoordinates.last().min==12L
+        assert firstCoordinates.last().max==15L
         assert lastCoordinates.size()==2
-        assert lastCoordinates.first().min==30L
-        assert lastCoordinates.first().max==130L
-        assert lastCoordinates.last().min==135L
-        assert lastCoordinates.last().max==150L
+        assert lastCoordinates.first().min==135L
+        assert lastCoordinates.first().max==150L
+        assert lastCoordinates.last().min==30L
+        assert lastCoordinates.last().max==130L
 
 
     }
