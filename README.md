@@ -8,7 +8,7 @@
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 
-[![Download the latest release](https://github.com/GMOD/Apollo/blob/master/docs/images/download.png = 50px)](https://github.com/GMOD/Apollo/releases/latest)
+[![Download the latest release](https://github.com/GMOD/Apollo/blob/master/docs/images/download.png = 50x)](https://github.com/GMOD/Apollo/releases/latest)
 
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
