@@ -18,14 +18,16 @@ For general information on Apollo, go to [http://genomearchitect.org/](http://ge
 
 Complete Apollo installation and configuration instructions are available from the [Apollo documentation pages](http://genomearchitect.readthedocs.io/en/latest/)
 
-The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
+The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
 
 ## Setup guide
 
-[Setup guide](docs/Setup.md) for deploying on production and [custom configuration guide](docs/Configure.md).
+[Setup guide](docs/Setup.md) for deploying on production and [custom configuration guide](docs/Configure.md).  
+Launchable public Amazon EC2 images may also be found in most regions under the name 'Apollo' as well as [instructions for docker](docs/Setup.md#configure-for-docker). 
 
 The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
+
 
 ## Migrating data from older versions
 
