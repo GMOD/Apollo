@@ -30,12 +30,12 @@ Note that npm (installed with nodejs) must be version 2 or better.  If not insta
 
     sudo npm install -g bower 
      
-Build settings for Apollo specifically.  Recent versions of tomcat7 will work.  [Oracle 7+ Java](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04) versions of java) will work as will Open-JDK 7:
+Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat8 is preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
      
-    sudo apt-get install tomcat8 ant openjdk-8-jdk 
-    export JAVA_HOME=/usr # or set in .bashrc
+    sudo apt-get install ant openjdk-8-jdk 
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
 
-Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/.  To setup for production continue onto configuration below.
+Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  To setup for production continue onto configuration below after install . 
 
 ### Database configuration
 
