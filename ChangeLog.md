@@ -1,3 +1,9 @@
+
+## 2.0.5
+
++ Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4.
+
+
 ## 2.0.4
 
 Features
