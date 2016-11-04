@@ -22,10 +22,9 @@ You should [increase the memory according to these instructions](Troubleshooting
 
 Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configuration_Guide) (an Ubuntu install):
 
-     sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential nodejs git 
+     sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential nodejs npm git 
      
-Note that npm (installed with node.js) must be version 2 or better.
-Most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
+Note that npm (installed with node.js) must be version 2 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
 
      
 Build settings for Apollo specifically.  Recent versions of tomcat7 will work.  [Oracle 7+ Java](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04) versions of java) will work as will Open-JDK 7:
