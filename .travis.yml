@@ -30,3 +30,4 @@ script:
     - jshint client/apollo/js
 after_success:
   - ./grailsw coveralls
+
