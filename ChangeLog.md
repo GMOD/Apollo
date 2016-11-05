@@ -1,3 +1,11 @@
+
+## 2.0.5
+
+Features 
+
++ Upgraded to Java 8 
+
+
 ## 2.0.4
 
 Features
