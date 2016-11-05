@@ -1074,8 +1074,8 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert transcriptFeatureLocation.fmax == geneFeatureLocation.fmax
         assert transcriptFeatureLocation.fmin == exonFeatureLocation.fmin
         assert transcriptFeatureLocation.fmax == exonFeatureLocation.fmax
-        assert cdsFeatureLocation.fmin > exonFeatureLocation.fmin
-        assert cdsFeatureLocation.fmax < exonFeatureLocation.fmax
+        assert cdsFeatureLocation.fmin >= exonFeatureLocation.fmin
+        assert cdsFeatureLocation.fmax <= exonFeatureLocation.fmax
 
 
 
@@ -1175,7 +1175,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert transcriptFeatureLocation.fmin == exonFirstFeatureLocation.fmin
         assert transcriptFeatureLocation.fmax == exonLastFeatureLocation.fmax
         assert cdsFeatureLocation.fmin > exonFirstFeatureLocation.fmin
-        assert cdsFeatureLocation.fmax < exonLastFeatureLocation.fmax
+        assert cdsFeatureLocation.fmax <= exonLastFeatureLocation.fmax
         // should have shifted and not stayed the same
 
     }

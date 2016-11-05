@@ -105,7 +105,8 @@
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:ButtonGroup>
-                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY" width="56px">GFF3</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY" width="56px">GFF3
+                            </b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton" width="56px">FASTA</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton" width="56px">CHADO</b:Button>
                         </b:ButtonGroup>
@@ -124,16 +125,14 @@
                                        marginLeft="1"
 
                         />
-                            <!--<select:Select ui:field="selectedSequenceDisplay" liveSearch="true" visibleSize="5"-->
-                                           <!--enabled="false"  title="Selected sequences" width="165px"-->
-                                           <!--marginLeft="1"-->
-
-                            <!--/>-->
                         </b:Row>
                         <b:ButtonGroup>
-                            <b:Button ui:field="clearSelectionButton" icon="BAN" size="EXTRA_SMALL" title="Clear Selection" marginLeft="1"/>
-                            <b:Button ui:field="exportAllButton" icon="DOWNLOAD" size="EXTRA_SMALL" text="All" width="49px"/>
-                            <b:Button ui:field="exportSelectedButton" icon="DOWNLOAD" size="EXTRA_SMALL" text="Selected" enabled="false" width="100px"/>
+                            <b:Button ui:field="clearSelectionButton" icon="BAN" size="EXTRA_SMALL"
+                                      title="Clear Selection" marginLeft="1"/>
+                            <b:Button ui:field="exportAllButton" icon="DOWNLOAD" size="EXTRA_SMALL" text="All"
+                                      width="49px"/>
+                            <b:Button ui:field="exportSelectedButton" icon="DOWNLOAD" size="EXTRA_SMALL" text="Selected"
+                                      enabled="false" width="100px"/>
                         </b:ButtonGroup>
 
                     </b:Column>

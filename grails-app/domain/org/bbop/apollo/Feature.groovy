@@ -171,6 +171,17 @@ class Feature implements Ontological{
         featureLocations.sort(){ it.rank }.first().fmin
     }
 
+    public boolean getIsFminPartial(){
+        if(!featureLocations){
+            throw new Exception("No feature locations exist for feature")
+        }
+        featureLocations.sort(){ it.rank }.first().isFminPartial
+    }
+
+    public boolean getIsFmaxPartial(){
+        featureLocations.sort(){ it.rank }.last().isFmaxPartial
+    }
+
     public Organism getOrganism(){
         if(!featureLocations){
             return null

@@ -293,10 +293,9 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Assemblage assemblage, boolean suppressHistory) {
+    def generateTranscript(JSONObject jsonTranscript, Assemblage assemblage, boolean suppressHistory,boolean useCDS = configWrapperService.useCDS()) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
-        boolean useCDS = configWrapperService.useCDS()
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
@@ -311,6 +310,14 @@ class FeatureService {
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript, false, assemblage);
+            }
+            else {
+                // if there are any sequence alterations that overlaps this transcript then
+                // recalculate the CDS to account for these changes
+                def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
+                if (sequenceAlterations.size() > 0) {
+                    calculateCDS(transcript,false,assemblage)
+                }
             }
 
             addTranscriptToGene(gene, transcript, assemblage);
@@ -361,6 +368,15 @@ class FeatureService {
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript, false, assemblage);
                     }
+                    else {
+                        // if there are any sequence alterations that overlaps this transcript then
+                        // recalculate the CDS to account for these changes
+                        def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
+                        if (sequenceAlterations.size() > 0) {
+                            calculateCDS(tmpTranscript,false,assemblage)
+                        }
+                    }
+
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
                     }
@@ -477,6 +493,14 @@ class FeatureService {
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript, false, assemblage);
+            }
+            else {
+                // if there are any sequence alterations that overlaps this transcript then
+                // recalculate the CDS to account for these changes
+                def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
+                if (sequenceAlterations.size() > 0) {
+                    calculateCDS(transcript,false,assemblage)
+                }
             }
             removeExonOverlapsAndAdjacenciesForFeature(gene, assemblage)
             if (!suppressHistory) {
@@ -1037,7 +1061,7 @@ class FeatureService {
         return frameshifts;
     }
 
-/**
+/*
  * Calculate the longest ORF for a transcript.  If a valid start codon is not found, allow for partial CDS start/end.
  *
  * @param transcript - Transcript to set the longest ORF to
@@ -1048,35 +1072,60 @@ class FeatureService {
     @Timed
     @Transactional
     public void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon, MultiSequenceProjection multiSequenceProjection) {
-        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension,readThroughStopCodon)"
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
-        if (mrna == null || mrna.equals("null")) {
+        if (!mrna) {
             return;
         }
         String longestPeptide = "";
         int bestStartIndex = -1;
         int bestStopIndex = -1;
+        int startIndex = -1;
+        int stopIndex = -1;
+        boolean partialStart = false;
         boolean partialStop = false;
 
         if (mrna.length() > 3) {
             for (String startCodon : translationTable.getStartCodons()) {
-                int startIndex = mrna.indexOf(startCodon);
-                while (startIndex >= 0) {
-                    String mrnaSubstring = mrna.substring(startIndex);
-                    String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon);
+                // find the first start codon
+                startIndex = mrna.indexOf(startCodon)
+                while(startIndex >= 0) {
+                    String mrnaSubstring = mrna.substring(startIndex)
+                    String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
                     if (aa.length() > longestPeptide.length()) {
-                        longestPeptide = aa;
-                        bestStartIndex = startIndex;
-                        bestStopIndex = startIndex + (aa.length() * 3);
-                        if (!longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
-                            partialStop = true;
-                            bestStopIndex += mrnaSubstring.length() % 3;
-                        }
+                        longestPeptide = aa
+                        bestStartIndex = startIndex
                     }
-                    startIndex = mrna.indexOf(startCodon, startIndex + 1);
+                    startIndex = mrna.indexOf(startCodon, startIndex + 1)
                 }
             }
+
+            // Just in case the 5' end is missing, check to see if a longer
+            // translation can be obatained without looking for a start codon
+            startIndex = 0
+            while(startIndex < 3) {
+                String mrnaSubstring = mrna.substring(startIndex)
+                String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
+                if (aa.length() > longestPeptide.length()) {
+                    partialStart = true
+                    longestPeptide = aa
+                    bestStartIndex = startIndex
+                }
+                startIndex++
+            }
         }
+
+        // check for partial stop
+        if (!longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
+            partialStop = true
+            bestStopIndex = -1
+        }
+        else {
+            stopIndex = bestStartIndex + (longestPeptide.length() * 3)
+            partialStop = false
+            bestStopIndex = stopIndex
+        }
+
+        log.debug "bestStartIndex: ${bestStartIndex} bestStopIndex: ${bestStopIndex}; partialStart: ${partialStart} partialStop: ${partialStop}"
 
         if (transcript instanceof MRNA) {
             CDS cds = transcriptService.getCDS(transcript)
@@ -1084,34 +1133,41 @@ class FeatureService {
                 cds = transcriptService.createCDS(transcript);
                 transcriptService.setCDS(transcript, cds);
             }
-            if (bestStartIndex >= 0) {
-                int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex);
-                int fmax = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex);
-                if (cds.isNegativeStrand()) {
-                    int tmp = fmin;
-                    fmin = fmax + 1;
-                    fmax = tmp + 1;
+
+            int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex)
+
+            if (bestStopIndex >= 0) {
+                log.debug "bestStopIndex >= 0"
+                int fmax = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStopIndex)
+                if (cds.strand == Strand.NEGATIVE.value) {
+                    int tmp = fmin
+                    fmin = fmax + 1
+                    fmax = tmp + 1
                 }
-                // get the projection from the transcript,
                 setFeatureLocations(cds, fmin, fmax, transcript)
-//                setFmin(cds, fmin, multiSequenceProjection);
-//                cds.firstFeatureLocation.setIsFminPartial(false);
-//                setFmax(cds, fmax, multiSequenceProjection);
-//                cds.lastFeatureLocation.setIsFmaxPartial(partialStop);
-            } else {
-//                setFmin(cds, transcript.getFmin(), multiSequenceProjection);
-//                cds.firstFeatureLocation.setIsFminPartial(true);
-                String aa = SequenceTranslationHandler.translateSequence(mrna, translationTable, true, readThroughStopCodon);
-                if (aa.substring(aa.length() - 1).equals(TranslationTable.STOP)) {
-                    setFeatureLocations(cds, transcript.fmin, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3), multiSequenceProjection)
-//                    setFmax(cds, convertModifiedLocalCoordinateToSourceCoordinate(transcript, aa.length() * 3), multiSequenceProjection);
-                    cds.lastFeatureLocation.setIsFmaxPartial(false);
-                } else {
-                    setFeatureLocations(cds, transcript.fmin, transcript.fmax, multiSequenceProjection)
-//                    setFmax(cds, transcript.getFmax(), multiSequenceProjection);
-//                    cds.lastFeatureLocation.setIsFmaxPartial(true);
-                }
             }
+            else {
+                log.debug "bestStopIndex < 0"
+                int fmax = transcript.strand == Strand.NEGATIVE.value ? transcript.fmin : transcript.fmax
+                if (cds.strand == Strand.NEGATIVE.value) {
+                    int tmp = fmin
+                    fmin = fmax
+                    fmax = tmp + 1
+                }
+                setFeatureLocations(cds, fmin, fmax, transcript)
+            }
+
+            if (cds.isNegativeStrand()) {
+                cds.firstFeatureLocation.setIsFminPartial(partialStop)
+                cds.lastFeatureLocation.setIsFmaxPartial(partialStart)
+            }
+            else {
+                cds.firstFeatureLocation.setIsFminPartial(partialStart)
+                cds.lastFeatureLocation.setIsFmaxPartial(partialStop)
+            }
+
+            log.debug "Final CDS fmin: ${cds.fmin} fmax: ${cds.fmax}"
+
             if (readThroughStopCodon) {
                 String aa = SequenceTranslationHandler.translateSequence(getResiduesWithAlterationsAndFrameshifts(cds), translationTable, true, true);
                 int firstStopIndex = aa.indexOf(TranslationTable.STOP);
@@ -1129,18 +1185,8 @@ class FeatureService {
             cdsService.setManuallySetTranslationStart(cds, false);
             cdsService.setManuallySetTranslationEnd(cds, false);
         }
-
     }
 
-//    @Timed
-//    @Transactional
-//    public Feature convertJSONToFeature(JSONObject jsonFeature, Assemblage assemblage) {
-//        List<Sequence> sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
-//        if(!sequenceList || sequenceList.size()>1){
-//            log.error("trying to convert a feature that has multiple sequences: ${assemblage}")
-//        }
-//        return convertJSONToFeature(jsonFeature,sequenceList.first())
-//    }
 
     @Timed
     @Transactional
@@ -1942,6 +1988,7 @@ class FeatureService {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
+
         long start = System.currentTimeMillis();
         String finalOwnerString = generateOwnerString(gsolFeature)
         jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);

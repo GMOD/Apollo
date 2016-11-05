@@ -631,8 +631,10 @@ class RequestHandlingService {
         // this does a reverse projection
         featuresArray = featureProjectionService.projectTrack(featuresArray, assemblage, true)
         log.info "number of features: ${featuresArray?.size()}"
+        boolean useCDS = configWrapperService.useCDS()
         boolean suppressHistory = false
         boolean suppressEvents = false
+
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
             suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
         }
@@ -645,7 +647,10 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonTranscript = featuresArray.getJSONObject(i)
             jsonTranscript = permissionService.copyRequestValues(inputObject, jsonTranscript)
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, assemblage, suppressHistory)
+            if (jsonTranscript.has(FeatureStringEnum.USE_CDS.value)) {
+                useCDS = jsonTranscript.getBoolean(FeatureStringEnum.USE_CDS.value)
+            }
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, assemblage, suppressHistory, useCDS)
 
             // should automatically write to history
             transcript.save(flush: true)

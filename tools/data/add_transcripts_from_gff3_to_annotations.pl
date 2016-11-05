@@ -32,6 +32,7 @@ my $annotation_track_prefix = "";
 my $property_ontology = "feature_property";
 my $comment_type_out = "comment";
 my $property_type_out = "feature_property";
+my $disable_cds_recalculation = 0;
 my $organism;
 my $in = \*STDIN;
 my $username;
@@ -94,6 +95,7 @@ sub parse_options {
            "comment_type_out|C=s"   => \$comment_type_out,
            "property_type_out|S=s"  => \$property_type_out,
            "track_prefix|P=s"       => \$annotation_track_prefix,
+           "disable_cds_recalculation|X"   => \$disable_cds_recalculation,
            "success_log|l=s"        => \$success_log_file,
            "error_log|L=s"      => \$error_log_file,
            "skip|s=s"           => \$skip_file,
@@ -143,6 +145,7 @@ usage: $progname
     [--comment_type_out|-C <comment type used in server>]
     [--property_type_out|-S <feature property type used in server>]
     [--track_prefix|-P <annotation track prefix>]
+    [--disable_cds_recalculation|-X]
     [--input|-i <GFF3 file>]
     [--organism|-o <the name field used for your organism in WA2>]
     [--success_log|-l <success log file>]
@@ -187,6 +190,7 @@ usage: $progname
        [default: "$property_type_out"]
     P: annotation track prefix
        [default: "$annotation_track_prefix"]
+    X: disable the recalculation of CDS by Apollo for protein coding features
     i: input GFF3 file
        [default: STDIN]
     o: organism common name in Apollo instance
@@ -663,6 +667,9 @@ sub convert_mrna_feature {
     my $gene_json_feature = shift;
     my $cds_feature = undef;
     my $mrna_json_feature = convert_feature($features, $mrna_type_out, $name_attributes);
+    if ($disable_cds_recalculation) {
+        $mrna_json_feature->{use_cds} = "true";
+    }
     $mrna_json_feature->{parent} = $gene_json_feature;
     my $subfeatures = get_subfeatures($features);
 
