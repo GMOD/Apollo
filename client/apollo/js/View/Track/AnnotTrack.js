@@ -580,8 +580,6 @@ define([
                         var foldPoint = fold.foldPoint ;
                         if(foldPoint >= startBlock && foldPoint <= endBlock){
                             console.log('block values: '+startBlock + ' - '+ endBlock + ' vs fold poit: '+ foldPoint);
-                            var percentage = (foldPoint - startBlock ) / (endBlock - startBlock) * 100.0 ;
-                            console.log(percentage);
 
                             var content = document.createElement("div");
                             content.style.position = 'absolute';
@@ -601,6 +599,25 @@ define([
                             content.id = 'projectionGrid'+folds ;
 
                             // content.style.left = '120%';
+                            // subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+                            //     + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
+                            var featureEnd = feature.get('end');
+                            var featureStart = feature.get('start');
+                            if( typeof featureEnd == 'string' ){
+                                featureEnd = parseInt(featureEnd);
+                            }
+                            if( typeof featureStart == 'string' ) {
+                                featureStart = parseInt(featureStart);
+                            }
+                            var displayStart = Math.max( featureStart, containerStart );
+                            var displayEnd = Math.min( featureEnd, containerEnd );
+                            var featLength = displayEnd - displayStart;
+                            var blockWidth = block.endBase - block.startBase;
+                            // var featwidth = Math.max( this.minFeatWidth, (100 * ((displayEnd - displayStart) / blockWidth)));
+                            // var percentage = (foldPoint - startBlock ) / (endBlock - startBlock) * 100.0 ;
+                            var percentage = (100 * ((foldPoint - displayStart) / featLength)) ;
+                            console.log(percentage);
+
                             content.style.left = percentage+'%';
 
                             // TODO: move to added innerHTML
