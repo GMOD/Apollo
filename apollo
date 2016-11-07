@@ -55,7 +55,6 @@ function check_java(){
             exit 1 ;
         else
             echo "JDK 1.8 found: $javac_version"
-            exit 0 ;
         fi
     else
        echo "javac not installed.  Please install JDK 1.8."
