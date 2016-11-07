@@ -1,15 +1,11 @@
 # Apollo
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.59904.svg)](http://dx.doi.org/10.5281/zenodo.59904)
-
-
 ![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)
 [![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-<h1>
-<a href="https://github.com/GMOD/Apollo/releases/latest"><img src="https://github.com/GMOD/Apollo/blob/master/docs/images/download.png" width="35px" valign="bottom">&nbsp;Download the latest release<a>
-</h1>
+### [![](https://github.com/GMOD/Apollo/blob/master/docs/images/download_small.png)&nbsp;Download the latest release](https://github.com/GMOD/Apollo/releases/latest)
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
@@ -18,14 +14,16 @@ For general information on Apollo, go to [http://genomearchitect.org/](http://ge
 
 Complete Apollo installation and configuration instructions are available from the [Apollo documentation pages](http://genomearchitect.readthedocs.io/en/latest/)
 
-The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).
+The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
 
-## Quick-start guide
+## Setup guide
 
-The [quick-start guide](docs/Apollo2Build.md) shows how to easily get started with Apollo, and further setup steps are
-shown how to deploy on a production server with customized settings in the [setup guide](docs/Setup.md) and
-[configuration guide](docs/Configure.md).
+[Setup guide](docs/Setup.md) for deploying on production and [custom configuration guide](docs/Configure.md).  
+Launchable public Amazon EC2 images may also be found in most regions under the name 'Apollo' as well as [instructions for docker](docs/Setup.md#configure-for-docker). 
+
+The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
+
 
 ## Migrating data from older versions
 
