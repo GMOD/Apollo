@@ -583,12 +583,12 @@ define([
 
                             var content = document.createElement("div");
                             content.style.position = 'absolute';
-                            content.style.display = 'block';
+                            // content.style.display = 'block';
                             content.style.top = 0;
                             content.style.height = '100%';
                             content.style.width = '2px';
                             content.style.backgroundColor = 'blue';
-                            content.style.color = 'gray';
+                            content.style.color = 'red';
 
                             // content.style.borderStyle = 'solid';
                             // content.style.borderWidth = '2px 10px 4px 20px';
@@ -625,6 +625,7 @@ define([
 
 
                             block.domNode.appendChild(content);
+                            // track.gview.pinUnderlay.appendChild(content);
                         }
                     }
                 }
