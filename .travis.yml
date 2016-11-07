@@ -1,5 +1,11 @@
 sudo: required
 dist: trusty
+
+language: groovy
+
+jdk: 
+- oraclejdk8
+
 env:
 - DB=postgres
 - DB=mysql
@@ -14,9 +20,7 @@ before_install:
 before_script:
 - if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -e 'SET GLOBAL interactive_timeout=28800;'; mysql -e 'SET GLOBAL wait_timeout=28800;'; mysql -e 'SET GLOBAL connect_timeout=28800;';  mysql -e 'create database apollo'; fi;
 - if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
-language: groovy
-jdk: 
-  - oraclejdk8
+
 cache:
   directories:
     - extlib/
@@ -28,3 +32,4 @@ script:
     - jshint client/apollo/js
 after_success:
   - ./grailsw coveralls
+
