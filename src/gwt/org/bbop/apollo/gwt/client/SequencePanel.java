@@ -46,7 +46,6 @@ import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
-import org.gwtbootstrap3.extras.select.client.ui.Select;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +114,7 @@ public class SequencePanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         dataGrid.setWidth("100%");
-        getChadoExportStatus();
+
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
             public String getValue(SequenceInfo employee) {
@@ -232,7 +231,7 @@ public class SequencePanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS) && (organismChangeEvent.getCurrentOrganism()==null || !organismChangeEvent.getCurrentOrganism().equals(MainPanel.getInstance().getCurrentOrganism().getName()))){
+                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS) && (organismChangeEvent.getCurrentOrganism() == null || !organismChangeEvent.getCurrentOrganism().equals(MainPanel.getInstance().getCurrentOrganism().getName()))) {
                     Scheduler.get().scheduleDeferred(new Command() {
                         @Override
                         public void execute() {
@@ -274,6 +273,22 @@ public class SequencePanel extends Composite {
                     }
                 }
         );
+
+        Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if(MainPanel.getInstance().getCurrentUser()!=null) {
+                    if (MainPanel.getInstance().isCurrentUserAdmin()) {
+                        exportChadoButton.setVisible(true);
+                        getChadoExportStatus();
+                    } else {
+                        exportChadoButton.setVisible(false);
+                    }
+                    return false ;
+                }
+                return true ;
+            }
+        },100);
 
     }
 
@@ -490,8 +505,7 @@ public class SequencePanel extends Composite {
         selectedSequenceDisplay.clear();
         if (selectedSequenceInfoList.size() == 0) {
             selectedSequenceDisplay.setEnabled(false);
-        }
-        else {
+        } else {
             selectedSequenceDisplay.setEnabled(true);
             for (SequenceInfo s : selectedSequenceInfoList) {
                 Option option = new Option();
@@ -513,7 +527,7 @@ public class SequencePanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
-        if(MainPanel.getInstance().getSequencePanel().isVisible() || forceReload){
+        if (MainPanel.getInstance().getSequencePanel().isVisible() || forceReload) {
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
             dataGrid.redraw();
