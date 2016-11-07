@@ -1,6 +1,9 @@
 
 ## 2.0.5
 
+Features 
+
++ Upgraded to Java 8 
 + Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4.
 
 

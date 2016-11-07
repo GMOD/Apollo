@@ -22,7 +22,7 @@
         <javac srcdir="src/gwt" includes="**" encoding="utf-8"
                destdir="target/classes/gwt"
                includeantruntime="false"
-               source="1.7" target="1.7" nowarn="true"
+               source="1.8" target="1.8" nowarn="true"
                debug="true" debuglevel="lines,vars,source">
             <classpath refid="project.class.path"/>
         </javac>
