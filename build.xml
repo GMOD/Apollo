@@ -67,7 +67,7 @@
     </target>
 
 
-    <target name="build" depends="gwtc" description="Build this project"/>
+    <!--<target name="build" depends="gwtc" description="Build this project"/>-->
 
     <property name="grails-clean" value="false"/>
 
