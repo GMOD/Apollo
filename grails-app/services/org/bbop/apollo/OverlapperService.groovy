@@ -57,7 +57,7 @@ class OverlapperService implements Overlapper{
         return false
     }
 
-    private class CDSEntity {
+    public class CDSEntity {
         // POGO for handling CDS of individual exons
         int fmin;
         int fmax;
@@ -74,7 +74,7 @@ class OverlapperService implements Overlapper{
         return overlaps(cds1.fmin, cds1.fmax, cds2.fmin, cds2.fmax)
     }
     
-    private ArrayList<CDSEntity> getCDSEntities(CDS cds, List<Exon> exons) {
+    public ArrayList<CDSEntity> getCDSEntities(CDS cds, List<Exon> exons) {
         ArrayList<CDSEntity> cdsEntities = new ArrayList<CDSEntity>();
         HashMap<String,String> exonFrame = new HashMap<String,String>();
         for (Exon exon : exons) {
