@@ -574,7 +574,7 @@ class RequestHandlingService {
         }
 
         JSONArray jsonFeatures = new JSONArray()
-        features.each { feature ->
+        finalFeatures.each { feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
