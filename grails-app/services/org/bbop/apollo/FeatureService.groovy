@@ -656,6 +656,7 @@ class FeatureService {
                 }
             }
 
+            // TODO: Why is this even here?!?
             if (exon.getFeatureLocation().getStrand() == Strand.NEGATIVE.value) {
                 offset += exon.getFeatureLocation().getFmax() - exon.getFeatureLocation().getFmax();
             } else {
@@ -1061,46 +1062,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         boolean partialStart = false;
         boolean partialStop = false;
 
-        if (mrna.length() > 3) {
-            for (String startCodon : translationTable.getStartCodons()) {
-                // find the first start codon
-                startIndex = mrna.indexOf(startCodon)
-                while(startIndex >= 0) {
-                    String mrnaSubstring = mrna.substring(startIndex)
-                    String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
-                    if (aa.length() > longestPeptide.length()) {
-                        longestPeptide = aa
-                        bestStartIndex = startIndex
-                    }
-                    startIndex = mrna.indexOf(startCodon, startIndex + 1)
-                }
-            }
-
-            // Just in case the 5' end is missing, check to see if a longer
-            // translation can be obatained without looking for a start codon
-            startIndex = 0
-            while(startIndex < 3) {
-                String mrnaSubstring = mrna.substring(startIndex)
-                String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
-                if (aa.length() > longestPeptide.length()) {
-                    partialStart = true
-                    longestPeptide = aa
-                    bestStartIndex = startIndex
-                }
-                startIndex++
-            }
-        }
-
-        // check for partial stop
-        if (!longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
-            partialStop = true
-            bestStopIndex = -1
-        }
-        else {
-            stopIndex = bestStartIndex + (longestPeptide.length() * 3)
-            partialStop = false
-            bestStopIndex = stopIndex
-        }
+        (longestPeptide, bestStartIndex, bestStopIndex, partialStart, partialStop) = calculateLongestORF(mrna, translationTable, readThroughStopCodon)
 
         log.debug "bestStartIndex: ${bestStartIndex} bestStopIndex: ${bestStopIndex}; partialStart: ${partialStart} partialStop: ${partialStop}"
 
@@ -1165,6 +1127,57 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
+    public ArrayList calculateLongestORF(String mrna, TranslationTable translationTable, boolean readThroughStopCodon) {
+        String longestPeptide = "";
+        int bestStartIndex = -1;
+        int bestStopIndex = -1;
+        int startIndex = -1;
+        int stopIndex = -1;
+        boolean partialStart = false;
+        boolean partialStop = false;
+
+        if (mrna.length() > 3) {
+            for (String startCodon : translationTable.getStartCodons()) {
+                // find the first start codon
+                startIndex = mrna.indexOf(startCodon)
+                while(startIndex >= 0) {
+                    String mrnaSubstring = mrna.substring(startIndex)
+                    String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
+                    if (aa.length() > longestPeptide.length()) {
+                        longestPeptide = aa
+                        bestStartIndex = startIndex
+                    }
+                    startIndex = mrna.indexOf(startCodon, startIndex + 1)
+                }
+            }
+
+            // Just in case the 5' end is missing, check to see if a longer
+            // translation can be obatained without looking for a start codon
+            startIndex = 0
+            while(startIndex < 3) {
+                String mrnaSubstring = mrna.substring(startIndex)
+                String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
+                if (aa.length() > longestPeptide.length()) {
+                    partialStart = true
+                    longestPeptide = aa
+                    bestStartIndex = startIndex
+                }
+                startIndex++
+            }
+        }
+
+        // check for partial stop
+        if (!longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
+            partialStop = true
+            bestStopIndex = -1
+        }
+        else {
+            stopIndex = bestStartIndex + (longestPeptide.length() * 3)
+            partialStop = false
+            bestStopIndex = stopIndex
+        }
+        return [longestPeptide, bestStartIndex, bestStopIndex, partialStart, partialStop]
+    }
 
     @Timed
     @Transactional
@@ -2342,6 +2355,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return false
     }
 
+    def sortSequenceAlterationsInContextList(ArrayList<SequenceAlterationInContext> list) {
+        Collections.sort(list, new SequenceAlterationInContextPositionComparator<SequenceAlterationInContext>())
+        return list
+    }
+
     String getResiduesWithAlterations(Feature feature, Collection<SequenceAlteration> sequenceAlterations = new ArrayList<>()) {
         log.info "@getResiduesWithAlterations for feature: ${feature.uniqueName} with ${sequenceAlterations}"
         String residueString = null
@@ -2636,6 +2654,93 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return sequenceAlterationInContextList
     }
 
+    def getSequenceAlterationsInContextForFeature(Feature feature, Collection<SequenceAlteration> sequenceAlterations) {
+        List<SequenceAlterationInContext> sequenceAlterationInContextList = new ArrayList<>()
+        int featureFmin = feature.fmin
+        int featureFmax = feature.fmax
+
+        for (SequenceAlteration sequenceAlteration : sequenceAlterations) {
+            int alterationFmin = sequenceAlteration.fmin
+            int alterationFmax = sequenceAlteration.fmax
+            SequenceAlterationInContext sa = new SequenceAlterationInContext()
+            if ((alterationFmin >= featureFmin && alterationFmax <= featureFmax) &&
+                    (alterationFmax >= featureFmin && alterationFmax <= featureFmax)) {
+                // alteration is within feature
+                log.info "Alteration is within feature"
+                sa.fmin = alterationFmin
+                sa.fmax = alterationFmax
+                if (sequenceAlteration instanceof Insertion) {
+                    sa.instanceOf = Insertion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Deletion) {
+                    sa.instanceOf = Deletion.canonicalName
+                }
+                else if (sequenceAlteration instanceof Substitution) {
+                    sa.instanceOf = Substitution.canonicalName
+                }
+                sa.type == 'within'
+                sa.alterationType = sequenceAlteration.alterationType
+                sa.strand = sequenceAlteration.strand
+                sa.name = sequenceAlteration.name + '-inContext'
+                sa.originalAlterationUniqueName = sequenceAlteration.uniqueName
+                sa.offset = sequenceAlteration.offset
+                sa.alterationResidue = sequenceAlteration.alterationResidue
+                sequenceAlterationInContextList.add(sa)
+            }
+            else if ((alterationFmin >= featureFmin && alterationFmin <= featureFmax) &&
+                        (alterationFmax >= featureFmin && alterationFmax >= featureFmax)) {
+                // starts in the feature but ends outside the feature
+                log.info "Alteration starts in the feature but ends outside the feature"
+                int difference = alterationFmax - featureFmax
+                sa.fmin = alterationFmin
+                sa.fmax = Math.min(featureFmax, alterationFmax)
+                if (sequenceAlteration instanceof Insertion) {
+                    log.info "Alteration is instanceof Insertion"
+                    sa.instanceOf = Insertion.canonicalName
+                } else if (sequenceAlteration instanceof Deletion) {
+                    log.info "Alteration is instanceof Deletion"
+                    sa.instanceOf = Deletion.canonicalName
+                } else if (sequenceAlteration instanceof Substitution) {
+                    log.info "Alteration is instanceof Substitution"
+                    sa.instanceOf = Substitution.canonicalName
+                }
+                sa.type = 'exon-to-intron'
+                sa.alterationType = sequenceAlteration.alterationType
+                sa.strand = sequenceAlteration.strand
+                sa.name = sequenceAlteration.name + '-inContext'
+                sa.originalAlterationUniqueName = sequenceAlteration.uniqueName
+                sa.offset = sequenceAlteration.offset - difference
+                sa.alterationResidue = sequenceAlteration.alterationResidue.substring(0, sequenceAlteration.alterationResidue.length() - difference)
+                sequenceAlterationInContextList.add(sa)
+            }
+            else if ((alterationFmax <= featureFmin && alterationFmin <= featureFmax) &&
+                    (alterationFmax >= featureFmin && alterationFmax <= featureFmax)) {
+                // starts outside the feature but ends in the feature
+                int difference = featureFmin - alterationFmin
+                sa.fmin = Math.max(featureFmin, alterationFmin)
+                sa.fmax = alterationFmax
+                if (sequenceAlteration instanceof Insertion) {
+                    log.info "Alteration is instanceof Insertion"
+                    sa.instanceOf = Insertion.canonicalName
+                } else if (sequenceAlteration instanceof Deletion) {
+                    log.info "Alteration is instanceof Deletion"
+                    sa.instanceOf = Deletion.canonicalName
+                } else if (sequenceAlteration instanceof Substitution) {
+                    log.info "Alteration is instanceof Substitution"
+                    sa.instanceOf = Substitution.canonicalName
+                }
+                sa.type = 'intron-to-exon'
+                sa.alterationType = sequenceAlteration.alterationType
+                sa.strand = sequenceAlteration.strand
+                sa.name = sequenceAlteration.name + '-inContext'
+                sa.originalAlterationUniqueName = sequenceAlteration.uniqueName
+                sa.offset = sequenceAlteration.offset - difference
+                sa.alterationResidue = sequenceAlteration.alterationResidue.substring(difference, sequenceAlteration.alterationResidue.length())
+                sequenceAlterationInContextList.add(sa)
+            }
+        }
+        return sequenceAlterationInContextList
+    }
 
     public int convertModifiedLocalCoordinateToSourceCoordinate(Feature feature, int localCoordinate) {
         Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
