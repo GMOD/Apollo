@@ -287,7 +287,8 @@ class PreferenceService {
             }
 
             if(!assemblage){
-                Sequence sequence =  organism.sequences.first()
+                Sequence sequence =  trackName ? Sequence.findByNameAndOrganism(trackName,organism) : null
+                sequence = sequence ?: organism.sequences.first()
                 assemblage = assemblageService.generateAssemblageForSequence(sequence)
             }
 

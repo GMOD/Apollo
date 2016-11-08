@@ -4,9 +4,9 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.codehaus.groovy.grails.web.json.JSONWriter
 
 @Transactional
 class AssemblageService {
@@ -41,7 +41,7 @@ class AssemblageService {
             feature.featureLocations.each { featureLocation ->
                 // if the feature does not contain an identical feature location by feature and rank
 //                if ( featureLocationList.find() { return it.rank == featureLocation.rank && it.featureId == featureLocation.featureId } == null ){
-                    featureLocationList.add(featureLocation)
+                featureLocationList.add(featureLocation)
 //                }
             }
         }
@@ -187,9 +187,10 @@ class AssemblageService {
         JSONObject testSequence = new JSONObject()
         testSequence.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray)
         testSequence.put(FeatureStringEnum.ORGANISM.value, organism.id)
-        testSequence = standardizeSequenceList(testSequence)
+//        testSequence = standardizeSequenceList(testSequence)
 //        sequenceArray = testSequence.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-        String sanitizedSequenceArrayString = testSequence.getString(FeatureStringEnum.SEQUENCE_LIST.value)
+//        String sanitizedSequenceArrayString = testSequence.getString(FeatureStringEnum.SEQUENCE_LIST.value)
+        String sanitizedSequenceArrayString = getStandardizedSequenceString(testSequence)
 
         Assemblage assemblage = Assemblage.findByOrganismAndSequenceList(organism, sanitizedSequenceArrayString)
         assemblage = assemblage ?: new Assemblage(
@@ -299,16 +300,37 @@ class AssemblageService {
         return assemblages
     }
 
-    Assemblage convertJsonToAssemblage(JSONObject jsonObject) {
+
+    String getStandardizedSequenceString(JSONObject jsonObject) {
         standardizeSequenceList(jsonObject)
+
         JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
-        Assemblage assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
+
+        StringWriter stringWriter = new StringWriter()
+        JSONWriter jsonWriter = new JSONWriter(stringWriter)
+        jsonWriter.array()
+        for (seqObj in sequenceListArray) {
+            jsonWriter.object()
+            seqObj.keys().sort() { a, b -> a <=> b }.each { String it ->
+                jsonWriter.key(it).value(seqObj.get(it))
+            }
+            jsonWriter.endObject()
+        }
+        jsonWriter.endArray()
+        return stringWriter.toString()
+    }
+
+    Assemblage convertJsonToAssemblage(JSONObject jsonObject) {
+        String lookupString = getStandardizedSequenceString(jsonObject)
+
+        Assemblage assemblage = Assemblage.findBySequenceList(lookupString)
+
         // now let's try it by ID
         if (assemblage == null && jsonObject.id) {
             assemblage = Assemblage.findById(jsonObject.id)
         }
         if (assemblage == null) {
-            assemblage = Assemblage.findBySequenceList(sequenceListArray.toString())
+            assemblage = Assemblage.findBySequenceList(lookupString)
         }
         if (assemblage == null) {
             log.info "creating assemblage from ${jsonObject as JSON} "
@@ -318,8 +340,10 @@ class AssemblageService {
         }
 //        assemblage.id = jsonObject.id
         assemblage.projection = jsonObject.projection
-        assemblage.sequenceList = sequenceListArray.toString()
+        assemblage.sequenceList = lookupString
         assemblage.name = jsonObject.name ?: assemblage.name
+
+        JSONArray sequenceListArray = JSON.parse(jsonObject.getString(FeatureStringEnum.SEQUENCE_LIST.value)) as JSONArray
         if (!assemblage.name) {
             assemblage.name = generateAssemblageName(sequenceListArray)
         }
@@ -337,6 +361,7 @@ class AssemblageService {
         assemblage.save()
         return assemblage
     }
+
 
     @NotTransactional
     static Boolean isProjectionReferer(String inputString) {

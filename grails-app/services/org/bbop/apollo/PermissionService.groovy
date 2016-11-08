@@ -360,16 +360,18 @@ class PermissionService {
             organism = preferenceService.getOrganismFromPreferences(user, trackName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         }
 
-        Sequence sequence
+//        Sequence sequence = null
+        Assemblage assemblage = null
         if (!trackName) {
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
-        } else {
-            sequence = Sequence.findByNameAndOrganism(trackName, organism)
+            assemblage = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.assemblage
         }
+//        else {
+//            sequence = Sequence.findByNameAndOrganism(trackName, organism)
+//        }
 
-        if (!sequence && organism) {
-            sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
-        }
+//        if (!sequence && organism) {
+//            sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
+//        }
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
@@ -383,7 +385,6 @@ class PermissionService {
         }
 
 //        if (orderedSequences) {
-        Assemblage assemblage = null
         if (inputObject.track instanceof String) {
             if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
                 JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
@@ -409,7 +410,7 @@ class PermissionService {
                 }
                 println "assemblage sequence list ${assemblage} vs ${sequenceList} and ${inputObject as JSON}"
             } else {
-                sequence = Sequence.findByName(inputObject.track)
+                Sequence sequence = Sequence.findByName(inputObject.track)
                 if (sequence) {
                     assemblage = assemblageService.generateAssemblageForSequence(sequence)
                 }
