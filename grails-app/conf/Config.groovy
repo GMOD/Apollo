@@ -401,13 +401,13 @@ jbrowse {
         WebApollo{
             included = true
         }
-//        NeatHTMLFeatures{
-//            included = true
-//            linearGradient = 0
-//        }
-//        NeatCanvasFeatures{
-//            included = true
-//        }
+        NeatHTMLFeatures{
+            included = true
+            linearGradient = 0
+        }
+        NeatCanvasFeatures{
+            included = true
+        }
         RegexSequenceSearch{
             included = true
         }
