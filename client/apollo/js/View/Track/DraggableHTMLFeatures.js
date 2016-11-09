@@ -9,6 +9,8 @@ define( [
             'dijit/MenuSeparator',
             'dijit/PopupMenuItem',
             'dijit/Dialog',
+            'dojo/dom-construct',
+            'dojo/query',
             'jquery',
             'jqueryui/draggable',
             'JBrowse/Util', 
@@ -25,6 +27,8 @@ define( [
         dijitMenuSeparator,
         dijitPopupMenuItem,
         dijitDialog,
+        domConstruct,
+        query,
         $,
         draggable,
         Util, 
@@ -87,6 +91,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     constructor: function( args ) {
         //var coordinate = new Coordinate(3,2,)
         //Coordinate.spitOutSomething;
+        var thisB = this;
         this.gview = this.browser.view;
         // get a handle to on the main WA object
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
@@ -146,12 +151,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     },
 
+    getApollo: function(){
+        return window.parent;
+    },
+
     insertFolds: function(featureNode) {
 
         var intronCount = 0;
 
         // ignore if we have already processed this node
-        if (!dojo.hasClass(featureNode, "has-neat-introns")) {
+        if (this.refSeq.name.indexOf('location')>0 ) {
 
             // get the subfeatures nodes (only immediate children)
             var subNodesX = query('> .subfeature', featureNode);
@@ -196,9 +205,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 });
                 // insert introns between subfeature gaps
                 for (var i = 0; i < subNodes.length - 1; ++i) {
-                    var gap = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
+                    var leftNode = subNodes[i];
+                    var rightNode = subNodes[i+1];
+                    var regionFolded = false ;
+                    if(leftNode.subfeature.afeature && rightNode.subfeature.afeature){
+                        var leftEdge = leftNode.subfeature.afeature.location.fmax ;
+                        var rightEdge = rightNode.subfeature.afeature.location.fmin ;
+                        regionFolded = this.getApollo().regionContainsFolds(leftEdge,rightEdge,this.refSeq.name);
+                    }
+                    // var gap = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
                     //console.log("gap "+gap);
-                    if (gap > .02) {
+                    if (regionFolded) {
                         //console.log("gap of "+gap+" between "+i+" and "+(i+1));
 
                         var subLeft = subNodes[i].left + subNodes[i].width;
@@ -209,17 +226,56 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         //console.log("inserting left "+subLeft+" width "+subWidth);
 
                         var height = "100%";
+                        var totalHeight = "2000px";
+
+                        var mainContainer = $('#container');
 
                         // invert hat if reverse direction
-                        var dir = "50,5";
-                        if (direction == -1) dir = "50,95";
+                        // var dir = "40,5";
+                        // if (direction == -1) dir = "50,95";
+
+                        // by default should be a space of 100
+                        // the height should be the default height for the space though (not sure what that is)
+
+                        // var folds = this.getApollo().getFoldsForRegion(JSON.stringify(feature.afeature.location),block.startBase,block.endBase);
 
                         var str = "";
                         str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                         str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                        str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-                        str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+                        str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
+                        str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:1;opacity: 50;' shape-rendering='optimizeQuality' />";
                         str += "</svg>";
+
+                        // draw the left arrow
+                        str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        str += "style='position:absolute;z-index: 10;";  // this must be here and not in CSS file
+                        str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+                        // str += "<defs>";
+                        // str += '<marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" viewBox="0 0 20 20">';
+                        // str += '<path d="M0,0 L0,6 L9,3 z" fill="#f00" />';
+                        // str += '</marker></defs>';
+                        // str += '<line x1="5" y1="0" x2="5" y2="100" stroke="#000" stroke-width="2"  />';
+                        // str += '<line x1="5" y1="50" x2="40" y2="50" stroke="#000" stroke-width="5"  />';
+                        str += '<line x1="40" y1="50" x2="35" y2="25" stroke="#000" stroke-width="2"  />';
+                        str += '<line x1="40" y1="50" x2="35" y2="75" stroke="#000" stroke-width="2"  />';
+
+
+                        // str += '<line x1="95" y1="0" x2="95" y2="100" stroke="#000" stroke-width="2"  />';
+                        // str += '<line x1="95" y1="50" x2="60" y2="50" stroke="#000" stroke-width="5"  />';
+                        str += '<line x1="60" y1="50" x2="65" y2="25" stroke="#000" stroke-width="2"  />';
+                        str += '<line x1="60" y1="50" x2="65" y2="75" stroke="#000" stroke-width="2"  />';
+
+                        // str += "<polyline points='20,50 40,50 35,45 40,50 35,55' style='fill:none;stroke:orange;stroke-width:5;' shape-rendering='optimizeQuality' />";
+                        str += "</svg>";
+
+                        // draw the right arrow
+
+                        // var str = "";
+                        // str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        // str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+                        // str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+                        // str += "<polyline points='50,0 50,100' style='fill:none;stroke:blue;stroke-width:5' shape-rendering='optimizeQuality' />";
+                        // str += "</svg>";
 
                         // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
 

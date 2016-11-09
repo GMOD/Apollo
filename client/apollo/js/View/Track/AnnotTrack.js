@@ -5119,7 +5119,7 @@ define([
                      var fmin = feature.location.fmin;
                      var fmax = feature.location.fmax;
 
-                     var regionFolded = window.parent.regionContainsFolds(fmin,fmax,this.refSeq.name);
+                     var regionFolded = this.getApollo().regionContainsFolds(fmin,fmax,this.refSeq.name);
                      if(regionFolded===false) {
                          return false ;
                      }
