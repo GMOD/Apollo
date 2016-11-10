@@ -323,7 +323,7 @@ public class ProjectionService {
      * @param endBase    - end projected value
      * @return
      */
-    private static JSONArray getReversedFolds(MultiSequenceProjection projection, Long startBase, Long endBase) {
+    private static JSONArray getReversedFolds(MultiSequenceProjection projection, Integer startBase, Integer endBase) {
         JSONArray foldValues = new JSONArray();
         for (ProjectionSequence projectionSequence : projection.getProjectedSequences()) {
             DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence);
@@ -335,13 +335,21 @@ public class ProjectionService {
                 } else {
                     lastCoordinate = firstCoordate;
                     firstCoordate = coordinate;
-                    JSONObject jsonObject = new JSONObject();
-                    Long foldPoint = projection.projectReverseValue(firstCoordate.getMax());
-//                    if(foldPoint>=startBase && foldPoint <= endBase){
-                    jsonObject.put("foldPoint", new JSONNumber(foldPoint));
-                    jsonObject.put("left", new JSONNumber(firstCoordate.getMax()));
-                    jsonObject.put("right", new JSONNumber(lastCoordinate.getMin()));
-                    foldValues.set(foldValues.size(), jsonObject);
+
+                    Long leftEdge = discontinuousProjection.projectValue(firstCoordate.getMax());
+                    Long rightEdge = discontinuousProjection.projectValue(lastCoordinate.getMin());
+
+//                    GWT.log("startBase "+startBase + " vs left "+firstCoordate.getMax() + " projecteed left: " + discontinuousProjection.projectValue(firstCoordate.getMax()));
+//                    GWT.log("endBase "+endBase + " vs right "+lastCoordinate.getMin() + " projectied right: " + discontinuousProjection.projectValue(lastCoordinate.getMin()));
+
+                    if(leftEdge >= startBase && rightEdge <= endBase ){
+                        JSONObject jsonObject = new JSONObject();
+                        Long foldPoint = projection.projectReverseValue(firstCoordate.getMax());
+                        jsonObject.put("foldPoint", new JSONNumber(foldPoint));
+                        jsonObject.put("left", new JSONNumber(firstCoordate.getMax()));
+                        jsonObject.put("right", new JSONNumber(lastCoordinate.getMin()));
+                        foldValues.set(foldValues.size(), jsonObject);
+                    }
 //                    }
                 }
             }
@@ -354,8 +362,8 @@ public class ProjectionService {
 
         JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
 
-        Long fmin = Math.round(jsonObject.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
-        Long fmax = Math.round(jsonObject.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
+//        Long fmin = Math.round(jsonObject.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
+//        Long fmax = Math.round(jsonObject.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
         String sequenceString = jsonObject.get(FeatureStringEnum.SEQUENCE.getValue()).isString().stringValue();
 
 
@@ -367,9 +375,11 @@ public class ProjectionService {
         assemblageInfo.setSequenceList(assemblageSequenceList);
         MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
 
-        // TODO: filter for between fmin / fmax ?
-        Long startBase = Long.parseLong(startBaseString);
-        Long endBase = Long.parseLong(endBaseString);
+        // Note: parsing to a Long fails (renders 0).  Would have to parse to a double (or pass in a number) and move to a long.
+        Integer startBase = Integer.valueOf(startBaseString);
+        Integer endBase = Integer.valueOf(endBaseString);
+//        GWT.log("parsed startBase "+startBase + " from startBaseString '" + startBaseString+"'");
+//        GWT.log("parsed endBase "+endBase + " from endBaseString '" + endBaseString+"'");
         JSONArray foldPoints = getReversedFolds(multiSequenceProjection, startBase, endBase);
 
         return JsonUtils.safeEval(foldPoints.toString());
@@ -380,31 +390,24 @@ public class ProjectionService {
 //        JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
 //        GWT.log("input refseqname '"+refSeqString+"'");
         if (!refSeqString.endsWith("}")) {
-            String locationString = refSeqString.substring(refSeqString.lastIndexOf(":") + 1, refSeqString.length());
-            Long projectedFmin = Long.parseLong(locationString.split("\\.\\.")[0]);
-            Long projectedFmax = Long.parseLong(locationString.split("\\.\\.")[1]);
+//            String locationString = refSeqString.substring(refSeqString.lastIndexOf(":") + 1, refSeqString.length());
+//            Long projectedFmin = Long.parseLong(locationString.split("\\.\\.")[0]);
+//            Long projectedFmax = Long.parseLong(locationString.split("\\.\\.")[1]);
             refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
-//            GWT.log("location string: '"+locationString+"'");
         }
-        GWT.log("trying to parse refseq '" + refSeqString + "'");
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
-        GWT.log("parsed rfseq '" + refSeqString + "'");
 //        Long fmin = Math.round(referenceProjection.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
 //        Long fmax = Math.round(referenceProjection.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
 
 
-        JSONArray sequenceListArray = null;
+        JSONArray sequenceListArray ;
         if (referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString() != null) {
             String sequenceString = referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString().stringValue();
-            GWT.log("sequence string: '" + sequenceString + "'");
             sequenceListArray = JSONParser.parseStrict(sequenceString).isArray();
 
         } else {
             sequenceListArray = referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
         }
-
-        GWT.log("sequenc elist array '" + sequenceListArray + "'");
-
 
         AssemblageSequenceList assemblageSequenceList = AssemblageInfoConverter.convertJSONArrayToSequenceList(sequenceListArray);
         AssemblageInfo assemblageInfo = new AssemblageInfo();
@@ -412,12 +415,13 @@ public class ProjectionService {
         MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
 
         // TODO: filter for between fmin / fmax ?
-        Long startBase = Long.parseLong(startBaseString);
-        Long endBase = Long.parseLong(endBaseString);
+        Integer startBase = Integer.parseInt(startBaseString);
+        Integer endBase = Integer.parseInt(endBaseString);
 
         // these might be the same as above
 
         JSONArray foldPoints = getReversedFolds(multiSequenceProjection, startBase, endBase);
+        GWT.log(foldPoints.toString());
 
         return JsonUtils.safeEval(foldPoints.toString());
     }

@@ -212,7 +212,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     if(leftNode.subfeature.afeature && rightNode.subfeature.afeature){
                         var leftEdge = leftNode.subfeature.afeature.location.fmax ;
                         var rightEdge = rightNode.subfeature.afeature.location.fmin ;
-                        console.log("input name: '"+this.refSeq.name+"'");
                         regionFolded = this.getApollo().regionContainsFolds(leftEdge,rightEdge,this.refSeq.name);
                         folds = this.getApollo().getFoldsForRegion(this.refSeq.name,leftEdge,rightEdge);
                     }
@@ -279,13 +278,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         str += "left: " + left+ "px;width: " + width + "px;height: " + height + "'>";
 
                         var leftOffset = (-this.scale * 80.0)  ;
+                        var fold = folds[0];
+                        // console.log('number of folds: '+folds.length) ;
+                        var leftValue = fold.left ;
+                        var rightValue = fold.right ;
                         if(leftOffset){
                             // draw the right arrow
                             str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
-                            str += 'LHS value';
+                            str += leftValue ;
                             str += '</text>';
                             str += '<text text-anchor="start" x="250" y="80" font-family="Verdana" font-size="54">'
-                            str += 'RHS value';
+                            str += rightValue ;
                             str += '</text>';
                             str += "</svg>";
                         }
