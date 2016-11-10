@@ -208,10 +208,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     var leftNode = subNodes[i];
                     var rightNode = subNodes[i+1];
                     var regionFolded = false ;
+                    var folds = null ;
                     if(leftNode.subfeature.afeature && rightNode.subfeature.afeature){
                         var leftEdge = leftNode.subfeature.afeature.location.fmax ;
                         var rightEdge = rightNode.subfeature.afeature.location.fmin ;
+                        console.log("input name: '"+this.refSeq.name+"'");
                         regionFolded = this.getApollo().regionContainsFolds(leftEdge,rightEdge,this.refSeq.name);
+                        folds = this.getApollo().getFoldsForRegion(this.refSeq.name,leftEdge,rightEdge);
                     }
                     // var gap = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
                     //console.log("gap "+gap);
@@ -275,15 +278,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         str += "style='position:absolute;z-index: 5000;";  // this must be here and not in CSS file
                         str += "left: " + left+ "px;width: " + width + "px;height: " + height + "'>";
 
-                        var leftOffset = (-this.scale * 80)  ;
-                        // draw the right arrow
-                        str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
-                        str += 'LHS value';
-                        str += '</text>';
-                        str += '<text text-anchor="start" x="250" y="80" font-family="Verdana" font-size="54">'
-                        str += 'RHS value';
-                        str += '</text>';
-                        str += "</svg>";
+                        var leftOffset = (-this.scale * 80.0)  ;
+                        if(leftOffset){
+                            // draw the right arrow
+                            str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
+                            str += 'LHS value';
+                            str += '</text>';
+                            str += '<text text-anchor="start" x="250" y="80" font-family="Verdana" font-size="54">'
+                            str += 'RHS value';
+                            str += '</text>';
+                            str += "</svg>";
+                        }
 
                         // var str = "";
                         // str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";

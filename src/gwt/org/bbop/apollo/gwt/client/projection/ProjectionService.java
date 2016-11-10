@@ -27,7 +27,6 @@ import java.util.Map;
 public class ProjectionService {
 
 
-
     // TODO: cache this instead of rebuilding
     private static Map<String, MultiSequenceProjection> projectionMap = new HashMap<>();
 
@@ -261,12 +260,12 @@ public class ProjectionService {
         return multiSequenceProjection.getLength();
     }
 
-    public static boolean regionContainsFolds(String fminString,String fmaxString,String referenceSequenceString) {
+    public static boolean regionContainsFolds(String fminString, String fmaxString, String referenceSequenceString) {
         Integer fmin = Integer.parseInt(fminString);
         Integer fmax = Integer.parseInt(fmaxString);
         MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
-        Coordinate reverseCoordinate = multiSequenceProjection.projectReverseCoordinate((long) fmin,(long) fmax);
-        return (fmax-fmin != reverseCoordinate.getMax()-reverseCoordinate.getMin());
+        Coordinate reverseCoordinate = multiSequenceProjection.projectReverseCoordinate((long) fmin, (long) fmax);
+        return (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
     }
 
     private static void projectFeatures(String features, String refSeqString) {
@@ -274,7 +273,7 @@ public class ProjectionService {
 
         JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
 
-        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
@@ -286,7 +285,7 @@ public class ProjectionService {
 
         JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
 
-        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
@@ -299,7 +298,7 @@ public class ProjectionService {
 
         JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
 
-        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
@@ -311,7 +310,7 @@ public class ProjectionService {
 
         JSONArray featuresArray = JSONParser.parseStrict(features).isArray();
 
-        refSeqString = refSeqString.substring(0,refSeqString.lastIndexOf(":"));
+        refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
         projectionCommand.put(FeatureStringEnum.SEQUENCE.getValue(), referenceProjection);
         projectionCommand.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
@@ -319,32 +318,30 @@ public class ProjectionService {
     }
 
     /**
-     *
      * @param projection
-     * @param startBase - start projected value
-     * @param endBase - end projected value
+     * @param startBase  - start projected value
+     * @param endBase    - end projected value
      * @return
      */
-    private static JSONArray getReversedFolds(MultiSequenceProjection projection,Long startBase,Long endBase) {
+    private static JSONArray getReversedFolds(MultiSequenceProjection projection, Long startBase, Long endBase) {
         JSONArray foldValues = new JSONArray();
-        for(ProjectionSequence projectionSequence : projection.getProjectedSequences()){
+        for (ProjectionSequence projectionSequence : projection.getProjectedSequences()) {
             DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence);
             Coordinate firstCoordate = null;
             Coordinate lastCoordinate = null;
-            for(Coordinate coordinate : discontinuousProjection.getCoordinates()){
-                if(firstCoordate==null){
-                    firstCoordate = coordinate ;
-                }
-                else{
+            for (Coordinate coordinate : discontinuousProjection.getCoordinates()) {
+                if (firstCoordate == null) {
+                    firstCoordate = coordinate;
+                } else {
                     lastCoordinate = firstCoordate;
-                    firstCoordate = coordinate ;
+                    firstCoordate = coordinate;
                     JSONObject jsonObject = new JSONObject();
                     Long foldPoint = projection.projectReverseValue(firstCoordate.getMax());
 //                    if(foldPoint>=startBase && foldPoint <= endBase){
-                        jsonObject.put("foldPoint",new JSONNumber(foldPoint));
-                        jsonObject.put("left",new JSONNumber(firstCoordate.getMax()));
-                        jsonObject.put("right",new JSONNumber(lastCoordinate.getMin()));
-                        foldValues.set(foldValues.size(),jsonObject);
+                    jsonObject.put("foldPoint", new JSONNumber(foldPoint));
+                    jsonObject.put("left", new JSONNumber(firstCoordate.getMax()));
+                    jsonObject.put("right", new JSONNumber(lastCoordinate.getMin()));
+                    foldValues.set(foldValues.size(), jsonObject);
 //                    }
                 }
             }
@@ -353,7 +350,7 @@ public class ProjectionService {
         return foldValues;
     }
 
-    private static JavaScriptObject getFolds(String locationString,String startBaseString,String endBaseString) {
+    private static JavaScriptObject getFolds(String locationString, String startBaseString, String endBaseString) {
 
         JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
 
@@ -373,7 +370,54 @@ public class ProjectionService {
         // TODO: filter for between fmin / fmax ?
         Long startBase = Long.parseLong(startBaseString);
         Long endBase = Long.parseLong(endBaseString);
-        JSONArray foldPoints = getReversedFolds(multiSequenceProjection,startBase,endBase);
+        JSONArray foldPoints = getReversedFolds(multiSequenceProjection, startBase, endBase);
+
+        return JsonUtils.safeEval(foldPoints.toString());
+    }
+
+    private static JavaScriptObject getFoldsForRegion(String refSeqString, String startBaseString, String endBaseString) {
+
+//        JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
+//        GWT.log("input refseqname '"+refSeqString+"'");
+        if (!refSeqString.endsWith("}")) {
+            String locationString = refSeqString.substring(refSeqString.lastIndexOf(":") + 1, refSeqString.length());
+            Long projectedFmin = Long.parseLong(locationString.split("\\.\\.")[0]);
+            Long projectedFmax = Long.parseLong(locationString.split("\\.\\.")[1]);
+            refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
+//            GWT.log("location string: '"+locationString+"'");
+        }
+        GWT.log("trying to parse refseq '" + refSeqString + "'");
+        JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
+        GWT.log("parsed rfseq '" + refSeqString + "'");
+//        Long fmin = Math.round(referenceProjection.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
+//        Long fmax = Math.round(referenceProjection.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
+
+
+        JSONArray sequenceListArray = null;
+        if (referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString() != null) {
+            String sequenceString = referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString().stringValue();
+            GWT.log("sequence string: '" + sequenceString + "'");
+            sequenceListArray = JSONParser.parseStrict(sequenceString).isArray();
+
+        } else {
+            sequenceListArray = referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
+        }
+
+        GWT.log("sequenc elist array '" + sequenceListArray + "'");
+
+
+        AssemblageSequenceList assemblageSequenceList = AssemblageInfoConverter.convertJSONArrayToSequenceList(sequenceListArray);
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        assemblageInfo.setSequenceList(assemblageSequenceList);
+        MultiSequenceProjection multiSequenceProjection = createProjectionFromAssemblageInfo(assemblageInfo);
+
+        // TODO: filter for between fmin / fmax ?
+        Long startBase = Long.parseLong(startBaseString);
+        Long endBase = Long.parseLong(endBaseString);
+
+        // these might be the same as above
+
+        JSONArray foldPoints = getReversedFolds(multiSequenceProjection, startBase, endBase);
 
         return JsonUtils.safeEval(foldPoints.toString());
     }
@@ -392,6 +436,7 @@ public class ProjectionService {
         $wnd.foldBetweenExons = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::foldBetweenExons(Ljava/lang/String;Ljava/lang/String;));
         $wnd.removeFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::removeFolds(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getFolds(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+        $wnd.getFoldsForRegion = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getFoldsForRegion(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
 }
