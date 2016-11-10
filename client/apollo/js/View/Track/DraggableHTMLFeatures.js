@@ -228,7 +228,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         var height = "100%";
                         var totalHeight = "2000px";
 
-                        var mainContainer = $('#container');
+                        // var mainContainer = $('#container');
 
                         // invert hat if reverse direction
                         // var dir = "40,5";
@@ -240,14 +240,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         // var folds = this.getApollo().getFoldsForRegion(JSON.stringify(feature.afeature.location),block.startBase,block.endBase);
 
                         var str = "";
-                        str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+
+                        // this is the back divider line . . .
+                        str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                         str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
                         str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
                         str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:1;opacity: 50;' shape-rendering='optimizeQuality' />";
                         str += "</svg>";
 
                         // draw the left arrow
-                        str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                         str += "style='position:absolute;z-index: 10;";  // this must be here and not in CSS file
                         str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
                         // str += "<defs>";
@@ -268,7 +270,20 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         // str += "<polyline points='20,50 40,50 35,45 40,50 35,55' style='fill:none;stroke:orange;stroke-width:5;' shape-rendering='optimizeQuality' />";
                         str += "</svg>";
 
+                        // this is the text place
+                        str += "<svg  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        str += "style='position:absolute;z-index: 5000;";  // this must be here and not in CSS file
+                        str += "left: " + left+ "px;width: " + width + "px;height: " + height + "'>";
+
+                        var leftOffset = (-this.scale * 80)  ;
                         // draw the right arrow
+                        str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
+                        str += 'LHS value';
+                        str += '</text>';
+                        str += '<text text-anchor="start" x="250" y="80" font-family="Verdana" font-size="54">'
+                        str += 'RHS value';
+                        str += '</text>';
+                        str += "</svg>";
 
                         // var str = "";
                         // str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
@@ -280,6 +295,17 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
 
                         domConstruct.place(str, featureNode);
+                        //
+                        // // just create a simple div
+                        //
+                        //
+                        // var foldLabelDiv= dojo.create("div", featureNode);
+                        // foldLabelDiv.style.left = left+'px';
+                        // foldLabelDiv.style.height = height;
+                        // foldLabelDiv.innerHTML = "LHS Label";
+                        // foldLabelDiv.style.position = 'absolute' ;
+                        // foldLabelDiv.style.display = 'block' ;
+
 
                         intronCount++;
 
