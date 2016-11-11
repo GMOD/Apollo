@@ -64,6 +64,7 @@ public class MainPanel extends Composite {
     public static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
+    private static final String openAnnotatorPanelString = "&openAnnotatorPanel=";
 
     private static boolean handlingNavEvent = false;
 
@@ -466,6 +467,21 @@ public class MainPanel extends Composite {
             }
 
             MainPanel.useNativeTracklist = showTrackValue ;
+        }
+        if(trackListString.contains(openAnnotatorPanelString)){
+            String positiveString = openAnnotatorPanelString+"1";
+            String negativeString = openAnnotatorPanelString+"0";
+            if(trackListString.contains(positiveString)){
+                trackListString = trackListString.replace(positiveString,"");
+                MainPanel.getInstance().openPanel();
+            }
+            else
+            if(trackListString.contains(negativeString)){
+                trackListString = trackListString.replace(negativeString,"");
+                MainPanel.getInstance().closePanel();
+            }
+
+
         }
         // otherwise we use the nativeTrackList
         else{
