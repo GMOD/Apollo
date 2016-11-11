@@ -521,6 +521,7 @@ public class MainPanel extends Composite {
         else{
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
+        trackListString += "&locationBox=none";
 
         frame.setUrl(trackListString);
     }
