@@ -240,7 +240,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         }
 
 
-                        console.log('scale: '+this.scale);
+                        // console.log('scale: '+this.scale);
+                        // console.log(this.gview.pxPerBp);
+                        // console.log(this.curZoom);
                         if(this.scale >=2){
                             var fold = folds[0];
                             var leftValue = Util.addCommas(fold.left) ;
