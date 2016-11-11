@@ -301,7 +301,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 
                         console.log('scale: '+this.scale);
-                        if(this.scale >=1.7){
+                        if(this.scale >=2){
                             var fold = folds[0];
                             var leftValue = Util.addCommas(fold.left) ;
                             var rightValue = Util.addCommas(fold.right) ;
@@ -309,7 +309,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             var projectionId = "projectionLabels"+leftValue+""+rightValue;
 
                             var leftX = width / 2.0 - (width * 0.05) - (leftValue.length *10) ;
-                            var rightX = width / 2.0 + (width * 0.05) ;
+                            var rightX = width / 2.0 + (width * 0.02) ;
 
                             console.log(leftX + " <-> "+rightX  );
 
@@ -318,9 +318,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                 str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                                 str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
                                 // draw the right arrow
+                                str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
                                 str += '<text text-anchor="start" x="'+leftX+'" y="20" font-family="Verdana" font-size="14">'
                                 str += leftValue ;
                                 str += '</text>';
+                                str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
                                 str += '<text text-anchor="start" x="'+rightX+'" y="20" font-family="Verdana" font-size="14">'
                                 str += rightValue ;
                                 str += '</text>';
