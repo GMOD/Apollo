@@ -246,11 +246,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
                         // TODO: only show once!
                         // this is the back divider line . . .
-                        str += "<svg id='projectionFoldDivider"+left+"' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                        str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
-                        str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:1;opacity: 50;' shape-rendering='optimizeQuality' />";
-                        str += "</svg>";
+                        var dividerId = 'projectionFoldDivider'+left;
+                        if(!document.getElementById(dividerId)){
+                            str += "<svg id='"+dividerId+"' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                            str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+                            str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
+                            str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:1;opacity: 50;' shape-rendering='optimizeQuality' />";
+                            str += "</svg>";
+                        }
 
                         // draw the left arrow
                         // str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
@@ -301,7 +304,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 
                         console.log('scale: '+this.scale);
-                        if(this.scale >=2){
+                        if(this.scale >=1){
                             var fold = folds[0];
                             var leftValue = Util.addCommas(fold.left) ;
                             var rightValue = Util.addCommas(fold.right) ;
@@ -318,12 +321,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                 str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                                 str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
                                 // draw the right arrow
-                                str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
-                                str += '<text text-anchor="start" x="'+leftX+'" y="20" font-family="Verdana" font-size="14">'
+                                // str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+                                // console.log('leftx: '+leftX);
+                                str += '<rect x="0" y ="0" width="'+(leftValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(-90 0 0) translate(-90 '+(width/2.0  - 25 ) +')"></rect>'
+                                // console.log('leftx: '+leftX);
+                                str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14"  transform="rotate(-90 0 0) translate(-80 '+(width/2.0 - 10) +') ">';
                                 str += leftValue ;
                                 str += '</text>';
-                                str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
-                                str += '<text text-anchor="start" x="'+rightX+'" y="20" font-family="Verdana" font-size="14">'
+                                // str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+                                str += '<rect x="0" y ="0" width="'+(rightValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(90 0 0) translate(20 '+((-1*(width/2.0)) - 25) +')"></rect>'
+                                str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
                                 str += rightValue ;
                                 str += '</text>';
                                 str += "</svg>";
