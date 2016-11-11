@@ -215,96 +215,33 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         regionFolded = this.getApollo().regionContainsFolds(leftEdge,rightEdge,this.refSeq.name);
                         folds = this.getApollo().getFoldsForRegion(this.refSeq.name,leftEdge,rightEdge);
                     }
-                    // var gap = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
-                    //console.log("gap "+gap);
                     // TODO: just use 'folds' at some point
                     if (regionFolded) {
-                        //console.log("gap of "+gap+" between "+i+" and "+(i+1));
-
                         var subLeft = subNodes[i].left + subNodes[i].width;
                         var subWidth = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
 
                         var left = subLeft;
                         var width = subWidth;
-                        //console.log("inserting left "+subLeft+" width "+subWidth);
 
                         var height = "100%";
                         var totalHeight = "2000px";
 
-                        // var mainContainer = $('#container');
-
-                        // invert hat if reverse direction
-                        // var dir = "40,5";
-                        // if (direction == -1) dir = "50,95";
-
-                        // by default should be a space of 100
-                        // the height should be the default height for the space though (not sure what that is)
-
-                        // var folds = this.getApollo().getFoldsForRegion(JSON.stringify(feature.afeature.location),block.startBase,block.endBase);
-
                         var str = "";
 
-                        // TODO: only show once!
                         // this is the back divider line . . .
                         var dividerId = 'projectionFoldDivider'+left;
                         if(!document.getElementById(dividerId)){
+                            var strokeWidth = 5.0 / this.scale   ;
                             str += "<svg id='"+dividerId+"' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                             str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
                             str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
-                            str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:1;opacity: 50;' shape-rendering='optimizeQuality' />";
+                            str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:"+strokeWidth+";' shape-rendering='optimizeQuality' />";
                             str += "</svg>";
                         }
 
-                        // draw the left arrow
-                        // str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        // str += "style='position:absolute;z-index: 10;";  // this must be here and not in CSS file
-                        // str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-                        // // str += "<defs>";
-                        // // str += '<marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" viewBox="0 0 20 20">';
-                        // // str += '<path d="M0,0 L0,6 L9,3 z" fill="#f00" />';
-                        // // str += '</marker></defs>';
-                        // // str += '<line x1="5" y1="0" x2="5" y2="100" stroke="#000" stroke-width="2"  />';
-                        // // str += '<line x1="5" y1="50" x2="40" y2="50" stroke="#000" stroke-width="5"  />';
-                        // str += '<line x1="40" y1="50" x2="35" y2="25" stroke="#000" stroke-width="2"  />';
-                        // str += '<line x1="40" y1="50" x2="35" y2="75" stroke="#000" stroke-width="2"  />';
-                        //
-                        //
-                        // // str += '<line x1="95" y1="0" x2="95" y2="100" stroke="#000" stroke-width="2"  />';
-                        // // str += '<line x1="95" y1="50" x2="60" y2="50" stroke="#000" stroke-width="5"  />';
-                        // str += '<line x1="60" y1="50" x2="65" y2="25" stroke="#000" stroke-width="2"  />';
-                        // str += '<line x1="60" y1="50" x2="65" y2="75" stroke="#000" stroke-width="2"  />';
-                        //
-                        // // str += "<polyline points='20,50 40,50 35,45 40,50 35,55' style='fill:none;stroke:orange;stroke-width:5;' shape-rendering='optimizeQuality' />";
-                        // str += "</svg>";
-
-                        // this is the text place
-                        // str += "<svg  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        // str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
-                        // str += "left: " + left+ "px;width: " + width + "px;height: " + height + "'>";
-                        //
-                        // var leftOffset = (-this.scale * 80.0)  ;
-                        // var fold = folds[0];
-                        // console.log('number of folds: '+folds.length) ;
-                        // var leftValue = fold.left ;
-                        // var rightValue = fold.right ;
-                        //
-                        // console.log(this.scale +' ' + leftOffset);
-                        // console.log(left+' ' + width);
-                        //
-                        // if(leftOffset){
-                        //     // draw the right arrow
-                        //     str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
-                        //     str += leftValue ;
-                        //     str += '</text>';
-                        //     str += '<text text-anchor="start" x="52" y="80" font-family="Verdana" font-size="54">'
-                        //     str += rightValue ;
-                        //     str += '</text>';
-                        //     str += "</svg>";
-                        // }
-
 
                         console.log('scale: '+this.scale);
-                        if(this.scale >=1){
+                        if(this.scale >=2){
                             var fold = folds[0];
                             var leftValue = Util.addCommas(fold.left) ;
                             var rightValue = Util.addCommas(fold.right) ;
@@ -337,26 +274,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             }
                         }
 
-                        // var str = "";
-                        // str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        // str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                        // str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-                        // str += "<polyline points='50,0 50,100' style='fill:none;stroke:blue;stroke-width:5' shape-rendering='optimizeQuality' />";
-                        // str += "</svg>";
 
-                        // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
-
-                        domConstruct.place(str, featureNode);
-                        //
-                        // // just create a simple div
-                        //
-                        //
-                        // var foldLabelDiv= dojo.create("div", featureNode);
-                        // foldLabelDiv.style.left = left+'px';
-                        // foldLabelDiv.style.height = height;
-                        // foldLabelDiv.innerHTML = "LHS Label";
-                        // foldLabelDiv.style.position = 'absolute' ;
-                        // foldLabelDiv.style.display = 'block' ;
+                        console.log('str length: '+str.length + ' for ' + str);
+                        if(str.length >0){
+                            domConstruct.place(str, featureNode);
+                        }
 
 
                         intronCount++;
@@ -364,38 +286,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }
                 }
             }
-            // TODO: handle the
-            // else if (subNodes.length == 1) {
-            //     var height = "100%";
-            //     console.dir(subNodes);
-            //     for (var i = 0; i < subNodes.length; i++) {
-            //         console.log(i + " subfeature left,width: " + subNodes[i].left + ", " + subNodes[i].width);
-            //     }
-            //     var subLeft = subNodes[0].left + subNodes[0].width;
-            //     // var subWidth = subNodes[i + 1].left - (subNodes[0].left + subNodes[0].width);
-            //     var subWidth = featureNode.left - (subNodes[0].left + subNodes[0].width);
-            //     // var subWidth = "100%";
-            //
-            //     var left = subLeft;
-            //     var width = subWidth;
-            //
-            //     // invert hat if reverse direction
-            //     var dir = "50,5";
-            //     if (direction == -1) dir = "50,95";
-            //
-            //     var str = "";
-            //     str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-            //     str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-            //     str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-            //     str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
-            //     str += "</svg>";
-            //
-            //     // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
-            //
-            //     domConstruct.place(str, featureNode);
-            //
-            //     intronCount++;
-            // }
 
             if (intronCount) {
                 // mark that we have processed this node
@@ -418,8 +308,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             this.selectionManager.removeListener(this);
         }
         this.selectionManager = selman;
-        // FeatureSelectionManager listeners must implement
-        //     selectionAdded() and selectionRemoved() response methods
         this.selectionManager.addListener(this);
         return selman;
     },
