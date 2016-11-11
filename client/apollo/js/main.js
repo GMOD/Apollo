@@ -748,24 +748,6 @@ return declare( [JBPlugin, HelpMixin],
                     var counter = 0 ;
                     currentBookmark = obj ;
 
-
-                    //if( thisB.browser.locationBox ){
-                    //    thisB.browser.locationBox.set('value',obj.label, false);
-                    //}
-
-                    //if( thisB.browser.locationBox ){
-                    //    thisB.browser.locationBox.set('style','width: 34ex;');
-                    //    thisB.browser.locationBox.set('value',obj.name, false);
-                    //    thisB.browser.locationBox.set('value',obj.name, false);
-                    //}
-
-                    // update the id=location-box if it exists
-                    //var node = dojo.byId("location-info");
-                    //if (node) {
-                    //    //node.html.set(node, "<h3>BIG</h3>");
-                    //    thisB.browser.locationBox.set('value',"", false);
-                    //}
-
                     dojo.addOnLoad(function() {
                         if(!thisB.replaceSearchBox){
                             //dojo.style(dojo.byId('search-refseq'), "display", "none");
@@ -777,25 +759,6 @@ return declare( [JBPlugin, HelpMixin],
                         }
                     });
 
-                    //dojo.addOnLoad(function() {
-                    //    // console.log(borderContainer);
-                    //
-                    //    if(counter==0){
-                    //        var searchBox = dojo.byId('search-box');
-                    //        dojo.style(searchBox, "display", "none");
-                    //        if(obj.hasOwnProperty("name")){
-                    //            // TODO: add something next to search-box that displays something slightly different
-                    //            // bookmark name + location . . . pasting it in should call browser "GO" function
-                    //            // should call Browser.navigateTo . . with the browser location stuff
-                    //            // we cann actually store the bookmark data here
-                    //        }
-                    //        var borderContainer = dijit.byId('GenomeBrowser');
-                    //        borderContainer.resize();
-                    //    }
-                    //    counter = 1 ;
-                    //
-                    //    // dojo.style(dojo.byId('search-refseq'), "display", "none");
-                    //});
                 }
                 else{
                     currentBookmark = null ;

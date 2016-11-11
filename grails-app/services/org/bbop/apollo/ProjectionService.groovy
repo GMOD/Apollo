@@ -196,9 +196,17 @@ class ProjectionService {
 //            else
             if (sequenceObject.containsKey(FeatureStringEnum.FEATURE.value) && sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).containsKey(FeatureStringEnum.LOCATION.value)) {
                 addCoordinates(sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getJSONArray(FeatureStringEnum.LOCATION.value), multiSequenceProjection, projectionSequence)
-            } else if (sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)) {
+            }
+            else if (sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)) {
                 addCoordinates(sequenceObject.getJSONArray(FeatureStringEnum.LOCATION.value), multiSequenceProjection, projectionSequence)
-            } else {
+            }
+            else if (sequenceObject.containsKey(FeatureStringEnum.NAME.value)) {
+                JSONObject locationObject = new JSONObject()
+                locationObject.put(FeatureStringEnum.FMIN.value,sequenceObject.getInt(FeatureStringEnum.START.value))
+                locationObject.put(FeatureStringEnum.FMAX.value,sequenceObject.getInt(FeatureStringEnum.END.value))
+                addCoordinates(locationObject, multiSequenceProjection, projectionSequence)
+            }
+            else {
                 if (true) throw new RuntimeException("Should never get here")
                 Coordinate coordinate = new Coordinate(
                         sequenceObject.getJSONObject(FeatureStringEnum.FEATURE.value).getInt(FeatureStringEnum.FMIN.value)
@@ -213,9 +221,14 @@ class ProjectionService {
 
     }
 
+    def addCoordinates(JSONObject locationObject , MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
+        JSONArray jsonArray = new JSONArray()
+        jsonArray.add(locationObject)
+        addCoordinates(jsonArray,projection,projectionSequence)
+    }
+
     def addCoordinates(JSONArray jsonArray, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
         for (JSONObject loc in jsonArray) {
-//                    println "loc: ${loc as JSON}"
             Coordinate coordinate = new Coordinate(
                     loc.getInt(FeatureStringEnum.FMIN.value)
                     , loc.getInt(FeatureStringEnum.FMAX.value)
