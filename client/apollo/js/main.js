@@ -204,7 +204,7 @@ return declare( [JBPlugin, HelpMixin],
             this.createMenus();
         }
 
-        this.replaceSearchBoxes();
+        // this.replaceSearchBoxes();
 
 
 

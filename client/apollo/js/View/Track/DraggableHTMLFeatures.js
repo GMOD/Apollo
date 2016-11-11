@@ -229,9 +229,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         var str = "";
 
                         // this is the back divider line . . .
+                        // console.log("width: " + width);
+                        width = width < 1 ? 1 : width;
                         var dividerId = 'projectionFoldDivider'+left;
                         if(!document.getElementById(dividerId)){
                             var strokeWidth = 5.0 / this.scale   ;
+
                             str += "<svg id='"+dividerId+"' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                             str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
                             str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
@@ -242,7 +245,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
                         // console.log('scale: '+this.scale);
                         // console.log(this.gview.pxPerBp);
-                        // console.log(this.curZoom);
+                        // console.log(this.gview.curZoom);
                         if(this.scale >=2){
                             var fold = folds[0];
                             var leftValue = Util.addCommas(fold.left) ;
@@ -277,7 +280,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         }
 
 
-                        console.log('str length: '+str.length + ' for ' + str);
+                        // console.log('str length: '+str.length + ' for ' + str);
                         if(str.length >0){
                             domConstruct.place(str, featureNode);
                         }
