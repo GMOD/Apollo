@@ -217,6 +217,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }
                     // var gap = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
                     //console.log("gap "+gap);
+                    // TODO: just use 'folds' at some point
                     if (regionFolded) {
                         //console.log("gap of "+gap+" between "+i+" and "+(i+1));
 
@@ -243,54 +244,88 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
                         var str = "";
 
+                        // TODO: only show once!
                         // this is the back divider line . . .
-                        str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        str += "<svg id='projectionFoldDivider"+left+"' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                         str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
                         str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
                         str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:1;opacity: 50;' shape-rendering='optimizeQuality' />";
                         str += "</svg>";
 
                         // draw the left arrow
-                        str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        str += "style='position:absolute;z-index: 10;";  // this must be here and not in CSS file
-                        str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-                        // str += "<defs>";
-                        // str += '<marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" viewBox="0 0 20 20">';
-                        // str += '<path d="M0,0 L0,6 L9,3 z" fill="#f00" />';
-                        // str += '</marker></defs>';
-                        // str += '<line x1="5" y1="0" x2="5" y2="100" stroke="#000" stroke-width="2"  />';
-                        // str += '<line x1="5" y1="50" x2="40" y2="50" stroke="#000" stroke-width="5"  />';
-                        str += '<line x1="40" y1="50" x2="35" y2="25" stroke="#000" stroke-width="2"  />';
-                        str += '<line x1="40" y1="50" x2="35" y2="75" stroke="#000" stroke-width="2"  />';
-
-
-                        // str += '<line x1="95" y1="0" x2="95" y2="100" stroke="#000" stroke-width="2"  />';
-                        // str += '<line x1="95" y1="50" x2="60" y2="50" stroke="#000" stroke-width="5"  />';
-                        str += '<line x1="60" y1="50" x2="65" y2="25" stroke="#000" stroke-width="2"  />';
-                        str += '<line x1="60" y1="50" x2="65" y2="75" stroke="#000" stroke-width="2"  />';
-
-                        // str += "<polyline points='20,50 40,50 35,45 40,50 35,55' style='fill:none;stroke:orange;stroke-width:5;' shape-rendering='optimizeQuality' />";
-                        str += "</svg>";
+                        // str += "<svg  viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        // str += "style='position:absolute;z-index: 10;";  // this must be here and not in CSS file
+                        // str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+                        // // str += "<defs>";
+                        // // str += '<marker id="arrow" markerWidth="10" markerHeight="10" refx="0" refy="3" orient="auto" viewBox="0 0 20 20">';
+                        // // str += '<path d="M0,0 L0,6 L9,3 z" fill="#f00" />';
+                        // // str += '</marker></defs>';
+                        // // str += '<line x1="5" y1="0" x2="5" y2="100" stroke="#000" stroke-width="2"  />';
+                        // // str += '<line x1="5" y1="50" x2="40" y2="50" stroke="#000" stroke-width="5"  />';
+                        // str += '<line x1="40" y1="50" x2="35" y2="25" stroke="#000" stroke-width="2"  />';
+                        // str += '<line x1="40" y1="50" x2="35" y2="75" stroke="#000" stroke-width="2"  />';
+                        //
+                        //
+                        // // str += '<line x1="95" y1="0" x2="95" y2="100" stroke="#000" stroke-width="2"  />';
+                        // // str += '<line x1="95" y1="50" x2="60" y2="50" stroke="#000" stroke-width="5"  />';
+                        // str += '<line x1="60" y1="50" x2="65" y2="25" stroke="#000" stroke-width="2"  />';
+                        // str += '<line x1="60" y1="50" x2="65" y2="75" stroke="#000" stroke-width="2"  />';
+                        //
+                        // // str += "<polyline points='20,50 40,50 35,45 40,50 35,55' style='fill:none;stroke:orange;stroke-width:5;' shape-rendering='optimizeQuality' />";
+                        // str += "</svg>";
 
                         // this is the text place
-                        str += "<svg  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        str += "style='position:absolute;z-index: 5000;";  // this must be here and not in CSS file
-                        str += "left: " + left+ "px;width: " + width + "px;height: " + height + "'>";
-
-                        var leftOffset = (-this.scale * 80.0)  ;
-                        var fold = folds[0];
+                        // str += "<svg  viewBox='0 0 100 100'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                        // str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                        // str += "left: " + left+ "px;width: " + width + "px;height: " + height + "'>";
+                        //
+                        // var leftOffset = (-this.scale * 80.0)  ;
+                        // var fold = folds[0];
                         // console.log('number of folds: '+folds.length) ;
-                        var leftValue = fold.left ;
-                        var rightValue = fold.right ;
-                        if(leftOffset){
-                            // draw the right arrow
-                            str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
-                            str += leftValue ;
-                            str += '</text>';
-                            str += '<text text-anchor="start" x="250" y="80" font-family="Verdana" font-size="54">'
-                            str += rightValue ;
-                            str += '</text>';
-                            str += "</svg>";
+                        // var leftValue = fold.left ;
+                        // var rightValue = fold.right ;
+                        //
+                        // console.log(this.scale +' ' + leftOffset);
+                        // console.log(left+' ' + width);
+                        //
+                        // if(leftOffset){
+                        //     // draw the right arrow
+                        //     str += '<text text-anchor="end" x="'+leftOffset+'" y="80" font-family="Verdana" font-size="54">'
+                        //     str += leftValue ;
+                        //     str += '</text>';
+                        //     str += '<text text-anchor="start" x="52" y="80" font-family="Verdana" font-size="54">'
+                        //     str += rightValue ;
+                        //     str += '</text>';
+                        //     str += "</svg>";
+                        // }
+
+
+                        console.log('scale: '+this.scale);
+                        if(this.scale >=1.7){
+                            var fold = folds[0];
+                            var leftValue = Util.addCommas(fold.left) ;
+                            var rightValue = Util.addCommas(fold.right) ;
+
+                            var projectionId = "projectionLabels"+leftValue+""+rightValue;
+
+                            var leftX = width / 2.0 - (width * 0.05) - (leftValue.length *10) ;
+                            var rightX = width / 2.0 + (width * 0.05) ;
+
+                            console.log(leftX + " <-> "+rightX  );
+
+                            if(leftX && rightX && !document.getElementById(projectionId)){
+                                str += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " 2000'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                                str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                                str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
+                                // draw the right arrow
+                                str += '<text text-anchor="start" x="'+leftX+'" y="20" font-family="Verdana" font-size="14">'
+                                str += leftValue ;
+                                str += '</text>';
+                                str += '<text text-anchor="start" x="'+rightX+'" y="20" font-family="Verdana" font-size="14">'
+                                str += rightValue ;
+                                str += '</text>';
+                                str += "</svg>";
+                            }
                         }
 
                         // var str = "";
@@ -320,37 +355,38 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }
                 }
             }
-            else if (subNodes.length == 1) {
-                var height = "100%";
-                console.dir(subNodes);
-                for (var i = 0; i < subNodes.length; i++) {
-                    console.log(i + " subfeature left,width: " + subNodes[i].left + ", " + subNodes[i].width);
-                }
-                var subLeft = subNodes[0].left + subNodes[0].width;
-                // var subWidth = subNodes[i + 1].left - (subNodes[0].left + subNodes[0].width);
-                var subWidth = featureNode.left - (subNodes[0].left + subNodes[0].width);
-                // var subWidth = "100%";
-
-                var left = subLeft;
-                var width = subWidth;
-
-                // invert hat if reverse direction
-                var dir = "50,5";
-                if (direction == -1) dir = "50,95";
-
-                var str = "";
-                str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
-                str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
-                str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
-                str += "</svg>";
-
-                // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
-
-                domConstruct.place(str, featureNode);
-
-                intronCount++;
-            }
+            // TODO: handle the
+            // else if (subNodes.length == 1) {
+            //     var height = "100%";
+            //     console.dir(subNodes);
+            //     for (var i = 0; i < subNodes.length; i++) {
+            //         console.log(i + " subfeature left,width: " + subNodes[i].left + ", " + subNodes[i].width);
+            //     }
+            //     var subLeft = subNodes[0].left + subNodes[0].width;
+            //     // var subWidth = subNodes[i + 1].left - (subNodes[0].left + subNodes[0].width);
+            //     var subWidth = featureNode.left - (subNodes[0].left + subNodes[0].width);
+            //     // var subWidth = "100%";
+            //
+            //     var left = subLeft;
+            //     var width = subWidth;
+            //
+            //     // invert hat if reverse direction
+            //     var dir = "50,5";
+            //     if (direction == -1) dir = "50,95";
+            //
+            //     var str = "";
+            //     str += "<svg class='jb-intron' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+            //     str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+            //     str += "left: " + left + "px;width: " + width + "px;height: " + height + "'>";
+            //     str += "<polyline points='0,50 " + dir + " 100,50' style='fill:none;stroke:black;stroke-width:5' shape-rendering='optimizeQuality' />";
+            //     str += "</svg>";
+            //
+            //     // note: dojo.create("svg") does not render due to namespace issue between DOM and SVG
+            //
+            //     domConstruct.place(str, featureNode);
+            //
+            //     intronCount++;
+            // }
 
             if (intronCount) {
                 // mark that we have processed this node
