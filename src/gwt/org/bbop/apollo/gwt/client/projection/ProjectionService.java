@@ -132,10 +132,10 @@ public class ProjectionService {
     }
 
     public static Long projectValue(String referenceString, Long input) {
-        GWT.log("trying to project a value in GWT: " + input);
+//        GWT.log("trying to project a value in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         Long projectedValue = projection.projectValue(input);
-        GWT.log("projected a value " + projectedValue + " for " + input);
+//        GWT.log("projected a value " + projectedValue + " for " + input);
         return projectedValue;
     }
 
@@ -146,10 +146,10 @@ public class ProjectionService {
 
 
     public static Long projectReverseValue(String referenceString, Long input) {
-        GWT.log("trying to project a value in GWT: " + input);
+//        GWT.log("trying to project a value in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         Long projectedValue = projection.projectReverseValue(input);
-        GWT.log("projected a value " + projectedValue + " for " + input);
+//        GWT.log("projected a value " + projectedValue + " for " + input);
         return projectedValue;
     }
 
@@ -160,7 +160,7 @@ public class ProjectionService {
 
 
     public static String projectReverseSequence(String referenceString, Long input) {
-        GWT.log("trying to project a sequence in GWT: " + input);
+//        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(input);
 //        GWT.log("projected a value "+ projectedValue + " for " + input);
@@ -174,7 +174,7 @@ public class ProjectionService {
     }
 
     public static JavaScriptObject getReverseProjection(String referenceString, Long input) {
-        GWT.log("trying to project a sequence in GWT: " + input);
+//        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("originalValue", new JSONNumber(input));
@@ -202,13 +202,13 @@ public class ProjectionService {
         JSONArray returnArray = new JSONArray();
 
         if (projectedLeft >= 0 && projectedRight >= 0) {
-            GWT.log(projectedLeft + " " + projectedRight);
+//            GWT.log(projectedLeft + " " + projectedRight);
             MultiSequenceProjection projection = getProjectionForString(referenceString);
             projection.calculateOffsets();
 
             List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(projectedLeft, projectedRight);
 
-            GWT.log("returned value: " + projectedLeft + " " + projectedRight + " -> " + projectionSequenceList.size());
+//            GWT.log("returned value: " + projectedLeft + " " + projectedRight + " -> " + projectionSequenceList.size());
 
             // TODO: getting these to generate the boundaries
 //            Long reverseProjectionLeft = projection.projectReverseValue(projectedLeft);
@@ -421,7 +421,7 @@ public class ProjectionService {
         // these might be the same as above
 
         JSONArray foldPoints = getReversedFolds(multiSequenceProjection, startBase, endBase);
-        GWT.log(foldPoints.toString());
+//        GWT.log(foldPoints.toString());
 
         return JsonUtils.safeEval(foldPoints.toString());
     }
