@@ -5,6 +5,7 @@ import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
@@ -33,6 +34,7 @@ import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -138,6 +140,7 @@ public class MainPanel extends Composite {
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
+    private Button snackbarRight = new Button();
 
 
     public static MainPanel getInstance() {
@@ -157,6 +160,7 @@ public class MainPanel extends Composite {
             public void onResize() {
                 super.onResize();
                 Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
+                setSnackBarVisible();
             }
         };
 
@@ -227,6 +231,30 @@ public class MainPanel extends Composite {
             e.printStackTrace();
         }
 
+        snackbarRight.setIcon(IconType.CHEVRON_LEFT);
+        snackbarRight.setColor("white");
+        snackbarRight.setType(ButtonType.PRIMARY);
+//        snackbarRight.set("blue");
+//        snackbarRight.setIconRotate(IconRotate.ROTATE_90);
+        snackbarRight.addStyleName("snackbarRight");
+        snackbarRight.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        mainSplitPanel.setWidgetSize(eastDockPanel, 550);
+                        dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
+                        toggleOpen = true ;
+                        snackbarRight.setVisible(false);
+                        mainSplitPanel.animate(400);
+                    }
+                });
+            }
+        });
+        RootPanel.get().add(snackbarRight);
+        setSnackBarVisible();
+
 
         currentQueryParams = Window.Location.getParameterMap();
 
@@ -234,6 +262,10 @@ public class MainPanel extends Composite {
         reservedList.add("trackList");
 
         loginUser();
+    }
+
+    private void setSnackBarVisible() {
+        snackbarRight.setVisible(mainSplitPanel.getWidgetSize(eastDockPanel)< 10);
     }
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
@@ -597,6 +629,12 @@ public class MainPanel extends Composite {
     }
 
 
+//    @UiHandler("mainSplitPanel")
+//    void handleMainSplitPanelMovement(EventHandler eventHandler){
+//
+//    }
+
+
     @UiHandler("savePasswordButton")
     void saveEditUserPassword(ClickEvent event) {
         UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
@@ -704,7 +742,7 @@ public class MainPanel extends Composite {
 
     private void closePanel() {
         mainSplitPanel.setWidgetSize(eastDockPanel, 20);
-        dockOpenClose.setIcon(IconType.CARET_LEFT);
+        dockOpenClose.setIcon(IconType.CHEVRON_LEFT);
     }
 
     private void openPanel() {
@@ -715,7 +753,7 @@ public class MainPanel extends Composite {
         } else {
             mainSplitPanel.setWidgetSize(eastDockPanel, 550);
         }
-        dockOpenClose.setIcon(IconType.CARET_RIGHT);
+        dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
     }
 
     private void toggleOpen() {
