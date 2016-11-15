@@ -64,6 +64,7 @@ public class MainPanel extends Composite {
     public static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
+    private static final String openAnnotatorPanelString = "&openAnnotatorPanel=";
 
     private static boolean handlingNavEvent = false;
 
@@ -137,7 +138,6 @@ public class MainPanel extends Composite {
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
-
 
     public static MainPanel getInstance() {
         if (instance == null) {
@@ -234,6 +234,7 @@ public class MainPanel extends Composite {
 
         loginUser();
     }
+
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
         setCurrentSequence(sequenceNameString, start, end, false, false);
@@ -467,6 +468,21 @@ public class MainPanel extends Composite {
 
             MainPanel.useNativeTracklist = showTrackValue ;
         }
+        if(trackListString.contains(openAnnotatorPanelString)){
+            String positiveString = openAnnotatorPanelString+"1";
+            String negativeString = openAnnotatorPanelString+"0";
+            if(trackListString.contains(positiveString)){
+                trackListString = trackListString.replace(positiveString,"");
+                MainPanel.getInstance().openPanel();
+            }
+            else
+            if(trackListString.contains(negativeString)){
+                trackListString = trackListString.replace(negativeString,"");
+                MainPanel.getInstance().closePanel();
+            }
+
+
+        }
         // otherwise we use the nativeTrackList
         else{
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
@@ -581,6 +597,12 @@ public class MainPanel extends Composite {
     }
 
 
+//    @UiHandler("mainSplitPanel")
+//    void handleMainSplitPanelMovement(EventHandler eventHandler){
+//
+//    }
+
+
     @UiHandler("savePasswordButton")
     void saveEditUserPassword(ClickEvent event) {
         UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
@@ -688,7 +710,7 @@ public class MainPanel extends Composite {
 
     private void closePanel() {
         mainSplitPanel.setWidgetSize(eastDockPanel, 20);
-        dockOpenClose.setIcon(IconType.CARET_LEFT);
+        dockOpenClose.setIcon(IconType.CHEVRON_LEFT);
     }
 
     private void openPanel() {
@@ -699,7 +721,7 @@ public class MainPanel extends Composite {
         } else {
             mainSplitPanel.setWidgetSize(eastDockPanel, 550);
         }
-        dockOpenClose.setIcon(IconType.CARET_RIGHT);
+        dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
     }
 
     private void toggleOpen() {

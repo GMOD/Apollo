@@ -507,5 +507,12 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
         ]
     }
 
+### URL modifications
+
+You should be able to pass in most JBrowse URL modifications to the ```loadLink``` URL. 
+
+You should use ```tracklist=1``` to force showing the native tracklist (or use the checkbox in the Track Tab in the Annotator Panel).
+
+Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
 
 
