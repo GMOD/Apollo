@@ -13,6 +13,7 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -42,6 +43,7 @@ import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -53,6 +55,7 @@ import java.util.*;
  * Created by ndunn on 12/17/14.
  */
 public class AnnotatorPanel extends Composite {
+
 
     interface AnnotatorPanelUiBinder extends UiBinder<com.google.gwt.user.client.ui.Widget, AnnotatorPanel> {
     }
@@ -100,7 +103,10 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
+    @UiField
+    static Button gotoAnnotation;
 
+    private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
@@ -524,24 +530,56 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-
-    // TODO: need to cache these or retrieve from the backend
-    public static void displayTranscript(int geneIndex, String uniqueName) {
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
-        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-
-        for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
-            if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
-                exonDetailPanel.updateData(childAnnotation);
-                updateAnnotationInfo(childAnnotation);
-                Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-                return;
-            }
-        }
+    @UiHandler("showAllSequences")
+    public void setShowAllSequences(ClickEvent clickEvent) {
+        sequenceList.setText("");
+        reload();
     }
 
+    @UiHandler("gotoAnnotation")
+    void gotoAnnotation(ClickEvent clickEvent) {
+        Integer min = selectedAnnotationInfo.getMin() - 50 ;
+        Integer max = selectedAnnotationInfo.getMax() + 50 ;
+        min = min < 0 ? 0 : min;
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max,false);
+    }
+
+    public static void enableGoto(String geneIndex, String uniqueName, String displayString) {
+        int geneInt = Integer.parseInt(geneIndex);
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
+        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+        exonDetailPanel.updateData(selectedAnnotationInfo);
+        gotoAnnotation.setEnabled(true);
+    }
+
+    private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
+        for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
+            if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
+                return childAnnotation;
+            }
+        }
+        return null ;
+    }
+
+//    public static void showInAnnotatorPanel(String featureName, String scaffold) {
+////        Window.alert(featureName + " " + scaffold);
+//        sequenceList.setText(scaffold);
+//        nameSearchBox.setText(featureName);
+//        reload();
+//    }
+
+//    // TODO: need to cache these or retrieve from the backend
+//    public static void displayTranscript(Integer geneIndex, String uniqueName) {
+//        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
+//        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+////        exonDetailPanel.updateData(selectedAnnotationInfo);
+//        updateAnnotationInfo(selectedAnnotationInfo);
+//    }
+
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
-        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+//        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+        $wnd.enableGoto = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+//        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {
@@ -577,7 +615,7 @@ public class AnnotatorPanel extends Composite {
                 // a custom cell rendering might work as well, but not sure
 
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
+                HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {
@@ -633,12 +671,10 @@ public class AnnotatorPanel extends Composite {
                 div.style().trustedColor("green").endStyle();
                 Date date = new Date(Long.parseLong(rowValue.getDate()));
                 div.text(outputFormat.format(date));
-//                div.text(date.toString());
                 td.endDiv();
             } else {
                 Date date = new Date(Long.parseLong(rowValue.getDate()));
                 td.text(outputFormat.format(date));
-//                td.text(date.toString());
             }
             td.endTD();
 
