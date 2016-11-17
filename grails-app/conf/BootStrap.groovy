@@ -26,7 +26,7 @@ class BootStrap {
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
-        phoneHomeService.pingServer()
+        phoneHomeService.pingServer("start")
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
@@ -51,12 +51,12 @@ class BootStrap {
         }
 
         new Timer().schedule({
-            phoneHomeService.pingServer()
+            phoneHomeService.pingServer("running",["numUsers":User.count.toString(),"numAnnotations": Feature.count.toString(),"numOrganisms": org.bbop.apollo.Organism.count.toString()])
             // phone home once a day
         } as TimerTask, 1000, 24 * 60 * 60 * 1000 )
 
     }
     def destroy = {
-        phoneHomeService.pingServer()
+        phoneHomeService.pingServer("stop")
     }
 }
