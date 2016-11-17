@@ -12,6 +12,7 @@ class BootStrap {
     def domainMarshallerService
     def proxyService
     def userService
+    def phoneHomeService
 
 
     def init = { servletContext ->
@@ -24,6 +25,8 @@ class BootStrap {
 
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
+
+        phoneHomeService.pingServer()
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
@@ -47,7 +50,13 @@ class BootStrap {
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
 
+        new Timer().schedule({
+            phoneHomeService.pingServer()
+            // phone home once a day
+        } as TimerTask, 1000, 24 * 60 * 60 * 1000 )
+
     }
     def destroy = {
+        phoneHomeService.pingServer()
     }
 }

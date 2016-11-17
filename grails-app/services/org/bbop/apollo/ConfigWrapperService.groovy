@@ -96,4 +96,15 @@ class ConfigWrapperService {
     def getAuthentications() {
         grailsApplication.config.apollo.authentications
     }
+
+    def getPingUrl() {
+        String urlString = grailsApplication.config.apollo.phone.url
+        urlString += grailsApplication.config.apollo.phone.bucketPrefix
+        urlString += grailsApplication.metadata['app.version']
+        urlString += "/"
+        urlString += grailsApplication.config.apollo.phone.fileName
+        urlString = urlString.toLowerCase()
+//        println "accessing bucket with ${urlString}"
+        return urlString
+    }
 }

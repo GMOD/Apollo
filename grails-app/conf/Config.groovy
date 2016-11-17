@@ -344,8 +344,6 @@ apollo {
             //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
-    // comment out if you don't want this to be reported
-    google_analytics = "UA-62921593-1"
 
     authentications = [
         ["name":"Username Password Authenticator",
@@ -358,6 +356,15 @@ apollo {
          "active":false,
         ]
     ]
+
+    // comment out if you don't want this to be reported
+    google_analytics = "UA-62921593-1"
+
+    phone {
+        url = "https://s3-us-west-1.amazonaws.com/"
+        bucketPrefix = "apollo-usage-"
+        fileName = "ping.json"
+    }
 }
 
 

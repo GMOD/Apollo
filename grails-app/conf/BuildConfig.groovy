@@ -91,6 +91,9 @@ grails.project.dependency.resolution = {
         build 'org.apache.httpcomponents:httpcore:4.3.2'
         build 'org.apache.httpcomponents:httpclient:4.3.2'
         build 'org.apache.httpcomponents:httpmime:4.3.3'
+
+//        compile "org.grails:quartz:1.0.2"
+
     }
 
     plugins {
@@ -137,6 +140,7 @@ grails.project.dependency.resolution = {
         //    transitive=true
         //}
         compile ":yammer-metrics:3.0.1-2"
+//        compile ':quartz:1.0.1'
 
 
         //compile ":joda-time:1.4"
