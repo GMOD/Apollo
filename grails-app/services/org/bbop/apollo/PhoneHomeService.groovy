@@ -10,15 +10,6 @@ class PhoneHomeService {
     def grailsApplication
 
 
-    def startPhoneHomeServer(){
-        Integer timer =   24 * 60 * 60 * 1000
-        new Timer().schedule({
-//            def map = ["numUsers":User.count.toString(),"numAnnotations": Feature.count.toString(),"numOrganisms": Organism.count.toString()]
-            def map = [:]
-            pingServer("running",map)
-        } as TimerTask, 1000, timer)
-    }
-
     /**
      * Only process args if there is a message
      * @param message
@@ -26,6 +17,9 @@ class PhoneHomeService {
      * @return
      */
     def pingServer(String message = null ,Map<String,String> argMap = [:]) {
+        if(!configWrapperService.phoneHome) {
+            return
+        }
         String apiString = configWrapperService.pingUrl
         ServerData.withTransaction{
             if(ServerData.count>1){
@@ -34,10 +28,10 @@ class PhoneHomeService {
             if(ServerData.count==0){
                 new ServerData().save(flush: true,insert:true)
             }
-            apiString += "?server="+ServerData.first().name
-            apiString += "&environment="+grails.util.Environment.current.name
+            apiString += "?${PhoneHomeEnum.SERVER.value}="+ServerData.first().name
+            apiString += "&${PhoneHomeEnum.ENVIRONMENT.value}="+grails.util.Environment.current.name
             if(message){
-                apiString += "&message=${message}"
+                apiString += "&${PhoneHomeEnum.MESSAGE.value}=${message}"
 
                 for(k in argMap){
                     apiString += "&${k.key}=${k.value}"

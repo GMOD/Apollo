@@ -1,9 +1,6 @@
 import org.bbop.apollo.FeatureType
 import org.bbop.apollo.Role
 import org.bbop.apollo.UserService
-import org.bbop.apollo.User
-import org.bbop.apollo.Feature
-import org.bbop.apollo.Organism
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
@@ -29,7 +26,7 @@ class BootStrap {
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
-        phoneHomeService.pingServer("start")
+        phoneHomeService.pingServer(org.bbop.apollo.PhoneHomeEnum.START.value)
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
@@ -53,10 +50,8 @@ class BootStrap {
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
 
-        phoneHomeService.startPhoneHomeServer()
-
     }
     def destroy = {
-        phoneHomeService.pingServer("stop")
+        phoneHomeService.pingServer(org.bbop.apollo.PhoneHomeEnum.STOP.value)
     }
 }

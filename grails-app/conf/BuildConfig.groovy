@@ -109,7 +109,9 @@ grails.project.dependency.resolution = {
 
         compile ':asset-pipeline:2.1.5'
         compile ":spring-websocket:1.2.0"
-        compile ":shiro:1.2.1"
+        compile (":shiro:1.2.1") {
+            excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
+        }
         compile ":audit-logging:1.0.3"
 
 
@@ -140,7 +142,8 @@ grails.project.dependency.resolution = {
         //    transitive=true
         //}
         compile ":yammer-metrics:3.0.1-2"
-//        compile ':quartz:1.0.1'
+        compile "org.grails.plugins:quartz2:2.1.6.2"
+
 
 
         //compile ":joda-time:1.4"

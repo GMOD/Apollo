@@ -110,4 +110,8 @@ class ConfigWrapperService {
         }
         return null
     }
+
+    Boolean getPhoneHome() {
+        return grailsApplication.config.apollo.phone.phoneHome
+    }
 }
