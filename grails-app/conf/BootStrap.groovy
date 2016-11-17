@@ -1,6 +1,9 @@
 import org.bbop.apollo.FeatureType
 import org.bbop.apollo.Role
 import org.bbop.apollo.UserService
+import org.bbop.apollo.User
+import org.bbop.apollo.Feature
+import org.bbop.apollo.Organism
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 class BootStrap {
@@ -50,12 +53,7 @@ class BootStrap {
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
 
-        Integer timer =   24 * 60 * 60 * 1000
-        new Timer().schedule({
-//            phoneHomeService.pingServer("running",["numUsers":User.count.toString(),"numAnnotations": Feature.count.toString(),"numOrganisms": org.bbop.apollo.Organism.count.toString()])
-            phoneHomeService.pingServer("running")
-            // phone home once a day
-        } as TimerTask, 1000, timer)
+        phoneHomeService.startPhoneHomeServer()
 
     }
     def destroy = {
