@@ -35,7 +35,7 @@ class PhoneHomeService {
                 new ServerData().save(flush: true,insert:true)
             }
             apiString += "?server="+ServerData.first().name
-            apiString += "&environment="+grails.util.Environment.name
+            apiString += "&environment="+grails.util.Environment.current.name
             if(message){
                 apiString += "&message=${message}"
 
