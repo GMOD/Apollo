@@ -361,6 +361,7 @@ apollo {
     google_analytics = "UA-62921593-1"
 
     phone {
+        phoneHome = true
         url = "https://s3-us-west-1.amazonaws.com/"
         bucketPrefix = "apollo-usage-"
         fileName = "ping.json"
