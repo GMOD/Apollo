@@ -50,10 +50,12 @@ class BootStrap {
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
 
+        Integer timer =   24 * 60 * 60 * 1000
         new Timer().schedule({
-            phoneHomeService.pingServer("running",["numUsers":User.count.toString(),"numAnnotations": Feature.count.toString(),"numOrganisms": org.bbop.apollo.Organism.count.toString()])
+//            phoneHomeService.pingServer("running",["numUsers":User.count.toString(),"numAnnotations": Feature.count.toString(),"numOrganisms": org.bbop.apollo.Organism.count.toString()])
+            phoneHomeService.pingServer("running")
             // phone home once a day
-        } as TimerTask, 1000, 24 * 60 * 60 * 1000 )
+        } as TimerTask, 1000, timer)
 
     }
     def destroy = {
