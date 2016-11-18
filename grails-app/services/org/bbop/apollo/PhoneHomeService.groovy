@@ -18,6 +18,7 @@ class PhoneHomeService {
      */
     def pingServer(String message = null ,Map<String,String> argMap = [:]) {
         if(!configWrapperService.phoneHome) {
+            println("Not phonning home")
             return
         }
         String apiString = configWrapperService.pingUrl
@@ -39,6 +40,7 @@ class PhoneHomeService {
             }
         }
         log.debug("Phoning home to ${apiString}")
+        println("Phoning home to ${apiString}")
         URL apiUrl = new URL(apiString)
         def responseJson = new JsonSlurper().parse(apiUrl)
         return responseJson
