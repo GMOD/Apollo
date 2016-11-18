@@ -14,7 +14,7 @@ class PhoneHomeJob {
 
     def execute() {
         // execute job
-        def map = ["num_users":User.count.toString(),"num_annotations": Feature.count.toString(),"num_organisms": Organism.count.toString()]
+        def map = ["num_users":User.count.toString(),"num_organisms": Organism.count.toString()]
         phoneHomeService.pingServer(PhoneHomeEnum.RUNNING.value,map)
     }
 }

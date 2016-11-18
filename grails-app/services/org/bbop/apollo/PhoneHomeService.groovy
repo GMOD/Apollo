@@ -39,7 +39,6 @@ class PhoneHomeService {
             }
         }
         log.debug("Phoning home to ${apiString}")
-        println("Phoning home to ${apiString}")
         URL apiUrl = new URL(apiString)
         def responseJson = new JsonSlurper().parse(apiUrl)
         return responseJson
