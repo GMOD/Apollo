@@ -515,4 +515,20 @@ You should use ```tracklist=1``` to force showing the native tracklist (or use t
 
 Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
 
+### Phone Home
+
+In order to determine our usage and the current versions of Apollo being used (which helps us to provide Apollo for free), the server and the client will phone home and to google analytics.
+
+To turn off the server phone home set the configuration this way.
+    
+    apollo.phone.phoneHome = false
+    
+To add your own google analytics code set the code up this way:
+
+    google_analytics = ["UA-62921593-1","Your Google Analytics ID"]
+    
+If you don't want any reporting set:
+    
+    google_analytics = []
+
 
