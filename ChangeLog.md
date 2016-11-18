@@ -7,6 +7,8 @@ Features
 + Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4 (#1075)
 + Adds a findChanges method (#1316)
 + Added URL option to open and close the track panels (#1332)
++ Added Goto Button on the Annotator Panel and remove auto-navigation
++ Various performance improvements (#1272,#1276)
 
 
 Bugfixes
@@ -14,7 +16,6 @@ Bugfixes
 + Web-service method 'getUserPermissionsForUser' (#1230)
 + UI glitch with more than ten groups (#1242)
 + Error going between full-screen and annotator panel when stored are loaded in the URL (#1156,#1214,#1271,#1330)
-+ Numerous performance improvements (#1272,#1276)
 + 'use_cds_for_new_transcripts' was not being picked up properly (#1297)
 + Client interprets 5'UTR and 3'UTR features as exons (#1308)
 + The longest possible ORF must be calculated for genomic fragments (#1302)
