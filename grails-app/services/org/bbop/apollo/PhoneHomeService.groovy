@@ -21,27 +21,32 @@ class PhoneHomeService {
             println("Not phonning home")
             return
         }
-        String apiString = configWrapperService.pingUrl
-        ServerData.withTransaction{
-            if(ServerData.count>1){
-                ServerData.deleteAll(ServerData.all)
-            }
-            if(ServerData.count==0){
-                new ServerData().save(flush: true,insert:true)
-            }
-            apiString += "?${PhoneHomeEnum.SERVER.value}="+ServerData.first().name
-            apiString += "&${PhoneHomeEnum.ENVIRONMENT.value}="+grails.util.Environment.current.name
-            if(message){
-                apiString += "&${PhoneHomeEnum.MESSAGE.value}=${message}"
 
-                for(k in argMap){
-                    apiString += "&${k.key}=${k.value}"
+        try {
+            String apiString = configWrapperService.pingUrl
+            ServerData.withTransaction{
+                if(ServerData.count>1){
+                    ServerData.deleteAll(ServerData.all)
+                }
+                if(ServerData.count==0){
+                    new ServerData().save(flush: true,insert:true)
+                }
+                apiString += "?${PhoneHomeEnum.SERVER.value}="+ServerData.first().name
+                apiString += "&${PhoneHomeEnum.ENVIRONMENT.value}="+grails.util.Environment.current.name
+                if(message){
+                    apiString += "&${PhoneHomeEnum.MESSAGE.value}=${message}"
+
+                    for(k in argMap){
+                        apiString += "&${k.key}=${k.value}"
+                    }
                 }
             }
+            log.debug("Phoning home to ${apiString}")
+            URL apiUrl = new URL(apiString)
+            def responseJson = new JsonSlurper().parse(apiUrl)
+            return responseJson
+        } catch (e) {
+            log.warn("Not phoning phone due to error: "+e.toString())
         }
-        log.debug("Phoning home to ${apiString}")
-        URL apiUrl = new URL(apiString)
-        def responseJson = new JsonSlurper().parse(apiUrl)
-        return responseJson
     }
 }
