@@ -9,6 +9,8 @@ Features
 + Added URL option to open and close the track panels (#1332)
 + Added Goto Button on the Annotator Panel and remove auto-navigation
 + Various performance improvements (#1272,#1276)
++ Added ability for Apollo to call home to track server usage (#1339)
++ Allow multiple calls to google analytics to support users internally (#1340)
 
 
 Bugfixes
