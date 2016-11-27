@@ -135,17 +135,17 @@
                     </b:Container>
                 </gwt:tab>
                 <gwt:tab>
-                    <gwt:header>Groups</gwt:header>
+                    <gwt:header>Teams</gwt:header>
                     <b:Container>
                         <b:Row>
                             <b:Column size="MD_3">
                                 <gwt:HTML>
-                                    <h5>Join Group</h5>
+                                    <h5>Join Team</h5>
                                 </gwt:HTML>
                             </b:Column>
                             <b:Column size="MD_3">
                                 <gwt:HTML>
-                                    <h5>Included Groups</h5>
+                                    <h5>Included Teams</h5>
                                 </gwt:HTML>
                             </b:Column>
                         </b:Row>

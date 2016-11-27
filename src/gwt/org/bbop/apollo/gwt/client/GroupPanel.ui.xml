@@ -53,7 +53,7 @@
             <b:Container fluid="true" width="100%">
                 <b:Row styleName="{style.northPanel}">
                     <b:Column size="MD_4">
-                        <b:Button ui:field="createButton" icon="PLUS">Add Group</b:Button>
+                        <b:Button ui:field="createButton" icon="PLUS">Add Team</b:Button>
                         <b:Button ui:field="saveButton" icon="SAVE" visible="false" type="PRIMARY">Save</b:Button>
                         <b:Button ui:field="cancelButton" visible="false">Cancel</b:Button>
                     </b:Column>
@@ -98,7 +98,7 @@
                         <b:Row styleName="{style.removeButton}">
                             <b:Column size="MD_1">
                                 <b:Button ui:field="deleteButton" icon="WARNING" type="DANGER" visible="false">Remove
-                                    Group
+                                    Team
                                 </b:Button>
                             </b:Column>
                         </b:Row>
