@@ -1,4 +1,4 @@
-<%@ page import="org.bbop.apollo.Feature" %>
+<%@ page import="org.bbop.apollo.User; org.bbop.apollo.Feature" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,8 +19,10 @@
         <div class="row col-sm-12">
             <div class="col-sm-3 form-group">
                 <label for="ownerName">Owner:</label>
-                <g:textField class="form-control" name="ownerName" maxlength="50" value="${ownerName}"
-                             placeholder="Owner"/><br/>
+                <g:select name='ownerName' value="${ownerName}"
+                          noSelection="${[null:'Select One...']}"
+                          from='${User.listOrderByUsername()}'
+                          optionKey="username" optionValue="username"/>
             </div>
 
             <div class="col-sm-4  form-group">

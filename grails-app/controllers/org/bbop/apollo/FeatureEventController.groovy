@@ -83,7 +83,7 @@ class FeatureEventController {
      */
     def report(Integer max) {
 
-        log.debug "${params}"
+        log.error "${params}"
 
         params.max = Math.min(max ?: 15, 100)
 
@@ -121,7 +121,7 @@ class FeatureEventController {
                 order('lastUpdated',params.order)
             }
 
-            if(params.ownerName!=null&&params.ownerName!="") {
+            if(params.ownerName && params.ownerName!="null") {
                 owners {
                     ilike('username', '%'+params.ownerName+'%')
                 }
