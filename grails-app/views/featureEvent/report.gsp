@@ -19,17 +19,20 @@
         <div class="row col-sm-12">
             <div class="col-sm-3 form-group">
                 <label for="ownerName">Owner:</label>
-                <g:textField class="form-control" name="ownerName" maxlength="50" value="${ownerName}" placeholder="Owner"/><br/>
+                <g:textField class="form-control" name="ownerName" maxlength="50" value="${ownerName}"
+                             placeholder="Owner"/><br/>
             </div>
 
             <div class="col-sm-4  form-group">
                 <label for="featureType">Feature type:</label>
-                <g:textField class="form-control" name="featureType" maxlength="50" value="${featureType}" placeholder="Feature Type"/> <br/>
+                <g:textField class="form-control" name="featureType" maxlength="50" value="${featureType}"
+                             placeholder="Feature Type"/> <br/>
             </div>
 
             <div class="col-sm-4  form-group">
                 <label for="organismName">Organism:</label>
-                <g:textField class="form-control" name="organismName" maxlength="50" value="${organismName}" placeholder="Organism"/><br/>
+                <g:textField class="form-control" name="organismName" maxlength="50" value="${organismName}"
+                             placeholder="Organism"/><br/>
             </div>
         </div>
 
@@ -62,15 +65,27 @@
         </thead>
         <tbody>
         <g:each in="${features}" status="i" var="feature">
+            <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <g:formatDate format="E dd-MMM-yy" date="${feature.lastUpdated}"/>
+                    <g:formatDate format="dd-MMM-yy HH:mm (E)" date="${feature.lastUpdated}"/>
                 </td>
                 <td>
-                    ${feature.featureLocation.sequence.organism.commonName}
+                    <g:link target="_blank" controller="annotator" action="loadLink"
+                        params="[organism: sequence.organism.id]">
+                        ${sequence.organism.commonName}
+                    </g:link>
                 </td>
                 <td>
-                    ${feature.featureLocation.sequence.name}
+                %{--${feature.featureLocation.sequence.name}--}%
+                    <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
+                    <g:link target="_blank" controller="annotator" action="loadLink"
+                            params="[loc: sequence.name + ':' + sequence.start + '..' + sequence.end, organism: sequence.organism.id]">
+                        ${sequence.name}</g:link>
+                    <g:link target="_blank" controller="sequence" action="report" id="${sequence.organism.id}">
+                        <div class="glyphicon glyphicon-list-alt">
+                        </div>
+                    </g:link>
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"
@@ -80,7 +95,9 @@
                 </td>
 
                 <td>
-                    ${feature.owner?.username}
+                    <g:link target="_blank" controller="annotator" action="detail" id="${feature.owner?.id}">
+                        ${feature.owner?.username}
+                    </g:link>
                 </td>
                 <td>
                     ${feature.cvTerm}
