@@ -1,4 +1,4 @@
-<%@ page import="org.bbop.apollo.User; org.bbop.apollo.Feature" %>
+<%@ page import="org.bbop.apollo.Organism; org.bbop.apollo.User; org.bbop.apollo.Feature" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,7 +20,7 @@
             <div class="col-sm-3 form-group">
                 <label for="ownerName">Owner:</label>
                 <g:select name='ownerName' value="${ownerName}"
-                          noSelection="${[null:'Select One...']}"
+                          noSelection="${[null:'Select User ...']}"
                           from='${User.listOrderByUsername()}'
                           optionKey="username" optionValue="username"/>
             </div>
@@ -33,8 +33,12 @@
 
             <div class="col-sm-4  form-group">
                 <label for="organismName">Organism:</label>
-                <g:textField class="form-control" name="organismName" maxlength="50" value="${organismName}"
-                             placeholder="Organism"/><br/>
+                %{--<g:textField class="form-control" name="organismName" maxlength="50" value="${organismName}"--}%
+                             %{--placeholder="Organism"/><br/>--}%
+                <g:select name='organismName' value="${organismName}"
+                          noSelection="${[null:'Select Organism ...']}"
+                          from='${Organism.listOrderByCommonName()}'
+                          optionKey="commonName" optionValue="commonName"/>
             </div>
         </div>
 
