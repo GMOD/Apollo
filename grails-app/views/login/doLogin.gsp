@@ -23,7 +23,7 @@
         $(document).ready(function () {
             var pathname = location.pathname;
             context = /^\/([^\/]+)\//.exec(pathname)[1];
-            $("head").append("<link rel='stylesheet' type='text/css' href='/" + context + "/styles/login.css'/>");
+//            $("head").append("<link rel='stylesheet' type='text/css' href='/" + context + "/styles/login.css'/>");
             $("#login_button").click(function () {
                 login();
             });
@@ -38,7 +38,7 @@
                     login();
                 }
             });
-            $("#username").focus();
+//            $("#username").focus();
         });
 
         function login() {
@@ -48,9 +48,11 @@
                 return;
             }
             var password = $("#password").val();
+            var remember_me = $("#remember_me").val();
             var json = new Object();
             json.username = username;
             json.password = password;
+            json.rememberMe = remember_me;
             $.ajax({
                 type: "post",
                 url: "/" + context + "/Login?operation=login",
@@ -84,7 +86,7 @@
 <body>
 
 <div class="input-group" style="margin-bottom: 5px;margin-top: 5px;">
-    <input class="form-control" type="text" id="username" placeholder="Username" autofocus/>
+    <input class="form-control" type="text" id="username" placeholder="Username" autofocus="autofocus"/>
 </div>
 
 <div class="input-group" style="margin-bottom: 5px">
@@ -95,6 +97,12 @@
 %{--<div class="button_login">--}%
 <button class="btn btn-primary" id="login_button">Login</button>
 <button class="btn btn-default" id="clear_button" >Clear</button>
+%{--<button class="btn btn-default" id="rememberme_button" >Remember Me</button>--}%
+<div>
+    Remember me
+    <input type="checkbox" autocomplete="off" id="remember_me" checked>
+</div>
+
 %{--</div>--}%
 <div id="message"></div>
 </body>
