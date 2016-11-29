@@ -595,12 +595,22 @@ class PermissionService {
         }
     }
 
+    /**
+     * we prefer the param over the dataObject one I guess
+     * @param params
+     * @param dataObject
+     * @return
+     */
     @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
+        // replace the dataObject either way
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, params.get(FeatureStringEnum.CLIENT_TOKEN.value))
-        } else {
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
+        }
+        // if the dataObject doesn't contain nor does the param, then we create it
+        if(!dataObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ){
+//            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,FeatureStringEnum.IGNORE.value)
         }
         return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
     }
