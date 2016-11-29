@@ -151,7 +151,10 @@ class FeatureEventController {
             featureTypes << it.substring(it.lastIndexOf(".")+1)
         }.sort()
 
-        render view: "report", model: [sequenceName: params.sequenceName,features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes:featureTypes,featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+        Date startDate = params.startDate ?: new Date()
+        Date endDate = params.endDate ?:new Date().minus(5 * 365)
+
+        render view: "report", model: [startDate:params.startDate,endDate:params.endDate,sequenceName: params.sequenceName,features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes:featureTypes,featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {

@@ -49,6 +49,16 @@
                 <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name" />
             </div>
         </div>
+        %{--<div class="row col-sm-12">--}%
+            %{--<div class="col-sm-4  form-group">--}%
+                %{--Start--}%
+                %{--<g:datePicker name="startDate" precision="day" relativeYears="[0..-20]"/>--}%
+            %{--</div>--}%
+            %{--<div class="col-sm-4  form-group">--}%
+                %{--End--}%
+                %{--<g:datePicker name="endDate" precision="day" relativeYears="[0..-20]"/>--}%
+            %{--</div>--}%
+        %{--</div>--}%
 
         <div class="row col-sm-12">
             <div class="form-group col-sm-4">
