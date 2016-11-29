@@ -73,7 +73,7 @@
             <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <g:formatDate format="dd-MMM-yy HH:mm (E)" date="${feature.lastUpdated}"/>
+                    <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.lastUpdated}"/>
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"
