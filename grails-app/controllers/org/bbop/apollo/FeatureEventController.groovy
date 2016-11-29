@@ -127,7 +127,7 @@ class FeatureEventController {
                 featureLocations {
                     sequence {
                         organism {
-                            eq('commonName', params.organismName )
+                            eq('commonName', params.organismName)
                         }
                     }
                 }
@@ -135,9 +135,18 @@ class FeatureEventController {
             if (params.sequenceName && params.sequenceName != "null") {
                 featureLocations {
                     sequence {
-                        ilike('name', '%' + params.sequenceName+ '%')
+                        ilike('name', '%' + params.sequenceName + '%')
                     }
                 }
+            }
+
+            log.debug "afterDateDate ${params.afterDateDate}"
+            log.debug "beforeDate ${params.beforeDate}"
+            if (params.afterDate) {
+                gte('dateCreated', params.afterDate)
+            }
+            if (params.beforeDate) {
+                lte('dateCreated', params.beforeDate)
             }
 
 
@@ -147,14 +156,17 @@ class FeatureEventController {
         def filters = [organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
 
         def featureTypes = []
-        RequestHandlingService.viewableAnnotationTypesList.each(){
-            featureTypes << it.substring(it.lastIndexOf(".")+1)
+        RequestHandlingService.viewableAnnotationTypesList.each() {
+            featureTypes << it.substring(it.lastIndexOf(".") + 1)
         }.sort()
 
-        Date startDate = params.startDate ?: new Date()
-        Date endDate = params.endDate ?:new Date().minus(5 * 365)
+        Date today = new Date()
+        Date veryOldDate = today.minus(20 * 365)  // 20 years back
+        Date beforeDate = params.beforeDate ?: today
+        Date afterDate = params.afterDate ?: veryOldDate
+        println "after date ${afterDate}"
 
-        render view: "report", model: [startDate:params.startDate,endDate:params.endDate,sequenceName: params.sequenceName,features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes:featureTypes,featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+        render view: "report", model: [afterDate: afterDate, beforeDate: beforeDate, sequenceName: params.sequenceName, features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes: featureTypes, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {
