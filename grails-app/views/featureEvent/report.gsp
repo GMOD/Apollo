@@ -4,6 +4,12 @@
 <head>
     <meta name="layout" content="main">
     <title>Recent Changes</title>
+
+    <script>
+        function doSearch(){
+            document.getElementById("customform").submit();
+        }
+    </script>
 </head>
 
 <body>
@@ -22,14 +28,14 @@
                 <g:select name='ownerName' value="${ownerName}"
                           noSelection="${[null: 'Select User ...']}"
                           from='${User.listOrderByUsername()}'
-                          optionKey="username" optionValue="username"/>
+                          optionKey="username" optionValue="username" onchange="doSearch();"/>
             </div>
 
             <div class="col-sm-2  form-group">
                 %{--<label for="featureType">Feature type:</label>--}%
                 <g:select name='featureType' value="${featureType}"
                           noSelection="${[null: 'Select Feature Type...']}"
-                          from='${featureTypes}'
+                          from='${featureTypes}' onchange="doSearch();"
                 />
             </div>
 
@@ -37,10 +43,10 @@
                 <g:select name='organismName' value="${organismName}"
                           noSelection="${[null: 'Select Organism ...']}"
                           from='${Organism.listOrderByCommonName()}'
-                          optionKey="commonName" optionValue="commonName"/>
+                          optionKey="commonName" optionValue="commonName" onchange="doSearch();"/>
             </div>
             <div class="col-sm-2  form-group">
-                <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name"/> <br/>
+                <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name" />
             </div>
         </div>
 
@@ -119,7 +125,9 @@
     </div>
     <div class="col-sm-4">
         <div class="btn btn-info">
-            Results <div class="badge badge-important"> ${featureCount}</div>
+            Results <div class="badge badge-important">
+            <g:formatNumber number="${featureCount}" type="number"/>
+        </div>
         </div>
     </div>
 </div>
