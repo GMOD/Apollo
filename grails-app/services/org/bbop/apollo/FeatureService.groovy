@@ -1162,7 +1162,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Timed
     @Transactional
-    public Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
+    Feature convertJSONToFeature(JSONObject jsonFeature, Sequence sequence) {
         Feature gsolFeature
         try {
             JSONObject type = jsonFeature.getJSONObject(FeatureStringEnum.TYPE.value);
