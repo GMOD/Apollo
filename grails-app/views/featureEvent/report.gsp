@@ -1,4 +1,4 @@
-<%@ page import="org.bbop.apollo.Organism; org.bbop.apollo.User; org.bbop.apollo.Feature" %>
+<%@ page import="org.bbop.apollo.RequestHandlingService; org.bbop.apollo.Organism; org.bbop.apollo.User; org.bbop.apollo.Feature" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,26 +17,25 @@
             <div class="message row col-sm-12" role="status">${flash.message}</div>
         </g:if>
         <div class="row col-sm-12">
-            <div class="col-sm-3 form-group">
-                <label for="ownerName">Owner:</label>
+            <div class="col-sm-2 form-group">
+                %{--<label for="ownerName">Owner:</label>--}%
                 <g:select name='ownerName' value="${ownerName}"
-                          noSelection="${[null:'Select User ...']}"
+                          noSelection="${[null: 'Select User ...']}"
                           from='${User.listOrderByUsername()}'
                           optionKey="username" optionValue="username"/>
             </div>
 
-            <div class="col-sm-4  form-group">
-                <label for="featureType">Feature type:</label>
-                <g:textField class="form-control" name="featureType" maxlength="50" value="${featureType}"
-                             placeholder="Feature Type"/> <br/>
+            <div class="col-sm-2  form-group">
+                %{--<label for="featureType">Feature type:</label>--}%
+                <g:select name='featureType' value="${featureType}"
+                          noSelection="${[null: 'Select Feature Type...']}"
+                          from='${featureTypes}'
+                />
             </div>
 
-            <div class="col-sm-4  form-group">
-                <label for="organismName">Organism:</label>
-                %{--<g:textField class="form-control" name="organismName" maxlength="50" value="${organismName}"--}%
-                             %{--placeholder="Organism"/><br/>--}%
+            <div class="col-sm-2  form-group">
                 <g:select name='organismName' value="${organismName}"
-                          noSelection="${[null:'Select Organism ...']}"
+                          noSelection="${[null: 'Select Organism ...']}"
                           from='${Organism.listOrderByCommonName()}'
                           optionKey="commonName" optionValue="commonName"/>
             </div>
@@ -78,7 +77,7 @@
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"
-                        params="[organism: sequence.organism.id]">
+                            params="[organism: sequence.organism.id]">
                         ${sequence.organism.commonName}
                     </g:link>
                 </td>

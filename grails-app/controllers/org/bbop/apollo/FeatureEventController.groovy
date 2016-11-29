@@ -120,7 +120,7 @@ class FeatureEventController {
                     ilike('username', '%' + params.ownerName + '%')
                 }
             }
-            if (params.featureType != null && params.featureType != "") {
+            if (params.featureType && params.featureType != "null") {
                 ilike('class', '%' + params.featureType)
             }
             if (params.organismName && params.organismName != "null") {
@@ -139,7 +139,12 @@ class FeatureEventController {
 
         def filters = [organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
 
-        render view: "report", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+        def featureTypes = []
+        RequestHandlingService.viewableAnnotationTypesList.each(){
+            featureTypes << it.substring(it.lastIndexOf(".")+1)
+        }.sort()
+
+        render view: "report", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes:featureTypes,featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {
