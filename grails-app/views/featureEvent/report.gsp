@@ -39,6 +39,9 @@
                           from='${Organism.listOrderByCommonName()}'
                           optionKey="commonName" optionValue="commonName"/>
             </div>
+            <div class="col-sm-2  form-group">
+                <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name"/> <br/>
+            </div>
         </div>
 
         <div class="row col-sm-12">
@@ -47,7 +50,6 @@
                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
                 </button>
             </div>
-            %{--<input class="col-sm-1 btn btn-primary glyphicon" type="submit" value="Search"/>--}%
         </div>
         <g:hiddenField name="sort" value="${params.sort}"/>
         <g:hiddenField name="order" value="${params.order}"/>
@@ -114,6 +116,11 @@
 
     <div class="pagination">
         <g:paginate total="${featureCount ?: 0}" params="${params}"/>
+    </div>
+    <div class="col-sm-4">
+        <div class="btn btn-info">
+            Results <div class="badge badge-important"> ${featureCount}</div>
+        </div>
     </div>
 </div>
 </body>

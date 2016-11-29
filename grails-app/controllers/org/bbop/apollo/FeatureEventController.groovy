@@ -127,8 +127,15 @@ class FeatureEventController {
                 featureLocations {
                     sequence {
                         organism {
-                            ilike('commonName', '%' + params.organismName + '%')
+                            eq('commonName', params.organismName )
                         }
+                    }
+                }
+            }
+            if (params.sequenceName && params.sequenceName != "null") {
+                featureLocations {
+                    sequence {
+                        ilike('name', '%' + params.sequenceName+ '%')
                     }
                 }
             }
@@ -144,7 +151,7 @@ class FeatureEventController {
             featureTypes << it.substring(it.lastIndexOf(".")+1)
         }.sort()
 
-        render view: "report", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes:featureTypes,featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+        render view: "report", model: [sequenceName: params.sequenceName,features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes:featureTypes,featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {
