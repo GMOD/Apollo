@@ -12,8 +12,6 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
  */
 public class LoadingDialog extends Modal{
 
-    private Boolean showOnBuild = true ;
-
     public LoadingDialog(boolean showOnConstruct){
         this("Loading ...",null,showOnConstruct);
     }

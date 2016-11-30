@@ -600,6 +600,7 @@ class PermissionService {
         }
         // if the dataObject doesn't contain nor does the param, then we create it
         if(!dataObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ){
+            // client should generate token, not server
 //            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,FeatureStringEnum.IGNORE.value)
         }
