@@ -4302,29 +4302,57 @@ define([
                 });
             },
 
-            login: function () {
-                var track = this;
-                dojo.xhrGet({
-                    url: context_path + "/Login",
-                    handleAs: "text",
-                    timeout: 5 * 60,
-                    load: function (response, ioArgs) {
-                        var dialog = new dojoxDialogSimple({
-                            preventCache: true,
-                            refreshOnShow: true,
-                            executeScripts: true
-
-                        });
-                        if (track.browser.config.disableJBrowseMode) {
-                            dialog.hide = function () {
-                            };
-                        }
-                        dialog.startup();
-                        dialog.set("title", "Login");
-                        dialog.set("content", response);
-                        dialog.show();
+            showAnnotatorPanel: function(){
+                // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
+                // to
+                // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
+                var hrefString = window.location.href;
+                var hrefTokens = hrefString.split("\/");
+                var organism ;
+                for(var h in hrefTokens){
+                    // alert(hrefTokens[h]);
+                    if(hrefTokens[h]=="jbrowse"){
+                        organism = hrefTokens[h-1] ;
                     }
-                });
+                }
+
+                // NOTE: Here is where you customize your view into Apollo, by adding / changing parameters
+
+                var jbrowseString = "/jbrowse/index.html?";
+                var jbrowseIndex = hrefString.indexOf(jbrowseString);
+                var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
+                params = params.replace("tracklist=1","tracklist=0");
+                var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
+                if(params.indexOf("&clientToken=")<0){
+                    finalString += "&clientToken="+this.getClientToken();
+                }
+                window.location.href = finalString;
+            },
+
+            login: function () {
+                this.showAnnotatorPanel();
+                // var track = this;
+                // dojo.xhrGet({
+                //     url: context_path + "/Login",
+                //     handleAs: "text",
+                //     timeout: 5 * 60,
+                //     load: function (response, ioArgs) {
+                //         var dialog = new dojoxDialogSimple({
+                //             preventCache: true,
+                //             refreshOnShow: true,
+                //             executeScripts: true
+                //
+                //         });
+                //         if (track.browser.config.disableJBrowseMode) {
+                //             dialog.hide = function () {
+                //             };
+                //         }
+                //         dialog.startup();
+                //         dialog.set("title", "Login");
+                //         dialog.set("content", response);
+                //         dialog.show();
+                //     }
+                // });
             },
 
             initLoginMenu: function () {
