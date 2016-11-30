@@ -12,10 +12,7 @@ import com.google.gwt.dom.builder.shared.TableRowBuilder;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
@@ -72,6 +69,7 @@ public class AnnotatorPanel extends Composite {
     private TextColumn<AnnotationInfo> sequenceColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
     private Column<AnnotationInfo, String> dateColumn;
+    private Column<AnnotationInfo, String> showHideColumn ;
     long requestIndex = 0;
 
     @UiField
@@ -111,6 +109,7 @@ public class AnnotatorPanel extends Composite {
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
+    private SingleSelectionModel<AnnotationInfo> singleSelectionModel= new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
     public AnnotatorPanel() {
@@ -412,6 +411,16 @@ public class AnnotatorPanel extends Composite {
         Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
     }
 
+    public void toggleOpen(int index,AnnotationInfo annotationInfo){
+        if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
+            showingTranscripts.remove(annotationInfo.getUniqueName());
+        } else {
+            showingTranscripts.add(annotationInfo.getUniqueName());
+        }
+
+        // Redraw the modified row.
+        dataGrid.redrawRow(index);
+    }
 
     private void initializeTable() {
         // View friends.
@@ -432,21 +441,25 @@ public class AnnotatorPanel extends Composite {
                 return annotationInfo.getName();
             }
         };
+        nameColumn.setSortable(true);
 
-        nameColumn.setFieldUpdater(new FieldUpdater<AnnotationInfo, String>() {
+        showHideColumn = new Column<AnnotationInfo, String>(new ClickableTextCell(anchorRenderer)) {
+            @Override
+            public String getValue(AnnotationInfo annotationInfo) {
+                if(annotationInfo.getType().equals("gene") || annotationInfo.getType().equals("pseudogene")){
+                    return showingTranscripts.contains(annotationInfo.getUniqueName()) ? "-" : "+" ;
+                }
+                return " ";
+            }
+        };
+        showHideColumn.setSortable(false);
+
+        showHideColumn.setFieldUpdater(new FieldUpdater<AnnotationInfo, String>() {
             @Override
             public void update(int index, AnnotationInfo annotationInfo, String value) {
-                if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
-                    showingTranscripts.remove(annotationInfo.getUniqueName());
-                } else {
-                    showingTranscripts.add(annotationInfo.getUniqueName());
-                }
-
-                // Redraw the modified row.
-                dataGrid.redrawRow(index);
+                toggleOpen(index,annotationInfo);
             }
         });
-        nameColumn.setSortable(true);
 
         sequenceColumn = new TextColumn<AnnotationInfo>() {
             @Override
@@ -496,16 +509,30 @@ public class AnnotatorPanel extends Composite {
         dateColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         dateColumn.setCellStyleNames("dataGridLastColumn");
 
+        dataGrid.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                AnnotationInfo annotationInfo = singleSelectionModel.getSelectedObject();
+                int index = dataGrid.getKeyboardSelectedRow();
+                toggleOpen(index,annotationInfo);
+
+            }
+        }, DoubleClickEvent.getType());
+
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(sequenceColumn, "Seq");
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.addColumn(dateColumn, "Updated");
+        dataGrid.addColumn(showHideColumn,"");
         dataGrid.setColumnWidth(0, 75, Unit.PCT);
         dataGrid.setColumnWidth(1, 25, Unit.PCT);
         dataGrid.setColumnWidth(2, 45.0, Unit.PX);
         dataGrid.setColumnWidth(3, 65.0, Unit.PX);
         dataGrid.setColumnWidth(4, 100.0, Unit.PX);
+        dataGrid.setColumnWidth(5, 30.0, Unit.PX);
+
+        dataGrid.setSelectionModel(singleSelectionModel);
     }
 
     private String getType(JSONObject internalData) {
@@ -693,19 +720,29 @@ public class AnnotatorPanel extends Composite {
             }
             td.endTD();
 
+            // this is the "warning" column, which isn't used
             td = row.startTD();
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
 
-            DivBuilder div = td.startDiv();
-            SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+//            DivBuilder div = td.startDiv();
+//            SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
 
-            for (String error : rowValue.getNoteList()) {
-                safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>" + error + "</div>");
-            }
+//            for (String error : rowValue.getNoteList()) {
+//                safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>" + error + "</div>");
+//            }
 
+//            div.html(safeHtmlBuilder.toSafeHtml());
 
-            div.html(safeHtmlBuilder.toSafeHtml());
-            td.endDiv();
+//            if (showTranscripts) {
+//                DivBuilder div = td.startDiv();
+//                div.style().trustedColor("green").endStyle();
+//                div.text(rowValue.getType());
+//                td.endDiv();
+//            } else {
+                renderCell(td, createContext(4), showHideColumn, rowValue);
+//            }
+
+//            td.endDiv();
             td.endTD();
 
             row.endTR();
