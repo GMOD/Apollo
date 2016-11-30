@@ -374,7 +374,6 @@ public class AnnotatorPanel extends Composite {
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.selectTab(0);
             case "Transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
@@ -393,13 +392,18 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "transposable_element":
             case "repeat_region":
-                fireAnnotationInfoChangeEvent(annotationInfo);
+//                fireAnnotationInfoChangeEvent(annotationInfo);
                 repeatRegionDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
         }
+        // if the current selected tb is not visible then select the first one
+        if(tabPanel.getSelectedIndex()!=0 && !tabPanel.getTabWidget(1).getParent().isVisible()){
+            tabPanel.selectTab(0);
+        }
+
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
