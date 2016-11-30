@@ -34,6 +34,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.*;
@@ -544,13 +545,6 @@ public class AnnotatorPanel extends Composite {
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max,false);
     }
 
-    public static void enableGoto(String geneIndex, String uniqueName, String displayString) {
-        int geneInt = Integer.parseInt(geneIndex);
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
-        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
-        exonDetailPanel.updateData(selectedAnnotationInfo);
-        gotoAnnotation.setEnabled(true);
-    }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
@@ -568,17 +562,34 @@ public class AnnotatorPanel extends Composite {
 //        reload();
 //    }
 
-//    // TODO: need to cache these or retrieve from the backend
-//    public static void displayTranscript(Integer geneIndex, String uniqueName) {
-//        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
-//        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
-////        exonDetailPanel.updateData(selectedAnnotationInfo);
-//        updateAnnotationInfo(selectedAnnotationInfo);
-//    }
+    // used by javascript function
+    public void enableGoto(int geneInt, String uniqueName) {
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
+        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+        exonDetailPanel.updateData(selectedAnnotationInfo);
+        gotoAnnotation.setEnabled(true);
+    }
+
+    // used by javascript function
+    public void displayTranscript(int geneIndex, String uniqueName) {
+
+        // for some reason doesn't like call enableGoto
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
+        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+        exonDetailPanel.updateData(selectedAnnotationInfo);
+        gotoAnnotation.setEnabled(true);
+
+        // for some reason doesn't like call gotoAnnotation
+        Integer min = selectedAnnotationInfo.getMin() - 50 ;
+        Integer max = selectedAnnotationInfo.getMax() + 50 ;
+        min = min < 0 ? 0 : min;
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max,false);
+    }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
-//        $wnd.displayTranscript = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
-        $wnd.enableGoto = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
+        var that = this;
+        $wnd.displayTranscript = $entry( annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;) );
+        $wnd.enableGoto = $entry( annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;) );
 //        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
@@ -615,7 +626,7 @@ public class AnnotatorPanel extends Composite {
                 // a custom cell rendering might work as well, but not sure
 
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='" + transcriptStyle + "' onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
+                HTML html = new HTML("<a style='" + transcriptStyle + "' ondblclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {
