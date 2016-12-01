@@ -443,8 +443,12 @@ define([
                     }
 
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
-                        alert(changeData.error_message);
-                        console.log(changeData.error_message);
+                        var myDialog = new dijit.Dialog({
+                            title: "Error Performing Operation",
+                            // content: "test content",
+                            content: changeData.error_message,
+                            style: "width: 300px"
+                        }).show();
                         return;
                     }
 

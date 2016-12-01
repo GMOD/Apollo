@@ -1115,7 +1115,7 @@ class RequestHandlingService {
         }
     }
 
-    public void sendAnnotationEvent(String returnString, Sequence sequence) {
+    void sendAnnotationEvent(String returnString, Sequence sequence) {
         if (returnString.startsWith("[")) {
             returnString = returnString.substring(1, returnString.length() - 1)
         }
@@ -1136,6 +1136,9 @@ class RequestHandlingService {
         try {
             features.put(AnnotationEditorController.REST_OPERATION, event.getOperation().name());
             features.put(REST_SEQUENCE_ALTERNATION_EVENT, event.isSequenceAlterationEvent());
+            if(event.username){
+                features.put(FeatureStringEnum.USERNAME.value, event.username);
+            }
             operations.put(features);
         }
         catch (JSONException e) {
@@ -1934,7 +1937,16 @@ class RequestHandlingService {
         )
         if (splitExon == null) {
             def returnContainer = createJSONFeatureContainer()
-            returnContainer.put("alert", "Unable to find canonical splice sites.");
+            returnContainer.put(FeatureStringEnum.ERROR_MESSAGE.value, "Unable to find canonical splice sites.")
+            String username = permissionService.getCurrentUser(inputObject)?.username
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: returnContainer
+                    , sequence: sequence
+                    , operation: AnnotationEvent.Operation.ERROR
+                    , username: username
+            )
+
+            fireAnnotationEvent(annotationEvent)
             return returnContainer
         }
         featureService.updateNewGsolFeatureAttributes(splitExon, sequence)
