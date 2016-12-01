@@ -408,8 +408,9 @@ class PermissionService {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
             if(!jsonObject.username){
-                log.debug "Username not supplied so can not authenticate."
-                return false
+                log.error "Username not supplied so can not authenticate."
+                jsonObject.error_message = "Username not supplied so can not authenticate."
+                return jsonObject
             }
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
@@ -419,11 +420,13 @@ class PermissionService {
                 subject.login(authToken)
                 if (!subject.authenticated) {
                     log.warn "Failed to authenticate user ${jsonObject.username}"
-                    return false
+                    jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
+                    return jsonObject
                 }
             } catch (Exception ae) {
                 log.error("Problem authenticating: " + ae.fillInStackTrace())
-                return false
+                jsonObject.error_message = "Problem authenticating: " + ae.fillInStackTrace()
+                return jsonObject
             }
         } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
             jsonObject.username = SecurityUtils?.subject?.principal
