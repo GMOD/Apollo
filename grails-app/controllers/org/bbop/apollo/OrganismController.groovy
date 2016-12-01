@@ -1,23 +1,20 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import grails.converters.JSON
 import org.bbop.apollo.report.OrganismSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApi
-import org.restapidoc.annotation.RestApiBodyObject
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
-import org.restapidoc.annotation.RestApiResponseObject
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
-import org.springframework.http.HttpStatus
 
-import static org.springframework.http.HttpStatus.*
-import grails.transaction.Transactional
+import static org.springframework.http.HttpStatus.NOT_FOUND
 
 @RestApi(name = "Organism Services", description = "Methods for managing organims")
 @Transactional(readOnly = true)
@@ -127,7 +124,7 @@ class OrganismController {
     ])
     @Transactional
     def addOrganism() {
-        JSONObject organismJson = permissionService.handleInput(request,params)
+        JSONObject organismJson = permissionService.handleInput(request, params)
         String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
@@ -149,7 +146,7 @@ class OrganismController {
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
-                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism,clientToken)
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
                 sequenceService.loadRefSeqs(organism)
                 render findAllOrganisms()
             } else {
@@ -174,28 +171,28 @@ class OrganismController {
     def getSequencesForOrganism() {
         JSONObject organismJson = permissionService.handleInput(request, params)
         if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
-            render (['error': 'Empty fields in request JSON'] as JSON)
+            render(['error': 'Empty fields in request JSON'] as JSON)
             return
         }
 
         List<Sequence> sequenceList
 
         Organism organism = Organism.findByCommonName(organismJson.organism)
-        if(!organism) {
+        if (!organism) {
             organism = Organism.findById(organismJson.organism)
         }
-        if(!organism) {
-            def error = ['error': 'Organism not found '+organismJson.organism]
+        if (!organism) {
+            def error = ['error': 'Organism not found ' + organismJson.organism]
             render error as JSON
             log.error(error.error)
             return
         }
 
 
-        if (permissionService.findHighestOrganismPermissionForUser(organism,permissionService.getCurrentUser(organismJson)).rank >= PermissionEnum.EXPORT.rank) {
+        if (permissionService.findHighestOrganismPermissionForUser(organism, permissionService.getCurrentUser(organismJson)).rank >= PermissionEnum.EXPORT.rank) {
             def c = Sequence.createCriteria()
             sequenceList = c.list {
-                eq('organism',organism)
+                eq('organism', organism)
             }
             log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
         } else {
@@ -205,7 +202,7 @@ class OrganismController {
             return
         }
 
-        render ([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList] as JSON)
+        render([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList] as JSON)
     }
 
     private boolean checkOrganism(Organism organism) {
@@ -245,7 +242,7 @@ class OrganismController {
     def updateOrganismInfo() {
         log.debug "updating organism info ${params}"
         try {
-            JSONObject organismJson = permissionService.handleInput(request,params)
+            JSONObject organismJson = permissionService.handleInput(request, params)
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {
@@ -265,7 +262,8 @@ class OrganismController {
             } else {
                 throw new Exception('organism not found')
             }
-            render findAllOrganisms()
+//            render findAllOrganisms()
+            render new JSONObject() as JSON
         }
         catch (e) {
             def error = [error: 'problem saving organism: ' + e]
@@ -283,36 +281,34 @@ class OrganismController {
     def findAllOrganisms() {
         try {
 //            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
-            JSONObject organismJson = permissionService.handleInput(request,params)
+            JSONObject organismJson = permissionService.handleInput(request, params)
             List<Organism> organismList = []
 
-            if(organismJson.organism) {
+            if (organismJson.organism) {
                 log.debug "finding info for specific organism"
-                Organism organism=Organism.findByCommonName(organismJson.organism)
-                if(!organism) organism=Organism.findById(organismJson.organism)
-                if(!organism) render ([error:"Organism not found"] as JSON)
-                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism,permissionService.getCurrentUser(organismJson))
-                if(permissionService.findHighestEnum(permissionEnumList)?.rank > PermissionEnum.NONE.rank){
+                Organism organism = Organism.findByCommonName(organismJson.organism)
+                if (!organism) organism = Organism.findById(organismJson.organism)
+                if (!organism) render([error: "Organism not found"] as JSON)
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, permissionService.getCurrentUser(organismJson))
+                if (permissionService.findHighestEnum(permissionEnumList)?.rank > PermissionEnum.NONE.rank) {
                     organismList.add(organism)
                 }
-            }
-            else {
+            } else {
                 log.debug "finding all info"
-                if(permissionService.isAdmin()){
+                if (permissionService.isAdmin()) {
                     organismList = Organism.all
-                }
-                else{
+                } else {
                     organismList = permissionService.getOrganismsForCurrentUser(organismJson)
                 }
             }
 
-            if(!organismList){
+            if (!organismList) {
                 def error = [error: 'Not authorized for any organisms']
                 render error as JSON
                 return
             }
 
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true,[max: 1, sort: "lastUpdated", order: "desc"])
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true, [max: 1, sort: "lastUpdated", order: "desc"])
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
             JSONArray jsonArray = new JSONArray()
@@ -323,10 +319,10 @@ class OrganismController {
                 def list = c.list {
                     featureLocations {
                         sequence {
-                            eq('organism',organism)
+                            eq('organism', organism)
                         }
                     }
-                    'in'('class',requestHandlingService.viewableAnnotationList)
+                    'in'('class', requestHandlingService.viewableAnnotationList)
                 }
                 log.debug "${list}"
                 Integer annotationCount = list.size()

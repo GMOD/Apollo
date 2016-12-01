@@ -323,6 +323,9 @@ class PermissionService {
             sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
         } else {
             sequence = Sequence.findByNameAndOrganism(trackName, organism)
+            if(!sequence){
+                throw new AnnotationException("No sequence found for name '${trackName}' and organism '${organism?.commonName}'")
+            }
         }
 
         if (!sequence && organism) {
@@ -462,26 +465,14 @@ class PermissionService {
         }
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
-        Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
-        log.debug "passing in an organism ${jsonObject.organism}"
-        if (jsonObject.organism) {
-            Organism thisOrganism = null
-            try {
-                thisOrganism = Organism.findById(jsonObject.organism as Long)
-            } catch (npe) {
-                // obviously not a long type
-            }
-            if (!thisOrganism) {
-                thisOrganism = Organism.findByCommonNameIlike(jsonObject.organism)
-            }
-            if (!thisOrganism) {
-                thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
-            }
-            if (organism.id != thisOrganism.id) {
-                log.debug "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
-                organism = thisOrganism
-            }
-            log.debug "final organism ${organism.commonName}"
+        Organism organism = getOrganismFromInput(jsonObject)
+        if(clientToken==FeatureStringEnum.IGNORE.value){
+            organism = getOrganismFromInput(jsonObject)
+        }
+
+        organism = organism ?: preferenceService.getCurrentOrganismPreference(clientToken)?.organism
+        // don't set the preferences if it is coming off a script
+        if(clientToken!=FeatureStringEnum.IGNORE.value){
             preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
         }
 
@@ -598,14 +589,29 @@ class PermissionService {
         }
     }
 
+    /**
+     * we prefer the param over the dataObject one I guess
+     * @param params
+     * @param dataObject
+     * @return
+     */
     @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
+        // replace the dataObject either way
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, params.get(FeatureStringEnum.CLIENT_TOKEN.value))
-        } else {
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
         }
-        return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        // if the dataObject doesn't contain nor does the param, then we create it
+        if(!dataObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ){
+            // client should generate token, not server
+//            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,FeatureStringEnum.IGNORE.value)
+        }
+        String clientToken = dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        if(clientToken == FeatureStringEnum.IGNORE.value && !dataObject.containsKey(FeatureStringEnum.ORGANISM.value)){
+            throw new RuntimeException("Must contain 'organism' value if we ignore the clientToken")
+        }
+        return clientToken
     }
 
     @NotTransactional

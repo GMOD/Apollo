@@ -69,6 +69,7 @@ public enum FeatureStringEnum {
         DB,
         DBXREFS,
         CLIENT_TOKEN("clientToken"),
+        IGNORE,
         PREFERENCE,
         ACCESSION,
         CDS_SUFFIX("-CDS"),
