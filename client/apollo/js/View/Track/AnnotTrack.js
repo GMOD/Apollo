@@ -473,7 +473,14 @@ define([
                         else {
                             track.annotationsUpdatedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+
+                        var selected = track.selectionManager.getSelection();
+                        track.selectionRemoved(selected,track.selectionManager);
+                        track.selectionAdded(selected,track.selectionManager);
+                        // if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+
+
+
                     }
                     else {
                         console.log('unknown command: ', changeData.operation);
@@ -482,7 +489,6 @@ define([
                     track.changed();
                 } catch (e) {
                     console.log(e);
-                    console.log('Processing: ', message.body);
                 }
             },
 
