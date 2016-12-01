@@ -477,7 +477,7 @@ define([
                         var selected = track.selectionManager.getSelection();
                         track.selectionRemoved(selected,track.selectionManager);
                         track.selectionAdded(selected,track.selectionManager);
-                        // if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
 
 
 
