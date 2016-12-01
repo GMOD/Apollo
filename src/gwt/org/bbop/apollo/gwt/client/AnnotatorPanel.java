@@ -148,6 +148,7 @@ public class AnnotatorPanel extends Composite {
         dataProvider = new AsyncDataProvider<AnnotationInfo>() {
             @Override
             protected void onRangeChanged(HasData<AnnotationInfo> display) {
+
                 final Range range = display.getVisibleRange();
                 final ColumnSortList sortList = dataGrid.getColumnSortList();
                 final int start = range.getStart();
@@ -362,12 +363,17 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("Repeat Region", "repeat_region");
     }
 
-    private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
-        String type = annotationInfo.getType();
-        GWT.log("annotation type: " + type);
+    private static void hideDetailPanels(){
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
+        exonDetailPanel.setVisible(false);
+    }
+
+    private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+        String type = annotationInfo.getType();
+        GWT.log("annotation type: " + type);
+        hideDetailPanels();
         switch (type) {
             case "gene":
             case "pseudogene":
@@ -542,6 +548,7 @@ public class AnnotatorPanel extends Composite {
     public void reload(Boolean forceReload) {
         if(MainPanel.annotatorPanel.isVisible() || forceReload){
 //            updateAnnotationInfo(null);
+            hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         }
