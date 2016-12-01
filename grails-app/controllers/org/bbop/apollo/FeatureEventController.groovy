@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApiMethod
@@ -10,7 +11,6 @@ import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.*
-import grails.transaction.Transactional
 
 @Transactional(readOnly = true)
 class FeatureEventController {
@@ -22,7 +22,6 @@ class FeatureEventController {
     def permissionService
 
 
-
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     /**
@@ -32,17 +31,17 @@ class FeatureEventController {
      * @param beforeDate
      * @return
      */
-    @RestApiMethod(description="Returns a JSON representation of all current Annotations before or after a given date." ,path="/featureEvent/findChanges",verb = RestApiVerb.POST )
-    @RestApiParams(params=[
-            @RestApiParam(name="username", type="email", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="password", type="password", paramType = RestApiParamType.QUERY)
-            ,@RestApiParam(name="date", type="Date", paramType = RestApiParamType.QUERY,description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
-            ,@RestApiParam(name="afterDate", type="Boolean", paramType = RestApiParamType.QUERY,description = "Search after the given date.")
-            ,@RestApiParam(name="max", type="Integer", paramType = RestApiParamType.QUERY,description = "Max to return")
-            ,@RestApiParam(name="sort", type="String", paramType = RestApiParamType.QUERY,description = "Sort parameter (lastUpdated).  See FeatureEvent object/table.")
-            ,@RestApiParam(name="order", type="String", paramType = RestApiParamType.QUERY,description = "desc/asc sort order by sort param")
-    ] )
-    def findChanges(){
+    @RestApiMethod(description = "Returns a JSON representation of all current Annotations before or after a given date.", path = "/featureEvent/findChanges", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "date", type = "Date", paramType = RestApiParamType.QUERY, description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
+            , @RestApiParam(name = "afterDate", type = "Boolean", paramType = RestApiParamType.QUERY, description = "Search after the given date.")
+            , @RestApiParam(name = "max", type = "Integer", paramType = RestApiParamType.QUERY, description = "Max to return")
+            , @RestApiParam(name = "sort", type = "String", paramType = RestApiParamType.QUERY, description = "Sort parameter (lastUpdated).  See FeatureEvent object/table.")
+            , @RestApiParam(name = "order", type = "String", paramType = RestApiParamType.QUERY, description = "desc/asc sort order by sort param")
+    ])
+    def findChanges() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasGlobalPermissions(inputObject, org.bbop.apollo.gwt.shared.PermissionEnum.ADMINISTRATE)) {
             render status: org.springframework.http.HttpStatus.UNAUTHORIZED
@@ -50,20 +49,19 @@ class FeatureEventController {
         }
         String date = inputObject.date
         Boolean afterDate = inputObject.afterDate
-        Date compareDate = Date.parse( date.contains(":")?FULL_DATE_FORMAT:DAY_DATE_FORMAT,date)
+        Date compareDate = Date.parse(date.contains(":") ? FULL_DATE_FORMAT : DAY_DATE_FORMAT, date)
         params.max = params.max ?: 200
 
         def c = FeatureEvent.createCriteria()
 
-        def list = c.list(max: params.max, offset:params.offset) {
-            eq('current',true)
-            if(afterDate){
-                ge('lastUpdated',compareDate)
+        def list = c.list(max: params.max, offset: params.offset) {
+            eq('current', true)
+            if (afterDate) {
+                ge('lastUpdated', compareDate)
+            } else {
+                le('lastUpdated', compareDate)
             }
-            else{
-                le('lastUpdated',compareDate)
-            }
-            order(params.sort ?: "lastUpdated",params.order ?: "desc")
+            order(params.sort ?: "lastUpdated", params.order ?: "desc")
         }
 
         JSONArray returnList = new JSONArray()
@@ -83,69 +81,92 @@ class FeatureEventController {
      */
     def report(Integer max) {
 
-        log.debug "${params}"
+        log.error "${params}"
 
         params.max = Math.min(max ?: 15, 100)
 
         def c = Feature.createCriteria()
 
-        def list = c.list(max: params.max, offset:params.offset) {
-            if(params.sort=="owners") {
+        def list = c.list(max: params.max, offset: params.offset) {
+            if (params.sort == "owners") {
                 owners {
                     order('username', params.order)
                 }
             }
-            if(params.sort=="sequencename") {
+            if (params.sort == "sequencename") {
                 featureLocations {
                     sequence {
                         order('name', params.order)
                     }
                 }
-            }
-            else if(params.sort=="name") {
+            } else if (params.sort == "name") {
                 order('name', params.order)
-            }
-            else if(params.sort=="cvTerm") {
+            } else if (params.sort == "cvTerm") {
                 order('class', params.order)
-            }
-            else if(params.sort=="organism") {
+            } else if (params.sort == "organism") {
                 featureLocations {
                     sequence {
                         organism {
-                            order('commonName',params.order)
+                            order('commonName', params.order)
                         }
                     }
                 }
-            }
-            else if(params.sort=="lastUpdated") {
-                order('lastUpdated',params.order)
+            } else if (params.sort == "lastUpdated") {
+                order('lastUpdated', params.order)
             }
 
-            if(params.ownerName!=null&&params.ownerName!="") {
+            if (params.ownerName && params.ownerName != "null") {
                 owners {
-                    ilike('username', '%'+params.ownerName+'%')
+                    ilike('username', '%' + params.ownerName + '%')
                 }
             }
-            if(params.featureType!= null&&params.featureType!= "") {
-                ilike('class', '%'+params.featureType)
+            if (params.featureType && params.featureType != "null") {
+                ilike('class', '%' + params.featureType)
             }
-            if(params.organismName!= null&&params.organismName != "") {
+            if (params.organismName && params.organismName != "null") {
                 featureLocations {
                     sequence {
                         organism {
-                            ilike('commonName','%'+params.organismName+'%')
+                            eq('commonName', params.organismName)
                         }
                     }
                 }
             }
+            if (params.sequenceName && params.sequenceName != "null") {
+                featureLocations {
+                    sequence {
+                        ilike('name', '%' + params.sequenceName + '%')
+                    }
+                }
+            }
+
+            log.debug "afterDateDate ${params.afterDateDate}"
+            log.debug "beforeDate ${params.beforeDate}"
+            if (params.afterDate) {
+                gte('dateCreated', params.afterDate)
+            }
+            if (params.beforeDate) {
+                lte('dateCreated', params.beforeDate)
+            }
 
 
-            'in'('class',requestHandlingService.viewableAnnotationList)
+            'in'('class', requestHandlingService.viewableAnnotationList)
         }
 
         def filters = [organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName]
 
-        render view: "report", model: [features: list, featureCount: list.totalCount, organismName: params.organismName, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+        def featureTypes = []
+        RequestHandlingService.viewableAnnotationTypesList.each() {
+            featureTypes << it.substring(it.lastIndexOf(".") + 1)
+        }.sort()
+
+        Date today = new Date()
+        Date veryOldDate = today.minus(20 * 365)  // 20 years back
+        Date beforeDate = params.beforeDate ?: today
+        Date afterDate = params.afterDate ?: veryOldDate
+        println "after date ${afterDate}"
+
+        render view: "report", model: [afterDate: afterDate, beforeDate: beforeDate, sequenceName: params.sequenceName, features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes: featureTypes, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {
