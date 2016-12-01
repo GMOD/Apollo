@@ -474,9 +474,22 @@ define([
                             track.annotationsUpdatedNotification(changeData.features);
                         }
 
-                        var selected = track.selectionManager.getSelection();
-                        track.selectionRemoved(selected,track.selectionManager);
-                        track.selectionAdded(selected,track.selectionManager);
+                        // changes are not propagated to the selection, so we are doing that here and the re-adding
+                        // see: https://github.com/GMOD/Apollo/issues/645
+                        var selections = track.selectionManager.getSelection();
+                        for(var sin in selections){
+                            // track.selectionRemoved(selections[sin],track.selectionManager);
+                            var selection = selections[sin];
+                            var uniqueId = selection.feature._uniqueID;
+                            for(var featureIndex in changeData.features){
+                                var changedFeature = changeData.features[featureIndex];
+                                if(changedFeature.uniquename===uniqueId){
+                                    selection.feature.data.strand = changedFeature.location.strand;
+                                }
+                            }
+                            track.selectionAdded(selection,track.selectionManager);
+                        }
+
                         if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
 
 
