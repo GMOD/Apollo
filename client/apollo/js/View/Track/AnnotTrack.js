@@ -487,8 +487,19 @@ define([
                             var uniqueId = selection.feature._uniqueID;
                             for(var featureIndex in changeData.features){
                                 var changedFeature = changeData.features[featureIndex];
+                                // if they are both transcripts
                                 if(changedFeature.uniquename===uniqueId){
                                     selection.feature.data.strand = changedFeature.location.strand;
+                                }
+                                else
+                                    // if we select an exon, then let's see what happens here
+                                if(selection.feature.data.parent_type.indexOf('gene')<0){
+                                    // we want the uniqueId to be the parent
+                                    if(selection.feature._parent._uniqueID==changedFeature.uniquename){
+                                        selection.feature._parent.strand = changedFeature.location.strand ;
+                                        selection.feature._parent.data.strand = changedFeature.location.strand ;
+                                        selection.feature.data.strand = changedFeature.location.strand ;
+                                    }
                                 }
                             }
                             track.selectionAdded(selection,track.selectionManager);
