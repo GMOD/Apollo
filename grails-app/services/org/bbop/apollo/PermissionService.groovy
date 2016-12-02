@@ -449,10 +449,12 @@ class PermissionService {
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
-            log.error("User ${jsonObject.username} for ${jsonObject as JSON} does not exist in the database.")
+            log.error("User ${jsonObject.username} does not exist in the database.")
             return false
         }
-        if (permissionEnum.rank > PermissionEnum.ADMINISTRATE.rank) {
+
+        // if the rank required is less than administrator than ask if they are an administrator
+        if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank ) {
             return isUserAdmin(user)
         }
         return true
@@ -460,7 +462,7 @@ class PermissionService {
 
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         if (!hasGlobalPermissions(jsonObject, permissionEnum)) {
-            log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}")
+            log.info("User lacks permissions ${permissionEnum.display}")
             return false
         }
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
