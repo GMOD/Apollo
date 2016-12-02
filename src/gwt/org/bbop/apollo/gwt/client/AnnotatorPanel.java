@@ -525,6 +525,25 @@ public class AnnotatorPanel extends Composite {
             }
         }, DoubleClickEvent.getType());
 
+        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
+                if(selectedAnnotationInfo!=null){
+                    exonDetailPanel.updateData(selectedAnnotationInfo);
+                    gotoAnnotation.setEnabled(true);
+                }
+                else{
+                    exonDetailPanel.updateData(null);
+                    gotoAnnotation.setEnabled(false);
+                }
+//                AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
+//                selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+//                exonDetailPanel.updateData(selectedAnnotationInfo);
+//                gotoAnnotation.setEnabled(true);
+            }
+        });
+
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.addColumn(sequenceColumn, "Seq");
         dataGrid.addColumn(typeColumn, "Type");
