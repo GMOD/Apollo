@@ -40,7 +40,7 @@ class ProxyController {
         // only a logged-in user can use the proxy
         User currentUser = permissionService.currentUser
         if (!currentUser) {
-            log.warn "Attempting to proxy ${url} without a logged-in user with params ${params}"
+            log.warn "Attempting to proxy ${url} without a logged-in user"
             render status: UNAUTHORIZED
             return
         }

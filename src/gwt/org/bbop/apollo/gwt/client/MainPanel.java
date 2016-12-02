@@ -755,10 +755,10 @@ public class MainPanel extends Composite {
         text += "<div style='margin-left: 10px;'>";
         text += "<ul>";
         text += "<li>";
-        text += "Public URL: <a href='" + publicUrl + "'>" + publicUrl + "</a>";
+        text += "<a href='" + publicUrl + "'>Public URL</a>";
         text += "</li>";
         text += "<li>";
-        text += "Apollo URL: <a href='" + apolloUrl + "'>" + apolloUrl + "</a>";
+        text += "<a href='" + apolloUrl + "'>Logged in URL</a>";
         text += "</li>";
         text += "</ul>";
         text += "</div>";

@@ -1231,7 +1231,7 @@ class RequestHandlingService {
             if (activeUser) {
                 featureService.setOwner(sequenceAlteration, activeUser)
             } else {
-                log.error("Unable to find valid user to set on transcript!" + inputObject)
+                log.error("Unable to find valid user to set on transcript!" )
             }
             sequenceAlteration.save()
 

@@ -219,7 +219,6 @@ class AnnotatorController {
     ]
     )
     def updateFeatureLocation() {
-        log.info "updateFeatureLocation ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
