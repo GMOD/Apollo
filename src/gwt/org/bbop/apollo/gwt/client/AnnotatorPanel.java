@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
@@ -31,23 +31,31 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.event.*;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -69,8 +77,10 @@ public class AnnotatorPanel extends Composite {
     private TextColumn<AnnotationInfo> sequenceColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
     private Column<AnnotationInfo, String> dateColumn;
-    private Column<AnnotationInfo, String> showHideColumn ;
+    private Column<AnnotationInfo, String> showHideColumn;
     long requestIndex = 0;
+    private Integer lastGeneIndex = null;
+    private static String selectedChildUniqueName = null;
 
     @UiField
     TextBox nameSearchBox;
@@ -109,7 +119,7 @@ public class AnnotatorPanel extends Composite {
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
-    private SingleSelectionModel<AnnotationInfo> singleSelectionModel= new SingleSelectionModel<>();
+    private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
 
     public AnnotatorPanel() {
@@ -148,7 +158,6 @@ public class AnnotatorPanel extends Composite {
         dataProvider = new AsyncDataProvider<AnnotationInfo>() {
             @Override
             protected void onRangeChanged(HasData<AnnotationInfo> display) {
-
                 final Range range = display.getVisibleRange();
                 final ColumnSortList sortList = dataGrid.getColumnSortList();
                 final int start = range.getStart();
@@ -211,7 +220,42 @@ public class AnnotatorPanel extends Composite {
                             JSONArray jsonArray = returnValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
 
                             dataGrid.setRowCount(annotationCount, true);
-                            dataGrid.setRowData(start, AnnotationInfoConverter.convertFromJsonArray(jsonArray));
+                            final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
+                            dataGrid.setRowData(start, annotationInfoList);
+
+                            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+                                @Override
+                                public void execute() {
+                                    if (selectedAnnotationInfo != null) {
+//                                    Window.alert("setting data: "+selectedAnnotationInfo.getName());
+                                        // refind and update internally
+                                        for (AnnotationInfo annotationInfo : annotationInfoList) {
+                                            GWT.log("top-level: " + annotationInfo.getType());
+                                            // will be found if a top-level selection
+                                            if (annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
+                                                selectedAnnotationInfo = annotationInfo;
+                                                singleSelectionModel.clear();
+                                                singleSelectionModel.setSelected(selectedAnnotationInfo, true);
+                                                updateAnnotationInfo(selectedAnnotationInfo);
+                                                return;
+                                            }
+                                            // if a child, we need to get the index I think?
+                                            final String thisUniqueName = selectedChildUniqueName;
+                                            for (AnnotationInfo annotationInfoChild : annotationInfo.getAnnotationInfoSet()) {
+                                                GWT.log("next-level: " + annotationInfoChild.getType());
+                                                if (annotationInfoChild.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
+//                                                    selectedAnnotationInfo = annotationInfo;
+                                                    selectedAnnotationInfo = getChildAnnotation(annotationInfo, thisUniqueName);
+                                                    singleSelectionModel.clear();
+                                                    singleSelectionModel.setSelected(selectedAnnotationInfo, true);
+                                                    updateAnnotationInfo(selectedAnnotationInfo);
+                                                    return;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            });
                         }
 
                     }
@@ -363,7 +407,7 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("Repeat Region", "repeat_region");
     }
 
-    private static void hideDetailPanels(){
+    private static void hideDetailPanels() {
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
@@ -405,7 +449,7 @@ public class AnnotatorPanel extends Composite {
                 GWT.log("not sure what to do with " + type);
         }
         // if the current selected tb is not visible then select the first one
-        if(tabPanel.getSelectedIndex()!=0 && !tabPanel.getTabWidget(1).getParent().isVisible()){
+        if (tabPanel.getSelectedIndex() != 0 && !tabPanel.getTabWidget(1).getParent().isVisible()) {
             tabPanel.selectTab(0);
         }
 
@@ -417,7 +461,7 @@ public class AnnotatorPanel extends Composite {
         Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
     }
 
-    public void toggleOpen(int index,AnnotationInfo annotationInfo){
+    public void toggleOpen(int index, AnnotationInfo annotationInfo) {
         if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
             showingTranscripts.remove(annotationInfo.getUniqueName());
         } else {
@@ -452,8 +496,8 @@ public class AnnotatorPanel extends Composite {
         showHideColumn = new Column<AnnotationInfo, String>(new ClickableTextCell(anchorRenderer)) {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                if(annotationInfo.getType().equals("gene") || annotationInfo.getType().equals("pseudogene")){
-                    return showingTranscripts.contains(annotationInfo.getUniqueName()) ? "-" : "+" ;
+                if (annotationInfo.getType().equals("gene") || annotationInfo.getType().equals("pseudogene")) {
+                    return showingTranscripts.contains(annotationInfo.getUniqueName()) ? "-" : "+";
                 }
                 return " ";
             }
@@ -463,7 +507,7 @@ public class AnnotatorPanel extends Composite {
         showHideColumn.setFieldUpdater(new FieldUpdater<AnnotationInfo, String>() {
             @Override
             public void update(int index, AnnotationInfo annotationInfo, String value) {
-                toggleOpen(index,annotationInfo);
+                toggleOpen(index, annotationInfo);
             }
         });
 
@@ -520,7 +564,7 @@ public class AnnotatorPanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 AnnotationInfo annotationInfo = singleSelectionModel.getSelectedObject();
                 int index = dataGrid.getKeyboardSelectedRow();
-                toggleOpen(index,annotationInfo);
+                toggleOpen(index, annotationInfo);
 
             }
         }, DoubleClickEvent.getType());
@@ -529,11 +573,10 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
-                if(selectedAnnotationInfo!=null){
+                if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
-                }
-                else{
+                } else {
                     exonDetailPanel.updateData(null);
                     gotoAnnotation.setEnabled(false);
                 }
@@ -549,7 +592,7 @@ public class AnnotatorPanel extends Composite {
         dataGrid.addColumn(typeColumn, "Type");
         dataGrid.addColumn(lengthColumn, "Length");
         dataGrid.addColumn(dateColumn, "Updated");
-        dataGrid.addColumn(showHideColumn,"");
+        dataGrid.addColumn(showHideColumn, "");
         dataGrid.setColumnWidth(0, 75, Unit.PCT);
         dataGrid.setColumnWidth(1, 25, Unit.PCT);
         dataGrid.setColumnWidth(2, 45.0, Unit.PX);
@@ -565,7 +608,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
-        if(MainPanel.annotatorPanel.isVisible() || forceReload){
+        if (MainPanel.annotatorPanel.isVisible() || forceReload) {
 //            updateAnnotationInfo(null);
             hideDetailPanels();
             pager.setPageStart(0);
@@ -596,10 +639,10 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("gotoAnnotation")
     void gotoAnnotation(ClickEvent clickEvent) {
-        Integer min = selectedAnnotationInfo.getMin() - 50 ;
-        Integer max = selectedAnnotationInfo.getMax() + 50 ;
+        Integer min = selectedAnnotationInfo.getMin() - 50;
+        Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max,false);
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false);
     }
 
 
@@ -609,24 +652,20 @@ public class AnnotatorPanel extends Composite {
                 return childAnnotation;
             }
         }
-        return null ;
+        return null;
     }
 
-//    public static void showInAnnotatorPanel(String featureName, String scaffold) {
-////        Window.alert(featureName + " " + scaffold);
-//        sequenceList.setText(scaffold);
-//        nameSearchBox.setText(featureName);
-//        reload();
-//    }
 
     // used by javascript function
-    public void enableGoto(int geneInt, String uniqueName) {
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
-        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+    public void enableGoto(int geneIndex, String uniqueName) {
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
+        selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
-//        transcriptDetailPanel.updateData(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
+        lastGeneIndex = geneIndex;
+//        selectedChildUniqueName = annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName()) ? null : selectedAnnotationInfo.getUniqueName();
+        selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
     // used by javascript function
@@ -634,21 +673,24 @@ public class AnnotatorPanel extends Composite {
 
         // for some reason doesn't like call enableGoto
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
-        selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
+        selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
+        lastGeneIndex = geneIndex;
+//        selectedChildUniqueName = annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName()) ? null : selectedAnnotationInfo.getUniqueName();
+        selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
 
         // for some reason doesn't like call gotoAnnotation
-        Integer min = selectedAnnotationInfo.getMin() - 50 ;
-        Integer max = selectedAnnotationInfo.getMax() + 50 ;
+        Integer min = selectedAnnotationInfo.getMin() - 50;
+        Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max,false);
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false);
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
         var that = this;
-        $wnd.displayTranscript = $entry( annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;) );
-        $wnd.enableGoto = $entry( annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;) );
+        $wnd.displayTranscript = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+        $wnd.enableGoto = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;));
 //        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
@@ -752,25 +794,8 @@ public class AnnotatorPanel extends Composite {
             td = row.startTD();
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
 
-//            DivBuilder div = td.startDiv();
-//            SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
+            renderCell(td, createContext(4), showHideColumn, rowValue);
 
-//            for (String error : rowValue.getNoteList()) {
-//                safeHtmlBuilder.appendHtmlConstant("<div class='label label-warning'>" + error + "</div>");
-//            }
-
-//            div.html(safeHtmlBuilder.toSafeHtml());
-
-//            if (showTranscripts) {
-//                DivBuilder div = td.startDiv();
-//                div.style().trustedColor("green").endStyle();
-//                div.text(rowValue.getType());
-//                td.endDiv();
-//            } else {
-                renderCell(td, createContext(4), showHideColumn, rowValue);
-//            }
-
-//            td.endDiv();
             td.endTD();
 
             row.endTR();
