@@ -624,6 +624,8 @@ public class AnnotatorPanel extends Composite {
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
         selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
+        updateAnnotationInfo(selectedAnnotationInfo);
+//        transcriptDetailPanel.updateData(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
     }
 
