@@ -66,22 +66,23 @@ class SequenceController {
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
-
-        if (!userOrganismPreference) {
-            userOrganismPreference = new UserOrganismPreference(
-                    user: currentUser
-                    , organism: organism
-                    , sequence: sequenceInstance
-                    , currentOrganism: true
-                    , clientToken: token
-            ).save(insert: true, flush: true, failOnError: true)
-        } else {
-            userOrganismPreference.sequence = sequenceInstance
-            userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save(flush: true, failOnError: true)
-        }
-        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
+        preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
+//
+//        if (!userOrganismPreference) {
+//            userOrganismPreference = new UserOrganismPreference(
+//                    user: currentUser
+//                    , organism: organism
+//                    , sequence: sequenceInstance
+//                    , currentOrganism: true
+//                    , clientToken: token
+//            ).save(insert: true, flush: true, failOnError: true)
+//        } else {
+//            userOrganismPreference.sequence = sequenceInstance
+//            userOrganismPreference.currentOrganism = true
+//            userOrganismPreference.save(flush: true, failOnError: true)
+//        }
+//        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -89,8 +90,8 @@ class SequenceController {
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
-
-        render userOrganismPreference.sequence.name as String
+//        render userOrganismPreference.sequence.name as String
+        render sequenceInstance.name as String
     }
 
 
@@ -126,6 +127,7 @@ class SequenceController {
     }
 
 
+    @Transactional
     def lookupSequenceByName(String q,String clientToken) {
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
@@ -196,7 +198,7 @@ class SequenceController {
                     results = results.reverse()
                 }
             }
-            render results[start..Math.min(start+length-1,results.size()-1)] as JSON
+            render results ? results[start..Math.min(start+length-1,results.size()-1)] as JSON: new JSONObject() as JSON
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]
