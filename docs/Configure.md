@@ -193,13 +193,15 @@ Additional links for log4j:
 - Grails log4j guide: http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging
 
 
-### Canned comments
+### Canned Elements
 
 
-Canned comments are configured via the admin panel on the web interface, so they are not currently configured via the
-config files.
+Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [CannedElements.md] (https://github.com/GMOD/Apollo/blob/master/docs/CannedElements.md)
 
-View your instances page for more details e.g. http://localhost:8080/apollo/cannedComment/
+View your instances page for more details. For example 
+- http://localhost:8080/apollo/cannedComment/  
+- http://localhost:8080/apollo/cannedKey/ 
+- http://localhost:8080/apollo/cannedValue/
 
 
 ### Search tools
