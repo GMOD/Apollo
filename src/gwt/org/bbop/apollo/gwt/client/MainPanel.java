@@ -275,15 +275,26 @@ public class MainPanel extends Composite {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start != null ? start : 0;
-                currentEndBp = end != null ? end : currentSequence.getEnd();
-                sequenceSuggestBox.setText(currentSequence.getName());
 
+                if(start==null){
+                    currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
+                }
+                else{
+                    currentStartBp = start ;
+                }
+                if(end==null){
+                    currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
+                }
+                else{
+                    currentEndBp = end ;
+                }
+                sequenceSuggestBox.setText(currentSequence.getName());
 
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
-                    updateGenomicViewer();
+//                    updateGenomicViewer();
+                    updateGenomicViewerForLocation(currentSequence.getName(),currentStartBp,currentEndBp,true);
                 }
                 if (blocking) {
                     loadingDialog.hide();
@@ -301,7 +312,13 @@ public class MainPanel extends Composite {
         };
 
         handlingNavEvent = true;
-        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+
+        if(start==null && end==null){
+            SequenceRestService.setCurrentSequenceForString(requestCallback, sequenceNameString,currentOrganism);
+        }
+        else{
+            SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+        }
 
     }
 
@@ -595,12 +612,6 @@ public class MainPanel extends Composite {
     void cancelEditUserPassword(ClickEvent event) {
         editUserModal.hide();
     }
-
-
-//    @UiHandler("mainSplitPanel")
-//    void handleMainSplitPanelMovement(EventHandler eventHandler){
-//
-//    }
 
 
     @UiHandler("savePasswordButton")

@@ -49,6 +49,13 @@ class SequenceController {
         }
     }
 
+    @Transactional
+    def setCurrentSequenceForNameAndOrganism(Organism organism) {
+        JSONObject inputObject = permissionService.handleInput(request,params)
+        Sequence sequence = Sequence.findByNameAndOrganism(inputObject.sequenceName,organism)
+        setCurrentSequence(sequence)
+    }
+
     /**
      * ID is the organism ID
      * Sequence is the default sequence name
@@ -60,7 +67,6 @@ class SequenceController {
      */
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
-        log.debug "setting default sequences: ${params}"
         JSONObject inputObject = permissionService.handleInput(request,params)
         String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
@@ -91,7 +97,19 @@ class SequenceController {
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
 //        render userOrganismPreference.sequence.name as String
-        render sequenceInstance.name as String
+//        render sequenceInstance.name as String
+//        JSONObject sequenceObject = sequenceInstance as JSONObject
+        JSONObject sequenceObject = new JSONObject()
+        sequenceObject.put("id", sequenceInstance.id)
+        sequenceObject.put("name", sequenceInstance.name)
+        sequenceObject.put("length", sequenceInstance.length)
+        sequenceObject.put("start", sequenceInstance.start)
+        sequenceObject.put("end", sequenceInstance.end)
+        UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(currentUser,sequenceInstance.name,token)
+        sequenceObject.startBp = userOrganismPreference.startbp
+        sequenceObject.endBp = userOrganismPreference.endbp
+
+        render sequenceObject as JSON
     }
 
 
