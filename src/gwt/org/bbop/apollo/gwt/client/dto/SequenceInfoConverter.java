@@ -21,6 +21,12 @@ public class SequenceInfoConverter {
         sequenceInfo.setSelected(object.get("selected") != null && object.get("selected").isBoolean().booleanValue());
         if(object.get("count") != null) sequenceInfo.setCount((int) object.get("count").isNumber().doubleValue());
         sequenceInfo.setDefault(object.get("aDefault") != null && object.get("aDefault").isBoolean().booleanValue());
+
+
+        // set the preferences if they are there
+        sequenceInfo.setStartBp(object.get("startBp") != null  ? object.get("startBp").isNumber().doubleValue() : null );
+        sequenceInfo.setEndBp(object.get("endBp") != null ? object.get("endBp").isNumber().doubleValue() : null );
+
         return sequenceInfo ;
     }
 
