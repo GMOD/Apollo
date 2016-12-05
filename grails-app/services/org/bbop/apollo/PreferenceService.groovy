@@ -137,17 +137,15 @@ class PreferenceService {
         userOrganismPreference.sequence = sequence
 
         // use the current value if we aren't setting it
-        if(userOrganismPreference.startbp){
+        if (userOrganismPreference.startbp) {
             userOrganismPreference.startbp = startBp ?: userOrganismPreference.startbp
-        }
-        else{
+        } else {
             userOrganismPreference.startbp = startBp ?: 0
         }
 
-        if(userOrganismPreference.endbp){
+        if (userOrganismPreference.endbp) {
             userOrganismPreference.endbp = endBp ?: userOrganismPreference.endbp
-        }
-        else{
+        } else {
             userOrganismPreference.endbp = endBp ?: sequence.end
         }
 
@@ -261,4 +259,39 @@ class PreferenceService {
         getCurrentOrganismPreference(permissionService.getCurrentUser(), null, token)
     }
 
+    /**
+     * 1. Find all preferences a month old or more
+     * 2. For each client token shared by a user and more than one organism
+     * 3. Delete the older set of client tokens for each organisms / user combination
+     */
+    def removeStalePreferences() {
+
+        try {
+            log.error "Removing stale preferences"
+            Date lastMonth = new Date().minus(0)
+            int removalCount = 0
+
+            // get user client tokens
+            Map<User, Map<Organism, UserOrganismPreference>> userClientTokens = [:]
+            UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth,[sort: "lastUpdated", order: "desc"]).each {
+                Map<Organism, UserOrganismPreference> organismPreferenceMap = userClientTokens.containsKey(it.user) ? userClientTokens.get((it.user)) : [:]
+                if (organismPreferenceMap.containsKey(it.organism)) {
+                    UserOrganismPreference preference= organismPreferenceMap.get(it.organism)
+                    // since we are sorting from the newest to the oldest, so just delete the older one
+                    preference.delete()
+                    ++removalCount
+                    organismPreferenceMap.remove(it.organism)
+                }
+                else {
+                    organismPreferenceMap.put(it.organism,it)
+                }
+                userClientTokens.put(it.user,organismPreferenceMap)
+            }
+
+            log.error "Removed ${removalCount} stale preferences"
+        } catch (e) {
+            log.error("Error removing preferences ${e}")
+        }
+
+    }
 }
