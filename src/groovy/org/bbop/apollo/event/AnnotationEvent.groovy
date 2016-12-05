@@ -14,6 +14,7 @@ class AnnotationEvent {
     Assemblage assemblage
     Operation operation
     boolean sequenceAlterationEvent
+    String username
     // toplevel feature?
 
 //    public AnnotationEvent(Object features,Sequence sequence,Operation operation){
@@ -26,6 +27,7 @@ class AnnotationEvent {
         ADD,
         DELETE,
         UPDATE,
+        ERROR
     }
 
 }

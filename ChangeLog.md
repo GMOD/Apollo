@@ -3,8 +3,53 @@
 
 Features 
 
-+ Upgraded to Java 8 
-+ Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4.
++ Increase UI and performance by calling setCurrentSequenceLocation less aggressively #1007
++ Various performance improvements #1272,#1276
++ Added ability for Apollo to call home to track server usage #1339
++ Allow multiple calls to google analytics to support users internally #1340
++ Numerous annotator tab user interface improvements #1343,#333
++ Updated 'changes' report page for more detail and better filtering #806
++ Added URL option to open and close the track panels #1332
++ Adds a findChanges web-services method #1316
++ Importing features should be able to optionally include metadata #52
++ Make organism, groups, users tabs more consistent #622
++ Convert javascript "alert" to something more appealing visually #630
++ Using Bootstrap in all panels #847
++ Improved report login window look and feel #1103
++ Upgraded to Java 8  #1327
++ Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4 #1075
++ Delete expired preferences #1368
++ Bumped default JBrowse version 
+
+
+Bugfixes
+
++ Web-service method 'getUserPermissionsForUser' #1230
++ UI glitch with more than ten groups #1242
++ Error going between full-screen and annotator panel when stored are loaded in the URL #1156,#1214,#1271,#1330,#1331, #1008
++ 'use_cds_for_new_transcripts' was not being picked up properly #1297
++ Client interprets 5'UTR and 3'UTR features as exons #1308
++ The longest possible ORF must be calculated for genomic fragments #1302
++ Limit Chado export to admins #1322
++ Improved security of non-public genomes #861
++ Adding transcripts via the load transcripts script added preferences #1277
++ Was not validating scaffold against organism on import #1173
++ Sequence display with annotation did not update automatically when moved to opposed strand #645
++ Needed to update the coding detail panel when changing transcript details #379
++ Warn user when making an intron is not possible #1331
++ Load script was returning the wrong error when the wrong password was given #1275
++ use_cds_for_new_transcripts is not being picked up properly #1297
++ Improve merging of functional annotations data during merge operation #646
++ Annotator panel calls the official set exon boundaries method #653
++ Pinstripes disappear in small scaffolds. #709
++ Spring to splice site functionality works once only #735
++ Genomic insertion coordinates: start is greater than end in gff3 output from Reference Sequence tab #747
++ Remove errant bootstrap calls #746
++ Remove Environment.TEST from code #655
++ No glyphs for sequence alterations #908
++ getUserPermissionsForUser is non-standard #1230
++ Fixed case in Webservices docs #1244
++ UI glitch on Groups tab when more than ten groups #1242
 
 
 ## 2.0.4

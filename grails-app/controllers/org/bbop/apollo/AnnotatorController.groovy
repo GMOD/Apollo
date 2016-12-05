@@ -123,6 +123,8 @@ class AnnotatorController {
 
 //        String uri = "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
 //        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
+
+        // for some reason the addTracks requires the context path, which seems to be an obscure bug in grails
         if (queryParamString.contains("addTracks")) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
         } else {
@@ -220,7 +222,6 @@ class AnnotatorController {
     ]
     )
     def updateFeatureLocation() {
-        log.info "updateFeatureLocation ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
         Assemblage assemblage
 

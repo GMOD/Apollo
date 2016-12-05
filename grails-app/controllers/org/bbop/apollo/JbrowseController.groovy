@@ -105,14 +105,17 @@ class JbrowseController {
                     forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism for '${clientToken}'"])
                     return
                 }
-                def session = request.getSession(true)
-                session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-                session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
-                // create an anonymous login
-                File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
-                render file.text
-                return
+                // only show if public, otherwise will go to the end and force a login
+                if(organism.publicMode) {
+                    def session = request.getSession(true)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+                    // create an anonymous login
+                    File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
+                    render file.text
+                    return
+                }
             }
 
 

@@ -11,6 +11,16 @@
     font-size: 12px !important;
 }
 
+.snackbarRight {
+    position: fixed;
+    right: 10px;
+    top :48%;
+    z-index: 1000;
+    opacity: 80;
+    /*rotation: 90deg;*/
+    /*background-color: black;*/
+    /*color: yellowgreen;*/
+}
 /*.demo-FlowPanelExample-draggable {*/
 
 /*}*/

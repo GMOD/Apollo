@@ -101,6 +101,9 @@ grails.project.dependency.resolution = {
         build 'org.apache.httpcomponents:httpcore:4.3.2'
         build 'org.apache.httpcomponents:httpclient:4.3.2'
         build 'org.apache.httpcomponents:httpmime:4.3.3'
+
+//        compile "org.grails:quartz:1.0.2"
+
     }
 
     plugins {
@@ -116,7 +119,9 @@ grails.project.dependency.resolution = {
 
         compile ':asset-pipeline:2.1.5'
         compile ":spring-websocket:1.2.0"
-        compile ":shiro:1.2.1"
+        compile (":shiro:1.2.1") {
+            excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
+        }
         compile ":audit-logging:1.0.3"
 
 
@@ -147,6 +152,8 @@ grails.project.dependency.resolution = {
         //    transitive=true
         //}
         compile ":yammer-metrics:3.0.1-2"
+        compile "org.grails.plugins:quartz2:2.1.6.2"
+
 
 
         //compile ":joda-time:1.4"

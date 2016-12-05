@@ -1,12 +1,14 @@
 <%@ page import="org.codehaus.groovy.grails.web.json.JSONArray" %>
-<nav class="navbar navbar-default">
+%{--<nav class="navbar navbar-default">--}%
     <div class="apollo-header row">
         <div class="col-lg-10">
             <g:link uri="/"><asset:image src="ApolloLogo_100x36.png"/></g:link>
             <perms:admin>
-                <div class="btn btn-group">
-                    <button class="btn dropdown-toggle glyphicon glyphicon-list-alt " data-toggle="dropdown">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-default dropdown-toggle glyphicon glyphicon-list-alt" data-toggle="dropdown">
+                        <div style="font-family: Arial, Helvetica, sans-serif; font-weight: bold;display: inline;">
                         Reports
+                            </div>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu apollo-dropdown">
@@ -25,7 +27,7 @@
             <shiro:user>
             %{----}%
                 <h4>
-                    <div class="label labe-default">
+                    <div class="label label-primary">
                         <shiro:principal/>
                     </div>
 
@@ -42,4 +44,4 @@
         </div>
 
     </div>
-</nav>
+%{--</nav>--}%

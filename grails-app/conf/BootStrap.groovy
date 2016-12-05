@@ -12,6 +12,7 @@ class BootStrap {
     def domainMarshallerService
     def proxyService
     def userService
+    def phoneHomeService
 
 
     def init = { servletContext ->
@@ -24,6 +25,8 @@ class BootStrap {
 
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
+
+        phoneHomeService.pingServer(org.bbop.apollo.PhoneHomeEnum.START.value)
 
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
@@ -50,5 +53,6 @@ class BootStrap {
 
     }
     def destroy = {
+        phoneHomeService.pingServer(org.bbop.apollo.PhoneHomeEnum.STOP.value)
     }
 }

@@ -363,12 +363,12 @@ class PermissionService {
 //        Sequence sequence = null
         Assemblage assemblage = null
         if (!trackName) {
+//            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
             assemblage = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.assemblage
         }
 //        else {
 //            sequence = Sequence.findByNameAndOrganism(trackName, organism)
 //        }
-
 //        if (!sequence && organism) {
 //            sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
 //        }
@@ -510,9 +510,10 @@ class PermissionService {
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
-            if (!jsonObject.username) {
-                log.debug "Username not supplied so can not authenticate."
-                return false
+            if(!jsonObject.username){
+                log.error "Username not supplied so can not authenticate."
+                jsonObject.error_message = "Username not supplied so can not authenticate."
+                return jsonObject
             }
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
@@ -522,11 +523,13 @@ class PermissionService {
                 subject.login(authToken)
                 if (!subject.authenticated) {
                     log.warn "Failed to authenticate user ${jsonObject.username}"
-                    return false
+                    jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
+                    return jsonObject
                 }
             } catch (Exception ae) {
                 log.error("Problem authenticating: " + ae.fillInStackTrace())
-                return false
+                jsonObject.error_message = "Problem authenticating: " + ae.fillInStackTrace()
+                return jsonObject
             }
         } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
             jsonObject.username = SecurityUtils?.subject?.principal
@@ -546,10 +549,12 @@ class PermissionService {
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
-            log.error("User ${jsonObject.username} for ${jsonObject as JSON} does not exist in the database.")
+            log.error("User ${jsonObject.username} does not exist in the database.")
             return false
         }
-        if (permissionEnum.rank > PermissionEnum.ADMINISTRATE.rank) {
+
+        // if the rank required is less than administrator than ask if they are an administrator
+        if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank ) {
             return isUserAdmin(user)
         }
         return true
@@ -557,31 +562,19 @@ class PermissionService {
 
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         if (!hasGlobalPermissions(jsonObject, permissionEnum)) {
-            log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}")
+            log.info("User lacks permissions ${permissionEnum.display}")
             return false
         }
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
-        Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
-        log.debug "passing in an organism ${jsonObject.organism}"
-        if (jsonObject.organism) {
-            Organism thisOrganism = null
-            try {
-                thisOrganism = Organism.findById(jsonObject.organism as Long)
-            } catch (npe) {
-                // obviously not a long type
-            }
-            if (!thisOrganism) {
-                thisOrganism = Organism.findByCommonNameIlike(jsonObject.organism)
-            }
-            if (!thisOrganism) {
-                thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
-            }
-            if (organism.id != thisOrganism.id) {
-                log.debug "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
-                organism = thisOrganism
-            }
-            log.debug "final organism ${organism.commonName}"
+        Organism organism = getOrganismFromInput(jsonObject)
+        if(clientToken==FeatureStringEnum.IGNORE.value){
+            organism = getOrganismFromInput(jsonObject)
+        }
+
+        organism = organism ?: preferenceService.getCurrentOrganismPreference(clientToken)?.organism
+        // don't set the preferences if it is coming off a script
+        if(clientToken!=FeatureStringEnum.IGNORE.value){
             preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
         }
 
@@ -694,14 +687,29 @@ class PermissionService {
         }
     }
 
+    /**
+     * we prefer the param over the dataObject one I guess
+     * @param params
+     * @param dataObject
+     * @return
+     */
     @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
+        // replace the dataObject either way
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, params.get(FeatureStringEnum.CLIENT_TOKEN.value))
-        } else {
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, ClientTokenGenerator.generateRandomString())
         }
-        return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        // if the dataObject doesn't contain nor does the param, then we create it
+        if(!dataObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ){
+            // client should generate token, not server
+//            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,FeatureStringEnum.IGNORE.value)
+        }
+        String clientToken = dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        if(clientToken == FeatureStringEnum.IGNORE.value && !dataObject.containsKey(FeatureStringEnum.ORGANISM.value)){
+            throw new RuntimeException("Must contain 'organism' value if we ignore the clientToken")
+        }
+        return clientToken
     }
 
     @NotTransactional

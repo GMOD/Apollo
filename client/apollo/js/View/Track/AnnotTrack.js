@@ -452,8 +452,12 @@ define([
                     }
 
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
-                        alert(changeData.error_message);
-                        console.log(changeData.error_message);
+                        var myDialog = new dijit.Dialog({
+                            title: "Error Performing Operation",
+                            // content: "test content",
+                            content: changeData.error_message,
+                            style: "width: 300px"
+                        }).show();
                         return;
                     }
 
@@ -482,6 +486,34 @@ define([
                         else {
                             track.annotationsUpdatedNotification(changeData.features);
                         }
+
+                        // changes are not propagated to the selection, so we are doing that here and the re-adding
+                        // see: https://github.com/GMOD/Apollo/issues/645
+                        var selections = track.selectionManager.getSelection();
+                        for(var sin in selections){
+                            // track.selectionRemoved(selections[sin],track.selectionManager);
+                            var selection = selections[sin];
+                            var uniqueId = selection.feature._uniqueID;
+                            for(var featureIndex in changeData.features){
+                                var changedFeature = changeData.features[featureIndex];
+                                // if they are both transcripts
+                                if(changedFeature.uniquename===uniqueId){
+                                    selection.feature.data.strand = changedFeature.location.strand;
+                                }
+                                else
+                                    // if we select an exon, then let's see what happens here
+                                if(selection.feature.data.parent_type.indexOf('gene')<0){
+                                    // we want the uniqueId to be the parent
+                                    if(selection.feature._parent._uniqueID==changedFeature.uniquename){
+                                        selection.feature._parent.strand = changedFeature.location.strand ;
+                                        selection.feature._parent.data.strand = changedFeature.location.strand ;
+                                        selection.feature.data.strand = changedFeature.location.strand ;
+                                    }
+                                }
+                            }
+                            track.selectionAdded(selection,track.selectionManager);
+                        }
+
                         if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else {
@@ -491,7 +523,6 @@ define([
                     track.changed();
                 } catch (e) {
                     console.log(e);
-                    console.log('Processing: ', message.body);
                 }
             },
 
@@ -4367,29 +4398,57 @@ define([
                 });
             },
 
-            login: function () {
-                var track = this;
-                dojo.xhrGet({
-                    url: context_path + "/Login",
-                    handleAs: "text",
-                    timeout: 5 * 60,
-                    load: function (response, ioArgs) {
-                        var dialog = new dojoxDialogSimple({
-                            preventCache: true,
-                            refreshOnShow: true,
-                            executeScripts: true
-
-                        });
-                        if (track.browser.config.disableJBrowseMode) {
-                            dialog.hide = function () {
-                            };
-                        }
-                        dialog.startup();
-                        dialog.set("title", "Login");
-                        dialog.set("content", response);
-                        dialog.show();
+            showAnnotatorPanel: function(){
+                // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
+                // to
+                // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
+                var hrefString = window.location.href;
+                var hrefTokens = hrefString.split("\/");
+                var organism ;
+                for(var h in hrefTokens){
+                    // alert(hrefTokens[h]);
+                    if(hrefTokens[h]=="jbrowse"){
+                        organism = hrefTokens[h-1] ;
                     }
-                });
+                }
+
+                // NOTE: Here is where you customize your view into Apollo, by adding / changing parameters
+
+                var jbrowseString = "/jbrowse/index.html?";
+                var jbrowseIndex = hrefString.indexOf(jbrowseString);
+                var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
+                params = params.replace("tracklist=1","tracklist=0");
+                var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
+                if(params.indexOf("&clientToken=")<0){
+                    finalString += "&clientToken="+this.getClientToken();
+                }
+                window.location.href = finalString;
+            },
+
+            login: function () {
+                this.showAnnotatorPanel();
+                // var track = this;
+                // dojo.xhrGet({
+                //     url: context_path + "/Login",
+                //     handleAs: "text",
+                //     timeout: 5 * 60,
+                //     load: function (response, ioArgs) {
+                //         var dialog = new dojoxDialogSimple({
+                //             preventCache: true,
+                //             refreshOnShow: true,
+                //             executeScripts: true
+                //
+                //         });
+                //         if (track.browser.config.disableJBrowseMode) {
+                //             dialog.hide = function () {
+                //             };
+                //         }
+                //         dialog.startup();
+                //         dialog.set("title", "Login");
+                //         dialog.set("content", response);
+                //         dialog.show();
+                //     }
+                // });
             },
 
             initLoginMenu: function () {

@@ -40,12 +40,30 @@
         }
 
         .assemblage-buttons {
-
+            margin-right: 10px;
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
         <gwt:north size="120">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
+                <!--<b:Row styleName="{style.rowPadding}">-->
+                    <!--<b:Column size="MD_6">-->
+                        <!--<b:TextBox placeholder="Annotation Name"-->
+                                   <!--ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_5">-->
+                        <!--<b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>-->
+                    <!--</b:Column>-->
+                    <!--<b:Column size="MD_6">-->
+                        <!--<b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>-->
+                    <!--</b:Column>-->
+                <!--&lt;!&ndash;</b:Row>&ndash;&gt;-->
+                <!--&lt;!&ndash;<b:Row styleName="{style.rowPadding}">&ndash;&gt;-->
+                    <!--<b:Column size="MD_5">-->
+                        <!--<b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>-->
+                    <!--</b:Column>-->
+                <!--</b:Row>-->
+
                 <b:Row styleName="{style.rowPadding}">
                     <b:Column size="MD_6">
                         <b:TextBox placeholder="Annotation Name"
@@ -65,12 +83,28 @@
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
+                    <!--<b:Column size="MD_4">-->
+                        <!--<gwt:SuggestBox ui:field="sequenceList" width="200px"/>-->
+                        <!--<b:Button type="PRIMARY" icon="BOOKMARK" text="+" size="EXTRA_SMALL" title="Add new assemblage"-->
+                                  <!--ui:field="addNewAssemblage" enabled="false"-->
+                                  <!--addStyleNames="{style.assemblage-buttons}"/>-->
+
+                        <!--<b:ButtonGroup>-->
+                            <!--<b:Button type="PRIMARY" icon="EYE" text="+" size="EXTRA_SMALL" title="Add to view"-->
+                                      <!--ui:field="addToView" enabled="false" addStyleNames="{style.assemblage-buttons}"/>-->
+                            <!--<b:Button type="PRIMARY" icon="EYE" title="View" size="EXTRA_SMALL"-->
+                                      <!--ui:field="viewAnnotation" enabled="false"-->
+                                      <!--addStyleNames="{style.assemblage-buttons}"/>-->
+                        <!--</b:ButtonGroup>-->
+                        <!--<b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" size="EXTRA_SMALL" text="Go to Annotation"-->
+                                  <!--ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.assemblage-buttons}"/>-->
+                    <!--</b:Column>-->
                     <b:Column size="MD_4">
                         <!--<gwt:SuggestBox ui:field="sequenceList" width="200px"/>-->
                         <b:Button type="PRIMARY" icon="BOOKMARK" text="+" size="EXTRA_SMALL" title="Add new assemblage"
                                   ui:field="addNewAssemblage" enabled="false"
                                   addStyleNames="right-space {style.assemblage-buttons}"/>
-                       
+
                         <b:ButtonGroup>
                             <b:Button type="PRIMARY" icon="EYE" text="+" size="EXTRA_SMALL" title="Add to view"
                                       ui:field="addToView" enabled="false" addStyleNames="{style.assemblage-buttons}"/>

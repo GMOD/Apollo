@@ -1166,6 +1166,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return results
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
+            log.error("Error for user ${principal?.name} when exexecting ${inputString}"+ ae?.message)
             return sendError(ae, principal.name)
         }
 

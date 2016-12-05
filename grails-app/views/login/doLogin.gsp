@@ -20,23 +20,25 @@
 -->
     <script>
         var context;
-        $(document).ready(function() {
+        $(document).ready(function () {
             var pathname = location.pathname;
             context = /^\/([^\/]+)\//.exec(pathname)[1];
-            $("head").append("<link rel='stylesheet' type='text/css' href='/" + context + "/styles/login.css'/>");
-            $("#login_button").click(function() {
+//            $("head").append("<link rel='stylesheet' type='text/css' href='/" + context + "/styles/login.css'/>");
+            $("#login_button").click(function () {
                 login();
             });
-            $("#clear_button").click(function() {
-                $(".input_field").val("");
+            $("#clear_button").click(function () {
+//                $(".input_field").val("");
+                $("#username").val("");
+                $("#password").val("");
             });
-            $(".input_field").keypress(function(event) {
+            $(".input_field").keypress(function (event) {
                 var code = event.keyCode ? event.keyCode : event.which;
                 if (code == $.ui.keyCode.ENTER) {
                     login();
                 }
             });
-            $("#username").focus();
+//            $("#username").focus();
         });
 
         function login() {
@@ -46,9 +48,11 @@
                 return;
             }
             var password = $("#password").val();
+            var remember_me = $("#remember_me").val();
             var json = new Object();
             json.username = username;
             json.password = password;
+            json.rememberMe = remember_me;
             $.ajax({
                 type: "post",
                 url: "/" + context + "/Login?operation=login",
@@ -56,26 +60,50 @@
                 dataType: "json",
                 contentType: "application/json",
                 data: JSON.stringify(json),
-                success: function(data) {
-                    window.location.reload();
+                success: function (data) {
+                    if(data.error){
+                        setMessage(data.error);
+                    }
+                    else{
+                        window.location.reload();
+                    }
                 },
-                error: function(jqXHR, textStatus, errorThrown) {
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('error: '+jqXHR.responseText);
                     var error = $.parseJSON(jqXHR.responseText);
                     setMessage(error.error);
                 }
             });
-        };
+        }
 
         function setMessage(message) {
             $("#message").text(message);
-        };
+        }
 
     </script>
 </head>
+
 <body>
-<div class="user_login"><span class="fieldname">User name</span><input class="input_field" type="text" id="username" /></div>
-<div class="user_login"><span class="fieldname">Password</span><input class="input_field" type="password" id="password" /></div>
-<div class="button_login"><button id="login_button">Login</button><button id="clear_button">Clear</button></div>
+
+<div class="input-group" style="margin-bottom: 5px;margin-top: 5px;">
+    <input class="form-control" type="text" id="username" placeholder="Username" autofocus="autofocus"/>
+</div>
+
+<div class="input-group" style="margin-bottom: 5px">
+    <input class="form-control" type="password" id="password" placeholder="Password"/>
+</div>
+
+
+%{--<div class="button_login">--}%
+<button class="btn btn-primary" id="login_button">Login</button>
+<button class="btn btn-default" id="clear_button" >Clear</button>
+%{--<button class="btn btn-default" id="rememberme_button" >Remember Me</button>--}%
+<div>
+    Remember me
+    <input type="checkbox" autocomplete="off" id="remember_me" checked>
+</div>
+
+%{--</div>--}%
 <div id="message"></div>
 </body>
 </html>

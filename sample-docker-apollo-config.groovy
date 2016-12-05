@@ -64,7 +64,7 @@ apollo {
     splice_acceptor_sites = System.getenv("WEBAPOLLO_SPLICE_ACCEPTOR_SITES") ? System.getenv("WEBAPOLLO_SPLICE_ACCEPTOR_SITES").split(",") : ["AG"]
     gff3.source = System.getenv("WEBAPOLLO_GFF3_SOURCE") ?: "."
 
-    google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID")
+    google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID") ?: ["UA-62921593-1"]
 
     admin{
         username = System.getenv("APOLLO_ADMIN_EMAIL") ?: "admin@local.host"

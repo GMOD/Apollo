@@ -44,12 +44,16 @@ public class OrganismRestService {
     }
 
     public static void updateOrganismInfo(final OrganismInfo organismInfo,boolean forceReload) {
+        final LoadingDialog loadingDialog = new LoadingDialog("Updating Organism Information");
         JSONObject organismInfoObject = organismInfo.toJSON();
         organismInfoObject.put("forceReload",JSONBoolean.getInstance(forceReload));
+
+
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                loadingDialog.hide();
                 JSONValue jsonValue = JSONParser.parseStrict(response.getText());
                 if(jsonValue.isObject()!=null && jsonValue.isObject()!=null && jsonValue.isObject().containsKey(FeatureStringEnum.ERROR.getValue())){
                     String errorMessage = jsonValue.isObject().get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
@@ -66,6 +70,7 @@ public class OrganismRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
+                loadingDialog.hide();
                 Bootbox.alert("error updating organism info: "+exception);
             }
         };

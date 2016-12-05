@@ -51,6 +51,13 @@ class SequenceController {
         }
     }
 
+    @Transactional
+    def setCurrentSequenceForNameAndOrganism(Organism organism) {
+        JSONObject inputObject = permissionService.handleInput(request,params)
+        Sequence sequence = Sequence.findByNameAndOrganism(inputObject.sequenceName,organism)
+        setCurrentSequence(sequence)
+    }
+
     /**
      * ID is the organism ID
      * Sequence is the default sequence name
@@ -62,30 +69,46 @@ class SequenceController {
      */
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
-        log.debug "setting default sequences: ${params}"
         JSONObject inputObject = permissionService.handleInput(request,params)
         String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
-
-//        Assemblage assemblage = assemblageService.generateAssemblageForSequence(currentUser,sequenceInstance)
-        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequenceInstance)
-        if (!userOrganismPreference) {
-            userOrganismPreference = new UserOrganismPreference(
-                    user: currentUser
-                    , organism: organism
-                    , assemblage: assemblage
-                    , currentOrganism: true
-                    , token: token
-            ).save(insert: true, flush: true, failOnError: true)
-        } else {
-            userOrganismPreference.assemblage = assemblage
-            userOrganismPreference.currentOrganism = true
-            userOrganismPreference.save(flush: true, failOnError: true)
-        }
-        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
+        preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
+//
+//        if (!userOrganismPreference) {
+//            userOrganismPreference = new UserOrganismPreference(
+//                    user: currentUser
+//                    , organism: organism
+//                    , sequence: sequenceInstance
+//                    , currentOrganism: true
+//                    , clientToken: token
+//            ).save(insert: true, flush: true, failOnError: true)
+//        } else {
+//            userOrganismPreference.sequence = sequenceInstance
+//            userOrganismPreference.currentOrganism = true
+//            userOrganismPreference.save(flush: true, failOnError: true)
+//        }
+//        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
+//
+////        Assemblage assemblage = assemblageService.generateAssemblageForSequence(currentUser,sequenceInstance)
+//        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequenceInstance)
+//        if (!userOrganismPreference) {
+//            userOrganismPreference = new UserOrganismPreference(
+//                    user: currentUser
+//                    , organism: organism
+//                    , assemblage: assemblage
+//                    , currentOrganism: true
+//                    , token: token
+//            ).save(insert: true, flush: true, failOnError: true)
+//        } else {
+//            userOrganismPreference.assemblage = assemblage
+//            userOrganismPreference.currentOrganism = true
+//            userOrganismPreference.save(flush: true, failOnError: true)
+//        }
+//        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -94,8 +117,21 @@ class SequenceController {
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
+//        render userOrganismPreference.sequence.name as String
+//        render sequenceInstance.name as String
+//        JSONObject sequenceObject = sequenceInstance as JSONObject
+        JSONObject sequenceObject = new JSONObject()
+        sequenceObject.put("id", sequenceInstance.id)
+        sequenceObject.put("name", sequenceInstance.name)
+        sequenceObject.put("length", sequenceInstance.length)
+        sequenceObject.put("start", sequenceInstance.start)
+        sequenceObject.put("end", sequenceInstance.end)
+        UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(currentUser,sequenceInstance.name,token)
+        sequenceObject.startBp = userOrganismPreference.startbp
+        sequenceObject.endBp = userOrganismPreference.endbp
 
-        render userOrganismPreference.assemblage.sequenceList
+//        render userOrganismPreference.assemblage.sequenceList
+        render sequenceObject as JSON
     }
 
 
@@ -147,6 +183,7 @@ class SequenceController {
     }
 
 
+    @Transactional
     def lookupSequenceByName(String q,String clientToken) {
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
@@ -217,12 +254,7 @@ class SequenceController {
                     results = results.reverse()
                 }
             }
-            if(results){
-                render results[start..Math.min(start+length-1,results.size()-1)] as JSON
-            }
-            else{
-                render results as JSON
-            }
+            render results ? results[start..Math.min(start+length-1,results.size()-1)] as JSON: new JSONObject() as JSON
         }
         catch(PermissionException e) {
             def error=[error: "Error: "+e]

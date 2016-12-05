@@ -18,6 +18,8 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
     private Long length ;
     private Long start ;
     private Long end ;
+    private Long startBp ; // preference values
+    private Long endBp ;// preference values
     private Integer count ;
     private Boolean selected = false ;
     private Boolean aDefault = false ;
@@ -94,6 +96,34 @@ public class SequenceInfo implements Comparable<SequenceInfo>,HasJSON{
     @Override
     public int compareTo(SequenceInfo o) {
         return alphanumericSorter.compare(name,o.getName());
+    }
+
+    public Long getStartBp() {
+        return startBp;
+    }
+
+    public void setStartBp(Long startBp) {
+        this.startBp = startBp;
+    }
+
+    public void setStartBp(Double startBp ) {
+        if(startBp!=null){
+            this.startBp = startBp.longValue();
+        }
+    }
+
+    public Long getEndBp() {
+        return endBp;
+    }
+
+    public void setEndBp(Long endBp) {
+        this.endBp = endBp;
+    }
+
+    public void setEndBp(Double endBp) {
+        if(endBp!=null){
+            this.endBp = endBp.longValue();
+        }
     }
 
     public JSONObject toJSON() {

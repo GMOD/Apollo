@@ -1,9 +1,15 @@
-<%@ page import="org.bbop.apollo.Feature" %>
+<%@ page import="org.bbop.apollo.RequestHandlingService; org.bbop.apollo.Organism; org.bbop.apollo.User; org.bbop.apollo.Feature" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta name="layout" content="main">
     <title>Recent Changes</title>
+
+    <script>
+        function doSearch(){
+            document.getElementById("customform").submit();
+        }
+    </script>
 </head>
 
 <body>
@@ -17,19 +23,40 @@
             <div class="message row col-sm-12" role="status">${flash.message}</div>
         </g:if>
         <div class="row col-sm-12">
-            <div class="col-sm-3 form-group">
-                <label for="ownerName">Owner:</label>
-                <g:textField class="form-control" name="ownerName" maxlength="50" value="${ownerName}" placeholder="Owner"/><br/>
+            <div class="col-sm-2 form-group">
+                %{--<label for="ownerName">Owner:</label>--}%
+                <g:select name='ownerName' value="${ownerName}"
+                          noSelection="${[null: 'Select User ...']}"
+                          from='${User.listOrderByUsername()}'
+                          optionKey="username" optionValue="username" onchange="doSearch();"/>
             </div>
 
-            <div class="col-sm-4  form-group">
-                <label for="featureType">Feature type:</label>
-                <g:textField class="form-control" name="featureType" maxlength="50" value="${featureType}" placeholder="Feature Type"/> <br/>
+            <div class="col-sm-2  form-group">
+                %{--<label for="featureType">Feature type:</label>--}%
+                <g:select name='featureType' value="${featureType}"
+                          noSelection="${[null: 'Select Feature Type...']}"
+                          from='${featureTypes}' onchange="doSearch();"
+                />
             </div>
 
+            <div class="col-sm-2  form-group">
+                <g:select name='organismName' value="${organismName}"
+                          noSelection="${[null: 'Select Organism ...']}"
+                          from='${Organism.listOrderByCommonName()}'
+                          optionKey="commonName" optionValue="commonName" onchange="doSearch();"/>
+            </div>
+            <div class="col-sm-2  form-group">
+                <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name" />
+            </div>
+        </div>
+        <div class="row col-sm-12">
             <div class="col-sm-4  form-group">
-                <label for="organismName">Organism:</label>
-                <g:textField class="form-control" name="organismName" maxlength="50" value="${organismName}" placeholder="Organism"/><br/>
+                After:
+                <g:datePicker name="afterDate" value="${afterDate}" precision="day" relativeYears="[-20..20]"/>
+            </div>
+            <div class="col-sm-4  form-group">
+                Before:
+                <g:datePicker name="beforeDate" value="${beforeDate}" precision="day" relativeYears="[-20..20]"/>
             </div>
         </div>
 
@@ -39,7 +66,6 @@
                     <span class="glyphicon glyphicon-search" aria-hidden="true"></span> Search
                 </button>
             </div>
-            %{--<input class="col-sm-1 btn btn-primary glyphicon" type="submit" value="Search"/>--}%
         </div>
         <g:hiddenField name="sort" value="${params.sort}"/>
         <g:hiddenField name="order" value="${params.order}"/>
@@ -62,15 +88,27 @@
         </thead>
         <tbody>
         <g:each in="${features}" status="i" var="feature">
+            <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <g:formatDate format="E dd-MMM-yy" date="${feature.lastUpdated}"/>
+                    <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.lastUpdated}"/>
                 </td>
                 <td>
-                    ${feature.featureLocation.sequence.organism.commonName}
+                    <g:link target="_blank" controller="annotator" action="loadLink"
+                            params="[organism: sequence.organism.id]">
+                        ${sequence.organism.commonName}
+                    </g:link>
                 </td>
                 <td>
-                    ${feature.featureLocation.sequence.name}
+                %{--${feature.featureLocation.sequence.name}--}%
+                    <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
+                    <g:link target="_blank" controller="annotator" action="loadLink"
+                            params="[loc: sequence.name + ':' + sequence.start + '..' + sequence.end, organism: sequence.organism.id]">
+                        ${sequence.name}</g:link>
+                    <g:link target="_blank" controller="sequence" action="report" id="${sequence.organism.id}">
+                        <div class="glyphicon glyphicon-list-alt">
+                        </div>
+                    </g:link>
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"
@@ -80,7 +118,9 @@
                 </td>
 
                 <td>
-                    ${feature.owner?.username}
+                    <g:link target="_blank" controller="annotator" action="detail" id="${feature.owner?.id}">
+                        ${feature.owner?.username}
+                    </g:link>
                 </td>
                 <td>
                     ${feature.cvTerm}
@@ -92,6 +132,13 @@
 
     <div class="pagination">
         <g:paginate total="${featureCount ?: 0}" params="${params}"/>
+    </div>
+    <div class="col-sm-4">
+        <div class="btn btn-info">
+            Results <div class="badge badge-important">
+            <g:formatNumber number="${featureCount}" type="number"/>
+        </div>
+        </div>
     </div>
 </div>
 </body>
