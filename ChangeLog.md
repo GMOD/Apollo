@@ -18,6 +18,7 @@ Features
 + Improved report login window look and feel #1103
 + Upgraded to Java 8  #1327
 + Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4 #1075
++ Delete expired preferences #1368
 + Bumped default JBrowse version 
 
 
