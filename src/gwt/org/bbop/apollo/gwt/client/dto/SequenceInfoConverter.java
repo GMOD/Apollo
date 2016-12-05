@@ -24,8 +24,12 @@ public class SequenceInfoConverter {
 
 
         // set the preferences if they are there
-        sequenceInfo.setStartBp(object.get("startBp") != null  ? object.get("startBp").isNumber().doubleValue() : null );
-        sequenceInfo.setEndBp(object.get("endBp") != null ? object.get("endBp").isNumber().doubleValue() : null );
+        if(object.containsKey("startBp")){
+            sequenceInfo.setStartBp(object.get("startBp").isNumber()!=null ? object.get("startBp").isNumber().doubleValue() : null );
+        }
+        if(object.containsKey("endBp")){
+            sequenceInfo.setEndBp(object.get("endBp").isNumber()!=null  ? object.get("endBp").isNumber().doubleValue() : null );
+        }
 
         return sequenceInfo ;
     }
