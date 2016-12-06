@@ -52,13 +52,18 @@ class SecurityFilters {
                                 int paramCount = 0
                                 def paramString = ""
                                 for(p in params){
-                                    if(p.key!="controller" || p.key!="action"){
+                                    if(p.key!="controller" && p.key!="action"){
                                         paramString += paramCount==0 ? "?" : "&"
-                                        paramString += p.key +"="+ p.value
+                                        if(p.key.startsWith("addStores")){
+                                            paramString += p.key +"="+ URLEncoder.encode(p.value,"UTF-8")
+                                        }
+                                        else{
+                                            paramString += p.key +"="+ p.value
+                                        }
                                         ++paramCount
                                     }
                                 }
-                                targetUri = targetUri + (paramString ? URLEncoder.encode(paramString,"UTF-8") :"")
+                                targetUri = targetUri + paramString
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
                                 return false
                             }
