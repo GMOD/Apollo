@@ -33,13 +33,20 @@ class AuthController {
         // Handle requests saved by Shiro filters.
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
         if (savedRequest) {
+            println "init targetUri ${targetUri}"
+            println "saved request query string ${savedRequest?.queryString}"
+            println "saved request requestURi ${savedRequest?.requestURI}"
+            println "saved request requestUrl ${savedRequest?.requestUrl}"
             if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
                 targetUri = savedRequest.queryString.substring("targetUri=".size())
+                println "substring from queryString ${targetUri}"
             }
             else{
                 targetUri = savedRequest.requestURI - request.contextPath
+                println "fix with context path: ${targetUri}"
                 if (savedRequest.queryString) {
                     targetUri = targetUri + '?' + savedRequest.queryString
+                    println "fix with saved request query string: ${targetUri}"
                 }
             }
         }
