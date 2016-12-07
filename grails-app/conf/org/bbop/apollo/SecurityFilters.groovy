@@ -54,12 +54,18 @@ class SecurityFilters {
                                 for(p in params){
                                     if(p.key!="controller" && p.key!="action"){
                                         paramString += paramCount==0 ? "?" : "&"
+                                        String key = p.key
+                                        String value = p.value
+                                        // the ?loc is incorrect
+                                        if(p.key.contains("?loc")){
+                                            def lastIndex = p.key.lastIndexOf("loc")
+                                            key = p.key.substring(lastIndex)
+                                        }
+                                        else
                                         if(p.key.startsWith("addStores")){
-                                            paramString += p.key +"="+ URLEncoder.encode(p.value,"UTF-8")
+                                            value = URLEncoder.encode(p.value,"UTF-8")
                                         }
-                                        else{
-                                            paramString += p.key +"="+ p.value
-                                        }
+                                        paramString += key +"="+ value
                                         ++paramCount
                                     }
                                 }
