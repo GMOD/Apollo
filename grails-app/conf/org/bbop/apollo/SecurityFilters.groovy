@@ -4,8 +4,6 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
-import org.apache.shiro.web.util.SavedRequest
-import org.apache.shiro.web.util.WebUtils
 
 class SecurityFilters {
 
@@ -40,9 +38,11 @@ class SecurityFilters {
                         Subject subject = SecurityUtils.getSubject();
                         if (!subject.isAuthenticated()) {
                             def req = request.JSON
-                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null  // we don't try to add this here
-                            if(authToken && permissionService.authenticateWithToken(authToken,request)){
-                                if(params.targetUri){
+                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null
+                            // we don't try to add this here
+                            if (authToken && permissionService.authenticateWithToken(authToken, request)) {
+                                println "authenticated with ${params.targetUri}"
+                                if (params.targetUri) {
                                     redirect(uri: params.targetUri)
                                 }
                                 return true
@@ -68,7 +68,22 @@ class SecurityFilters {
                                         paramString += key +"="+ value
                                         ++paramCount
                                     }
+
                                 }
+                                // https://github.com/GMOD/Apollo/issues/1371
+                                // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
+                                // if it contains two question marks with no equals in-between, then fix it
+                                // paramString seems to be getting extra data on it via the paramString
+                                int indexOfLoc = paramString.indexOf("?loc=")
+                                int numberOfStartParams = paramString.findAll("\\?").size()
+                                println "Index of loc string: ${indexOfLoc} "
+                                println "Number of start params: ${numberOfStartParams} "
+                                println "fixing?: ${paramString} "
+                                if (indexOfLoc > 0 && numberOfStartParams>1) {
+                                    println "fixing?: ${paramString} "
+                                    paramString = paramString.substring(indexOfLoc)
+                                }
+                                println "target Uri: ${targetUri} AND ${paramString}"
                                 targetUri = targetUri + paramString
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
                                 return false
