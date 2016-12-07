@@ -64,7 +64,7 @@ class SecurityFilters {
                                         }
                                         else
                                         if(p.key.startsWith("addStores")){
-                                            value = URLEncoder.encode(p.value,"UTF-8")
+                                            value = URLEncoder.encode(value,"UTF-8")
                                         }
                                         paramString += key +"="+ value
                                         ++paramCount
