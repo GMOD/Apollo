@@ -68,12 +68,12 @@ class SecurityFilters {
                                 // if it contains two question marks with no equals in-between, then fix it
                                 // paramString seems to be getting extra data on it via the paramString
                                 int indexOfLoc = paramString.indexOf("?loc=")
-                                int numberOfStartParams = paramString.findAll("?").size()
+                                int numberOfStartParams = paramString.findAll("\\?").size()
                                 println "Index of loc string: ${indexOfLoc} "
                                 println "Number of start params: ${numberOfStartParams} "
                                 println "fixing?: ${paramString} "
                                 if (indexOfLoc > 0 && numberOfStartParams>1) {
-                                    println "fixing!: ${paramString} "
+                                    println "fixing?: ${paramString} "
                                     paramString = paramString.substring(indexOfLoc)
                                 }
                                 println "target Uri: ${targetUri} AND ${paramString}"
