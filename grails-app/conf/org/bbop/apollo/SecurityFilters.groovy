@@ -41,7 +41,6 @@ class SecurityFilters {
                             def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null
                             // we don't try to add this here
                             if (authToken && permissionService.authenticateWithToken(authToken, request)) {
-                                println "authenticated with ${params.targetUri}"
                                 if (params.targetUri) {
                                     redirect(uri: params.targetUri)
                                 }
@@ -74,16 +73,11 @@ class SecurityFilters {
                                 // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
                                 // if it contains two question marks with no equals in-between, then fix it
                                 // paramString seems to be getting extra data on it via the paramString
-                                int indexOfLoc = paramString.indexOf("?loc=")
-                                int numberOfStartParams = paramString.findAll("\\?").size()
-                                println "Index of loc string: ${indexOfLoc} "
-                                println "Number of start params: ${numberOfStartParams} "
-                                println "fixing?: ${paramString} "
-                                if (indexOfLoc > 0 && numberOfStartParams>1) {
-                                    println "fixing?: ${paramString} "
-                                    paramString = paramString.substring(indexOfLoc)
-                                }
-                                println "target Uri: ${targetUri} AND ${paramString}"
+//                                int indexOfLoc = paramString.indexOf("?loc=")
+//                                int numberOfStartParams = paramString.findAll("\\?").size()
+//                                if (indexOfLoc > 0 && numberOfStartParams>1) {
+//                                    paramString = paramString.substring(indexOfLoc)
+//                                }
                                 targetUri = targetUri + paramString
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
                                 return false
