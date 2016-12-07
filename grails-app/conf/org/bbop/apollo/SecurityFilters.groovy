@@ -42,6 +42,7 @@ class SecurityFilters {
                             def req = request.JSON
                             def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null  // we don't try to add this here
                             if(authToken && permissionService.authenticateWithToken(authToken,request)){
+                                println "authenticated with ${params.targetUri}"
                                 if(params.targetUri){
                                     redirect(uri: params.targetUri)
                                 }
@@ -63,6 +64,7 @@ class SecurityFilters {
                                         ++paramCount
                                     }
                                 }
+                                println "target Uri: ${targetUri} AND ${paramString}"
                                 targetUri = targetUri + paramString
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
                                 return false
