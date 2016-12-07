@@ -71,6 +71,15 @@ class SecurityFilters {
                                     }
 
                                 }
+                                // https://github.com/GMOD/Apollo/issues/1371
+                                // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
+                                // if it contains two question marks with no equals in-between, then fix it
+                                // paramString seems to be getting extra data on it via the paramString
+//                                int indexOfLoc = paramString.indexOf("?loc=")
+//                                int numberOfStartParams = paramString.findAll("\\?").size()
+//                                if (indexOfLoc > 0 && numberOfStartParams>1) {
+//                                    paramString = paramString.substring(indexOfLoc)
+//                                }
                                 targetUri = targetUri + paramString
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
                                 return false
