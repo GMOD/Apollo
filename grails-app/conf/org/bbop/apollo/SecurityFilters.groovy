@@ -4,8 +4,6 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
-import org.apache.shiro.web.util.SavedRequest
-import org.apache.shiro.web.util.WebUtils
 
 class SecurityFilters {
 
@@ -40,9 +38,10 @@ class SecurityFilters {
                         Subject subject = SecurityUtils.getSubject();
                         if (!subject.isAuthenticated()) {
                             def req = request.JSON
-                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null  // we don't try to add this here
-                            if(authToken && permissionService.authenticateWithToken(authToken,request)){
-                                if(params.targetUri){
+                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null
+                            // we don't try to add this here
+                            if (authToken && permissionService.authenticateWithToken(authToken, request)) {
+                                if (params.targetUri) {
                                     redirect(uri: params.targetUri)
                                 }
                                 return true
@@ -57,6 +56,8 @@ class SecurityFilters {
                                         String key = p.key
                                         String value = p.value
                                         // the ?loc is incorrect
+                                        // https://github.com/GMOD/Apollo/issues/1371
+                                        // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
                                         if(p.key.contains("?loc")){
                                             def lastIndex = p.key.lastIndexOf("loc")
                                             key = p.key.substring(lastIndex)
@@ -68,6 +69,7 @@ class SecurityFilters {
                                         paramString += key +"="+ value
                                         ++paramCount
                                     }
+
                                 }
                                 targetUri = targetUri + paramString
                                 redirect(uri: "/auth/login?targetUri=${targetUri}")
