@@ -181,5 +181,9 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 14.3) Test copy and pasting a logged in URL (goes to loadLink)
 
+14.4) When logged out and logging back in should come back to the same place.
+
+14.4.1) Should work even if on different browser.
+
 
 
