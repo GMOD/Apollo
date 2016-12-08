@@ -26,6 +26,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -184,29 +185,43 @@ public class ExonDetailPanel extends Composite {
         });
     }
 
+    public boolean updateData() {
+        return updateData(null,null);
+    }
 
-    public void updateData(final AnnotationInfo annotationInfo) {
-        if (annotationInfo == null) return;
+    public boolean updateData(AnnotationInfo annotationInfo) {
+        return updateData(annotationInfo,null);
+    }
+
+    public boolean updateData(AnnotationInfo annotationInfo,AnnotationInfo selectedAnnotationInfo) {
+        if (annotationInfo == null) {
+            return false;
+        }
+        exonEditContainer.setVisible(false);
         //displayAnnotationInfo(annotationInfo);
         getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
-        exonEditContainer.setVisible(false);
         GWT.log("sublist: " + annotationInfo.getAnnotationInfoSet().size());
         for (AnnotationInfo annotationInfo1 : annotationInfo.getAnnotationInfoSet()) {
             GWT.log("adding: " + annotationInfo1.getName());
             annotationInfoList.add(annotationInfo1);
         }
 
-        // TODO: calculate phases
-//        calculatePhaseOnList(annotationInfoList);
-
-//        GWT.log("should be showing: " + annotationInfoList.size());
-//
 //        if (annotationInfoList.size() > 0) {
 //            updateDetailData(annotationInfoList.get(0));
 //        }
-        dataGrid.redraw();
-        exonEditContainer.setVisible(true);
+//        dataGrid.redraw();
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        if(selectedAnnotationInfo==null){
+            exonEditContainer.setVisible(true);
+            return false ;
+        }
+
+        return true ;
+//            if(selectedAnnotationInfo==null && annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())){
+//    //        if(selectedAnnotationInfo!=null){
+//                exonEditContainer.setVisible(true);
+//            }
     }
 
     private void updateDetailData(AnnotationInfo annotationInfo) {
@@ -262,9 +277,9 @@ public class ExonDetailPanel extends Composite {
 //                GWT.log("return value: " + returnValue.toString());
                 enableFields(true);
 
-//                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
-//                updateDetailData(updatedInfo);
-//                redrawExonTable();
+                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                updateDetailData(updatedInfo);
+                redrawExonTable();
             }
 
             @Override
