@@ -27,14 +27,13 @@ class VariantService {
                 log.info "variant is instanceof Deletion"
                 String alterationResidue = sequenceService.getResidueFromFeatureLocation(variant.featureLocation)
                 log.info "Alteration Residue for deletion variant: ${alterationResidue}"
-                variant.alterationResidue = alterationResidue
                 // reference base is the upstream base + alterationResidue
                 String upstreamBase = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin - 1, variant.fmin)
-                String referenceBases = upstreamBase + variant.alterationResidue
+                String referenceBases = upstreamBase + alterationResidue
                 variant.referenceBases = referenceBases
                 log.info "ReferenceBases: ${referenceBases}"
                 // alternate alleles
-                Allele alternateAllele = new Allele(bases: upstreamBase, variant: variant).save()
+                Allele alternateAllele = new Allele(bases: upstreamBase, variant: variant, alterationResidue: alterationResidue).save()
                 variant.addToAlternateAlleles(alternateAllele)
                 log.info "alternate allele bases: ${alternateAllele.bases}"
                 variant.featureLocation.fmin = variant.featureLocation.fmin - 1
@@ -43,14 +42,13 @@ class VariantService {
                 log.info "variant is instanceof Insertion"
                 if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
                     String alterationResidue = jsonFeature.getString(FeatureStringEnum.RESIDUES.value)
-                    variant.alterationResidue = alterationResidue
                     // reference base is the upstream base
                     String upstreamBase = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin, variant.fmin + 1)
                     variant.referenceBases = upstreamBase
                     log.info "ReferenceBases: ${upstreamBase}"
                     // alternate alleles
                     String alternateBases = upstreamBase + alterationResidue
-                    Allele alternateAllele = new Allele(bases: alternateBases, variant: variant).save()
+                    Allele alternateAllele = new Allele(bases: alternateBases, variant: variant, alterationResidue: alterationResidue).save()
                     variant.addToAlternateAlleles(alternateAllele)
                     log.info "alternate allele bases: ${alternateAllele.bases}"
                     variant.featureLocation.fmax = variant.featureLocation.fmax + 1
@@ -60,14 +58,13 @@ class VariantService {
                 log.info "variant is instanceof Substitution"
                 if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
                     String alterationResidue = jsonFeature.getString(FeatureStringEnum.RESIDUES.value)
-                    variant.alterationResidue = alterationResidue
                     // reference base is bases within the range fmin - fmax
                     String referenceBases = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin, variant.fmax)
                     variant.referenceBases = referenceBases
                     log.info "ReferenceBases: ${referenceBases}"
                     // alternate alleles
                     String alternateBases = alterationResidue
-                    Allele alternateAllele = new Allele(bases: alternateBases, variant: variant).save()
+                    Allele alternateAllele = new Allele(bases: alternateBases, variant: variant, alterationResidue: alterationResidue).save()
                     variant.addToAlternateAlleles(alternateAllele)
                     log.info "alternate allele bases: ${alternateAllele.bases}"
                     log.info "${referenceBases.length()} vs. ${alternateAllele.bases.length()}"
@@ -82,20 +79,27 @@ class VariantService {
             log.info "A variant from evidence track"
             if (variant instanceof Deletion) {
                 log.info "variant is instanceof Deletion"
-                // TODO: Assumption that variant has only one alternate allele
-                String alterationResidue = variant.alternateAlleles[0].bases.substring(1)
-                variant.alterationResidue = alterationResidue
+                for (Allele allele : variant.alternateAlleles) {
+                    allele.alterationResidue = variant.referenceBases.substring(1)
+                    allele.save()
+                    log.debug "Alteration Residue: ${allele.alterationResidue}"
+                }
             }
             else if (variant instanceof Insertion) {
                 log.info "variant is instanceof Insertion"
-                // TODO: Assumption that variant has only one alternate allele
-                String alterationResidue = variant.referenceBases.substring(1)
-                variant.alterationResidue = alterationResidue
+                for (Allele allele : variant.alternateAlleles) {
+                    allele.alterationResidue = allele.bases.substring(1)
+                    allele.save()
+                    log.debug "Alteration Residue: ${allele.alterationResidue}"
+                }
             }
             else if (variant instanceof Substitution) {
                 log.info "variant is instanceof Substitution"
-                // TODO: Assumption that variant has only one alternate allele
-                variant.alterationResidue = variant.alternateAlleles[0].bases
+                for (Allele allele : variant.alternateAlleles) {
+                    allele.alterationResidue = allele.bases
+                    allele.save()
+                    log.debug "Alteration Residue: ${allele.alterationResidue}"
+                }
             }
             else {
                 log.error "Unexpected type of variant"
@@ -105,7 +109,6 @@ class VariantService {
         variant.name = nameService.makeUniqueVariantName(variant)
 
         User owner = permissionService.getCurrentUser(jsonFeature)
-
         if (owner) {
             featureService.setOwner(variant, owner)
         }
@@ -113,7 +116,6 @@ class VariantService {
             log.error "Unable to find valid user to set on variant: " + jsonFeature.toString()
         }
 
-        // TODO: Name service
         featureService.updateNewGsolFeatureAttributes(variant, sequence)
         variant.save(flush: true)
 
