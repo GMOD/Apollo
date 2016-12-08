@@ -21,6 +21,9 @@ class VariantAnnotationService {
     def featureRelationshipService
     def configWrapperService
 
+    // sequenceTrace for tests
+    HashMap<Allele,ArrayList<String>> sequenceTrace = new HashMap<>()
+
     def getOverlappingVariants(Transcript transcript) {
         println "@getOverlappingVariants"
         Set<Feature> variantsList = new HashSet<>()
@@ -43,9 +46,13 @@ class VariantAnnotationService {
         log.info "calculate effect of variant ${variant.name}"
         def overlappingTranscripts = featureService.getOverlappingTranscripts(variant.featureLocation, false)
         log.info "Overlapping transcripts: ${overlappingTranscripts.name}"
+        // flush sequence trace
+        sequenceTrace.clear()
         for (Transcript transcript : overlappingTranscripts) {
             calculateEffectOfVariantOnTranscript(variant, transcript)
         }
+        // return sequenceTrace for testing purpose
+        return sequenceTrace
     }
 
     /**
@@ -55,23 +62,353 @@ class VariantAnnotationService {
      * @return
      */
     def calculateEffectOfVariantOnTranscript(SequenceAlteration variant, Transcript transcript) {
+        println "@calculateEffectOfVariantOnTranscript"
+        int transcriptFmin = transcript.fmin
+        int transcriptFmax = transcript.fmax
+        int transcriptStrand = transcript.strand
+        CDS cds = transcriptService.getCDS(transcript)
+        TranslationTable tt = configWrapperService.getTranslationTable()
+        boolean readThroughStopCodon = cdsService.getStopCodonReadThrough(cds) ? true : false
 
-        // TODO: predicting the effect of variant on transcript
-        VariantEffect variantEffect = new VariantEffect(
-                cdnaPosition: -1,
-                cdsPosition: -1,
-                proteinPosition: -1,
-                referenceCodon: 'NNN',
-                alternateCodon: 'NNN',
-                referenceResidue: 'N',
-                alternateResidue: 'N'
+        // I. Get the genomic sequence of the transcript
+        String originalTranscriptGenomicSequence = sequenceService.getResiduesFromFeature(transcript)
+        StringBuilder residueBuilder = new StringBuilder(originalTranscriptGenomicSequence)
 
-        )
-        variantEffect.variant = variant
-        // TODO: support multiple alternate alleles
-        variantEffect.alternateAllele = variant.alternateAlleles.iterator().next()
-        variantEffect.save()
-        assignSOTypeToVariantEffect(variant, variantEffect, transcript)
+        // II. Keep track of global exon fmin, fmax and local fmin, fmax
+        def exons = transcriptService.getSortedExons(transcript, true)
+        def exonFminArray = []
+        def exonFmaxArray = []
+        def exonLocalFminArray = []
+        def exonLocalFmaxArray = []
+
+        int exonLocalFmin, exonLocalFmax
+
+        if (transcriptStrand == Strand.NEGATIVE.value) {
+            for (Exon exon : exons) {
+                exonFminArray.add(exon.fmin)
+                exonFmaxArray.add(exon.fmax)
+                exonLocalFmin = convertSourceCoordinateToLocalCoordinate(transcriptFmin, transcriptFmax, transcriptStrand, exon.fmax) + 1
+                exonLocalFmax = convertSourceCoordinateToLocalCoordinate(transcriptFmin, transcriptFmax, transcriptStrand, exon.fmin)
+                log.info "[ - ] exonLocalFmin: ${exonLocalFmin} exonLocalFmax: ${exonLocalFmax}"
+                exonLocalFminArray.add(exonLocalFmin)
+                exonLocalFmaxArray.add(exonLocalFmax)
+            }
+        }
+        else {
+            for (Exon exon  : exons) {
+                exonFminArray.add(exon.fmin)
+                exonFmaxArray.add(exon.fmax)
+                exonLocalFmin = convertSourceCoordinateToLocalCoordinate(transcriptFmin, transcriptFmax, transcriptStrand, exon.fmin)
+                exonLocalFmax = convertSourceCoordinateToLocalCoordinate(transcriptFmin, transcriptFmax, transcriptStrand, exon.fmax)
+                log.info "[ + ] exonLocalFmin: ${exonLocalFmin} exonLocalFmax: ${exonLocalFmax}"
+                exonLocalFminArray.add(exonLocalFmin)
+                exonLocalFmaxArray.add(exonLocalFmax)
+            }
+        }
+
+        // III. Incorporate all ASSEMBLY_ERROR_CORRECTIONS while keeping track of the offset introduced
+        def sequenceAlterations = featureService.getSequenceAlterationsForFeature(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
+        ArrayList<SequenceAlterationInContext> sequenceAlterationInContextList = featureService.getSequenceAlterationsInContextForFeature(transcript, sequenceAlterations)
+        def orderedSequenceAlterationsInContextList = featureService.sortSequenceAlterationsInContextList(sequenceAlterationInContextList)
+
+        if (transcriptStrand == Strand.NEGATIVE.value) {
+            Collections.reverse(orderedSequenceAlterationsInContextList)
+        }
+
+        int cumulativeOffset = 0
+        for (SequenceAlterationInContext sa : orderedSequenceAlterationsInContextList) {
+            int localCoordinate = convertSourceCoordinateToLocalCoordinate(transcriptFmin, transcriptFmax, transcriptStrand, sa.fmin + cumulativeOffset)
+            String alterationResidue = sa.alterationResidue
+            int genomicOffset = alterationResidue.length()
+
+            if (transcriptStrand == Strand.NEGATIVE.value) {
+                alterationResidue = SequenceTranslationHandler.reverseComplementSequence(alterationResidue)
+            }
+
+            log.info "Alteration residue: ${alterationResidue} at position ${sa.fmin} with localCoordinate: ${localCoordinate}"
+            if (sa.instanceOf == Insertion.canonicalName) {
+                // incorporating INESRTION to the genomic sequence
+                log.info "[ AEC-INS ] Sequence alteration instanceof INSERTION"
+                int insertionPosition
+                if (transcriptStrand == Strand.NEGATIVE.value) {
+                    insertionPosition = localCoordinate + 1
+                }
+                else {
+                    insertionPosition = localCoordinate
+                }
+                residueBuilder.insert(insertionPosition, alterationResidue)
+                cumulativeOffset += genomicOffset
+
+                for (int i = 0; i < exonLocalFminArray.size(); i++) {
+                    if (localCoordinate <= exonLocalFminArray[i]) {
+                        // if sequence alteration is before the exon fmin then that means the exon is a downstream exon
+                        // and thus will be affected by the incorporated Insertion
+                        exonLocalFminArray[i] += genomicOffset
+                    }
+                    if (localCoordinate <= exonLocalFmaxArray[i]) {
+                        // if sequence alteration is before the exon fmax then that means the exon is a downstream exon
+                        // and thus will be affected by the incorporated Insertion
+                        exonLocalFmaxArray[i] += genomicOffset
+                    }
+
+                    // Since the SA is on +, applying offset to all global fmin and fmax downstream of SA
+                    if (sa.fmin <= exonFminArray[i]) {
+                        exonFminArray[i] += genomicOffset
+                    }
+                    if (sa.fmin <= exonFmaxArray[i]) {
+                        exonFmaxArray[i] += genomicOffset
+                    }
+                }
+                log.info "[ AEC-INS ] Exon Local Fmin Array (with offset): ${exonLocalFminArray}"
+                log.info "[ AEC-INS ] Exon Local Fmax Array (with offset): ${exonLocalFmaxArray}"
+                log.info "[ AEC-INS ] Exon Global Fmax Array (with offset): ${exonFminArray}"
+                log.info "[ AEC-INS ] Exon Global Fmax Array (with offset): ${exonFmaxArray}"
+
+                // Since the SA is on +, applying offset to global transcript fmax
+                transcriptFmax += genomicOffset
+            }
+            else if (sa.instanceOf == Deletion.canonicalName) {
+                // incorporating DELETION to the genomic sequence
+                log.info "[ AEC-DEL ] Sequence alteration instanceof DELETION"
+                int deletionPositionStart, deletionPositionEnd
+                if (transcriptStrand == Strand.NEGATIVE.value) {
+                    deletionPositionStart = (localCoordinate - genomicOffset) + 1
+                    deletionPositionEnd = localCoordinate + 1
+                }
+                else {
+                    deletionPositionStart = localCoordinate
+                    deletionPositionEnd = deletionPositionStart + genomicOffset
+                }
+                residueBuilder.replace(deletionPositionStart, deletionPositionEnd, "")
+                cumulativeOffset -= genomicOffset
+
+                for (int i = 0; i < exonLocalFminArray.size(); i++) {
+                    if (localCoordinate <= exonLocalFminArray[i]) {
+                        // if sequence alteration is before the exon fmin then that means the exon is a downstream exon
+                        // and thus will be affected by the incorporated Deletion
+                        exonLocalFminArray[i] -= genomicOffset
+                    }
+                    if (localCoordinate <= exonLocalFmaxArray[i]) {
+                        // if sequence alteration is before the exon fmax then that means the exon is a downstream exon
+                        // and thus will be affected by the incorporated Deletion
+                        exonLocalFmaxArray[i] -= genomicOffset
+                    }
+
+                    // Since the SA is on +, applying offset to all global fmin and fmax downstream of SA
+                    if (sa.fmin <= exonFminArray[i]) {
+                        exonFminArray[i] -= genomicOffset
+                    }
+                    if (sa.fmin <= exonFmaxArray[i]) {
+                        exonFmaxArray[i] -= genomicOffset
+                    }
+                    // Since the SA is on +, applying offset to global transcript fmax
+                    transcriptFmax -= genomicOffset
+                }
+            }
+            else if (sa.instanceOf == Substitution.canonicalName) {
+                // incorporating SUBSTITUTION to the genomic sequence
+                log.info "[ AEC-SUB ] Sequence alteration is instanceof SUBSTITUTION"
+                int start
+                if (transcriptStrand == Strand.NEGATIVE.value) {
+                    start = (localCoordinate - genomicOffset) + 1
+                }
+                else {
+                    start = localCoordinate
+                }
+                log.info "[ AEC-SUB ] start: ${start} end: ${start + genomicOffset}"
+                residueBuilder.replace(start, start + genomicOffset, alterationResidue)
+            }
+        }
+
+        String alteredTranscriptGenomicSequence = residueBuilder.toString()
+        log.info "Genomic Sequence (before): ${originalTranscriptGenomicSequence}"
+        log.info "Genomic Sequence  (after): ${alteredTranscriptGenomicSequence}"
+
+        // IV. Create altered CDNA sequence
+        String alteredCdnaSequence = ""
+        for (int i = 0; i < exonLocalFminArray.size(); i++) {
+            if (transcriptStrand == Strand.NEGATIVE.value) {
+                alteredCdnaSequence += alteredTranscriptGenomicSequence.substring(exonLocalFminArray[i], exonLocalFmaxArray[i] + 1)
+            }
+            else {
+                alteredCdnaSequence += alteredTranscriptGenomicSequence.substring(exonLocalFminArray[i], exonLocalFmaxArray[i])
+            }
+        }
+
+        log.info "Altered cDNA Sequence: ${alteredCdnaSequence}"
+
+        // V. Calculate longest ORF for altered CDNA sequence
+        def results = featureService.calculateLongestORF(alteredCdnaSequence, tt, readThroughStopCodon)
+        String alteredPeptideSequence = results.get(0)
+        int cdsStart = results.get(1)
+        int cdsEnd = results.get(2)
+        log.info "Altered CDS Start: ${cdsStart}"
+        log.info "Altered CDS End: ${cdsEnd}"
+
+        // VI. Get global CDS fmin and fmax
+        int cdsFmin, cdsFmax
+        if (transcriptStrand == Strand.NEGATIVE.value) {
+            cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, cdsStart) + 1
+            cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, cdsEnd) + 1
+        }
+        else {
+            cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, cdsStart)
+            cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, cdsEnd)
+        }
+        log.info "Altered CDS global Fmin: ${cdsFmin}"
+        log.info "Altered CDS global Fmax: ${cdsFmax}"
+        String alteredCdsSequence = alteredCdnaSequence.substring(cdsStart, cdsEnd)
+
+        // VI. Now for each variant's alternate allele, apply the variant to the genomic sequence
+        int correctedVariantFmin, correctedVariantFmax
+        (correctedVariantFmin, correctedVariantFmax) = applyOffsetFromAssemblyErrorCorrections(variant, orderedSequenceAlterationsInContextList)
+        int localVariantFmin = convertSourceCoordinateToLocalCoordinate(transcriptFmin, transcriptFmax, transcript.strand, correctedVariantFmin)
+        int localVariantFminOnCDNA = convertSourceCoordinateToLocalCoordinateForTranscript(exonFminArray, exonFmaxArray, transcript.strand, correctedVariantFmin)
+        int localVariantFminOnCDS = convertSourceCoordinateToLocalCoordinateForCDS(cdsFmin, cdsFmax, exonFminArray, exonFmaxArray, transcript.strand, correctedVariantFmin)
+        log.info "Local Variant Fmin on genomic: ${localVariantFmin}"
+        log.info "Local Variant Fmin on CDNA: ${localVariantFminOnCDNA}"
+        log.info "Local Variant Fmin on CDS: ${localVariantFminOnCDS}"
+
+        StringBuilder finalResidueBuilder = new StringBuilder(alteredTranscriptGenomicSequence)
+
+        int cumulativeOffsetFromVariant = 0
+        for (Allele allele : variant.alternateAlleles) {
+            log.info "Processing variant ${variant.referenceBases} -> ${allele.bases} at position: ${variant.fmin}"
+            String alterationResidue = allele.alterationResidue
+            if (transcript.strand == Strand.NEGATIVE.value) {
+                alterationResidue  = SequenceTranslationHandler.reverseComplementSequence(alterationResidue)
+            }
+            int genomicOffset = alterationResidue.length()
+
+            if (variant instanceof Insertion) {
+                // TODO
+            }
+            else if (variant instanceof Deletion) {
+                // TODO
+            }
+            else if (variant instanceof Substitution) {
+                int start
+                if (transcriptStrand == Strand.NEGATIVE.value) {
+                    start = (localVariantFmin - genomicOffset) + 1
+                }
+                else {
+                    start = localVariantFmin
+                }
+                log.info "[ VAR-SUB ] Substitution Position: ${start}"
+                finalResidueBuilder.replace(start, start + genomicOffset, alterationResidue)
+            }
+
+            String finalAlteredGenomicSequence = finalResidueBuilder.toString()
+            log.info "Final Altered Genomic Sequence: ${finalAlteredGenomicSequence}"
+
+            // VII. Track the effect the variant has on the CDNA sequence, CDS sequence and peptide sequence
+            String finalAlteredCdnaSequence = ""
+            for (int i = 0; i < exonLocalFminArray.size(); i++) {
+                if (transcriptStrand == Strand.NEGATIVE.value) {
+                    finalAlteredCdnaSequence += finalAlteredGenomicSequence.substring(exonLocalFminArray[i], exonLocalFmaxArray[i] + 1)
+                }
+                else {
+                    finalAlteredCdnaSequence += finalAlteredGenomicSequence.substring(exonLocalFminArray[i], exonLocalFmaxArray[i])
+                }
+            }
+
+            log.info "Final CDNA Sequence: ${finalAlteredCdnaSequence}"
+            def results2 = featureService.calculateLongestORF(finalAlteredCdnaSequence, configWrapperService.getTranslationTable(), readThroughStopCodon)
+            String finalPeptideSequence = results2.get(1)
+            int finalCdsStart = results2.get(1)
+            int finalCdsEnd = results2.get(2)
+
+            log.info "Final CDS start: ${finalCdsStart}"
+            log.info "Final CDS end: ${finalCdsEnd}"
+
+            int finalCdsFmin, finalCdsFmax
+            if (transcriptStrand == Strand.NEGATIVE.value) {
+                finalCdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, finalCdsStart) + 1
+                finalCdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, finalCdsEnd) + 1
+            }
+            else {
+                finalCdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, finalCdsStart)
+                finalCdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, transcriptStrand, finalCdsEnd)
+            }
+            log.info "Final CDS global Fmin: ${finalCdsFmin}"
+            log.info "Final CDS global Fmax: ${finalCdsFmax}"
+
+            String finalAlteredCdsSequence = finalAlteredCdnaSequence.substring(finalCdsStart, finalCdsEnd)
+
+            // VIII. Create a VariantEffect entity
+            String originalCodon, alteredCodon
+            String originalAminoAcid, alteredAminoAcid
+            int originalAminoAcidPosition, alteredAminoAcidPosition
+
+            if (variant instanceof Insertion) {
+                // TODO
+            }
+            else if (variant instanceof Deletion) {
+                // TODO
+            }
+            else if (variant instanceof Substitution) {
+                int finalLocalVariantFminOnCDS = convertSourceCoordinateToLocalCoordinateForCDS(finalCdsFmin, finalCdsFmax, exonFminArray, exonFmaxArray, transcriptStrand, correctedVariantFmin)
+                if (correctedVariantFmin <= cdsFmax) {
+                    log.info "[ VE-SUB ] Variant Fmin is within original CDS (CDS after accounting for AEC)"
+                    (originalCodon, originalAminoAcidPosition) = getCodonFromSequence(localVariantFminOnCDS, alteredCdsSequence)
+                    originalAminoAcid = SequenceTranslationHandler.translateSequence(originalCodon, configWrapperService.getTranslationTable(), true, false)
+                }
+                else {
+                    // variant is not within the CDS of tne transcript
+                    // thus originalCodon will be '.' and originalAminoAcidPosition will be '.'
+                    originalCodon = '.'
+                    originalAminoAcidPosition = -1
+                    originalAminoAcid = '.'
+                }
+
+                if (correctedVariantFmin <= finalCdsFmax) {
+                    log.info "[ VE-SUB ] Variant fmin is within final altered CDS"
+                    (alteredCodon, alteredAminoAcidPosition) = getCodonFromSequence(finalLocalVariantFminOnCDS, finalAlteredCdsSequence)
+                    alteredAminoAcid = SequenceTranslationHandler.translateSequence(alteredCodon, configWrapperService.getTranslationTable(), true, false)
+                }
+                else {
+                    // the presence of this variant has altered the CDS from the original
+                    // thus alteredCodon, alteredAminoAcidPosition and alteredAminoAcid will be '.'
+                    alteredCodon = '.'
+                    alteredAminoAcidPosition = -1
+                    alteredAminoAcid = '.'
+                }
+
+                log.info "[ VE-SUB ] codon change: ${originalCodon} -> ${alteredCodon}"
+                log.info "[ VE-SUB ] aa change: ${originalAminoAcid} -> ${alteredAminoAcid}"
+                log.info "[ VE-SUB ] aa pos: ${originalAminoAcidPosition}"
+                log.info "[ VE-SUB ] cDNA Position: ${localVariantFminOnCDNA}"
+                log.info "[ VE-SUB ] CDS Position: ${finalLocalVariantFminOnCDS}"
+                // If finalLocalVariantFminOnCDS is -1 then that means the CDS of the transcript changed
+                // as a result of the variant
+
+                VariantEffect variantEffect = new VariantEffect(
+                        referenceResidue: originalAminoAcid,
+                        alternateResidue: alteredAminoAcid,
+                        referenceCodon: originalCodon,
+                        alternateCodon: alteredCodon
+                )
+                if (alteredAminoAcidPosition != -1) variantEffect.proteinPosition = alteredAminoAcidPosition
+                if (localVariantFminOnCDNA != -1) variantEffect.cdnaPosition = localVariantFminOnCDNA
+                if (localVariantFminOnCDS != -1) variantEffect.cdsPosition = localVariantFminOnCDS
+                variantEffect.feature = transcript
+                variantEffect.variant = variant
+                variantEffect.alternateAllele = allele
+
+                // IX. Create a JSONObject for what the altered transcript is likely to look like
+                JSONObject transcriptJsonObject = featureService.convertFeatureToJSON(transcript)
+                // TODO: reparse this JSONObject to reflect the modifications as a result of the variant
+                variantEffect.metadata = transcriptJsonObject.toString()
+                variantEffect.save()
+                allele.addToVariantEffects(variantEffect)
+            }
+
+            def sequenceArray = [alteredTranscriptGenomicSequence, alteredCdnaSequence, alteredCdsSequence,
+                                 finalAlteredGenomicSequence, finalAlteredCdnaSequence, finalAlteredCdsSequence]
+            sequenceTrace.put(allele, sequenceArray)
+        }
+        // for testing purposes
+        return sequenceTrace
     }
 
     /**
@@ -178,10 +515,15 @@ class VariantAnnotationService {
         int localCoordinate = -1
         int currentCoordinate = 0
 
+        // Ensuring that the arrays have coordinates sorted in the right order
         if (strand == Strand.NEGATIVE.value) {
-            exonFminArray.reverse(true)
-            exonFmaxArray.reverse(true)
+            exonFminArray.sort(true, {a, b -> b <=> a})
         }
+        else {
+            exonFmaxArray.sort(true, {a, b -> a <=> b})
+        }
+
+
         for (int i = 0; i < exonFminArray.size(); i++) {
             int exonFmin = exonFminArray.get(i)
             int exonFmax = exonFmaxArray.get(i)
@@ -202,7 +544,6 @@ class VariantAnnotationService {
             }
 
         }
-        println "Returning with ${localCoordinate}"
         return localCoordinate
     }
 
@@ -220,9 +561,12 @@ class VariantAnnotationService {
         int currentLength = 0
         int currentCoordinate = localCoordinate
 
+        // Ensuring that the arrays have coordinates sorted in the right order
         if (strand == Strand.NEGATIVE.value) {
-            exonFminArray.reverse(true)
-            exonFmaxArray.reverse(true)
+            exonFminArray.sort(true, {a, b -> b <=> a})
+        }
+        else {
+            exonFmaxArray.sort(true, {a, b -> a <=> b})
         }
 
         for (int i = 0; i < exonFminArray.size(); i++) {
@@ -305,8 +649,15 @@ class VariantAnnotationService {
             }
         }
         else {
-            exonFminArray.reverse(true)
-            exonFmaxArray.reverse(true)
+            // Ensuring that the arrays have coordinates sorted in the right order
+            // without having to assume that its being provided in the right order
+            if (strand == Strand.NEGATIVE.value) {
+                exonFminArray.sort(true, {a, b -> b <=> a})
+            }
+            else {
+                exonFmaxArray.sort(true, {a, b -> a <=> b})
+            }
+
             for (int i = 0; i < exonFminArray.size(); i++) {
                 int exonFmin = exonFminArray.get(i)
                 int exonFmax = exonFmaxArray.get(i)
@@ -361,9 +712,12 @@ class VariantAnnotationService {
         int currentLength = 0
         int currentCoordinate = localCoordinate
 
+        // Ensuring that the arrays have coordinates sorted in the right order
         if (strand == Strand.NEGATIVE.value) {
-            exonFminArray.reverse(true)
-            exonFmaxArray.reverse(true)
+            exonFminArray.sort(true, {a, b -> b <=> a})
+        }
+        else {
+            exonFmaxArray.sort(true, {a, b -> a <=> b})
         }
 
         int x, y =  0
@@ -431,4 +785,5 @@ class VariantAnnotationService {
         return (leftFmin <= rightFmin && leftFmax > rightFmin ||
                 leftFmin >= rightFmin && leftFmin < rightFmax)
     }
+
 }
