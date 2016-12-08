@@ -518,11 +518,12 @@ class VariantAnnotationService {
         // Ensuring that the arrays have coordinates sorted in the right order
         if (strand == Strand.NEGATIVE.value) {
             exonFminArray.sort(true, {a, b -> b <=> a})
+            exonFmaxArray.sort(true, {a, b -> b <=> a})
         }
         else {
+            exonFminArray.sort(true, {a, b -> a <=> b})
             exonFmaxArray.sort(true, {a, b -> a <=> b})
         }
-
 
         for (int i = 0; i < exonFminArray.size(); i++) {
             int exonFmin = exonFminArray.get(i)
@@ -564,8 +565,10 @@ class VariantAnnotationService {
         // Ensuring that the arrays have coordinates sorted in the right order
         if (strand == Strand.NEGATIVE.value) {
             exonFminArray.sort(true, {a, b -> b <=> a})
+            exonFmaxArray.sort(true, {a, b -> b <=> a})
         }
         else {
+            exonFminArray.sort(true, {a, b -> a <=> b})
             exonFmaxArray.sort(true, {a, b -> a <=> b})
         }
 
@@ -653,8 +656,10 @@ class VariantAnnotationService {
             // without having to assume that its being provided in the right order
             if (strand == Strand.NEGATIVE.value) {
                 exonFminArray.sort(true, {a, b -> b <=> a})
+                exonFmaxArray.sort(true, {a, b -> b <=> a})
             }
             else {
+                exonFminArray.sort(true, {a, b -> a <=> b})
                 exonFmaxArray.sort(true, {a, b -> a <=> b})
             }
 
@@ -715,8 +720,10 @@ class VariantAnnotationService {
         // Ensuring that the arrays have coordinates sorted in the right order
         if (strand == Strand.NEGATIVE.value) {
             exonFminArray.sort(true, {a, b -> b <=> a})
+            exonFmaxArray.sort(true, {a, b -> b <=> a})
         }
         else {
+            exonFminArray.sort(true, {a, b -> a <=> b})
             exonFmaxArray.sort(true, {a, b -> a <=> b})
         }
 
