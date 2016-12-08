@@ -402,7 +402,7 @@ public class ExonDetailPanel extends Composite {
         if (this.inputFmin >= annotationInfoWithTopLevelFeature.getMin() && this.inputFmax <= annotationInfoWithTopLevelFeature.getMax()) {
             return true;
         } else {
-            GWT.log("Cannot extend beyond the boundaries of the mRNA");
+            Bootbox.alert("Cannot extend beyond the boundaries of the mRNA");
             return false;
         }
     }
