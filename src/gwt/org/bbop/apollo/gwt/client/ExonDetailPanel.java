@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -9,8 +10,6 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -19,6 +18,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -26,7 +26,6 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -247,12 +246,8 @@ public class ExonDetailPanel extends Composite {
         this.editable = editable;
     }
 
-    public boolean isEditableType(String type) {
-        if (type.equals("CDS") || type.equals("exon")) {
-            return true;
-        } else {
-            return false;
-        }
+    private boolean isEditableType(String type) {
+        return type.equals("CDS") || type.equals("exon");
     }
 
     private void updateFeatureLocation(final AnnotationInfo originalInfo) {
@@ -261,12 +256,29 @@ public class ExonDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                GWT.log("return value: " + returnValue.toString());
+//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+
+//                GWT.log("return value: " + returnValue.toString());
                 enableFields(true);
-                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
-                updateDetailData(updatedInfo);
-                redrawExonTable();
+
+//                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+//                updateDetailData(updatedInfo);
+//                redrawExonTable();
+//                Scheduler.get().scheduleFinally(new Scheduler.ScheduledCommand() {
+//                    @Override
+//                    public void execute() {
+//                        for (AnnotationInfo annotationInfo : dataProvider.getList()) {
+//                            if (annotationInfo.getUniqueName().equals(updatedInfo.getUniqueName())) {
+//                                Window.alert("selecting");
+//                                selectionModel.setSelected(annotationInfo, true);
+//                                exonEditContainer.setVisible(true);
+//                            } else {
+//                                selectionModel.setSelected(annotationInfo, false);
+//                            }
+//                        }
+//                        Window.alert("selected set is: "+selectionModel.getSelectedSet().size());
+//                    }
+//                });
             }
 
             @Override
@@ -358,10 +370,9 @@ public class ExonDetailPanel extends Composite {
         if (!(this.inputFmin < this.internalAnnotationInfo.getMax()) || !(this.inputFmax > this.internalAnnotationInfo.getMin())) {
             return false;
         }
-        if (!verifyBoundaries(this.internalAnnotationInfo)) {
+        if (!verifyBoundaries()) {
             return false;
         }
-        ;
         return true;
     }
 
@@ -398,7 +409,7 @@ public class ExonDetailPanel extends Composite {
         this.annotationInfoWithTopLevelFeature = annotationInfo;
     }
 
-    private boolean verifyBoundaries(AnnotationInfo annotationInfo) {
+    private boolean verifyBoundaries() {
         if (this.inputFmin >= annotationInfoWithTopLevelFeature.getMin() && this.inputFmax <= annotationInfoWithTopLevelFeature.getMax()) {
             return true;
         } else {
