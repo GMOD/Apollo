@@ -29,7 +29,7 @@ Bugfixes
 + Error going between full-screen and annotator panel when stored are loaded in the URL #1156,#1214,#1271,#1330,#1331, #1008
 + 'use_cds_for_new_transcripts' was not being picked up properly #1297
 + Client interprets 5'UTR and 3'UTR features as exons #1308
-+ The longest possible ORF must be calculated for genomic fragments #1302
++ Flag when 3' end or 5' end are missing, still calculate longest ORF #1302
 + Limit Chado export to admins #1322
 + Improved security of non-public genomes #861
 + Adding transcripts via the load transcripts script added preferences #1277
