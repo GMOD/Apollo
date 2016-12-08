@@ -185,7 +185,7 @@ public class ExonDetailPanel extends Composite {
     }
 
 
-    public void updateData(AnnotationInfo annotationInfo) {
+    public void updateData(final AnnotationInfo annotationInfo) {
         if (annotationInfo == null) return;
         //displayAnnotationInfo(annotationInfo);
         getAnnotationInfoWithTopLevelFeature(annotationInfo);
@@ -200,12 +200,13 @@ public class ExonDetailPanel extends Composite {
         // TODO: calculate phases
 //        calculatePhaseOnList(annotationInfoList);
 
-        GWT.log("should be showing: " + annotationInfoList.size());
-
-        if (annotationInfoList.size() > 0) {
-            updateDetailData(annotationInfoList.get(0));
-        }
+//        GWT.log("should be showing: " + annotationInfoList.size());
+//
+//        if (annotationInfoList.size() > 0) {
+//            updateDetailData(annotationInfoList.get(0));
+//        }
         dataGrid.redraw();
+        exonEditContainer.setVisible(true);
     }
 
     private void updateDetailData(AnnotationInfo annotationInfo) {
@@ -264,21 +265,6 @@ public class ExonDetailPanel extends Composite {
 //                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
 //                updateDetailData(updatedInfo);
 //                redrawExonTable();
-//                Scheduler.get().scheduleFinally(new Scheduler.ScheduledCommand() {
-//                    @Override
-//                    public void execute() {
-//                        for (AnnotationInfo annotationInfo : dataProvider.getList()) {
-//                            if (annotationInfo.getUniqueName().equals(updatedInfo.getUniqueName())) {
-//                                Window.alert("selecting");
-//                                selectionModel.setSelected(annotationInfo, true);
-//                                exonEditContainer.setVisible(true);
-//                            } else {
-//                                selectionModel.setSelected(annotationInfo, false);
-//                            }
-//                        }
-//                        Window.alert("selected set is: "+selectionModel.getSelectedSet().size());
-//                    }
-//                });
             }
 
             @Override

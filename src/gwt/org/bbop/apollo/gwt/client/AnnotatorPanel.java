@@ -411,7 +411,7 @@ public class AnnotatorPanel extends Composite {
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
-        exonDetailPanel.setVisible(false);
+//        exonDetailPanel.setVisible(false);
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
