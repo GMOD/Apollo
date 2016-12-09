@@ -168,7 +168,7 @@
                             <apollo:UserPanel ui:field="userPanel" visible="false"/>
                         </gwt:tab>
                         <gwt:tab>
-                            <gwt:header>Groups</gwt:header>
+                            <gwt:header>Teams</gwt:header>
                             <apollo:GroupPanel ui:field="userGroupPanel" visible="false"/>
                         </gwt:tab>
                         <gwt:tab>

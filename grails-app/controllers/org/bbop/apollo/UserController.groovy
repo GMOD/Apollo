@@ -214,11 +214,11 @@ class UserController {
     }
 
 
-    @RestApiMethod(description = "Add user to group", path = "/user/addUserToGroup", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Add user to team", path = "/user/addUserToGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "group", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+            , @RestApiParam(name = "group", type = "string", paramType = RestApiParamType.QUERY, description = "Team name")
             , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User id")
             , @RestApiParam(name = "user", type = "email", paramType = RestApiParamType.QUERY, description = "User email/username (supplied if user id unknown)")
     ])
@@ -242,7 +242,7 @@ class UserController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "group", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+            , @RestApiParam(name = "group", type = "string", paramType = RestApiParamType.QUERY, description = "Team name")
             , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User id")
             , @RestApiParam(name = "user", type = "email", paramType = RestApiParamType.QUERY, description = "User email/username (supplied if user id unknown)")
     ])

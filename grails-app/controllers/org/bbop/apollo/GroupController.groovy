@@ -19,12 +19,12 @@ class GroupController {
 
     def permissionService
 
-    @RestApiMethod(description = "Get organism permissions for group", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Get organism permissions for team", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Team ID (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Team name")
     ]
     )
     def getOrganismPermissionsForGroup() {
@@ -44,11 +44,11 @@ class GroupController {
         render groupOrganismPermissions as JSON
     }
 
-    @RestApiMethod(description = "Load all groups", path = "/group/loadGroups", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Load all teams", path = "/group/loadGroups", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Optional only load a specific groupId")
+            , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Optional only load a specific team id")
     ])
     def loadGroups() {
         try {
@@ -137,11 +137,11 @@ class GroupController {
         }
     }
 
-    @RestApiMethod(description = "Create group", path = "/group/createGroup", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Create team", path = "/group/createGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Team name to add")
     ]
     )
     @Transactional
@@ -151,24 +151,24 @@ class GroupController {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        log.info "Creating group"
+        log.info "Creating team"
 
         UserGroup group = new UserGroup(
                 name: dataObject.name
         ).save(flush: true)
 
-        log.info "Added group ${group.name}"
+        log.info "Added team ${group.name}"
 
         render group as JSON
 
     }
 
-    @RestApiMethod(description = "Delete a group", path = "/group/deleteGroup", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Delete a team", path = "/group/deleteGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to remove (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to remove")
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Team ID to remove (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Team name to remove")
     ]
     )
     @Transactional
@@ -178,14 +178,14 @@ class GroupController {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
-        log.info "Removing group"
+        log.info "Removing team"
         UserGroup group = UserGroup.findById(dataObject.id)
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
         if (!group) {
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the team")
             render jsonObject as JSON
             return
         }
@@ -198,7 +198,7 @@ class GroupController {
         def groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
         GroupOrganismPermission.deleteAll(groupOrganismPermissions)
 
-        log.info "Removing group ${group.name}"
+        log.info "Removing team ${group.name}"
 
         group.save(flush: true)
         group.delete(flush: true)
@@ -207,7 +207,7 @@ class GroupController {
         render new JSONObject() as JSON
     }
 
-    @RestApiMethod(description = "Update group", path = "/group/updateGroup", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update team", path = "/group/updateGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -217,7 +217,7 @@ class GroupController {
     )
     @Transactional
     def updateGroup() {
-        log.info "Updating group"
+        log.info "Updating team"
         JSONObject dataObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
@@ -225,7 +225,7 @@ class GroupController {
         }
         UserGroup group = UserGroup.findById(dataObject.id)
         // the only thing that can really change
-        log.info "Updated group ${group.name} to use name ${dataObject.name}"
+        log.info "Updated team ${group.name} to use name ${dataObject.name}"
         group.name = dataObject.name
 
         group.save(flush: true)
@@ -235,7 +235,7 @@ class GroupController {
      * Only changing one of the boolean permissions
      * @return
      */
-    @RestApiMethod(description = "Update organism permission", path = "/group/updateOrganismPermission", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update organism permission of team", path = "/group/updateOrganismPermission", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -256,7 +256,7 @@ class GroupController {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
-        log.info "Trying to update group organism permissions"
+        log.info "Trying to update team organism permissions"
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findById(dataObject.id)
 
 
@@ -321,7 +321,7 @@ class GroupController {
 
     }
 
-    @RestApiMethod(description = "Update group membership", path = "/group/updateMembership", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update team membership", path = "/group/updateMembership", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -336,7 +336,7 @@ class GroupController {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
-        log.info "Trying to update user group membership"
+        log.info "Trying to update user team membership"
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
         List<User> oldUsers = groupInstance.users as List
         List<String> usernames = dataObject.users
@@ -359,7 +359,7 @@ class GroupController {
 
         groupInstance.save(flush: true)
 
-        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
+        log.info "Updated team ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
 
         render loadGroups() as JSON
     }
