@@ -79,15 +79,14 @@ public class AnnotatorPanel extends Composite {
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
     // Tue Jan 05 09:51:38 GMT-800 2016
-    DateTimeFormat outputFormat = DateTimeFormat.getFormat("MMM dd, yyyy");
+    private DateTimeFormat outputFormat = DateTimeFormat.getFormat("MMM dd, yyyy");
     private Column<AnnotationInfo, String> nameColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private TextColumn<AnnotationInfo> sequenceColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
     private Column<AnnotationInfo, String> dateColumn;
     private Column<AnnotationInfo, String> showHideColumn;
-    long requestIndex = 0;
-    private Integer lastGeneIndex = null;
+    private long requestIndex = 0;
     private static String selectedChildUniqueName = null;
 
     @UiField
@@ -97,7 +96,7 @@ public class AnnotatorPanel extends Composite {
     static
     org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
-    static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
     @UiField(provided = true)
     static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
@@ -792,8 +791,6 @@ public class AnnotatorPanel extends Composite {
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
-        lastGeneIndex = geneIndex;
-//        selectedChildUniqueName = annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName()) ? null : selectedAnnotationInfo.getUniqueName();
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
@@ -805,8 +802,6 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
-        lastGeneIndex = geneIndex;
-//        selectedChildUniqueName = annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName()) ? null : selectedAnnotationInfo.getUniqueName();
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
 
         // for some reason doesn't like call gotoAnnotation
