@@ -183,17 +183,17 @@ class PreferenceService {
         if (!currentOrganism) {
             throw new AnnotationException("Organism preference is not set for user")
         }
-        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
-        if(!sequence && sequenceName.startsWith("{")){
-            sequenceName = JSON.parse(sequenceName).name
-            if(sequenceName){
-                sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
-            }
-        }
-        println "sequence ${sequence} for ${sequenceName} and ${currentOrganism}"
-        if (!sequence) {
-            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
-        }
+//        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
+//        if(!sequence && sequenceName.startsWith("{")){
+//            sequenceName = JSON.parse(sequenceName).name
+//            if(sequenceName){
+//                sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
+//            }
+//        }
+//        println "sequence ${sequence} for ${sequenceName} and ${currentOrganism}"
+//        if (!sequence) {
+//            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
+//        }
 
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[sort: "lastUpdated", order: "desc"])
 //        def userOrganismPreferences = UserOrganismPreference.createCriteria().list {
@@ -232,7 +232,7 @@ class PreferenceService {
             assemblage = assemblageService.convertJsonToAssemblage(jsonObject)
         }
         else{
-            sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
+            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
             assemblage = assemblageService.generateAssemblageForSequence(sequence)
         }
 

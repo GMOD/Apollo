@@ -72,9 +72,14 @@ public class AssemblageInfoConverter {
         JSONArray sequenceListArray = jsonObject.containsKey("sequenceList") ? jsonObject.get("sequenceList").isArray() : null ;
         // some weird stuff here
         if (sequenceListArray == null) {
-            String sequenceArrayString = jsonObject.get("sequenceList").isString().stringValue();
-            sequenceArrayString = sequenceArrayString.replaceAll("\\\\", "");
-            sequenceListArray = JSONParser.parseStrict(sequenceArrayString).isArray();
+            try {
+                String sequenceArrayString = jsonObject.get("sequenceList").isString().stringValue();
+                sequenceArrayString = sequenceArrayString.replaceAll("\\\\", "");
+                sequenceListArray = JSONParser.parseStrict(sequenceArrayString).isArray();
+            }
+            catch (RuntimeException e){
+                Window.alert("Unable to find string: "+jsonObject.toString());
+            }
         }
         AssemblageSequenceList assemblageSequenceList = convertJSONArrayToSequenceList(sequenceListArray);
         assemblageInfo.setSequenceList(assemblageSequenceList);

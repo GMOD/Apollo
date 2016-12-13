@@ -254,7 +254,6 @@ class JbrowseController {
                 JSONObject thisSeq = sequenceList.get(i)
                 JSONObject regionObject = new JSONObject(thisSeq.toString())
                 regionObject.refseq = generateRefSeqLabel(thisSeq)
-                // TODO: factor in projected offset
                 int currentPosition = thisSeq.start ?: 0
                 regionObject.originalPosition = currentPosition
                 currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
