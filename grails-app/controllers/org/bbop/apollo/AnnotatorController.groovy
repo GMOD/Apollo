@@ -57,20 +57,20 @@ class AnnotatorController {
             }
             Organism organism
             // check organism first
-            if(params.containsKey(FeatureStringEnum.ORGANISM.value)){
-                String organismString =  params[FeatureStringEnum.ORGANISM.value]
+            if (params.containsKey(FeatureStringEnum.ORGANISM.value)) {
+                String organismString = params[FeatureStringEnum.ORGANISM.value]
                 organism = preferenceService.getOrganismForToken(organismString)
             }
-            if(!organism){
+            if (!organism) {
                 organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             }
             def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-            if(!allowedOrganisms){
+            if (!allowedOrganisms) {
                 throw new RuntimeException("User does have permissions to access any organisms.")
             }
 
 
-            if(!allowedOrganisms.contains(organism)){
+            if (!allowedOrganisms.contains(organism)) {
                 log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
                 params.loc = null
                 organism = allowedOrganisms.first()
@@ -106,19 +106,28 @@ class AnnotatorController {
         }
 
         String queryParamString = ""
+        def keyList = []
+        // this fixes a bug in addStores being duplicated or processed incorrectly
         for (p in params) {
-            if (!reservedList.contains(p.key)) {
+            // if "addStores is not being processed correclty, this will fix it
+            if (p.key.startsWith("addStores=")) {
+                if (!p.value) {
+                    queryParamString += "&" + p.key
+                    keyList << "addStores"
+                }
+            } else if (!reservedList.contains(p.key) && !keyList.contains(p.key)) {
                 queryParamString += "&" + p
+                keyList << p.key
             }
         }
 
 //        String uri = "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-
 //        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
-        if(queryParamString.contains("addTracks")){
+
+        // for some reason the addTracks requires the context path, which seems to be an obscure bug in grails
+        if (queryParamString.contains("addTracks")) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-        }
-        else{
+        } else {
             redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
         }
 
@@ -222,7 +231,6 @@ class AnnotatorController {
     ]
     )
     def updateFeatureLocation() {
-        log.info "updateFeatureLocation ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -528,12 +536,11 @@ class AnnotatorController {
         render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
     }
 
-    def ping(){
+    def ping() {
         if (permissionService.checkPermissions(PermissionEnum.READ)) {
             log.debug("permissions checked and alive")
             render new JSONObject() as JSON
-        }
-        else{
+        } else {
             log.error("User does not have permissions for the site")
             redirect(uri: "/auth/login")
         }

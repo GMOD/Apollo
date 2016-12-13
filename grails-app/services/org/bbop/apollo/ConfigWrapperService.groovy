@@ -96,4 +96,22 @@ class ConfigWrapperService {
     def getAuthentications() {
         grailsApplication.config.apollo.authentications
     }
+
+    def getPingUrl() {
+        Boolean phoneHome =  grailsApplication.config.apollo.phone.phoneHome
+        if(phoneHome){
+            String urlString = grailsApplication.config.apollo.phone.url
+            urlString += grailsApplication.config.apollo.phone.bucketPrefix
+            urlString += grailsApplication.metadata['app.version']
+            urlString += "/"
+            urlString += grailsApplication.config.apollo.phone.fileName
+            urlString = urlString.toLowerCase()
+            return urlString
+        }
+        return null
+    }
+
+    Boolean getPhoneHome() {
+        return grailsApplication.config.apollo.phone.phoneHome
+    }
 }

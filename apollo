@@ -44,6 +44,23 @@ function check_rest_api(){
 	fi
 }
 
+function check_java(){
+    javac_version=`javac -version 2>&1`
+    echo "$javac_version found";
+    if [[ $javac_version == javac*  ]]; then
+        echo "javac installed";
+        minor_version=`echo $javac_version  | cut -d\. -f2 `
+        if [[ "$minor_version" != '8' ]] ; then
+            echo "You must install JDK 1.8"
+            exit 1 ;
+        else
+            echo "JDK 1.8 found: $javac_version"
+        fi
+    else
+       echo "javac not installed.  Please install JDK 1.8."
+       exit 1 ;
+    fi
+}
 
 function check_node(){
     node_executable=$(which node)
@@ -58,6 +75,11 @@ function check_node(){
         fi
     fi
     npm_executable=$(which npm)
+    NPM_VERSION=`$npm_executable -v | cut -d\. -f1`
+    if [ $NPM_VERSION -lt 2 ]; then
+        echo "npm version 2 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+        exit 1
+    fi
 }
 
 function check_bower(){
@@ -118,6 +140,7 @@ function check_configs(){
 
     check_node
     check_bower
+    check_java
 }
 
 function copy_configs(){

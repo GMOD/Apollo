@@ -6,6 +6,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -33,7 +34,7 @@ public class ReferenceSequenceOracle extends MultiWordSuggestOracle{
                 @Override
                 public void onResponseReceived(com.google.gwt.http.client.Request request, com.google.gwt.http.client.Response response) {
                     GWT.log(response.getText());
-                    JSONArray jsonArray = JSONParser.parse(response.getText()).isArray();
+                    JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isArray();
                     createSuggestion(response.getText(), response.getText());
                     List<Suggestion> suggestionList = new ArrayList<>();
 

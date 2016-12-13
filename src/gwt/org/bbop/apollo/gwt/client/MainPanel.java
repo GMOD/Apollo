@@ -64,6 +64,7 @@ public class MainPanel extends Composite {
     public static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
+    private static final String openAnnotatorPanelString = "&openAnnotatorPanel=";
 
     private static boolean handlingNavEvent = false;
 
@@ -137,7 +138,6 @@ public class MainPanel extends Composite {
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
-
 
     public static MainPanel getInstance() {
         if (instance == null) {
@@ -235,6 +235,7 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
+
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
         setCurrentSequence(sequenceNameString, start, end, false, false);
     }
@@ -274,15 +275,26 @@ public class MainPanel extends Composite {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
-                currentStartBp = start != null ? start : 0;
-                currentEndBp = end != null ? end : currentSequence.getEnd();
-                sequenceSuggestBox.setText(currentSequence.getName());
 
+                if(start==null){
+                    currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
+                }
+                else{
+                    currentStartBp = start ;
+                }
+                if(end==null){
+                    currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
+                }
+                else{
+                    currentEndBp = end ;
+                }
+                sequenceSuggestBox.setText(currentSequence.getName());
 
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
-                    updateGenomicViewer();
+//                    updateGenomicViewer();
+                    updateGenomicViewerForLocation(currentSequence.getName(),currentStartBp,currentEndBp,true);
                 }
                 if (blocking) {
                     loadingDialog.hide();
@@ -300,7 +312,13 @@ public class MainPanel extends Composite {
         };
 
         handlingNavEvent = true;
-        SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+
+        if(start==null && end==null){
+            SequenceRestService.setCurrentSequenceForString(requestCallback, sequenceNameString,currentOrganism);
+        }
+        else{
+            SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
+        }
 
     }
 
@@ -466,6 +484,21 @@ public class MainPanel extends Composite {
             }
 
             MainPanel.useNativeTracklist = showTrackValue ;
+        }
+        if(trackListString.contains(openAnnotatorPanelString)){
+            String positiveString = openAnnotatorPanelString+"1";
+            String negativeString = openAnnotatorPanelString+"0";
+            if(trackListString.contains(positiveString)){
+                trackListString = trackListString.replace(positiveString,"");
+                MainPanel.getInstance().openPanel();
+            }
+            else
+            if(trackListString.contains(negativeString)){
+                trackListString = trackListString.replace(negativeString,"");
+                MainPanel.getInstance().closePanel();
+            }
+
+
         }
         // otherwise we use the nativeTrackList
         else{
@@ -688,7 +721,7 @@ public class MainPanel extends Composite {
 
     private void closePanel() {
         mainSplitPanel.setWidgetSize(eastDockPanel, 20);
-        dockOpenClose.setIcon(IconType.CARET_LEFT);
+        dockOpenClose.setIcon(IconType.CHEVRON_LEFT);
     }
 
     private void openPanel() {
@@ -699,7 +732,7 @@ public class MainPanel extends Composite {
         } else {
             mainSplitPanel.setWidgetSize(eastDockPanel, 550);
         }
-        dockOpenClose.setIcon(IconType.CARET_RIGHT);
+        dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
     }
 
     private void toggleOpen() {
@@ -733,10 +766,10 @@ public class MainPanel extends Composite {
         text += "<div style='margin-left: 10px;'>";
         text += "<ul>";
         text += "<li>";
-        text += "Public URL: <a href='" + publicUrl + "'>" + publicUrl + "</a>";
+        text += "<a href='" + publicUrl + "'>Public URL</a>";
         text += "</li>";
         text += "<li>";
-        text += "Apollo URL: <a href='" + apolloUrl + "'>" + apolloUrl + "</a>";
+        text += "<a href='" + apolloUrl + "'>Logged in URL</a>";
         text += "</li>";
         text += "</ul>";
         text += "</div>";

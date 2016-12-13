@@ -8,36 +8,23 @@ import org.gwtbootstrap3.client.ui.constants.ModalBackdrop;
 /**
  * Created by ndunn on 4/30/15.
  */
-public class LinkDialog extends Modal{
+public class LinkDialog extends Modal {
 
-//    private Boolean showOnBuild = true ;
 
-//    public LinkDialog(boolean showOnConstruct){
-//        this("Loading ...",null,showOnConstruct);
-//    }
-//
-//    public LinkDialog(){
-//        this("Loading ...",null,true);
-//    }
-
-//    public LinkDialog(String title){
-//        this(title,null,true);
-//
-//    }
-
-    public LinkDialog(String title, String message, Boolean showOnConstruct){
+    public LinkDialog(String title, String message, Boolean showOnConstruct) {
         setTitle(title);
         setClosable(true);
         setFade(true);
-        setDataBackdrop(ModalBackdrop.FALSE);
+        setDataBackdrop(ModalBackdrop.STATIC);
+        setDataKeyboard(true);
 
-        if(message!=null){
+        if (message != null) {
             HTML content = new HTML(message);
             ModalBody modalBody = new ModalBody();
             modalBody.add(content);
-            add( modalBody );
+            add(modalBody);
         }
-        if(showOnConstruct){
+        if (showOnConstruct) {
             show();
         }
     }

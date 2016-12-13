@@ -193,13 +193,15 @@ Additional links for log4j:
 - Grails log4j guide: http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging
 
 
-### Canned comments
+### Canned Elements
 
 
-Canned comments are configured via the admin panel on the web interface, so they are not currently configured via the
-config files.
+Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [CannedElements.md] (https://github.com/GMOD/Apollo/blob/master/docs/CannedElements.md)
 
-View your instances page for more details e.g. http://localhost:8080/apollo/cannedComment/
+View your instances page for more details. For example 
+- http://localhost:8080/apollo/cannedComment/  
+- http://localhost:8080/apollo/cannedKey/ 
+- http://localhost:8080/apollo/cannedValue/
 
 
 ### Search tools
@@ -507,5 +509,28 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
         ]
     }
 
+### URL modifications
+
+You should be able to pass in most JBrowse URL modifications to the ```loadLink``` URL. 
+
+You should use ```tracklist=1``` to force showing the native tracklist (or use the checkbox in the Track Tab in the Annotator Panel).
+
+Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
+
+### Phone Home
+
+In order to determine our usage and the current versions of Apollo being used (which helps us to provide Apollo for free), the server and the client will phone home and to google analytics.
+
+To turn off the server phone home set the configuration this way.
+    
+    apollo.phone.phoneHome = false
+    
+To add your own google analytics code set the code up this way:
+
+    google_analytics = ["UA-62921593-1","Your Google Analytics ID"]
+    
+If you don't want any reporting set:
+    
+    google_analytics = []
 
 

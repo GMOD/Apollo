@@ -16,7 +16,6 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
-
 import static grails.async.Promises.*
 import grails.converters.JSON
 import org.bbop.apollo.event.AnnotationEvent
@@ -527,6 +526,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray supportedTypes = new JSONArray();
         supportedTypes.add(FeatureStringEnum.DEFAULT.value)
         annotationInfoEditorConfig.put(FeatureStringEnum.SUPPORTED_TYPES.value, supportedTypes);
+        log.debug "return config ${annotationInfoEditorConfigContainer}"
         render annotationInfoEditorConfigContainer
     }
 
@@ -1249,6 +1249,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return results
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
+            log.error("Error for user ${principal?.name} when exexecting ${inputString}"+ ae?.message)
             return sendError(ae, principal.name)
         }
 

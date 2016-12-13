@@ -344,8 +344,6 @@ apollo {
             //['name':'GenSas2','link':'http://localhost/gensas2']
     ]
 
-    // comment out if you don't want this to be reported
-    google_analytics = "UA-62921593-1"
 
     authentications = [
         ["name":"Username Password Authenticator",
@@ -358,6 +356,16 @@ apollo {
          "active":false,
         ]
     ]
+
+    // comment out if you don't want this to be reported
+    google_analytics = ["UA-62921593-1"]
+
+    phone {
+        phoneHome = true
+        url = "https://s3-us-west-1.amazonaws.com/"
+        bucketPrefix = "apollo-usage-"
+        fileName = "ping.json"
+    }
 }
 
 
@@ -379,7 +387,8 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/gmod/jbrowse"
-		tag = "1.12.2-apollo"
+        tag = "9334e76fd7530681fa2dcc71d4440141e1414cfd"
+//		tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
         alwaysRecheck = false
