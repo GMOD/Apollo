@@ -12,6 +12,10 @@ import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
+import org.bbop.apollo.gwt.client.rest.RestService;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
+import org.gwtbootstrap3.client.ui.gwt.CellTable;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -85,13 +89,7 @@ public class TranscriptDetailPanel extends Composite {
     }
 
     private void updateTranscript() {
-        String url = Annotator.getRootUrl() + "annotator/updateFeature";
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
-        builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-        StringBuilder sb = new StringBuilder();
-        sb.append("data=" + AnnotationInfoConverter.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo).toString());
-        final AnnotationInfo updatedInfo = this.internalAnnotationInfo ;
-        builder.setRequestData(sb.toString());
+        final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
@@ -106,15 +104,7 @@ public class TranscriptDetailPanel extends Composite {
                 enableFields(true);
             }
         };
-        try {
-            builder.setCallback(requestCallback);
-            builder.send();
-        } catch (RequestException e) {
-            enableFields(true);
-            // Couldn't connect to server
-            Bootbox.alert(e.getMessage());
-        }
-
+        RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
     }
 
     private void enableFields(boolean enabled){

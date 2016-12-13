@@ -600,4 +600,34 @@ class ProjectionService {
         // add coordinates for the two regions
         return projection
     }
+
+    @NotTransactional
+    String generateNameForObjcet(JSONObject jsonObject){
+        String returnString = ""
+//        JSONObject returnObject = new JSONObject()
+        JSONArray sequenceArray = new JSONArray()
+        JSONObject sequenceObject = new JSONObject(jsonObject)
+        sequenceArray.add(sequenceObject)
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray)
+        returnString += jsonObject.toString()
+        returnString += ":"
+        returnString += jsonObject.start
+        returnString += ".."
+        returnString += jsonObject.end
+
+        return returnString
+    }
+
+    @NotTransactional
+    JSONArray fixProjectionName(JSONArray jsonArray) {
+        for(JSONObject obj in jsonArray){
+            // from
+            // {seqChunkSize: 20000, length: 1382403, name: "Group1.1", start: 0, end: 1382403}
+            // to
+//            "{"id":9796,"name":"Group1.1","description":"Group1.1","padding":0,"start":0,"end":1382403,"sequenceList":[{"name":"Group1.1","start":0,"end":1382403,"reverse":false}]}:97510..378397"
+
+            obj.name = generateNameForObjcet(obj)
+        }
+        return jsonArray
+    }
 }

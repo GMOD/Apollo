@@ -14,6 +14,7 @@ class AuthController {
     def index = { redirect(action: "login", params: params) }
 
     def login = {
+        WebUtils.saveRequest(request)
         return [ username: params.username, rememberMe: (params.rememberMe != null), targetUri: params.targetUri ]
     }
 
@@ -32,9 +33,14 @@ class AuthController {
         // Handle requests saved by Shiro filters.
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
         if (savedRequest) {
-            targetUri = savedRequest.requestURI - request.contextPath
-            if (savedRequest.queryString) {
-                targetUri = targetUri + '?' + savedRequest.queryString
+            if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
+                targetUri = savedRequest.queryString.substring("targetUri=".size())
+            }
+            else{
+                targetUri = savedRequest.requestURI - request.contextPath
+                if (savedRequest.queryString) {
+                    targetUri = targetUri + '?' + savedRequest.queryString
+                }
             }
         }
         
@@ -46,29 +52,6 @@ class AuthController {
 //            SecurityUtils.subject.login(authToken)
             if(targetUri){
                 log.info "Redirecting to '${targetUri}'."
-
-//                if(!targetUri.startsWith(request.contextPath)){
-//                    targetUri = request.contextPath + targetUri
-//                }
-
-                if(targetUri.contains("loadLink") && targetUri.contains("&addStores") ){
-                    def contextPath = servletContext.contextPath
-                    if(!targetUri.startsWith(contextPath) ){
-                        targetUri = contextPath + (targetUri.startsWith("/")?"":"/") +  targetUri
-                    }
-                }
-//                // remove
-//                int actionIndex = targetUri.indexOf("&action=")
-//                if(actionIndex>=0){
-//                    int secondIndex = targetUri.indexOf("&",actionIndex + 2 )
-//                    targetUri = targetUri.substring(0,actionIndex)+ (secondIndex > 0 ? targetUri.substring(secondIndex-1) : "")
-//                }
-//                Integer controllerIndex = targetUri.indexOf("&controller=")
-//                if(controllerIndex>=0){
-//                    int secondIndex = targetUri.indexOf("&",controllerIndex + 2 )
-//                    targetUri = targetUri.substring(0,controllerIndex)+  ( secondIndex > 0 ? targetUri.substring(secondIndex-1) : "")
-//                }
-
 
                 redirect(uri: targetUri)
                 return

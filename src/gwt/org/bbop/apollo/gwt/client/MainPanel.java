@@ -566,8 +566,6 @@ public class MainPanel extends Composite {
 
         AssemblageInfo assemblageInfo;
         if (selectedSequence.startsWith("{")) {
-            GWT.log("calling string instead of assemblage for selected sequence");
-            GWT.log(selectedSequence);
             assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
         } else {
             assemblageInfo = new AssemblageInfo();

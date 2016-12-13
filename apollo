@@ -17,6 +17,7 @@ function usage(){
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
     echo "watchman:         Creates watchman daemon to autocopy plugin files (non-minimized javascript).";
+    echo "watch-jbrowse:    Creates watchman daemon to autocopy jbrowse files (non-minimized javascript).";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
     echo "clean-all:        Removes class files and jbrowse files.";
@@ -181,6 +182,12 @@ elif [[ $1 == "watchman" ]]; then
         echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
     fi
     if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
+elif [[ $1 == "watch-jbrowse" ]]; then
+    watchman_executable=$(which watchman)
+    if ! [ -x "$watchman_executable" ] ; then
+        echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
+    fi
+    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh -- ant copy-resources-dev; fi;
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then

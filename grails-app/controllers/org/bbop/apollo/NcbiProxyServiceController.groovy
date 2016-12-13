@@ -8,9 +8,9 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 class NcbiProxyServiceController {
 
-    private static String SEARCH_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
+    private static String SEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
     // only returns title if xml, not json
-    private static String FETCH_URL = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?retmode=xml";
+    private static String FETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?retmode=xml";
     /**
      * Request URL:http://icebox.lbl.gov/WebApolloDemoStaging/ProxyService?proxy=eutils&operation=fetch&db=pubmed&id=PMC3013679
 

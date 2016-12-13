@@ -271,7 +271,7 @@ class ExonService {
         Gene gene = transcriptService.getGene(transcript)
 
         FeatureLocation exonFeatureLocation = FeatureLocation.findByFeature(exon)
-        int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin) + 2 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) + 1;
+        int coordinate = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmin)  : featureService.convertSourceCoordinateToLocalCoordinate(gene,exonFeatureLocation.fmax) - 1;
         int exonStart = exonFeatureLocation.getStrand() == -1 ? featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmax()) - 1 : featureService.convertSourceCoordinateToLocalCoordinate(gene,exon.getFmin());
         String residues = sequenceService.getResiduesFromFeature(gene)
         while (coordinate > 0 ) {

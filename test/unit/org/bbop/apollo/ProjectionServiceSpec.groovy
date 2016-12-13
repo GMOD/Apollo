@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.test.mixin.TestFor
 import org.bbop.apollo.gwt.shared.projection.Coordinate
 import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
@@ -159,6 +160,20 @@ class ProjectionServiceSpec extends Specification {
 
     }
 
+    void "generate name from refSeq"(){
+        given: "a json object"
+        String jsonString = "{seqChunkSize: 20000, length: 1382403, name: \"Group1.1\", start: 0, end: 1382403}"
+//        String expectedString = "{\"id\":9796,\"name\":\"Group1.1\",\"description\":\"Group1.1\",\"padding\":0,\"start\":0,\"end\":1382403,\"sequenceList\":[{\"name\":\"Group1.1\",\"start\":0,\"end\":1382403,\"reverse\":false}]}:97510..378397"
+        String expectedString = "{\"seqChunkSize\":20000,\"length\":1382403,\"name\":\"Group1.1\",\"start\":0,\"end\":1382403,\"sequenceList\":[{\"seqChunkSize\":20000,\"length\":1382403,\"name\":\"Group1.1\",\"start\":0,\"end\":1382403}]}:0..1382403"
+
+        when:"we parse the string"
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        String name = service.generateNameForObjcet(jsonObject)
+
+        then: "we should get the appropriate name"
+        assert name==expectedString
+
+    }
 
 
 }

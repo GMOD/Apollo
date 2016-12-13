@@ -137,7 +137,7 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId and fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax",[seqId:sequence.id, fmin: fmin, fmax: fmax])
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
@@ -209,18 +209,17 @@ class SequenceService {
                 sequenceAlterationsInContextList.add(sa)
             }
         }
-        int currentOffset = 0;
-        // TODO: refactor with getResidues in FeatureService so we are calling a similar method
-        for (SequenceAlterationInContext sequenceAlteration in sequenceAlterationsInContextList.sort() { a,b ->
-                 a.fmin <=> b.fmin
-        }){
-            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.fmin);
-            // Commented out since check for overlap is done beforehand
-//            if(!overlapperService.overlaps(fmin,fmax,sequenceAlteration.fmin,sequenceAlteration.fmax)){
-//                continue
-//            }
 
-            // TODO: is this correct?
+        ArrayList<SequenceAlterationInContext> orderedSequenceAlterationInContextList = featureService.sortSequenceAlterationInContext(sequenceAlterationsInContextList)
+        if (sequenceAlterationsInContextList.size() != 0) {
+            if (!strand.equals(orderedSequenceAlterationInContextList.get(0).strand)) {
+                Collections.reverse(orderedSequenceAlterationInContextList);
+            }
+        }
+
+        int currentOffset = 0;
+        for (SequenceAlterationInContext sequenceAlteration in orderedSequenceAlterationInContextList) {
+            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.fmin);
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
             int alterationLength = sequenceAlteration.alterationResidue.length()
             if (strand == Strand.NEGATIVE) {
@@ -417,7 +416,6 @@ class SequenceService {
                 featureResidues = ""
             }
         } else if (type.equals(FeatureStringEnum.TYPE_GENOMIC.value)) {
-
             int fmin = gbolFeature.getFmin() - flank
             int fmax = gbolFeature.getFmax() + flank
 

@@ -105,13 +105,11 @@
                                   ui:field="addNewAssemblage" enabled="false"
                                   addStyleNames="right-space {style.assemblage-buttons}"/>
 
-                        <b:ButtonGroup>
                             <b:Button type="PRIMARY" icon="EYE" text="+" size="EXTRA_SMALL" title="Add to view"
                                       ui:field="addToView" enabled="false" addStyleNames="{style.assemblage-buttons}"/>
                             <b:Button type="PRIMARY" icon="EYE" title="View" size="EXTRA_SMALL"
                                       ui:field="viewAnnotation" enabled="false"
                                       addStyleNames="right-space {style.assemblage-buttons}"/>
-                        </b:ButtonGroup>
                         <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Goto" size="EXTRA_SMALL"
                                   ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.assemblage-buttons}"/>
                     </b:Column>

@@ -17,6 +17,7 @@ define([
            'dojo/query',
            'dojo/_base/window',
            'dojo/_base/array',
+           'dojo/keys',
            'dijit/registry',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -26,7 +27,9 @@ define([
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
            'dijit/form/Button',
+           'dijit/form/ComboBox',
            'JBrowse/Plugin',
+           'JBrowse/View/InfoDialog',
            'WebApollo/FeatureEdgeMatchManager',
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
@@ -52,6 +55,7 @@ define([
             query,
             win,
             array,
+            keys,
             dijitRegistry,
             dijitMenu,
             dijitMenuItem,
@@ -61,7 +65,9 @@ define([
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitButton,
+            dijitComboBox,
             JBPlugin,
+            InfoDialog,
             FeatureEdgeMatchManager,
             FeatureSelectionManager,
             TrackConfigTransformer,
@@ -204,8 +210,7 @@ return declare( [JBPlugin, HelpMixin],
             this.createMenus();
         }
 
-        // this.replaceSearchBoxes();
-
+        this.addSearchBox();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -262,7 +267,8 @@ return declare( [JBPlugin, HelpMixin],
 
         browser.afterMilestone( 'completely initialized', function() {
             var view  = browser.view ;
-            var projectionString = view.ref.name ;
+            // var projectionString = view.ref.name;
+            var projectionString = JSON.stringify(view.ref) ;
             var projectionLength = window.parent.getProjectionLength(projectionString);
             var ratio = view.elem.clientWidth  / projectionLength  ;
 
@@ -705,44 +711,77 @@ return declare( [JBPlugin, HelpMixin],
         this.updateLabels();
     },
 
-    replaceSearchBoxes: function () {
+
+    addSearchBox: function(){
         var thisB = this ;
-        var currentBookmark ;
-        // integrate ApolloLabelProc fix
-        // this traps the event that happens directly after onCoarseMove function, where the label gets updates.
-        dojo.subscribe("/jbrowse/v1/n/navigate", function(currRegion){
-            var locationStr = Util.assembleLocStringWithLength( currRegion );
-            //console.log("locationStr="+locationStr);
+        var browser = thisB.browser ;
 
-            // is locationStr JSON?
-            if (locationStr.charAt(0)=='{') {
-                locationStr = locationStr.substring(0,locationStr.lastIndexOf('}')+1);
-                var obj = JSON.parse(locationStr);
+        browser.afterMilestone( 'initView', function() {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-search-box',
+                'class': "separate-location-box"
+            }, navbox);
 
-                // look for the "sequenceList" property
-                if(obj.hasOwnProperty('sequenceList')) {
-                    //console.log("label="+obj.label);
-                    var counter = 0 ;
-                    currentBookmark = obj ;
 
-                    dojo.addOnLoad(function() {
-                        if(!thisB.replaceSearchBox){
-                            //dojo.style(dojo.byId('search-refseq'), "display", "none");
-                            var searchBox = dojo.byId('search-box');
-                            dojo.style(searchBox, "display", "none");
-                            var borderContainer = dijit.byId('GenomeBrowser');
-                            borderContainer.resize();
-                            thisB.replaceSearchBox = true ;
-                        }
-                    });
 
+            var locationBox = new dijitComboBox(
+                {
+                    id: "apollo-location",
+                    name: "apollo-location",
+                    style: {width: "200px"},
+                    maxLength: 400,
+                    searchAttr: "name",
+                    title: 'Enter a symbol or ID to search'
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            browser.afterMilestone('loadNames', dojo.hitch(this, function () {
+                if (browser.nameStore) {
+                    locationBox.set('store', browser.nameStore);
                 }
-                else{
-                    currentBookmark = null ;
+            }));
+            locationBox.focusNode.spellcheck = false;
+            locationBox.set('placeholder',"search features, IDs");
+            dojo.query('div.dijitArrowButton', locationBox.domNode ).orphan();
+            dojo.connect( locationBox.focusNode, "keydown", this, function(event) {
+                if( event.keyCode == keys.ESCAPE ) {
+                    locationBox.set('value','');
                 }
-            }
+                else if (event.keyCode == keys.ENTER) {
+                    locationBox.closeDropDown(false);
+                    // thisB.navigateToAssemblage( locationBox.get('value') );
+                    browser.navigateTo( locationBox.get('value') );
+                    dojo.stopEvent(event);
+                }
+                // else {
+                //     this.goButton.set('disabled', false);
+                // }
+            });
+            dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+            (function(){
+
+                // add a moreMatches class to our hacked-in "more options" option
+                var dropDownProto = eval(locationBox.dropDownClass).prototype;
+                var oldCreateOption = dropDownProto._createOption;
+                dropDownProto._createOption = function( item ) {
+                    var option = oldCreateOption.apply( this, arguments );
+                    if( item.hitLimit )
+                        dojo.addClass( option, 'moreMatches');
+                    return option;
+                };
+
+                // prevent the "more matches" option from being clicked
+                var oldOnClick = dropDownProto.onClick;
+                dropDownProto.onClick = function( node ) {
+                    if( dojo.hasClass(node, 'moreMatches' ) )
+                        return null;
+                    return oldOnClick.apply( this, arguments );
+                };
+            }).call(this);
         });
     }
+
 
 });
 

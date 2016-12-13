@@ -364,7 +364,7 @@ apollo {
 
     phone {
         phoneHome = true
-        url = "https://s3-us-west-1.amazonaws.com/"
+        url = "https://s3.amazonaws.com/"
         bucketPrefix = "apollo-usage-"
         fileName = "ping.json"
     }

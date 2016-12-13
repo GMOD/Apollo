@@ -1,9 +1,5 @@
 # Apollo Testing Script
 
-2016-07-28
-
-M. Munoz-Torres
-
 Note: The following steps are meant for testing purposes only, not for training manual annotators.
 
 ## Apollo General Information
@@ -173,3 +169,21 @@ http://genomearchitect.readthedocs.io/en/latest/
 13.7) Admin
 
 13.7.1) Click and corroborate that each item listed under the _Admin_ tab sends you to a new page. And test that you can add and delete fields and data as needed for each page. 
+
+
+### C) Testing Integration
+
+14) Test security redirect 
+
+14.1) Test redirect by clicking on a JBrowse (public URL) link and then clicking login.  
+
+14.2) Test through a proxy (nginx, apache, etc.)
+
+14.3) Test copy and pasting a logged in URL (goes to loadLink)
+
+14.4) When logged out and logging back in should come back to the same place.
+
+14.4.1) Should work even if on different browser.
+
+
+

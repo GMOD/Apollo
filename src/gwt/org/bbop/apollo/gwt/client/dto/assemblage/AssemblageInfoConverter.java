@@ -69,7 +69,7 @@ public class AssemblageInfoConverter {
             assemblageInfo.setEnd((long) jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
         }
 
-        JSONArray sequenceListArray = jsonObject.get("sequenceList").isArray();
+        JSONArray sequenceListArray = jsonObject.containsKey("sequenceList") ? jsonObject.get("sequenceList").isArray() : null ;
         // some weird stuff here
         if (sequenceListArray == null) {
             String sequenceArrayString = jsonObject.get("sequenceList").isString().stringValue();

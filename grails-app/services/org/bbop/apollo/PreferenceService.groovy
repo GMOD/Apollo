@@ -149,7 +149,7 @@ class PreferenceService {
         if(user && assemblage){
             user.addToAssemblages(assemblage)
         }
-        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence, [sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndAssemblage(user, organism, clientToken, assemblage, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences for sequence and organism: " + userOrganismPreferences.size())
             setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), user, clientToken)
@@ -184,6 +184,13 @@ class PreferenceService {
             throw new AnnotationException("Organism preference is not set for user")
         }
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
+        if(!sequence && sequenceName.startsWith("{")){
+            sequenceName = JSON.parse(sequenceName).name
+            if(sequenceName){
+                sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
+            }
+        }
+        println "sequence ${sequence} for ${sequenceName} and ${currentOrganism}"
         if (!sequence) {
             throw new AnnotationException("Sequence name is invalid ${sequenceName}")
         }

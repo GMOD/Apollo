@@ -2586,6 +2586,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
+    def sortSequenceAlterationInContext(List<SequenceAlterationInContext> sequenceAlterationInContextList) {
+        Collections.sort(sequenceAlterationInContextList, new SequenceAlterationInContextPositionComparator<SequenceAlterationInContext>())
+        return sequenceAlterationInContextList
+    }
+
     def sequenceAlterationInContextOverlapper(Feature feature, SequenceAlterationInContext sequenceAlteration) {
         List<Exon> exonList = transcriptService.getSortedExons(feature, true)
         for (Exon exon : exonList) {

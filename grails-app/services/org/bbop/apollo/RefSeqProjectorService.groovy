@@ -18,7 +18,7 @@ class RefSeqProjectorService {
     def sequenceService
 
     @NotTransactional
-    String projectRefSeq(JSONArray refSeqJsonObject, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc) {
+    JSONArray projectRefSeq(JSONArray refSeqJsonObject, MultiSequenceProjection projection, Organism currentOrganism, String refererLoc) {
 
         if (projection) {
             JSONArray projectedArray = new JSONArray()
@@ -62,9 +62,9 @@ class RefSeqProjectorService {
             }
 
             projectedArray.add(sequenceObject)
-            return projectedArray.toString()
+            return projectedArray
         } else {
-            return refSeqJsonObject.toString()
+            return refSeqJsonObject
         }
     }
 

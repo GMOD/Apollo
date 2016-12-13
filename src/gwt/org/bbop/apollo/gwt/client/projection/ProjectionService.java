@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.*;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
@@ -113,7 +114,7 @@ public class ProjectionService {
      */
     public static MultiSequenceProjection getProjectionForString(String projectionString) {
         Integer index = projectionString.lastIndexOf(":");
-        if (index > 0) {
+        if (!projectionString.endsWith("}") && index > 0) {
             projectionString = projectionString.substring(0, index);
         }
         JSONObject projectionObject = JSONParser.parseStrict(projectionString).isObject();

@@ -472,8 +472,12 @@ class JbrowseController {
 
                     // ONLY ever return the refSeq we are on
                     JSONArray sequenceArray = new JSONArray()
+
+
                     JSONObject refererObject
-                    String results
+//                    String results
+
+                    println "referenLoc [${refererLoc}]"
 
                     if (AssemblageService.isProjectionString(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
@@ -482,14 +486,15 @@ class JbrowseController {
                         refererObject = new JSONObject(sequenceString)
                         refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
-                        results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
-                    } else if (AssemblageService.isProjectionReferer(refererLoc)) {
+                        sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                    } else
+                    if (AssemblageService.isProjectionReferer(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                         // NOTE: not sure if this is the correct object
                         refererObject = new JSONObject(refererLoc)
                         sequenceArray.add(refererObject)
-                        results = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                        sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                     } else {
                         // get the sequence
                         String sequenceName = refererLoc.split(":")[0]
@@ -497,10 +502,13 @@ class JbrowseController {
                         refererObject = new JSONObject()
                         refererObject.putAll(sequence.properties)
                         sequenceArray.add(refererObject)
-                        results = sequenceArray.toString()
                     }
+                    // We add the data refSeq here
+                    String fileText = new File(dataFileName).text
+                    JSONArray inputArray = JSON.parse(fileText) as JSONArray
+                    sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
 
-                    response.outputStream << results
+                    response.outputStream << sequenceArray.toString()
 
 //                    JSONArray refSeqJsonObject = new JSONArray(file.text)
                     // TODO: it should look up the OGS track either default or variable

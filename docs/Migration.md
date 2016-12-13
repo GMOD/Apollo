@@ -23,11 +23,30 @@ If you want to start from scratch (including reloading organisms and users), you
 server is not running) and the proper tables will be recreated on startup.
 
 ## Migration from 2.0.X to 2.0.Y on production:
+
+### Installation from a downloaded release
+
+- [Download the desired Apollo release](https://github.com/GMOD/Apollo/releases/) from the bottom of each release.   Official releases will be tagged as "Release" and have a green label.
+- Expand the archive. 
+- Copy your existing apollo-config.groovy file into the directory. 
 - Backup your database (to be safe).
-- Use your old apollo-config.groovy to create a new war file.
+- Create a new war file as below: ```./apollo deploy```.
 - Turn off tomcat and remove the old apollo directory in the webapps folder.
 - Copy in new .war file with the same name.
 - Restart tomcat and you are ready to go.
+
+### Installation from a checked out github
+
+If you want bleeding and only moderately tested code (not recommended unless you feel you know what you're doing), you can clone Apollo directly from our source page https://github.com/GMOD/Apollo/
+
+Any upgrading can be taken care of during a pull.  Please note that as we sometimes change the version of JBrowse, so you should do:
+
+```./apollo clean-all```
+
+before building a target for production.
+
+You can the follow the directions for deploying a downloaded release, above.
+
 
 ## Migration from 1.0 to 2.0:
 

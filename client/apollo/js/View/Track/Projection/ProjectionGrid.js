@@ -108,7 +108,8 @@ define([
 
                     var posLabel = document.createElement("div");
 
-                    var projectedValue = window.parent.getReverseProjection(this.refSeq.name,labelNumber);
+                    var refSeqString = JSON.stringify(this.refSeq);
+                    var projectedValue = window.parent.getReverseProjection(refSeqString,labelNumber);
                     labelNumber = projectedValue.reverseValue ;
 
                     var filterNumber = -1 ;
