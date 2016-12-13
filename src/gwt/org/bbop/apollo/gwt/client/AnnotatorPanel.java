@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -432,10 +433,13 @@ public class AnnotatorPanel extends Composite {
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
-        exonDetailPanel.setVisible(false);
+//        exonDetailPanel.setVisible(false);
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
+        if(annotationInfo==null){
+            return ;
+        }
         String type = annotationInfo.getType();
         GWT.log("annotation type: " + type);
         hideDetailPanels();
@@ -443,16 +447,12 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.selectTab(0);
+                break;
             case "Transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
-                exonDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
                 break;
             case "mRNA":
             case "miRNA":
@@ -462,20 +462,14 @@ public class AnnotatorPanel extends Composite {
             case "snoRNA":
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                exonDetailPanel.updateData(annotationInfo);
+                exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
                 break;
             case "transposable_element":
             case "repeat_region":
 //                fireAnnotationInfoChangeEvent(annotationInfo);
                 repeatRegionDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 break;
             case "SNV":
             case "SNP":
@@ -623,13 +617,9 @@ public class AnnotatorPanel extends Composite {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
                 } else {
-                    exonDetailPanel.updateData(null);
+                    exonDetailPanel.updateData();
                     gotoAnnotation.setEnabled(false);
                 }
-//                AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneInt));
-//                selectedAnnotationInfo = getChildAnnotation(annotationInfo,uniqueName);
-//                exonDetailPanel.updateData(selectedAnnotationInfo);
-//                gotoAnnotation.setEnabled(true);
             }
         });
 

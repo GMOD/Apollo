@@ -183,8 +183,8 @@ searchSequence: function(trackName, refSeqName, starts) {
                         var refSeqEnd = starts[subject.feature.uniquename] || 0;
                         subject.location.fmin += refSeqStart;
                         subject.location.fmax += refSeqStart;
-                        var subjectStart = subject.location.fmin + 1;
-                        var subjectEnd = subject.location.fmax + 1;
+                        var subjectStart = subject.location.fmin;
+                        var subjectEnd = subject.location.fmax;
                         if (subject.location.strand == -1) {
                             var tmp = subjectStart;
                             subjectStart = subjectEnd;

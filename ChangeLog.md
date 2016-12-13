@@ -19,6 +19,7 @@ Features
 + Upgraded to Java 8  #1327
 + Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4 #1075
 + Delete expired preferences #1368
++ Location URLs are now encapsulated in links #1361
 + Bumped default JBrowse version 
 
 
@@ -26,10 +27,10 @@ Bugfixes
 
 + Web-service method 'getUserPermissionsForUser' #1230
 + UI glitch with more than ten groups #1242
-+ Error going between full-screen and annotator panel when stored are loaded in the URL #1156,#1214,#1271,#1330,#1331, #1008
++ Error going between full-screen and annotator panel when stored are loaded in the URL #1156,#1214,#1271,#1330,#1331, #1008, #1371
 + 'use_cds_for_new_transcripts' was not being picked up properly #1297
 + Client interprets 5'UTR and 3'UTR features as exons #1308
-+ The longest possible ORF must be calculated for genomic fragments #1302
++ Flag when 3' end or 5' end are missing, still calculate longest ORF #1302
 + Limit Chado export to admins #1322
 + Improved security of non-public genomes #861
 + Adding transcripts via the load transcripts script added preferences #1277
@@ -50,6 +51,9 @@ Bugfixes
 + getUserPermissionsForUser is non-standard #1230
 + Fixed case in Webservices docs #1244
 + UI glitch on Groups tab when more than ten groups #1242
++ Fixed error with setting upstream donor failing #1379
++ NCBI Pubmed upgraded to use https form discontinued http #1377
++ Updating exon details in annotator panel fails #1375
 
 
 ## 2.0.4
