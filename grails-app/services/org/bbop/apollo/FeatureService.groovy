@@ -930,7 +930,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      * @param feature - Feature to retrieve the residues for
      * @return Residues for the feature with any alterations and frameshifts
      */
-    String getResiduesWithAlterationsAndFrameshifts(Feature feature) {
+    String getResiduesWithAlterationsAndFrameshifts(Feature feature, def alterationTypes) {
         if (!(feature instanceof CDS)) {
             return getResiduesWithAlterations(feature, getSequenceAlterationsForFeature(feature, alterationTypes))
         }
@@ -1049,7 +1049,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Timed
     @Transactional
     void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
-        String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
+        String mrna = getResiduesWithAlterationsAndFrameshifts(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value]);
         if (!mrna) {
             return;
         }
