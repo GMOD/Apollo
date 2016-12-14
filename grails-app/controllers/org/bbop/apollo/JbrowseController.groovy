@@ -497,7 +497,7 @@ class JbrowseController {
                     } else {
                         // get the sequence
                         String sequenceName = refererLoc.split(":")[0]
-                        Sequence sequence = Sequence.findByName(sequenceName)
+                        Sequence sequence = Sequence.findByName(sequenceName) ?: currentOrganism.sequences.first()
                         refererObject = new JSONObject()
                         refererObject.putAll(sequence.properties)
                         sequenceArray.add(refererObject)
