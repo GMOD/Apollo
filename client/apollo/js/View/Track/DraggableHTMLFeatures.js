@@ -199,85 +199,80 @@ var draggableTrack = declare( HTMLFeatureTrack,
             subNodes[i].left = dojo.getStyle(subNodes[i], "left");
             subNodes[i].width = dojo.getStyle(subNodes[i], "width");
         }
+        for (var i = 0; i < subNodesFmin.length; i++) {
+            subNodesFmin[i].left = dojo.getStyle(subNodesFmin[i], "left");
+            subNodesFmin[i].width = dojo.getStyle(subNodesFmin[i], "width");
+        }
+        for (var i = 0; i < subNodesFmax.length; i++) {
+            subNodesFmax[i].left = dojo.getStyle(subNodesFmax[i], "left");
+            subNodesFmax[i].width = dojo.getStyle(subNodesFmax[i], "width");
+        }
 
-        /* debug display subfeature list
-         console.dir(subNodes);
-         for(var i=0; i < subNodes.length;i++) {
-         console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
-         }
-         */
-
-        // sort the subfeatures
-        if (subNodes.length >= 2) {
-            subNodes.sort(function (a, b) {
-                return a.left - b.left;
-            });
-            // insert introns between subfeature gaps
-            for (var i = 0; i < subNodes.length ; ++i) {
-                var leftNode = subNodes[i];
-                // var rightNode = subNodes[i+1];
-                var folds = null ;
-                if(leftNode.subfeature.afeature){
-                    var leftEdge = leftNode.subfeature.afeature.location.fmin;
-                    var rightEdge = leftNode.subfeature.afeature.location.fmax;
-                }
-                var subLeft = subNodes[i].left + subNodes[i].width;
-                var subWidth = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
-
-                var left = subLeft;
-                var width = subWidth;
-
-                var height = "100%";
-                var totalHeight = "2000px";
-
-                var str = "";
-
-                // this is the back divider line . . .
-                // console.log("width: " + width);
-                width = width < 1 ? 1 : width;
-                var dividerId = 'projectionFoldDivider'+left;
-                if(this.scale >=2){
-                    var fold = folds[0];
-                    var leftValue = Util.addCommas(fold.left) ;
-                    var rightValue = Util.addCommas(fold.right) ;
-
-                    var projectionId = "projectionLabels"+leftValue+""+rightValue;
-
-                    var leftX = width / 2.0 - (width * 0.05) - (leftValue.length *10) ;
-                    var rightX = width / 2.0 + (width * 0.02) ;
-
-                    console.log(leftX + " <-> "+rightX  );
-
-                    if(leftX && rightX && !document.getElementById(projectionId)){
-                        str += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " 2000'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                        str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
-                        str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
-                        // draw the right arrow
-                        // str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
-                        // console.log('leftx: '+leftX);
-                        str += '<rect x="0" y ="0" width="'+(leftValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(-90 0 0) translate(-90 '+(width/2.0  - 25 ) +')"></rect>'
-                        // console.log('leftx: '+leftX);
-                        str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14"  transform="rotate(-90 0 0) translate(-80 '+(width/2.0 - 10) +') ">';
-                        str += leftValue ;
-                        str += '</text>';
-                        // str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
-                        str += '<rect x="0" y ="0" width="'+(rightValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(90 0 0) translate(20 '+((-1*(width/2.0)) - 25) +')"></rect>'
-                        str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
-                        str += rightValue ;
-                        str += '</text>';
-                        str += "</svg>";
-                    }
-                }
-
-
-                // console.log('str length: '+str.length + ' for ' + str);
-                if(str.length >0){
-                    domConstruct.place(str, featureNode);
-                }
-
-
-                intronCount++;
+        // TODO: insert on either the LHS or RHS if a partial fmin
+        for (var i = 0; i < subNodes.length ; ++i) {
+            var leftNode = subNodes[i];
+            // var rightNode = subNodes[i+1];
+            var folds = null ;
+            if(leftNode.subfeature.afeature){
+                var leftEdge = leftNode.subfeature.afeature.location.fmin;
+                var rightEdge = leftNode.subfeature.afeature.location.fmax;
             }
+            var subLeft = subNodes[i].left + subNodes[i].width;
+            var subWidth = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
+
+            var left = subLeft;
+            var width = subWidth;
+
+            var height = "100%";
+            var totalHeight = "2000px";
+
+            var str = "";
+
+            // this is the back divider line . . .
+            // console.log("width: " + width);
+            width = width < 1 ? 1 : width;
+            var dividerId = 'projectionFoldDivider'+left;
+            if(this.scale >=2){
+                var fold = folds[0];
+                var leftValue = Util.addCommas(fold.left) ;
+                var rightValue = Util.addCommas(fold.right) ;
+
+                var projectionId = "projectionLabels"+leftValue+""+rightValue;
+
+                var leftX = width / 2.0 - (width * 0.05) - (leftValue.length *10) ;
+                var rightX = width / 2.0 + (width * 0.02) ;
+
+                console.log(leftX + " <-> "+rightX  );
+
+                if(leftX && rightX && !document.getElementById(projectionId)){
+                    str += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " 2000'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                    str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                    str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
+                    // draw the right arrow
+                    // str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+                    // console.log('leftx: '+leftX);
+                    str += '<rect x="0" y ="0" width="'+(leftValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(-90 0 0) translate(-90 '+(width/2.0  - 25 ) +')"></rect>'
+                    // console.log('leftx: '+leftX);
+                    str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14"  transform="rotate(-90 0 0) translate(-80 '+(width/2.0 - 10) +') ">';
+                    str += leftValue ;
+                    str += '</text>';
+                    // str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+                    str += '<rect x="0" y ="0" width="'+(rightValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(90 0 0) translate(20 '+((-1*(width/2.0)) - 25) +')"></rect>'
+                    str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
+                    str += rightValue ;
+                    str += '</text>';
+                    str += "</svg>";
+                }
+            }
+
+
+            // console.log('str length: '+str.length + ' for ' + str);
+            if(str.length >0){
+                domConstruct.place(str, featureNode);
+            }
+
+
+            intronCount++;
         }
 
     },
