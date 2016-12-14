@@ -428,7 +428,7 @@ public class AnnotatorPanel extends Composite {
                 geneDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
-            case "Transcript":
+            case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
@@ -446,7 +446,6 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "transposable_element":
             case "repeat_region":
-//                fireAnnotationInfoChangeEvent(annotationInfo);
                 repeatRegionDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
@@ -688,9 +687,28 @@ public class AnnotatorPanel extends Composite {
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false);
     }
 
+    // also used by javascript function
+    public void displayFeature(int featureIndex) {
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - featureIndex));
+        String type = annotationInfo.getType();
+        if (type.equals("transposable_element") || type.equals("repeat_region")) {
+            // do nothing
+        }
+        else {
+            exonDetailPanel.updateData(annotationInfo);
+        }
+        gotoAnnotation.setEnabled(true);
+        lastGeneIndex = featureIndex;
+        Integer min = selectedAnnotationInfo.getMin() - 50;
+        Integer max = selectedAnnotationInfo.getMax() + 50;
+        min = min < 0 ? 0 : min;
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false);
+    }
+
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
         var that = this;
         $wnd.displayTranscript = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+        $wnd.displayFeature = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayFeature(I));
         $wnd.enableGoto = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;));
 //        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
@@ -732,7 +750,17 @@ public class AnnotatorPanel extends Composite {
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {
-                renderCell(td, createContext(0), nameColumn, rowValue);
+                String type = rowValue.getType();
+                if (type.equals("gene") || type.equals("pseudogene")) {
+                    renderCell(td, createContext(0), nameColumn, rowValue);
+                }
+                else {
+                    // handles singleton features
+                    String featureStyle = "color: #800080;";
+                    HTML html = new HTML("<a style='" + featureStyle + "' ondblclick=\"displayFeature(" + absRowIndex + ")\");\">" + rowValue.getName() + "</a>");
+                    SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
+                    td.html(htmlString);
+                }
             }
             td.endTD();
 
