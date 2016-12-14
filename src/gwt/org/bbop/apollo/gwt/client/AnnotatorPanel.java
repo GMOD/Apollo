@@ -87,6 +87,7 @@ public class AnnotatorPanel extends Composite {
     private Column<AnnotationInfo, String> dateColumn;
     private Column<AnnotationInfo, String> showHideColumn;
     private long requestIndex = 0;
+    private int lastGeneIndex = 0 ;
     private static String selectedChildUniqueName = null;
 
     @UiField
@@ -547,7 +548,6 @@ public class AnnotatorPanel extends Composite {
         if(annotationInfo==null){
             return ;
         }
-
         String type = annotationInfo.getType();
         hideDetailPanels();
         GWT.log("annotation type: " + type);
@@ -557,7 +557,7 @@ public class AnnotatorPanel extends Composite {
                 geneDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
-            case "Transcript":
+            case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
@@ -575,7 +575,6 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "transposable_element":
             case "repeat_region":
-//                fireAnnotationInfoChangeEvent(annotationInfo);
                 repeatRegionDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 break;
@@ -816,9 +815,34 @@ public class AnnotatorPanel extends Composite {
         MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false);
     }
 
+    // also used by javascript function
+    public void displayFeature(int featureIndex) {
+        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - featureIndex));
+        String type = annotationInfo.getType();
+        if (type.equals("transposable_element") || type.equals("repeat_region")) {
+            // do nothing
+        }
+        else {
+            exonDetailPanel.updateData(annotationInfo);
+        }
+        // for some reason doesn't like call gotoAnnotation
+        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage();
+
+        gotoAnnotation.setEnabled(true);
+        lastGeneIndex = featureIndex;
+        Long min = selectedAnnotationInfo.getMin() - ProjectionDefaults.DEFAULT_PADDING;
+        Long max = selectedAnnotationInfo.getMax() + ProjectionDefaults.DEFAULT_PADDING;
+        min = min < 0 ? 0L : min;
+        assemblageInfo.setStart(min);
+        assemblageInfo.setEnd(max);
+
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false);
+    }
+
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
         var that = this;
         $wnd.displayTranscript = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
+        $wnd.displayFeature = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayFeature(I));
         $wnd.enableGoto = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;));
 //        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
@@ -860,7 +884,17 @@ public class AnnotatorPanel extends Composite {
                 SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(htmlString);
             } else {
-                renderCell(td, createContext(0), nameColumn, rowValue);
+                String type = rowValue.getType();
+                if (type.equals("gene") || type.equals("pseudogene")) {
+                    renderCell(td, createContext(0), nameColumn, rowValue);
+                }
+                else {
+                    // handles singleton features
+                    String featureStyle = "color: #800080;";
+                    HTML html = new HTML("<a style='" + featureStyle + "' ondblclick=\"displayFeature(" + absRowIndex + ")\");\">" + rowValue.getName() + "</a>");
+                    SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
+                    td.html(htmlString);
+                }
             }
             td.endTD();
 
