@@ -194,6 +194,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             subNodesFmax[i].left = dojo.getStyle(subNodesFmax[i], "left");
             subNodesFmax[i].width = dojo.getStyle(subNodesFmax[i], "width");
         }
+        var width = 100 ;
+        var height = 30;
 
         for (var i = 0; i < subNodesFmin.length ; ++i) {
             var leftNode = subNodesFmin[i];
@@ -203,37 +205,71 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // var left = subNodesFmin[i].left + subNodesFmin[i].width;
                 var left = subNodesFmin[i].left + 1 ;
 
-                var width = 100 ;
-                var height = 30;
-
-                var str = "";
+                var strLeft = "";
 
                 var leftValue = Util.addCommas(leftEdge) ;
                 // var rightValue = Util.addCommas(rightEdge) ;
 
                 // var projectionId = "projectionLabels"+leftValue+""+rightValue;
-                var projectionId = "projectionEdgeLabel"+leftValue;
+                var projectionId = "projectionEdgeLeftLabel"+leftValue;
 
                 console.log(projectionId+ " left:"+left);
 
                 if(left && !document.getElementById(projectionId)){
-                    console.log('trying to draw');
-                    str += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
-                    str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
-                    str += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
+                    strLeft += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                    strLeft += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                    strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
                     // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
-                    str += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    strLeft += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
                     // str += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
                     // str += 'Edge: '+leftValue ;
                     // str += '</text>';
-                    str += "</svg>";
+                    strLeft += "</svg>";
                 }
             }
 
 
             // console.log('str length: '+str.length + ' for ' + str);
-            if(str.length >0){
-                domConstruct.place(str, featureNode);
+            if(strLeft.length >0){
+                domConstruct.place(strLeft, featureNode);
+            }
+        }
+
+        for (var i = 0; i < subNodesFmax.length ; ++i) {
+            var rightNode = subNodesFmax[i];
+            if(rightNode.subfeature.afeature){
+                var rightEdge = rightNode.subfeature.afeature.location.fmax;
+                // var rightEdge = rightNode.subfeature.afeature.location.fmax;
+                var right = subNodesFmax[i].left + subNodesFmax[i].width - 10;
+                // var right = subNodesFmax[i].left + + 1 ;
+
+                var strRight = "";
+
+                var rightValue = Util.addCommas(rightEdge) ;
+                // var rightValue = Util.addCommas(rightEdge) ;
+
+                // var projectionId = "projectionLabels"+rightValue+""+rightValue;
+                var projectionId = "projectionEdgeRightLabel"+rightValue;
+
+                console.log(projectionId+ " right:"+right);
+
+                if(right && !document.getElementById(projectionId)){
+                    strRight += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                    strRight += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                    strRight += "left: " + right+ "px;width: " + width + "px;height: " + height+ "'>";
+                    // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
+                    strRight += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    // str += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
+                    // str += 'Edge: '+rightValue ;
+                    // str += '</text>';
+                    strRight += "</svg>";
+                }
+            }
+
+
+            // console.log('str length: '+str.length + ' for ' + str);
+            if(strRight.length >0){
+                domConstruct.place(strRight, featureNode);
             }
         }
 
