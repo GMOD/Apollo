@@ -447,12 +447,18 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 break;
             case "mRNA":
             case "miRNA":
@@ -462,20 +468,25 @@ public class AnnotatorPanel extends Composite {
             case "snoRNA":
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 break;
             case "transposable_element":
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
                 break;
             case "SNV":
             case "SNP":
             case "MNV":
             case "MNP":
             case "indel":
-                fireAnnotationInfoChangeEvent(annotationInfo);
                 variantDetailPanel.updateData(annotationInfo);
                 variantAllelesPanel.updateData(annotationInfo);
                 variantInfoPanel.updateData(annotationInfo);
