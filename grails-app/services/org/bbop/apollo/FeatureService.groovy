@@ -82,17 +82,17 @@ class FeatureService {
 
 
         Map<String, Integer> orderedSequenceMap = multiSequenceProjection.getOrderedSequenceMap()
-        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceListString, organism).sort(){ a,b ->
-               orderedSequenceMap.get(a.name) <=> orderedSequenceMap.get(b.name)
+        List<Sequence> sequenceList = Sequence.findAllByNameInListAndOrganism(sequenceListString, organism).sort() { a, b ->
+            orderedSequenceMap.get(a.name) <=> orderedSequenceMap.get(b.name)
         }
         MultiSequenceProjection fullProjection = projectionService.createMultiSequenceProjection(assemblageService.generateAssemblageForSequence(sequenceList))
 
         int rank = 0
         List<FeatureLocation> featureLocationList = new ArrayList<>()
-        sequenceListString.each{ String sequenceNameEntry ->
-            ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry,assemblage.organism.commonName)
+        sequenceListString.each { String sequenceNameEntry ->
+            ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence(sequenceNameEntry, assemblage.organism.commonName)
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonLocation, fullProjection, projectionSequence, defaultStrand)
-            if(featureLocation){
+            if (featureLocation) {
                 featureLocation.rank = rank
                 featureLocationList.add(featureLocation)
                 ++rank
@@ -102,7 +102,6 @@ class FeatureService {
         return featureLocationList
 
     }
-
 
     /**
      *
@@ -293,7 +292,7 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Assemblage assemblage, boolean suppressHistory,boolean useCDS = configWrapperService.useCDS()) {
+    def generateTranscript(JSONObject jsonTranscript, Assemblage assemblage, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS()) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
 
@@ -310,13 +309,12 @@ class FeatureService {
 
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript, false, assemblage);
-            }
-            else {
+            } else {
                 // if there are any sequence alterations that overlaps this transcript then
                 // recalculate the CDS to account for these changes
                 def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
                 if (sequenceAlterations.size() > 0) {
-                    calculateCDS(transcript,false,assemblage)
+                    calculateCDS(transcript, false, assemblage)
                 }
             }
 
@@ -367,13 +365,12 @@ class FeatureService {
 
                     if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
                         calculateCDS(tmpTranscript, false, assemblage);
-                    }
-                    else {
+                    } else {
                         // if there are any sequence alterations that overlaps this transcript then
                         // recalculate the CDS to account for these changes
                         def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
                         if (sequenceAlterations.size() > 0) {
-                            calculateCDS(tmpTranscript,false,assemblage)
+                            calculateCDS(tmpTranscript, false, assemblage)
                         }
                     }
 
@@ -493,13 +490,12 @@ class FeatureService {
             transcript = transcriptService.getTranscripts(gene).iterator().next();
             if (!useCDS || transcriptService.getCDS(transcript) == null) {
                 calculateCDS(transcript, false, assemblage);
-            }
-            else {
+            } else {
                 // if there are any sequence alterations that overlaps this transcript then
                 // recalculate the CDS to account for these changes
                 def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
                 if (sequenceAlterations.size() > 0) {
-                    calculateCDS(transcript,false,assemblage)
+                    calculateCDS(transcript, false, assemblage)
                 }
             }
             removeExonOverlapsAndAdjacenciesForFeature(gene, assemblage)
@@ -846,20 +842,14 @@ class FeatureService {
 
                 if (translationTable.getStopCodons().contains(codon)) {
                     if (readThroughStopCodon && ++stopCodonCount < 2) {
-//                        StopCodonReadThrough stopCodonReadThrough = cdsService.getStopCodonReadThrough(cds);
                         StopCodonReadThrough stopCodonReadThrough = (StopCodonReadThrough) featureRelationshipService.getChildForFeature(cds, StopCodonReadThrough.ontologyId)
                         if (stopCodonReadThrough == null) {
                             stopCodonReadThrough = cdsService.createStopCodonReadThrough(cds);
                             cdsService.setStopCodonReadThrough(cds, stopCodonReadThrough)
-//                            cds.setStopCodonReadThrough(stopCodonReadThrough);
                             if (cds.isNegativeStrand()) {
                                 setFeatureLocations(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2), convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1)
-//                                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2))
-//                                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i) + 1);
                             } else {
                                 setFeatureLocations(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i), convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1)
-//                                setFmin(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i));
-//                                setFmax(stopCodonReadThrough, convertModifiedLocalCoordinateToSourceCoordinate(transcript, i + 2) + 1);
                             }
                         }
                         continue;
@@ -875,13 +865,9 @@ class FeatureService {
             if (transcript.isNegativeStrand()) {
                 setFmin(transcript, transcript.fmin)
                 transcript.firstFeatureLocation.setIsFminPartial(true)
-//                cds.featureLocation.setFmin(transcript.getFmin());
-//                cds.featureLocation.setIsFminPartial(true);
             } else {
                 setFmax(transcript, transcript.fmax)
                 transcript.lastFeatureLocation.setIsFminPartial(true)
-//                cds.featureLocation.setFmax(transcript.getFmax());
-//                cds.featureLocation.setIsFmaxPartial(true);
             }
         }
 
@@ -1185,6 +1171,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param allowPartialExtension - Where partial ORFs should be used for possible extension
  *
  */
+
     @Timed
     @Transactional
     void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon, MultiSequenceProjection multiSequenceProjection) {
@@ -1204,7 +1191,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             for (String startCodon : translationTable.getStartCodons()) {
                 // find the first start codon
                 startIndex = mrna.indexOf(startCodon)
-                while(startIndex >= 0) {
+                while (startIndex >= 0) {
                     String mrnaSubstring = mrna.substring(startIndex)
                     String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
                     if (aa.length() > longestPeptide.length()) {
@@ -1218,7 +1205,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // Just in case the 5' end is missing, check to see if a longer
             // translation can be obatained without looking for a start codon
             startIndex = 0
-            while(startIndex < 3) {
+            while (startIndex < 3) {
                 String mrnaSubstring = mrna.substring(startIndex)
                 String aa = SequenceTranslationHandler.translateSequence(mrnaSubstring, translationTable, true, readThroughStopCodon)
                 if (aa.length() > longestPeptide.length()) {
@@ -1234,8 +1221,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (!longestPeptide.substring(longestPeptide.length() - 1).equals(TranslationTable.STOP)) {
             partialStop = true
             bestStopIndex = -1
-        }
-        else {
+        } else {
             stopIndex = bestStartIndex + (longestPeptide.length() * 3)
             partialStop = false
             bestStopIndex = stopIndex
@@ -1261,8 +1247,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     fmax = tmp + 1
                 }
                 setFeatureLocations(cds, fmin, fmax, transcript)
-            }
-            else {
+            } else {
                 log.debug "bestStopIndex < 0"
                 int fmax = transcript.strand == Strand.NEGATIVE.value ? transcript.fmin : transcript.fmax
                 if (cds.strand == Strand.NEGATIVE.value) {
@@ -1276,8 +1261,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             if (cds.isNegativeStrand()) {
                 cds.firstFeatureLocation.setIsFminPartial(partialStop)
                 cds.lastFeatureLocation.setIsFmaxPartial(partialStart)
-            }
-            else {
+            } else {
                 cds.firstFeatureLocation.setIsFminPartial(partialStart)
                 cds.lastFeatureLocation.setIsFmaxPartial(partialStop)
             }
@@ -1708,8 +1692,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     featureLocation.isFmaxPartial = false
                     featureLocation.save(insert: false, failOnError: true)
                 }
-            }
-            else
+            } else
             // set fmin, so add and/or update to set fmin
             if (projectionSequence.order == firstProjectionSequence?.order && firstProjectionSequence?.order != lastProjectionSequence?.order) {
                 featureLocationOrder = 0
@@ -1738,8 +1721,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                     featureLocation.save(insert: false, failOnError: true)
                 }
-            }
-            else
+            } else
             // set fmin, so add and/or update to set fmin
             // set fmax, so add and/or update to set fmax
             if (projectionSequence.order == lastProjectionSequence?.order && firstProjectionSequence?.order != lastProjectionSequence?.order) {
@@ -1763,6 +1745,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     if (firstProjectionSequence && lastProjectionSequence && firstProjectionSequence.order < lastProjectionSequence.order) {
                         featureLocation.fmin = 0
                         featureLocation.isFminPartial = true
+                        featureLocation.fminData = featureLocation.previousFeatureLocation?.sequence
                     }
                     featureLocation.save(insert: false, failOnError: true)
                 }
@@ -1798,7 +1781,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         featureLocation.fmax = projectionSequence.unprojectedLength
                         featureLocation.isFmaxPartial = true
                         featureLocation.rank = featureLocationOrder
-                        featureLocation.save(insert: false,failOnError: true)
+                        featureLocation.save(insert: false, failOnError: true)
                     }
                 }
             }
@@ -1813,6 +1796,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             feature.addToFeatureLocations(it)
         }
 
+        // insert previous and after partial data
+        for(fl in feature.featureLocations){
+            fl.fminData = fl.isFminPartial ? fl.previousFeatureLocation?.sequence : null
+            fl.fmaxData = fl.isFmaxPartial ? fl.nextFeatureLocation?.sequence : null
+            fl.save(flush: true,insert:false)
+        }
+
+
         feature.save(flush: true, insert: false)
 
     }
@@ -1821,9 +1812,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     int bumpFeatureLocationRanks(Feature feature) {
 
         int bumped = 0
-        for(FeatureLocation featureLocation in feature.featureLocations){
-            featureLocation.rank = featureLocation.rank +1
-            featureLocation.save(insert:false)
+        for (FeatureLocation featureLocation in feature.featureLocations) {
+            featureLocation.rank = featureLocation.rank + 1
+            featureLocation.save(insert: false)
             ++bumped
         }
         return bumped
@@ -2044,15 +2035,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // calculate offset based on index
             int featureLocationIndex = sequenceList.indexOf(featureLocation.sequence)
             if (featureLocationIndex >= 0) {
-//                ProjectionSequence projectionSequence = projectionSequenceList.get(featureLocationIndex)
                 if (calculatedFmin < 0) {
-//                    calculatedFmin = featureLocation.fmin  + projectionSequence.offset // only does the first one, which is typically 0
                     calculatedFmin = featureLocation.fmin
                     fminPartial = featureLocation.isFminPartial
                 }
-//                calculatedFmax = featureLocation.fmax + projectionSequence.offset
-//                calculatedFmax = featureLocation.fmax
-//                fmaxPartial = featureLocation.isFmaxPartial
                 calculatedFmax = calculatedFmax < 0 ? featureLocation.fmax : featureLocation.fmax + calculatedFmax
                 fmaxPartial = featureLocation.isFmaxPartial
             }
@@ -2063,9 +2049,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial)
     }
 
-    String generateOwnerString(Feature feature){
-        if(feature.owner){
-          return feature.owner.username
+    String generateOwnerString(Feature feature) {
+        if (feature.owner) {
+            return feature.owner.username
         }
         if (feature.owners) {
             String ownerString = ""

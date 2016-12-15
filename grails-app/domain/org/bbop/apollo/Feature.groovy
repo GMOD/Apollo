@@ -119,21 +119,21 @@ class Feature implements Ontological{
 
 
 
-    public FeatureLocation getFirstFeatureLocation() {
+    FeatureLocation getFirstFeatureLocation() {
         List<FeatureLocation> locs = getFeatureLocations().sort(){ a,b ->
             a.rank <=> b.rank ?:  a.fmin  <=> b.fmin ?: a.length ?: b.length
         };
         return locs ? locs.first() : null
     }
 
-    public FeatureLocation getLastFeatureLocation() {
+    FeatureLocation getLastFeatureLocation() {
         List<FeatureLocation> locs = getFeatureLocations().sort(){  a,b ->
             a.rank <=> b.rank ?:  a.fmin  <=> b.fmin ?: a.length ?: b.length
         };
         return locs ? locs.last() : null
     }
 
-    public String getSequenceNames(){
+    String getSequenceNames(){
 
         if(!featureLocations) {
             return "None"
@@ -155,7 +155,7 @@ class Feature implements Ontological{
      *
      * @return Length of feature
      */
-    public int getLength() {
+    int getLength() {
         getFmax()-getFmin()
 //        return getFeatureLocation().calculateLength()
     }
@@ -164,25 +164,25 @@ class Feature implements Ontological{
      * Returns the calculated fmin in the given sequence?!? so first rank
      * @return
      */
-    public Integer getFmin(){
+    Integer getFmin(){
         if(!featureLocations){
             throw new Exception("No feature locations exist for feature")
         }
         featureLocations.sort(){ it.rank }.first().fmin
     }
 
-    public boolean getIsFminPartial(){
+    boolean getIsFminPartial(){
         if(!featureLocations){
             throw new Exception("No feature locations exist for feature")
         }
         featureLocations.sort(){ it.rank }.first().isFminPartial
     }
 
-    public boolean getIsFmaxPartial(){
+    boolean getIsFmaxPartial(){
         featureLocations.sort(){ it.rank }.last().isFmaxPartial
     }
 
-    public Organism getOrganism(){
+    Organism getOrganism(){
         if(!featureLocations){
             return null
         }
@@ -197,8 +197,7 @@ class Feature implements Ontological{
      * This is the fmax of the last featureLength, plus the some of all previous featureLoctaion sequences
      * @return
      */
-    public Integer getFmax(){
-//        featureLocation.fmax
+    Integer getFmax(){
         Integer calculatedMax = 0
         int maxRank = getMaxRank()
         featureLocations.sort(){ it.rank }.each {
@@ -210,14 +209,13 @@ class Feature implements Ontological{
             }
         }
         return calculatedMax
-//        featureLocations.sort(){ it.rank }.last().fmax
     }
 
     /**
      * Rteturn the rank of the last feature location
      * @return
      */
-    public Integer getMaxRank(){
+    Integer getMaxRank(){
         featureLocations.sort(){ it.rank }.last().rank
     }
 
@@ -225,7 +223,7 @@ class Feature implements Ontological{
      * This will always be 0, but good to include it
      * @return
      */
-    public Integer getMinRank(){
+    Integer getMinRank(){
         featureLocations.sort(){ it.rank }.first().rank
     }
 
@@ -233,11 +231,11 @@ class Feature implements Ontological{
      * TODO: we should validate the strands of all of the feature locations here?
      * @return
      */
-    public Integer getStrand(){
+    Integer getStrand(){
         featureLocations.first().strand
     }
 
-    public Boolean isNegativeStrand(){
+    Boolean isNegativeStrand(){
         for(fl in featureLocations){
             if(fl.strand!=Strand.NEGATIVE.value){
                 return false
@@ -246,7 +244,7 @@ class Feature implements Ontological{
         return true
     }
 
-    public Boolean isPositiveStrand(){
+    Boolean isPositiveStrand(){
         for(fl in featureLocations){
             if(fl.strand!=Strand.POSITIVE.value){
                 return false
@@ -256,7 +254,7 @@ class Feature implements Ontological{
     }
 
     @Override
-    public String toString() {
+    String toString() {
         return "Feature{" +
                 "id=" + id +
                 ", symbol='" + symbol + '\'' +
