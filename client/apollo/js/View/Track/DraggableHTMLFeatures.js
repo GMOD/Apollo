@@ -219,10 +219,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
                     // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
                     strLeft += '<path onclick="alert('+priorSequence+');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // TODO: remove the on-screen text
-                    strLeft += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
-                    strLeft += priorSequence;
-                    strLeft += '</text>';
+                    // // TODO: remove the on-screen text
+                    // strLeft += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
+                    // strLeft += priorSequence;
+                    // strLeft += '</text>';
                     strLeft += "</svg>";
                 }
             }

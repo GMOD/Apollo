@@ -1797,7 +1797,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         // insert previous and after partial data
-        for(fl in feature.featureLocations){
+        for(fl in FeatureLocation.findAllByFeature(feature)){
             fl.fminData = fl.isFminPartial ? fl.previousFeatureLocation?.sequence : null
             fl.fmaxData = fl.isFmaxPartial ? fl.nextFeatureLocation?.sequence : null
             fl.save(flush: true,insert:false)
