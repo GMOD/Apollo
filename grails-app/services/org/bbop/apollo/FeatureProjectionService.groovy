@@ -17,6 +17,7 @@ class FeatureProjectionService {
     def projectionService
     def assemblageService
     def transcriptService
+    def featureService
 
     // TODO: make this configurable somehow
     private final Integer DEFAULT_FOLDING_BUFFER = 20
@@ -219,6 +220,7 @@ class FeatureProjectionService {
             ++rank
         }
         feature.save(flush: true, insert: false)
+        featureService.populatePartialDataForFeature(feature)
         return feature
     }
 

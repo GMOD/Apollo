@@ -1796,16 +1796,34 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             feature.addToFeatureLocations(it)
         }
 
-        // insert previous and after partial data
-        for(fl in FeatureLocation.findAllByFeature(feature)){
-            fl.fminData = fl.isFminPartial ? fl.previousFeatureLocation?.sequence : null
-            fl.fmaxData = fl.isFmaxPartial ? fl.nextFeatureLocation?.sequence : null
-            fl.save(flush: true,insert:false)
-        }
-
-
         feature.save(flush: true, insert: false)
 
+        populatePartialDataForFeature(feature)
+
+    }
+
+    @Transactional
+    void populatePartialDataForFeature(Feature feature){
+        populatePartialFminDataForFeature(feature)
+        populatePartialFmaxDataForFeature(feature)
+    }
+
+    @Transactional
+    void populatePartialFminDataForFeature(Feature feature){
+        def featureLocations = FeatureLocation.findAllByFeatureAndIsFminPartial(feature,true)
+        for(FeatureLocation featureLocation in featureLocations){
+            featureLocation.fminData = featureLocation.previousFeatureLocation?.sequence?.name
+            featureLocation.save(insert:false)
+        }
+    }
+
+    @Transactional
+    void populatePartialFmaxDataForFeature(Feature feature){
+        def featureLocations = FeatureLocation.findAllByFeatureAndIsFmaxPartial(feature,true)
+        for(FeatureLocation featureLocation in featureLocations){
+            featureLocation.fmaxData = featureLocation.nextFeatureLocation?.sequence?.name
+            featureLocation.save(insert:false)
+        }
     }
 
     @Transactional
@@ -2023,10 +2041,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         int calculatedFmax = -1
         Boolean fminPartial = false
         Boolean fmaxPartial = false
+        String fminData = null
+        String fmaxData = null
 
         assemblage = assemblage ?: assemblageService.generateAssemblageForFeature(feature)
         List<Sequence> sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
-        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
+//        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
 //        List<ProjectionSequence> projectionSequenceList = projection.getProjectedSequences()
 
         List<FeatureLocation> featureLocations = feature.getFeatureLocations()?.sort() { it.rank };
@@ -2038,15 +2058,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (calculatedFmin < 0) {
                     calculatedFmin = featureLocation.fmin
                     fminPartial = featureLocation.isFminPartial
+                    fminData = featureLocation.fminData
                 }
                 calculatedFmax = calculatedFmax < 0 ? featureLocation.fmax : featureLocation.fmax + calculatedFmax
                 fmaxPartial = featureLocation.isFmaxPartial
+                fmaxData = featureLocation.fmaxData
             }
 //            offset += featureLocation.sequence.end
         }
 
 
-        return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial)
+        return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial,fminData,fmaxData)
     }
 
     String generateOwnerString(Feature feature) {
@@ -2239,10 +2261,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     @Timed
-    JSONObject generateFeatureLocationToJSON(String sequenceString, Integer strand, Integer fmin, Integer fmax, Boolean fminPartial = false, Boolean fmaxPartial = false) throws JSONException {
+    JSONObject generateFeatureLocationToJSON(String sequenceString, Integer strand, Integer fmin, Integer fmax, Boolean fminPartial = false, Boolean fmaxPartial = false,String fminData = null,String fmaxData = null ) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, fmin)
         jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, fmax)
+        jsonFeatureLocation.put(FeatureStringEnum.FMIN_DATA.value, fminData)
+        jsonFeatureLocation.put(FeatureStringEnum.FMAX_DATA.value, fmaxData)
         if (fmin == null || fminPartial) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMIN_PARTIAL.value, true);
         }
