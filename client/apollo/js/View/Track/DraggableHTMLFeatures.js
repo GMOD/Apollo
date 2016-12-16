@@ -158,14 +158,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     insertEdges: function(featureNode) {
 
-        var intronCount = 0;
-
         // ignore if we have already processed this node
         // get the subfeatures nodes (only immediate children)
         var subNodesX = query('> .subfeature', featureNode);
 
         // filter nodes - eliminate nodes that are splice sites (for Apollo)
-        var subNodes = [];
         var subNodesFmin = [];
         var subNodesFmax = [];
         for (var i = 0; i < subNodesX.length; i++) {
@@ -201,6 +198,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             var leftNode = subNodesFmin[i];
             if(leftNode.subfeature.afeature){
                 var leftEdge = leftNode.subfeature.afeature.location.fmin;
+                var priorSequence = leftNode.subfeature.afeature.location.fmin_data;
                 // var rightEdge = leftNode.subfeature.afeature.location.fmax;
                 // var left = subNodesFmin[i].left + subNodesFmin[i].width;
                 var left = subNodesFmin[i].left + 1 ;
@@ -220,10 +218,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     strLeft += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
                     // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
-                    strLeft += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // str += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
-                    // str += 'Edge: '+leftValue ;
-                    // str += '</text>';
+                    strLeft += '<path onclick="alert(\''+priorSequence+'\');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    strLeft += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
+                    strLeft += priorSequence;
+                    strLeft += '</text>';
                     strLeft += "</svg>";
                 }
             }
@@ -240,6 +238,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if(rightNode.subfeature.afeature){
                 var rightEdge = rightNode.subfeature.afeature.location.fmax;
                 // var rightEdge = rightNode.subfeature.afeature.location.fmax;
+                var nextSequence = rightNode.subfeature.afeature.location.fmax_data;
                 var right = subNodesFmax[i].left + subNodesFmax[i].width - 10;
                 // var right = subNodesFmax[i].left + + 1 ;
 
@@ -258,10 +257,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     strRight += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strRight += "left: " + right+ "px;width: " + width + "px;height: " + height+ "'>";
                     // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
-                    strRight += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // str += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
-                    // str += 'Edge: '+rightValue ;
-                    // str += '</text>';
+                    strRight += '<path onclick="alert(\''+nextSequence+'\');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    // strRight += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
+                    // strRight += nextSequence;
+                    // strRight += '</text>';
+                    // strRight += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
+                    // strRight += nextSequence;
+                    // strRight += '</text>';
                     strRight += "</svg>";
                 }
             }

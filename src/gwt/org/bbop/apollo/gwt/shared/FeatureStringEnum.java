@@ -62,6 +62,8 @@ public enum FeatureStringEnum {
         FMAX,
         IS_FMIN_PARTIAL,
         IS_FMAX_PARTIAL,
+        FMIN_DATA,
+        FMAX_DATA,
         STRAND,
         NAME,
         INTERVALS,

@@ -211,7 +211,7 @@ class ExonService {
      * @param fmax - New fmax to be set
      */
     @Transactional
-    public void setExonBoundaries(Exon exon, int fmin, int fmax) {
+    void setExonBoundaries(Exon exon, int fmin, int fmax) {
 
         Transcript transcript = getTranscript(exon)
         Assemblage assemblage = assemblageService.generateAssemblageForFeature(exon)
@@ -392,8 +392,10 @@ class ExonService {
                 feature: rightExon
                 ,fmin: leftFeatureLocation.fmin
                 ,isFminPartial: leftFeatureLocation.isFminPartial
+                ,fminData: leftFeatureLocation.fminData
                 ,fmax: leftFeatureLocation.fmax
                 ,isFmaxPartial: leftFeatureLocation.isFmaxPartial
+                ,fmaxData: leftFeatureLocation.fmaxData
                 ,strand: leftFeatureLocation.strand
                 ,phase: leftFeatureLocation.phase
                 ,residueInfo: leftFeatureLocation.residueInfo

@@ -12,6 +12,8 @@ class FeatureLocation {
         length nullable: true
         isFminPartial nullable: true
         isFmaxPartial nullable: true
+        fminData nullable: true
+        fmaxData nullable: true
         strand nullable: true
         phase nullable: true
         residueInfo nullable: true
@@ -23,8 +25,10 @@ class FeatureLocation {
     Integer fmin
     Integer length
     boolean isFminPartial
+    String fminData
     Integer fmax
     boolean isFmaxPartial
+    String fmaxData
     Integer strand
     Integer phase
     String residueInfo
@@ -40,7 +44,7 @@ class FeatureLocation {
     ]
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         FeatureLocation castOther = (FeatureLocation) other;
@@ -54,7 +58,7 @@ class FeatureLocation {
 //        && this.getLocgroup() == castOther.getLocgroup() ;
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
         result = 37 * result + (getFeature() == null ? 0 : this.getFeature().hashCode());
@@ -65,7 +69,7 @@ class FeatureLocation {
         return result;
     }
 
-    public int getRank(){
+    int getRank(){
         rank ?: 0
     }
 
@@ -73,10 +77,10 @@ class FeatureLocation {
      * We use this as an artificial accessor in case the property has not been calculatd
      * @return
      */
-    public Integer calculateLength(){
+    Integer calculateLength(){
         return fmax-fmin
     }
-    public FeatureLocation generateClone() {
+    FeatureLocation generateClone() {
         FeatureLocation cloned = new FeatureLocation();
         cloned.sequence = this.sequence;
         cloned.feature = this.feature;
@@ -84,6 +88,8 @@ class FeatureLocation {
         cloned.isFminPartial = this.isFminPartial;
         cloned.fmax = this.fmax;
         cloned.isFmaxPartial = this.isFmaxPartial;
+        cloned.fmaxData = this.fmaxData;
+        cloned.fminData = this.fminData;
         cloned.strand = this.strand;
         cloned.phase = this.phase;
         cloned.residueInfo = this.residueInfo;
@@ -91,6 +97,24 @@ class FeatureLocation {
         cloned.rank = this.rank;
         cloned.featureLocationPublications = this.featureLocationPublications;
         return cloned;
+    }
+
+    FeatureLocation getPreviousFeatureLocation() {
+        for(fl in feature.featureLocations){
+            if(fl.rank == (rank-1)){
+                return fl
+            }
+        }
+        return null
+    }
+
+    FeatureLocation getNextFeatureLocation() {
+        for (fl in feature.featureLocations) {
+            if (fl.rank == (rank + 1)) {
+                return fl
+            }
+        }
+        return null
     }
 
 }
