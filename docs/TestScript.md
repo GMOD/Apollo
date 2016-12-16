@@ -134,7 +134,14 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 13.1.1) Check that you can navigate to an annotation by clicking on them from the list in the panel. Annotations for gene elements that produce transcripts will require one click on the name of the annotation, then double clicking on the transcript.
 
-13.1.2) After clicking on an annotation, click on the _Details_ tab at the bottom of the _Annotator Panel_ to display metadata for each annotation. Then, click on the _Coding_ tab to reveal a list of exons, and click on one of the exons to reveal optiond to modify its boundary using the arrows in the display. 
+13.1.2) Navigate To Annotation Details
+
+13.1.2.1) After clicking on an annotation, click on the _Details_ tab at the bottom of the _Annotator Panel_ to display metadata for each annotation. Then, click on the _Coding_ tab to reveal a list of exons, and click on one of the exons to reveal optiond to modify its 
+boundary using the arrows in the display.  Modify a number explicity.  On _blur_ confirm that a change was made for a legitimate value.
+
+13.1.2.2) Repeat for a non-coding transcript and pseudogene.
+
+13.1.2.3) Repeat for Repeat Region and Transposable Element. 
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
