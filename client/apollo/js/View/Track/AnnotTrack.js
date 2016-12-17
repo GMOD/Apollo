@@ -3754,8 +3754,6 @@ define([
                 this.openDialog("History", content);
                 AnnotTrack.popupDialog.resize();
                 AnnotTrack.popupDialog._position();
-// this.popupDialog.hide();
-// this.openDialog("History", content);
             },
 
             getAnnotationInformation: function () {
@@ -4080,7 +4078,6 @@ define([
                         track.gview.browser.config.highlightSearchedRegions = true;
                         track.gview.browser.showRegionWithHighlight(locobj);
                         track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-                        // AnnotTrack.popupDialog.hide();
                     }
                     else {
                         // var url = window.location.toString().replace(/loc=.+/, "loc=" +
@@ -4090,7 +4087,6 @@ define([
                         track.gview.browser.config.highlightSearchedRegions = true;
                         track.gview.browser.showRegionWithHighlight(locobj);
                         track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-                        // AnnotTrack.popupDialog.hide();
                     }
                 });
                 search.setErrorCallback(function (response) {

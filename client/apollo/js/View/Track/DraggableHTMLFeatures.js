@@ -9,6 +9,7 @@ define( [
             'dijit/MenuSeparator',
             'dijit/PopupMenuItem',
             'dijit/Dialog',
+            'dijit/Tooltip',
             'dojo/dom-construct',
             'dojo/query',
             'jquery',
@@ -27,6 +28,7 @@ define( [
         dijitMenuSeparator,
         dijitPopupMenuItem,
         dijitDialog,
+        dijitTooltip,
         domConstruct,
         query,
         $,
@@ -217,12 +219,18 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     strLeft += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                     strLeft += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
-                    // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
                     strLeft += '<path onclick="alert(\''+priorSequence+'\');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    strLeft += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
-                    strLeft += priorSequence;
-                    strLeft += '</text>';
+                    // strLeft += '<path  d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    // strLeft += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
+                    // strLeft += priorSequence;
+                    // strLeft += '</text>';
                     strLeft += "</svg>";
+                    // new dijitTooltip({
+                    //     connectId: [projectionId],
+                    //     label: priorSequence,
+                    //     position: ["above"],
+                    //     showDelay: 600
+                    // });
                 }
             }
 
@@ -258,6 +266,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     strRight += "left: " + right+ "px;width: " + width + "px;height: " + height+ "'>";
                     // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
                     strRight += '<path onclick="alert(\''+nextSequence+'\');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    // strRight += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
                     // strRight += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
                     // strRight += nextSequence;
                     // strRight += '</text>';
@@ -265,6 +274,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     // strRight += nextSequence;
                     // strRight += '</text>';
                     strRight += "</svg>";
+                    // new dijitTooltip({
+                    //     connectId: [projectionId],
+                    //     label: nextSequence,
+                    //     position: ["above"],
+                    //     showDelay: 600
+                    // });
                 }
             }
 
