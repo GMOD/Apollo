@@ -1745,7 +1745,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     if (firstProjectionSequence && lastProjectionSequence && firstProjectionSequence.order < lastProjectionSequence.order) {
                         featureLocation.fmin = 0
                         featureLocation.isFminPartial = true
-                        featureLocation.fminData = featureLocation.previousFeatureLocation?.sequence
                     }
                     featureLocation.save(insert: false, failOnError: true)
                 }
@@ -1812,7 +1811,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     void populatePartialFminDataForFeature(Feature feature){
         def featureLocations = FeatureLocation.findAllByFeatureAndIsFminPartial(feature,true)
         for(FeatureLocation featureLocation in featureLocations){
-            featureLocation.fminData = featureLocation.previousFeatureLocation?.sequence?.name
+            if(featureLocation?.previousFeatureLocation?.sequence){
+                String sequenceString = (featureLocation.previousFeatureLocation.sequence as JSON).toString()
+                featureLocation.fminData = sequenceString
+            }
             featureLocation.save(insert:false)
         }
     }
@@ -1821,7 +1823,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     void populatePartialFmaxDataForFeature(Feature feature){
         def featureLocations = FeatureLocation.findAllByFeatureAndIsFmaxPartial(feature,true)
         for(FeatureLocation featureLocation in featureLocations){
-            featureLocation.fmaxData = featureLocation.nextFeatureLocation?.sequence?.name
+            if(featureLocation?.nextFeatureLocation?.sequence){
+                String sequenceString = (featureLocation.nextFeatureLocation.sequence as JSON).toString()
+                featureLocation.fmaxData = sequenceString
+            }
             featureLocation.save(insert:false)
         }
     }
