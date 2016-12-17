@@ -387,7 +387,7 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/gmod/jbrowse"
-        tag = "9334e76fd7530681fa2dcc71d4440141e1414cfd"
+        tag = "d42fd0b14d522a26a22d03ef86b8a0f26ea46e1f"
 //		tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
@@ -403,13 +403,13 @@ jbrowse {
         WebApollo{
             included = true
         }
-//        NeatHTMLFeatures{
-//            included = true
-//            linearGradient = 0
-//        }
-//        NeatCanvasFeatures{
-//            included = true
-//        }
+        NeatHTMLFeatures{
+            included = true
+            linearGradient = 0
+        }
+        NeatCanvasFeatures{
+            included = true
+        }
         RegexSequenceSearch{
             included = true
         }
