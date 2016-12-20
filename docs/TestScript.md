@@ -31,6 +31,16 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.3) Check that the organism preference is preserved only on a single browser tab.
 
+1.4) If two organisms have the same scaffold name, switch between those organisms after providing annotations (if they are the same).  
+
+1.4.1) Use the JBrowse drop-down or search menu to navigate between the two scaffolds on different organisms at least twice and confirm that annotations that belong to an organism on one scaffold are only seen on that organism and not the other.  
+
+1.4.2) Use the _Sequence Panel_ to confirm that scaffolds on a particular organism only belong to that organism.
+
+1.4.3) Use the _Sequence Dropdown_ to confirm that scaffolds on a particular organism only belong to that organism.
+
+1.4.4) Use the _Annotator Panel_ navigate to, to confirm that scaffolds on a particular organism only belong to that organism.
+
 2) Test top-level menu options:
 
 2.1) Login / Logout
@@ -192,5 +202,16 @@ boundary using the arrows in the display.  Modify a number explicity.  On _blur_
 
 14.4.1) Should work even if on different browser.
 
+### D) Testing Web Services
+
+15.1) Make sure that you can add organisms using the ```add_organism.groovy``` script.  
+
+15.1.1) Verify that it also works for the shell (curl) script as well.
+
+15.2) Make sure that you can add annotations using the ```add_transcripts_from_gff3_to_annotations.pl``` script from exported annotations.
+
+15.3) Verify that you can use the ```add_users.groovy``` script. 
+ 
+15.3.1) Verify that it also works for the shell (curl) script as well.
 
 
