@@ -107,6 +107,7 @@ class PreferenceService {
                 eq("user", currentUser)
                 eq("clientToken", clientToken)
                 eq("sequence.name", sequenceName)
+                eq("organism", currentOrganism)
             }
         }
         if (userOrganismPreferences.size() > 1) {
