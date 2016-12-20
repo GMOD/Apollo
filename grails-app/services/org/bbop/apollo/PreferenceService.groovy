@@ -195,13 +195,14 @@ class PreferenceService {
 //            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
 //        }
 
-        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[sort: "lastUpdated", order: "desc"])
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientTokenAndOrganism(currentUser, true, clientToken,currentOrganism,[sort: "lastUpdated", order: "desc"])
 //        def userOrganismPreferences = UserOrganismPreference.createCriteria().list {
-//            createAlias('sequence', 'sequence', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
+//            createAlias('assemblage', 'assemblage', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
 //            and {
 //                eq("user", currentUser)
 //                eq("clientToken", clientToken)
 //                eq("assemblage.name", sequenceName)
+//                eq("organism", currentOrganism)
 //            }
 //        }
         if (userOrganismPreferences.size() > 1) {

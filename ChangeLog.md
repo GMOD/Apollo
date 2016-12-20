@@ -1,4 +1,11 @@
 
+## 2.0.6
+
+Bugfixes
+
++ Failure to load tracks when switching organisms with identical Sequence IDs #1391
++ Unable to add organism from script without pre-existing web-services #1388
+
 ## 2.0.5
 
 Features 
