@@ -242,7 +242,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     var element1 = document.getElementById(projectionId);
                     var thisSeq = priorMap.get(projectionId);
                     element1.onclick = function(){
-                        alert('Left: '+thisSeq.name);
+                        var myDialog = new dijitDialog({
+                            title: "Partial Element",
+                            content: 'Genomic element continued on '+thisSeq.name +'.',
+                                   // '.<br/><button  type="button" data-dojo-props="onClick:function(){myDialog.hide();}">OK</button>',
+                            style: "width: 300px"
+                        });
+                        myDialog.show();
                     }
                 }
             }
@@ -284,7 +290,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     element1 = document.getElementById(projectionId);
                     thisSeq = priorMap.get(projectionId);
                     element1.onclick = function(){
-                        alert('Right: '+thisSeq.name);
+                        var myDialog = new dijitDialog({
+                            title: "Partial Element",
+                            content: 'Genomic element continued on '+thisSeq.name +'.',
+                            // '.<br/><button  type="button" data-dojo-props="onClick:function(){myDialog.hide();}">OK</button>',
+                            style: "width: 300px"
+                        });
+                        myDialog.show();
                     }
                 }
             }
