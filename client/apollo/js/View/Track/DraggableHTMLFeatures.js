@@ -201,7 +201,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var width = 100 ;
         var height = 30;
 
-        var priorMap = new Map();
+        var priorMap = {};
 
         for (var i = 0; i < subNodesFmin.length ; ++i) {
             var leftNode = subNodesFmin[i];
@@ -225,7 +225,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 
                 if(left && !document.getElementById(projectionId)){
-                    priorMap.set(projectionId,priorSequence);
+                    priorMap[projectionId] = priorSequence;
                     strLeft += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                     strLeft += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
@@ -240,7 +240,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 domConstruct.place(strLeft, featureNode);
                 if(left && document.getElementById(projectionId)){
                     var element1 = document.getElementById(projectionId);
-                    var thisSeq = priorMap.get(projectionId);
+                    var thisSeq = priorMap[projectionId];
                     element1.onclick = function(){
                         var myDialog = new dijitDialog({
                             title: "Partial Element",
@@ -273,7 +273,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 console.log(projectionId+ " right:"+right);
 
                 if(right && !document.getElementById(projectionId)){
-                    priorMap.set(projectionId,nextSequence);
+                    priorMap[projectionId] = nextSequence ;
                     strRight += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                     strRight += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strRight += "left: " + right+ "px;width: " + width + "px;height: " + height+ "'>";
@@ -288,7 +288,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 domConstruct.place(strRight, featureNode);
                 if(right && document.getElementById(projectionId)){
                     element1 = document.getElementById(projectionId);
-                    thisSeq = priorMap.get(projectionId);
+                    thisSeq = priorMap.projectionId;
                     element1.onclick = function(){
                         var myDialog = new dijitDialog({
                             title: "Partial Element",
