@@ -158,7 +158,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
         return window.parent;
     },
 
+
     insertEdges: function(featureNode) {
+
+        function handleLeft(a,b){
+            alert(a);
+        }
 
         // ignore if we have already processed this node
         // get the subfeatures nodes (only immediate children)
@@ -196,6 +201,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var width = 100 ;
         var height = 30;
 
+        var priorMap = new Map();
+
         for (var i = 0; i < subNodesFmin.length ; ++i) {
             var leftNode = subNodesFmin[i];
             if(leftNode.subfeature.afeature){
@@ -215,22 +222,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
                 console.log(projectionId+ " left:"+left);
 
+
+
                 if(left && !document.getElementById(projectionId)){
+                    priorMap.set(projectionId,priorSequence);
                     strLeft += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                     strLeft += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
-                    strLeft += '<path onclick="alert(\''+priorSequence.name+'\');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // strLeft += '<path  d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // strLeft += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
-                    // strLeft += priorSequence;
-                    // strLeft += '</text>';
+                    strLeft += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" ></path>';
                     strLeft += "</svg>";
-                    // new dijitTooltip({
-                    //     connectId: [projectionId],
-                    //     label: priorSequence,
-                    //     position: ["above"],
-                    //     showDelay: 600
-                    // });
                 }
             }
 
@@ -238,6 +238,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // console.log('str length: '+str.length + ' for ' + str);
             if(strLeft.length >0){
                 domConstruct.place(strLeft, featureNode);
+                if(left && document.getElementById(projectionId)){
+                    var element1 = document.getElementById(projectionId);
+                    var thisSeq = priorMap.get(projectionId);
+                    element1.onclick = function(){
+                        alert('Left: '+thisSeq.name);
+                    }
+                }
             }
         }
 
@@ -260,25 +267,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 console.log(projectionId+ " right:"+right);
 
                 if(right && !document.getElementById(projectionId)){
+                    priorMap.set(projectionId,nextSequence);
                     strRight += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
                     strRight += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
                     strRight += "left: " + right+ "px;width: " + width + "px;height: " + height+ "'>";
-                    // str += '<path d="M2 8 L12 0 L15 0 L5 8 L15 16 L12 16 L2 8" fill="red" stroke-width="2px" stroke="red" />';
-                    strRight += '<path onclick="alert(\''+nextSequence.name+'\');" d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // strRight += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
-                    // strRight += '<text text-anchor="start" x="20" y="10" font-family="Verdana" font-size="12" >';
-                    // strRight += nextSequence;
-                    // strRight += '</text>';
-                    // strRight += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
-                    // strRight += nextSequence;
-                    // strRight += '</text>';
+                    strRight += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
                     strRight += "</svg>";
-                    // new dijitTooltip({
-                    //     connectId: [projectionId],
-                    //     label: nextSequence,
-                    //     position: ["above"],
-                    //     showDelay: 600
-                    // });
                 }
             }
 
@@ -286,6 +280,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // console.log('str length: '+str.length + ' for ' + str);
             if(strRight.length >0){
                 domConstruct.place(strRight, featureNode);
+                if(right && document.getElementById(projectionId)){
+                    element1 = document.getElementById(projectionId);
+                    thisSeq = priorMap.get(projectionId);
+                    element1.onclick = function(){
+                        alert('Right: '+thisSeq.name);
+                    }
+                }
             }
         }
 
