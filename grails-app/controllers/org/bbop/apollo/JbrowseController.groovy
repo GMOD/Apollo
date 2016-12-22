@@ -5,6 +5,7 @@ import liquibase.util.file.FilenameUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionChunk
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -240,34 +241,43 @@ class JbrowseController {
                 return;
             }
             def refererLocObject = JSON.parse(refererLoc)
-            def sequenceList = refererLocObject.sequenceList
+//            def sequenceList = refererLocObject.sequenceList
 
             // for each sequence we have: name (typically sequence), location start, location end,
             // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
             // we also have folding information once that is available
             JSONArray displayArray = new JSONArray()
+//            List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+            def projectionLength = projection.getLength()
+            List<ProjectionSequence> projectionSequences = projection.getReverseProjectionSequences(0,projectionLength-1)
 
 
-            int offset = 0
-            int projectedOffset = 0
-            for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
-                JSONObject thisSeq = sequenceList.get(i)
-                JSONObject regionObject = new JSONObject(thisSeq.toString())
-                regionObject.refseq = generateRefSeqLabel(thisSeq)
-                int currentPosition = thisSeq.start ?: 0
-                regionObject.originalPosition = currentPosition
-                currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
-                regionObject.start = currentPosition + offset
-                regionObject.end = currentPosition + offset + 1
+//            int offset = 0
+//            int projectedOffset = 0
+//            for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
+            for(ProjectionSequence projectionSequence in projectionSequences){
+                Long projectedLength = projection.getLengthForSequence(projectionSequence)
+//                JSONObject thisSeq = sequenceList.get(i)
+                JSONObject regionObject = new JSONObject()
+//                regionObject.refseq = generateRefSeqLabel(thisSeq)
+                regionObject.refseq = projectionSequence.name
+//                int currentPosition = thisSeq.start ?: 0
+                regionObject.originalPosition = 0 ;
+//                currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
+                regionObject.start =  projectionSequence.offset
+//                regionObject.end = projectedLength + projectionSequence.offset
+                regionObject.end = projectionSequence.offset + 1
                 regionObject.ref = refererLoc
                 regionObject.'background-color' = 'yellow'
+                regionObject.color = 'yellow'
+                regionObject.background = 'yellow'
                 regionObject.type = 'left-edge'
 
-                currentPosition += regionObject.end
+//                currentPosition += regionObject.end
 
                 displayArray.add(regionObject)
-                offset = currentPosition
-                projectedOffset = thisSeq.end - thisSeq.start
+//                offset = currentPosition
+//                projectedOffset = thisSeq.end - thisSeq.start
             }
             JSONObject returnObject = new JSONObject()
             returnObject.features = displayArray
