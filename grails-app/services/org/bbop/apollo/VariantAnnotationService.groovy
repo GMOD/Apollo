@@ -398,6 +398,18 @@ class VariantAnnotationService {
                 // IX. Create a JSONObject for what the altered transcript is likely to look like
                 JSONObject transcriptJsonObject = featureService.convertFeatureToJSON(transcript)
                 // TODO: reparse this JSONObject to reflect the modifications as a result of the variant
+                // For substitution variant, the only thing that changes is the CDS fmin and fmax
+                println "Transcript JSON Object (before): ${transcriptJsonObject.toString()}"
+                for (JSONObject child : transcriptJsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
+                    if (child.getJSONObject(FeatureStringEnum.TYPE.value).name == FeatureStringEnum.CDS.value) {
+                        JSONObject locationObject = child.getJSONObject(FeatureStringEnum.LOCATION.value)
+                        locationObject.fmin = finalCdsFmin
+                        locationObject.fmax = finalCdsFmax
+                        child.put(FeatureStringEnum.LOCATION.value, locationObject)
+                    }
+                }
+                println "Transcript JSON Object (after): ${transcriptJsonObject.toString()}"
+
                 variantEffect.metadata = transcriptJsonObject.toString()
                 variantEffect.save()
                 allele.addToVariantEffects(variantEffect)

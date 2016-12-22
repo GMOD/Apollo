@@ -2355,7 +2355,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = features.getJSONObject(i)
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
             SequenceAlteration variant = variantService.createVariant(jsonFeature, sequence, suppressHistory)
-            //variantAnnotationService.calculateEffectOfVariant(variant)
+            variantAnnotationService.calculateEffectOfVariant(variant)
 
             if (variant.fmin < 0 || variant.fmax < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates");

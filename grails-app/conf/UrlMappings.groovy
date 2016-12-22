@@ -38,7 +38,8 @@ class UrlMappings {
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
 
-
+        "/variantEffectTrack/stats/global"(action: "globalStats", controller: "variantEffectTrack")
+        "/variantEffectTrack/features"(action: "features", controller: "variantEffectTrack")
 
         "/${clientToken}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
