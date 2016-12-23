@@ -143,7 +143,7 @@
                 </gwt:north>
                 <gwt:west size="25">
                     <gwt:FlowPanel ui:field="westPanel" styleName="{style.emptyPanel}">
-                            <b:Button icon="NAVICON"/>
+                            <b:Button icon="LIST_UL" ui:field="trackListToggle" dataToggle="BUTTON" title="Show JBrowse Track Selector"/>
                     </gwt:FlowPanel>
                 </gwt:west>
                 <gwt:center>

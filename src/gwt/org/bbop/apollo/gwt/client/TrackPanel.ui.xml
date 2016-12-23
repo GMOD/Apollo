@@ -31,7 +31,7 @@
                         <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
                     </b:Column>
                     <b:Column size="MD_6">
-                        <b:CheckBox ui:field="trackListToggle"  text="Show JBrowse Track Selector"/>
+                        <b:CheckBox ui:field="trackListToggle"  text="Show JBrowse Track Selector" visible="false"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
