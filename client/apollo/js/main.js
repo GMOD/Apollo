@@ -392,6 +392,11 @@ return declare( [JBPlugin, HelpMixin],
         var webapollo = this;
         var loginButton;
         if (username)  {   // permission only set if permission request succeeded
+            // if we are logged in with JBrowse mode, then disallow and go straight to the annotator
+            // if(!window.parent){
+            //     webapollo.getAnnotTrack().showAnnotatorPanel();
+            //     return ;
+            // }
             this.browser.addGlobalMenuItem( 'user',
                             new dijitMenuItem(
                                             {

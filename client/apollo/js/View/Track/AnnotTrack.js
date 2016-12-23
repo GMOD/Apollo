@@ -4422,7 +4422,9 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (window.parent) window.parent.location.reload();
+                                        if (window.parent){
+                                          window.parent.location.reload();
+                                        }
                                         else window.location.reload();
                                     },
                                     error: function (response, ioArgs) { //
