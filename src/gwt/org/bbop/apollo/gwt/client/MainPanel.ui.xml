@@ -141,8 +141,9 @@
                         </b:Modal>
                     </gwt:FlowPanel>
                 </gwt:north>
-                <gwt:west size="20">
+                <gwt:west size="25">
                     <gwt:FlowPanel ui:field="westPanel" styleName="{style.emptyPanel}">
+                            <b:Button icon="NAVICON"/>
                     </gwt:FlowPanel>
                 </gwt:west>
                 <gwt:center>
