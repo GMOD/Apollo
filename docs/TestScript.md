@@ -75,9 +75,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
    Check that all links go to a new screen.
 
-2.6) Full-screen view
-
-   Check that this link opens up a new window showing only the browser and JBrowse track menu, without the annotator panel. Then, check that you are able to return from _Full-screen view_ to a window that includes both the main annotation area with the _Annotator Panel_ on the side by using the _Show Annotator Panel_ button.
+   
 
 3) Test the Navigation Bar
 
@@ -187,6 +185,20 @@ boundary using the arrows in the display.  Modify a number explicity.  On _blur_
 
 13.7.1) Click and corroborate that each item listed under the _Admin_ tab sends you to a new page. And test that you can add and delete fields and data as needed for each page. 
 
+13.8) Public link
+
+13.8.1) Confirm that clicking on a public link option in the main window when _logged in_ will forward you to the Annotator Panel view.
+
+13.8.2) Confirm that clicking on a public link option in the main window when _logged out_ will give you the regular "JBrowse view".
+
+   Check that this link opens up a new window showing only the browser and JBrowse track menu, without the annotator panel. 
+   When logging in, it should redirect to another login menu and then finally end up at the _Annotator Panel_ view with the same tracks selected.
+  
+13.9) Logged in link
+   
+13.9.1) Confirm that clicking on a logged in link option in the main window when _logged in_ will forward you to the _Annotator Panel_ view directly.
+
+13.9.2) Confirm that clicking on a logged in link option in the main window when _logged out_ will take you to the login screen and then redirect you to the proper _Annotator Panel_ view when approved with the same selections in-tact.
 
 ### C) Testing Integration
 
