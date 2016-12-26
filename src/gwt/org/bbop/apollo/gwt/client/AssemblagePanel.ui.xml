@@ -99,9 +99,11 @@
                                     <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
                                 </b:ButtonGroup>
                                 <b:ButtonGroup>
-                                    <b:Button icon="ARROW_LEFT" enabled="false" ui:field="leftLockButton" type="DEFAULT" />
-                                    <b:Button text="Lock" icon="LOCK" enabled="false" ui:field="lockButton" type="DEFAULT" dataToggle="BUTTON"/>
-                                    <b:Button icon="ARROW_RIGHT" enabled="false" ui:field="rightLockButton" type="DEFAULT"/>
+                                    <!--<b:Button icon="ARROW_LEFT" enabled="false" ui:field="leftLockButton" type="DEFAULT" />-->
+                                    <!--<b:Button text="Lock" icon="LOCK" enabled="false" ui:field="lockButton" type="DEFAULT" dataToggle="BUTTON"/>-->
+                                    <!--<b:Button icon="ARROW_RIGHT" enabled="false" ui:field="rightLockButton" type="DEFAULT"/>-->
+                                    <b:Button icon="EXCHANGE" enabled="false" ui:field="flipAssemblageButton" type="DEFAULT"/>
+                                    <!--<b:Button icon="REPEAT" enabled="false" ui:field="flipAssemblageButton" type="DEFAULT"/>-->
                                 </b:ButtonGroup>
                             </b:Column>
                         </b:Row>

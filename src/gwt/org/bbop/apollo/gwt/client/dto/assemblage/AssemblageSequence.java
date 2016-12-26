@@ -128,4 +128,9 @@ public class AssemblageSequence extends JSONObject {
     public boolean hasLocation() {
         return containsKey(FeatureStringEnum.LOCATION.getValue());
     }
+
+    public void flip(){
+        boolean original = getReverse()==null ? false : getReverse();
+        setReverse(!original);
+    }
 }
