@@ -292,7 +292,17 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("flipAssemblageButton")
     public void flipAssemblageButtonClick(ClickEvent event) {
-        Window.alert("flipping assemblage");
+//        Window.alert("flipping assemblage");
+        AssemblageInfo assemblageInfo = assemblageDetailPanel.getAssemblageInfo();
+        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
+        for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
+            AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
+            assemblageSequence.flip();
+            assemblageSequenceList.set(i,assemblageSequence);
+        }
+        Set<AssemblageInfo> assemblageInfoSet = new HashSet<>();
+        assemblageInfoSet.add(assemblageInfo);
+        assemblageDetailPanel.setAssemblageInfo(assemblageInfoSet);
     }
 
 
