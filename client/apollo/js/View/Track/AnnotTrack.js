@@ -4480,7 +4480,9 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (this.getApollo()) this.getApollo().location.reload();
+                                        if (this.getApollo()) {
+                                            this.getApollo().location.reload();
+                                        }
                                         else window.location.reload();
                                     },
                                     error: function (response, ioArgs) { //

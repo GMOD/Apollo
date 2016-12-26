@@ -140,6 +140,8 @@ public class MainPanel extends Composite {
     Alert editUserAlertText;
     @UiField
     HTML editUserHeader;
+    @UiField
+    Button trackListToggle;
 
 
     private LoginDialog loginDialog = new LoginDialog();
@@ -401,6 +403,7 @@ public class MainPanel extends Composite {
                             MainPanel.useNativeTracklist = false;
                         }
                         trackPanel.updateTrackToggle(MainPanel.useNativeTracklist);
+                        trackListToggle.setActive(MainPanel.useNativeTracklist);
 
 
                         setUserNameForCurrentUser();
@@ -1049,6 +1052,13 @@ public class MainPanel extends Composite {
             return "{}";
         }
         return currentOrganism.toJSON().toString();
+    }
+
+    @UiHandler("trackListToggle")
+    public void trackListToggleButtonHandler(ClickEvent event){
+        useNativeTracklist = !trackListToggle.isActive();
+        trackPanel.updateTrackToggle(useNativeTracklist);
+        trackPanel.trackListToggle(event);
     }
 
     public static native void exportStaticMethod() /*-{
