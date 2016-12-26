@@ -24,6 +24,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -91,12 +92,14 @@ public class AssemblagePanel extends Composite {
     RadioButton showOnlyScaffoldButton;
     @UiField
     AssemblageDetailPanel assemblageDetailPanel;
+//    @UiField
+//    Button lockButton;
+//    @UiField
+//    Button leftLockButton;
+//    @UiField
+//    Button rightLockButton;
     @UiField
-    Button lockButton;
-    @UiField
-    Button leftLockButton;
-    @UiField
-    Button rightLockButton;
+    Button flipAssemblageButton;
 
     private Set<String> usedSequences = new HashSet<>();
 
@@ -286,24 +289,10 @@ public class AssemblagePanel extends Composite {
         MainPanel.updateGenomicViewerForAssemblage(merge1.toString().trim(), -1l, -1l);
     }
 
-    @UiHandler("lockButton")
-    public void lock(ClickEvent event) {
-        if (lockButton.getIcon() == IconType.LOCK) {
-            unlock();
-        } else {
-            lock();
-        }
-    }
 
-    private void lock() {
-        lockButton.setIcon(IconType.LOCK);
-        enableLockButtonGroup(true);
-    }
-
-    private void unlock() {
-        lockButton.setIcon(IconType.UNLOCK);
-        enableLockButtonGroup(false);
-        lockButton.setEnabled(true);
+    @UiHandler("flipAssemblageButton")
+    public void flipAssemblageButtonClick(ClickEvent event) {
+        Window.alert("flipping assemblage");
     }
 
 
@@ -365,16 +354,14 @@ public class AssemblagePanel extends Composite {
             // combine the JSONArray now
             AssemblageSequenceList sequence1 = new AssemblageSequenceList(assemblageInfo.getSequenceList());
             AssemblageSequenceList sequence2 = new AssemblageSequenceList(assemblageInfo1.getSequenceList());
-            if (sequence1 == null) {
-//                sequence1 = sequence2 ;
-                assemblageInfo.setSequenceList(sequence2);
-            } else if (sequence2 == null) {
-//                sequence2 = sequence1;
-                assemblageInfo.setSequenceList(sequence1);
-            } else {
-                sequence1 = sequence1.merge(sequence2);
-                assemblageInfo.setSequenceList(sequence1);
-            }
+//            if (sequence1 == null) {
+//                assemblageInfo.setSequenceList(sequence2);
+//            } else if (sequence2 == null) {
+//                assemblageInfo.setSequenceList(sequence1);
+//            } else {
+//            }
+            sequence1 = sequence1.merge(sequence2);
+            assemblageInfo.setSequenceList(sequence1);
 
         }
         assemblageInfo.setStart(start);
@@ -401,7 +388,7 @@ public class AssemblagePanel extends Composite {
         }
     }
 
-    public void setAssemableInfo(AssemblageInfo currentAssemblage) {
+    void setAssemablageInfo(AssemblageInfo currentAssemblage) {
         selectionModel.clear();
         selectionModel.setSelected(currentAssemblage, true);
         Set<AssemblageInfo> assemblageInfos = new HashSet<>();
@@ -419,22 +406,22 @@ public class AssemblagePanel extends Composite {
             removeButton.setEnabled(false);
             saveButton.setEnabled(false);
             viewButton.setEnabled(false);
-            lockButton.setEnabled(false);
+            flipAssemblageButton.setEnabled(false);
         } else if (selectedObjects.size() == 1) {
             mergeButton.setText("Combine");
             removeButton.setText("Remove");
             saveButton.setText("Save");
             mergeButton.setEnabled(false);
             removeButton.setEnabled(true);
-            lockButton.setEnabled(false);
+            flipAssemblageButton.setEnabled(false);
             if (selectedObjects.iterator().next().getSequenceList().size() > 1) {
                 viewButton.setEnabled(true);
                 saveButton.setEnabled(true);
-                enableLockButtonGroup(true);
+                flipAssemblageButton.setEnabled(true);
             } else {
                 viewButton.setEnabled(false);
                 saveButton.setEnabled(false);
-                enableLockButtonGroup(false);
+                flipAssemblageButton.setEnabled(false);
             }
         }
         // multiple
@@ -446,34 +433,11 @@ public class AssemblagePanel extends Composite {
             removeButton.setEnabled(true);
             saveButton.setEnabled(false);
             viewButton.setEnabled(true);
-            lockButton.setEnabled(true);
+            flipAssemblageButton.setEnabled(true);
         }
-
-//        saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
-//        saveButton.setType(saveButton.isEnabled() ? ButtonType.PRIMARY : ButtonType.DEFAULT);
 
         assemblageDetailPanel.setAssemblageInfo(selectedObjects);
 
-    }
-
-    private void enableLockButtonGroup(boolean enabled) {
-        lockButton.setEnabled(enabled);
-        leftLockButton.setEnabled(enabled);
-        rightLockButton.setEnabled(enabled);
-
-
-        if (enabled) {
-            rightLockButton.setEnabled(false);
-            leftLockButton.setEnabled(true);
-            rightLockButton.setType(ButtonType.PRIMARY);
-            leftLockButton.setType(ButtonType.DEFAULT);
-        } else {
-            // disable
-            rightLockButton.setEnabled(false);
-            leftLockButton.setEnabled(false);
-            rightLockButton.setType(ButtonType.DEFAULT);
-            leftLockButton.setType(ButtonType.DEFAULT);
-        }
     }
 
 
@@ -539,22 +503,6 @@ public class AssemblagePanel extends Composite {
                 searchForAssemblage(null);
             }
         });
-    }
-
-    @UiHandler("leftLockButton")
-    public void leftLockButtonClick(ClickEvent event) {
-        leftLockButton.setEnabled(false);
-        rightLockButton.setEnabled(true);
-        leftLockButton.setType(ButtonType.PRIMARY);
-        rightLockButton.setType(ButtonType.DEFAULT);
-    }
-
-    @UiHandler("rightLockButton")
-    public void rightLockButtonClick(ClickEvent event) {
-        leftLockButton.setEnabled(true);
-        rightLockButton.setEnabled(false);
-        leftLockButton.setType(ButtonType.DEFAULT);
-        rightLockButton.setType(ButtonType.PRIMARY);
     }
 
     private class SearchAndUpdateAssemblagesCallback implements RequestCallback {
