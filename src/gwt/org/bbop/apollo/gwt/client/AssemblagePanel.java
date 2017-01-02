@@ -295,11 +295,14 @@ public class AssemblagePanel extends Composite {
 //        Window.alert("flipping assemblage");
         AssemblageInfo assemblageInfo = assemblageDetailPanel.getAssemblageInfo();
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
-        for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
+        AssemblageSequenceList newAssembalgeSequenceList = new AssemblageSequenceList();
+        int sequenceSize = assemblageSequenceList.size();
+        for(int i = 0 ; i < sequenceSize ; i++){
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
             assemblageSequence.flip();
-            assemblageSequenceList.set(i,assemblageSequence);
+            newAssembalgeSequenceList.set(sequenceSize-i-1,assemblageSequence);
         }
+        assemblageInfo.setSequenceList(newAssembalgeSequenceList);
         Set<AssemblageInfo> assemblageInfoSet = new HashSet<>();
         assemblageInfoSet.add(assemblageInfo);
         assemblageDetailPanel.setAssemblageInfo(assemblageInfoSet);
