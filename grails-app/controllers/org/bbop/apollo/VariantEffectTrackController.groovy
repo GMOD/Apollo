@@ -15,9 +15,11 @@ class VariantEffectTrackController {
             sequenceName = sequenceName + "." + params.format
         }
         Sequence sequence = Sequence.findByName(sequenceName)
+        Integer start = Integer.parseInt(params.start)
+        Integer end = Integer.parseInt(params.end)
         def features = SequenceAlteration.executeQuery(
-                "SELECT DISTINCT sa FROM SequenceAlteration sa JOIN sa.featureLocations fl WHERE fl.sequence =:querySequence AND sa.alterationType =:queryAlterationType",
-                [querySequence: sequence, queryAlterationType: FeatureStringEnum.VARIANT.value])
+                "SELECT DISTINCT sa FROM SequenceAlteration sa JOIN sa.featureLocations fl WHERE fl.fmin >=:queryFmin AND fl.fmax <=:queryFmax AND fl.sequence =:querySequence AND sa.alterationType =:queryAlterationType",
+                [queryFmin: start, queryFmax: end, querySequence: sequence, queryAlterationType: FeatureStringEnum.VARIANT.value])
 
         JSONObject returnJson = new JSONObject()
         returnJson.features = new JSONArray()
