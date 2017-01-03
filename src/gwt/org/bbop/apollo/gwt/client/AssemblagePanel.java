@@ -92,23 +92,17 @@ public class AssemblagePanel extends Composite {
     RadioButton showOnlyScaffoldButton;
     @UiField
     AssemblageDetailPanel assemblageDetailPanel;
-//    @UiField
-//    Button lockButton;
-//    @UiField
-//    Button leftLockButton;
-//    @UiField
-//    Button rightLockButton;
     @UiField
     Button flipAssemblageButton;
 
     private Set<String> usedSequences = new HashSet<>();
 
-    final LoadingDialog loadingDialog;
+    private final LoadingDialog loadingDialog;
     public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
 
     // TODO: probably a more clever way to do this
     private static List<AssemblageInfo> assemblageInfoList = dataProvider.getList();
-    private static Map<String, AssemblageInfo> assemblageInfoMap = new HashMap<>();
+//    private static Map<String, AssemblageInfo> assemblageInfoMap = new HashMap<>();
 
     private MultiSelectionModel<AssemblageInfo> selectionModel = new MultiSelectionModel<AssemblageInfo>();
 
@@ -153,15 +147,7 @@ public class AssemblagePanel extends Composite {
         TextColumn<AssemblageInfo> lengthColumn = new TextColumn<AssemblageInfo>() {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
-//                Long length = assemblageInfo.getLength();
-//                if(assemblageInfo.getName().startsWith("Collapsed")){
                 Long length = ProjectionService.calculatedProjectedLength(assemblageInfo);
-//                if (assemblageInfo.getName().contains("GB52238")) {
-//                    Long realLeath = projection.getLength();
-//                    GWT.log("name: " + assemblageInfo.getName() + " length [" + assemblageInfo.getLength() + "] projected length[" + realLeath + "]");
-//                    GWT.log("sequence string: " + assemblageInfo.getSequenceList().toString());
-//                    GWT.log("projectionString string: " + projection.toString());
-//                }
                 return length == null ? "N/A" : length.toString();
             }
         };
@@ -262,20 +248,12 @@ public class AssemblagePanel extends Composite {
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
         AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(), dataProvider.getList().toArray(new AssemblageInfo[dataProvider.getList().size()]));
-        resetPanel();
     }
 
 
     @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
         AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(), selectionModel.getSelectedSet().toArray(new AssemblageInfo[selectionModel.getSelectedSet().size()]));
-        resetPanel();
-    }
-
-    private void resetPanel() {
-//        dragAndDropPanel.clear();
-//        absolutePanel.clear();
-//        absolutePanel.add(dragAndDropPanel);
     }
 
     /**
@@ -286,13 +264,12 @@ public class AssemblagePanel extends Composite {
     @UiHandler("viewButton")
     public void view(ClickEvent event) {
         JSONObject merge1 = getAssemblagePanelAsJson();
-        MainPanel.updateGenomicViewerForAssemblage(merge1.toString().trim(), -1l, -1l);
+        MainPanel.updateGenomicViewerForAssemblage(merge1.toString().trim(), -1L, -1L);
     }
 
 
     @UiHandler("flipAssemblageButton")
     public void flipAssemblageButtonClick(ClickEvent event) {
-//        Window.alert("flipping assemblage");
         AssemblageInfo assemblageInfo = assemblageDetailPanel.getAssemblageInfo();
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
         AssemblageSequenceList newAssembalgeSequenceList = new AssemblageSequenceList();
@@ -306,6 +283,7 @@ public class AssemblagePanel extends Composite {
         Set<AssemblageInfo> assemblageInfoSet = new HashSet<>();
         assemblageInfoSet.add(assemblageInfo);
         assemblageDetailPanel.setAssemblageInfo(assemblageInfoSet);
+        view(null);
     }
 
 
@@ -337,7 +315,6 @@ public class AssemblagePanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                resetPanel();
                 reload();
             }
 
@@ -367,12 +344,6 @@ public class AssemblagePanel extends Composite {
             // combine the JSONArray now
             AssemblageSequenceList sequence1 = new AssemblageSequenceList(assemblageInfo.getSequenceList());
             AssemblageSequenceList sequence2 = new AssemblageSequenceList(assemblageInfo1.getSequenceList());
-//            if (sequence1 == null) {
-//                assemblageInfo.setSequenceList(sequence2);
-//            } else if (sequence2 == null) {
-//                assemblageInfo.setSequenceList(sequence1);
-//            } else {
-//            }
             sequence1 = sequence1.merge(sequence2);
             assemblageInfo.setSequenceList(sequence1);
 
@@ -384,7 +355,7 @@ public class AssemblagePanel extends Composite {
     }
 
     private void clearAssemblageLocally() {
-        assemblageInfoMap.clear();
+//        assemblageInfoMap.clear();
         assemblageInfoList.clear();
     }
 
@@ -396,7 +367,7 @@ public class AssemblagePanel extends Composite {
 
     private void addAssemblageLocally(List<AssemblageInfo> assemblageInfos) {
         for (AssemblageInfo assemblageInfo : assemblageInfos) {
-            assemblageInfoMap.put(assemblageInfo.getDescription(), assemblageInfo);
+//            assemblageInfoMap.put(assemblageInfo.getDescription(), assemblageInfo);
             assemblageInfoList.add(assemblageInfo);
         }
     }
@@ -464,6 +435,7 @@ public class AssemblagePanel extends Composite {
                 JSONObject jsonObject = jsonValue.get(i).isObject();
                 AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject);
                 addAssemblageLocally(assemblageInfo);
+                searchForAssemblage(null);
             }
 
             loadingDialog.hide();
@@ -477,10 +449,7 @@ public class AssemblagePanel extends Composite {
     }
 
     public void reload() {
-        AssemblageRestService.loadAssemblage(new UpdateAssemblagesCallback());
-        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-        clearUsedSequences();
-        dataGrid.redraw();
+        searchForAssemblage(null);
     }
 
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {

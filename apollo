@@ -167,8 +167,8 @@ function clean_all(){
 
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable handleJBrowse copyResourcesDev devmode &
-    $grails_executable -reloading run-app
+    $gradle_executable handleJBrowse copy-resources copyResourcesDev devmode &
+    $grails_executable run-app
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then

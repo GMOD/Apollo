@@ -53,7 +53,6 @@
 
     </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
-        <!--<gwt:north size="80">-->
         <gwt:north size="50">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row styleName="{style.rowNorth}">
@@ -93,17 +92,12 @@
                                 <b:ButtonGroup>
                                     <b:Button text="Combine" icon="LOCATION_ARROW" enabled="false"
                                               ui:field="mergeButton"/>
-                                    <!--<b:Button text="Duplicate" icon="COPY" enabled="false" ui:field="copyButton"/>-->
                                     <b:Button text="Delete" icon="REMOVE" enabled="false" ui:field="removeButton"/>
                                     <b:Button text="Save" icon="SAVE" enabled="false" ui:field="saveButton"/>
                                     <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
                                 </b:ButtonGroup>
                                 <b:ButtonGroup>
-                                    <!--<b:Button icon="ARROW_LEFT" enabled="false" ui:field="leftLockButton" type="DEFAULT" />-->
-                                    <!--<b:Button text="Lock" icon="LOCK" enabled="false" ui:field="lockButton" type="DEFAULT" dataToggle="BUTTON"/>-->
-                                    <!--<b:Button icon="ARROW_RIGHT" enabled="false" ui:field="rightLockButton" type="DEFAULT"/>-->
                                     <b:Button icon="EXCHANGE" enabled="false" ui:field="flipAssemblageButton" type="DEFAULT"/>
-                                    <!--<b:Button icon="REPEAT" enabled="false" ui:field="flipAssemblageButton" type="DEFAULT"/>-->
                                 </b:ButtonGroup>
                             </b:Column>
                         </b:Row>
