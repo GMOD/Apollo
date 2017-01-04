@@ -94,7 +94,12 @@ class PreferenceService {
 
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
-            Assemblage assemblage = Assemblage.findByOrganism(organism) ?: assemblageService.generateAssemblageForSequence(organism.sequences.first())
+            def sequences = Sequence.findAllByOrganism(organism)
+            if(!sequences){
+                log.warn "Sequences not loaded for organism ${organism.commonName}, so not setting preference for user ${user.username}."
+                return
+            }
+            Assemblage assemblage = Assemblage.findByOrganism(organism) ?: assemblageService.generateAssemblageForSequence(sequences.first())
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
