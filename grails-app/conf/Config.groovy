@@ -389,7 +389,7 @@ auditLog {
 jbrowse {
     git {
 //        url= "https://github.com/gmod/jbrowse"
-//        tag = "9334e76fd7530681fa2dcc71d4440141e1414cfd"
+//        tag = "baaf898e51dc2ebb61a8b0a369a90742f259218c"
 //		tag = "1.12.2-apollo"
         url= "https://github.com/nathandunn/jbrowse"
 //        tag = "1.12.2-apollo"
