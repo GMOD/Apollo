@@ -173,24 +173,15 @@ class JbrowseController {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
                     Assemblage assemblage = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
-//                    Sequence sequence = organism?.sequences?.first()
                     JSONArray sequenceArray = new JSONArray()
                     if (userOrganismPreference == null) {
-//                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
                         List<Sequence> sequences = organism?.sequences
                         sequences.each {
                             JSONObject jsonObject = new JSONObject()
                             jsonObject.name = it.name
                             sequenceArray.add(jsonObject)
                         }
-//
-//                    if (userOrganismPreference == null) {
-//                        Assemblage assemblage = new Assemblage(
-//                                organism: organism
-//                                , sequenceList: sequenceArray.toString()
-//                                , user: user
-//                        ).save(insert: true, flush: true, failOnError: true)
-                        userOrganismPreference = new UserOrganismPreference(
+                        new UserOrganismPreference(
                                 user: user
                                 , organism: organism
                                 , assemblage: assemblage

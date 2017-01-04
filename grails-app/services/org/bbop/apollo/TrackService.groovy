@@ -249,7 +249,7 @@ class TrackService {
         return coordinateJsonArray
     }
 
-    def JSONObject loadTrackData(String path, String refererLoc, Organism currentOrganism) {
+    JSONObject loadTrackData(String path, String refererLoc, Organism currentOrganism) {
         File file = new File(path)
         String inputText = file.text
         JSONObject trackDataJsonObject = new JSONObject(inputText)
