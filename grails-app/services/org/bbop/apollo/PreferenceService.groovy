@@ -94,11 +94,12 @@ class PreferenceService {
 
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
+            Assemblage assemblage = Assemblage.findByOrganism(organism) ?: assemblageService.generateAssemblageForSequence(organism.sequences.first())
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , assemblage: Assemblage.findByOrganism(organism)
+                    , assemblage:assemblage
                     , clientToken: clientToken
             ).save(flush: true, insert: true)
         } else if (!userOrganismPreference.currentOrganism) {
