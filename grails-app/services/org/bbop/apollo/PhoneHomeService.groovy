@@ -18,7 +18,7 @@ class PhoneHomeService {
      */
     def pingServer(String message = null ,Map<String,String> argMap = [:]) {
         if(!configWrapperService.phoneHome) {
-            println("Not phonning home")
+            println("Not phoning home")
             return
         }
 
@@ -46,7 +46,7 @@ class PhoneHomeService {
             def responseJson = new JsonSlurper().parse(apiUrl)
             return responseJson
         } catch (e) {
-            log.warn("Not phoning phone due to error: "+e.toString())
+            log.warn("Not phoning home due to error: "+e.toString())
         }
     }
 }
