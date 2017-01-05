@@ -33,6 +33,20 @@ define([
                 makeTrackMenu: function () {
                 },
 
+                /**
+                 *  Stub.
+                 */
+                startZoom: function (destScale, destStart, destEnd) {
+                    this.clear();
+                },
+
+                /**
+                 * Stub.
+                 */
+                endZoom: function (destScale, destBlockBases) {
+                    this.clear();
+                },
+
                 renderGridlines: function(block,leftBase,rightBase,seq) {
                     var base_span = rightBase-leftBase;
                     var minor_count =
