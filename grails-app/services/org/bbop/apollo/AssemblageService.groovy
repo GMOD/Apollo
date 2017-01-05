@@ -335,9 +335,10 @@ class AssemblageService {
         if (assemblage == null) {
             log.info "creating assemblage from ${jsonObject as JSON} "
             assemblage = new Assemblage()
-        } else {
-            return assemblage
         }
+//        else {
+//            return assemblage
+//        }
 //        assemblage.id = jsonObject.id
         assemblage.projection = jsonObject.projection
         assemblage.sequenceList = lookupString

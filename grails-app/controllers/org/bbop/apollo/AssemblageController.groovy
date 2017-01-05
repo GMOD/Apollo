@@ -20,7 +20,7 @@ class AssemblageController {
     def featureProjectionService
 
     @Transactional
-    def list() {
+    list() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
         if (Organism.count > 0) {
@@ -121,7 +121,7 @@ class AssemblageController {
     }
 
     @Transactional
-    def addAssemblage() {
+    addAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         Assemblage assemblage = assemblageService.convertJsonToAssemblage(inputObject)
         // this will save a new assemblage
@@ -132,14 +132,14 @@ class AssemblageController {
     }
 
     @Transactional
-    def addAssemblageAndReturn() {
+    addAssemblageAndReturn() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         Assemblage assemblage = assemblageService.convertJsonToAssemblage(inputObject)
         render assemblageService.convertAssemblageToJson(assemblage) as JSON
     }
 
     @Transactional
-    def saveAssemblage() {
+    saveAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         Assemblage storedAssemblage = assemblageService.convertJsonToAssemblage(inputObject)
         // this will save a new assemblage
@@ -147,7 +147,7 @@ class AssemblageController {
     }
 
     @Transactional
-    def deleteAssemblage() {
+    deleteAssemblage() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
 
