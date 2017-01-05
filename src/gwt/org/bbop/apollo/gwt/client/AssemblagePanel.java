@@ -24,7 +24,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -42,11 +41,8 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.projection.ProjectionService;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
-import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.RadioButton;
-import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.*;
@@ -105,6 +101,7 @@ public class AssemblagePanel extends Composite {
 //    private static Map<String, AssemblageInfo> assemblageInfoMap = new HashMap<>();
 
     private MultiSelectionModel<AssemblageInfo> selectionModel = new MultiSelectionModel<AssemblageInfo>();
+    private boolean loadingAssemblages = false;
 
     public AssemblagePanel() {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
@@ -126,8 +123,8 @@ public class AssemblagePanel extends Composite {
                 if (name == null || name.startsWith("Unnamed")) {
                     return "Unnamed";
                 }
-                if(name.length()>50){
-                    return name.substring(0,50)+"...";
+                if (name.length() > 50) {
+                    return name.substring(0, 50) + "...";
                 }
                 return name;
             }
@@ -231,7 +228,8 @@ public class AssemblagePanel extends Composite {
     }
 
     public Set<String> getUsedSequences() {
-        if (usedSequences.size() == 0) {
+
+        if (usedSequences.size() == 0 && !loadingAssemblages) {
             for (AssemblageInfo assemblageInfo : dataProvider.getList()) {
                 if (assemblageInfo.getSequenceList().size() > 1) {
                     for (int i = 0; i < assemblageInfo.getSequenceList().size(); i++) {
@@ -274,10 +272,10 @@ public class AssemblagePanel extends Composite {
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
         AssemblageSequenceList newAssembalgeSequenceList = new AssemblageSequenceList();
         int sequenceSize = assemblageSequenceList.size();
-        for(int i = 0 ; i < sequenceSize ; i++){
+        for (int i = 0; i < sequenceSize; i++) {
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
             assemblageSequence.flip();
-            newAssembalgeSequenceList.set(sequenceSize-i-1,assemblageSequence);
+            newAssembalgeSequenceList.set(sequenceSize - i - 1, assemblageSequence);
         }
         assemblageInfo.setSequenceList(newAssembalgeSequenceList);
         Set<AssemblageInfo> assemblageInfoSet = new HashSet<>();
@@ -429,16 +427,23 @@ public class AssemblagePanel extends Composite {
         @Override
         public void onResponseReceived(Request request, Response response) {
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
-            clearAssemblageLocally();
 
-            for (int i = 0; jsonValue != null && i < jsonValue.size(); i++) {
-                JSONObject jsonObject = jsonValue.get(i).isObject();
-                AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject);
-                addAssemblageLocally(assemblageInfo);
-                searchForAssemblage(null);
+            loadingAssemblages = true;
+            try {
+                clearAssemblageLocally();
+
+                for (int i = 0; jsonValue != null && i < jsonValue.size(); i++) {
+                    JSONObject jsonObject = jsonValue.get(i).isObject();
+                    AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject);
+                    addAssemblageLocally(assemblageInfo);
+                    searchForAssemblage(null);
+                }
+
+                loadingDialog.hide();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            loadingDialog.hide();
+            loadingAssemblages = false;
         }
 
         @Override
@@ -490,12 +495,14 @@ public class AssemblagePanel extends Composite {
     private class SearchAndUpdateAssemblagesCallback implements RequestCallback {
         @Override
         public void onResponseReceived(Request request, Response response) {
+            loadingAssemblages = true ;
             JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
             clearAssemblageLocally();
 
             // adding assemblages from response
             addAssemblageLocally(AssemblageInfoConverter.convertFromJsonArray(jsonValue));
             loadingDialog.hide();
+            loadingAssemblages = false ;
         }
 
         @Override

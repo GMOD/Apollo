@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
