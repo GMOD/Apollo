@@ -22,10 +22,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
-import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
-import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
@@ -74,7 +71,7 @@ public class MainPanel extends Composite {
 
 
     private static MainPanel instance;
-    private int maxUsernameLength = 15;
+    private final int MAX_USERNAME_LENGTH = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
     private static List<String> reservedList = new ArrayList<>();
@@ -190,10 +187,11 @@ public class MainPanel extends Composite {
             }
         });
 
-//        currentSequenceLabel.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
 //            @Override
-//            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-//                setCurrentSequence(currentSequenceLabel.getText().trim(), null, null, true, false);
+//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
+//                Window.alert(organismChangeEvent.getAssociatedType().toString());
+//                Window.alert(organismChangeEvent.getAction().toString());
 //            }
 //        });
 
@@ -302,8 +300,6 @@ public class MainPanel extends Composite {
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
-//                    updateGenomicViewer();
-//                    updateGenomicViewerForAssemblage();
                     updateGenomicViewerForAssemblage(currentAssemblage,currentStartBp,currentEndBp,true);
                 }
                 if (blocking) {
@@ -442,8 +438,8 @@ public class MainPanel extends Composite {
     private void setUserNameForCurrentUser() {
         if (currentUser == null) return;
         String displayName = currentUser.getEmail();
-        userName.setText(displayName.length() > maxUsernameLength ?
-                displayName.substring(0, maxUsernameLength - 1) + "..." : displayName);
+        userName.setText(displayName.length() > MAX_USERNAME_LENGTH ?
+                displayName.substring(0, MAX_USERNAME_LENGTH - 1) + "..." : displayName);
     }
 
     public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion) {
@@ -555,8 +551,9 @@ public class MainPanel extends Composite {
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
         trackListString += "&locationBox=none";
-
         frame.setUrl(trackListString);
+
+        setLabelForCurrentAssemblage();
     }
 
 
@@ -913,9 +910,6 @@ public class MainPanel extends Composite {
         Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), TabPanelIndex.ASSEMBLAGE.getIndex());
         reloadTabPerIndex(TabPanelIndex.ASSEMBLAGE.getIndex());
         assemblagePanel.setAssemablageInfo(currentAssemblage);
-
-//        SelectionEvent<Integer> selectionEvent = SelectionEvent.getType();
-//        onSelection(selectionEvent);
     }
 
 
