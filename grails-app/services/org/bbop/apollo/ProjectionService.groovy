@@ -397,7 +397,7 @@ class ProjectionService {
      * @return
      */
     @Transactional
-    def getProjection(String putativeProjectionLoc, Organism organism) {
+    MultiSequenceProjection getProjection(String putativeProjectionLoc, Organism organism) {
         if (AssemblageService.isProjectionString(putativeProjectionLoc)) {
             JSONObject assemblageJsonObject = convertProjectionToAssemblageJsonObject(putativeProjectionLoc, organism)
             return getProjection(assemblageJsonObject)
@@ -494,13 +494,15 @@ class ProjectionService {
 
     // TODO: constant / read-only, so could always move to a database cache
     @NotTransactional
-    def cacheProjection(String projectionString, MultiSequenceProjection multiSequenceProjection) {
-        multiSequenceProjectionMap.put(getSequenceListJSON(projectionString).toString(), multiSequenceProjection)
+    void cacheProjection(String projectionString, MultiSequenceProjection multiSequenceProjection) {
+        String key = getSequenceListJSON(projectionString).toString()
+        multiSequenceProjectionMap.put(key, multiSequenceProjection)
     }
 
     @NotTransactional
     MultiSequenceProjection getCachedProjection(String projectionString) {
-        return multiSequenceProjectionMap.get(getSequenceListJSON(projectionString))
+        String key = getSequenceListJSON(projectionString).toString()
+        return multiSequenceProjectionMap.get(key)
     }
 
 /**

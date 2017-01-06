@@ -11,7 +11,6 @@ public class MultiSequenceProjection extends AbstractProjection {
 
     private TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>();
 
-    private List<String> chunks = new ArrayList<>();
     public ProjectionChunkList projectionChunkList = new ProjectionChunkList();
 
     public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
