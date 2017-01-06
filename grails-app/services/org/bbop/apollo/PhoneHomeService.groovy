@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.async.Promise
+import static grails.async.Promises.*
 import grails.transaction.Transactional
 import groovy.json.JsonSlurper
 

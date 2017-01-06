@@ -2,8 +2,6 @@ import org.bbop.apollo.FeatureType
 import org.bbop.apollo.Role
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
-import static grails.async.Promises.*
-import grails.async.Promise
 
 
 
