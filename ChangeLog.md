@@ -10,6 +10,8 @@ Bugfixes
 + Failure to load tracks when switching organisms with identical Sequence IDs #1391
 + Unable to add organism from script without pre-existing web-services #1388
 + When logged clicking on JBrowse will not load the Annotator Panel #1395
++ server_data may lock some times in dev mode #1419
+
 
 ## 2.0.5
 
