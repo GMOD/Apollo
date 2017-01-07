@@ -15,8 +15,8 @@ define( [
             'dojo/query',
             'jquery',
             'jqueryui/draggable',
-            'JBrowse/Util',
-            'JBrowse/Model/SimpleFeature',
+            'JBrowse/Util', 
+            'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils'
         ],
     function( declare,
@@ -25,7 +25,7 @@ define( [
         FeatureSelectionManager,
         FASTAView,
         dijitMenu,
-        dijitMenuItem,
+        dijitMenuItem, 
         dijitCheckedMenuItem,
         dijitMenuSeparator,
         dijitPopupMenuItem,
@@ -35,10 +35,9 @@ define( [
         query,
         $,
         draggable,
-        Util,
+        Util, 
         SimpleFeature,
-        SeqOnto
-    ) {
+        SeqOnto ) {
 
 var debugFrame = false;
 
@@ -54,35 +53,35 @@ var draggableTrack = declare( HTMLFeatureTrack,
             {
                 style: {
             // className: "{type}",   // feature classname gets set to feature.get('type')
-                    className: "container-16px",
-                    renderClassName: "gray-center-30pct",
-                    arrowheadClass: "webapollo-arrowhead",
+                    className: "container-16px", 
+                    renderClassName: "gray-center-30pct annot-apollo",
+                    arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
-                        UTR: "webapollo-UTR",
-                        CDS: "webapollo-CDS",
-                        exon: "container-100pct",
+                        UTR: "webapollo-UTR",   
+                        CDS: "webapollo-CDS",   
+                        exon: "container-100pct", 
                         intron: null,
-                        wholeCDS: null,
-                        start_codon: null,
-                        stop_codon: null,
+                        wholeCDS: null, 
+                        start_codon: null, 
+                        stop_codon: null, 
                         match_part: "darkblue-80pct"
-                    },
+                    }, 
 
                     // renderClassName: 'DraggableFeatureTrack'  ???
-                    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn,
-                    minSubfeatureWidth: 1,
+                    // setting minSubfeatureWidth to 1 insures subfeatures will almost always get drawn, 
+                    minSubfeatureWidth: 1, 
                     centerChildrenVertically: false
                 },
                 events: {
-                    // need to map click to a null-op, to override default JBrowse click behavior for click on features
+                    // need to map click to a null-op, to override default JBrowse click behavior for click on features 
                     //     (JBrowse default is feature detail popup)
                     click:     function(event) {
-                        // not quite a null-op, also need to suprress propagation of click recursively up through parent divs,
+                        // not quite a null-op, also need to suprress propagation of click recursively up through parent divs, 
                         //    in order to stop default JBrowse behavior for click on tracks (which is to recenter view at click point)
                         event.stopPropagation();
                     }
-                    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events,
-                    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with
+                    // WebApollo can't set up mousedown --> onFeatureMouseDown() in config.events, 
+                    //     because dojo.on used by JBrowse config-based event setup doesn't play nice with 
                     //     JQuery event retriggering via _mousedown() for feature drag bootstrapping
                     // also, JBrowse only sets these events for features, and WebApollo needs them to trigger for subfeatures as well
                     // , mousedown: dojo.hitch( this, 'onFeatureMouseDown' ),
@@ -110,7 +109,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // CSS class for selected features
         // override if want subclass to have different CSS class for selected features
         this.selectionClass = "selected-feature";
-
+        
         //  DraggableFeatureTrack.selectionManager.addListener(this);
 
         this.last_whitespace_mousedown_loc = null;
@@ -123,11 +122,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
         this.verbose_drag = false;
         this.drag_enabled = true;
 
-        this.feature_context_menu = null;
+        this.feature_context_menu = null; 
 
-        /** hack to determine which tracks to apply edge matching to
-            would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures),
-                but use of dojo.declare() for classes means track object's class is actually base Object.
+        /** hack to determine which tracks to apply edge matching to 
+            would rather do a check for whether track is instance of DraggableHTMLFeatures (or possibly HTMLFeatures), 
+                but use of dojo.declare() for classes means track object's class is actually base Object. 
         */
         this.edge_matching_enabled = true;
 

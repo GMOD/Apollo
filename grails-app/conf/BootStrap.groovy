@@ -3,6 +3,8 @@ import org.bbop.apollo.Role
 import org.bbop.apollo.UserService
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
+
+
 class BootStrap {
 
     def sequenceService
@@ -26,7 +28,6 @@ class BootStrap {
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
-        phoneHomeService.pingServer(org.bbop.apollo.PhoneHomeEnum.START.value)
 
 
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
@@ -50,6 +51,8 @@ class BootStrap {
         if(admin){
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
+
+        phoneHomeService.pingServerAsync(org.bbop.apollo.PhoneHomeEnum.START.value)
 
     }
     def destroy = {

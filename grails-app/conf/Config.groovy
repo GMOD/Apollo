@@ -178,8 +178,6 @@ log4j.main = {
     //debug 'grails.app.services.org.bbop.apollo.FeatureService'
     info 'grails.app.controllers.org.bbop.apollo.GroupController'
     info 'grails.app.controllers.org.bbop.apollo.UserController'
-//    debug 'grails.app.services.org.bbop.apollo.FeatureService'
-//    debug 'grails.app.services.org.bbop.apollo.ProjectionService'
     //info 'grails.app.services'
     //debug 'grails.app.jobs'
     //debug 'grails.app.taglib'
@@ -385,7 +383,7 @@ auditLog {
 
 
 
-// Default JBrowse configuration
+// Default JBrowse configuration 
 jbrowse {
     git {
 //        url= "https://github.com/gmod/jbrowse"
@@ -414,7 +412,7 @@ jbrowse {
         }
         NeatHTMLFeatures{
             included = true
-            linearGradient = 0
+//            linearGradient = 0
         }
         NeatCanvasFeatures{
             included = true

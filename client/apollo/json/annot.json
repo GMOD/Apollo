@@ -1,12 +1,12 @@
 {
-  "plugins": [
-    {
-      "location": "./plugins/WebApollo",
-      "name": "WebApollo"
-    }
-  ],
-  "share_link": 0,
-  "tracks": [
+    "plugins" : [
+      {
+         "location" : "./plugins/WebApollo",
+         "name" : "WebApollo"
+      }
+   ],
+    "share_link" : 0,
+    "tracks" : [
     {
       "label": "Projection Legend",
       "key": "Projection Legend",
@@ -97,38 +97,38 @@
         "arrowheadClass": "annot-arrowhead",
         "alternateClasses": {
           "transposable_element": {
-            "renderClassName": "blue-ibeam-render",
+            "renderClassName": "blue-ibeam-render annot-apollo",
             "className": "blue-ibeam"
           },
           "pseudogene": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "light-purple-80pct"
           },
           "snRNA": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "brightgreen-80pct"
           },
           "rRNA": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "brightgreen-80pct"
           },
           "snoRNA": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "brightgreen-80pct"
           },
           "repeat_region": {
             "className": "magenta-80pct"
           },
           "ncRNA": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "brightgreen-80pct"
           },
           "miRNA": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "brightgreen-80pct"
           },
           "tRNA": {
-            "renderClassName": "gray-center-30pct",
+            "renderClassName": "gray-center-30pct annot-apollo",
             "className": "brightgreen-80pct"
           }
         },
