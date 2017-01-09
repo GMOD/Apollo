@@ -97,7 +97,8 @@ public class AssemblagePanel extends Composite {
     public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
 
     // TODO: probably a more clever way to do this
-    private static List<AssemblageInfo> assemblageInfoList = dataProvider.getList();
+    private static List<AssemblageInfo> assemblageInfoList = new ArrayList<>();
+    private static List<AssemblageInfo> assemblageInfoListFiltered = dataProvider.getList();
 //    private static Map<String, AssemblageInfo> assemblageInfoMap = new HashMap<>();
 
     private MultiSelectionModel<AssemblageInfo> selectionModel = new MultiSelectionModel<AssemblageInfo>();
@@ -180,7 +181,7 @@ public class AssemblagePanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
 
 
-        ColumnSortEvent.ListHandler<AssemblageInfo> sortHandler = new ColumnSortEvent.ListHandler<AssemblageInfo>(assemblageInfoList);
+        ColumnSortEvent.ListHandler<AssemblageInfo> sortHandler = new ColumnSortEvent.ListHandler<AssemblageInfo>(assemblageInfoListFiltered);
         dataGrid.addColumnSortHandler(sortHandler);
 
         sortHandler.setComparator(nameColumn, new Comparator<AssemblageInfo>() {
@@ -365,9 +366,9 @@ public class AssemblagePanel extends Composite {
 
     private void addAssemblageLocally(List<AssemblageInfo> assemblageInfos) {
         for (AssemblageInfo assemblageInfo : assemblageInfos) {
-//            assemblageInfoMap.put(assemblageInfo.getDescription(), assemblageInfo);
             assemblageInfoList.add(assemblageInfo);
         }
+        filterList();
     }
 
     void setAssemablageInfo(AssemblageInfo currentAssemblage) {
@@ -463,10 +464,40 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("searchBox")
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
-        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(), getFilter());
-        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-        clearUsedSequences();
+        AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
+//        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(), getFilter());
+//        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+//        clearUsedSequences();
+//        dataGrid.redraw();
+    }
+
+
+    private void filterList() {
+        String text = searchBox.getText();
+        assemblageInfoListFiltered.clear();
+        for (AssemblageInfo assemblageInfo: assemblageInfoList) {
+            if (assemblageInfo.getName().toLowerCase().contains(text.toLowerCase())
+                    && typeMatches(assemblageInfo)
+                    )
+            {
+                assemblageInfoListFiltered.add(assemblageInfo);
+//                Integer filteredIndex = assemblageInfoList.indexOf(assemblageInfo);
+//                if( filteredIndex < 0 ){
+//                    filteredTrackInfoList.add(trackInfo);
+//                }
+//                else{
+//                    filteredTrackInfoList.get(filteredIndex).setVisible(trackInfo.getVisible());
+//                }
+            }
+            else{
+                assemblageInfoListFiltered.remove(assemblageInfo);
+            }
+        }
         dataGrid.redraw();
+    }
+
+    private boolean typeMatches(AssemblageInfo assemblageInfo) {
+        return assemblageInfo.getType().equals(getFilter());
     }
 
     private String getFilter() {
