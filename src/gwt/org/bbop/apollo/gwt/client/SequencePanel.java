@@ -348,7 +348,6 @@ public class SequencePanel extends Composite {
         long end = 0;
         for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
             assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
-            assemblageInfo.setType("Exon");
             AssemblageSequence sequenceObject = new AssemblageSequence();
             sequenceObject.setName(sequenceInfo.getName());
             sequenceObject.setStart(sequenceInfo.getStart());

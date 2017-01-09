@@ -32,6 +32,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import org.bbop.apollo.gwt.client.assemblage.AssemblageDetailPanel;
+import org.bbop.apollo.gwt.client.assemblage.AssemblageType;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
@@ -465,10 +466,7 @@ public class AssemblagePanel extends Composite {
     @UiHandler("searchBox")
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
         AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
-//        AssemblageRestService.searchAssemblage(new SearchAndUpdateAssemblagesCallback(), searchBox.getText(), getFilter());
-//        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-//        clearUsedSequences();
-//        dataGrid.redraw();
+        filterList();
     }
 
 
@@ -497,20 +495,34 @@ public class AssemblagePanel extends Composite {
     }
 
     private boolean typeMatches(AssemblageInfo assemblageInfo) {
-        return assemblageInfo.getType().equals(getFilter());
+        if(getFilter()==null ) return true ;
+
+        AssemblageType assemblageType = inferType(assemblageInfo);
+
+        return assemblageType.equals(getFilter());
     }
 
-    private String getFilter() {
+    private AssemblageType inferType(AssemblageInfo assemblageInfo) {
+        int sequenceCount = assemblageInfo.getSequenceList().size();
+        for(int i = 0 ; i < sequenceCount ; i++){
+            if(assemblageInfo.getSequenceList().getSequence(i).getFeature()!=null){
+                return AssemblageType.FEATURE;
+            }
+        }
+        return sequenceCount==1 ? AssemblageType.SCAFFOLD : AssemblageType.COMBINED;
+    }
+
+    private AssemblageType getFilter() {
         if (showOnlyScaffoldButton.isActive()) {
-            return "Scaffold";
+            return AssemblageType.SCAFFOLD;
         }
         if (showOnlyCombinedButton.isActive()) {
-            return "Combined";
+            return AssemblageType.COMBINED;
         }
         if (showOnlyFeatureButton.isActive()) {
-            return "Feature";
+            return AssemblageType.FEATURE;
         }
-        return "";
+        return null;
     }
 
     @UiHandler({"showOnlyScaffoldButton", "showOnlyCombinedButton", "showOnlyFeatureButton", "showAllAssemblagesButton"})
@@ -534,6 +546,7 @@ public class AssemblagePanel extends Composite {
             addAssemblageLocally(AssemblageInfoConverter.convertFromJsonArray(jsonValue));
             loadingDialog.hide();
             loadingAssemblages = false ;
+            filterList();
         }
 
         @Override

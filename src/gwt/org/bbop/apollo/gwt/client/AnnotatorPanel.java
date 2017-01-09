@@ -438,10 +438,8 @@ public class AnnotatorPanel extends Composite {
         AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
 
         assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
-        assemblageInfo.setType("Exon");
 
         SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
-//        sequenceObject.setReverseComplement(false);
         sequenceObject.setName(annotationInfo.getSequence());
         sequenceObject.setStart(annotationInfo.getMin());
         sequenceObject.setEnd(annotationInfo.getMax());
