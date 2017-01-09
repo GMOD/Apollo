@@ -29,6 +29,7 @@ class BootStrap {
         proxyService.initProxies()
 
 
+
         SequenceTranslationHandler.spliceDonorSites.addAll(configWrapperService.spliceDonorSites)
         SequenceTranslationHandler.spliceAcceptorSites.addAll(configWrapperService.spliceAcceptorSites)
 

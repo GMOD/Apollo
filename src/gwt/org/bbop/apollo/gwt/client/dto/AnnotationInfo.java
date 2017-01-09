@@ -3,14 +3,16 @@ package org.bbop.apollo.gwt.client.dto;
 import java.util.*;
 
 /**
- * Created by ndunn on 1/27/15.
+ * Created by Nathan Dunn on 1/27/15.
+ *
+ * TODO: add a SequenceInfo object instead of string
  */
 public class AnnotationInfo {
     private String uniqueName;
     private String name;
     private String type;
-    private Integer min;
-    private Integer max;
+    private Long min;
+    private Long max;
     private Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
     private String symbol;
     private String description;
@@ -30,6 +32,22 @@ public class AnnotationInfo {
             return "";
         }
         return owner;
+    }
+
+    public Long getMin() {
+        return min;
+    }
+
+    public void setMin(Long min) {
+        this.min = min;
+    }
+
+    public Long getMax() {
+        return max;
+    }
+
+    public void setMax(Long max) {
+        this.max = max;
     }
 
     public void setOwner(String owner) {
@@ -52,32 +70,16 @@ public class AnnotationInfo {
         return type;
     }
 
-    public Integer getLength() {
+    public Long getLength() {
         if (min != null && max != null) {
             return max - min;
         }
-        return -1;
+        return -1l;
     }
 
     public void setDate(String date) { this.date = date; }
 
     public String getDate() { return date; }
-
-    public Integer getMin() {
-        return min;
-    }
-
-    public void setMin(Integer min) {
-        this.min = min;
-    }
-
-    public Integer getMax() {
-        return max;
-    }
-
-    public void setMax(Integer max) {
-        this.max = max;
-    }
 
     public String getUniqueName() {
         return uniqueName;

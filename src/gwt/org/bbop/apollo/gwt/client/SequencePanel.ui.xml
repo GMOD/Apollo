@@ -73,8 +73,15 @@
         <gwt:north size="210">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_6" styleName="{style.widgetPanel}">
-                        <b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:TextBox placeholder="Search" width="150px" ui:field="nameSearchBox"/>
+                    </b:Column>
+                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
+                        <!--<b:ButtonGroup>-->
+                            <b:Button type="PRIMARY" ui:field="assemblageButton" icon="BOOKMARK" size="EXTRA_SMALL" title="Add new assemblage" text="+" enabled="false" addStyleNames="bookmark-buttons right-space"/>
+                            <b:Button type="PRIMARY" icon="EYE" text="+" title="Add to view" size="EXTRA_SMALL" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
+                            <b:Button type="PRIMARY" icon="EYE" title="View" ui:field="viewSequence" size="EXTRA_SMALL" enabled="false" addStyleNames="bookmark-buttons"/>
+                        <!--</b:ButtonGroup>-->
                     </b:Column>
                 </b:Row>
                 <b:Row paddingTop="4">
@@ -93,7 +100,7 @@
                 <b:Row>
                     <b:Column size="MD_2">
                         <gwt:HTML>
-                            <h5>Export</h5>
+                            <h5>Type</h5>
                         </gwt:HTML>
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
@@ -104,18 +111,20 @@
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton" width="56px">CHADO</b:Button>
                         </b:ButtonGroup>
                     </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_2">
+                        <gwt:HTML>
+                            <h5>Export</h5>
+                        </gwt:HTML>
+                    </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:Row marginLeft="1">
-                            <select:MultipleSelect ui:field="selectedSequenceDisplay" liveSearch="true" maxOptions="5"
-                                                   enabled="false" title="Selected sequences" width="165px"
-                                                   marginLeft="1"
+                        <select:MultipleSelect ui:field="selectedSequenceDisplay" liveSearch="true" maxOptions="5"
+                                       enabled="false"  title="Selected sequences" width="165px"
+                                       marginLeft="1"
 
-                            />
-                            <!--<select:Select ui:field="selectedSequenceDisplay" liveSearch="true" visibleSize="5"-->
-                            <!--enabled="false"  title="Selected sequences" width="165px"-->
-                            <!--marginLeft="1"-->
-
-                            <!--/>-->
+                        />
                         </b:Row>
                         <b:ButtonGroup>
                             <b:Button ui:field="clearSelectionButton" icon="BAN" size="EXTRA_SMALL"
@@ -126,6 +135,9 @@
                                       enabled="false" width="100px"/>
                         </b:ButtonGroup>
 
+                    </b:Column>
+                    <b:Column size="MD_4">
+                        <b:Alert ui:field="panelMessage" visible="false" dismissable="true"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

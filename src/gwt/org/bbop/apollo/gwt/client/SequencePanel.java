@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -25,14 +26,20 @@ import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults;
+import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
@@ -45,7 +52,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class SequencePanel extends Composite {
 
@@ -87,6 +94,14 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
     @UiField
     Button exportChadoButton;
+    @UiField
+    Button assemblageButton;
+    @UiField
+    Alert panelMessage;
+    @UiField
+    Button addToView;
+    @UiField
+    Button viewSequence;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -110,7 +125,7 @@ public class SequencePanel extends Composite {
 
         Column<SequenceInfo, Number> lengthColumn = new Column<SequenceInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(SequenceInfo object) {
+            public Long getValue(SequenceInfo object) {
                 return object.getLength();
             }
         };
@@ -143,8 +158,10 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
+                    enableAssemblages(true);
                 } else {
                     exportSelectedButton.setText("Selected");
+                    enableAssemblages(false);
                 }
                 exportSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
                 selectSelectedButton.setEnabled(selectedSequenceInfo.size() > 0);
@@ -176,7 +193,7 @@ public class SequencePanel extends Composite {
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Bootbox.alert("error getting sequence info: " + exception);
+                        Bootbox.alert("Error getting sequence info: " + exception);
                     }
                 };
 
@@ -206,26 +223,8 @@ public class SequencePanel extends Composite {
         dataGrid.addDomHandler(new DoubleClickHandler() {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
-                Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
-                if (sequenceInfoSet.size() == 1) {
-                    final SequenceInfo sequenceInfo = sequenceInfoSet.iterator().next();
-
-                    RequestCallback requestCallback = new RequestCallback() {
-                        @Override
-                        public void onResponseReceived(Request request, Response response) {
-                            if (sequenceInfo != null) {
-                                OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
-                            }
-                        }
-
-                        @Override
-                        public void onError(Request request, Throwable exception) {
-                            Bootbox.alert("Error setting current sequence: " + exception);
-                        }
-                    };
-                    SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
-
-                }
+                // can only double-click on a single one really
+                viewSingleSequence();
             }
         }, DoubleClickEvent.getType());
 
@@ -244,9 +243,6 @@ public class SequencePanel extends Composite {
                         }
                     });
                 }
-//                else {
-//                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
-//                }
             }
         });
 
@@ -293,6 +289,101 @@ public class SequencePanel extends Composite {
                 return true ;
             }
         },100);
+
+    }
+
+    private void viewSingleSequence(){
+        final SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if (sequenceInfo != null) {
+                    OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error setting current sequence: " + exception);
+            }
+        };
+        SequenceRestService.setCurrentSequence(requestCallback, sequenceInfo);
+    }
+
+
+    private void enableAssemblages(boolean b) {
+        assemblageButton.setEnabled(b);
+        addToView.setEnabled(b);
+        viewSequence.setEnabled(b);
+    }
+
+    @UiHandler("addToView")
+    void addSequenceToView(ClickEvent clickEvent) {
+        Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
+        // send sequences and current assemblage and return a new current assemblage to view
+        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage().addSequenceInfoSet(sequenceInfoSet);
+        AssemblageRestService.addAssemblageAndView(assemblageInfo);
+    }
+
+    @UiHandler("viewSequence")
+    void viewSequence(ClickEvent clickEvent) {
+        if(multiSelectionModel.getSelectedSet().size()==1){
+            viewSingleSequence();
+        }
+        else{
+            AssemblageInfo assemblageInfo = new AssemblageInfo();
+            assemblageInfo.addSequenceInfoSet(multiSelectionModel.getSelectedSet());
+            AssemblageRestService.addAssemblageAndView(assemblageInfo);
+        }
+    }
+
+
+    @UiHandler("assemblageButton")
+    void addNewAssemblage(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
+        StringBuilder nameBuffer = new StringBuilder();
+        long start = 0;
+        long end = 0;
+        for (SequenceInfo sequenceInfo : multiSelectionModel.getSelectedSet()) {
+            assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
+            assemblageInfo.setType("Exon");
+            AssemblageSequence sequenceObject = new AssemblageSequence();
+            sequenceObject.setName(sequenceInfo.getName());
+            sequenceObject.setStart(sequenceInfo.getStart());
+            sequenceObject.setEnd(sequenceInfo.getEnd());
+//            sequenceObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(sequenceInfo.getDescription()));
+            sequenceArray.addSequence(sequenceObject);
+//            sequenceArray.set(sequenceArray.size(),sequenceObject);
+            nameBuffer.append(sequenceInfo.getName() + ",");
+            if (start == 0) {
+                start = sequenceInfo.getStart();
+            }
+            end += sequenceInfo.getEnd();
+        }
+//        name = name.substring(0,name.length()-1);
+        assemblageInfo.setStart(start);
+        assemblageInfo.setEnd(end);
+        assemblageInfo.setSequenceList(sequenceArray);
+
+        final String name = nameBuffer.toString();
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Assemblage", "Added assemblage: " + name.substring(0, name.length() - 1), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding assemblage: " + exception);
+            }
+        };
+
+        MainPanel.getInstance().addAssemblage(requestCallback, assemblageInfo);
+
 
     }
 

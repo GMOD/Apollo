@@ -102,15 +102,18 @@ class CdsService {
                 , isAnalysis: cds.isIsAnalysis()
                 , isObsolete: cds.isIsObsolete()
         ).save(failOnError: true)
-        FeatureLocation featureLocation = new FeatureLocation(
-                sequence: cds.featureLocation.sequence
-                , feature: stopCodonReadThrough
-                ,fmin: cds.featureLocation.fmin
-                ,fmax: cds.featureLocation.fmax
-        ).save(failOnError: true)
 
-        stopCodonReadThrough.addToFeatureLocations(featureLocation)
-        stopCodonReadThrough.featureLocation.setStrand(cds.getStrand());
+        cds.featureLocations.each {
+            FeatureLocation featureLocation = new FeatureLocation(
+                    sequence: it.sequence
+                    ,feature: stopCodonReadThrough
+                    ,fmin: it.fmin
+                    ,fmax: it.fmax
+                    ,strand: cds.strand
+            ).save(failOnError: true)
+
+            stopCodonReadThrough.addToFeatureLocations(featureLocation)
+        }
 
         stopCodonReadThrough.save(flush: true)
 
@@ -138,7 +141,7 @@ class CdsService {
     def getResiduesFromCDS(CDS cds) {
         // New implementation that infers CDS based on overlapping exons
         Transcript transcript = transcriptService.getTranscript(cds)
-        List <Exon> exons = exonService.getSortedExons(transcript)
+        List <Exon> exons = transcriptService.getSortedExons(transcript,true)
         String residues = ""
         for(Exon exon : exons) {
             if (!overlapperService.overlaps(exon,cds)) {
@@ -148,7 +151,7 @@ class CdsService {
             int fmax = exon.fmax > cds.fmax ? cds.fmax : exon.fmax
             int localStart
             int localEnd
-            if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
+            if (cds.isNegativeStrand()) {
                 localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin) + 1
                 localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax) + 1
             } 

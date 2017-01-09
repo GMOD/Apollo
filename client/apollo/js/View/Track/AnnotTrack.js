@@ -272,8 +272,8 @@ define([
             },
 
             getClientToken: function () {
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    var token = window.parent.getClientToken();
+                if (typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                    var token = this.getApollo().getClientToken();
                     //alert("AnnotTrack have to get client token in AnnotTrack.js using GWT function: "+token);
                     return token ;
                 }
@@ -311,11 +311,12 @@ define([
                 var track = this;
                 var browser = this.gview.browser;
 
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                if (typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') {
+                    var apolloMainPanel = this.getApollo();
                     console.log('Registering embedded system with ApolloGwt-2.0.');
 
                     browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                        window.parent.handleNavigationEvent(JSON.stringify(currRegion));
+                        apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
                     }));
 
 
@@ -335,8 +336,12 @@ define([
                         }
 
                         // if for some reason this method is called in the wrong place, we catch the error
-                        if(window.parent){
-                            window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                        try {
+                            if (apolloMainPanel) {
+                                apolloMainPanel.loadTracks(JSON.stringify(filteredTrackList));
+                            }
+                        } catch (e) {
+                            console.log("window.parent invalid, ignoring");
                         }
                     };
 
@@ -368,16 +373,20 @@ define([
                         console.log("hide update");
                         handleTrackVisibility({command: "list"});
                     });
-                    window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+                    apolloMainPanel.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
 
 
                     client.connect({}, function () {
                         // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        var organism = JSON.parse(window.parent.getCurrentOrganism());
-                        var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        var user = JSON.parse(window.parent.getCurrentUser());
-                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                        var organism = JSON.parse(apolloMainPanel.getCurrentOrganism());
+                        //var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                        var assemblage= JSON.parse(apolloMainPanel.getCurrentAssemblage());
+                        var user = JSON.parse(apolloMainPanel.getCurrentUser());
+                        assemblage.sequenceList.forEach(function(obj){
+                            client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
+                        });
+                        //client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
                         client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                     });
                     console.log('connection established');
@@ -432,7 +441,7 @@ define([
                         }
                         else{
                             alert("You have been logged out or your session has expired");
-                            if (window.parent) {
+                            if (this.getApollo()) {
                                 parent.location.reload();
                             }
                             else {
@@ -459,7 +468,7 @@ define([
                         else {
                             track.annotationsAddedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                        if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureAdded(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "DELETE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -468,7 +477,7 @@ define([
                         else {
                             track.annotationsDeletedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "UPDATE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -505,10 +514,7 @@ define([
                             track.selectionAdded(selection,track.selectionManager);
                         }
 
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
-
-
-
+                        if (typeof this.getApollo().getEmbeddedVersion == 'function') this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else {
                         console.log('unknown command: ', changeData.operation);
@@ -590,6 +596,9 @@ define([
                         }
                     }
                 }
+
+
+
                 var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, rclass, clsName);
 
                 if (featDiv && featDiv != null && !history) {
@@ -803,7 +812,8 @@ define([
                                             }
                                         }
                                     ],
-                                    "operation": operation
+                                    "operation": operation,
+                                    "clientToken": track.getClientToken()
                                 };
                                 track.executeUpdateOperation(JSON.stringify(postData));
                                 track.changed();
@@ -910,7 +920,7 @@ define([
                 // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
                 // target_track.subfields);
                 // parent.uniquename = annot[target_track.fields["name"]];
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon","clientToken":"'+target_track.getClientToken()+'" }';
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1102,7 +1112,8 @@ define([
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
                         "features": featuresToAdd,
-                        "operation": "add_transcript"
+                        "operation": "add_transcript",
+                        "clientToken": target_track.getClientToken()
                     };
                     target_track.executeUpdateOperation(JSON.stringify(postData));
                 };
@@ -1227,7 +1238,7 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature", "clientToken":"'+target_track.getClientToken()+'"}';
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1314,7 +1325,7 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
+                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" , "clientToken":"'+target_track.getClientToken()+'"}';
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1377,7 +1388,7 @@ define([
                     var feature = featuresToAdd[i];
                     if (this.isProteinCoding(feature)) {
                         var feats = [JSONUtils.createApolloFeature(feature, "mRNA")];
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" }';
+                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" , "clientToken":"'+track.getClientToken()+'"}';
                         track.executeUpdateOperation(postData);
                     }
                     else if (feature.afeature.parent_id) {
@@ -1403,6 +1414,50 @@ define([
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 this.deleteAnnotations(selected);
+            },
+
+            getApollo: function(){
+                return window.parent;
+            },
+
+            createArrayOfUniqueNamesFromSelection: function () {
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+
+                // var array = selected.map(function (sel) { return sel.feature; });
+                var array = [] ;
+                for(var s in selected){
+                    var selfeature = selected[s].feature ;
+                    // alert(JSONUtils.flattenFeature(selfeature));
+                    // var seltrack = selected[0].track ;
+                    var uniqueName = selfeature.getUniqueName();
+                    array.push({
+                        'uniquename':uniqueName
+                    });
+                }
+                return array;
+            },
+
+            projectSelectedFeatures: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().projectFeatures(JSON.stringify(array),this.refSeq.name);
+            },
+
+            // fold selected transcript and
+            foldSelectedTranscript: function () {
+                // we'll assume that each type is a transcript
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().foldSelectedTranscript(JSON.stringify(array),this.refSeq.name);
+            },
+
+            foldBetweenSelectedExons: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().foldBetweenExons(JSON.stringify(array),this.refSeq.name);
+            },
+
+            removeSelectedFolds: function(){
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().removeFolds(JSON.stringify(array),this.refSeq.name);
             },
 
             deleteAnnotations: function (records) {
@@ -1469,7 +1524,7 @@ define([
                     console.log("annotations to delete:");
                     console.log(features);
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" , "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1492,6 +1547,7 @@ define([
                     }
                 });
             },
+
 
             mergeSelectedFeatures: function () {
                 var selected = this.selectionManager.getSelection();
@@ -1536,7 +1592,7 @@ define([
                     features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
                     operation = "merge_transcripts";
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1584,7 +1640,7 @@ define([
                 else {
                     return;
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1604,7 +1660,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
                 var operation = "make_intron";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1631,7 +1687,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uid + '"' + (setStart ? ', "location": { "fmin": ' + coordinate + ' }' : '') + ' } ]';
                 var operation = "set_translation_start";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1658,7 +1714,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uid + '"' + (setEnd ? ', "location": { "fmax": ' + coordinate + ' }' : '') + ' } ]';
                 var operation = "set_translation_end";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1697,7 +1753,7 @@ define([
                 features += ']';
                 var operation = "flip_strand";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1729,7 +1785,7 @@ define([
                 features += ']';
                 var operation = "set_longest_orf";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1761,7 +1817,7 @@ define([
                 features += ']';
                 var operation = "set_readthrough_stop_codon";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1790,7 +1846,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
                 var operation = "set_exon_boundaries";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1819,7 +1875,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
                 var operation = "set_exon_boundaries";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1848,7 +1904,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
                 var operation = "set_exon_boundaries";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1865,7 +1921,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_downstream_donor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1882,7 +1938,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_upstream_donor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1899,7 +1955,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_downstream_acceptor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1916,7 +1972,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = "set_to_upstream_acceptor";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -1933,7 +1989,7 @@ define([
                 var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
                 var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"}';
                 track.executeUpdateOperation(postData);
             },
 
@@ -2049,7 +2105,7 @@ define([
                     return;
                 }
                 var operation = "get_annotation_info_editor_configuration";
-                var postData = {"track": trackName, "operation": operation};
+                var postData = {"track": trackName, "operation": operation,"clientToken":track.getClientToken()};
                 xhr.post(context_path + "/AnnotationEditorService", {
                     sync: true,
                     data: JSON.stringify(postData),
@@ -3072,7 +3128,7 @@ define([
                     name = escapeString(name);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
                     var operation = "set_name";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3081,7 +3137,7 @@ define([
                     symbol = escapeString(symbol);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
                     var operation = "set_symbol";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3090,7 +3146,7 @@ define([
                     description = escapeString(description);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
                     var operation = "set_description";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3098,7 +3154,7 @@ define([
                 var deleteStatus = function () {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
                     var operation = "delete_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3106,7 +3162,7 @@ define([
                 var updateStatus = function (status) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
                     var operation = "set_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3116,7 +3172,7 @@ define([
                     accession = escapeString(accession);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
                     var operation = "add_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3128,7 +3184,7 @@ define([
                     }
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(dbxrefs) + ' } ]';
                     var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3140,7 +3196,7 @@ define([
                     newAccession = escapeString(newAccession);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
                     var operation = "update_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3150,7 +3206,7 @@ define([
                     value = escapeString(value);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
                     var operation = "add_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3162,7 +3218,7 @@ define([
                     }
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
                     var operation = "delete_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3174,7 +3230,7 @@ define([
                     newValue = escapeString(newValue);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
                     var operation = "update_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3191,7 +3247,7 @@ define([
                         if (confirmPubmedEntry(record)) {
                             var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + pubmedId + '" } ] } ]';
                             var operation = "add_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3208,7 +3264,7 @@ define([
                 var deletePubmedIds = function (pubmedIds) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(pubmedIds) + ' } ]';
                     var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3221,7 +3277,7 @@ define([
                         if (confirmPubmedEntry(record)) {
                             var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + oldPubmedId + '" } ], "new_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + newPubmedId + '" } ] } ]';
                             var operation = "update_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3246,7 +3302,7 @@ define([
                         var goAccession = goId.substr(goIdDb.length + 1);
                         var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + goAccession + '" } ] } ]';
                         var operation = "add_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3260,7 +3316,7 @@ define([
                 var deleteGoIds = function (goIds) {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(goIds) + ' } ]';
                     var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3273,7 +3329,7 @@ define([
                         var newGoAccession = newGoId.substr(goIdDb.length + 1);
                         var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + oldGoAccession + '" } ], "new_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + newGoAccession + '" } ] } ]';
                         var operation = "update_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3289,7 +3345,7 @@ define([
                     comment = escapeString(comment);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
                     var operation = "add_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3300,7 +3356,7 @@ define([
                     }
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": ' + JSON.stringify(comments) + ' } ]';
                     var operation = "delete_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3313,7 +3369,7 @@ define([
                     newComment = escapeString(newComment);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
                     var operation = "update_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3321,7 +3377,7 @@ define([
                 var getCannedComments = function () {
                     var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                     var operation = "get_canned_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }';
                     dojo.xhrPost({
                         postData: postData,
                         url: context_path + "/AnnotationEditorService",
@@ -3384,11 +3440,11 @@ define([
                 features += ']';
                 var operation = "undo";
                 var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"' + (count ? ', "count": ' + count : '') + '}';
                 this.executeUpdateOperation(postData, function (response) {
                     if (response && response.confirm) {
                         if (track.handleConfirm(response.confirm)) {
-                            postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }';
+                            postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'", "confirm": true }';
                             track.executeUpdateOperation(postData);
                         }
                     }
@@ -3432,7 +3488,7 @@ define([
                 features += ']';
                 var operation = "redo";
                 var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + ' , "clientToken":"'+this.getClientToken()+'"}';
                 this.executeUpdateOperation(postData);
             },
 
@@ -3672,7 +3728,7 @@ define([
                     var operation = "get_history_for_features";
                     var trackName = track.getUniqueTrackName();
                     dojo.xhrPost({
-                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }',
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3698,8 +3754,6 @@ define([
                 this.openDialog("History", content);
                 AnnotTrack.popupDialog.resize();
                 AnnotTrack.popupDialog._position();
-// this.popupDialog.hide();
-// this.openDialog("History", content);
             },
 
             getAnnotationInformation: function () {
@@ -3735,7 +3789,7 @@ define([
                 var trackName = track.getUniqueTrackName();
                 var information = "";
                 dojo.xhrPost({
-                    postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                    postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'" }',
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5000 * 1000, // Time in milliseconds
@@ -3775,6 +3829,12 @@ define([
                 this.getGff3ForSelectedFeatures(selected);
             },
 
+            showInAnnotatorPanel: function () {
+                var selected = this.selectionManager.getSelection();
+                var selectedFeature = selected[0].feature.afeature ;
+                this.getApollo().showInAnnotatorPanel(selectedFeature.name,selected[0].feature.afeature.sequence);
+            },
+
             getGff3ForSelectedFeatures: function (records) {
                 var track = this;
 
@@ -3803,7 +3863,7 @@ define([
                     features += ']';
                     var operation = "get_gff3";
                     var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"';
                     postData += ' }';
                     dojo.xhrPost({
                         postData: postData,
@@ -3914,7 +3974,7 @@ define([
                     features += ']';
                     var operation = "get_sequence";
                     var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"'+track.getClientToken()+'"';
                     var flank = 0;
                     if (type == "genomic_with_flank") {
                         flank = dojo.attr(genomicWithFlankField, "value");
@@ -4018,7 +4078,6 @@ define([
                         track.gview.browser.config.highlightSearchedRegions = true;
                         track.gview.browser.showRegionWithHighlight(locobj);
                         track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-                        // AnnotTrack.popupDialog.hide();
                     }
                     else {
                         // var url = window.location.toString().replace(/loc=.+/, "loc=" +
@@ -4028,7 +4087,6 @@ define([
                         track.gview.browser.config.highlightSearchedRegions = true;
                         track.gview.browser.showRegionWithHighlight(locobj);
                         track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-                        // AnnotTrack.popupDialog.hide();
                     }
                 });
                 search.setErrorCallback(function (response) {
@@ -4327,7 +4385,7 @@ define([
                     timeout: 5 * 1000, // Time in milliseconds
                     // The LOAD function will be called on a successful response.
                     load: function (response, ioArgs) { //
-                        if (window.parent) window.parent.location.reload();
+                        if (this.getApollo()) this.getApollo().location.reload();
                         else window.location.reload();
                     },
                     error: function (response, ioArgs) { //
@@ -4422,8 +4480,8 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (window.parent){
-                                          window.parent.location.reload();
+                                        if (this.getApollo()) {
+                                            this.getApollo().location.reload();
                                         }
                                         else window.location.reload();
                                     },
@@ -4501,6 +4559,14 @@ define([
                         }
                     }
                 }));
+
+                annot_context_menu.addChild(new dijit.MenuItem({
+                    label: "Show in Annotator Panel",
+                    onClick: function (event) {
+                        thisB.showInAnnotatorPanel();
+                    }
+                }));
+
                 contextMenuItems["zoom_to_base_level"] = index++;
                 if (!(permission & Permission.WRITE)) {
                     annot_context_menu.addChild(new dijit.MenuSeparator());
@@ -4614,9 +4680,56 @@ define([
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
+                    index++; // manually connecting this, so not here
+
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
+
+
+                    // START COLLAPSE SECTION
+                    contextMenuItems["fold_feature"] = index++;
+                    var collapseFeaturesMenuItem = new dijitMenuItem( {
+                        label: "Fold Feature",
+                        onClick: function(event){
+                            thisB.foldSelectedTranscript();
+                        }
+                    });
+                    annot_context_menu.addChild(collapseFeaturesMenuItem);
+
+                    contextMenuItems["fold_between_exons"] = index++;
+                    var collapseBetweenExonsMenuItem = new dijitMenuItem( {
+                        label: "Fold Between Exons",
+                        onClick: function(event){
+                            thisB.foldBetweenSelectedExons();
+                        }
+                    });
+                    annot_context_menu.addChild(collapseBetweenExonsMenuItem);
+
+
+                    contextMenuItems["remove_folds"] = index++;
+                    var removeFoldingMenuItem = new dijitMenuItem( {
+                        label: "Remove Folds",
+                        onClick: function(event){
+                            thisB.removeSelectedFolds();
+                        }
+                    });
+                    annot_context_menu.addChild(removeFoldingMenuItem);
+
+                    contextMenuItems["view_only_features"] = index++;
+                    var viewOnlyFeaturesMenuItem = new dijitMenuItem( {
+                        label: "View Only Features",
+                        onClick: function(event){
+                            thisB.projectSelectedFeatures();
+                        }
+                    });
+                    annot_context_menu.addChild(viewOnlyFeaturesMenuItem);
+
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+                    // END COLLAPSE SECTION
+
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
@@ -4989,6 +5102,88 @@ define([
                 AnnotTrack.popupDialog.hide();
             },
 
+            // determine if a feature is folded
+            // if they are ALL folded return folded
+            isFolded: function(selected){
+                // for each selection, if a fold falls within projeciton region, then it is folded
+                if(selected.length==0) return false ;
+
+                 for(var s in selected){
+                     var feature = selected[s].feature.afeature;
+                     var fmin = feature.location.fmin;
+                     var fmax = feature.location.fmax;
+
+                     var regionFolded = this.getApollo().regionContainsFolds(fmin,fmax,this.refSeq.name);
+                     if(regionFolded===false) {
+                         return false ;
+                     }
+
+                     // var start = selection.feature[0].fmin ;
+                     // var end = selection.feature[0].fmax ;
+                     // var regionFolded = window.parent.foldedInRegion(start,end,this.refSeq);
+                     // if(!regionFolded){
+                     //     return false ;
+                     // }
+                 }
+                 return true ;
+            },
+
+            isFoldable: function(selectedType){
+                return selectedType === "miRNA"
+                    || selectedType == "snRNA"
+                    || selectedType === "snoRNA"
+                    || selectedType === "rRNA"
+                    || selectedType === "tRNA"
+                    || selectedType === "ncRNA"
+                    || selectedType === "transcript"
+                    || selectedType === "mRNA";
+            },
+
+            // folds an entire transcript only
+            // if features are all transcript types (contains child exons) and is not folded
+            updateFoldSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_feature");
+
+                var disabled = true ;
+                if(selected.length==1 ){
+                    var type1 = selected[0].feature.afeature.type.name ;
+                    if(this.isFoldable(type1) && !this.isFolded(selected)){
+                        menuItem.set("disabled", false );
+                        return ;
+                    }
+
+                }
+                menuItem.set("disabled", true);
+
+            },
+
+            updateFoldBetweenExonsMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_between_exons");
+                if(selected.length==2){
+                    var type1 = selected[0].feature.afeature.type.name ;
+                    var type2 = selected[1].feature.afeature.type.name ;
+                    if(type1===type2 && type1==="exon"){
+                        menuItem.set("disabled", false);
+                        return ;
+                    }
+                }
+                menuItem.set("disabled", true);
+
+            },
+
+            updateUnfoldSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("remove_folds");
+                menuItem.set("disabled", !this.isFolded(selected));
+            },
+
+            updateCreateViewFromFeaturesMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("view_only_features");
+                menuItem.set("disabled", selected.length==0);
+            },
             updateMenu: function () {
                 this.updateDeleteMenuItem();
                 this.updateSetTranslationStartMenuItem();
@@ -5012,6 +5207,10 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+                this.updateFoldSelectedMenuItem();
+                this.updateFoldBetweenExonsMenuItem();
+                this.updateUnfoldSelectedMenuItem();
+                this.updateCreateViewFromFeaturesMenuItem();
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {

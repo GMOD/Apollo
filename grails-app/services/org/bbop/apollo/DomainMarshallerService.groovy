@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
+import org.bbop.apollo.gwt.shared.projection.Coordinate
 
 @Transactional
 class DomainMarshallerService {
@@ -34,6 +36,38 @@ class DomainMarshallerService {
             returnArray['length'] = it?.length
             returnArray['start'] = it?.start
             returnArray['end'] = it.end
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(ProjectionSequence) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['name'] = it.name
+            returnArray['organism'] = it.organism
+            returnArray['order'] = it.order
+            returnArray['offset'] = it.offset
+            returnArray['originalOffset'] = it.originalOffset
+            returnArray['features'] = it.features?.join("::")
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(Coordinate) {
+            def returnArray = [:]
+            returnArray['min'] = it.min
+            returnArray['max'] = it.max
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(Assemblage) {
+            def returnArray = [:]
+            returnArray['id'] = it?.id
+            returnArray['projection'] = it?.projection ?: "NONE"
+            returnArray['padding'] = it?.padding ?: 0
+            returnArray['payload'] = it?.payload ?: "{}"
+            returnArray['name'] = it?.name
+            returnArray['start'] = it?.start
+            returnArray['end'] = it?.end
+            returnArray['sequenceList'] = it?.sequenceList
             return returnArray
         }
     }

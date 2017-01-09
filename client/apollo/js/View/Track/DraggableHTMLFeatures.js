@@ -3,12 +3,16 @@ define( [
             'dojo/_base/array',
             'JBrowse/View/Track/HTMLFeatures',
             'WebApollo/FeatureSelectionManager',
+            'WebApollo/View/Projection/FASTA',
             'dijit/Menu',
             'dijit/MenuItem',
             'dijit/CheckedMenuItem',
             'dijit/MenuSeparator',
             'dijit/PopupMenuItem',
             'dijit/Dialog',
+            'dijit/Tooltip',
+            'dojo/dom-construct',
+            'dojo/query',
             'jquery',
             'jqueryui/draggable',
             'JBrowse/Util', 
@@ -19,12 +23,16 @@ define( [
         array,
         HTMLFeatureTrack,
         FeatureSelectionManager,
+        FASTAView,
         dijitMenu,
         dijitMenuItem, 
         dijitCheckedMenuItem,
         dijitMenuSeparator,
         dijitPopupMenuItem,
         dijitDialog,
+        dijitTooltip,
+        domConstruct,
+        query,
         $,
         draggable,
         Util, 
@@ -84,6 +92,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
     },
 
     constructor: function( args ) {
+        //var coordinate = new Coordinate(3,2,)
+        //Coordinate.spitOutSomething;
+        var thisB = this;
         this.gview = this.browser.view;
         // get a handle to on the main WA object
         this.browser.getPlugin( 'WebApollo', dojo.hitch( this, function(p) {
@@ -118,8 +129,446 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 but use of dojo.declare() for classes means track object's class is actually base Object. 
         */
         this.edge_matching_enabled = true;
+
+
+        dojo.subscribe("/jbrowse/v1/n/tracks/redraw", function(data){
+            setTimeout(function(){
+                thisB.updateFeatures();
+            }, 100);
+        });
     },
 
+    updateFeatures: function( args ) {
+        //console.log("updateFeatures");
+
+        var thisB = this;
+
+        var divQuery = "div.feature";       // by default, paint all feature divs
+
+        // apply introns to all feature tracks
+        query(divQuery).forEach(function(featureNode, index, arr){
+
+            // scan and insert introns, where applicable
+            thisB.insertFolds(featureNode);
+            thisB.insertEdges(featureNode);
+        });
+
+    },
+
+    getApollo: function(){
+        return window.parent;
+    },
+
+    // TODO: provided so that we over-write with the correct FASTAView object, probably a more efficient way to do this
+    _renderUnderlyingReferenceSequence: function( track, f, featDiv, container ) {
+        // render the sequence underlying this feature if possible
+        var field_container = dojo.create('div', { className: 'field_container feature_sequence' }, container );
+        dojo.create( 'h2', { className: 'field feature_sequence', innerHTML: 'Region sequence', title: 'reference sequence underlying this '+(f.get('type') || 'feature') }, field_container );
+        var valueContainerID = 'feature_sequence'+this._uniqID();
+        var valueContainer = dojo.create(
+            'div', {
+                id: valueContainerID,
+                innerHTML: '<div style="height: 12em">Loading...</div>',
+                className: 'value feature_sequence'
+            }, field_container);
+        var maxSize = this.config.maxFeatureSizeForUnderlyingRefSeq;
+        if( maxSize < (f.get('end') - f.get('start')) ) {
+            valueContainer.innerHTML = 'Not displaying underlying reference sequence, feature is longer than maximum of '+Util.humanReadableNumber(maxSize)+'bp';
+        } else {
+            track.browser.getStore('refseqs', dojo.hitch(this,function( refSeqStore ) {
+                valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                if( refSeqStore ) {
+                    refSeqStore.getReferenceSequence(
+                        {
+                            ref: this.refSeq.name,
+                            start: f.get('start'),
+                            end: f.get('end')
+                        },
+                        // feature callback
+                        dojo.hitch( this, function( seq ) {
+                            valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                            valueContainer.innerHTML = '';
+                            // the HTML is rewritten by the dojo dialog
+                            // parser, but this callback may be called either
+                            // before or after that happens.  if the fetch by
+                            // ID fails, we have come back before the parse.
+                            var textArea = new FASTAView({ track: this, width: 62, htmlMaxRows: 10 })
+                                .renderHTML(
+                                    { ref:   this.refSeq.name,
+                                        start: f.get('start'),
+                                        end:   f.get('end'),
+                                        strand: f.get('strand'),
+                                        type: f.get('type')
+                                    },
+                                    f.get('strand') == -1 ? Util.revcom(seq) : seq,
+                                    valueContainer
+                                );
+                        }),
+                        // end callback
+                        function() {},
+                        // error callback
+                        dojo.hitch( this, function() {
+                            valueContainer = dojo.byId(valueContainerID) || valueContainer;
+                            valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
+                        })
+                    );
+                } else {
+                    valueContainer.innerHTML = '<span class="ghosted">reference sequence not available</span>';
+                }
+            }));
+        }
+    },
+
+    insertEdges: function(featureNode) {
+
+        function handleLeft(a,b){
+            alert(a);
+        }
+
+        // ignore if we have already processed this node
+        // get the subfeatures nodes (only immediate children)
+        var subNodesX = query('> .subfeature', featureNode);
+
+        // filter nodes - eliminate nodes that are splice sites (for Apollo)
+        var subNodesFmin = [];
+        var subNodesFmax = [];
+        for (var i = 0; i < subNodesX.length; i++) {
+            var subNodeX = subNodesX[i];
+            if(subNodeX.subfeature.afeature){
+                if(subNodeX.subfeature.afeature.location.is_fmin_partial){
+                    console.log("feature has an fmin partial");
+                    subNodesFmin.push(subNodeX);
+                }
+                if(subNodeX.subfeature.afeature.location.is_fmax_partial){
+                    console.log("feature has an fmax partial");
+                    subNodesFmax.push(subNodeX);
+                }
+            }
+        }
+
+        if (subNodesFmin.length == 0 && subNodesFmax.length==0) {
+            return;
+        }
+
+        for (var i = 0; i < subNodesFmin.length; i++) {
+            subNodesFmin[i].left = dojo.getStyle(subNodesFmin[i], "left");
+            subNodesFmin[i].width = dojo.getStyle(subNodesFmin[i], "width");
+        }
+        for (var i = 0; i < subNodesFmax.length; i++) {
+            subNodesFmax[i].left = dojo.getStyle(subNodesFmax[i], "left");
+            subNodesFmax[i].width = dojo.getStyle(subNodesFmax[i], "width");
+        }
+        var width = 100 ;
+        var height = 30;
+
+        var priorMap = {};
+
+        for (var i = 0; i < subNodesFmin.length ; ++i) {
+            var leftNode = subNodesFmin[i];
+            if(leftNode.subfeature.afeature){
+                var leftEdge = leftNode.subfeature.afeature.location.fmin;
+                var priorSequence = JSON.parse(leftNode.subfeature.afeature.location.fmin_data);
+                // var rightEdge = leftNode.subfeature.afeature.location.fmax;
+                // var left = subNodesFmin[i].left + subNodesFmin[i].width;
+                var left = subNodesFmin[i].left + 1 ;
+
+                var strLeft = "";
+
+                var leftValue = Util.addCommas(leftEdge) ;
+                // var rightValue = Util.addCommas(rightEdge) ;
+
+                // var projectionId = "projectionLabels"+leftValue+""+rightValue;
+                var projectionId = "projectionEdgeLeftLabel"+leftValue;
+
+                console.log(projectionId+ " left:"+left);
+
+
+
+                if(left && !document.getElementById(projectionId)){
+                    priorMap[projectionId] = priorSequence;
+                    strLeft += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                    strLeft += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                    strLeft += "left: " + left+ "px;width: " + width + "px;height: " + height+ "'>";
+                    strLeft += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" ></path>';
+                    strLeft += "</svg>";
+                }
+            }
+
+
+            // console.log('str length: '+str.length + ' for ' + str);
+            if(strLeft.length >0){
+                domConstruct.place(strLeft, featureNode);
+                if(left && document.getElementById(projectionId)){
+                    var element1 = document.getElementById(projectionId);
+                    var thisSeq = priorMap[projectionId];
+                    element1.onclick = function(){
+                        var myDialog = new dijitDialog({
+                            title: "Partial Element",
+                            content: 'Genomic element continued on '+thisSeq.name +'.',
+                                   // '.<br/><button  type="button" data-dojo-props="onClick:function(){myDialog.hide();}">OK</button>',
+                            style: "width: 300px"
+                        });
+                        myDialog.show();
+                    }
+                }
+            }
+        }
+
+        for (var i = 0; i < subNodesFmax.length ; ++i) {
+            var rightNode = subNodesFmax[i];
+            if(rightNode.subfeature.afeature){
+                var rightEdge = rightNode.subfeature.afeature.location.fmax;
+                var nextSequence = JSON.parse(rightNode.subfeature.afeature.location.fmax_data);
+                var right = subNodesFmax[i].left + subNodesFmax[i].width - 10;
+                // var right = subNodesFmax[i].left + + 1 ;
+
+                var strRight = "";
+
+                var rightValue = Util.addCommas(rightEdge) ;
+                // var rightValue = Util.addCommas(rightEdge) ;
+
+                // var projectionId = "projectionLabels"+rightValue+""+rightValue;
+                var projectionId = "projectionEdgeRightLabel"+rightValue;
+
+                console.log(projectionId+ " right:"+right);
+
+                if(right && !document.getElementById(projectionId)){
+                    priorMap[projectionId] = nextSequence ;
+                    strRight += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " "+height+"'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                    strRight += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                    strRight += "left: " + right+ "px;width: " + width + "px;height: " + height+ "'>";
+                    strRight += '<path d="M0 0 L7 7 L0 14 L7 21" fill="none" stroke-width="4px" stroke="red" />';
+                    strRight += "</svg>";
+                }
+            }
+
+
+            // console.log('str length: '+str.length + ' for ' + str);
+            if(strRight.length >0){
+                domConstruct.place(strRight, featureNode);
+                if(right && document.getElementById(projectionId)){
+                    element1 = document.getElementById(projectionId);
+                    thisSeq = priorMap.projectionId;
+                    element1.onclick = function(){
+                        var myDialog = new dijitDialog({
+                            title: "Partial Element",
+                            content: 'Genomic element continued on '+thisSeq.name +'.',
+                            // '.<br/><button  type="button" data-dojo-props="onClick:function(){myDialog.hide();}">OK</button>',
+                            style: "width: 300px"
+                        });
+                        myDialog.show();
+                    }
+                }
+            }
+        }
+
+        // // TODO: insert on either the LHS or RHS if a partial fmin
+        // for (var i = 0; i < subNodes.length ; ++i) {
+        //     var leftNode = subNodes[i];
+        //     // var rightNode = subNodes[i+1];
+        //     var folds = null ;
+        //     if(leftNode.subfeature.afeature){
+        //         var leftEdge = leftNode.subfeature.afeature.location.fmin;
+        //         var rightEdge = leftNode.subfeature.afeature.location.fmax;
+        //     }
+        //     var subLeft = subNodes[i].left + subNodes[i].width;
+        //     var subWidth = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
+        //
+        //     var left = subLeft;
+        //     var width = subWidth;
+        //
+        //     var height = "100%";
+        //     var totalHeight = "2000px";
+        //
+        //     var str = "";
+        //
+        //     // this is the back divider line . . .
+        //     // console.log("width: " + width);
+        //     width = width < 1 ? 1 : width;
+        //     var dividerId = 'projectionFoldDivider'+left;
+        //     if(this.scale >=2){
+        //         var fold = folds[0];
+        //         var leftValue = Util.addCommas(fold.left) ;
+        //         var rightValue = Util.addCommas(fold.right) ;
+        //
+        //         var projectionId = "projectionLabels"+leftValue+""+rightValue;
+        //
+        //         var leftX = width / 2.0 - (width * 0.05) - (leftValue.length *10) ;
+        //         var rightX = width / 2.0 + (width * 0.02) ;
+        //
+        //         console.log(leftX + " <-> "+rightX  );
+        //
+        //         if(leftX && rightX && !document.getElementById(projectionId)){
+        //             str += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " 2000'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+        //             str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+        //             str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
+        //             // draw the right arrow
+        //             // str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+        //             // console.log('leftx: '+leftX);
+        //             str += '<rect x="0" y ="0" width="'+(leftValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(-90 0 0) translate(-90 '+(width/2.0  - 25 ) +')"></rect>'
+        //             // console.log('leftx: '+leftX);
+        //             str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14"  transform="rotate(-90 0 0) translate(-80 '+(width/2.0 - 10) +') ">';
+        //             str += leftValue ;
+        //             str += '</text>';
+        //             // str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+        //             str += '<rect x="0" y ="0" width="'+(rightValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(90 0 0) translate(20 '+((-1*(width/2.0)) - 25) +')"></rect>'
+        //             str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
+        //             str += rightValue ;
+        //             str += '</text>';
+        //             str += "</svg>";
+        //         }
+        //     }
+        //
+        //
+        //     // console.log('str length: '+str.length + ' for ' + str);
+        //     if(str.length >0){
+        //         domConstruct.place(str, featureNode);
+        //     }
+        //
+        //
+        //     intronCount++;
+        // }
+
+    },
+
+    insertFolds: function(featureNode) {
+
+        var intronCount = 0;
+
+        // ignore if we have already processed this node
+        if (this.refSeq.name.indexOf('location')>0 ) {
+
+            // get the subfeatures nodes (only immediate children)
+            var subNodesX = query('> .subfeature', featureNode);
+
+            // filter nodes - eliminate nodes that are splice sites (for Apollo)
+            var subNodes = [];
+            for (var i = 0; i < subNodesX.length; i++) {
+                var attr = dojo.attr(subNodesX[i], "class");
+                if (attr.indexOf("splice-site") === -1)
+                    subNodes.push(subNodesX[i]);
+            }
+
+            if (subNodes.length == 0) {
+                return;
+            }
+
+            // identify directionality
+            var classAttr = dojo.attr(featureNode, "class");
+
+            //extract some left & width -  more convient to access
+            for (var i = 0; i < subNodes.length; i++) {
+                subNodes[i].left = dojo.getStyle(subNodes[i], "left");
+                subNodes[i].width = dojo.getStyle(subNodes[i], "width");
+            }
+
+            /* debug display subfeature list
+             console.dir(subNodes);
+             for(var i=0; i < subNodes.length;i++) {
+             console.log(i + " subfeature left,width: "+subNodes[i].left+", "+subNodes[i].width);
+             }
+             */
+
+            // sort the subfeatures
+            if (subNodes.length >= 2) {
+                subNodes.sort(function (a, b) {
+                    return a.left - b.left;
+                });
+                // insert introns between subfeature gaps
+                for (var i = 0; i < subNodes.length - 1; ++i) {
+                    var leftNode = subNodes[i];
+                    var rightNode = subNodes[i+1];
+                    var regionFolded = false ;
+                    var folds = null ;
+                    if(leftNode.subfeature.afeature && rightNode.subfeature.afeature){
+                        var leftEdge = leftNode.subfeature.afeature.location.fmax ;
+                        var rightEdge = rightNode.subfeature.afeature.location.fmin ;
+                        regionFolded = this.getApollo().regionContainsFolds(leftEdge,rightEdge,this.refSeq.name);
+                        folds = this.getApollo().getFoldsForRegion(this.refSeq.name,leftEdge,rightEdge);
+                    }
+                    // TODO: just use 'folds' at some point
+                    if (regionFolded) {
+                        var subLeft = subNodes[i].left + subNodes[i].width;
+                        var subWidth = subNodes[i + 1].left - (subNodes[i].left + subNodes[i].width);
+
+                        var left = subLeft;
+                        var width = subWidth;
+
+                        var height = "100%";
+                        var totalHeight = "2000px";
+
+                        var str = "";
+
+                        // this is the back divider line . . .
+                        // console.log("width: " + width);
+                        width = width < 1 ? 1 : width;
+                        var dividerId = 'projectionFoldDivider'+left;
+                        if(!document.getElementById(dividerId)){
+                            var strokeWidth = 5.0 / this.scale   ;
+
+                            str += "<svg id='"+dividerId+"' viewBox='0 0 100 100' preserveAspectRatio='none' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                            str += "style='position:absolute;z-index: 15;";  // this must be here and not in CSS file
+                            str += "left: " + left + "px;width: " + width + "px;height: " + totalHeight + "'>";
+                            str += "<polyline points='50,0 50,100' style='fill:none;stroke:orange;stroke-width:"+strokeWidth+";' shape-rendering='optimizeQuality' />";
+                            str += "</svg>";
+                        }
+
+
+                        // console.log('scale: '+this.scale);
+                        // console.log(this.gview.pxPerBp);
+                        // console.log(this.gview.curZoom);
+                        if(this.scale >=2){
+                            var fold = folds[0];
+                            var leftValue = Util.addCommas(fold.left) ;
+                            var rightValue = Util.addCommas(fold.right) ;
+
+                            var projectionId = "projectionLabels"+leftValue+""+rightValue;
+
+                            var leftX = width / 2.0 - (width * 0.05) - (leftValue.length *10) ;
+                            var rightX = width / 2.0 + (width * 0.02) ;
+
+                            console.log(leftX + " <-> "+rightX  );
+
+                            if(leftX && rightX && !document.getElementById(projectionId)){
+                                str += "<svg id='"+projectionId+"' viewBox='0 0 "+width+ " 2000'  xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' ";
+                                str += "style='position:absolute;z-index: 500;";  // this must be here and not in CSS file
+                                str += "left: " + left+ "px;width: " + width + "px;height: " + totalHeight+ "'>";
+                                // draw the right arrow
+                                // str += '<rect x="'+(leftX-5)+'" y ="2" width="'+((width / 2.0) - leftX  )+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+                                // console.log('leftx: '+leftX);
+                                str += '<rect x="0" y ="0" width="'+(leftValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(-90 0 0) translate(-90 '+(width/2.0  - 25 ) +')"></rect>'
+                                // console.log('leftx: '+leftX);
+                                str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14"  transform="rotate(-90 0 0) translate(-80 '+(width/2.0 - 10) +') ">';
+                                str += leftValue ;
+                                str += '</text>';
+                                // str += '<rect x="'+(width / 2.0 + 4)+'" y ="2" width="'+((rightValue.length * 10 + 5)) +'" height="25px" fill="white"  stroke-width="3px" stroke="rgb(0,0,0)"></rect>'
+                                str += '<rect x="0" y ="0" width="'+(rightValue.length*10+10)+'" height="25px" fill="white" stroke-width="3px" stroke="rgb(0,0,0)" transform="rotate(90 0 0) translate(20 '+((-1*(width/2.0)) - 25) +')"></rect>'
+                                str += '<text text-anchor="start" x="0" y="0" font-family="Verdana" font-size="14" transform="rotate(90 0 0) translate(30 '+((-1*(width/2.0)) - 10) +') ">';
+                                str += rightValue ;
+                                str += '</text>';
+                                str += "</svg>";
+                            }
+                        }
+
+
+                        // console.log('str length: '+str.length + ' for ' + str);
+                        if(str.length >0){
+                            domConstruct.place(str, featureNode);
+                        }
+
+
+                        intronCount++;
+
+                    }
+                }
+            }
+
+            if (intronCount) {
+                // mark that we have processed this node
+                dojo.addClass(featureNode, "has-neat-introns");
+            }
+        }
+    },
 
     loadSuccess: function(trackInfo) {
         /* if subclass indicates it has custom context menu, do not initialize default feature context menu */
@@ -135,8 +584,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             this.selectionManager.removeListener(this);
         }
         this.selectionManager = selman;
-        // FeatureSelectionManager listeners must implement
-        //     selectionAdded() and selectionRemoved() response methods
         this.selectionManager.addListener(this);
         return selman;
     },
@@ -308,13 +755,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
     /**
      *  overriding renderFeature to add event handling for mouseover, mousedown, mouseup
      */
-    renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale, 
+    renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale,
                             containerStart, containerEnd, rclass, clsName ) {
         var featdiv = this.inherited( arguments );
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
-        var $featdiv = $(featdiv);
-        $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
+            var $featdiv = $(featdiv);
+            $featdiv.bind("mousedown", dojo.hitch( this, 'onFeatureMouseDown') );
             $featdiv.bind("dblclick",  dojo.hitch( this, 'onFeatureDoubleClick') );
             if (this.feature_context_menu  && (! this.has_custom_context_menu)) {
                 this.feature_context_menu.bindDomNode(featdiv);
@@ -368,11 +815,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 
     /**
-     *  if feature has translated region (CDS, wholeCDS, start_codon, ???), 
-     *  reworks feature's subfeatures for more annotation-editing-friendly selection 
+     *  if feature has translated region (CDS, wholeCDS, start_codon, ???),
+     *  reworks feature's subfeatures for more annotation-editing-friendly selection
      *
      *  Assumes:
-     *      if translated, will either have 
+     *      if translated, will either have
      *           CDS-ish term for each coding segment
      *           wholeCDS from start of translation to end of translation (so already pre-processed)
      *           mutually exclusive (either have CDS, or wholeCDS, but not both)
@@ -384,7 +831,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         var feat_type = feature.get('type');
 
-        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
+        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case --
         //    keep list of types that NEVER have CDS children (match, alignment, repeat, etc.)
         //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
         if (SeqOnto.neverHasCDS[feat_type])  {
@@ -394,15 +841,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var subfeats = feature.get('subfeatures');
 
         // var cds = subfeats.filter( function(feat) { return feat.get('type') === 'CDS'; } );
-        var cds = subfeats.filter( function(feat) { 
+        var cds = subfeats.filter( function(feat) {
             return SeqOnto.cdsTerms[feat.get('type')];
         } );
         var wholeCDS = subfeats.filter( function(feat) { return feat.get('type') === 'wholeCDS'; } );
-        
-        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case -- 
-        //    if no CDS, no wholeCDS, consider normalized 
+
+        // most very dense genomic feature tracks do not have CDS.  Trying to minimize overhead for that case --
+        //    if no CDS, no wholeCDS, consider normalized
         //    (WARNING in this case not sorting, but sorting (currently) only needed for features with CDS (for reading frame calcs))
-        // 
+        //
         if (cds.length === 0 && wholeCDS.length === 0)  {
             feature.normalized = true;
             return;
@@ -415,24 +862,24 @@ var draggableTrack = declare( HTMLFeatureTrack,
             feature.wholeCDS = wholeCDS[0];
             newsubs = subfeats.filter( function(feat) { return feat.get('type') !== 'wholeCDS'; } );
         }
-        
+
         // if has a CDS, remove CDS from subfeats and sort exons
         else if (cds.length > 0)  {
             cds.sort(this._subfeatSorter);
             var cdsmin = cds[0].get('start');
             var cdsmax = cds[cds.length-1].get('end');
-            feature.wholeCDS = new SimpleFeature({ parent: feature, 
-                                                   data: { start: cdsmin, end: cdsmax, type: 'wholeCDS', 
-                                                           strand: feature.get('strand') } 
+            feature.wholeCDS = new SimpleFeature({ parent: feature,
+                                                   data: { start: cdsmin, end: cdsmax, type: 'wholeCDS',
+                                                           strand: feature.get('strand') }
                                                  } );
             var hasExons = false;
-            for (var i=0; i<subfeats.length; i++)  { 
-                // if (subfeats[i].get('type') === 'exon')  { hasExons = true; break; } 
-                if (SeqOnto.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; } 
+            for (var i=0; i<subfeats.length; i++)  {
+                // if (subfeats[i].get('type') === 'exon')  { hasExons = true; break; }
+                if (SeqOnto.exonTerms[subfeats[i].get('type')])  { hasExons = true; break; }
             }
             if (hasExons)  {
                 // filter out UTR and CDS
-                newsubs = subfeats.filter( function(feat) { 
+                newsubs = subfeats.filter( function(feat) {
                     var ftype = feat.get('type');
                     return (! (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype]) );
                 } );
@@ -452,7 +899,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     var curStart = subfeat.get('start');
                     var curEnd = subfeat.get('end');
 
-                    if (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype] ) {  
+                    if (SeqOnto.utrTerms[ftype] || SeqOnto.cdsTerms[ftype] ) {
                         if (! prevStart)  {  // first UTR/CDS, just initialize first exon
                             prevStart = subfeat.get('start');
                             prevEnd = subfeat.get('end');
@@ -464,10 +911,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
                             }
                             // not abutting, create previous exon and start new one
                             else  {
-                                var exon = new SimpleFeature({ parent: feature, 
-                                                               id: feature.id() + "-exon-" + exonCount++, 
-                                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
-                                                                       strand: feature.get('strand')  } 
+                                var exon = new SimpleFeature({ parent: feature,
+                                                               id: feature.id() + "-exon-" + exonCount++,
+                                                               data: { start: prevStart, end: prevEnd, type: 'exon',
+                                                                       strand: feature.get('strand')  }
                                                              } );
                                 newsubs.push(exon);
                                 prevStart = curStart;
@@ -480,22 +927,22 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     }
                 }
                 // add last exon after exiting loop
-                var exon = new SimpleFeature({ parent: feature, 
-                                               id: feature.id() + "-exon-" + exonCount++, 
-                                               data: { start: prevStart, end: prevEnd, type: 'exon', 
-                                                       strand: feature.get('strand') } 
+                var exon = new SimpleFeature({ parent: feature,
+                                               id: feature.id() + "-exon-" + exonCount++,
+                                               data: { start: prevStart, end: prevEnd, type: 'exon',
+                                                       strand: feature.get('strand') }
                                              } );
                 newsubs.push(exon);
-                
+
             }
         }
         // ensure that subfeatures are sorted by ascending start (regardless of feature orientation)
         //    may want to revisit later and sort subfeatures of minus strand in descending order ??
         //       but if do this must make sure to change reading frame calcs to reflect this
-        newsubs.sort(this._subfeatSorter);  
+        newsubs.sort(this._subfeatSorter);
         feature.filteredsubs = newsubs;
         feature.normalized = true;
-    }, 
+    },
 
 
     /**
@@ -504,7 +951,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
     handleSubFeatures: function( feature, featDiv,
                                     displayStart, displayEnd, block )  {
 
-        var subfeats = feature.get('subfeatures');  
+        var subfeats = feature.get('subfeatures');
         if (! subfeats)  { return; }
 
         if (! feature.normalized )  {
@@ -599,9 +1046,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {  // subfeatureClases defaults set in this._defaultConfig
             if (!UTRclass) {
-                UTRclass = this.config.style.subfeatureClasses["UTR"];  
+                UTRclass = this.config.style.subfeatureClasses["UTR"];
             }
-            CDSclass = this.config.style.subfeatureClasses["CDS"];  
+            CDSclass = this.config.style.subfeatureClasses["CDS"];
         }
 
         //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
@@ -769,13 +1216,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
      */
     onFeatureMouseDown: function(event) {
         // event.stopPropagation();
-        if( this.verbose_selection || this.verbose_drag ) { 
-            console.log("DFT.onFeatureMouseDown called"); 
+        if( this.verbose_selection || this.verbose_drag ) {
+            console.log("DFT.onFeatureMouseDown called");
         console.log("genome coord: " + this.getGenomeCoord(event));
         }
 
-        // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5, 
-        //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call 
+        // drag_create conditional needed in older strategy using trigger(event) for feature drag bootstrapping with JQuery 1.5,
+        //   but not with with JQuery 1.7+ strategy using _mouseDown(event), since _mouseDown call doesn't lead to onFeatureMouseDown() call
         // if (this.drag_create)  { this.drag_create = null; return; }
         this.handleFeatureSelection(event);
         if (this.drag_enabled)  {
@@ -850,8 +1297,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
        }
     },
 
-    /* 
-     * WARNING: assumes one level (featdiv has feature) 
+    /*
+     * WARNING: assumes one level (featdiv has feature)
      *                  or two-level (featdiv has feature, subdivs have subfeature) feature hierarchy
      * attaching ghost to pinned AnnotTrack or SequenceTrack to ensure that stays on top
      */
@@ -861,7 +1308,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         if (this.verbose_drag)  {  console.log("called handleFeatureDragSetup()"); console.log(featdiv); }
         var feat = featdiv.feature || featdiv.subfeature;
         var selected = this.selectionManager.isSelected( { feature: feat, track: ftrack });
-        // set all other tracks to standard track zIndex, 
+        // set all other tracks to standard track zIndex,
         // set this track to > than others to ensure ghost is drawn on top of all other tracks
   /*     ftrack.div.style.zIndex = 10;
         $(ftrack.gview.tracks).each( function(index, track)  {
@@ -874,12 +1321,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
         /*
         // simple version for testing
         // (no multiselect ghosting, no appendTo redirection, no event retriggering for simultaneous select & drag)
-            if (selected)  {  
+            if (selected)  {
                 var $featdiv = $(featdiv);
-                $featdiv.draggable(   { 
-                helper: 'clone', 
+                $featdiv.draggable(   {
+                helper: 'clone',
                 opacity: 0.5,
-                axis: 'y', 
+                axis: 'y',
                 } );
             }
         */
@@ -901,14 +1348,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 if (! atrack) { atrack = ftrack.webapollo.getSequenceTrack();  }
                 var fblock = ftrack.getBlock(featdiv);
 
-                // append drag ghost to featdiv block's equivalent block in annotation track if present, 
-                //     else  append to equivalent block in sequence track if present, 
-                //     else append to featdiv's block 
+                // append drag ghost to featdiv block's equivalent block in annotation track if present,
+                //     else  append to equivalent block in sequence track if present,
+                //     else append to featdiv's block
                 var ablock = ( atrack ? atrack.getEquivalentBlock(fblock) : fblock);
 
                 $featdiv.draggable(   // draggable() adds "ui-draggable" class to div
                 {
-                    zIndex: 200, 
+                    zIndex: 200,
                     appendTo: ablock.domNode, // would default to featdiv's parent div
                     // custom helper for pseudo-multi-drag ("pseudo" because multidrag is visual only --
                     //      handling of draggable when dropped is already done through selection)
@@ -926,16 +1373,16 @@ var draggableTrack = declare( HTMLFeatureTrack,
                         var $pfeatdiv;
                         // get top-level feature (assumes one or two-level feature hierarchy)
                         if (featdiv.subfeature) {
-                            $pfeatdiv = $(featdiv.parentNode); 
+                            $pfeatdiv = $(featdiv.parentNode);
                         }
                         else  {
                              $pfeatdiv = $(featdiv);
                         }
                         var $holder = $pfeatdiv.clone();
                         $holder.removeClass();
-                        // just want the shell of the top-level feature, so remove children 
+                        // just want the shell of the top-level feature, so remove children
                         //      (selected children will be added back in below)
-                        $holder.empty(); 
+                        $holder.empty();
                         $holder.addClass("custom-multifeature-draggable-helper");
                         var holder = $holder[0];
                         // var featdiv_copy = $featdiv_copy[0];
@@ -988,15 +1435,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     },
                     opacity: 0.5,
                     axis: 'y'
-                    // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5, 
+                    // drag_create setting in create() needed by older drag bootstrapping strategy with JQuery 1.5,
                     //     but not with different JQuery 1.7+ strategy
                     // , create: function(event, ui)  { ftrack.drag_create = true; }
                 } );
 
-                // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event 
+                // Want to be able to both make feature draggable and initiate actual dragging with the same mousedown event
                 // to do this need to retrigger/simulate the mousedown event again
                 // see http://bugs.jqueryui.com/ticket/3876 regarding switch from previous hacky approach using JQuery 1.5:
-                //       $featdiv.trigger(event) and ftrack.drag_create 
+                //       $featdiv.trigger(event) and ftrack.drag_create
                 // to new hacky approach using JQuery 1.7+:
                 //       data("draggable")._mouseDown(event);
                 // _mouseDown doesn't lead to another call to onFeatMouseDown, but does trigger the drag
@@ -1004,13 +1451,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 // see also http://stackoverflow.com/questions/9634639/why-does-this-break-in-jquery-1-7-x
                 //     for more explanation of event handling changes in JQuery 1.7
 
-                // _mouseDown(event) triggering boostrapping of feature drag 
-                // $featdiv.data("draggable")._mouseDown(event);  
+                // _mouseDown(event) triggering boostrapping of feature drag
+                // $featdiv.data("draggable")._mouseDown(event);
                 $featdiv.draggable().data("draggable")._mouseDown(event);
                 // $featdiv.trigger(event);
             }
         }
-    }, 
+    },
 
     /* given a feature or subfeature, return block that rendered it */
     getBlock: function( featdiv ) {
@@ -1020,7 +1467,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             fdiv = fdiv.parentNode;
         }
         return null;  // should never get here...
-    }, 
+    },
 
     getEquivalentBlock: function ( block ) {
         var startBase = block.startBase;
@@ -1032,7 +1479,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
         }
         return null;
-    }, 
+    },
 
     onFeatureDoubleClick: function( event )  {
         var ftrack = this;
@@ -1107,9 +1554,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
 /*
  *  for the input mouse event, returns genome position under mouse IN 1-BASED INTERBASE COORDINATES
- *  WARNING: returns base position relative to UI coordinate system 
+ *  WARNING: returns base position relative to UI coordinate system
  *       (which is 1-based interbase)
- *  But for most elements in genome view (features, graphs, etc.) the underlying data structures are 
+ *  But for most elements in genome view (features, graphs, etc.) the underlying data structures are
  *       in 0-base interbase coordinate system
  *  So if you want data structure coordinates, you need to do (getUiGenomeCoord() - 1)
  *       or use the convenience function getGenomeCoord()
@@ -1124,20 +1571,20 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
  */
 
-/*   
+/*
     getUiGenomeCoord: function(mouseEvent)  {
         return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
-    }, 
+    },
 */
 
 /**
  *  for the input mouse event, returns genome position under mouse IN 0-BASED INTERBASE COORDINATES
  *  WARNING:
- *  returns genome coord in 0-based interbase (which is how internal data structure represent coords), 
+ *  returns genome coord in 0-based interbase (which is how internal data structure represent coords),
  *       instead of 1-based interbase (which is how UI displays coordinates)
  *  if need display coordinates, use getUiGenomeCoord() directly instead
- *  
- *  otherwise same capability and assumptions as getUiGenomeCoord(): 
+ *
+ *  otherwise same capability and assumptions as getUiGenomeCoord():
  *  event can be on GenomeView.elem or any descendant DOM elements (track, block, feature divs, etc.)
  *  assumes:
  *      event is a mouse event (plain Javascript event or JQuery event)
@@ -1146,19 +1593,19 @@ var draggableTrack = declare( HTMLFeatureTrack,
  *      no border/margin/padding set on the doc <body> element  (see JQuery.offset() docs)
  *      if in IE<9, either page is not scrollable (in the HTML page sense) OR event is JQuery event
  *         (currently JBrowse index.html page is not scrollable (JBrowse internal scrolling is NOT same as HTML page scrolling))
- * 
+ *
  */
     getGenomeCoord: function(mouseEvent)  {
         return Math.floor(this.gview.absXtoBp(mouseEvent.pageX));
         //  return this.getUiGenomeCoord(mouseEvent) - 1;
     },
-    
+
     _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
         var atrack = this.webapollo.getAnnotTrack();
 
         var menu = this.inherited(arguments);
         menu.addChild(new dijitMenuSeparator());
-        
+
         this.contextMenuItems = {};
 
         var createAnnotationMenu = new dijitMenu();
@@ -1251,20 +1698,20 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 atrack.createGenericOneLevelAnnotations(selFeats, "transposable_element", true);
             })
         }));
-        
+
         var createAnnotationMenuItem = new dijitPopupMenuItem( {
             label: "Create new annotation",
             popup: createAnnotationMenu
         } );
         this.contextMenuItems["create_annotation"] = createAnnotationMenuItem;
         menu.addChild(createAnnotationMenuItem);
-        
+
         dojo.connect(menu, "onOpen", dojo.hitch(this, function() {
             this.updateContextMenu();
         }));
-        
+
     },
-    
+
     // override getLayout to access addRect method
     _getLayout: function () {
         var thisB = this;

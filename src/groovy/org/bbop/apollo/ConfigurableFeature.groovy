@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 /**
- * Created by ndunn on 7/15/15.
+ * Created by Nathan Dunn on 7/15/15.
  *
  * Used to customize a feature type
  * TODO: make sure that this goes into generic feature and generic transcipt or will ahve to over-ride

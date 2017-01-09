@@ -5,7 +5,6 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -24,6 +23,7 @@ class SequenceController {
     def permissionService
     def preferenceService
     def reportService
+    def assemblageService
 
     def permissions() {  }
 
@@ -31,13 +31,15 @@ class SequenceController {
     @Transactional
     def setCurrentSequenceLocation(String name,Integer start, Integer end) {
 
+        JSONObject inputObject = permissionService.handleInput(request,params)
+
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value].toString())
+            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }
             else{
-                render userOrganismPreference.sequence as JSON
+                render userOrganismPreference.assemblage as JSON
             }
         } catch (NumberFormatException e) {
             //  we can ignore this specific exception as null is an acceptable value for start / end
@@ -89,10 +91,29 @@ class SequenceController {
 //            userOrganismPreference.save(flush: true, failOnError: true)
 //        }
 //        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
+//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
+//
+////        Assemblage assemblage = assemblageService.generateAssemblageForSequence(currentUser,sequenceInstance)
+//        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequenceInstance)
+//        if (!userOrganismPreference) {
+//            userOrganismPreference = new UserOrganismPreference(
+//                    user: currentUser
+//                    , organism: organism
+//                    , assemblage: assemblage
+//                    , currentOrganism: true
+//                    , token: token
+//            ).save(insert: true, flush: true, failOnError: true)
+//        } else {
+//            userOrganismPreference.assemblage = assemblage
+//            userOrganismPreference.currentOrganism = true
+//            userOrganismPreference.save(flush: true, failOnError: true)
+//        }
+//        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
-        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
+//        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
+        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, assemblage.sequenceList.toString())
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
@@ -109,6 +130,7 @@ class SequenceController {
         sequenceObject.startBp = userOrganismPreference.startbp
         sequenceObject.endBp = userOrganismPreference.endbp
 
+//        render userOrganismPreference.assemblage.sequenceList
         render sequenceObject as JSON
     }
 
@@ -118,6 +140,22 @@ class SequenceController {
         if (!organism.sequences) {
             sequenceService.loadRefSeqs(organism)
         }
+
+        User currentUser = permissionService.currentUser
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(currentUser, organism)
+        if (userOrganismPreference?.assemblage) {
+            userOrganismPreference.currentOrganism = true
+            request.session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, userOrganismPreference.assemblage.sequenceList.toString())
+            userOrganismPreference.save(flush: true)
+        } else {
+            userOrganismPreference = new UserOrganismPreference(
+                    user: currentUser
+                    , organism: organism
+                    , currentOrganism: true
+                    , assemblage: Assemblage.findByOrganism(organism)
+            ).save(insert: true, flush: true)
+        }
+        UserOrganismPreference.executeUpdate("update UserOrganismPreference  pref set pref.currentOrganism = false where pref.id != :prefId ", [prefId: userOrganismPreference.id])
 
         JSONArray sequenceArray = new JSONArray()
         for (Sequence sequence in organism.sequences) {
@@ -245,5 +283,56 @@ class SequenceController {
         render view:"report", model:[sequenceInstanceList:sequenceInstanceList,organism:organism,sequenceInstanceCount:sequenceInstanceCount]
     }
 
+    /**
+     * GET (base)/features/(refseq_name)?start=234&end=5678
+     * http://gmod.org/wiki/JBrowse_Configuration_Guide#JBrowse_REST_Feature_Store_API
+     *
+     *
+     * {
+*     "features": [
+*    { "start": 123, "end": 456 }', // minimal
+*    { "start": 123, "end": 456, "score": 42 }, // required
+*    {"seq": "gattacagattaca", "start": 0, "end": 14}, // seq
+     *
+*    { "type": "mRNA", "start": 5975, "end": 9744, "score": 0.84, "strand": 1,
+*        "name": "au9.g1002.t1", "uniqueID": "globallyUniqueString3",
+*        "subfeatures": [
+     *                 { "type": "five_prime_UTR", "start": 5975, "end": 6109, "score": 0.98, "strand": 1 },
+     *
+     *
+     */
+    def features(){
+        println "features params: ${params}"
+//        println "id: ${id}"
+//        println "start: ${start}"
+//        println "end: ${end}"
 
+        JSONObject features1 = new JSONObject(start:123,end:456,name:"region1",type:"MRNA",label:"first label",Id:"abc123",unique_name:"def567")
+        JSONObject features2 = new JSONObject(start:789,end:1012,name:"region2")
+
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer(features1,features2)
+
+
+
+        render jsonObject
+    }
+
+
+    def regionFeatureDensities(){
+        println "regionFeatureDensities params: ${params}"
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        render jsonObject
+    }
+
+    def statsGlobal(){
+        println "stats global params: ${params}"
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        render jsonObject
+    }
+
+    def statsRegion(){
+        println "stats region params: ${params}"
+        JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
+        render jsonObject
+    }
 }

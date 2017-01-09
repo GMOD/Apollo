@@ -6,7 +6,7 @@ class UserOrganismPreference extends UserPreference{
         organism nullable: false
         currentOrganism nullable: false
         nativeTrackList nullable: true
-        sequence nullable: true, blank: false
+        assemblage nullable: true, blank: false
         startbp nullable: true, blank: false
         endbp nullable: true, blank: false
     }
@@ -14,7 +14,8 @@ class UserOrganismPreference extends UserPreference{
     Organism organism
     Boolean currentOrganism  // this means the "active" client token
     Boolean nativeTrackList
-    Sequence sequence
+    Assemblage assemblage
+//    Sequence sequence
     Integer startbp
     Integer endbp
 
@@ -26,7 +27,7 @@ class UserOrganismPreference extends UserPreference{
 
         if (id != that.id) return false
         if (organism != that.organism) return false
-        if (sequence != that.sequence) return false
+        if (assemblage!= that.assemblage) return false
 
         return true
     }
@@ -34,7 +35,7 @@ class UserOrganismPreference extends UserPreference{
     int hashCode() {
         int result
         result = organism.hashCode()
-        result = 31 * result + sequence.hashCode()
+        result = 31 * result + assemblage.hashCode()
         result = 31 * result + id.hashCode()
         return result
     }

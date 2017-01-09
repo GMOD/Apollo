@@ -5,7 +5,6 @@
         >
     <ui:style>
 
-
         .details-header {
             background-color: #cccccc;
             width: 100%;
@@ -32,11 +31,6 @@
             margin-left: 10px;
         }
 
-        .username {
-            display: inline;
-            font-size: smaller;
-        }
-
         .dropdown-display:focus {
             background-color: gray;
         }
@@ -52,33 +46,6 @@
             width: 100px;
         }
 
-        .lookup-display:focus {
-            background-color: gray;
-        }
-
-        .lookup-display {
-            margin-left: 5px;
-            margin-right: 5px;
-            display: inline;
-            background-color: gray;
-            color: white;
-            font-size: smaller;
-            height: 25px;
-            width: 100px;
-        }
-
-        .northPanel {
-            display: inline;
-            padding: 2px;
-            background-color: lightgrey;
-        }
-
-        .linkStyle {
-            display: inline;
-            margin-left: 5px;
-            font-size: smaller;
-        }
-
         .buffer {
             margin-top: 5px;
         }
@@ -86,6 +53,14 @@
             outline:none !important;
         }
 
+        .position-label {
+            /*background-color: white;*/
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            display: inline;
+            font-size: smaller;
+        }
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -99,7 +74,7 @@
                                   styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
-                        <gwt:SuggestBox ui:field="sequenceSuggestBox" stylePrimaryName="{style.lookup-display}"/>
+                        <gwt:HTML ui:field="currentSequenceLabel" visible="true" styleName="{style.position-label}"/>
                         <b:Panel styleName="pull-right">
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
@@ -162,6 +137,10 @@
                         <gwt:tab>
                             <gwt:header>Ref Sequence</gwt:header>
                             <apollo:SequencePanel ui:field="sequencePanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
+                            <gwt:header>Assemblage</gwt:header>
+                            <apollo:AssemblagePanel ui:field="assemblagePanel"/>
                         </gwt:tab>
                         <gwt:tab>
                             <gwt:header>Organism</gwt:header>

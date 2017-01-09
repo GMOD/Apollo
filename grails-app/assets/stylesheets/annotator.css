@@ -116,6 +116,46 @@ h1 {
 }
 
 
+/* ------------ Bookmark Draggable Panel ------------ */
+
+.assemblage-FlowPanel-draggable {
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  /*padding: 0.1em;*/
+  /*margin: 0.1em;*/
+  /*border: 1px solid blue;*/
+  border: 0;
+  /*background-color: #B3FF87; !* bright green *!*/
+  /*background-color: #396494; !* bright green *!*/
+  /*opacity: 0.2;*/
+}
+
+.assemblage-FlowPanel-draggable,
+.assemblage-FlowPanel-draggable DIV {
+  display: inline;
+}
+
+.assemblage-FlowPanel-label {
+  font-size: 1.2em;
+  line-height: 1.3em;
+  font-weight: 300;
+  /*color: black;*/
+  color: white;
+}
+
+.dragdrop-FlowPanel-positioner {
+  /*color: blue;*/
+  /*color: #396494;*/
+  padding-top: 5px;
+  color: black;
+  font-weight: 200;
+}
+
+/* Defined in the UI.xml file */
+/*.dragdrop-flow-panel-positioner {*/
+  /*color: blue;*/
+/*}*/
 .lookup-display {
   margin-left: 5px;
   /*margin-right: 5px;*/
@@ -125,4 +165,12 @@ h1 {
   /*font-size: smaller;*/
   /*height: 25px;*/
   /*width: 100px;*/
+}
+
+.individual-label{
+  color: white;
+  padding: 5px;
+  margin: 5px;
+  border-radius: 5px;
+  display: inline;
 }

@@ -826,7 +826,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 features += '{ "uniquename": "' + annot.id() + '" }';
         }
         features += "]";
-        var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "delete_sequence_alteration" }';
+        var postData = '{ "track": ' + track.getUniqueTrack() + ', "features": ' + features + ', "operation": "delete_sequence_alteration" }';
         track.annotTrack.executeUpdateOperation(postData);
     },
 
@@ -1022,6 +1022,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var buttonDiv = dojo.create("div", { className: "sequence_alteration_button_div" }, content);
         var addButton = dojo.create("button", { innerHTML: "Add", className: "sequence_alteration_button" }, buttonDiv);
 
+
         var addSequenceAlteration = function() {
             var ok = true;
             var inputField;
@@ -1081,7 +1082,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                         feature += ', "non_reserved_properties": [{"tag": "justification", "value": "' + commentFieldValue + '" }]';
                     }
                     var features = '[ { ' + feature + ' } ]';
-                    var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
+                    var postData = '{ "track":  '+ track.getUniqueTrack()+ ', "features": ' + features + ', "operation": "add_sequence_alteration" }';
                     track.annotTrack.executeUpdateOperation(postData);
                     track.annotTrack.closeDialog();
                 }
@@ -1093,6 +1094,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         });
 
         return content;
+    },
+
+    getUniqueTrack:function(){
+        var trackName = this.annotTrack.getUniqueTrackName();
+        trackName = trackName.substr(0,trackName.lastIndexOf(':'));
+        return trackName;
     },
 
     handleError: function(response) {

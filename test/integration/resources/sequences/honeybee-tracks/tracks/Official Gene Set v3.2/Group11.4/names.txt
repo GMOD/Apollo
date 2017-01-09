@@ -1,0 +1,6 @@
+[["GB52238-RA","GB52238-RA"],"Official Gene Set v3.2","GB52238-RA","Group11.4",10257,18596]
+[["GB52239-RA","GB52239-RA"],"Official Gene Set v3.2","GB52239-RA","Group11.4",18905,56055]
+[["GB52237-RA","GB52237-RA"],"Official Gene Set v3.2","GB52237-RA","Group11.4",23630,25038]
+[["GB52236-RA","GB52236-RA"],"Official Gene Set v3.2","GB52236-RA","Group11.4",52853,58962]
+[["GB52235-RA","GB52235-RA"],"Official Gene Set v3.2","GB52235-RA","Group11.4",60154,61204]
+[["GB52234-RA","GB52234-RA"],"Official Gene Set v3.2","GB52234-RA","Group11.4",62507,64197]

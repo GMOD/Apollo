@@ -386,9 +386,16 @@ auditLog {
 // Default JBrowse configuration 
 jbrowse {
     git {
-        url= "https://github.com/gmod/jbrowse"
-        tag = "8bd1befc40a8d856545af81627e4eff802936007"
+//        url= "https://github.com/gmod/jbrowse"
+//        tag = "baaf898e51dc2ebb61a8b0a369a90742f259218c"
 //		tag = "1.12.2-apollo"
+        url= "https://github.com/nathandunn/jbrowse"
+//        tag = "1.12.2-apollo"
+		branch = "projection_v2_server"
+        alwaysPull = true
+        alwaysRecheck = true
+//        url= "https://github.com/gmod/jbrowse"
+//        tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
         alwaysRecheck = false

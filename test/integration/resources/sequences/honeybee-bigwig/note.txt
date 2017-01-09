@@ -1,0 +1,9 @@
+Honeybee bigwig data that should correspond to the other data in the resource directory.
+
+Group1.10
+Group11.4
+Group11.6
+Group4.1
+Group6.10
+GroupUn87
+

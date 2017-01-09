@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -11,6 +12,7 @@ class AnnotatorService {
     def permissionService
     def preferenceService
     def requestHandlingService
+    def assemblageService
 
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
@@ -49,12 +51,21 @@ class AnnotatorService {
                 appStateObject.put("currentOrganism", currentOrganism )
 
 
-                if (!currentUserOrganismPreference.sequence) {
-                    Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
-                    currentUserOrganismPreference.sequence = sequence
-                    currentUserOrganismPreference.save()
+                if (!currentUserOrganismPreference.assemblage) {
+                    User currentUser = currentUserOrganismPreference.user
+                    // find the first assemblage with a matching organism
+                    def assemblages = assemblageService.getAssemblagesForUserAndOrganism(currentUser,currentOrganism)
+                    Assemblage assemblage = assemblages.size()>0 ? assemblages.first() : null
+//                    Assemblage assemblage = Assemblage.findByOrganism(currentOrganism,currentUserOrganismPreference.user)
+                    if (!assemblage) {
+                        // just need the first random one
+                        Sequence sequence = Sequence.findByOrganism(currentOrganism)
+                        assemblage = assemblageService.generateAssemblageForSequence(sequence)
+                    }
+                    currentUserOrganismPreference.assemblage = assemblage
+                    currentUserOrganismPreference.save(flush: true)
                 }
-                appStateObject.put("currentSequence", currentUserOrganismPreference.sequence)
+                appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(currentUserOrganismPreference.assemblage))
 
 
                 if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {
