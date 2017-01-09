@@ -405,7 +405,7 @@ jbrowse {
         }
         NeatHTMLFeatures{
             included = true
-//            linearGradient = 0
+            linearGradient = 0
         }
         NeatCanvasFeatures{
             included = true
