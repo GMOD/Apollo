@@ -12,6 +12,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -68,7 +69,7 @@ public class AssemblagePanel extends Composite {
     @UiField
     DockLayoutPanel layoutPanel;
     @UiField
-    Button mergeButton;
+    Button combineButton;
     @UiField
     Button removeButton;
     @UiField
@@ -95,12 +96,12 @@ public class AssemblagePanel extends Composite {
     private Set<String> usedSequences = new HashSet<>();
 
     private final LoadingDialog loadingDialog;
+    private final NumberFormat numberFormatter = NumberFormat.getDecimalFormat();
     public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
 
     // TODO: probably a more clever way to do this
     private static List<AssemblageInfo> assemblageInfoList = new ArrayList<>();
     private static List<AssemblageInfo> assemblageInfoListFiltered = dataProvider.getList();
-//    private static Map<String, AssemblageInfo> assemblageInfoMap = new HashMap<>();
 
     private MultiSelectionModel<AssemblageInfo> selectionModel = new MultiSelectionModel<AssemblageInfo>();
     private boolean loadingAssemblages = false;
@@ -147,7 +148,7 @@ public class AssemblagePanel extends Composite {
             @Override
             public String getValue(AssemblageInfo assemblageInfo) {
                 Long length = ProjectionService.calculatedProjectedLength(assemblageInfo);
-                return length == null ? "N/A" : length.toString();
+                return length == null ? "N/A" : numberFormatter.format(length);
             }
         };
         lengthColumn.setSortable(true);
@@ -327,8 +328,8 @@ public class AssemblagePanel extends Composite {
 
     }
 
-    @UiHandler("mergeButton")
-    public void merge(ClickEvent clickEvent) {
+    @UiHandler("combineButton")
+    public void combine(ClickEvent clickEvent) {
         AssemblageInfo assemblageInfo = new AssemblageInfo();
         Set<AssemblageInfo> assemblageInfoSet = selectionModel.getSelectedSet();
         // merge rule 1 . . . take largest padding
@@ -351,11 +352,11 @@ public class AssemblagePanel extends Composite {
         assemblageInfo.setStart(start);
         assemblageInfo.setEnd(end);
 
-        addAssemblageLocally(assemblageInfo);
+        AssemblageRestService.addAssemblage(new SearchAndUpdateAssemblagesCallback(), assemblageInfo);
+//        addAssemblageLocally(assemblageInfo);
     }
 
     private void clearAssemblageLocally() {
-//        assemblageInfoMap.clear();
         assemblageInfoList.clear();
     }
 
@@ -383,19 +384,19 @@ public class AssemblagePanel extends Composite {
 
     private void setAssemblageInfo(Set<AssemblageInfo> selectedObjects) {
         if (selectedObjects.size() == 0) {
-            mergeButton.setText("Combine");
+            combineButton.setText("Combine");
             removeButton.setText("Remove ");
             saveButton.setText("Save");
-            mergeButton.setEnabled(false);
+            combineButton.setEnabled(false);
             removeButton.setEnabled(false);
             saveButton.setEnabled(false);
             viewButton.setEnabled(false);
             flipAssemblageButton.setEnabled(false);
         } else if (selectedObjects.size() == 1) {
-            mergeButton.setText("Combine");
+            combineButton.setText("Combine");
             removeButton.setText("Remove");
             saveButton.setText("Save");
-            mergeButton.setEnabled(false);
+            combineButton.setEnabled(false);
             removeButton.setEnabled(true);
             flipAssemblageButton.setEnabled(false);
             if (selectedObjects.iterator().next().getSequenceList().size() > 1) {
@@ -410,10 +411,10 @@ public class AssemblagePanel extends Composite {
         }
         // multiple
         else {
-            mergeButton.setText("Combine: " + selectedObjects.size());
+            combineButton.setText("Combine: " + selectedObjects.size());
             removeButton.setText("Remove: " + selectedObjects.size());
             saveButton.setText("Save");
-            mergeButton.setEnabled(true);
+            combineButton.setEnabled(true);
             removeButton.setEnabled(true);
             saveButton.setEnabled(false);
             viewButton.setEnabled(true);
@@ -456,7 +457,8 @@ public class AssemblagePanel extends Composite {
     }
 
     public void reload() {
-        searchForAssemblage(null);
+//        searchForAssemblage(null);
+        AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
     }
 
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {
@@ -465,7 +467,7 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("searchBox")
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
-        AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
+//        AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
         filterList();
     }
 
@@ -476,22 +478,15 @@ public class AssemblagePanel extends Composite {
         for (AssemblageInfo assemblageInfo: assemblageInfoList) {
             if (assemblageInfo.getName().toLowerCase().contains(text.toLowerCase())
                     && typeMatches(assemblageInfo)
-                    )
-            {
+                    ) {
                 assemblageInfoListFiltered.add(assemblageInfo);
-//                Integer filteredIndex = assemblageInfoList.indexOf(assemblageInfo);
-//                if( filteredIndex < 0 ){
-//                    filteredTrackInfoList.add(trackInfo);
-//                }
-//                else{
-//                    filteredTrackInfoList.get(filteredIndex).setVisible(trackInfo.getVisible());
-//                }
             }
             else{
                 assemblageInfoListFiltered.remove(assemblageInfo);
             }
         }
         dataGrid.redraw();
+        ColumnSortEvent.fire(dataGrid,dataGrid.getColumnSortList());
     }
 
     private boolean typeMatches(AssemblageInfo assemblageInfo) {

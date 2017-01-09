@@ -91,7 +91,7 @@
                             <b:Column size="MD_5">
                                 <b:ButtonGroup>
                                     <b:Button text="Combine" icon="LOCATION_ARROW" enabled="false"
-                                              ui:field="mergeButton"/>
+                                              ui:field="combineButton"/>
                                     <b:Button text="Delete" icon="REMOVE" enabled="false" ui:field="removeButton"/>
                                     <b:Button text="Save" icon="SAVE" enabled="false" ui:field="saveButton"/>
                                     <b:Button text="View" icon="EYE" enabled="false" ui:field="viewButton"/>
