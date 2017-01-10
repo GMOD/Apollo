@@ -356,7 +356,6 @@ public class AssemblagePanel extends Composite {
         for (AssemblageInfo assemblageInfo : assemblageInfos) {
             assemblageInfoList.add(assemblageInfo);
         }
-        filterList();
     }
 
     void setAssemablageInfo(AssemblageInfo currentAssemblage) {
@@ -425,8 +424,8 @@ public class AssemblagePanel extends Composite {
                     JSONObject jsonObject = jsonValue.get(i).isObject();
                     AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject);
                     addAssemblageLocally(assemblageInfo);
-                    searchForAssemblage(null);
                 }
+                filterList();
 
                 loadingDialog.hide();
             } catch (Exception e) {
@@ -450,13 +449,12 @@ public class AssemblagePanel extends Composite {
         AssemblageRestService.addAssemblage(requestCallback, assemblageInfoCollection);
     }
 
-    @UiHandler("searchBox")
-    public void searchForAssemblage(KeyUpEvent keyUpEvent) {
-        filterList();
+    private void filterList(){
+        filterList(null);
     }
 
-
-    private void filterList() {
+    @UiHandler("searchBox")
+    protected void filterList(KeyUpEvent keyUpEvent) {
         String text = searchBox.getText();
         assemblageInfoListFiltered.clear();
         for (AssemblageInfo assemblageInfo: assemblageInfoList) {
@@ -509,7 +507,7 @@ public class AssemblagePanel extends Composite {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                searchForAssemblage(null);
+                filterList();
             }
         });
     }
@@ -523,9 +521,9 @@ public class AssemblagePanel extends Composite {
 
             // adding assemblages from response
             addAssemblageLocally(AssemblageInfoConverter.convertFromJsonArray(jsonValue));
+            filterList();
             loadingDialog.hide();
             loadingAssemblages = false ;
-            filterList();
         }
 
         @Override

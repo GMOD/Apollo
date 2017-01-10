@@ -32,15 +32,10 @@ public class AssemblageDetailPanel extends Composite {
     private static AssemblageDetailPanelUiBinder ourUiBinder = GWT.create(AssemblageDetailPanelUiBinder.class);
 
     @UiField(provided = true)
-    AbsolutePanel boundaryPanel = new AbsolutePanel();
-//    @UiField(provided = true)
-//    HTML logField = new HTML();
-
+    protected AbsolutePanel boundaryPanel = new AbsolutePanel();
 
     private static final int SPACING = 0;
 
-//    private AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler(logField);
-    private AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler();
     private AssemblageWidget assemblageWidget = new AssemblageWidget();
     private PickupDragController featureDragController = new PickupDragController(boundaryPanel, false);
     private PickupDragController assemblageSequenceDragController = new PickupDragController(boundaryPanel, false);
@@ -48,6 +43,7 @@ public class AssemblageDetailPanel extends Composite {
     public AssemblageDetailPanel() {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
+        AssemblageDragHandler assemblageDragHandler = new AssemblageDragHandler();
 
         boundaryPanel.setSize("100%", "100%");
         assemblageSequenceDragController.setBehaviorBoundaryPanelDrop(false);
