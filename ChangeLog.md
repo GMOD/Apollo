@@ -11,6 +11,9 @@ Bugfixes
 + Unable to add organism from script without pre-existing web-services #1388
 + When logged clicking on JBrowse will not load the Annotator Panel #1395
 + server_data may lock some times in dev mode #1419
++ Intron persists in tracks if a single exon #1417
++ Authentication error with galaxy tools + remote_user #1423
++ Bumped default JBrowse version 
 
 
 ## 2.0.5
