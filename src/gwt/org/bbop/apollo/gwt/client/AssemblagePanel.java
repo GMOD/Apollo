@@ -241,7 +241,7 @@ public class AssemblagePanel extends Composite {
 
     @UiHandler("removeButton")
     public void remove(ClickEvent clickEvent) {
-        AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(), selectionModel.getSelectedSet().toArray(new AssemblageInfo[selectionModel.getSelectedSet().size()]));
+        AssemblageRestService.removeAssemblage(new SearchAndUpdateAssemblagesCallback(), selectionModel.getSelectedSet().toArray(new AssemblageInfo[selectionModel.getSelectedSet().size()]));
     }
 
     /**
@@ -299,19 +299,7 @@ public class AssemblagePanel extends Composite {
         JSONObject panelAsJson = getAssemblagePanelAsJson();
         AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(panelAsJson);
 
-
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                reload();
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Failed to save: " + exception.getMessage());
-            }
-        };
-        AssemblageRestService.addAssemblage(requestCallback, assemblageInfo);
+        AssemblageRestService.addAssemblage(new SearchAndUpdateAssemblagesCallback(), assemblageInfo);
 
     }
 
@@ -344,12 +332,7 @@ public class AssemblagePanel extends Composite {
 
     private void clearAssemblageLocally() {
         assemblageInfoList.clear();
-    }
-
-    private void addAssemblageLocally(AssemblageInfo assemblageInfo) {
-        List<AssemblageInfo> assemblageInfos = new ArrayList<>();
-        assemblageInfos.add(assemblageInfo);
-        addAssemblageLocally(assemblageInfos);
+        usedSequences.clear();
     }
 
     private void addAssemblageLocally(List<AssemblageInfo> assemblageInfos) {
@@ -410,36 +393,6 @@ public class AssemblagePanel extends Composite {
 
     }
 
-
-    private class UpdateAssemblagesCallback implements RequestCallback {
-        @Override
-        public void onResponseReceived(Request request, Response response) {
-            JSONArray jsonValue = JSONParser.parseStrict(response.getText()).isArray();
-
-            loadingAssemblages = true;
-            try {
-                clearAssemblageLocally();
-
-                for (int i = 0; jsonValue != null && i < jsonValue.size(); i++) {
-                    JSONObject jsonObject = jsonValue.get(i).isObject();
-                    AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject);
-                    addAssemblageLocally(assemblageInfo);
-                }
-                filterList();
-
-                loadingDialog.hide();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            loadingAssemblages = false;
-        }
-
-        @Override
-        public void onError(Request request, Throwable exception) {
-            loadingDialog.hide();
-            new ErrorDialog("Error", "There was an error: " + exception, true, true);
-        }
-    }
 
     public void reload() {
         AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
@@ -521,9 +474,9 @@ public class AssemblagePanel extends Composite {
 
             // adding assemblages from response
             addAssemblageLocally(AssemblageInfoConverter.convertFromJsonArray(jsonValue));
-            filterList();
             loadingDialog.hide();
             loadingAssemblages = false ;
+            filterList();
         }
 
         @Override
