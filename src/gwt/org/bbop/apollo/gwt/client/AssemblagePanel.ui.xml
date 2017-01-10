@@ -10,15 +10,6 @@
             margin-left: 10px;
         }
 
-        .widgetPanel {
-            padding: 5px;
-            margin: 5px;
-        }
-
-        .tableKeyName {
-            font-weight: bolder;
-        }
-
         .cellTable {
             border-bottom: 1px solid #ccc;
             text-align: left;
@@ -47,8 +38,6 @@
 
         .inline-button {
             margin-right: 0 !important;
-            /*padding: 0 !important;*/
-            /*border: 0 !important;*/
         }
 
     </ui:style>
@@ -71,11 +60,6 @@
                             <b:RadioButton name="AssemblageFilter" text="All" type="DEFAULT" icon="BAN"
                                            ui:field="showAllAssemblagesButton" addStyleNames="{style.inline-button}"/>
                         </b:ButtonGroup>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.rowNorth}" visible="false">
-                    <b:Column size="MD_3">
-                        <b:Button text="Delete All Bookmarks" icon="TRASH" ui:field="deleteButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>

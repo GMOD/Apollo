@@ -79,8 +79,6 @@ public class AssemblagePanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.TextBox searchBox;
     @UiField
-    Button deleteButton;
-    @UiField
     RadioButton showAllAssemblagesButton;
     @UiField
     RadioButton showOnlyFeatureButton;
@@ -97,7 +95,7 @@ public class AssemblagePanel extends Composite {
 
     private final LoadingDialog loadingDialog;
     private final NumberFormat numberFormatter = NumberFormat.getDecimalFormat();
-    public static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
+    private static ListDataProvider<AssemblageInfo> dataProvider = new ListDataProvider<>();
 
     // TODO: probably a more clever way to do this
     private static List<AssemblageInfo> assemblageInfoList = new ArrayList<>();
@@ -226,12 +224,7 @@ public class AssemblagePanel extends Composite {
 
     }
 
-    private void clearUsedSequences() {
-        usedSequences.clear();
-    }
-
-    public Set<String> getUsedSequences() {
-
+    private Set<String> getUsedSequences() {
         if (usedSequences.size() == 0 && !loadingAssemblages) {
             for (AssemblageInfo assemblageInfo : dataProvider.getList()) {
                 if (assemblageInfo.getSequenceList().size() > 1) {
@@ -243,12 +236,6 @@ public class AssemblagePanel extends Composite {
             }
         }
         return usedSequences;
-    }
-
-
-    @UiHandler("deleteButton")
-    public void delete(ClickEvent clickEvent) {
-        AssemblageRestService.removeAssemblage(new UpdateAssemblagesCallback(), dataProvider.getList().toArray(new AssemblageInfo[dataProvider.getList().size()]));
     }
 
 
@@ -353,7 +340,6 @@ public class AssemblagePanel extends Composite {
         assemblageInfo.setEnd(end);
 
         AssemblageRestService.addAssemblage(new SearchAndUpdateAssemblagesCallback(), assemblageInfo);
-//        addAssemblageLocally(assemblageInfo);
     }
 
     private void clearAssemblageLocally() {
@@ -457,17 +443,15 @@ public class AssemblagePanel extends Composite {
     }
 
     public void reload() {
-//        searchForAssemblage(null);
         AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
     }
 
-    public void addAssemblage(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {
+    private void addAssemblage(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {
         AssemblageRestService.addAssemblage(requestCallback, assemblageInfoCollection);
     }
 
     @UiHandler("searchBox")
     public void searchForAssemblage(KeyUpEvent keyUpEvent) {
-//        AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
         filterList();
     }
 
