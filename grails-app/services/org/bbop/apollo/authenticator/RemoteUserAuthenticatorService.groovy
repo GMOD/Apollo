@@ -33,7 +33,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
 //            } else {
 //            remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
 //            }
-            
+
             remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
             log.warn "Remote user found [${remoteUser}]"
             if (!remoteUser) {
@@ -95,6 +95,6 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
     //    @Override
     def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
         // token is ignored
-        return authToken(request)
+        return authenticate(request)
     }
 }
