@@ -224,7 +224,7 @@ public class AssemblagePanel extends Composite {
 
     }
 
-    private Set<String> getUsedSequences() {
+    protected Set<String> getUsedSequences() {
         if (usedSequences.size() == 0 && !loadingAssemblages) {
             for (AssemblageInfo assemblageInfo : dataProvider.getList()) {
                 if (assemblageInfo.getSequenceList().size() > 1) {
@@ -446,7 +446,7 @@ public class AssemblagePanel extends Composite {
         AssemblageRestService.loadAssemblage(new SearchAndUpdateAssemblagesCallback());
     }
 
-    private void addAssemblage(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {
+    protected void addAssemblage(RequestCallback requestCallback, AssemblageInfo... assemblageInfoCollection) {
         AssemblageRestService.addAssemblage(requestCallback, assemblageInfoCollection);
     }
 
