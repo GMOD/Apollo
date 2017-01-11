@@ -3504,6 +3504,12 @@ define([
                     if (div.style.visibility) {
                         div.style.visibility = null;
                     }
+
+                    // if feature-render annot-render ,
+                    // remove and add: gray-center-10pct
+                    if(div.className.indexOf("feature-render")>=0 &&  div.className.indexOf("annot-render")>=0 ){
+                        div.className = "gray-center-10pct";
+                    }
 // annot_context_menu.unBindDomNode(div);
                     $(div).unbind();
                     for (var i = 0; i < div.childNodes.length; ++i) {
