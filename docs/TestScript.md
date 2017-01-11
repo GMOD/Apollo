@@ -159,6 +159,8 @@ boundary using the arrows in the display.  Modify a number explicity.  On _blur_
 
 13.2.2) Search for a track using the search box.
 
+13.2.3) Check that clicking on the show native tracks icon properly toggles the native tracks.
+
 13.3) Ref Sequence
 
 13.3.1) Use the search box to find a scaffold / chromosome and navigate to it by double clicking on one of them. 
