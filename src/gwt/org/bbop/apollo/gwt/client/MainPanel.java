@@ -54,14 +54,14 @@ public class MainPanel extends Composite {
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
-    static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
+    private static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // start base pair
     private static Integer currentEndBp; // end base pair
     private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
-    public static boolean useNativeTracklist; // list native tracks
+    static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
     private static final String openAnnotatorPanelString = "&openAnnotatorPanel=";
@@ -70,7 +70,7 @@ public class MainPanel extends Composite {
 
 
     private static MainPanel instance;
-    private int maxUsernameLength = 15;
+    private final int maxUsernameLength = 15;
     private static final double UPDATE_DIFFERENCE_BUFFER = 0.3;
     private static final double GENE_VIEW_BUFFER = 0.4;
     private static List<String> reservedList = new ArrayList<>();
@@ -165,6 +165,9 @@ public class MainPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         frame.getElement().setAttribute("id", frame.getName());
+
+        trackListToggle.setWidth(isCurrentUserAdmin()? "20px":"25px");
+
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
