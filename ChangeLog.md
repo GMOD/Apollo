@@ -3,7 +3,6 @@
 
 Features
 + Moved the native track panel button to the main window #1398
-+ Bumped default JBrowse version to enable JBrowse 'Neat' Features by default.
 
 Bugfixes
 
