@@ -13,6 +13,8 @@ Bugfixes
 + server_data may lock some times in dev mode #1419
 + Intron persists in tracks if a single exon #1417
 + Authentication error with galaxy tools + remote_user #1423
++ When logged in as non-admin user, the show track panel button does not look or work properly #1429
++ When deleting an organism from the interface, should instantly update the organism list similar to add organism #1431
 + Bumped default JBrowse version 
 
 
