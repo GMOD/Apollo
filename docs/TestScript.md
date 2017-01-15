@@ -29,17 +29,25 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.2) Check that you can switch organisms from the _Organism_ tab in the _Annotator Panel_
 
-1.3) Check that the organism preference is preserved only on a single browser tab.
+1.3) Check that the organism and sequence preference is preserved only on a single browser tab.  Every tab / window opened should allow a different sequence and organism.  The last organism + scaffold should be loaded into each, but each browser tab will be independent.
 
-1.4) If two organisms have the same scaffold name, switch between those organisms after providing annotations (if they are the same).  
+1.3.1) The last "movement" of any browser for a particular organism should become the new preference (location + scaffold) for that organism.  
+
+1.3.2) The last "movement" should become the new "default" organism. 
+
+1.3.3) Switching back and forth between sequences should remember the last location for each. 
+
+1.3.4) Switching back and forth between organisms should remember the last location (scaffold and location) for each. 
+
+1.4) If two organisms have the same scaffold name within their Reference Sequence, switch between those organisms after providing annotations (if they are the same).  
 
 1.4.1) Use the JBrowse drop-down or search menu to navigate between the two scaffolds on different organisms at least twice and confirm that annotations that belong to an organism on one scaffold are only seen on that organism and not the other.  
 
-1.4.2) Use the _Sequence Panel_ to confirm that scaffolds on a particular organism only belong to that organism.
+1.4.2) Use the _Sequence Panel_ to confirm that scaffolds on a particular organism only belong to that organism.  i.e., every scaffold listed should be part of the current organism.
 
 1.4.3) Use the _Sequence Dropdown_ to confirm that scaffolds on a particular organism only belong to that organism.
 
-1.4.4) Use the _Annotator Panel_ navigate to, to confirm that scaffolds on a particular organism only belong to that organism.
+1.4.4) Use the _Annotator Panel_ "Go To Annotation" button to confirm that scaffolds listed for a particular organism and scaffold only belong to that organism.
 
 2) Test top-level menu options:
 
