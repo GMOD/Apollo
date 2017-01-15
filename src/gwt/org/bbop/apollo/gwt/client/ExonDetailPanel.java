@@ -207,10 +207,6 @@ public class ExonDetailPanel extends Composite {
             annotationInfoList.add(annotationInfo1);
         }
 
-//        if (annotationInfoList.size() > 0) {
-//            updateDetailData(annotationInfoList.get(0));
-//        }
-//        dataGrid.redraw();
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         if(selectedAnnotationInfo==null){
             exonEditContainer.setVisible(true);
@@ -218,10 +214,6 @@ public class ExonDetailPanel extends Composite {
         }
 
         return true ;
-//            if(selectedAnnotationInfo==null && annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())){
-//    //        if(selectedAnnotationInfo!=null){
-//                exonEditContainer.setVisible(true);
-//            }
     }
 
     private void updateDetailData(AnnotationInfo annotationInfo) {
