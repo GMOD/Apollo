@@ -65,17 +65,11 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
                 user.addToRoles(role)
                 role.addToUsers(user)
 
-                if (this.default_group != null) {
+                if (this.default_group) {
                     log.debug "adding user to default group: ${this.default_group}"
                     UserGroup userGroup = UserGroup.findByName(this.default_group)
 
-                    if (userGroup == null) {
-                        userGroup = new UserGroup(
-                                name: this.default_group
-                        ).save(flush: true)
-
-                        log.info "Created new default group ${this.default_group}"
-                    }
+                    userGroup = userGroup ?: new UserGroup(name: this.default_group).save(flush: true)
 
                     user.addToUserGroups(userGroup)
                 }
