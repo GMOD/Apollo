@@ -8,6 +8,7 @@ import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.subject.Subject
 import org.bbop.apollo.Role
 import org.bbop.apollo.User
+import org.bbop.apollo.UserGroup
 import org.bbop.apollo.UserService
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -16,6 +17,8 @@ import javax.servlet.http.HttpServletRequest
 
 @Transactional
 class RemoteUserAuthenticatorService implements AuthenticatorService {
+
+    def default_group
 
     def authenticate(HttpServletRequest request) {
         User user
@@ -61,6 +64,16 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
                 log.debug "adding role: ${role}"
                 user.addToRoles(role)
                 role.addToUsers(user)
+
+                if (this.default_group) {
+                    log.debug "adding user to default group: ${this.default_group}"
+                    UserGroup userGroup = UserGroup.findByName(this.default_group)
+
+                    userGroup = userGroup ?: new UserGroup(name: this.default_group).save(flush: true)
+
+                    user.addToUserGroups(userGroup)
+                }
+
                 role.save()
                 user.save(flush: true)
                 log.warn "User created ${user}"
@@ -96,5 +109,9 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
     def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
         // token is ignored
         return authenticate(request)
+    }
+
+    def setDefaultGroup(String default_group) {
+        this.default_group = default_group
     }
 }
