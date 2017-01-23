@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest
 @Transactional
 class RemoteUserAuthenticatorService implements AuthenticatorService {
 
-    def default_group
+    String defaultGroup
 
     def authenticate(HttpServletRequest request) {
         User user
@@ -27,7 +27,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
         String passwordHash = new Sha256Hash(randomPassword).toHex()
         Subject subject
         try {
-            subject = SecurityUtils.getSubject();
+            subject = SecurityUtils.getSubject()
 
             String remoteUser
             // for testing
@@ -43,7 +43,6 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
                 log.warn("No remote user passed in header!")
                 return false
             }
-//            }
             authToken.username = remoteUser
             user = User.findByUsername(authToken.username)
             log.warn "User exists ${user} ? "
@@ -65,11 +64,11 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
                 user.addToRoles(role)
                 role.addToUsers(user)
 
-                if (this.default_group) {
-                    log.debug "adding user to default group: ${this.default_group}"
-                    UserGroup userGroup = UserGroup.findByName(this.default_group)
+                if (this.defaultGroup) {
+                    log.debug "adding user to default group: ${this.defaultGroup}"
+                    UserGroup userGroup = UserGroup.findByName(this.defaultGroup)
 
-                    userGroup = userGroup ?: new UserGroup(name: this.default_group).save(flush: true)
+                    userGroup = userGroup ?: new UserGroup(name: this.defaultGroup).save(flush: true)
 
                     user.addToUserGroups(userGroup)
                 }
@@ -111,7 +110,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
         return authenticate(request)
     }
 
-    def setDefaultGroup(String default_group) {
-        this.default_group = default_group
+    def setDefaultGroup(String defaultGroup) {
+        this.defaultGroup = defaultGroup
     }
 }
