@@ -220,6 +220,7 @@ class JbrowseController {
                     || fileName.endsWith(".bw")
                     || fileName.endsWith(".bai")
                     || fileName.endsWith(".conf")
+                    || fileName.endsWith(".csv")
             ) {
                 mimeType = "text/plain";
             } else if (fileName.endsWith(".tbi")) {
@@ -438,7 +439,7 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) {
+        if (fileName.endsWith(".txt") || fileName.endsWith("txtz") || fileName.endsWith("csv")) {
             return true;
         }
         if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
