@@ -22,6 +22,7 @@ class JbrowseController {
     def sequenceService
     def permissionService
     def preferenceService
+    def jbrowseService
     def servletContext
 
 
@@ -61,8 +62,6 @@ class JbrowseController {
                         paramString += it + "&"
                     }
                 }
-//                String paramString = paramList.join('&')
-//                String targetUri = "/${clientToken}/jbrowse/index.html?"+paramString
                 String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
                 redirect(uri:  uriString)
                 return
@@ -200,7 +199,16 @@ class JbrowseController {
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
         String fileName = FilenameUtils.getName(params.path)
-        File file = new File(dataFileName);
+        File file = new File(dataFileName)
+
+        // see https://github.com/GMOD/Apollo/issues/1448
+        if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
+            println "params.path: ${params.path} directory ${dataDirectory}"
+            String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
+            dataFileName = newPath
+            dataFileName += params.fileType ? ".${params.fileType}" : ""
+            file = new File(dataFileName)
+        }
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
@@ -347,6 +355,7 @@ class JbrowseController {
         }
 
     }
+
 
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
