@@ -39,7 +39,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.3.4) Switching back and forth between organisms should remember the last location (scaffold and location) for each. 
 
-1.4) If two organisms have the same scaffold name within their Reference Sequence, switch between those organisms after providing annotations (if they are the same).  
+1.4) Switch between organisms after creating annotations on this Reference Sequence (e.g. scaffold, chromosome), if the two Reference Sequences have the same name in two (or more) different organisms.  
 
 1.4.1) Use the JBrowse drop-down or search menu to navigate between the two scaffolds on different organisms at least twice and confirm that annotations that belong to an organism on one scaffold are only seen on that organism and not the other.  
 
