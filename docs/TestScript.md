@@ -153,7 +153,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 13.1.2) Navigate To Annotation Details
 
 13.1.2.1) After clicking on an annotation, click on the _Details_ tab at the bottom of the _Annotator Panel_ to display metadata for each annotation. Then, click on the _Coding_ tab to reveal a list of exons, and click on one of the exons to reveal options to modify its 
-boundary using the arrows in the display.  Modify a number explicitly.  On _blur_ confirm that a change was made for a legitimate value.
+boundary using the arrows in the display.  Modify a number explicitly and click outside the box.  Confirm that a change was made for a legitimate value.
 
 13.1.2.2) Repeat for pseudogenes and non-coding RNAs.
 
