@@ -153,9 +153,9 @@ http://genomearchitect.readthedocs.io/en/latest/
 13.1.2) Navigate To Annotation Details
 
 13.1.2.1) After clicking on an annotation, click on the _Details_ tab at the bottom of the _Annotator Panel_ to display metadata for each annotation. Then, click on the _Coding_ tab to reveal a list of exons, and click on one of the exons to reveal options to modify its 
-boundary using the arrows in the display.  Modify a number explicity.  On _blur_ confirm that a change was made for a legitimate value.
+boundary using the arrows in the display.  Modify a number explicitly.  On _blur_ confirm that a change was made for a legitimate value.
 
-13.1.2.2) Repeat for a non-coding transcript and pseudogene.
+13.1.2.2) Repeat for pseudogenes and non-coding RNAs.
 
 13.1.2.3) Repeat for Repeat Region and Transposable Element. 
 
@@ -163,7 +163,7 @@ boundary using the arrows in the display.  Modify a number explicity.  On _blur_
 
 13.2) Tracks
 
-13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" fromthe list of available tracks.
+13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" from the list of available tracks.
 
 13.2.2) Search for a track using the search box.
 
