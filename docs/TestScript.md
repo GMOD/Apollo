@@ -29,7 +29,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.2) Check that you can switch organisms from the _Organism_ tab in the _Annotator Panel_
 
-1.3) Check that the organism and sequence preference is preserved only on a single browser tab.  Every tab / window opened should allow a different sequence and organism.  The last organism + scaffold should be loaded into each, but each browser tab will be independent.
+1.3) Check that the organism and sequence preference is preserved only on a single browser tab.  Every tab / window opened should allow a different sequence and organism.  The last organism + reference sequence (e.g. scaffold, chromosome) should be loaded into each, but each browser tab will be independent.
 
 1.3.1) The last "movement" of any browser for a particular organism should become the new preference (location + scaffold) for that organism.  
 
@@ -39,7 +39,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.3.4) Switching back and forth between organisms should remember the last location (scaffold and location) for each. 
 
-1.4) Switch between organisms after creating annotations on this Reference Sequence (e.g. scaffold, chromosome), if the two Reference Sequences have the same name in two (or more) different organisms.  
+1.4) Switch between organisms after creating annotations on this reference sequence (e.g. scaffold, chromosome), if the two reference sequences have the same name in two (or more) different organisms.  
 
 1.4.1) Use the JBrowse drop-down or search menu to navigate between the two scaffolds on different organisms at least twice and confirm that annotations that belong to an organism on one scaffold are only seen on that organism and not the other.  
 
