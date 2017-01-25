@@ -196,7 +196,7 @@ Additional links for log4j:
 ### Canned Elements
 
 
-Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [CannedElements.md] (https://github.com/GMOD/Apollo/blob/master/docs/CannedElements.md)
+Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [Canned Elements](CannedElements.md).
 
 View your instances page for more details. For example 
 - http://localhost:8080/apollo/cannedComment/  
