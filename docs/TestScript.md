@@ -226,10 +226,20 @@ boundary using the arrows in the display.  Modify a number explicity.  On _blur_
 
 15.1.1) Verify that it also works for the shell (curl) script as well.
 
-15.2) Make sure that you can add annotations using the ```add_transcripts_from_gff3_to_annotations.pl``` script from exported annotations.
-
-15.3) Verify that you can use the ```add_users.groovy``` script. 
+15.2) Verify that you can use the ```add_users.groovy``` script. 
  
-15.3.1) Verify that it also works for the shell (curl) script as well.
+15.2.1) Verify that it also works for the shell (curl) script as well.
+
+15.3) Make sure that you can add annotations using the ```add_transcripts_from_gff3_to_annotations.pl``` script from exported annotations. 
+
+15.3.1) Create annotations for new user on new organism.
+
+15.3.2) Download annotations as GFF3.
+
+15.3.3) Run ```add_transcripts_from_gff3_to_annotations.pl``` against the same organism and user and confirm that it works. 
+
+15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that it works against this organism.
+
+
 
 
