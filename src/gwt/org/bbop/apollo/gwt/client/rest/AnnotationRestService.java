@@ -15,6 +15,7 @@ public class AnnotationRestService {
 
        jsonObject.put("name",new JSONString(annotationInfo.getName()));
        jsonObject.put("uniquename",new JSONString(annotationInfo.getUniqueName()));
+       jsonObject.put("track", new JSONString(annotationInfo.getSequence()));
        jsonObject.put("symbol",annotationInfo.getSymbol()!=null ? new JSONString(annotationInfo.getSymbol()):new JSONString(""));
        jsonObject.put("description",annotationInfo.getDescription()!=null ? new JSONString(annotationInfo.getDescription()):new JSONString(""));
        jsonObject.put("type",new JSONString(annotationInfo.getType()));
