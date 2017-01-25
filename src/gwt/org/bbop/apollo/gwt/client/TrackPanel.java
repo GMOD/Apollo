@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -34,6 +35,8 @@ import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
+
+import static org.bbop.apollo.gwt.client.MainPanel.frame;
 
 
 /**
@@ -199,11 +202,15 @@ public class TrackPanel extends Composite {
         dataGrid.setLoadingIndicator(new Label("Loading..."));
         dataGrid.setEmptyTableWidget(new Label("Loading..."));
         filteredTrackInfoList.clear();
+        trackInfoList.clear();
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
                 reload();
-                dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
+                if(trackInfoList.size()==0){
+                    dataGrid.setEmptyTableWidget(new Label("Loading..."));
+                    return true ;
+                }
                 return false;
             }
         }, delay);

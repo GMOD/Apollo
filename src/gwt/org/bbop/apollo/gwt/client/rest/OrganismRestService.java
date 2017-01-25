@@ -112,6 +112,8 @@ public class OrganismRestService {
 
     public static void switchOrganismById(String newOrganismId) {
         final LoadingDialog loadingDialog = new LoadingDialog();
+        MainPanel.getInstance().clearExternalFunctions();
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
