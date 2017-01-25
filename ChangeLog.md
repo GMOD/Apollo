@@ -3,6 +3,8 @@
 
 Features
 + Moved the native track panel button to the main window #1398
++ Add new 'default_group' param for remote_user auth #1445
++ Added icon to toggle view of native JBrowse tracks that is always visible #1452
 
 Bugfixes
 
