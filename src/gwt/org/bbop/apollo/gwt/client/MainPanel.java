@@ -978,7 +978,6 @@ public class MainPanel extends Composite {
     public void trackListToggleButtonHandler(ClickEvent event){
         useNativeTracklist = !trackListToggle.isActive();
         trackPanel.updateTrackToggle(useNativeTracklist);
-        trackPanel.trackListToggle(event);
     }
 
     public static native void exportStaticMethod() /*-{
