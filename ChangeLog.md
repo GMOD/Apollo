@@ -10,10 +10,12 @@ Bugfixes
 + Unable to add organism from script without a pre-existing organism #1388
 + When logged clicking on JBrowse will not load the Annotator Panel #1395
 + ```server_data``` may lock some times in dev mode #1419
-+ Intron persists in tracks if a single exon #1417
++ Intron persists in tracks if a single exon if neat features enabled #1417
 + Authentication error with galaxy tools + remote_user #1423
 + When logged in as non-admin user, the show track panel button does not look or work properly #1429
 + When deleting an organism from the interface, should instantly update the organism list similar to add organism #1431
++ 404 errors on CSV metadata in some cases #1448
++ Problems loading list of Tracks when switching organisms on slower connection #1434
 + Bumped default JBrowse version 
 
 
