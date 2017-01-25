@@ -167,11 +167,15 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.2) Search for a track using the search box.
 
-13.2.3) Check that clicking on the show native tracks icon properly toggles the native tracks.
+13.2.3) Check that clicking on the show native tracks icons properly toggles the native tracks.
 
-13.2.3.1) Test as Admin
+13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the native track view and the main panel toggle icon.
 
-13.2.3.2) Test as non-Admin
+13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the native track view and switches the track panel toggle as well.
+
+13.2.3.3) Confirm that reload in either case saves the prior preference.
+
+13.2.3.4) Test as Admin and non-Admin for one case to confirm layout.
 
 13.3) Ref Sequence
 
