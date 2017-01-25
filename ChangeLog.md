@@ -7,9 +7,9 @@ Features
 Bugfixes
 
 + Failure to load tracks when switching organisms with identical Sequence IDs #1391
-+ Unable to add organism from script without pre-existing web-services #1388
++ Unable to add organism from script without a pre-existing organism #1388
 + When logged clicking on JBrowse will not load the Annotator Panel #1395
-+ server_data may lock some times in dev mode #1419
++ ```server_data``` may lock some times in dev mode #1419
 + Intron persists in tracks if a single exon #1417
 + Authentication error with galaxy tools + remote_user #1423
 + When logged in as non-admin user, the show track panel button does not look or work properly #1429
