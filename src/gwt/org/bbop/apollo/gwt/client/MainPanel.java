@@ -758,6 +758,9 @@ public class MainPanel extends Composite {
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
 
+    public void clearExternalFunctions() {
+        annotrackFunctionMap.clear();
+    }
 
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
