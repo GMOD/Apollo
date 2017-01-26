@@ -208,45 +208,42 @@ class AnnotatorController {
     }
 
 
-    @RestApiMethod(description = "Update feature location", path = "/annotator/updateFeatureLocation", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update exon boundaries", path = "/annotator/setExonBoundaries", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
-            , @RestApiParam(name = "fmin", type = "int", paramType = RestApiParamType.QUERY, description = "fmin for Feature Location")
-            , @RestApiParam(name = "fmax", type = "int", paramType = RestApiParamType.QUERY, description = "fmax for Feature Location")
+            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the exon we are editing")
+            , @RestApiParam(name = "fmin", type = "int", paramType = RestApiParamType.QUERY, description = "fmin for Exon Location")
+            , @RestApiParam(name = "fmax", type = "int", paramType = RestApiParamType.QUERY, description = "fmax for Exon Location")
             , @RestApiParam(name = "strand", type = "int", paramType = RestApiParamType.QUERY, description = "strand for Feature Location 1 or -1")
     ]
     )
-    def updateFeatureLocation() {
+    def setExonBoundaries() {
         JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        Feature feature = Feature.findByUniqueName(data.uniquename)
-        feature.featureLocation.fmin = data.fmin
-        feature.featureLocation.fmax = data.fmax
-        feature.featureLocation.strand = data.strand
-        feature.save(flush: true, failOnError: true)
 
-        // need to grant the parent feature to force a redraw
-        Feature parentFeature = featureRelationshipService.getParentForFeature(feature)
+        JSONObject jsonObject = new JSONObject()
+        JSONObject featureObject = new JSONObject()
+        JSONArray featuresArray = new JSONArray()
+        featureObject.put(FeatureStringEnum.UNIQUENAME.value, data.uniquename)
+        JSONObject featureLocationObject = new JSONObject()
+        featureLocationObject.put(FeatureStringEnum.FMIN.value, data.fmin)
+        featureLocationObject.put(FeatureStringEnum.FMAX.value, data.fmax)
+        featureLocationObject.put(FeatureStringEnum.STRAND.value, data.strand)
+        featureObject.put(FeatureStringEnum.LOCATION.value, featureLocationObject)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
-        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+        featuresArray.add(featureObject)
 
-        Sequence sequence = feature?.featureLocation?.sequence
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                features: updateFeatureContainer
-                , sequence: sequence
-                , operation: AnnotationEvent.Operation.UPDATE
-                , sequenceAlterationEvent: false
-        )
-        requestHandlingService.fireAnnotationEvent(annotationEvent)
+        jsonObject.put("features", featuresArray)
+        jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value, data.clientToken)
+        jsonObject.put(FeatureStringEnum.TRACK.value, data.track)
+        jsonObject.put("operation", "set_exon_boundaries")
+        jsonObject.put(FeatureStringEnum.USERNAME.value, data.username)
 
-        render updateFeatureContainer
+        return requestHandlingService.setExonBoundaries(jsonObject)
     }
 
     private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
