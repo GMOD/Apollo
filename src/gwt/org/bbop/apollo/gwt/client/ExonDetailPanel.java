@@ -42,6 +42,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -219,10 +220,6 @@ public class ExonDetailPanel extends Composite {
             annotationInfoList.add(annotationInfo1);
         }
 
-//        if (annotationInfoList.size() > 0) {
-//            updateDetailData(annotationInfoList.get(0));
-//        }
-//        dataGrid.redraw();
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
         if(selectedAnnotationInfo==null){
             exonEditContainer.setVisible(true);
@@ -230,10 +227,6 @@ public class ExonDetailPanel extends Composite {
         }
 
         return true ;
-//            if(selectedAnnotationInfo==null && annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())){
-//    //        if(selectedAnnotationInfo!=null){
-//                exonEditContainer.setVisible(true);
-//            }
     }
 
     private void updateDetailData(AnnotationInfo annotationInfo) {
@@ -248,6 +241,14 @@ public class ExonDetailPanel extends Composite {
         } else {
             positiveStrandValue.setType(ButtonType.DEFAULT);
             negativeStrandValue.setType(ButtonType.PRIMARY);
+        }
+
+        String type = this.internalAnnotationInfo.getType();
+        if (type.equals("exon")) {
+            enableFields(true);
+        }
+        else {
+            enableFields(false);
         }
 
         SafeHtmlBuilder safeHtmlBuilder = new SafeHtmlBuilder();
@@ -275,7 +276,7 @@ public class ExonDetailPanel extends Composite {
     }
 
     private boolean isEditableType(String type) {
-        return type.equals("CDS") || type.equals("exon");
+        return type.equals("exon");
     }
 
     private void updateFeatureLocation(final AnnotationInfo originalInfo) {
@@ -302,7 +303,7 @@ public class ExonDetailPanel extends Composite {
                 enableFields(true);
             }
         };
-        RestService.sendRequest(requestCallback, "annotator/updateFeatureLocation/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+        RestService.sendRequest(requestCallback, "annotator/setExonBoundaries/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
     }
 
     private long getDisplayMin(long min) {
@@ -383,9 +384,7 @@ public class ExonDetailPanel extends Composite {
         if (!(this.inputFmin < this.internalAnnotationInfo.getMax()) || !(this.inputFmax > this.internalAnnotationInfo.getMin())) {
             return false;
         }
-        if (!verifyBoundaries()) {
-            return false;
-        }
+
         return true;
     }
 
@@ -420,14 +419,5 @@ public class ExonDetailPanel extends Composite {
 
     private void getAnnotationInfoWithTopLevelFeature(AnnotationInfo annotationInfo) {
         this.annotationInfoWithTopLevelFeature = annotationInfo;
-    }
-
-    private boolean verifyBoundaries() {
-        if (this.inputFmin >= annotationInfoWithTopLevelFeature.getMin() && this.inputFmax <= annotationInfoWithTopLevelFeature.getMax()) {
-            return true;
-        } else {
-            Bootbox.alert("Cannot extend beyond the boundaries of the mRNA");
-            return false;
-        }
     }
 }

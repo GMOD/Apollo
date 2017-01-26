@@ -628,7 +628,12 @@ class PermissionService {
                 def authenticationService
                 if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
-                } else if ("usernamePasswordAuthenticatorService" == auth.className) {
+                    if (auth.params.containsKey("default_group")) {
+                        authenticationService.setDefaultGroup(auth.params.get("default_group"))
+                    }
+                }
+                else
+                if("usernamePasswordAuthenticatorService" == auth.className ){
                     authenticationService = usernamePasswordAuthenticatorService
                 } else {
                     log.error("No authentication service for ${auth.className}")

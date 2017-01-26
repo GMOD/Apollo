@@ -261,6 +261,7 @@ public class OrganismPanel extends Composite {
                 setNoSelection();
                 changeButtonSelection(false);
                 loadingDialog.hide();
+                Window.Location.reload();
             }
         }
 

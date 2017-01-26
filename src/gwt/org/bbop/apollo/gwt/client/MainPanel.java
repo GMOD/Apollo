@@ -55,14 +55,14 @@ public class MainPanel extends Composite {
     public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
     // state info
-    static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
+    private static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static AssemblageInfo currentAssemblage;
     private static Long currentStartBp; // list of organisms for user
     private static Long currentEndBp; // list of organisms for user
     private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
-    public static boolean useNativeTracklist; // list native tracks
+    static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
     private static final String openAnnotatorPanelString = "&openAnnotatorPanel=";
@@ -169,6 +169,9 @@ public class MainPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         frame.getElement().setAttribute("id", frame.getName());
+
+        trackListToggle.setWidth(isCurrentUserAdmin()? "20px":"25px");
+
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
@@ -827,6 +830,10 @@ public class MainPanel extends Composite {
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
 
+    public void clearExternalFunctions() {
+        annotrackFunctionMap.clear();
+    }
+
     public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
         annotrackFunctionMap.put(name, javaScriptObject);
     }
@@ -1052,7 +1059,6 @@ public class MainPanel extends Composite {
     public void trackListToggleButtonHandler(ClickEvent event){
         useNativeTracklist = !trackListToggle.isActive();
         trackPanel.updateTrackToggle(useNativeTracklist);
-        trackPanel.trackListToggle(event);
     }
 
     public static native void exportStaticMethod() /*-{

@@ -24,6 +24,7 @@ class JbrowseController {
     def sequenceService
     def permissionService
     def preferenceService
+    def jbrowseService
     def servletContext
     def projectionService
     def trackService
@@ -67,8 +68,6 @@ class JbrowseController {
                         paramString += it + "&"
                     }
                 }
-//                String paramString = paramList.join('&')
-//                String targetUri = "/${clientToken}/jbrowse/index.html?"+paramString
                 String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
                 redirect(uri:  uriString)
                 return
@@ -377,7 +376,17 @@ class JbrowseController {
                 response.outputStream.close()
             }
         }
-        File file = new File(dataFileName);
+
+        File file = new File(dataFileName)
+
+        // see https://github.com/GMOD/Apollo/issues/1448
+        if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
+            println "params.path: ${params.path} directory ${dataDirectory}"
+            String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
+            dataFileName = newPath
+            dataFileName += params.fileType ? ".${params.fileType}" : ""
+            file = new File(dataFileName)
+        }
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
@@ -397,6 +406,7 @@ class JbrowseController {
                     || fileName.endsWith(".bw")
                     || fileName.endsWith(".bai")
                     || fileName.endsWith(".conf")
+                    || fileName.endsWith(".csv")
             ) {
                 mimeType = "text/plain";
             } else if (fileName.endsWith(".tbi")) {
@@ -663,6 +673,7 @@ class JbrowseController {
         return "lf-${chunkIndex + 1}.json"
     }
 
+
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
         log.debug "track list client token: ${clientToken}"
@@ -772,7 +783,7 @@ class JbrowseController {
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) {
+        if (fileName.endsWith(".txt") || fileName.endsWith("txtz") || fileName.endsWith("csv")) {
             return true;
         }
         if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
