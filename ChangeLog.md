@@ -18,6 +18,7 @@ Bugfixes
 + When deleting an organism from the interface, should instantly update the organism list similar to add organism #1431
 + 404 errors on CSV metadata in some cases #1448
 + Problems loading list of Tracks when switching organisms on slower connection #1434
++ Setting exon details in details panel fails to set transcript boundaries properly #1428
 + Bumped default JBrowse version 
 
 
