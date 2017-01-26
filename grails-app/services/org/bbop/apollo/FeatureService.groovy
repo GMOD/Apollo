@@ -1312,8 +1312,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
-            } else {
-                gsolFeature.name = gsolFeature.uniqueName + "-${type.get('name')}"
+            }
+            else {
+                // since name attribute cannot be null, using the feature's own uniqueName
+                gsolFeature.name = gsolFeature.uniqueName
             }
             if (jsonFeature.has(FeatureStringEnum.SYMBOL.value)) {
                 gsolFeature.setSymbol(jsonFeature.getString(FeatureStringEnum.SYMBOL.value));
@@ -3181,7 +3183,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 addTranscriptToGene(gene, transcript, assemblage)
                 if (!suppressHistory) {
                     String name = nameService.generateUniqueName(transcript)
-                    transcript.name = name + "-" + transcript.alternateCvTerm
+                    transcript.name = name
                 }
             } else {
                 // Scenario II - find and overlapping isoform and if present, add current transcript to its gene.
@@ -3232,7 +3234,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 removeExonOverlapsAndAdjacenciesForFeature(gene, assemblage)
                 if (!suppressHistory) {
                     String name = nameService.generateUniqueName(transcript)
-                    transcript.name = name + "-" + transcript.alternateCvTerm
+                    transcript.name = name
                 }
 
                 gene.save(insert: true)
@@ -3260,7 +3262,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Feature feature = convertJSONToFeature(jsonFeature, assemblage)
             if (!suppressHistory) {
                 String name = nameService.generateUniqueName(feature, feature.name)
-                feature.name = name + "-" + feature.alternateCvTerm
+                feature.name = name
             }
             updateNewGsolFeatureAttributes(feature, assemblage)
 

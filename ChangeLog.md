@@ -20,6 +20,7 @@ Bugfixes
 + Problems loading list of Tracks when switching organisms on slower connection #1434
 + Setting exon details in details panel fails to set transcript boundaries properly #1428
 + Error opening on double-click for annotations listed in the second page of the annotation panel #1459
++ Transcripts of pseudogenes should NOT have the word 'transcript' or other type in the name #1451
 + Bumped default JBrowse version 
 
 
