@@ -563,6 +563,7 @@ public class AnnotatorPanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 AnnotationInfo annotationInfo = singleSelectionModel.getSelectedObject();
                 int index = dataGrid.getKeyboardSelectedRow();
+                index += pager.getPage() * pager.getPageSize();
                 toggleOpen(index, annotationInfo);
 
             }
