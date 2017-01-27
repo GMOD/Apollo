@@ -21,7 +21,8 @@ Bugfixes
 + Setting exon details in details panel fails to set transcript boundaries properly #1428
 + Error opening on double-click for annotations listed in the second page of the annotation panel #1459
 + Transcripts of pseudogenes should NOT have the word 'transcript' or other type in the name #1451
-+ Bumped default JBrowse version 
++ Issue with gene names when performing undo and redo right after changing annotation type #1464
++ Bumped default JBrowse version
 
 
 ## 2.0.5
