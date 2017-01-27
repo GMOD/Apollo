@@ -12,6 +12,7 @@ public enum FeatureStringEnum {
         ANNOTATION_COUNT,
         PARENT,
         PARENT_ID,
+        PARENT_NAME,
         USERNAME,
         EDITOR,
         TYPE,
