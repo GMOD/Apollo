@@ -2784,6 +2784,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     geneName = nameService.makeUniqueGeneName(sequence.organism, principalName, false)
                     log.debug "jsonFeature has 'parent_name' attribute; using ${principalName} to generate ${geneName}"
                 }
+                else
+                if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                    geneName = jsonFeature.getString(FeatureStringEnum.NAME.value)
+                    log.debug "jsonGene already has 'name': ${geneName}"
+                }
                 else {
                     geneName = nameService.makeUniqueGeneName(sequence.organism, sequence.name, false)
                     log.debug "Making a new unique gene name: ${geneName}"
@@ -2805,13 +2810,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (gene.fmin < 0 || gene.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
-                transcript = transcriptService.getTranscripts(gene).iterator().next();
-                String transcriptName = nameService.generateUniqueName(transcript, geneName)
-                log.debug "Newly generated transcript name: ${transcriptName}"
-                transcript.name = transcriptName
+
+                transcript = transcriptService.getTranscripts(gene).first()
                 removeExonOverlapsAndAdjacenciesForFeature(gene)
                 if (!suppressHistory) {
-                    String name = nameService.generateUniqueName(transcript)
+                    String name = nameService.generateUniqueName(transcript, geneName)
                     transcript.name = name
                 }
 
