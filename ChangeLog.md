@@ -10,7 +10,7 @@ Bugfixes
 
 + Failure to load tracks when switching organisms with identical Sequence IDs #1391
 + Unable to add organism from script without a pre-existing organism #1388
-+ When logged clicking on JBrowse will not load the Annotator Panel #1395
++ When logged in, clicking on JBrowse would not load the Annotator Panel #1395
 + ```server_data``` may lock some times in dev mode #1419
 + Intron persists in tracks if a single exon if neat features enabled #1417
 + Authentication error with galaxy tools + remote_user #1423
@@ -21,7 +21,8 @@ Bugfixes
 + Setting exon details in details panel fails to set transcript boundaries properly #1428
 + Error opening on double-click for annotations listed in the second page of the annotation panel #1459
 + Transcripts of pseudogenes should NOT have the word 'transcript' or other type in the name #1451
-+ Bumped default JBrowse version 
++ Issue with gene names when performing undo and redo right after changing annotation type #1464
++ Bumped default JBrowse version
 
 
 ## 2.0.5

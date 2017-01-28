@@ -2157,6 +2157,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (parentFeatures?.size() == 1) {
             Feature parent = parentFeatures.iterator().next();
             jsonFeature.put(FeatureStringEnum.PARENT_ID.value, parent.getUniqueName());
+            jsonFeature.put(FeatureStringEnum.PARENT_NAME.value, parent.getName());
             jsonFeature.put(FeatureStringEnum.PARENT_TYPE.value, generateJSONFeatureStringForType(parent.ontologyId));
         }
 
@@ -3209,10 +3210,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 String geneName = null
                 if (jsonGene.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonGene.getString(FeatureStringEnum.NAME.value)
-                } else if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                    log.debug "jsonGene already has 'name': ${geneName}"
+                }
+                else if (jsonFeature.has(FeatureStringEnum.PARENT_NAME.value)) {
+                    String principalName = jsonFeature.getString(FeatureStringEnum.PARENT_NAME.value)
+                    geneName = nameService.makeUniqueGeneName(assemblage.organism, principalName, false)
+                    log.debug "jsonFeature has 'parent_name' attribute; using ${principalName} to generate ${geneName}"
+                }
+                else
+                if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonFeature.getString(FeatureStringEnum.NAME.value)
-                } else {
+                    log.debug "jsonGene already has 'name': ${geneName}"
+                }
+                else {
                     geneName = nameService.makeUniqueGeneName(assemblage.organism, assemblage.name, false)
+                    log.debug "Making a new unique gene name: ${geneName}"
                 }
 
                 if (!suppressHistory) {
@@ -3224,16 +3236,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     geneName = jsonFeature.getString(FeatureStringEnum.GENE_NAME.value)
                 }
                 jsonGene.put(FeatureStringEnum.NAME.value, geneName)
+
                 gene = (Gene) convertJSONToFeature(jsonGene, assemblage)
                 updateNewGsolFeatureAttributes(gene, assemblage)
 
                 if (gene.fmin < 0 || gene.fmax < 0) {
                     throw new AnnotationException("Feature cannot have negative coordinates")
                 }
-                transcript = transcriptService.getTranscripts(gene).iterator().next();
+
+                transcript = transcriptService.getTranscripts(gene).first()
                 removeExonOverlapsAndAdjacenciesForFeature(gene, assemblage)
                 if (!suppressHistory) {
-                    String name = nameService.generateUniqueName(transcript)
+                    String name = nameService.generateUniqueName(transcript, geneName)
                     transcript.name = name
                 }
 
