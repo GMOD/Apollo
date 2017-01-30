@@ -5,6 +5,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import sun.org.mozilla.javascript.internal.Context
 
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
@@ -430,9 +431,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         commandString = commandString.replaceAll("@TRANSCRIPT_NAME@", transcriptUniqueName)
         JSONObject commandObject = JSON.parse(commandString) as JSONObject
         JSONObject returnedAfterExonObject = requestHandlingService.deleteFeature(commandObject)
+        List<FeatureEvent> featureEventList = FeatureEvent.findAllByOperation(org.bbop.apollo.history.FeatureOperation.DELETE_TRANSCRIPT)
 
         then: "we should see that it is removed"
-        def allFeatures = Feature.all
+        assert featureEventList.size()==1
         assert returnedAfterExonObject != null
         assert Feature.count == 0
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
