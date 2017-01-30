@@ -386,8 +386,8 @@ auditLog {
 // Default JBrowse configuration 
 jbrowse {
     git {
-//        url= "https://github.com/gmod/jbrowse"
-//        tag = "baaf898e51dc2ebb61a8b0a369a90742f259218c"
+        url= "https://github.com/gmod/jbrowse"
+        tag = "2c0c2079fed1c98a5d94a097aa9a5f3ec95383e2"
 //		tag = "1.12.2-apollo"
         url= "https://github.com/nathandunn/jbrowse"
 //        tag = "1.12.2-apollo"
