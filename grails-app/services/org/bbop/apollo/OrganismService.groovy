@@ -34,21 +34,18 @@ class OrganismService {
                 features.each { f ->
                     f.delete()
                 }
-                println "deleted features"
-//                FeatureEvent.withTransaction {
                 def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
                 featureEvents.each { fe ->
                     fe.delete()
                 }
-//                }
-                println "deleted feature events"
                 organism.save(flush: true)
                 count += TRANSACTION_SIZE
                 println "count ${count}"
                 println "${count} / ${featurePairs.size()}  =  ${count / featurePairs.size()}% "
             }
-            println "fin"
+            println "deleted ${featurePairs.size()}"
             organism.save(flush: true)
         }
+        return featurePairs.size()
     }
 }
