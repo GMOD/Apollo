@@ -340,4 +340,13 @@
     border-right: solid red 3px;
 }
 
+/* NeatHTMLFeatures styles */
+
+.Dark div.neat-UTR {
+    background-color: #DDD;
+}
+.Dark polyline.neat-intron {
+    stroke: lightgrey;
+}
+
 /* end of MAKER styles */
