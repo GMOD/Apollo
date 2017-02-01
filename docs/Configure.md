@@ -89,7 +89,7 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
-__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances. However, at the moment we are still in the process of testing and improving their performance in combination with the Apollo plugin. Until we finalize this process, we strongly advise against enabling them for use in your Apollo instances.
+__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances.  We are still in the process of testing and improving their performance in combination with the Apollo plugin. Until we finalize this process, we strongly advise caution if enabling them for use in your Apollo instances.
 
 ```
 jbrowse {
