@@ -22,6 +22,8 @@ Bugfixes
 + Error opening on double-click for annotations listed in the second page of the annotation panel #1459
 + Transcripts of pseudogenes should NOT have the word 'transcript' or other type in the name #1451
 + Issue with gene names when performing undo and redo right after changing annotation type #1464
++ Interface freezes if right-clicking an unselected annotation #1465
++ Fixed issue where double-click on transcript navigates and then closes the transcript / gene #1467
 + Bumped default JBrowse version
 
 
