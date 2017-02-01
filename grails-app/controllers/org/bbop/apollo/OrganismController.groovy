@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -73,7 +74,7 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "An organism json object that has an 'id' or 'commonName' parameter that corresponds to an organism.")
     ])
-    @Transactional
+    @NotTransactional
     def deleteOrganismFeatures() {
         JSONObject organismJson = permissionService.handleInput(request, params)
         if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {

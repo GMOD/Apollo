@@ -387,7 +387,7 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/gmod/jbrowse"
-        tag = "9334e76fd7530681fa2dcc71d4440141e1414cfd"
+        tag = "29795a1bbb8da4706eba2b0f73724ac1b3e1e4e6"
 //		tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
@@ -399,6 +399,9 @@ jbrowse {
 //        type ="zip"
 //        fileName = "JBrowse-1.12.0-dev"
 //    }
+//
+//	// Warning: We are still testing the performance of the NeatFeatures plugins in combination with Apollo.
+//	// We advise caution if enabling these plugins with Apollo until this process is finalized.
     plugins {
         WebApollo{
             included = true

@@ -89,6 +89,7 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
+__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances.  We are still in the process of testing and improving their performance in combination with the Apollo plugin. Until we finalize this process, we strongly advise caution if enabling them for use in your Apollo instances.
 
 ```
 jbrowse {
@@ -196,7 +197,7 @@ Additional links for log4j:
 ### Canned Elements
 
 
-Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [CannedElements.md] (https://github.com/GMOD/Apollo/blob/master/docs/CannedElements.md)
+Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [Canned Elements](CannedElements.md).
 
 View your instances page for more details. For example 
 - http://localhost:8080/apollo/cannedComment/  

@@ -31,7 +31,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -68,27 +67,27 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static AnnotatorPanelUiBinder ourUiBinder = GWT.create(AnnotatorPanelUiBinder.class);
-    // Tue Jan 05 09:51:38 GMT-800 2016
-//    DateTimeFormat inputFormat = DateTimeFormat.getFormat("EEE dd MM YYYY");
-//    DateTimeFormat inputFormat = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_FULL);
-//    DateTimeFormat outputFormat = DateTimeFormat.getFormat("dd MMM yyyy");
-    DateTimeFormat outputFormat = DateTimeFormat.getFormat("MMM dd, yyyy");
+    private DateTimeFormat outputFormat = DateTimeFormat.getFormat("MMM dd, yyyy");
     private Column<AnnotationInfo, String> nameColumn;
     private TextColumn<AnnotationInfo> typeColumn;
     private TextColumn<AnnotationInfo> sequenceColumn;
     private Column<AnnotationInfo, Number> lengthColumn;
     private Column<AnnotationInfo, String> dateColumn;
     private Column<AnnotationInfo, String> showHideColumn;
-    long requestIndex = 0;
-    private Integer lastGeneIndex = null;
+    private long requestIndex = 0;
     private static String selectedChildUniqueName = null;
+
+    private final String COLLAPSE_ICON_UNICODE = "\u25BC";
+    private final String EXPAND_ICON_UNICODE = "\u25C0";
+//    private final String COLLAPSE_ICON_UNICODE = "\u2191";
+//    private final String EXPAND_ICON_UNICODE = "\u2193";
 
     @UiField
     TextBox nameSearchBox;
     @UiField(provided = true)
     org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
-    static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
     @UiField(provided = true)
     static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
@@ -547,7 +546,15 @@ public class AnnotatorPanel extends Composite {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
                 if (annotationInfo.getType().equals("gene") || annotationInfo.getType().equals("pseudogene")) {
-                    return showingTranscripts.contains(annotationInfo.getUniqueName()) ? "-" : "+";
+                    SafeHtmlBuilder sb = new SafeHtmlBuilder();
+                    if(showingTranscripts.contains(annotationInfo.getUniqueName())){
+                        sb.appendHtmlConstant(COLLAPSE_ICON_UNICODE);
+                    }
+                    else{
+                        sb.appendHtmlConstant(EXPAND_ICON_UNICODE);
+                    }
+
+                    return sb.toSafeHtml().asString();
                 }
                 return " ";
             }
@@ -614,6 +621,7 @@ public class AnnotatorPanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 AnnotationInfo annotationInfo = singleSelectionModel.getSelectedObject();
                 int index = dataGrid.getKeyboardSelectedRow();
+                index += pager.getPage() * pager.getPageSize();
                 toggleOpen(index, annotationInfo);
 
             }
@@ -709,8 +717,6 @@ public class AnnotatorPanel extends Composite {
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
-        lastGeneIndex = geneIndex;
-//        selectedChildUniqueName = annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName()) ? null : selectedAnnotationInfo.getUniqueName();
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
@@ -722,8 +728,6 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
-        lastGeneIndex = geneIndex;
-//        selectedChildUniqueName = annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName()) ? null : selectedAnnotationInfo.getUniqueName();
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
 
         // for some reason doesn't like call gotoAnnotation
@@ -744,7 +748,6 @@ public class AnnotatorPanel extends Composite {
             exonDetailPanel.updateData(annotationInfo);
         }
         gotoAnnotation.setEnabled(true);
-        lastGeneIndex = featureIndex;
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
@@ -792,9 +795,11 @@ public class AnnotatorPanel extends Composite {
                 // a custom cell rendering might work as well, but not sure
 
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='" + transcriptStyle + "' ondblclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
-                SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
-                td.html(htmlString);
+                String htmlString = "<a style='" + transcriptStyle + "' onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>";
+                htmlString += "  <button type='button' class='btn btn-primary' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" style=\"line-height: 0; margin-bottom: 5px;\" ><i class='fa fa-arrow-circle-o-right fa-lg'></i></a>";
+                HTML html = new HTML(htmlString);
+                SafeHtml safeHtml = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
+                td.html(safeHtml);
             } else {
                 String type = rowValue.getType();
                 if (type.equals("gene") || type.equals("pseudogene")) {

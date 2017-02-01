@@ -46,7 +46,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 style: {
             // className: "{type}",   // feature classname gets set to feature.get('type')
                     className: "container-16px", 
-                    renderClassName: "gray-center-30pct", 
+                    renderClassName: "gray-center-30pct annot-apollo",
                     arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
                         UTR: "webapollo-UTR",   
@@ -827,8 +827,27 @@ var draggableTrack = declare( HTMLFeatureTrack,
            }
        }
        else if (event.altKey) {
+           if (already_selected) {
+               // select entire feature
+               selman.addToSelection({ feature: feat.parent(), track: this}, false);
+           }
+           else if (parent_selected) {
+               // do nothing
+           }
+           else {
+               selman.addToSelection({ feature: feat.parent(), track: this}, false);
+           }
        }
        else if (event.ctrlKey) {
+           if (already_selected) {
+               // do nothing
+           }
+           else if (parent_selected) {
+               // do nothing
+           }
+           else {
+               selman.addToSelection({ feature: feat, track: this}, false);
+           }
        }
        else if (event.metaKey) {
        }

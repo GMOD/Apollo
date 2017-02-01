@@ -1,4 +1,32 @@
 
+## 2.0.6
+
+Features
++ Moved the native track panel button to the main window #1398
++ Add new 'default_group' param for remote_user auth #1445
++ Added icon to toggle view of native JBrowse tracks that is always visible #1452
+
+Bugfixes
+
++ Failure to load tracks when switching organisms with identical Sequence IDs #1391
++ Unable to add organism from script without a pre-existing organism #1388
++ When logged in, clicking on JBrowse would not load the Annotator Panel #1395
++ ```server_data``` may lock some times in dev mode #1419
++ Intron persists in tracks if a single exon if neat features enabled #1417
++ Authentication error with galaxy tools + remote_user #1423
++ When logged in as non-admin user, the show track panel button does not look or work properly #1429
++ When deleting an organism from the interface, should instantly update the organism list similar to add organism #1431
++ 404 errors on CSV metadata in some cases #1448
++ Problems loading list of Tracks when switching organisms on slower connection #1434
++ Setting exon details in details panel fails to set transcript boundaries properly #1428
++ Error opening on double-click for annotations listed in the second page of the annotation panel #1459
++ Transcripts of pseudogenes should NOT have the word 'transcript' or other type in the name #1451
++ Issue with gene names when performing undo and redo right after changing annotation type #1464
++ Interface freezes if right-clicking an unselected annotation #1465
++ Fixed issue where double-click on transcript navigates and then closes the transcript / gene #1467
++ Bumped default JBrowse version
+
+
 ## 2.0.5
 
 Features 

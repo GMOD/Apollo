@@ -19,6 +19,7 @@ public class AnnotationRestService {
        jsonObject.put(FeatureStringEnum.SYMBOL.getValue(),annotationInfo.getSymbol()!=null ? new JSONString(annotationInfo.getSymbol()):new JSONString(""));
        jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(),annotationInfo.getDescription()!=null ? new JSONString(annotationInfo.getDescription()):new JSONString(""));
        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(annotationInfo.getType()));
+       jsonObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
 
        if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
            if (annotationInfo.getReferenceBases() != null) jsonObject.put(FeatureStringEnum.REFERENCE_BASES.getValue(), new JSONString(annotationInfo.getReferenceBases()));

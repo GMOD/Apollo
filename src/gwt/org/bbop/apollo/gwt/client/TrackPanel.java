@@ -4,8 +4,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -26,14 +27,16 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.CheckBox;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.view.client.CellPreviewEvent;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
+
+import static org.bbop.apollo.gwt.client.MainPanel.frame;
 
 
 /**
@@ -58,7 +61,7 @@ public class TrackPanel extends Composite {
     HTML trackDensity;
 
     @UiField
-    CheckBox trackListToggle;
+    ToggleSwitch trackListToggle;
 
 
     private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
@@ -70,9 +73,6 @@ public class TrackPanel extends Composite {
     Tree optionTree;
 
 
-    public void updateTrackToggle(Boolean val) {
-        trackListToggle.setValue(val);
-    }
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -147,8 +147,6 @@ public class TrackPanel extends Composite {
         };
         nameColumn.setSortable(true);
 
-
-
         dataGrid.addColumn(showColumn, "Show");
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.setColumnWidth(0, "10%");
@@ -204,11 +202,15 @@ public class TrackPanel extends Composite {
         dataGrid.setLoadingIndicator(new Label("Loading..."));
         dataGrid.setEmptyTableWidget(new Label("Loading..."));
         filteredTrackInfoList.clear();
+        trackInfoList.clear();
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
                 reload();
-                dataGrid.setEmptyTableWidget(new Label("No tracks found!"));
+                if(trackInfoList.size()==0){
+                    dataGrid.setEmptyTableWidget(new Label("Loading..."));
+                    return true ;
+                }
                 return false;
             }
         }, delay);
@@ -279,7 +281,6 @@ public class TrackPanel extends Composite {
 
     static void filterList() {
         String text = nameSearchBox.getText();
-//        filteredTrackInfoList.clear();
         for (TrackInfo trackInfo : trackInfoList) {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
@@ -357,7 +358,16 @@ public class TrackPanel extends Composite {
     }
 
     @UiHandler("trackListToggle")
-    public void trackListToggle(ClickEvent clickEvent) {
+    public void trackListToggle(ValueChangeEvent<Boolean> event) {
+        MainPanel.useNativeTracklist=trackListToggle.getValue();
+        MainPanel.getInstance().trackListToggle.setActive(MainPanel.useNativeTracklist);
+        updateTrackToggle(MainPanel.useNativeTracklist);
+    }
+
+    public void updateTrackToggle(Boolean val) {
+        trackListToggle.setValue(val);
+
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -375,7 +385,6 @@ public class TrackPanel extends Composite {
                 Bootbox.alert("Error updating user: " + exception);
             }
         };
-        MainPanel.useNativeTracklist=trackListToggle.getValue();
         UserRestService.updateUserTrackPanelPreference(requestCallback, trackListToggle.getValue());
     }
 }

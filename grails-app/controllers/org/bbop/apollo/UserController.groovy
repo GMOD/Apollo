@@ -344,6 +344,7 @@ class UserController {
             user.userGroups.each { it ->
                 it.removeFromUsers(user)
             }
+            FeatureEvent.deleteAll(FeatureEvent.findAllByEditor(user))
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
             UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))

@@ -528,6 +528,9 @@ class PermissionService {
                 def authenticationService
                 if("remoteUserAuthenticatorService" == auth.className ){
                     authenticationService = remoteUserAuthenticatorService
+                    if (auth.params.containsKey("default_group")) {
+                        authenticationService.setDefaultGroup(auth.params.get("default_group"))
+                    }
                 }
                 else
                 if("usernamePasswordAuthenticatorService" == auth.className ){
@@ -610,8 +613,8 @@ class PermissionService {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,FeatureStringEnum.IGNORE.value)
         }
         String clientToken = dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
-        if(clientToken == FeatureStringEnum.IGNORE.value && !dataObject.containsKey(FeatureStringEnum.ORGANISM.value)){
-            throw new RuntimeException("Must contain 'organism' value if we ignore the clientToken")
+        if(!dataObject.containsKey(FeatureStringEnum.ORGANISM.value)){
+            log.debug("dataObject does not contain organism (may not be needed)")
         }
         return clientToken
     }

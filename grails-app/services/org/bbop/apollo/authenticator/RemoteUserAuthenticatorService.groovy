@@ -8,6 +8,7 @@ import org.apache.shiro.crypto.hash.Sha256Hash
 import org.apache.shiro.subject.Subject
 import org.bbop.apollo.Role
 import org.bbop.apollo.User
+import org.bbop.apollo.UserGroup
 import org.bbop.apollo.UserService
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServletRequest
 @Transactional
 class RemoteUserAuthenticatorService implements AuthenticatorService {
 
+    String defaultGroup
+
     def authenticate(HttpServletRequest request) {
         User user
         UsernamePasswordToken authToken = new UsernamePasswordToken()
@@ -24,7 +27,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
         String passwordHash = new Sha256Hash(randomPassword).toHex()
         Subject subject
         try {
-            subject = SecurityUtils.getSubject();
+            subject = SecurityUtils.getSubject()
 
             String remoteUser
             // for testing
@@ -33,14 +36,13 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
 //            } else {
 //            remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
 //            }
-            
+
             remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
             log.warn "Remote user found [${remoteUser}]"
             if (!remoteUser) {
                 log.warn("No remote user passed in header!")
                 return false
             }
-//            }
             authToken.username = remoteUser
             user = User.findByUsername(authToken.username)
             log.warn "User exists ${user} ? "
@@ -61,6 +63,16 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
                 log.debug "adding role: ${role}"
                 user.addToRoles(role)
                 role.addToUsers(user)
+
+                if (this.defaultGroup) {
+                    log.debug "adding user to default group: ${this.defaultGroup}"
+                    UserGroup userGroup = UserGroup.findByName(this.defaultGroup)
+
+                    userGroup = userGroup ?: new UserGroup(name: this.defaultGroup).save(flush: true)
+
+                    user.addToUserGroups(userGroup)
+                }
+
                 role.save()
                 user.save(flush: true)
                 log.warn "User created ${user}"
@@ -95,6 +107,10 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
     //    @Override
     def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
         // token is ignored
-        return authToken(request)
+        return authenticate(request)
+    }
+
+    def setDefaultGroup(String defaultGroup) {
+        this.defaultGroup = defaultGroup
     }
 }

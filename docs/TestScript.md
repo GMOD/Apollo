@@ -29,7 +29,25 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 1.2) Check that you can switch organisms from the _Organism_ tab in the _Annotator Panel_
 
-1.3) Check that the organism preference is preserved only on a single browser tab.
+1.3) Check that the organism and sequence preference is preserved only on a single browser tab.  Every tab / window opened should allow a different sequence and organism.  The last organism + reference sequence (e.g. scaffold, chromosome) should be loaded into each, but each browser tab will be independent.
+
+1.3.1) The last "movement" of any browser for a particular organism should become the new preference (location + scaffold) for that organism.  
+
+1.3.2) The last "movement" should become the new "default" organism. 
+
+1.3.3) Switching back and forth between sequences should remember the last location for each. 
+
+1.3.4) Switching back and forth between organisms should remember the last location (scaffold and location) for each. 
+
+1.4) Switch between organisms after creating annotations on this reference sequence (e.g. scaffold, chromosome), if the two reference sequences have the same name in two (or more) different organisms.  
+
+1.4.1) Use the JBrowse drop-down or search menu to navigate between the two scaffolds on different organisms at least twice and confirm that annotations that belong to an organism on one scaffold are only seen on that organism and not the other.  
+
+1.4.2) Use the _Sequence Panel_ to confirm that scaffolds on a particular organism only belong to that organism.  i.e., every scaffold listed should be part of the current organism.
+
+1.4.3) Use the _Sequence Dropdown_ to confirm that scaffolds on a particular organism only belong to that organism.
+
+1.4.4) Use the _Annotator Panel_ "Go To Annotation" button to confirm that scaffolds listed for a particular organism and scaffold only belong to that organism.
 
 2) Test top-level menu options:
 
@@ -65,9 +83,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
    Check that all links go to a new screen.
 
-2.6) Full-screen view
-
-   Check that this link opens up a new window showing only the browser and JBrowse track menu, without the annotator panel. Then, check that you are able to return from _Full-screen view_ to a window that includes both the main annotation area with the _Annotator Panel_ on the side by using the _Show Annotator Panel_ button.
+   
 
 3) Test the Navigation Bar
 
@@ -134,15 +150,32 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 13.1.1) Check that you can navigate to an annotation by clicking on them from the list in the panel. Annotations for gene elements that produce transcripts will require one click on the name of the annotation, then double clicking on the transcript.
 
-13.1.2) After clicking on an annotation, click on the _Details_ tab at the bottom of the _Annotator Panel_ to display metadata for each annotation. Then, click on the _Coding_ tab to reveal a list of exons, and click on one of the exons to reveal optiond to modify its boundary using the arrows in the display. 
+13.1.2) Navigate To Annotation Details
+
+13.1.2.1) After clicking on an annotation, click on the _Details_ tab at the bottom of the _Annotator Panel_ to display metadata for each annotation. Then, click on the _Coding_ tab to reveal a list of exons, and click on one of the exons to reveal options to modify its 
+boundary using the arrows in the display.  Modify a number explicitly and click outside the box.  Confirm that a change was made for a legitimate value.
+
+13.1.2.2) Repeat for pseudogenes and non-coding RNAs.
+
+13.1.2.3) Repeat for Repeat Region and Transposable Element. 
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
 13.2) Tracks
 
-13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" fromthe list of available tracks.
+13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" from the list of available tracks.
 
 13.2.2) Search for a track using the search box.
+
+13.2.3) Check that clicking on the show native tracks icons properly toggles the native tracks.
+
+13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the native track view and the main panel toggle icon.
+
+13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the native track view and switches the track panel toggle as well.
+
+13.2.3.3) Confirm that reload in either case saves the prior preference.
+
+13.2.3.4) Test as Admin and non-Admin for one case to confirm layout.
 
 13.3) Ref Sequence
 
@@ -170,6 +203,20 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 13.7.1) Click and corroborate that each item listed under the _Admin_ tab sends you to a new page. And test that you can add and delete fields and data as needed for each page. 
 
+13.8) Public link
+
+13.8.1) Confirm that clicking on a public link option in the main window when _logged in_ will forward you to the Annotator Panel view.
+
+13.8.2) Confirm that clicking on a public link option in the main window when _logged out_ will give you the regular "JBrowse view".
+
+   Check that this link opens up a new window showing only the browser and JBrowse track menu, without the annotator panel. 
+   When logging in, it should redirect to another login menu and then finally end up at the _Annotator Panel_ view with the same tracks selected.
+  
+13.9) Logged in link
+   
+13.9.1) Confirm that clicking on a logged in link option in the main window when _logged in_ will forward you to the _Annotator Panel_ view directly.
+
+13.9.2) Confirm that clicking on a logged in link option in the main window when _logged out_ will take you to the login screen and then redirect you to the proper _Annotator Panel_ view when approved with the same selections in-tact.
 
 ### C) Testing Integration
 
@@ -184,6 +231,28 @@ http://genomearchitect.readthedocs.io/en/latest/
 14.4) When logged out and logging back in should come back to the same place.
 
 14.4.1) Should work even if on different browser.
+
+### D) Testing Web Services
+
+15.1) Make sure that you can add organisms using the ```add_organism.groovy``` script.  ```groovy add_organism.groovy -directory /apollo_data_directory/web_apollo_demo_yeast -genus bread -species yeast -name SampleOrganism -url http://testserver.gov/Apollo-staging -username adminuser@admin.gov -password demo -public```
+
+15.1.1) Verify that it also works for the shell (curl) script as well.
+
+15.2) Verify that you can use the ```add_users.groovy``` script. ```groovy add_users.groovy -newuser "SampleUser" -username adminuser@admin.gov -password adminpassword -destinationurl http://testserver.gov/Apollo-staging -newrole admin```
+ 
+15.2.1) Verify that it also works for the shell (curl) script as well.
+
+15.3) Make sure that you can add annotations using the ```add_transcripts_from_gff3_to_annotations.pl``` script from exported annotations. 
+
+15.3.1) Create annotations for new user on new organism.
+
+15.3.2) Download annotations as GFF3.
+
+15.3.3) Run ```add_transcripts_from_gff3_to_annotations.pl``` against the same organism and user and confirm that it works. ```./add_transcripts_from_gff3_to_annotations.pl -U http://testserver.gov/Apollo-staging -u adminuser@admin.gov -p adminpassword -i Annotations-chrI.gff3  --organism SampleOrganism```
+
+15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  ```groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism
+
+
 
 
 

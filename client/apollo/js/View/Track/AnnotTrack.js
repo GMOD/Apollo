@@ -5291,6 +5291,12 @@ define([
                     if (div.style.visibility) {
                         div.style.visibility = null;
                     }
+
+                    // if feature-render annot-render ,
+                    // remove and add: gray-center-10pct
+                    if(div.className.indexOf("feature-render")>=0 &&  div.className.indexOf("annot-render")>=0 ){
+                        div.className = "gray-center-10pct";
+                    }
 // annot_context_menu.unBindDomNode(div);
                     $(div).unbind();
                     for (var i = 0; i < div.childNodes.length; ++i) {
@@ -6209,7 +6215,9 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (window.parent) window.parent.location.reload();
+                                        if (window.parent){
+                                          window.parent.location.reload();
+                                        }
                                         else window.location.reload();
                                     },
                                     error: function (response, ioArgs) { //
@@ -6362,7 +6370,7 @@ define([
                         label: "repeat_region",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
-                            var selectedFeatureType = selected[0].feature.afeature.type.name == "exon" ?
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                             if (selectedFeatureType != "transposable_element") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
@@ -6377,7 +6385,7 @@ define([
                         label: "transposable_element",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
-                            var selectedFeatureType = selected[0].feature.afeature.type.name == "exon" ?
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                             if (selectedFeatureType != "repeat_region") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
@@ -6399,7 +6407,7 @@ define([
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
-                    contextMenuItems["change_annotation_type"] = index++;
+                    contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
                     annot_context_menu.addChild(new dijit.MenuItem({
@@ -6582,20 +6590,27 @@ define([
                     // keeping track of mousedown event that triggered annot_context_menu popup
                     // because need mouse position of that event for some actions
                     thisB.annot_context_mousedown = thisB.last_mousedown_event;
-                    if (thisB.permission & Permission.WRITE) {
-                        thisB.updateMenu();
+                    var selected = thisB.selectionManager.getSelection();
+                    if (selected.length == 0) {
+                        // if there is no selection then close the menu
+                        thisB.closeMenu();
                     }
-                    dojo.forEach(this.getChildren(), function (item, idx, arr) {
-                        if (item instanceof dijit.MenuItem) {
-                            item._setSelected(false);
-                            // check for _onUnhover, since latest
-                            // dijit.MenuItem does not have _onUnhover()
-                            // method
-                            if (item._onUnhover) {
-                                item._onUnhover();
-                            }
+                    else {
+                        if (thisB.permission & Permission.WRITE) {
+                            thisB.updateMenu();
                         }
-                    });
+                        dojo.forEach(this.getChildren(), function (item, idx, arr) {
+                            if (item instanceof dijit.MenuItem) {
+                                item._setSelected(false);
+                                // check for _onUnhover, since latest
+                                // dijit.MenuItem does not have _onUnhover()
+                                // method
+                                if (item._onUnhover) {
+                                    item._onUnhover();
+                                }
+                            }
+                        });
+                    }
                 };
 
                 annot_context_menu.startup();
@@ -6800,47 +6815,51 @@ define([
                 this.updateSetPreviousAcceptorMenuItem();
             },
 
+            closeMenu: function() {
+                dijit.popup.close(this.annot_context_menu);
+            },
+
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
                 var selected = this.selectionManager.getSelection();
-                var selectedType = selected[0].feature.afeature.type.name == "exon" ?
+                var selectedType = selected[0].feature.afeature.type.name === "exon" ?
                     selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
                 var menuItems = changeAnnotationMenu.getChildren();
                 for (var i in menuItems) {
-                    if (selectedType == "mRNA") {
-                        if (menuItems[i].label == "gene") {
+                    if (selectedType === "mRNA") {
+                        if (menuItems[i].label === "gene") {
                             menuItems[i].setDisabled(true);
                         }
                         else {
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType == "transcript") {
-                        if (menuItems[i].label == "pseudogene") {
+                    else if (selectedType === "transcript") {
+                        if (menuItems[i].label === "pseudogene") {
                             menuItems[i].setDisabled(true);
                         }
                         else {
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType == "miRNA" || selectedType == "snRNA" || selectedType == "snoRNA" ||
-                        selectedType == "rRNA" || selectedType == "tRNA" || selectedType == "ncRNA") {
-                        if (menuItems[i].label == selectedType) {
+                    else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
+                        selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
+                        if (menuItems[i].label === selectedType) {
                             menuItems[i].setDisabled(true);
                         }
                         else {
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType == "repeat_region") {
-                        if (menuItems[i].label == "transposable_element") {
+                    else if (selectedType === "repeat_region") {
+                        if (menuItems[i].label === "transposable_element") {
                             menuItems[i].setDisabled(false);
                         }
                         else {
                             menuItems[i].setDisabled(true);
                         }
                     }
-                    else if (selectedType == "transposable_element") {
-                        if (menuItems[i].label == "repeat_region") {
+                    else if (selectedType === "transposable_element") {
+                        if (menuItems[i].label === "repeat_region") {
                             menuItems[i].setDisabled(false);
                         }
                         else {
