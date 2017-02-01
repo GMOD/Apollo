@@ -750,7 +750,7 @@ public class AnnotatorPanel extends Composite {
 
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
                 String htmlString = "<a style='" + transcriptStyle + "' onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>";
-                htmlString += "<a onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" style=\"font-size: 20px !important;\" >\u21E8 </a>";
+                htmlString += "  <a onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" style=\"font-size: 20px !important;\" ><i class='fa fa-arrow-circle-o-right fa-sm'></i></a>";
                 HTML html = new HTML(htmlString);
                 SafeHtml safeHtml = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
                 td.html(safeHtml);
