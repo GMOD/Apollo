@@ -9,6 +9,7 @@ class SequenceAlteration extends SequenceFeature{
         alterationResidue nullable: true
         alterationType nullable: true
         referenceBases nullable: true
+        individual nullable: true
     }
 
     String alterationResidue
@@ -19,6 +20,10 @@ class SequenceAlteration extends SequenceFeature{
             alternateAlleles: Allele,
             variantInfo     : FeatureProperty,
             variantCalls    : Call
+    ]
+
+    static belongsTo = [
+            individual: Individual
     ]
 
     static mapping = {

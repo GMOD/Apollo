@@ -73,6 +73,10 @@ class VariantService {
             else {
                 log.error "Unexpected type of variant"
             }
+
+            // Assigning the de-novo variant to the 'reference' individual
+            Individual referenceIndividual = Individual.findByName("reference")
+            variant.individual = referenceIndividual
         }
         else {
             // this scenario would happen when a variant is created from an evidence track such as a VCF track
@@ -119,6 +123,7 @@ class VariantService {
         featureService.updateNewGsolFeatureAttributes(variant, sequence)
         variant.save(flush: true)
 
+        // TODO: parse metadata to handle individual
         return variant
     }
 
