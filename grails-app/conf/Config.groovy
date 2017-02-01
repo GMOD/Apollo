@@ -400,7 +400,7 @@ jbrowse {
 //        fileName = "JBrowse-1.12.0-dev"
 //    }
 //
-//	// Warning: We are still testing the performance of NeatFeatures plugins in combination with Apollo.
+//	// Warning: We are still testing the performance of the NeatFeatures plugins in combination with Apollo.
 //	// We advise caution if enabling these plugins with Apollo until this process is finalized.
     plugins {
         WebApollo{
