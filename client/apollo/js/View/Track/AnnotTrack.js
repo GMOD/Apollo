@@ -4803,20 +4803,27 @@ define([
                     // keeping track of mousedown event that triggered annot_context_menu popup
                     // because need mouse position of that event for some actions
                     thisB.annot_context_mousedown = thisB.last_mousedown_event;
-                    if (thisB.permission & Permission.WRITE) {
-                        thisB.updateMenu();
+                    var selected = thisB.selectionManager.getSelection();
+                    if (selected.length == 0) {
+                        // if there is no selection then close the menu
+                        thisB.closeMenu();
                     }
-                    dojo.forEach(this.getChildren(), function (item, idx, arr) {
-                        if (item instanceof dijit.MenuItem) {
-                            item._setSelected(false);
-                            // check for _onUnhover, since latest
-                            // dijit.MenuItem does not have _onUnhover()
-                            // method
-                            if (item._onUnhover) {
-                                item._onUnhover();
-                            }
+                    else {
+                        if (thisB.permission & Permission.WRITE) {
+                            thisB.updateMenu();
                         }
-                    });
+                        dojo.forEach(this.getChildren(), function (item, idx, arr) {
+                            if (item instanceof dijit.MenuItem) {
+                                item._setSelected(false);
+                                // check for _onUnhover, since latest
+                                // dijit.MenuItem does not have _onUnhover()
+                                // method
+                                if (item._onUnhover) {
+                                    item._onUnhover();
+                                }
+                            }
+                        });
+                    }
                 };
 
                 annot_context_menu.startup();
@@ -5018,6 +5025,10 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+            },
+
+            closeMenu: function() {
+                dijit.popup.close(this.annot_context_menu);
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
