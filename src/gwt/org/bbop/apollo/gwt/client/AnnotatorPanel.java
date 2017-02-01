@@ -31,7 +31,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -77,6 +76,11 @@ public class AnnotatorPanel extends Composite {
     private Column<AnnotationInfo, String> showHideColumn;
     private long requestIndex = 0;
     private static String selectedChildUniqueName = null;
+
+    private final String COLLAPSE_ICON_UNICODE = "\u25BC";
+    private final String EXPAND_ICON_UNICODE = "\u25C0";
+//    private final String COLLAPSE_ICON_UNICODE = "\u2191";
+//    private final String EXPAND_ICON_UNICODE = "\u2193";
 
     @UiField
     TextBox nameSearchBox;
@@ -496,7 +500,15 @@ public class AnnotatorPanel extends Composite {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
                 if (annotationInfo.getType().equals("gene") || annotationInfo.getType().equals("pseudogene")) {
-                    return showingTranscripts.contains(annotationInfo.getUniqueName()) ? "-" : "+";
+                    SafeHtmlBuilder sb = new SafeHtmlBuilder();
+                    if(showingTranscripts.contains(annotationInfo.getUniqueName())){
+                        sb.appendHtmlConstant(COLLAPSE_ICON_UNICODE);
+                    }
+                    else{
+                        sb.appendHtmlConstant(EXPAND_ICON_UNICODE);
+                    }
+
+                    return sb.toSafeHtml().asString();
                 }
                 return " ";
             }
@@ -737,9 +749,11 @@ public class AnnotatorPanel extends Composite {
                 // a custom cell rendering might work as well, but not sure
 
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
-                HTML html = new HTML("<a style='" + transcriptStyle + "' ondblclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>");
-                SafeHtml htmlString = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
-                td.html(htmlString);
+                String htmlString = "<a style='" + transcriptStyle + "' onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>";
+                htmlString += "  <button type='button' class='btn btn-primary' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" style=\"line-height: 0; margin-bottom: 5px;\" ><i class='fa fa-arrow-circle-o-right fa-lg'></i></a>";
+                HTML html = new HTML(htmlString);
+                SafeHtml safeHtml = new SafeHtmlBuilder().appendHtmlConstant(html.getHTML()).toSafeHtml();
+                td.html(safeHtml);
             } else {
                 String type = rowValue.getType();
                 if (type.equals("gene") || type.equals("pseudogene")) {
