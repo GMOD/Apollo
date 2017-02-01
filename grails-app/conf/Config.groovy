@@ -387,7 +387,7 @@ auditLog {
 jbrowse {
     git {
         url= "https://github.com/gmod/jbrowse"
-        tag = "2c0c2079fed1c98a5d94a097aa9a5f3ec95383e2"
+        tag = "29795a1bbb8da4706eba2b0f73724ac1b3e1e4e6"
 //		tag = "1.12.2-apollo"
 //        branch = "master"
         alwaysPull = false
