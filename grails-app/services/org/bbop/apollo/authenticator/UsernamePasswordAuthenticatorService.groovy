@@ -33,4 +33,10 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService{
         }
 
     }
+
+
+    @Override
+    Boolean requiresToken() {
+        return true
+    }
 }

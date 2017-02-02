@@ -30,6 +30,8 @@ class SecurityFilters {
                         || controllerName == "cannedKey"
                         || controllerName == "cannedValue"
                         || controllerName == "cannedComment"
+                        || controllerName == "proxy"
+                        || controllerName == "featureType"
                         || actionName == "report"
                         || actionName == "loadLink"
                 ) {
@@ -37,10 +39,9 @@ class SecurityFilters {
                         log.debug "apollo filter ${controllerName}::${actionName}"
                         Subject subject = SecurityUtils.getSubject();
                         if (!subject.isAuthenticated()) {
-                            def req = request.JSON
-                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null
+
                             // we don't try to add this here
-                            if (authToken && permissionService.authenticateWithToken(authToken, request)) {
+                            if (permissionService.authenticateWithToken(request)) {
                                 if (params.targetUri) {
                                     redirect(uri: params.targetUri)
                                 }
