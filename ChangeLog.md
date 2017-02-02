@@ -24,6 +24,7 @@ Bugfixes
 + Issue with gene names when performing undo and redo right after changing annotation type #1464
 + Interface freezes if right-clicking an unselected annotation #1465
 + Fixed issue where double-click on transcript navigates and then closes the transcript / gene #1467
++ Remote_user not authorized properly everywhere #1468
 + Bumped default JBrowse version
 
 

@@ -113,4 +113,9 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
     def setDefaultGroup(String defaultGroup) {
         this.defaultGroup = defaultGroup
     }
+
+    @Override
+    Boolean requiresToken() {
+        return false
+    }
 }

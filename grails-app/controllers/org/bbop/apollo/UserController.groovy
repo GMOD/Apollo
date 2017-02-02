@@ -156,7 +156,7 @@ class UserController {
                 authToken = new UsernamePasswordToken(username, password)
             }
 
-            if(permissionService.authenticateWithToken(authToken,request)){
+            if(permissionService.authenticateWithToken(request)){
                 currentUser = permissionService.currentUser
             }
             else{
