@@ -25,6 +25,7 @@ Bugfixes
 + Interface freezes if right-clicking an unselected annotation #1465
 + Fixed issue where double-click on transcript navigates and then closes the transcript / gene #1467
 + Remote_user not authorized properly everywhere #1468
++ Fixes the small problem with the sticky tracks from loadLinks #1474
 + Bumped default JBrowse version
 
 
