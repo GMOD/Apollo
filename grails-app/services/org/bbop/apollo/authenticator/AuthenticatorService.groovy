@@ -12,4 +12,5 @@ interface AuthenticatorService {
 
     def authenticate(HttpServletRequest request)
     def authenticate(UsernamePasswordToken usernamePasswordToken,HttpServletRequest request)
+    Boolean requiresToken()
 }
