@@ -79,8 +79,6 @@ public class AnnotatorPanel extends Composite {
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
-//    private final String COLLAPSE_ICON_UNICODE = "\u2191";
-//    private final String EXPAND_ICON_UNICODE = "\u2193";
 
     @UiField
     TextBox nameSearchBox;
