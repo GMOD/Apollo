@@ -519,16 +519,17 @@ class PermissionService {
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
 
-    def authenticateWithToken(UsernamePasswordToken usernamePasswordToken, HttpServletRequest request) {
+    def authenticateWithToken(UsernamePasswordToken usernamePasswordToken = null, HttpServletRequest request) {
 
         def authentications = configWrapperService.authentications
+
         for (auth in authentications) {
             if (auth.active) {
                 log.info "Authenticating with ${auth.className}"
                 def authenticationService
                 if("remoteUserAuthenticatorService" == auth.className ){
                     authenticationService = remoteUserAuthenticatorService
-                    if (auth.params.containsKey("default_group")) {
+                    if (auth?.params?.containsKey("default_group")) {
                         authenticationService.setDefaultGroup(auth.params.get("default_group"))
                     }
                 }
@@ -542,9 +543,14 @@ class PermissionService {
                     return false
                 }
 
-                if(usernamePasswordToken){
-                    if (authenticationService.authenticate(usernamePasswordToken, request)) {
-                        log.info "Authenticated user ${usernamePasswordToken.username} using ${auth.name}"
+                if(authenticationService.requiresToken()){
+                    def req = request.JSON
+                    def authToken = usernamePasswordToken ?: null
+                    if(!authToken && req.username){
+                        authToken = new UsernamePasswordToken(req.username, req.password)
+                    }
+                    if (authenticationService.authenticate(authToken, request)) {
+                        log.info "Authenticated user ${authToken.username} using ${auth.name}"
                         return true
                     }
                 }
