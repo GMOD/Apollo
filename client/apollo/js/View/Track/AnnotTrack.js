@@ -6307,8 +6307,10 @@ define([
                     contextMenuItems["annotation_info_editor"] = index++;
                 }
                 if (permission & Permission.WRITE) {
-                    //annot_context_menu.addChild(new dijit.MenuSeparator());
-                    //index++;
+                    contextMenuItems["annotation_info_editor"] = index++;
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Edit Information (alt-click)",
                         onClick: function (event) {
@@ -6396,9 +6398,7 @@ define([
                             }
                         }
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
-                    annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
+
                     var changeAnnotationMenuItem = new dijitPopupMenuItem( {
                         label: "Change annotation type",
                         popup: changeAnnotationMenu
@@ -6407,9 +6407,11 @@ define([
                     dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
-                    contextMenuItems["annotation_info_editor"] = index++;
+                    contextMenuItems["change_annotation_type"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
@@ -6890,7 +6892,8 @@ define([
             updateChangeAnnotationTypeMenuItem: function () {
                 var menuItem = this.getMenuItem("change_annotation_type");
                 var selected = this.selectionManager.getSelection();
-                if (JSONUtils.variantTypes.indexOf(selected[0].feature.afeature.type.name) != 1) {
+                var currentType = selected[0].feature.afeature.type.name.toUpperCase();
+                if (JSONUtils.variantTypes.indexOf(currentType) != -1) {
                     menuItem.set("disabled", true);
                 }
                 else {
