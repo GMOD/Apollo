@@ -114,6 +114,9 @@ environments {
 ////        branch = "master"
 //        alwaysPull = true
 //        alwaysRecheck = true
+//
+//	// Warning: We are still testing the performance of NeatFeatures plugins in combination with Apollo.
+//	// We advise caution if enabling these plugins with Apollo until this process is finalized.
 //    }
 //    plugins {
 //        WebApollo{

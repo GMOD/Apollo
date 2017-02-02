@@ -66,7 +66,7 @@
                             <b:Button type="PRIMARY" icon="EYE" title="View" size="EXTRA_SMALL"
                                       ui:field="viewAnnotation" enabled="false"
                                       addStyleNames="right-space {style.assemblage-buttons}"/>
-                        <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Goto" size="EXTRA_SMALL"
+                        <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE" text="Go to Annotation"
                                   ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.assemblage-buttons}"/>
                     </b:Column>
                 </b:Row>
