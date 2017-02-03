@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
 
 class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec{
 
@@ -9,6 +10,7 @@ class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec{
     def requestHandlingService
 
 
+    @Ignore
     void "deleteAllFeaturesFromOrganism"() {
 
         given: "a transcript with a UTR"
@@ -30,7 +32,6 @@ class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         assert Gene.count == 1
         assert FeatureEvent.count == 1
-        def allFeatures = Feature.all
 
         // this is the new part
         assert FeatureLocation.count == 8
