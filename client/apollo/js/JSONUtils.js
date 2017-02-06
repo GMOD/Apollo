@@ -426,18 +426,14 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     return afeature;
 };
 
-JSONUtils.createApolloVariant = function( jfeature, useName ) {
+JSONUtils.createApolloVariant = function( feat, useName ) {
     var afeature = new Object();
     var astrand = 1; // variants are represented w.r.t. the sense strand
-    var fmin = jfeature.get('start');
-    var fmax = jfeature.get('end');
-    var referenceBases = jfeature.get('reference_allele');
-    var alternateAllelesArray = jfeature.get('alternative_alleles').values.split(',');
-    var alternateAlleles = [];
-    for (var i = 0; i < alternateAllelesArray.length; ++i) {
-        var allele = {bases: alternateAllelesArray[i]};
-        alternateAlleles.push(allele);
-    }
+    var fmin = feat.get('start');
+    var fmax = feat.get('end');
+    var referenceBases = feat.get('reference_allele');
+    var alternativeAlleles = feat.get('alternative_alleles').values.split(',');
+    console.log("alternate alleles array: ", alternativeAlleles);
 
     afeature.location = {
         fmin: fmin,
@@ -445,7 +441,13 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
         strand: astrand
     };
 
-    var typename = JSONUtils.classifyVariant(referenceBases, alternateAlleles, fmin, fmax);
+    var alternativeAllelesArray = [];
+    for (var i = 0; i < alternativeAlleles.length; ++i) {
+        var allele = { bases: alternativeAlleles[i] };
+        alternativeAllelesArray.push(allele);
+    }
+
+    var typename = JSONUtils.classifyVariant(referenceBases, alternativeAlleles, fmin, fmax);
 
     if (typename) {
         afeature.type = {
@@ -456,15 +458,34 @@ JSONUtils.createApolloVariant = function( jfeature, useName ) {
         afeature.type.name = typename;
     }
 
-    var name = jfeature.get('name');
+    var name = feat.get('name');
     if (useName && name) {
         afeature.name = name;
     }
 
     afeature.reference_bases = referenceBases;
-    afeature.alternate_alleles = alternateAlleles;
+    afeature.alternate_alleles = alternativeAllelesArray;
 
-    // TODO: Add additional metadata
+    // parsing genotypes, if available - deferred
+    // var genotypes = feat.get('genotypes');
+    // if (genotypes) {
+    //     afeature.genotypes = genotypes;
+    // }
+
+    // parsing the metadata
+    var metadata = [];
+    for (var property in feat.data) {
+        if (feat.data.hasOwnProperty(property)) {
+            console.log("> ", property);
+            if (! ['start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
+                var entry = feat.get(property);
+                if (entry) { metadata.push(feat.get(property)); }
+                console.log('Got ', feat.get(property));
+            }
+        }
+    }
+    afeature.metadata = metadata;
+    console.log("created Apollo feature: ", afeature);
     return afeature;
 };
 
@@ -478,7 +499,7 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
     // deletion - deletion of bases
 
     var type;
-    var altAllele = altAlleles[0].bases; // type defaults to type of the first occuring alt allele
+    var altAllele = altAlleles[0]; // type defaults to type of the first occuring alt allele
     var refLength = refAllele.length;
     var altLength = altAllele.length;
 

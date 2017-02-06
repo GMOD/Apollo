@@ -1197,8 +1197,7 @@ define([
 
                 for (var i in selection_records) {
                     var dragfeat = selection_records[i].feature;
-                    var featureToAdd = JSONUtils.makeSimpleFeature(dragfeat);
-                    var afeat = JSONUtils.createApolloVariant(featureToAdd, true);
+                    var afeat = JSONUtils.createApolloVariant(dragfeat, true);
                     featuresToAdd.push(afeat);
                 }
 
