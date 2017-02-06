@@ -131,7 +131,8 @@ public enum FeatureStringEnum {
         HISTORY,
         DOCK_OPEN("dockOpen"),
         DOCK_WIDTH("dockWidth"),
-        USE_CDS
+        USE_CDS,
+	REFERENCE
         ;
 
 

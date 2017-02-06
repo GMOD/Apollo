@@ -391,10 +391,17 @@ public class Gff3HandlerService {
                 calendar.setTime(feature.lastUpdated);
                 attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
             }
-
-
-            if(feature.class.name in [Insertion.class.name,Substitution.class.name]) {
+            if(feature.class.name in [Insertion.class.name]) {
                 attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
+                attributes.put(FeatureStringEnum.REFERENCE.value, ".")
+            }
+            if(feature.class.name in [Substitution.class.name]) {
+                attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
+                attributes.put(FeatureStringEnum.REFERENCE.value, sequenceService.getResidueFromFeatureLocation(feature.getFeatureLocations().iterator().next()))
+            }
+            if(feature.class.name in [Deletion.class.name]) {
+                attributes.put(FeatureStringEnum.RESIDUES.value, '.')
+                attributes.put(FeatureStringEnum.REFERENCE.value, sequenceService.getResidueFromFeatureLocation(feature.getFeatureLocations().iterator().next()))
             }
         }
         return attributes;
