@@ -177,8 +177,10 @@ class FeatureService {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
                     // removing name from transcript JSON since its naming will be based off of the overlapping gene
-                    //jsonTranscript.remove(FeatureStringEnum.NAME.value)
+                    String originalName = jsonTranscript.get(FeatureStringEnum.NAME.value)
+                    jsonTranscript.remove(FeatureStringEnum.NAME.value)
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
+                    jsonTranscript.put(FeatureStringEnum.NAME.value, originalName)
                     updateNewGsolFeatureAttributes(tmpTranscript, sequence);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
