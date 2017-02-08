@@ -66,6 +66,12 @@ class AnnotatorController {
                 throw new RuntimeException("User does have permissions to access any organisms.")
             }
 
+            if(params.uuid){
+                Feature feature = Feature.findByUniqueName(params.uuid)
+                FeatureLocation featureLocation = feature.featureLocation
+                params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin +".." + featureLocation.fmax
+                organism = featureLocation.sequence.organism
+            }
 
             if (!allowedOrganisms.contains(organism)) {
                 log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
