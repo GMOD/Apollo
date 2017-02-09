@@ -41,6 +41,7 @@ my $url;
 my $session_id;
 my $name_attributes="Name";
 my $test = 0;
+my $use_name_for_feature = 0;
 
 my $success_log;
 my $error_log;
@@ -101,7 +102,8 @@ sub parse_options {
            "skip|s=s"           => \$skip_file,
            "test|x"           => \$test,
            "help|h"         => \$help,
-           "name_attributes=s"   => \$name_attributes);
+           "name_attributes=s"   => \$name_attributes,
+           "use_name_for_feature|a" => \$use_name_for_feature);
 
     print_usage() if $help;
     $in = new IO::File($input_file) or die "Error reading $input_file: $!\n"
@@ -154,6 +156,7 @@ usage: $progname
     [--test|-x]
     [--help|-h]
     [--name_attributes <feature attribute to be used as name, first found used>]
+    [--use_name_for_feature|-a]
 
     U: URL to Apollo instance
     u: username to access Apollo
@@ -194,6 +197,7 @@ usage: $progname
     i: input GFF3 file
        [default: STDIN]
     o: organism common name in Apollo instance
+    a: preserve feature names, as-is, in Apollo
     l: log file for ids that were successfully processed
     L: log file for ids that were erroneously processed
     s: file with ids to skip
@@ -526,6 +530,9 @@ sub process_gene {
     else {
         $gene = convert_feature($features, $gene_type_out, $name_attributes);
     }
+    if ($use_name_for_feature) {
+        $gene->{use_name} = "true";
+    }
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
@@ -546,6 +553,10 @@ sub process_transcript {
     }
     else {
         $transcript = convert_feature($features, $mrna_type_out, $name_attributes);
+    }
+
+    if ($use_name_for_feature) {
+        $transcript->{use_name} = "true";
     }
     my $cds_feature = undef;
     my $subfeatures = get_subfeatures($features);
@@ -669,6 +680,9 @@ sub convert_mrna_feature {
     my $mrna_json_feature = convert_feature($features, $mrna_type_out, $name_attributes);
     if ($disable_cds_recalculation) {
         $mrna_json_feature->{use_cds} = "true";
+    }
+    if ($use_name_for_feature) {
+        $mrna_json_feature->{use_name} = "true";
     }
     $mrna_json_feature->{parent} = $gene_json_feature;
     my $subfeatures = get_subfeatures($features);
