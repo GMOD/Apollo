@@ -441,11 +441,7 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
         strand: astrand
     };
 
-    var alternativeAllelesArray = [];
-    for (var i = 0; i < alternativeAlleles.length; ++i) {
-        var allele = { bases: alternativeAlleles[i] };
-        alternativeAllelesArray.push(allele);
-    }
+
 
     var typename = JSONUtils.classifyVariant(referenceBases, alternativeAlleles, fmin, fmax);
 
@@ -464,7 +460,8 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     }
 
     afeature.reference_bases = referenceBases;
-    afeature.alternate_alleles = alternativeAllelesArray;
+    afeature.description = feat.get('description');
+    afeature.score = feat.get('score');
 
     // parsing genotypes, if available - deferred
     // var genotypes = feat.get('genotypes');
@@ -473,18 +470,74 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     // }
 
     // parsing the metadata
-    var metadata = [];
+    var variant_specific_metadata = [];
+    var allele_specific_metadata = [];
     for (var property in feat.data) {
         if (feat.data.hasOwnProperty(property)) {
             console.log("> ", property);
-            if (! ['start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
+            if (! ['description', 'score', 'start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
                 var entry = feat.get(property);
-                if (entry) { metadata.push(feat.get(property)); }
-                console.log('Got ', feat.get(property));
+                if (entry) {
+                    console.log('Got ', feat.get(property));
+                    if (entry.meta) {
+                        if (entry.meta.number == "A") {
+                            allele_specific_metadata.push(feat.get(property));
+                        }
+                        else if (entry.meta.number == "0") {
+                            variant_specific_metadata.push(feat.get(property));
+                        }
+                        else if (entry.meta.number == "1") {
+                            variant_specific_metadata.push(feat.get(property));
+                        }
+                        else if (entry.meta.number == ".") {
+                            variant_specific_metadata.push(feat.get(property));
+                        }
+                        else {
+                            console.log("Unhandled metadata 1: ", entry);
+                        }
+                    }
+                    else {
+                        console.log("Unhandled metadata 2: ", entry);
+                    }
+                }
             }
         }
     }
-    afeature.metadata = metadata;
+
+    var alternativeAllelesArray = [];
+    for (var i = 0; i < alternativeAlleles.length; ++i) {
+        var allele = { bases: alternativeAlleles[i] };
+        allele.allele_info = [];
+        for (var j = 0; j < allele_specific_metadata.length; ++j) {
+            var tag = allele_specific_metadata[j].meta.id[0];
+            var value = allele_specific_metadata[j].values[i];
+            var allele_info = {tag: tag, value: value};
+            allele.allele_info.push(allele_info);
+        }
+        alternativeAllelesArray.push(allele);
+    }
+    afeature.alternate_alleles = alternativeAllelesArray;
+
+    metadata = [];
+    for (var i = 0; i < variant_specific_metadata.length; ++i) {
+        if (variant_specific_metadata[i].filters) {
+            // 'filter'
+            var value = variant_specific_metadata[i].values[0];
+            metadata.push({tag: "filters", value: value});
+        }
+        else {
+            var tag = variant_specific_metadata[i].meta.id[0];
+            var value = variant_specific_metadata[i].values[0];
+            if (tag == "AA") {
+                // some bug upstream that introduces '|' in the value field for 'AA' tag
+                value = value.replace(/\|/g, '');
+            }
+            // TODO: What if there are more than one values corresponding to this tag?
+            metadata.push({tag: tag, value: value});
+        }
+    }
+
+    afeature.variant_info = metadata;
     console.log("created Apollo feature: ", afeature);
     return afeature;
 };

@@ -1710,7 +1710,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (allele.getAlleleInfo()) {
                     JSONArray alleleInfoArray = new JSONArray()
                     JSONObject alleleInfoObject = new JSONObject()
-                    gsolFeature.alleleInfo.each { alleleInfo ->
+                    allele.getAlleleInfo().each { alleleInfo ->
                         alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
                         alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
                         alleleInfoArray.add(alleleInfoObject)
