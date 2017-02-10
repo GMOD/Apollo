@@ -140,7 +140,8 @@ class AnnotatorController {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
         String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
-        [userKey: uuid, clientToken: clientToken]
+        String remoteUser = request.getHeader(FeatureStringEnum.REMOTE_USER.value)
+        [userKey: uuid, clientToken: clientToken,remoteUser:remoteUser]
     }
 
 

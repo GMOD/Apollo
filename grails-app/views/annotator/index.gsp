@@ -21,6 +21,7 @@
             showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
             ,userId: '${userKey}'
             ,clientToken:'${clientToken}'
+            ,REMOTE_USER:'${remoteUser}'
 //            ,top: "10"
 //            ,topUnit: "PCT" // PX, EM, PC, PT, IN, CM
 //            ,height: "80"
