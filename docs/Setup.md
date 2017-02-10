@@ -37,6 +37,8 @@ Build settings for Apollo specifically.  Recent versions of tomcat7 will work, t
 
 Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  To setup for production continue onto configuration below after install . 
 
+If you get an ```Unsupported major.minor error``` or similar, please confirm that the version of java that tomcat is running ```ps -ef | grep java``` is the same as the one you used to build.  Setting JAVA_HOME to the Java 8 JDK should fix most problems.
+
 ### Database configuration
 
 Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
