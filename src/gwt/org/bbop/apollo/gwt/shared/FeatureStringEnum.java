@@ -132,7 +132,9 @@ public enum FeatureStringEnum {
         DOCK_OPEN("dockOpen"),
         DOCK_WIDTH("dockWidth"),
         USE_CDS,
-	REFERENCE
+	REFERENCE_SEQ("Reference_seq"),
+	VARIANT_SEQ("Variant_seq"),
+	VCF_ANCHOR_SEQ("VCF_anchor_seq")
         ;
 
 
