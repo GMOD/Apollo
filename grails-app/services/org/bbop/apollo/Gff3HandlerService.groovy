@@ -392,19 +392,19 @@ public class Gff3HandlerService {
                 attributes.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, encodeString(formatDate(calendar.time)));
             }
             if(feature.class.name in [Insertion.class.name]) {
-                attributes.put(FeatureStringEnum.VARIANT_SEQ.value, feature.alterationResidue)
-                attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, '-')
-                attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin-1,featureLocation.fmin))
+	      attributes.put(FeatureStringEnum.VARIANT_SEQ.value, feature.alterationResidue);
+	      attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, '-');
+	      attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin-1,featureLocation.fmin));
             }
             if(feature.class.name in [Substitution.class.name]) {
 	      // NB: 
-	      attributes.put(FeatureStringEnum.VARIANT_SEQ.value, feature.alterationResidue)
-	      attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, sequenceService.getResidueFromFeatureLocation(feature.getFeatureLocations().iterator().next()))
+	      attributes.put(FeatureStringEnum.VARIANT_SEQ.value, feature.alterationResidue);
+	      attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, sequenceService.getResidueFromFeatureLocation(feature.getFeatureLocations().iterator().next()));
             }
             if(feature.class.name in [Deletion.class.name]) {
-                attributes.put(FeatureStringEnum.VARIANT_SEQ.value, '-')
-                attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, sequenceService.getResidueFromFeatureLocation(feature.getFeatureLocations().iterator().next()))
-                attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin-1,featureLocation.fmin))
+	      attributes.put(FeatureStringEnum.VARIANT_SEQ.value, '-');
+	      attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, sequenceService.getResidueFromFeatureLocation(feature.getFeatureLocations().iterator().next()));
+	      attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin-1,featureLocation.fmin));
             }
         }
         return attributes;
