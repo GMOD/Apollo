@@ -406,7 +406,7 @@ public class Gff3HandlerService {
 	      attributes.put(FeatureStringEnum.VARIANT_SEQ.value, '-');
 	      attributes.put(FeatureStringEnum.REFERENCE_SEQ.value, sequenceService.getResidueFromFeatureLocation(f1loc));
 	      // attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin-1,featureLocation.fmin));
-	      attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getResidueFromFeatureLocation(f1loc.sequence,f1loc.fmin-1,f1loc.fmin));
+	      attributes.put(FeatureStringEnum.VCF_ANCHOR_SEQ.value, sequenceService.getRawResiduesFromSequence(f1loc.sequence,f1loc.fmin-1,f1loc.fmin));
             }
         }
         return attributes;
