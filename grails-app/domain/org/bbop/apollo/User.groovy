@@ -1,5 +1,8 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import org.codehaus.groovy.grails.web.json.JSONObject
+
 /**
  * Maps to CVTerm Owner, no Ontology term
  */
@@ -13,7 +16,7 @@ class User implements Ontological {
     String passwordHash
     String firstName
     String lastName
-    String metadata
+    String metadata // this is JSON metadata
 
     static String cvTerm = "Owner"
     static String ontologyId = "Owner"
@@ -34,5 +37,30 @@ class User implements Ontological {
     static mapping = {
         table "grails_user"
 //        password column: "grails_password"
+    }
+
+    private void validateMetaData(){
+        // resets bad JSON
+        if(!metadata || !metadata.startsWith("{") || !metadata.endsWith("}")){
+            metadata = "{}"
+        }
+    }
+
+    JSONObject addMetaData(String key,String value){
+        validateMetaData()
+        JSONObject jsonObject = JSON.parse(metadata) as JSONObject
+        jsonObject.put(key,value)
+        return jsonObject
+    }
+
+    def getMetaData(String key){
+        validateMetaData()
+        JSONObject jsonObject = JSON.parse(metadata) as JSONObject
+        jsonObject.containsKey(key) ? jsonObject.get(key) : null
+    }
+
+    JSONObject getMetaDataObject(){
+        validateMetaData()
+        return JSON.parse(metadata) as JSONObject
     }
 }
