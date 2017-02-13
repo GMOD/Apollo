@@ -89,7 +89,7 @@ public class Annotator implements EntryPoint {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
                             int statusCode = response.getStatusCode();
-                            if(statusCode==200){
+                            if(statusCode==200 && response.getText().equals("{}")){
                                 GWT.log("Still connected");
                             }
                             else{
