@@ -6,4 +6,10 @@ class SequenceVariant implements Ontological {
     static String ontologyId = "SO:0001060"
     static String alternateCvTerm = "sequence variant"
 
+    static constraints = {
+    }
+
+    static belongsTo = [
+            VariantEffect
+    ]
 }
