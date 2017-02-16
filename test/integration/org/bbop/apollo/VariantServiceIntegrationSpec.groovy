@@ -177,10 +177,10 @@ class VariantServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Allele.all.size() == 1
 
         SequenceAlteration variant = SequenceAlteration.all.get(0)
-        assert variant.fmin == 650049
-        assert variant.fmax == 650050
-        assert variant.referenceBases == 'G'
-        assert variant.alternateAlleles.iterator().next().bases == 'GCCTA'
+        assert variant.fmin == 650048
+        assert variant.fmax == 650048
+        assert variant.referenceBases == 'T'
+        assert variant.alternateAlleles.iterator().next().bases == 'TCCTA'
         assert variant.alternateAlleles.iterator().next().alterationResidue == 'CCTA'
     }
 
@@ -215,11 +215,11 @@ class VariantServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Allele.all.size() == 1
 
         SequenceAlteration variant = Insertion.all.iterator().next()
-        assert variant.fmin == 952874
-        assert variant.fmax == 952875
-        assert variant.referenceBases == "G"
+        assert variant.fmin == 952873
+        assert variant.fmax == 952873
+        assert variant.referenceBases == "T"
         assert variant.alternateAlleles.iterator().next().alterationResidue == "AAAAA"
-        assert variant.alternateAlleles[0].bases == "GAAAAA"
+        assert variant.alternateAlleles[0].bases == "TAAAAA"
     }
 
     void "Add a de-novo SNV variant"() {
