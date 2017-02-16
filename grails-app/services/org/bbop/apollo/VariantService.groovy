@@ -43,7 +43,7 @@ class VariantService {
                 if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
                     String alterationResidue = jsonFeature.getString(FeatureStringEnum.RESIDUES.value)
                     // reference base is the upstream base
-                    String upstreamBase = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin, variant.fmin + 1)
+                    String upstreamBase = sequenceService.getRawResiduesFromSequence(sequence, variant.fmin - 1, variant.fmin)
                     variant.referenceBases = upstreamBase
                     log.info "ReferenceBases: ${upstreamBase}"
                     // alternate alleles
@@ -51,7 +51,8 @@ class VariantService {
                     Allele alternateAllele = new Allele(bases: alternateBases, variant: variant, alterationResidue: alterationResidue).save()
                     variant.addToAlternateAlleles(alternateAllele)
                     log.info "alternate allele bases: ${alternateAllele.bases}"
-                    variant.featureLocation.fmax = variant.featureLocation.fmax + 1
+                    variant.featureLocation.fmax = variant.featureLocation.fmax - 1
+                    variant.featureLocation.fmin = variant.featureLocation.fmin - 1
                 }
             }
             else if (variant instanceof Substitution) {
