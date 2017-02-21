@@ -44,12 +44,12 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         SequenceAlteration sa = SequenceAlteration.all.get(0)
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sa)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sa)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAACCCGTTTTTAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
     }
 
 
@@ -74,12 +74,12 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         SequenceAlteration sa = SequenceAlteration.all.get(0)
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sa)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sa)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCCCTTCAAAGCTTGGAACAAGTTTTTAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
     }
 
 
@@ -104,12 +104,12 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         SequenceAlteration sa = SequenceAlteration.all.get(0)
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sa)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sa)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGGTGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAAGTTTTTAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
     }
 
     void "incorporate an insertion, deletion and a substitution AEC into a transcript (fwd)"() {
@@ -135,15 +135,15 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we create"
         MRNA mrna = MRNA.all.get(0)
         def sequenceAlterations = SequenceAlteration.all
+        sequenceAlterations.sort { a,b -> a.fmin <=> b.fmin }
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sequenceAlterations)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sequenceAlterations)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGGTGTCGATCGTGATGATAAAACATCCCTTCAAAGCTTGGAACAACCCGTTTTTAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
     }
-
 
     void "incorporate an insertion variant into a transcript (fwd)"() {
 
@@ -161,9 +161,8 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the insertion"
         assert Insertion.count == 1
-
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAAGTTTTTAATGAGGTATTGAACAGAATTTGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
     }
-
 
     void "incorporate an deletion variant into a transcript (fwd)"() {
 
@@ -181,6 +180,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the insertion"
         assert Deletion.count == 1
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAAAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
 
     }
 
@@ -200,6 +200,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the insertion"
         assert Substitution.count == 1
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCTCCTAACCTTCAAAGCTTGGAACAAGTTTTTAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
 
     }
 
@@ -228,13 +229,14 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         def sequenceAlterations = SequenceAlteration.all
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sequenceAlterations)
+        variantAnnotationService.createAlterationRepresentationForVariant(mrna, sequenceAlterations)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
         assert true
     }
+
 
     void "incorporate an insertion AEC into a transcript (rev)"() {
 
@@ -258,13 +260,14 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         def exons = transcriptService.getSortedExons(mrna, false)
         SequenceAlteration sa = SequenceAlteration.all.get(0)
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sa)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sa)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAAAAGAATATTCAGATTGAAAGAATATTACAATGATCCAAGACAAATTGAAAATTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
+
 
     void "incorporate a deletion AEC into a transcript (rev)"() {
 
@@ -287,12 +290,12 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         SequenceAlteration sa = SequenceAlteration.all.get(0)
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sa)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sa)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAGAATATTCAGATTGAAAGACAATGATCCAAGACAAATTGAAAATTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
 
     void "incorporate a substitution AEC into a transcript (rev)"() {
@@ -316,13 +319,14 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         SequenceAlteration sa = SequenceAlteration.all.get(0)
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sa)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sa)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAGAATATTCAGATTGAAAGAATATTACAATGATCCAAGACAAATTGAGGGTTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
+
 
     void "incorporate an insertion, deletion and a substitution AEC into a transcript (rev)"() {
         String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -347,14 +351,18 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we create"
         MRNA mrna = MRNA.all.get(0)
         def sequenceAlterations = SequenceAlteration.all
+        sequenceAlterations.sort{ a,b -> a.fmin <=> b.fmin }
+        println "SEQ ALT SIZE: ${sequenceAlterations.size()} and ORDER:"
+        println "${sequenceAlterations.each {println it.class}}"
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sequenceAlterations)
+        variantAnnotationService.createAlterationRepresentationForAssemblyErrorCorrection(mrna, sequenceAlterations)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
         then: "nothing"
-        assert true
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAAAAGAATATTCAGATTGAAAGACAATGATCCAAGACAAATTGAGGGTTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
+
 
     void "incorporate an insertion variant into a transcript (rev)"() {
 
@@ -372,8 +380,8 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the insertion"
         assert Insertion.count == 1
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATTTTAGAATATTCAGATTGAAAGAATATTACAATGATCCAAGACAAATTGAAAATTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
-
 
     void "incorporate a deletion variant into a transcript (rev)"() {
 
@@ -391,7 +399,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the deletion"
         assert Deletion.count == 1
-
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAGAATATTCAGATTGAAAGACAATGATCCAAGACAAATTGAAAATTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
 
     void "incorporate a substitution variant into a transcript (rev)"() {
@@ -410,6 +418,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the deletion"
         assert Substitution.count == 1
+        assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAGAATATTCAGATTGAAAGAATATTACAATGATCCAAGACAAATTGAAAGTTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
 
     }
 
@@ -438,7 +447,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         MRNA mrna = MRNA.all.get(0)
         def sequenceAlterations = SequenceAlteration.all
         long start = System.currentTimeMillis()
-        variantAnnotationService.createAlterationRepresentation(mrna, sequenceAlterations)
+        variantAnnotationService.createAlterationRepresentationForVariant(mrna, sequenceAlterations)
         long end = System.currentTimeMillis()
         println "TOTAL TIME TAKEN: ${end - start} ms"
 
@@ -446,4 +455,87 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert true
     }
 
+    void "incorporate an insertion AEC and an insertion variant into a transcript (fwd)"() {
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"CCC\",\"location\":{\"strand\":1,\"fmin\":403999,\"fmax\":403999},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionVariantString = " { ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":404024,\"fmax\":404024},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscript2String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 2
+
+        when: "we add the insertion AEC"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
+
+        then: "we should see the alterations"
+        assert SequenceAlteration.count == 1
+
+        when: "we add an insertion variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "nothing"
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAACCCGTTTTTAATGAGGTATTGAACAGAATTTGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
+    }
+
+    void "incorporate an insertion and deletion AEC and an insertion variant into a transcript (fwd)"() {
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"CCC\",\"location\":{\"strand\":1,\"fmin\":403999,\"fmax\":403999},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addDeletionString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":403974,\"fmax\":403980},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionVariantString = " { ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":404024,\"fmax\":404024},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscript2String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 2
+
+        when: "we add the insertion AEC"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
+
+        then: "we should see the alterations"
+        assert SequenceAlteration.count == 2
+
+        when: "we add an insertion variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "nothing"
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCCCTTCAAAGCTTGGAACAACCCGTTTTTAATGAGGTATTGAACAGAATTTGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
+    }
+
+    void "incorporate an insertion, deletion and substitution AEC and an insertion variant into a transcript (fwd)"() {
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"CCC\",\"location\":{\"strand\":1,\"fmin\":403999,\"fmax\":403999},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addDeletionString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":403974,\"fmax\":403980},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSubstitutionString = "{ ${testCredentials} \"features\":[{\"residues\":\"GTG\",\"location\":{\"strand\":1,\"fmin\":403949,\"fmax\":403952},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionVariantString = " { ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":404024,\"fmax\":404024},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscript2String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 2
+
+        when: "we add the insertion AEC"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addSubstitutionString) as JSONObject)
+
+        then: "we should see the alterations"
+        assert SequenceAlteration.count == 3
+
+        when: "we add an insertion variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "sequence in sequenceTrace should be as expected"
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGGTGTCGATCGTGATGATAAAACATCCCTTCAAAGCTTGGAACAACCCGTTTTTAATGAGGTATTGAACAGAATTTGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAAAAATATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
+    }
 }

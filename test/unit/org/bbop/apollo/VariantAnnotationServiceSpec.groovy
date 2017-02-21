@@ -18,6 +18,7 @@ class VariantAnnotationServiceSpec extends Specification {
     }
 
 
+    @Ignore
     void "Convert a genomic coordinate to a local coordinate and back"() {
 
         when: "we have 3 source coordinates that fall on a transcript on the forward strand"
@@ -76,7 +77,7 @@ class VariantAnnotationServiceSpec extends Specification {
 
     }
 
-
+    @Ignore
     void "Converting genomic coordinate to cDNA local coordinate and back"() {
 
         when: "we have 3 source coordinates that fall on a transcript on the forward strand"
@@ -131,6 +132,7 @@ class VariantAnnotationServiceSpec extends Specification {
 
     }
 
+    @Ignore
     void "Converting genomic coordinate to CDS local coordinate and back for transcripts that have UTRs"() {
 
         when: "we have 5 source coordinates that fall on a transcript on the forward strand"
@@ -199,6 +201,7 @@ class VariantAnnotationServiceSpec extends Specification {
         assert reconvertedSourceCoordinate11 == sourceCoordinate11
     }
 
+    @Ignore
     void "Converting genomic coordinate to CDS local coordinate and back, for transcripts that have no UTRs"() {
         when: "we have 4 source coordinates that fall on a transcript on the forward strand"
         // GB40827-RA
