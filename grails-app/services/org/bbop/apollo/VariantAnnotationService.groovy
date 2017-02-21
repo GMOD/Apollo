@@ -25,7 +25,8 @@ class VariantAnnotationService {
     def configWrapperService
 
     // sequenceTrace for tests
-    HashMap<Allele,ArrayList<String>> sequenceTrace = new HashMap<>()
+    def sequenceTrace = []
+    //def sequenceTrace = [{FeatureStringEnum.TYPE_GENOMIC.value = []}, {FeatureStringEnum.TYPE_CDNA.value = []}, {FeatureStringEnum.TYPE_CDS.value = []}]
 
     /**
      * Given a source coordinate, transform the coordinate in the context of a given feature.
@@ -364,30 +365,6 @@ class VariantAnnotationService {
                 leftFmin >= rightFmin && leftFmin < rightFmax)
     }
 
-//    def calculateEffectOfVariantOnTranscriptNew(SequenceAlteration variant, Transcript transcript) {
-//        println "@calculateEffectOfVariantOnTranscriptNew"
-//        def sequenceAlterations = featureService.getSequenceAlterationsForFeature(transcript, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
-//        // add variant into the list
-//        sequenceAlterations.add(variant)
-//        // sort by fmin
-//        sequenceAlterations.sort({a, b -> a.fmin <=> b.fmin})
-//        println "Sequence alterations with Variant included: ${sequenceAlterations.fmin}"
-//        println "Sequence alterations with Variant included: ${sequenceAlterations.alterationType}"
-//
-//        def alterationNodes = []
-//        // create an AlterationNode for each sequence alteration
-//        for (SequenceAlteration sa : sequenceAlterations) {
-//            AlterationNode alterationNode = new AlterationNode(sa)
-//            if (sa.alterationType == FeatureStringEnum.VARIANT.value) {
-//                alterationNode.alterationResidue = sa.alternateAlleles.first().alterationResidue
-//            }
-//            println "AlterationNode: ${alterationNode.toString()}"
-//            alterationNode.overlapInfo.add(new OverlapInfo(transcript))
-//        }
-//
-//
-//    }
-
     def isVariantWithinExons(SequenceAlteration variant, def exons) {
         for (Exon exon : exons) {
             if ((variant.fmin >= exon.fmin && variant.fmin <= exon.fmax) || variant.fmax >= exon.fmin && variant.fmin <= exon.fmax) {
@@ -410,77 +387,122 @@ class VariantAnnotationService {
         jsonObject.put("type", variantEffect.effects.first().cvTerm)
     }
 
-    def getOverlappingFeatures(Sequence sequence, int fmin, int fmax, int strand, boolean compareStrands = false, boolean includeVariants = false) {
-        if (includeVariants) {
+    def getOverlappingFeatures(String uniqueName, Sequence sequence, int fmin, int fmax, int strand, boolean compareStrands = false, boolean includeSequenceAlterations = false) {
+        if (includeSequenceAlterations) {
             if (compareStrands) {
                 Feature.executeQuery(
-                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))",
-                        [fmin: fmin, fmax: fmax, strand: strand, sequence: sequence]
+                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax)) and f.uniqueName != :featureUniqueName",
+                        [fmin: fmin, fmax: fmax, strand: strand, sequence: sequence, featureUniqueName: uniqueName]
                 )
             }
             else {
                 Feature.executeQuery(
-                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax))",
-                        [fmin: fmin, fmax: fmax, sequence: sequence]
+                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax)) and f.uniqueName != :featureUniqueName",
+                        [fmin: fmin, fmax: fmax, sequence: sequence, featureUniqueName: uniqueName]
                 )
             }
         }
         else {
             if (compareStrands) {
                 Feature.executeQuery(
-                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax) and f.class not in :featureTypes)",
-                        [fmin: fmin, fmax: fmax, strand: strand, sequence: sequence, featureTypes: [Insertion.class.name, Deletion.class.name, Substitution.class.name]]
+                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and fl.strand = :strand and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax) and f.class not in :featureTypes)  and f.uniqueName != :featureUniqueName",
+                        [fmin: fmin, fmax: fmax, strand: strand, sequence: sequence, featureUniqueName: uniqueName, featureTypes: [Insertion.class.name, Deletion.class.name, Substitution.class.name]]
                 )
             }
             else {
                 Feature.executeQuery(
-                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax)) and f.class not in :featureTypes",
-                        [fmin: fmin, fmax: fmax, sequence: sequence, featureTypes: [Insertion.class.name, Deletion.class.name, Substitution.class.name]]
+                        "select distinct f from Feature f join f.featureLocations fl where fl.sequence = :sequence and ((fl.fmin <= :fmin and fl.fmax > :fmin) or (fl.fmin <= :fmax and fl.fmax >= :fmax) or (fl.fmin >= :fmin and fl.fmax <= :fmax)) and f.class not in :featureTypes  and f.uniqueName != :featureUniqueName",
+                        [fmin: fmin, fmax: fmax, sequence: sequence, featureUniqueName: uniqueName, featureTypes: [Insertion.class.name, Deletion.class.name, Substitution.class.name]]
                 )
             }
         }
     }
 
-
-
-
     def calculateEffectOfVariant(SequenceAlteration variant) {
-        int flank_size = 1000
-        def overlappingAndNearbyFeatures = getOverlappingFeatures(variant.featureLocation.sequence, variant.fmin - 1000, variant.fmax + 1000, variant.strand)
-        println "[ calculateEffectOfVariant ] overlapping and nearby features: ${overlappingAndNearbyFeatures.cvTerm}"
+        println "[ calculateEffectOfVariant ] [ SA ]"
+        int FLANKSIZE = 1000
+        def overlappingAndNearbyFeatures = getOverlappingFeatures(variant.uniqueName, variant.featureLocation.sequence, variant.fmin - FLANKSIZE, variant.fmax + FLANKSIZE, variant.strand, false, true)
+        // we need the variant to be part of the list
+        //overlappingAndNearbyFeatures - variant
+        println "[ calculateEffectOfVariant ] [ SA ] overlapping and nearby features: ${overlappingAndNearbyFeatures.cvTerm}"
         def overlappingAndNearbyTranscriptFeatures = []
+        def sequenceAlterations = []
         overlappingAndNearbyFeatures.each {
             if (it instanceof Transcript) {
                 overlappingAndNearbyTranscriptFeatures.add(it)
             }
+            if (it instanceof SequenceAlteration) {
+                sequenceAlterations.add(it)
+            }
         }
+        overlappingAndNearbyTranscriptFeatures.sort{ a,b -> a.fmin <=> b.fmin }
+        sequenceAlterations.sort{ a,b -> a.fmin <=> b.fmin }
         println "[ calculateEffectOfVariant ] overlapping and nearby transcript features: ${overlappingAndNearbyTranscriptFeatures.cvTerm}"
-        predictEffectOfVariantOnTranscripts(overlappingAndNearbyTranscriptFeatures, variant)
+        println "[ calculateEffectOfVariant ] assembly error corrections: ${sequenceAlterations.cvTerm}"
+        predictEffectOfVariantOnTranscripts(overlappingAndNearbyTranscriptFeatures, sequenceAlterations, variant)
     }
 
-    def predictEffectOfVariantOnTranscripts(def transcripts, SequenceAlteration variant) {
-        println "[ predictEffectOfVariantOnTranscripts ] transcripts: ${transcripts.size()} variant: ${variant.name}"
-        def alterationNodes = []
-        for (Allele allele : variant.alternateAlleles) {
-            AlterationNode alterationNode = createAlterationRepresentation(transcripts, variant, allele)
-            println "[ predictEffectOfVariantOnTranscripts  ] ${alterationNode.toString()}"
-            alterationNodes.add(alterationNode)
-            testAlterationNode(alterationNode)
+    def predictEffectOfVariantOnTranscripts(def transcripts, def sequenceAlterations, SequenceAlteration variant) {
+        println "[ predictEffectOfVariantOnTranscripts ] [ Fs-SAs-V ]"
+
+        // first create an alteration representation with ONLY AECs
+        def alterationNodeList1 = createAlterationRepresentation(transcripts, sequenceAlterations)
+        //println "[ predictEffectOfVariantOnTranscripts ] [ Fs-SAs-V ] ALTERATION NODE LIST 1: ${alterationNodeList1.toString()}"
+        if (alterationNodeList1) testAlterationNodeForAssemblyErrorCorrection(alterationNodeList1.last())
+
+        // then create an alteration representation with AECs + variant
+        def allAlterations = sequenceAlterations + variant
+        allAlterations.sort { a,b -> a.fmin <=> b.fmin }
+        def alterationNodeList2 = createAlterationRepresentation(transcripts, allAlterations)
+        //println "[ predictEffectOfVariantOnTranscripts ] [ Fs-SAs-V ] ALTERATION NODE LIST 2: ${alterationNodeList2.toString()}"
+        testAlterationNodeForVariant(alterationNodeList2.last())
+
+    }
+
+    def createAlterationRepresentation(ArrayList<Feature> features, ArrayList<SequenceAlteration> sequenceAlterations) {
+        println "[ createAlterationRepresentation ][ Fs-SAs ] ${sequenceAlterations.alternateCvTerm}"
+        def alterationNodeList = []
+        AlterationNode PREV = null
+        for (SequenceAlteration sequenceAlteration : sequenceAlterations) {
+            AlterationNode alterationNode
+            if (PREV) {
+                if (sequenceAlteration.alterationType == FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value) {
+                    println "[ createAlterationRepresentation ][ Fs-SAs ] 1.1"
+                    alterationNode = createAlterationRepresentationForAssemblyErrorCorrection(sequenceAlteration, PREV)
+                }
+                else {
+                    // TODO: This is a hack
+                    println "[ createAlterationRepresentation ][ Fs-SAs ] 1.2"
+                    alterationNode = createAlterationRepresentationForVariant(sequenceAlteration, PREV).first()
+                }
+            }
+            else {
+                if (sequenceAlteration.alterationType == FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value) {
+                    println "[ createAlterationRepresentation ][ Fs-SAs ] 2.1"
+                    alterationNode = createAlterationRepresentationForAssemblyErrorCorrection(features, sequenceAlteration)
+                }
+                else {
+                    println "[ createAlterationRepresentation ][ Fs-SAs ] 2.2"
+                    // TODO: This is a hack
+                    alterationNode = createAlterationRepresentationForVariant(features, sequenceAlteration).first()
+                }
+            }
+            PREV = alterationNode
+            alterationNodeList.add(alterationNode)
         }
-        return alterationNodes
+        return alterationNodeList
     }
 
-    def testAlterationNode(AlterationNode alterationNode) {
-        boolean pass = false
+    def testAlterationNodeForAssemblyErrorCorrection(AlterationNode alterationNode) {
         for (OverlapInfo overlapInfo : alterationNode.overlapInfo) {
             Feature feature = Feature.findByUniqueName(overlapInfo.uniquename)
             String apolloCdnaSeq = sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_CDNA.value)
             StringBuilder genomicSeq = new StringBuilder(overlapInfo.modLocationSeq)
-            println "[ testAlterationNode ] GenomicSeq: ${genomicSeq}"
+            println "[ testAlterationNodeForAssemblyErrorCorrection ] GenomicSeq: ${genomicSeq}"
             String testCdnaSeq = ""
             String finalCdnaSeq = ""
             for (OverlapInfo child : overlapInfo.children) {
-                println "[ testAlterationNode ] Fetching substr ${child.modLocalLocation.fmin} - ${child.modLocalLocation.fmax}"
+                println "[ testAlterationNodeForAssemblyErrorCorrection ] Fetching substr ${child.modLocalLocation.fmin} - ${child.modLocalLocation.fmax}"
                 testCdnaSeq += genomicSeq.substring(child.modLocalLocation.fmin, child.modLocalLocation.fmax)
             }
             if (feature.strand == Strand.NEGATIVE.value) {
@@ -489,93 +511,198 @@ class VariantAnnotationService {
             else {
                 finalCdnaSeq = testCdnaSeq
             }
-            println "[ testAlterationNode ] Apollo CDNA Seq: ${apolloCdnaSeq}"
-            println "[ testAlterationNode ] Final  CDNA Seq: ${finalCdnaSeq}"
-            if (apolloCdnaSeq == finalCdnaSeq) {
-                println "[ testAlterationNode ] Apollo CDNA seq matches final CDNA seq generated from AlterationNode"
-                pass = true
-            }
-            else {
-                println "[ testAlterationNode ] Apollo CDNA seq DOESN'T match final CDNA seq generated from AlterationNode"
-                pass = false
-            }
+            println "[ testAlterationNodeForAssemblyErrorCorrection ] Apollo CDNA Seq: ${apolloCdnaSeq}"
+            println "[ testAlterationNodeForAssemblyErrorCorrection ] Final  CDNA Seq: ${finalCdnaSeq}"
+            sequenceTrace.add(finalCdnaSeq)
         }
     }
 
-    def createAlterationRepresentation(def features, SequenceAlteration sequenceAlteration, Allele allele) {
-        AlterationNode alterationNode = new AlterationNode(sequenceAlteration, allele)
+    def testAlterationNodeForVariant(AlterationNode alterationNode) {
+        boolean pass = false
+        for (OverlapInfo overlapInfo : alterationNode.overlapInfo) {
+            Feature feature = Feature.findByUniqueName(overlapInfo.uniquename)
+            StringBuilder genomicSeq = new StringBuilder(overlapInfo.modLocationSeq)
+            String testCdnaSeq = ""
+            String finalCdnaSeq = ""
+            for (OverlapInfo child : overlapInfo.children) {
+                println "[ testAlterationNodeForVariant ] Fetching substr ${child.modLocalLocation.fmin} - ${child.modLocalLocation.fmax}"
+                testCdnaSeq += genomicSeq.substring(child.modLocalLocation.fmin, child.modLocalLocation.fmax)
+            }
+            if (feature.strand == Strand.NEGATIVE.value) {
+                finalCdnaSeq = SequenceTranslationHandler.reverseComplementSequence(testCdnaSeq)
+            }
+            else {
+                finalCdnaSeq = testCdnaSeq
+            }
+            println "[ testAlterationNodeForVariant ] Final CDNA Seq with variant: ${finalCdnaSeq}"
+            sequenceTrace.add(finalCdnaSeq)
+        }
+    }
+
+    def createAlterationRepresentationForVariant(SequenceAlteration variant, AlterationNode PREV) {
+        println "[ createAlterationRepresentationForVariant ] [ 1V-1P ]"
+        def alternateAlleles = variant.alternateAlleles
+        def alterationNodeList = []
+
+        for (Allele allele : alternateAlleles) {
+            AlterationNode alterationNode = new AlterationNode(variant, allele)
+            alterationNode.cumulativeOffset = PREV.cumulativeOffset + PREV.offset
+            alterationNode.fmin = alterationNode.fmin + alterationNode.cumulativeOffset
+            alterationNode.fmax = alterationNode.fmax + alterationNode.cumulativeOffset
+            def currentOverlapInfoList = []
+            def previousOverlapInfoList = PREV.overlapInfo
+            for (int i = 0; i < previousOverlapInfoList.size(); i++) {
+                // top level
+                OverlapInfo previousOverlapInfo = previousOverlapInfoList.get(i)
+                OverlapInfo overlapInfo = previousOverlapInfo.generateClone()
+                overlapInfo = updateOverlapInfoWithVariant(alterationNode, overlapInfo, Feature.findByUniqueName(overlapInfo.uniquename), variant, allele, true)
+
+                def currentChildOverlapInfoList = []
+                if (previousOverlapInfo.children) {
+                    for (int j = 0; j < previousOverlapInfo.children.size(); j++) {
+                        OverlapInfo previousChildOverlapInfo = previousOverlapInfo.children.get(j)
+                        OverlapInfo childOverlapInfo = previousChildOverlapInfo.generateClone()
+                        childOverlapInfo = updateOverlapInfoWithVariant(alterationNode, childOverlapInfo, Feature.findByUniqueName(childOverlapInfo.uniquename), variant, allele, false)
+                        currentChildOverlapInfoList.add(childOverlapInfo)
+                    }
+                    overlapInfo.children = currentChildOverlapInfoList
+                }
+                currentOverlapInfoList.add(overlapInfo)
+            }
+            alterationNode.overlapInfo = currentOverlapInfoList
+            alterationNodeList.add(alterationNode)
+        }
+
+        return alterationNodeList
+
+    }
+
+    def createAlterationRepresentationForVariant(ArrayList<Feature> features, SequenceAlteration variant) {
+        println "[ createAlterationRepresentationForVariant ][ FAs-1V ]"
+        def alternateAlleles = variant.alternateAlleles
+        def alterationNodeList = []
+
+        for (Allele allele : alternateAlleles) {
+            AlterationNode alterationNode = new AlterationNode(variant, allele)
+            def overlapInfoList = []
+            for (Feature feature : features) {
+                OverlapInfo overlapInfo = createOverlapInfoWithVariant(feature, variant, allele)
+                def exons = transcriptService.getSortedExons(feature, false)
+
+                def exonOverlapInfoList = []
+                for (Exon exon : exons) {
+                    OverlapInfo exonOverlapInfo = createOverlapInfoWithVariant(exon, variant, allele, feature, false)
+                    exonOverlapInfoList.add(exonOverlapInfo)
+                }
+                overlapInfo.children = exonOverlapInfoList
+                overlapInfoList.add(overlapInfo)
+            }
+            alterationNode.overlapInfo = overlapInfoList
+            alterationNodeList.add(alterationNode)
+        }
+
+        // alterationNodeList will commonly be of size 1 and in few cases of size 'n', where is n(alternateAlleles)
+        return alterationNodeList
+    }
+
+//    def createAlterationRepresentationForVariant(Feature feature, def variants) {
+//        println "[ createAlterationRepresentationForVariant ] ${feature.uniqueName} ${variants.cvTerm}"
+//        // the assumption is that variants list is sorted by fmin and there are no overlapping variants
+//        def alterationNodeList = []
+//        int cumulativeOffset = 0
+//        AlterationNode PREV = null
+//        for (SequenceAlteration variant : variants) {
+//            // for each variant
+//            for (Allele allele : variant.alternateAlleles) {
+//                // for each allele of a variant
+//                // TODO: revisit this later after a dealing with single variant
+//            }
+//        }
+//    }
+
+
+    def createAlterationRepresentationForAssemblyErrorCorrection(ArrayList<Feature> features, ArrayList<SequenceAlteration> sequenceAlterations) {
+        println "[ createAlterationRepresentationForAssemblyErrorCorrection ] [ Fs-SAs ]"
+        def alterationNodeList = []
+        AlterationNode PREV = null
+        for (SequenceAlteration sequenceAlteration : sequenceAlterations) {
+            println "[ createAlterationRepresentationForAssemblyErrorCorrection ] [ Fs-SAs ] processing SequenceAlteration: ${sequenceAlteration.fmin} ${sequenceAlteration.class}"
+            AlterationNode alterationNode
+            if (PREV) {
+                alterationNode = createAlterationRepresentationForAssemblyErrorCorrection(sequenceAlteration, PREV)
+            }
+            else {
+                alterationNode = createAlterationRepresentationForAssemblyErrorCorrection(features, sequenceAlteration)
+            }
+            alterationNodeList.add(alterationNode)
+            PREV = alterationNode
+        }
+
+        return alterationNodeList
+    }
+
+    def createAlterationRepresentationForAssemblyErrorCorrection(ArrayList<Feature> features, SequenceAlteration sequenceAlteration) {
+        println "[ createAlterationRepresentationForAssemblyErrorCorrection ] [ Fs-1SA ]"
+
+        AlterationNode alterationNode = new AlterationNode(sequenceAlteration)
         def overlapInfoList = []
         for (Feature feature : features) {
-            OverlapInfo overlapInfo = createOverlapInfoWithVariant(feature, sequenceAlteration, allele)
-            def exons = transcriptService.getSortedExons(feature)
-
+            OverlapInfo overlapInfo = createOverlapInfoWithAssemblyErrorCorrection(feature, sequenceAlteration)
+            def exons = transcriptService.getSortedExons(feature, false)
             def exonOverlapInfoList = []
             for (Exon exon : exons) {
-                OverlapInfo exonOverlapInfo = createOverlapInfoWithVariant(exon, sequenceAlteration, allele, feature, false)
+                OverlapInfo exonOverlapInfo = createOverlapInfoWithAssemblyErrorCorrection(exon, sequenceAlteration, feature, false)
                 exonOverlapInfoList.add(exonOverlapInfo)
             }
             overlapInfo.children = exonOverlapInfoList
             overlapInfoList.add(overlapInfo)
         }
         alterationNode.overlapInfo = overlapInfoList
+
         return alterationNode
     }
 
-
-    def createAlterationRepresentation(Feature feature, def sequenceAlterations) {
-        println "@createAlterationRepresentation for more than one SA"
+    def createAlterationRepresentationForAssemblyErrorCorrection(Feature feature, def sequenceAlterations) {
+        println "[ createAlterationRepresentationForAssemblyErrorCorrection ][ 1F-SAs ]"
         def alterationNodeList = []
-        int cumulativeOffset = 0
         AlterationNode PREV = null
         for (SequenceAlteration sa : sequenceAlterations) {
             AlterationNode alterationNode
             if (PREV) {
-                alterationNode = createAlterationRepresentation(feature, sa, PREV)
+                alterationNode = createAlterationRepresentationForAssemblyErrorCorrection(sa, PREV)
             }
             else {
-                alterationNode = createAlterationRepresentation(feature, sa)
+                alterationNode = createAlterationRepresentationForAssemblyErrorCorrection(feature, sa)
             }
-            alterationNode.cumulativeOffset = cumulativeOffset
-            cumulativeOffset = cumulativeOffset + alterationNode.offset
             alterationNodeList.add(alterationNode)
             PREV = alterationNode
         }
-        println "${alterationNodeList.toString()}"
 
-        // TEST
-        testAlterationNode(alterationNodeList.last())
+        testAlterationNodeForAssemblyErrorCorrection(alterationNodeList.last())
     }
 
-
-    def createAlterationRepresentation(Feature feature, SequenceAlteration sequenceAlteration, AlterationNode PREV) {
-        println "@createAlterationRepresentation with PREV"
-        def gene
-        def exons = []
-
-        if (feature instanceof Transcript) {
-            println "feature instanceof Transcript"
-            gene = transcriptService.getGene(feature)
-            exons = transcriptService.getSortedExons(feature, false)
-        }
-        else {
-            println "feature instanceof ${feature.class}"
-        }
+    def createAlterationRepresentationForAssemblyErrorCorrection(SequenceAlteration sequenceAlteration, AlterationNode PREV) {
+        println "[ createAlterationRepresentationForAssemblyErrorCorrection ][ 1SA-1P ]"
 
         AlterationNode alterationNode = new AlterationNode(sequenceAlteration)
+        alterationNode.cumulativeOffset = PREV.cumulativeOffset + PREV.offset
+        alterationNode.fmin = alterationNode.fmin + alterationNode.cumulativeOffset
+        alterationNode.fmax = alterationNode.fmax + alterationNode.cumulativeOffset
+
         def currentOverlapInfoList = []
         def previousOverlapInfoList = PREV.overlapInfo
         for (int i = 0; i < previousOverlapInfoList.size(); i++) {
             // top level
             OverlapInfo previousOverlapInfo = previousOverlapInfoList.get(i)
             OverlapInfo overlapInfo = previousOverlapInfo.generateClone()
-            overlapInfo = updateOverlapInfoWithAssemblyErrorCorrection(overlapInfo, feature, sequenceAlteration, true)
+            overlapInfo = updateOverlapInfoWithAssemblyErrorCorrection(alterationNode, overlapInfo, Feature.findByUniqueName(overlapInfo.uniquename), sequenceAlteration, true)
 
             def currentChildOverlapInfo = []
             if (previousOverlapInfo.children) {
                 for (int j = 0; j < previousOverlapInfo.children.size(); j++) {
                     OverlapInfo previousChildOverlapInfo = previousOverlapInfo.children.get(j)
                     OverlapInfo childOverlapInfo = previousChildOverlapInfo.generateClone()
-                    childOverlapInfo = updateOverlapInfoWithAssemblyErrorCorrection(childOverlapInfo, Feature.findByUniqueName(childOverlapInfo.uniquename), sequenceAlteration, false)
+                    childOverlapInfo = updateOverlapInfoWithAssemblyErrorCorrection(alterationNode, childOverlapInfo, Feature.findByUniqueName(childOverlapInfo.uniquename), sequenceAlteration, false)
                     currentChildOverlapInfo.add(childOverlapInfo)
                 }
                 overlapInfo.children = currentChildOverlapInfo
@@ -587,15 +714,11 @@ class VariantAnnotationService {
         return alterationNode
     }
 
-    def createAlterationRepresentation(Feature feature, SequenceAlteration sequenceAlteration) {
-        println "@createAlterationRepresentation"
-        def gene
-        def exons = []
-        def cds // ignore CDS since is a calculated property
+    def createAlterationRepresentationForAssemblyErrorCorrection(Feature feature, SequenceAlteration sequenceAlteration) {
+        println "[ createAlterationRepresentationForAssemblyErrorCorrection ][ 1F-1SA ]"
 
+        def exons = []
         if (feature instanceof Transcript) {
-            println "feature instanceof Transcript"
-            gene = transcriptService.getGene(feature)
             exons = transcriptService.getSortedExons(feature, false)
         }
         else {
@@ -603,7 +726,7 @@ class VariantAnnotationService {
         }
 
         AlterationNode alterationNode = new AlterationNode(sequenceAlteration)
-        println "Alteration Node: ${alterationNode.toString()}"
+        alterationNode.cumulativeOffset = 0
         OverlapInfo overlapInfo = createOverlapInfoWithAssemblyErrorCorrection(feature, sequenceAlteration)
 
         def exonOverlapInfos = []
@@ -612,21 +735,50 @@ class VariantAnnotationService {
             exonOverlapInfos.add(exonOverlapInfo)
         }
         overlapInfo.children = exonOverlapInfos
-        println "Overlap Info: ${overlapInfo.toString()}"
         alterationNode.overlapInfo = [overlapInfo]
 
         // TEST
-        testAlterationNode(alterationNode)
+        testAlterationNodeForAssemblyErrorCorrection(alterationNode)
 
         return alterationNode
     }
 
+    def createAlterationRepresentationForVariant(Feature feature, SequenceAlteration variant) {
+        println "[ createAlterationRepresentationForVariant ] [ 1F-1SA ]"
+        def alterationNodeList = []
+        def exons = []
+        if (feature instanceof Transcript) {
+            exons = transcriptService.getSortedExons(feature, false)
+        }
+        else {
+            println "[ createAlterationRepresentationForVariant ] [ 1F-1SA ] feature instanceof ${feature.class}"
+        }
+
+        for (Allele allele : variant.alternateAlleles) {
+            println "[ createAlterationRepresentationForVariant ] [ 1F-1SA ] Creating AlterationNode for Allele ${allele.bases}"
+            AlterationNode alterationNode = new AlterationNode(variant, allele)
+            OverlapInfo overlapInfo = createOverlapInfoWithVariant(feature, variant, allele)
+
+            def exonOverlapInfoList = []
+            for (Exon exon : exons) {
+                OverlapInfo exonOverlapInfo = createOverlapInfoWithVariant(exon, variant, allele, feature, false)
+                exonOverlapInfoList.add(exonOverlapInfo)
+            }
+            overlapInfo.children = exonOverlapInfoList
+            alterationNode.overlapInfo = [overlapInfo]
+            alterationNodeList.add(alterationNode)
+        }
+        return alterationNodeList
+    }
+
+
     // TODO: move the block shared by createOverlap* And updateOverlap* to a separate common function
     def createOverlapInfoWithAssemblyErrorCorrection(Feature feature, SequenceAlteration sequenceAlteration, Feature parentFeature = null, boolean getSequence = true) {
+        println "[ createOverlapInfoWithAssemblyErrorCorrection ]"
         // TODO: inference
         int alterationOffset = getAlterationOffset(sequenceAlteration)
         String alterationResidue = sequenceAlteration.alterationResidue
-        println "ALTERATION OFFSET: ${alterationOffset}"
+        println "[ createOverlapInfoWithAssemblyErrorCorrection ] ALTERATION OFFSET: ${alterationOffset}"
         Boolean isModified = false
         Boolean overlaps = false
         Boolean isUpstream = false
@@ -803,7 +955,7 @@ class VariantAnnotationService {
         // TODO: inference
         int alterationOffset = getAlterationOffset(variant, allele)
         String alterationResidue = allele.bases // allele.bases includes the anchor
-        println "ALTERATION OFFSET: ${alterationOffset}"
+        println "[ createOverlapInfoWithVariant ] ALTERATION OFFSET: ${alterationOffset}"
         Boolean isModified = false
         Boolean overlaps = false
         Boolean isUpstream = false
@@ -980,18 +1132,19 @@ class VariantAnnotationService {
         return overlapInfo
     }
 
-    def updateOverlapInfoWithAssemblyErrorCorrection(OverlapInfo overlapInfo, Feature feature, SequenceAlteration sequenceAlteration, boolean getSequence = true) {
+    def updateOverlapInfoWithAssemblyErrorCorrection(AlterationNode alterationNode, OverlapInfo overlapInfo, Feature feature, SequenceAlteration sequenceAlteration, boolean getSequence = true) {
         // TODO: inference
+        println "[ updateOverlapInfoWithAssemblyErrorCorrection ]"
         int alterationOffset = getAlterationOffset(sequenceAlteration)
         String alterationResidue = sequenceAlteration.alterationResidue
-        println "ALTERATION OFFSET: ${alterationOffset}"
+        println "[ updateOverlapInfoWithAssemblyErrorCorrection ] ALTERATION OFFSET: ${alterationOffset}"
         boolean isModified, isUpstream, isDownstream, overlaps
         int modifiedFmin, modifiedFmax
         int modifiedLocalFmin, modifiedLocalFmax
         int localFmin = overlapInfo.localLocation.fmin
         int localFmax = overlapInfo.localLocation.fmax
 
-        if (sequenceAlteration.fmin < feature.fmin) {
+        if (alterationNode.fmin < feature.fmin) {
             // SA is upstream of feature
             println "[ updateOverlapInfoWithAssemblyErrorCorrection ] SA is upstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
@@ -1024,7 +1177,7 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (sequenceAlteration.fmin > feature.fmin && sequenceAlteration.fmin < feature.fmax) {
+        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin < feature.fmax) {
             // SA is within feature
             println "[ updateOverlapInfoWithAssemblyErrorCorrection ] SA is within feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
@@ -1057,7 +1210,7 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (sequenceAlteration.fmin > feature.fmin && sequenceAlteration.fmin > feature.fmax) {
+        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin > feature.fmax) {
             // SA is downstream of feature
             // no change
             println "[ updateOverlapInfoWithAssemblyErrorCorrection ] SA is downstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
@@ -1079,12 +1232,12 @@ class VariantAnnotationService {
         if (getSequence) {
             StringBuilder builder = new StringBuilder(overlapInfo.locationSeq)
 
-            if (sequenceAlteration.fmin < feature.fmin) {
+            if (alterationNode.fmin < feature.fmin) {
                 // SA is upstream of feature
             }
-            else if (sequenceAlteration.fmin > feature.fmin && sequenceAlteration.fmax < feature.fmax) {
+            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax < feature.fmax) {
                 // SA is within feature
-                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, sequenceAlteration.fmin)
+                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, alterationNode.fmin)
                 if (sequenceAlteration instanceof Insertion) {
                     builder.insert(alterationLocalFmin, alterationResidue)
                 }
@@ -1095,7 +1248,7 @@ class VariantAnnotationService {
                     builder.replace(alterationLocalFmin, alterationLocalFmin + alterationResidue.length(), alterationResidue)
                 }
             }
-            else if (sequenceAlteration.fmin > feature.fmin && sequenceAlteration.fmax > feature.fmax) {
+            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax > feature.fmax) {
                 // SA is downstream of feature
                 // no change
             }
@@ -1105,8 +1258,9 @@ class VariantAnnotationService {
         return overlapInfo
     }
 
-    def updateOverlapInfoWithVariant(OverlapInfo overlapInfo, Feature feature, SequenceAlteration variant, Allele allele, boolean getSequence = true) {
+    def updateOverlapInfoWithVariant(AlterationNode alterationNode, OverlapInfo overlapInfo, Feature feature, SequenceAlteration variant, Allele allele, boolean getSequence = true) {
         // TODO: inference
+        println "[ updateOverlapInfoWithVariant ]"
         int alterationOffset = getAlterationOffset(variant, allele)
         String alterationResidue = allele.bases
         println "[ updateOverlapInfoWithVariant ] ALTERATION OFFSET: ${alterationOffset}"
@@ -1116,9 +1270,9 @@ class VariantAnnotationService {
         int localFmin = overlapInfo.localLocation.fmin
         int localFmax = overlapInfo.localLocation.fmax
 
-        if (variant.fmin < feature.fmin) {
+        if (alterationNode.fmin < feature.fmin) {
             // SA is upstream of feature
-            println "[ updateOverlapInfoWithVariant ] SA is upstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
+            println "[ updateOverlapInfoWithVariant ] variant is upstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
             isUpstream = true
             if (variant instanceof Insertion) {
@@ -1149,9 +1303,9 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (variant.fmin > feature.fmin && variant.fmin < feature.fmax) {
+        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin < feature.fmax) {
             // SA is within feature
-            println "[ updateOverlapInfoWithVariant ] SA is within feature ${feature.uniqueName} ${feature.class.simpleName}"
+            println "[ updateOverlapInfoWithVariant ] variant is within feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
             overlaps = true
             if (variant instanceof Insertion) {
@@ -1182,10 +1336,10 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (variant.fmin > feature.fmin && variant.fmin > feature.fmax) {
+        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin > feature.fmax) {
             // SA is downstream of feature
             // no change
-            println "[ updateOverlapInfoWithVariant ] SA is downstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
+            println "[ updateOverlapInfoWithVariant ] variant is downstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = false
             isDownstream = true
             modifiedFmin = feature.fmin
@@ -1195,7 +1349,7 @@ class VariantAnnotationService {
         }
         else {
             // TODO
-            println "[ updateOverlapInfoWithVariant ] TODO: sequenceAlteration is right on the boundary"
+            println "[ updateOverlapInfoWithVariant ] TODO: variant is right on the boundary"
         }
 
         overlapInfo.modLocation = new LocationInfo(modifiedFmin, modifiedFmax)
@@ -1204,13 +1358,13 @@ class VariantAnnotationService {
         if (getSequence) {
             StringBuilder builder = new StringBuilder(overlapInfo.locationSeq)
 
-            if (variant.fmin < feature.fmin) {
+            if (alterationNode.fmin < feature.fmin) {
                 // SA is upstream of feature
             }
-            else if (variant.fmin > feature.fmin && variant.fmax < feature.fmax) {
+            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax < feature.fmax) {
                 // SA is within feature
-                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, variant.fmin)
-                int alterationLocalFmax = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, variant.fmax)
+                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, alterationNode.fmin)
+                int alterationLocalFmax = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, alterationNode.fmax)
                 println "[ createOverlapInfoWithVariant ] ALTERATION LOCAL FMIN: ${alterationLocalFmin}"
                 if (variant instanceof Insertion) {
                     println "[ createOverlapInfoWithVariant ][ INS ] at index ${alterationLocalFmin}-${alterationLocalFmin + 1}, replacing with ${alterationResidue}"
@@ -1225,7 +1379,7 @@ class VariantAnnotationService {
                     builder.replace(alterationLocalFmin, alterationLocalFmin + alterationResidue.length(), alterationResidue)
                 }
             }
-            else if (variant.fmin > feature.fmin && variant.fmax > feature.fmax) {
+            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax > feature.fmax) {
                 // SA is downstream of feature
                 // no change
             }
@@ -1250,15 +1404,15 @@ class VariantAnnotationService {
         return offset
     }
 
-    def getAlterationOffset(SequenceAlteration sequenceAlteration, Allele allele) {
+    def getAlterationOffset(SequenceAlteration variant, Allele allele) {
         int offset
-        if (sequenceAlteration instanceof Insertion) {
+        if (variant instanceof Insertion) {
             offset = allele.alterationResidue.length()
         }
-        else if (sequenceAlteration instanceof Deletion) {
-            offset = sequenceAlteration.fmax - sequenceAlteration.fmin
+        else if (variant instanceof Deletion) {
+            offset = allele.alterationResidue.length()
         }
-        else if (sequenceAlteration instanceof Deletion) {
+        else if (variant instanceof Deletion) {
             offset = 0
         }
 
