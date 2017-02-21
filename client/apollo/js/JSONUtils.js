@@ -518,7 +518,7 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     }
     afeature.alternate_alleles = alternativeAllelesArray;
 
-    metadata = [];
+    var metadata = [];
     for (var i = 0; i < variant_specific_metadata.length; ++i) {
         if (variant_specific_metadata[i].filters) {
             // 'filter'
