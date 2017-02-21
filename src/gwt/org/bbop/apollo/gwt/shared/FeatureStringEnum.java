@@ -141,6 +141,7 @@ public enum FeatureStringEnum {
         HISTORY,
         DOCK_OPEN("dockOpen"),
         DOCK_WIDTH("dockWidth"),
+        USE_NAME,
         REVERSE_COMPLEMENT,
         REVERSE,
         FEATURE,

@@ -632,6 +632,8 @@ class RequestHandlingService {
         // this does a reverse projection
         featuresArray = featureProjectionService.projectTrack(featuresArray, assemblage, true)
         log.info "number of features: ${featuresArray?.size()}"
+
+        boolean useName = false
         boolean useCDS = configWrapperService.useCDS()
         boolean suppressHistory = false
         boolean suppressEvents = false
@@ -651,6 +653,7 @@ class RequestHandlingService {
             if (jsonTranscript.has(FeatureStringEnum.USE_CDS.value)) {
                 useCDS = jsonTranscript.getBoolean(FeatureStringEnum.USE_CDS.value)
             }
+            useName = jsonTranscript.has(FeatureStringEnum.USE_NAME.value) ? jsonTranscript.getBoolean(FeatureStringEnum.USE_NAME.value) : false
             Transcript transcript = featureService.generateTranscript(jsonTranscript, assemblage, suppressHistory, useCDS)
 
             // should automatically write to history
@@ -1709,6 +1712,7 @@ class RequestHandlingService {
         featuresArray = featureProjectionService.projectTrack(featuresArray, assemblage, true)
         JSONObject returnObject = createJSONFeatureContainer()
 
+        boolean useName = false
         boolean suppressHistory = false
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
@@ -1720,6 +1724,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            useName = jsonFeature.has(FeatureStringEnum.USE_NAME.value) ? jsonFeature.get(FeatureStringEnum.USE_NAME.value) : false
             if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 // if jsonFeature is of type gene or pseudogene
@@ -1730,7 +1735,7 @@ class RequestHandlingService {
                         // look at its children JSON Array to get the features at the *RNA level
                         // adding jsonGene to each individual transcript
                         transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
-                        Feature newFeature = featureService.addFeature(transcriptJsonFeature, assemblage, user, suppressHistory)
+                        Feature newFeature = featureService.addFeature(transcriptJsonFeature, assemblage, user, suppressHistory, useName)
                         JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature,false,assemblage)
                         JSONObject jsonObject = newFeatureJsonObject
 

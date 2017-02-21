@@ -29,11 +29,13 @@ server is not running) and the proper tables will be recreated on startup.
 - [Download the desired Apollo release](https://github.com/GMOD/Apollo/releases/) from the bottom of each release.   Official releases will be tagged as "Release" and have a green label.
 - Expand the archive. 
 - Copy your existing apollo-config.groovy file into the directory. 
-- Backup your database (to be safe).
+- Always backup your database!
 - Create a new war file as below: ```./apollo deploy```.
-- Turn off tomcat and remove the old apollo directory in the webapps folder.
+- Turn off tomcat and remove the old apollo directory and ```.war``` file in the webapps folder.
 - Copy in new .war file with the same name.
 - Restart tomcat and you are ready to go.
+
+Note if you you choose to have two different versions of Apollo running, though need to point to different database instances or you will experience problems.
 
 ### Installation from a checked out github
 

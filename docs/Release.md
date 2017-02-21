@@ -9,8 +9,9 @@
 
 - Update servers / images:
     - Update icebox (demo -> retire, download new release and build, staging -> master)
-    - Update docker images (https://github.com/GMOD/docker-apollo)
+    - Update docker images (https://github.com/GMOD/docker-apollo), retag for docker hub, and create a release
     - Update AWS images and resubmit.
+    - Update AWS  / Cyverse training image.
     
 - Update genomearchitect to reflect zenodo and version.
 - Generate and update link on master to reflect zenodo link if appropriate.

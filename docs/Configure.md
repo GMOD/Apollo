@@ -317,7 +317,7 @@ the following "higher level" types (from the Sequence Ontology):
 ### Apache / Nginx configuration
 
 Oftentimes, admins will put use Apache or Nginx as a reverse proxy so that the requests to a main server can be
-forwarded to the tomcat server.  This setup is not necessary, but it is a very standard configuration.  
+forwarded to the tomcat server.  This setup is not necessary, but it is a very standard configuration as is making modification to iptables.  
 
 Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since
 websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded
