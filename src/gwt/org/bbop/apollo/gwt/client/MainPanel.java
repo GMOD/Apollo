@@ -18,6 +18,8 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.User;
+import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
@@ -240,6 +242,14 @@ public class MainPanel extends Composite {
         loginUser();
     }
 
+    PermissionEnum getOrganismPermission() {
+        if(currentUser!=null && currentOrganism!=null){
+            UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
+            return userOrganismPermissionInfo.getHighestPermission();
+        }
+
+        return PermissionEnum.NONE;
+    }
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
         setCurrentSequence(sequenceNameString, start, end, false, false);

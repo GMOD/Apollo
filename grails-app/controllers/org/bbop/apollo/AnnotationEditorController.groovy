@@ -83,16 +83,32 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             }
             Map<String, Integer> permissions
             List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, user)
+            for(PermissionEnum pe in permissionEnumList){
+                println "pe ${pe.display}, ${pe.rank}, ${pe.value}"
+            }
+
             permission = permissionService.findHighestEnumValue(permissionEnumList)
+            println "highest: ${permission}"
+
+            // if a single user is an admin . . . then we set everything to admin
+            permissionService.getPermissionsForUser(user).values().each{
+                if(it > permission && it > PermissionEnum.ADMINISTRATE.rank){
+                    permission = it
+                }
+            }
+
             permissions = new HashMap<>()
             permissions.put(username, permission)
-            permissions = permissionService.getPermissionsForUser(user)
+            println "user permissions: ${permissions}"
+            println "permissions for user: ${permissions}"
+
             if (permissions) {
                 session.setAttribute("permissions", permissions);
             }
             if (permissions.values().size() > 0) {
                 permission = permissions.values().iterator().next();
             }
+            println "returned next: ${permission}"
             returnObject.put(REST_PERMISSION, permission)
             returnObject.put(REST_USERNAME, username)
             render returnObject

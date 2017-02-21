@@ -210,12 +210,7 @@ class PermissionService {
     }
 
     int findHighestEnumValue(List<PermissionEnum> permissionEnums) {
-        int highestValue = -1
-        permissionEnums.each { it ->
-            highestValue = it.value > highestValue ? it.value : highestValue
-        }
-
-        return highestValue
+        return findHighestEnum(permissionEnums)?.value ?: -1
     }
 
     JSONObject copyValue(FeatureStringEnum featureStringEnum, JSONObject fromJSON, JSONObject toJSON) {

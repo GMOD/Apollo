@@ -209,7 +209,9 @@ define([
                 if (!this.webapollo.searchMenuInitialized && this.permission && this.browser.config.show_nav && this.browser.config.show_menu) {
                     this.webapollo.initSearchMenu();
                 }
-                this.initSaveMenu();
+                if(this.permission && this.permission>=7){
+                    this.initSaveMenu();
+                }
                 this.initPopupDialog();
 
                 if (success) {

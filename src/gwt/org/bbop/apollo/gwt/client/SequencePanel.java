@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -34,6 +35,7 @@ import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Row;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -87,6 +89,8 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
     @UiField
     Button exportChadoButton;
+    @UiField
+    Row exportRow;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -281,7 +285,8 @@ public class SequencePanel extends Composite {
         Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
-                if(MainPanel.getInstance().getCurrentUser()!=null) {
+                if(MainPanel.getInstance().getCurrentUser()!=null && MainPanel.getInstance().getCurrentOrganism()!=null) {
+                    handleExportRow();
                     if (MainPanel.getInstance().isCurrentUserAdmin()) {
                         exportChadoButton.setVisible(true);
                         getChadoExportStatus();
@@ -294,6 +299,11 @@ public class SequencePanel extends Composite {
             }
         },100);
 
+    }
+
+    private void handleExportRow() {
+        PermissionEnum permissionEnum = MainPanel.getInstance().getOrganismPermission();
+        exportRow.setVisible(permissionEnum!=null && permissionEnum.getRank()>=PermissionEnum.EXPORT.getRank());
     }
 
     private void updatedExportSelectedButton() {
@@ -437,6 +447,7 @@ public class SequencePanel extends Composite {
 
     public void reload(Boolean forceReload) {
         if (MainPanel.getInstance().getSequencePanel().isVisible() || forceReload) {
+            handleExportRow();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
             dataGrid.redraw();
