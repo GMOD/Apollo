@@ -46,6 +46,20 @@ class VariantEffectTrackController {
                             newChildJsonObject.strand = eachChildObject.getJSONObject(FeatureStringEnum.LOCATION.value).get(FeatureStringEnum.STRAND.value)
                             newJsonObject.getJSONArray("subfeatures").add(newChildJsonObject)
                         }
+                        JSONObject variantJsonObject = new JSONObject()
+                        variantJsonObject.type = feature instanceof Substitution ? feature.cvTerm : feature.alternateCvTerm
+                        variantJsonObject.start = feature.fmin
+                        if (feature instanceof Insertion) {
+                            variantJsonObject.end = feature.fmax + 1
+                        }
+                        else {
+                            variantJsonObject.end = feature.fmax
+                        }
+                        variantJsonObject.strand = feature.strand
+                        variantJsonObject.name = feature.name
+                        variantJsonObject.reference_bases = feature.referenceBases
+                        variantJsonObject.alternate_allele = allele.bases
+                        newJsonObject.getJSONArray("subfeatures").add(variantJsonObject)
                         returnJson.getJSONArray("features").add(newJsonObject)
                     }
                 }
