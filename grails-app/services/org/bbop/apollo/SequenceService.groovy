@@ -87,7 +87,10 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId and fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax",[seqId:sequence.id, fmin: fmin, fmax: fmax])
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery(
+                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId and ((fl.fmin >= :fmin and fl.fmin <= :fmax) or (fl.fmax >= :fmin and fl.fmax <= :fmax)) and sa.alterationType = :alterationType",
+                [seqId:sequence.id, fmin: fmin, fmax: fmax, alterationType: FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value]
+        )
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
