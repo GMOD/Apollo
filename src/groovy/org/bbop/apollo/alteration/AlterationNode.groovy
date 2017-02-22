@@ -9,6 +9,7 @@ import org.bbop.apollo.SequenceAlteration
  */
 class AlterationNode {
     String uniquename
+    int alleleId
     int fmin
     int fmax
     String alterationResidue
@@ -30,6 +31,7 @@ class AlterationNode {
 
     public AlterationNode(SequenceAlteration sequenceAlteration, Allele allele) {
         this.uniquename = sequenceAlteration.uniqueName
+        this.alleleId = allele.id
         this.fmin = sequenceAlteration.fmin
         this.fmax = sequenceAlteration.fmax
         this.alterationResidue = allele.alterationResidue
