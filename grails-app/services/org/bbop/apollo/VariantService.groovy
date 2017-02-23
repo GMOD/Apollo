@@ -352,6 +352,95 @@ class VariantService {
         return feature
     }
 
+    def addAlleleInfo(JSONObject jsonFeature) {
+        String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(uniqueName)
+        JSONArray alleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+
+        for (int j = 0; j < alleleInfoArray.size(); j++){
+            JSONObject alleleInfoObject = alleleInfoArray.getJSONObject(j)
+            String alleleBase = alleleInfoObject.get(FeatureStringEnum.ALLELE.value)
+            Allele allele = getAlleleForVariant(uniqueName, alleleBase)
+            String tag = alleleInfoObject.get(FeatureStringEnum.TAG.value)
+            String value = alleleInfoObject.get(FeatureStringEnum.VALUE.value)
+            createAlleleInfo(allele, tag, value)
+        }
+        feature.save(flush: true, failOnError: true)
+        return feature
+    }
+
+    def deleteAlleleInfo(JSONObject jsonFeature) {
+        String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(uniqueName)
+        JSONArray alleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+
+        for (int j = 0; j < alleleInfoArray.length(); j++) {
+            JSONObject alleleInfoObject = alleleInfoArray.getJSONObject(j)
+            String alleleBase = alleleInfoObject.get(FeatureStringEnum.ALLELE.value)
+            Allele allele = getAlleleForVariant(uniqueName, alleleBase)
+            String tag = alleleInfoObject.get(FeatureStringEnum.TAG.value)
+            String value = alleleInfoObject.get(FeatureStringEnum.VALUE.value)
+            AlleleInfo alleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, tag, value)
+            if (alleleInfo) {
+                allele.removeFromAlleleInfo(alleleInfo)
+                alleleInfo.delete(flush: true)
+            }
+            else {
+                log.error "Could not find AlleleInfo ${tag}:${value} for Allele: ${alleleBase}"
+            }
+        }
+        return feature
+    }
+
+    def updateAlleleInfo(JSONObject jsonFeature) {
+        Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+        JSONArray oldAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALLELE_INFO.value)
+        JSONArray newAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALLELE_INFO.value)
+
+        for (int i = 0; i < oldAlleleInfoArray.size(); i++) {
+            JSONObject oldAlleleInfoObject = oldAlleleInfoArray.getJSONObject(i)
+            JSONObject newAlleleInfoObject = newAlleleInfoArray.getJSONObject(i)
+            String oldAlleleBase = oldAlleleInfoObject.getString(FeatureStringEnum.ALLELE.value)
+            Allele oldAllele = getAlleleForVariant(feature.uniqueName, oldAlleleBase)
+            String newAlleleBase = newAlleleInfoObject.getString(FeatureStringEnum.ALLELE.value)
+            Allele newAllele = getAlleleForVariant(feature.uniqueName, newAlleleBase)
+            String oldTag = oldAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
+            String oldValue = oldAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
+            String newTag = newAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
+            String newValue = newAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
+
+            AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(oldAllele, oldTag, oldValue)
+            if (oldAlleleInfo) {
+                if (oldAlleleBase != newAlleleBase) {
+                    oldAllele.removeFromAlleleInfo(oldAlleleInfo)
+                    oldAllele.save()
+                    newAllele.addToAlleleInfo(new AlleleInfo(tag: newTag, value: newValue, allele: newAllele).save())
+                    newAllele.save()
+                }
+                else {
+                    oldAlleleInfo.tag = newTag
+                    oldAlleleInfo.value = newValue
+                    oldAlleleInfo.save()
+                }
+            }
+            else {
+                log.error "Cannot find AlleleInfo ${tag}:${value} for Allele: ${oldAlleleBase}"
+            }
+
+        }
+        feature.save(flush: true, failOnError: true)
+        return feature
+    }
+
+    def createAlleleInfo(Allele allele, String tag, String value) {
+        // TODO: Check if tag-value pair for this allele already exists
+        AlleleInfo alleleInfo = new AlleleInfo(
+                tag: tag,
+                value: value,
+                allele: allele
+        ).save()
+    }
+
     def getAlleleFrequencyFromJsonObject(String alleleFrequencyString) {
         try {
             Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
@@ -364,5 +453,24 @@ class VariantService {
         } catch (NumberFormatException e){
             log.error "Unexpected Allele Frequency value of ${alleleFrequencyString} with exception: ${e.stackTrace}"
         }
+    }
+
+    def getAlleleForVariant(String variantUniqueName, String alleleBase) {
+        Allele allele
+        def results = Allele.executeQuery(
+                "SELECT DISTINCT a FROM Allele a JOIN a.variant v WHERE v.uniqueName = :variantUniqueNameString AND a.bases = :alleleBaseString",
+                [variantUniqueNameString: variantUniqueName, alleleBaseString: alleleBase]
+        )
+
+        if (results.size() == 0) {
+            log.error "Cannot find allele: ${alleleBase} for variant: ${variantUniqueName}"
+        }
+        else if (results.size() == 1) {
+            allele = results.first()
+        }
+        else {
+            log.error "More than one allele: ${alleleBase} for variant: ${variantUniqueName}"
+        }
+        return allele
     }
 }

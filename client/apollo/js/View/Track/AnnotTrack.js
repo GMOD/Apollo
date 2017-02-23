@@ -3553,11 +3553,32 @@ define([
                 //    showDelay: 600
                 //});
 
-                // Info field
+                //Allele Info field
+                var alleleInfoDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var alleleInfoLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Allele INFO"
+                }, alleleInfoDiv);
+                var alleleInfosTable = dojo.create("div", {
+                    'class': "allele_info",
+                    id: "info_" + (selector ? "child" : "parent")
+                }, alleleInfoDiv);
+                var alleleInfoButtonsContainer = dojo.create("div", {style: "text-align: center;"}, alleleInfoDiv);
+                var alleleInfoButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, alleleInfoButtonsContainer);
+                var addAlleleInfoButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, alleleInfoButtons);
+                var deleteAlleleInfoButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, alleleInfoButtons);
+
+                // Variant Info field
                 var variantInfoDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var variantInfoLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
-                    innerHTML: "INFO"
+                    innerHTML: "Variant INFO"
                 }, variantInfoDiv);
                 var variantInfosTable = dojo.create("div", {
                     'class': "variant_info",
@@ -3734,6 +3755,7 @@ define([
                             initStatus(feature, config);
                             initAltAlleles(feature);
                             initDbxrefs(feature, config);
+                            initAlleleInfo(feature);
                             initVariantInfo(feature);
                             initPubmedIds(feature, config);
                             //initGoIds(feature, config);
@@ -4316,6 +4338,145 @@ define([
                 //    }
                 //
                 //};
+
+                // initialize Allele Info
+                var initAlleleInfo = function (feature) {
+                    var oldAlleleSelection;
+                    var oldTag;
+                    var oldValue;
+                    var alleleInfoStore = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
+                        }
+                    });
+
+                    var alleleOpts = [];
+
+                    if (feature.alternate_alleles) {
+                        for (var i = 0; i < feature.alternate_alleles.length; ++i) {
+                            alleleOpts.push(feature.alternate_alleles[i].bases);
+                            for (var j = 0; j < feature.alternate_alleles[i].allele_info.length; ++j) {
+                                var alleleInfo = feature.alternate_alleles[i].allele_info[j];
+                                alleleInfoStore.newItem({allele: feature.alternate_alleles[i].bases, tag: alleleInfo.tag, value: alleleInfo.value});
+                            }
+                        }
+                    }
+
+                    var tableLayout = [{
+                        cells: [
+                            {
+                                name: 'Allele',
+                                field: 'allele',
+                                width: '20%',
+                                type: dojox.grid.cells.Select,
+                                options: alleleOpts,
+                                rowSelector: '20px',
+                                formatter: function(allele) {
+                                    if (!allele) {
+                                        return "Select allele";
+                                    }
+                                    return allele;
+                                },
+                                editable: hasWritePermission
+                            },
+                            {
+                                name: 'Tag',
+                                field: 'tag',
+                                width: '40%',
+                                type: dojox.grid.cells.ComboBox,
+                                formatter: function(tag) {
+                                    if (!tag) {
+                                        return "Enter new tag";
+                                    }
+                                    return tag;
+                                },
+                                editable: hasWritePermission
+                            },
+                            {
+                                name: 'Value',
+                                field: 'value',
+                                width: '40%',
+                                type: dojox.grid.cells.ComboBox,
+                                formatter: function(value) {
+                                    if (!value) {
+                                        return "Enter new value";
+                                    }
+                                    return value;
+                                },
+                                editable: hasWritePermission
+                            }
+                        ]
+                    }];
+
+                    var alleleInfoTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: alleleInfoStore,
+                        updateDelay: 0,
+                        structure: tableLayout
+                    });
+
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(alleleInfoTable.domNode, alleleInfosTable, alleleInfoTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(alleleInfoTable.domNode, alleleInfosTable, alleleInfoTable, timeout);
+                    }
+
+                    var dirty = false;
+
+                    dojo.connect(alleleInfoTable, "onStartEdit", function(inCell, inRowIndex) {
+                        if (!dirty) {
+                            oldAlleleSelection = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "allele");
+                            oldTag = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "tag");
+                            oldValue = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "value");
+                            dirty = true;
+                        }
+                    });
+
+                    dojo.connect(alleleInfoTable, "onCancelEdit", function(inRowIndex) {
+                        alleleInfoTable.store.setValue(alleleInfoTable.getItem(inRowIndex), "allele", oldAlleleSelection);
+                        alleleInfoTable.store.setValue(alleleInfoTable.getItem(inRowIndex), "tag", oldTag);
+                        alleleInfoTable.store.setValue(alleleInfoTable.getItem(inRowIndex), "value", oldValue);
+                        dirty = false;
+                    });
+
+                    dojo.connect(alleleInfoTable, "onApplyEdit", function(inRowIndex) {
+                        var newAlleleSelection = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "allele");
+                        var newTag = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "tag");
+                        var newValue = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "value");
+                        if (!newAlleleSelection || !newTag || !newValue) {
+                        }
+                        else if (!newAlleleSelection || !oldTag || !oldValue) {
+                            addAlleleInfo(newAlleleSelection, newTag, newValue);
+                        }
+                        else {
+                            if (newAlleleSelection != oldAlleleSelection || newTag != oldTag || newValue != oldValue) {
+                                updateAlleleInfo(oldAlleleSelection, newAlleleSelection, oldTag, oldValue, newTag, newValue);
+                            }
+                        }
+                        dirty = false;
+                    });
+
+                    dojo.connect(addAlleleInfoButton, "onclick", function() {
+                        alleleInfoTable.store.newItem({allele: "", tag: "", value: ""});
+                        alleleInfoTable.scrollToRow(alleleInfoTable.rowCount);
+                    });
+
+                    dojo.connect(deleteAlleleInfoButton, "onclick", function() {
+                        var toBeDeleted = new Array();
+                        var selected = alleleInfoTable.selection.getSelected();
+                        for (var i = 0; i < selected.length; ++i) {
+                            var item = selected[i];
+                            var alleleSelection = alleleInfoTable.store.getValue(item, "allele");
+                            var tag = alleleInfoTable.store.getValue(item, "tag");
+                            var value = alleleInfoTable.store.getValue(item, "value");
+                            toBeDeleted.push({allele: alleleSelection, tag: tag, value: value});
+                        }
+                        alleleInfoTable.removeSelectedRows();
+                        deleteAlleleInfo(toBeDeleted);
+                    });
+                };
 
                 // initialize Variant Info
                 var initVariantInfo = function (feature) {
@@ -4925,6 +5086,53 @@ define([
                 //    track.executeUpdateOperation(postData);
                 //    updateTimeLastUpdated();
                 //};
+
+                var addAlleleInfo = function(allele, tag, value) {
+                    console.log("addAlleleInfo: ", allele, tag, value);
+                    allele = escapeString(allele);
+                    tag = escapeString(tag);
+                    value = escapeString(value);
+                    var features = [ { uniquename: uniqueName, allele_info:  [ { allele: allele, tag: tag, value: value } ] } ];
+                    var operation = "add_allele_info";
+                    var postData =  { track: trackName, features: features, operation: operation };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var deleteAlleleInfo = function(alleleInfos) {
+                    for (var i = 0; i < alleleInfos.length; i++) {
+                        alleleInfos[i].allele = escapeString(alleleInfos[i].allele);
+                        alleleInfos[i].tag = escapeString(alleleInfos[i].tag);
+                        alleleInfos[i].value = escapeString(alleleInfos[i].value);
+                    }
+                    var features = [ { uniquename: uniqueName, allele_info: alleleInfos } ];
+                    var operation = "delete_allele_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var updateAlleleInfo = function(oldAllele, newAllele, oldTag, oldValue, newTag, newValue) {
+                    oldAllele = escapeString(oldAllele);
+                    newAllele = escapeString(newAllele);
+                    oldTag = escapeString(oldTag);
+                    oldValue = escapeString(oldValue);
+                    newTag = escapeString(newTag);
+                    newValue = escapeString(newValue);
+                    var features = [ {uniquename: uniqueName, old_allele_info: [{allele: oldAllele, tag: oldTag, value: oldValue}], new_allele_info: [{allele: newAllele, tag: newTag, value: newValue}] } ];
+                    var operation= "update_allele_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
 
                 var addVariantInfo = function(tag, value) {
                     tag = escapeString(tag);

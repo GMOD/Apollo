@@ -2493,4 +2493,46 @@ class RequestHandlingService {
         }
         return updateFeatureContainer
     }
+
+    def addAlleleInfo(JSONObject inputObject) {
+        println "@addAlleleInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature feature = variantService.addAlleleInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def deleteAlleleInfo(JSONObject inputObject) {
+        println "@deleteAlleleInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = variantService.deleteAlleleInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def updateAlleleInfo(JSONObject inputObject) {
+        println "@updateAlleleInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = variantService.updateAlleleInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
 }
