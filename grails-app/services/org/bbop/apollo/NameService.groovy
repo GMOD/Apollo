@@ -163,7 +163,7 @@ class NameService {
         String position = variant.featureLocation.fmin + 1
         name = position + " " + variant.referenceBases + " > "
         def alternateAlleles = []
-        for (Allele allele : variant.alternateAlleles) {
+        for (Allele allele : variant.alternateAlleles.sort { a,b -> a.id <=> b.id }) {
             alternateAlleles.add(allele.bases)
         }
         name += alternateAlleles.join(",")
