@@ -1810,14 +1810,22 @@ class VariantAnnotationService {
                     cdsEnd = results.get(2)
                     println ">>>> [ inferVariantEffects ][INS] CDS start: ${cdsStart} end: ${cdsEnd}"
 
+                    int upstreamOffset = 0
+                    if (allUpstreamOffsets) {
+                        upstreamOffset = allUpstreamOffsets.sum()
+                    }
+
+                    println ">>>> [ inferVariantEffects ][INS][DEBUG] upstream offset: ${upstreamOffset}"
+
                     int cdsFmin, cdsFmax
+                    // first adjust local cds fmax
                     if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd)
+                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd - upstreamOffset)
                         cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
                     }
                     else {
                         cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd)
+                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd - upstreamOffset)
                     }
 
                     println ">>>> [ inferVariantEffects ][INS] CDS fmin: ${cdsFmin} CDS fmax: ${cdsFmax}"
@@ -1831,11 +1839,13 @@ class VariantAnnotationService {
 
                     int offset = variantAlterationNode.alterationResidue.length()
 
+                    // then adjust global cds fmax
                     if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
                         adjustedCdsFmax = cdsFmax - offset
                     }
                     else {
-                        adjustedCdsFmax = (cdsFmax - variantAlterationNode.cumulativeOffset) - offset
+                        //adjustedCdsFmax = (cdsFmax - variantAlterationNode.cumulativeOffset) - offset
+                        adjustedCdsFmax = cdsFmax - offset
                     }
                     println ">>>> [ inferVariantEffects ][INS][1] Adjusted (for rendering) CDS fmin: ${adjustedCdsFmin} CDS fmax: ${adjustedCdsFmax}"
                     cdsLocationInfoTrace.add(new LocationInfo(adjustedCdsFmin, adjustedCdsFmax))
