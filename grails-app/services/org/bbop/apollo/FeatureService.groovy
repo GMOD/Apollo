@@ -125,7 +125,7 @@ class FeatureService {
 
     @Timed
     @Transactional
-    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS()) {
+    def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
 
@@ -157,6 +157,10 @@ class FeatureService {
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
+            // setting back the original name for transcript
+            if (useName && jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+                transcript.name = jsonTranscript.get(FeatureStringEnum.NAME.value)
+            }
         } else {
             // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
             FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
@@ -175,8 +179,10 @@ class FeatureService {
                     Gene tmpGene = (Gene) feature;
                     log.debug "found an overlapping gene ${tmpGene}"
                     // removing name from transcript JSON since its naming will be based off of the overlapping gene
+                    String originalName = jsonTranscript.get(FeatureStringEnum.NAME.value)
                     jsonTranscript.remove(FeatureStringEnum.NAME.value)
                     Transcript tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
+                    jsonTranscript.put(FeatureStringEnum.NAME.value, originalName)
                     updateNewGsolFeatureAttributes(tmpTranscript, sequence);
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
                         throw new AnnotationException("Feature cannot have negative coordinates");
@@ -199,6 +205,11 @@ class FeatureService {
 
                     if (!suppressHistory) {
                         tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                    }
+
+                    // setting back the original name for transcript
+                    if (useName && jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+                        tmpTranscript.name = jsonTranscript.get(FeatureStringEnum.NAME.value)
                     }
 
                     if (tmpTranscript && tmpGene && overlapperService.overlaps(tmpTranscript, tmpGene)) {
@@ -332,6 +343,12 @@ class FeatureService {
             if (!suppressHistory) {
                 transcript.name = nameService.generateUniqueName(transcript)
             }
+
+            // set back the original transcript name
+            if (useName && jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+                transcript.name = jsonTranscript.getString(FeatureStringEnum.NAME.value)
+            }
+
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
             gene.save(insert: true)
             transcript.save(flush: true)
@@ -3051,7 +3068,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return newFeature
     }
 
-    def addFeature(JSONObject jsonFeature, Sequence sequence, User user, boolean suppressHistory) {
+    def addFeature(JSONObject jsonFeature, Sequence sequence, User user, boolean suppressHistory, boolean useName = false) {
         Feature returnFeature = null
 
         if (rnaFeatureTypes.contains(jsonFeature.get(FeatureStringEnum.TYPE.value).name)) {
@@ -3072,6 +3089,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     String name = nameService.generateUniqueName(transcript)
                     transcript.name = name
                 }
+
+                // set the original name for feature
+                if (useName && jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                    transcript.name = jsonFeature.get(FeatureStringEnum.NAME.value)
+                }
+
             } else {
                 // Scenario II - find and overlapping isoform and if present, add current transcript to its gene.
                 // Disabling Scenario II since there is no appropriate overlapper to determine overlaps between non-coding transcripts.
@@ -3138,6 +3161,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     transcript.name = name
                 }
 
+                // setting back the original name for the feature
+                if (useName && jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                    transcript.name = jsonFeature.get(FeatureStringEnum.NAME.value)
+                }
+
                 gene.save(insert: true)
                 transcript.save(flush: true)
 
@@ -3166,6 +3194,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 feature.name = name
             }
             updateNewGsolFeatureAttributes(feature, sequence)
+
+            // setting back the original name for feature
+            if (useName && jsonFeature.has(FeatureStringEnum.USE_NAME.value)) {
+                feature.name = jsonFeature.get(FeatureStringEnum.USE_NAME.value)
+            }
 
             setOwner(feature, user);
             feature.save(insert: true, flush: true)

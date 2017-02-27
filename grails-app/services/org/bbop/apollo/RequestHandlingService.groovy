@@ -655,6 +655,8 @@ class RequestHandlingService {
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
         log.info "number of features: ${featuresArray?.size()}"
+
+        boolean useName = false
         boolean useCDS = configWrapperService.useCDS()
         boolean suppressHistory = false
         boolean suppressEvents = false
@@ -674,7 +676,8 @@ class RequestHandlingService {
             if (jsonTranscript.has(FeatureStringEnum.USE_CDS.value)) {
                 useCDS = jsonTranscript.getBoolean(FeatureStringEnum.USE_CDS.value)
             }
-            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory, useCDS)
+            useName = jsonTranscript.has(FeatureStringEnum.USE_NAME.value) ? jsonTranscript.getBoolean(FeatureStringEnum.USE_NAME.value) : false
+            Transcript transcript = featureService.generateTranscript(jsonTranscript, sequence, suppressHistory, useCDS, useName)
 
             // should automatically write to history
             transcript.save(flush: true)
@@ -1694,6 +1697,7 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
 
+        boolean useName = false
         boolean suppressHistory = false
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
@@ -1705,6 +1709,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            useName = jsonFeature.has(FeatureStringEnum.USE_NAME.value) ? jsonFeature.get(FeatureStringEnum.USE_NAME.value) : false
             if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
                     jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
                 // if jsonFeature is of type gene or pseudogene
@@ -1715,7 +1720,7 @@ class RequestHandlingService {
                         // look at its children JSON Array to get the features at the *RNA level
                         // adding jsonGene to each individual transcript
                         transcriptJsonFeature.put(FeatureStringEnum.PARENT.value, jsonGene)
-                        Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory)
+                        Feature newFeature = featureService.addFeature(transcriptJsonFeature, sequence, user, suppressHistory, useName)
                         JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                         JSONObject jsonObject = newFeatureJsonObject
 

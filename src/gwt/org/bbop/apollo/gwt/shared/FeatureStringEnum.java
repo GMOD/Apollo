@@ -148,7 +148,8 @@ public enum FeatureStringEnum {
         NEW_VARIANT_INFO,
         ASSEMBLY_ERROR_CORRECTION,
         VARIANT,
-        USE_CDS
+        USE_CDS,
+        USE_NAME
         ;
 
 

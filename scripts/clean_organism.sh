@@ -1,6 +1,8 @@
 #!/bin/sh
 
 if [ "$#" -ne 2 ]; then
+    echo "DO NOT USE ON PRODUCTION!!!"
+    echo "Use 'delete_annotations_from_organism.groovy' instead"
     echo "Usage ./clean_organism.sh <common name> <database>"
 	exit ;
 fi

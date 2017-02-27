@@ -512,7 +512,18 @@ public class MainPanel extends Composite {
         }
 
         frame.setUrl(trackListString);
+
+        if(Window.Location.getParameter("tracks")!=null){
+            String newURL = Window.Location.createUrlBuilder().removeParameter("tracks").buildString();
+            newUrl(newURL);
+        }
+
+        currentQueryParams = Window.Location.getParameterMap();
     }
+
+    private static native void newUrl(String newUrl)/*-{
+        $wnd.history.pushState(newUrl, "", newUrl);
+    }-*/;
 
 
     private static String getCurrentQueryParamsAsString() {
@@ -532,6 +543,9 @@ public class MainPanel extends Composite {
     }
 
     public static void updateGenomicViewer(boolean forceReload) {
+        if(currentSequence==null) {
+            GWT.log("Current sequence not set");
+        }
         if (currentStartBp != null && currentEndBp != null) {
             updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload);
         } else {

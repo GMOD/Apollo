@@ -35,7 +35,7 @@ class OrganismService {
                     it[1]
                 }
                 println "uniqueNames ${uniqueNames.size()}"
-                Feature.withTransaction{
+                Feature.withNewTransaction{
                     def features = Feature.findAllByIdInList(ids)
                     features.each { f ->
                         f.delete()

@@ -61,14 +61,18 @@ class AnnotatorController {
                 String organismString = params[FeatureStringEnum.ORGANISM.value]
                 organism = preferenceService.getOrganismForToken(organismString)
             }
-            if (!organism) {
-                organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-            }
+            organism = organism ?: preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
             if (!allowedOrganisms) {
                 throw new RuntimeException("User does have permissions to access any organisms.")
             }
 
+            if(params.uuid){
+                Feature feature = Feature.findByUniqueName(params.uuid)
+                FeatureLocation featureLocation = feature.featureLocation
+                params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin +".." + featureLocation.fmax
+                organism = featureLocation.sequence.organism
+            }
 
             if (!allowedOrganisms.contains(organism)) {
                 log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
@@ -120,9 +124,6 @@ class AnnotatorController {
                 keyList << p.key
             }
         }
-
-//        String uri = "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-//        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
 
         // for some reason the addTracks requires the context path, which seems to be an obscure bug in grails
         if (queryParamString.contains("addTracks")) {
