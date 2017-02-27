@@ -363,7 +363,6 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.sequenceTrace.last() == "ATGAAAGTGCAGATCACTAAAGATCATTCTTCTCATTTGCATTTATTCTACACTGAAACAGGAGAGAAAAGAAATAAAAGAATATTCAGATTGAAAGACAATGATCCAAGACAAATTGAGGGTTCTGAAGATGTCAGAGAAGTTCTATTGATAATGGAATTACATCAAACATTTTTTGAAGTTTCAAGAATATTTATGGTCTTTAAAACTTTAGAAGAATGTCAAGAATACCTTGATAAGTATCCTCAAGTATCTTGA"
     }
 
-
     void "incorporate an insertion variant into a transcript (rev)"() {
 
         String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -488,7 +487,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405154
     }
 
-    @Ignore
+
     void "incorporate an deletion AEC and an insertion variant into a transcript (fwd)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -512,10 +511,11 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
 
         then: "nothing"
-        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAAGTTTTTAATGAGGTATTGAACAGAAGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAATGTTTGTCTGTAGCTGTAGCTTTTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
+        assert variantAnnotationService.sequenceTrace.last() == "ATGCAAAAGCGAACAAAGTGCTTAGTTATGCAAATGCTTCAATCGACTATGAATATGTTTGGTAACGATGTCGATCGTGATGATAAAACATCGCCTAACCTTCAAAGCTTGGAACAAGTTTTTAATGAGGTATTGAACAGAATTTGTTGCGAGTTTGATGATAAATCGAGCAAGCGGAACGAATCAATGTGGCATTTATTCACAATAATGTTTGTCTGTAGCTGTAGCTGCATCTTGTAACAGTTTAGACATTTCACGGTTATTGGAGAGTCTAATTGCATAA"
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 403882
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405111
     }
+
 
     void "incorporate an insertion AEC and an insertion variant into a transcript (rev)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -573,6 +573,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 598924
     }
 
+
     void "incorporate an deletion AEC (2) and an insertion variant into a transcript (rev)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -600,6 +601,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 598205
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 598924
     }
+
 
     void "incorporate an insertion and deletion AEC and an insertion variant into a transcript (fwd)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -630,6 +632,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 403882
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405154
     }
+
 
     void "incorporate an insertion and deletion AEC and an insertion variant into a transcript (rev)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -693,6 +696,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405154
 
     }
+
 
     void "incorporate an insertion, deletion and substitution AEC and an insertion variant into a transcript (rev)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -790,6 +794,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 598924
     }
 
+
     void "incorporate an insertion (on exon 1), deletion (on exon 1) and substitution AEC (on exon 2) and an substitution variant (on exon 2) into a transcript (fwd)"() {
         // simplified test for inferVariantEffects()
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -822,6 +827,8 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 403882
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405154
     }
+
+
 
     void "incorporate an insertion (on exon 1), deletion (on exon 1) and substitution AEC (on exon 2) and an insertion variant (on exon 2) into a transcript (fwd)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -888,6 +895,7 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 403882
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405082
     }
+
 
     void "incorporate an insertion (on exon 1), deletion (on exon 1) and substitution AEC (on exon 2) and an insertion variant (on exon 2) into a transcript (rev)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -975,7 +983,6 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 403882
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405111
     }
-
 
     void "incorporate a deletion variant (exon 2) into a transcript (fwd) and check the CDS"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
@@ -1169,6 +1176,131 @@ class VariantAnnotationServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 403882
         assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 405104
     }
+
+
+    void "AEC + ATG insertion variant + AEC (fwd)"() {
+        // test where the final cdsFmin is right at the insertion variant fmin
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":622330},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":623090,\"fmax\":623213},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624547,\"fmax\":624610},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624680,\"fmax\":624743},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624885,\"fmax\":624927},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":625015,\"fmax\":625090},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":627962,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":622270,\"fmax\":628037},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40821-RA\",\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertion1String = " { ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":622299,\"fmax\":622299},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertion2String = " { ${testCredentials} \"features\":[{\"residues\":\"ATA\",\"location\":{\"strand\":1,\"fmin\":624574,\"fmax\":624574},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionVariantString = "{ ${testCredentials} \"features\":[{\"residues\":\"ATG\",\"location\":{\"strand\":1,\"fmin\":622231,\"fmax\":622231},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 1
+
+        when: "we add two insertion AECs"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion1String) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion2String) as JSONObject)
+
+        then: "we see the AECs"
+        assert Insertion.count == 2
+
+        when: "we add a substitution variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "nothing"
+        assert Insertion.count == 3
+        assert variantAnnotationService.sequenceTrace.last() == "AAAAAAACGAATAACCTAATCTAACCTCCTTTATTTCGTCGATTATGATCGAATTATGATCGAAAATATAAATAAATTTCTCGATTATTGCAAAAAAAAATATGAAGAAAATGAAGAAAAGGAATGAAAGAAAATGGAAAATTGAGTAAATAAAAACATATATATGAAAACATGGATACACCGAAATCAATAGCCAATAAAAAACATGATATTACGAGGATTCGCTTCTTGACACGAATCTCTACTTATCGTCGTTGCTTGAATATGCTCCTTTAATTTGTATCGTCTTTCACAACTAATCAAAAATTCCAATATACAACGAATAAATCTCGAAACTTAAAATTTTCAACTTTTTCTTCTCGTAAAAAATGTATAATGTTAAGATGCTAAGGACGATTTCAAAAATTCAATGAAAAATCGCGACATGTACAAATCCCTCTATCGAAGACGAGATGAACAACAGCAAGGAGAGAAATTGAAGAGGGCGCATCGATCACTTTATGTCAAACGATCCTCCAAAAACTGTCAGTTTTTTCGATTCTCGTGGCCCGTCCAAATTCACGTGATGCTCGTGACAATAGATGCGACGAATTATCAGCTTCGCGGGACGAAAACTCGATGTCATGGAAATCGCAAGGATCCACAGATATTATTGCAAAACCTATCATTTTGGGCCACGATGGCTGTTATACCAATATCTGTTGACGGACGCTAAGTTGAGGAATATGCTTGATTTGGGTCCGTTCTGCGGGACCATTACGTTTATAACTGGACTCATGATCTTGATCCTCCTCCTCTATTCATACATGAATGAAAAAGCGACCAATTCGAACGAGATAAAGGATTTTCAAGAGCTTCAAAAGGAAACAAATAAGAAAATTCCCCGGAAAAAAAGCGTGGCGGACATCAGGCCGATCTACAATTGTATTCATAAACACCTCCAGCAGACCGACGTGTTTCAAGAGAAGACGAAGAAAATGCTTTGCAAGGAACGCTTGGAATTGGAGATTCTGTGCAGTAAAATCAATTGCATCAACAAGCTGTTAAGGCCCGAGGCGCAGACCGAATGGCGGCGGAGCAAGTTACGAAAAGTGTATTATCGTCCTATTAACTCTGCCACGTCGAAGTAATGGCCGACGCCGTGTAACAATGTAATTAACCAAATACAAATGCATCCAATAAAGAACGTACAAATTGCATCGACTTATTACGCGCAGACGCGTTTATGAATTCACGATATTCTTGCACCAAACGTTCCTTTTTTTCTAACCGTGAAGAATTCTTCGTGCACGTTCCACAAATTGTACACTGTATTATTTGCACCCGACACGAAATTGAGCCTGCGTCGAACTGAGAATCGTAGCGGTG"
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 622231
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 628037
+    }
+
+
+    void "AEC + Deletion variant + AEC (fwd)"() {
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":622330},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":623090,\"fmax\":623213},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624547,\"fmax\":624610},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624680,\"fmax\":624743},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624885,\"fmax\":624927},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":625015,\"fmax\":625090},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":627962,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":622270,\"fmax\":628037},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40821-RA\",\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertion1String = " { ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":622299,\"fmax\":622299},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertion2String = " { ${testCredentials} \"features\":[{\"residues\":\"ATA\",\"location\":{\"strand\":1,\"fmin\":624574,\"fmax\":624574},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addDeletionVariantString = " { ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":622282,\"fmax\":622287},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 1
+
+        when: "we add two insertion AECs"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion1String) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion2String) as JSONObject)
+
+        then: "we see the AECs"
+        assert Insertion.count == 2
+
+        when: "we add a substitution variant"
+        requestHandlingService.addVariant(JSON.parse(addDeletionVariantString) as JSONObject)
+
+        then: "nothing"
+        assert Deletion.count == 1
+        assert variantAnnotationService.sequenceTrace.last() == "AAAAAAACGAATAACCTAATCTAACCTCCTTTATTTCGTCGATTATGATCGAATTATGATCGAAAATATAAATAAATTTCTCGATTATTGCAAAAAAAAATATGAAGAAAATGAAGAAAAGGAATGAAAGAAAATGGAAAATTGAGTAAATAAAAACATATATATGAAAACATGGATACACCGAAATCAATAGCCAATAAAAAACATGATATTACGAGGATTCGCTTCTTGACACGAATCTCTACTTATCGTCGTTGCTTGAATATGCTCCTTTAATTTGTATCGTCTTTCACAACTAATCAAAAATTCCAATATACAACGAATAAATCTCGAAACTTAAAATTTTCAACTTTTTCTTCTCGTAAAAAATGTATAATGTTAAGATGCTAAGGACGATTTCAAAAATTCAATGAAAAATCGCGACATGTACAAATCCCTCTATCGAAGACGAGATGAACAACAGCAAGGAGAGAAATTGAAGAGGGCGCATCGATCACTTTATGTCAAACGATCCTCCAAAAACTGTCAGTTTTTTCGATTCTCGTGGCCCGTCCAAATTCACGTGATGCTCGTGACAATAGCGACGAATTATCAGCTTCGCGGGACGAAAACTCGATGTCATGGAAATCGCACCACAGATATTATTGCAAAACCTATCATTTTGGGCCACGATGGCTGTTATACCAATATCTGTTGACGGACGCTAAGTTGAGGAATATGCTTGATTTGGGTCCGTTCTGCGGGACCATTACGTTTATAACTGGACTCATGATCTTGATCCTCCTCCTCTATTCATACATGAATGAAAAAGCGACCAATTCGAACGAGATAAAGGATTTTCAAGAGCTTCAAAAGGAAACAAATAAGAAAATTCCCCGGAAAAAAAGCGTGGCGGACATCAGGCCGATCTACAATTGTATTCATAAACACCTCCAGCAGACCGACGTGTTTCAAGAGAAGACGAAGAAAATGCTTTGCAAGGAACGCTTGGAATTGGAGATTCTGTGCAGTAAAATCAATTGCATCAACAAGCTGTTAAGGCCCGAGGCGCAGACCGAATGGCGGCGGAGCAAGTTACGAAAAGTGTATTATCGTCCTATTAACTCTGCCACGTCGAAGTAATGGCCGACGCCGTGTAACAATGTAATTAACCAAATACAAATGCATCCAATAAAGAACGTACAAATTGCATCGACTTATTACGCGCAGACGCGTTTATGAATTCACGATATTCTTGCACCAAACGTTCCTTTTTTTCTAACCGTGAAGAATTCTTCGTGCACGTTCCACAAATTGTACACTGTATTATTTGCACCCGACACGAAATTGAGCCTGCGTCGAACTGAGAATCGTAGCGGTG"
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 622265
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 628037
+
+
+    }
+
+    @Ignore
+    void "AEC + ATG insertion variant + AEC (rev)"() {
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":969795,\"fmax\":970639},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":970738,\"fmax\":970918},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":971094,\"fmax\":971317},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":972090,\"fmax\":972407},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":972657,\"fmax\":972870},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":973808,\"fmax\":973976},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":970501,\"fmax\":973847},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40734-RA\",\"location\":{\"strand\":-1,\"fmin\":969795,\"fmax\":973976},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertion1String = "{ ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":970449,\"fmax\":970449},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertion2String = "{ ${testCredentials} \"features\":[{\"residues\":\"CCC\",\"location\":{\"strand\":1,\"fmin\":970824,\"fmax\":970824},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionVariantString = "{ ${testCredentials} \"features\":[{\"residues\":\"CAT\",\"location\":{\"strand\":1,\"fmin\":973850,\"fmax\":973850},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 1
+
+        when: "we add two insertion AECs"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion1String) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion2String) as JSONObject)
+
+        then: "we see the AECs"
+        assert Insertion.count == 2
+
+        when: "we add a substitution variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "nothing"
+        assert Insertion.count == 3
+        assert variantAnnotationService.sequenceTrace.last() == "CCTATCTTTTAATTAACAAAATTTTTGTTAACAAATTTTCATCAATATGATATTTATACATATATGTTAATAAGAATACATTTATTTCTACTTTTTAAATTTTCTAGTATTATTTACGAAACTTAAATGATAATGAAGCGACTAGGAGATAAATGTTATTGCAAAGACAAGGTATCATCGCCTATCACCAAATACACGGAGCTAGAGCCAGCACTCTGTCAGGAGTTAAAAAAAATTGTGGAGGCCGTTGTAGTTCCAGGAAAAGGATTACTAGCTTGTGACGAGTCTCCTGCATCGTTGCAAAAGCGTTTCGATGAGCTCGGTGTGGAAAATACCGAAACTAATCGGCGCAATTATCGACAAATGTTATTCTCAGCTGATAAGTCTGAATTTTCAAAATGCATAAGTGGTGTTATTCTGCATCATGAGACAGTTTATGAAAAAACGACTGATGGCATCGACATGATCGAACTGTTACGCCAAAGGAATGTCGTGCCCGGTATTAAGGTCGACAAGGGATTGGTCCCTCTTTTTGGCGCGAAAAACGAAAATACCACGGAAGGTCTGGACAATTTGCAAGAAAGATGCATTCAATATAAGAGAGACGGCTGCCATTTTGCCAAATGGAGATGCACATTCAGCATCACGGAGACCACGCCGTCTCAGTTGGCCATGGTTACGAATGCGGATGTCCTCGCAAGATACGCCACTATATGTCAGAGTGCACGAATAGTACCCATAATAGAACCAGAAATATTAAGCCCAGGTGACCATGGAATAAACAAAGCATTAGAAGTTCATGAAGAGGTGTTATCTAACGTAATGCGTGCTTTACACCAACATCGAGTTTACCTCGAAGGTATGATATTGAAATCTGCTATGGTTTTGTCAGGAAGGAAAGAAGAAGTTAATTGTACACCGCAGATTGTGGCTGAACATACGGTATTAGCTTTACAAAGAACAATACCACCAGCGGTGCCAGCTGTCTTATTTCTAAGTGGTGGTCAAACGGACGAAGGGGATTCTGTGATAAATTTAAATGCTATTGTAAATTACGAAGGGAAAAAACCTTGGCAATTGACGTACTGTTATGGGCGTGCCTTACAAAACGAGGTAATGAAAATTTGGAAAGGAAATTCTGCAAAGGTAGCTGAAGCTCAAACCCTGCTTTTGAAAAAGATAAAACTTGCCTCCCAAGCTGCACTAGGACAATTAGAAGTGGAAAACAGTGTGTGCACTAAATAATCCTCTGGTTAATTAACAAATACTCGATTAAAAGACACCAATCATATATATAAAATATATATATATACCTGTATAAATGAATATTGTAATCTGTATAACGAATGTTATGTAATACTTATCTCCAATTTTCAATTGCATTATGCAACTCATCAATCTGATATCAAATACAATACGATTGTCTATTGATTCTCTCGAATATCTTCGATGCAATCGATTTCGACTAATTCATCGACGAGATCATTACCGAGTCATGATGAGATGACATCTTAACATTATTATCAATGAATTTTGTCACGTAAATGATAAAGAATATTTCAACGAACATTTTATCACAAGGATACGTCAACCTTTATAGTGAAATGATGGTATGAGTAAATTCGGCGAATGTCATACAAGGTGCCCTTGATTGACCTCTAAAACAGGGATTCTCAATCGGAGGCTTCTGCGATAATACGTGAGAGTTGGGTCGTACGTTACTCGAAAATTTACCTCACTCTAGTGGTCGATACGGCGTCATTTCCATGGATCCCCACCAACCACGTTCTCTTATTCTTCTAGGCATTATAGACCGGATCATCAACACATGTGCTCGACACCGTCGTAACTATAGAGCATTTATTCAATGTGACTTGATAAACTTATTATATTTGATTCGTTATTTTGATTAAAAAAAATATATAATGTAATATAAAAAATAAATATAAATATA"
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 970501
+        // the below assertion fails for now; revisit later
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 973850
+    }
+
+    void "AEC + deletion variant + AEC (rev)"() {
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":969795,\"fmax\":970639},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":970738,\"fmax\":970918},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":971094,\"fmax\":971317},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":972090,\"fmax\":972407},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":972657,\"fmax\":972870},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":973808,\"fmax\":973976},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":970501,\"fmax\":973847},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40734-RA\",\"location\":{\"strand\":-1,\"fmin\":969795,\"fmax\":973976},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addInsertion1String = "{ ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":970449,\"fmax\":970449},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertion2String = "{ ${testCredentials} \"features\":[{\"residues\":\"CCC\",\"location\":{\"strand\":1,\"fmin\":970824,\"fmax\":970824},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addDeletionVariantString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":970524,\"fmax\":970531},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+
+        then: "we see the transcript"
+        assert MRNA.count == 1
+
+        when: "we add two insertion AECs"
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion1String) as JSONObject)
+        requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion2String) as JSONObject)
+
+        then: "we see the AECs"
+        assert Insertion.count == 2
+
+        when: "we add a substitution variant"
+        requestHandlingService.addVariant(JSON.parse(addDeletionVariantString) as JSONObject)
+
+        then: "nothing"
+        assert Deletion.count == 1
+        assert variantAnnotationService.sequenceTrace.last() == "CCTATCTTTTAATTAACAAAATTTTTGTTAACAAATTTTCATCAATATGATATTTATACATATATGTTAATAAGAATACATTTATTTCTACTTTTTAAATTTTCTAGTATTATTTACGAAACTTAAATAATGAAGCGACTAGGAGATAAATGTTATTGCAAAGACAAGGTATCATCGCCTATCACCAAATACACGGAGCTAGAGCCAGCACTCTGTCAGGAGTTAAAAAAAATTGTGGAGGCCGTTGTAGTTCCAGGAAAAGGATTACTAGCTTGTGACGAGTCTCCTGCATCGTTGCAAAAGCGTTTCGATGAGCTCGGTGTGGAAAATACCGAAACTAATCGGCGCAATTATCGACAAATGTTATTCTCAGCTGATAAGTCTGAATTTTCAAAATGCATAAGTGGTGTTATTCTGCATCATGAGACAGTTTATGAAAAAACGACTGATGGCATCGACATGATCGAACTGTTACGCCAAAGGAATGTCGTGCCCGGTATTAAGGTCGACAAGGGATTGGTCCCTCTTTTTGGCGCGAAAAACGAAAATACCACGGAAGGTCTGGACAATTTGCAAGAAAGATGCATTCAATATAAGAGAGACGGCTGCCATTTTGCCAAATGGAGATGCACATTCAGCATCACGGAGACCACGCCGTCTCAGTTGGCCATGGTTACGAATGCGGATGTCCTCGCAAGATACGCCACTATATGTCAGAGTGCACGAATAGTACCCATAATAGAACCAGAAATATTAAGCCCAGGTGACCATGGAATAAACAAAGCATTAGAAGTTCATGAAGAGGTGTTATCTAACGTAATGCGTGCTTTACACCAACATCGAGTTTACCTCGAAGGTATGATATTGAAATCTGCTATGGTTTTGTCAGGAAGGAAAGAAGAAGTTAATTGTACACCGCAGATTGTGGCTGAACATACGGTATTAGCTTTACAAAGAACAATACCACCAGCGGTGCCAGCTGTCTTATTTCTAAGTGGTGGTCAAACGGACGAAGGGGATTCTGTGATAAATTTAAATGCTATTGTAAATTACGAAGGGAAAAAACCTTGGCAATTGACGTACTGTTATGGGCGTGCCTTACAAAACGAGGTAATGAAAATTTGGAAAGGAAATTCTGCAAAGGTAGCTGAAGCTCAAACCCTGCTTTTGAAAAAGATAAAACTTGCCTCCCAAGCTGCACTAGGACAATTAAAAACAGTGTGTGCACTAAATAATCCTCTGGTTAATTAACAAATACTCGATTAAAAGACACCAATCATATATATAAAATATATATATATACCTGTATAAATGAATATTGTAATCTGTATAACGAATGTTATGTAATACTTATCTCCAATTTTCAATTGCATTATGCAACTCATCAATCTGATATCAAATACAATACGATTGTCTATTGATTCTCTCGAATATCTTCGATGCAATCGATTTCGACTAATTCATCGACGAGATCATTACCGAGTCATGATGAGATGACATCTTAACATTATTATCAATGAATTTTGTCACGTAAATGATAAAGAATATTTCAACGAACATTTTATCACAAGGATACGTCAACCTTTATAGTGAAATGATGGTATGAGTAAATTCGGCGAATGTCATACAAGGTGCCCTTGATTGACCTCTAAAACAGGGATTCTCAATCGGAGGCTTCTGCGATAATACGTGAGAGTTGGGTCGTACGTTACTCGAAAATTTACCTCACTCTAGTGGTCGATACGGCGTCATTTCCATGGATCCCCACCAACCACGTTCTCTTATTCTTCTAGGCATTATAGACCGGATCATCAACACATGTGCTCGACACCGTCGTAACTATAGAGCATTTATTCAATGTGACTTGATAAACTTATTATATTTGATTCGTTATTTTGATTAAAAAAAATATATAATGTAATATAAAAAATAAATATAAATATA"
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmin == 970485
+        assert variantAnnotationService.cdsLocationInfoTrace.last().fmax == 973847
+    }
+
+
 
     void "Combination of AECs + insertion variant (rev)"() {
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598782,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40755-RA\",\"location\":{\"strand\":-1,\"fmin\":598161,\"fmax\":598924},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"

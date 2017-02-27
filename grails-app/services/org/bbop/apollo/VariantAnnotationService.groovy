@@ -151,17 +151,14 @@ class VariantAnnotationService {
             int exonFmax = exonFmaxArray.get(i)
             int exonLength = exonFmax - exonFmin
 
-            log.info "[X] ${currentLength} + ${exonLength} >= ${localCoordinate}"
             if (currentLength + exonLength >= localCoordinate) {
                 log.info "localCoordinate falls within exon ${exonFmin} - ${exonFmax}"
                 if (strand == Strand.NEGATIVE.value) {
                     log.info "strand is NEGATIVE"
                     //sourceCoordinate = (exonFmax - currentCoordinate) - 1
-                    log.info ">>> [A] ${exonFmax} - ${currentCoordinate}"
                     sourceCoordinate = (exonFmax - currentCoordinate)
                 }
                 else {
-                    log.info ">>> [B] ${exonFmin} + ${currentCoordinate}"
                     sourceCoordinate = exonFmin + currentCoordinate
                 }
                 break
@@ -420,7 +417,7 @@ class VariantAnnotationService {
             jsonObject.getJSONArray("type").add(it.cvTerm)
         }
         jsonObject.put("type", variantEffect.effects.first().cvTerm)
-        println ">>>> [ createVariantEffectMetadataJSON ] JSONObject: ${jsonObject.toString()}"
+        println "[ createVariantEffectMetadataJSON ] JSONObject: ${jsonObject.toString()}"
         return jsonObject.toString()
     }
 
@@ -513,10 +510,10 @@ class VariantAnnotationService {
         // then create an alteration representation with AECs + variant
         def allAlterations = sequenceAlterations + variant
         allAlterations.sort { a,b -> a.fmin <=> b.fmin }
+        println "[ predictEffectOfVariantOnTranscripts ][ Fs-SAs-V ] ${allAlterations.cvTerm}"
         def alterationNodeList2 = createAlterationRepresentation(transcripts, allAlterations)
         println "[ predictEffectOfVariantOnTranscripts ] [ Fs-SAs-V ] ALTERATION NODE LIST 2: ${alterationNodeList2.toString()}"
         testAlterationNodeForVariant(alterationNodeList2.last())
-        //inferVariantEffects(variant.uniqueName, alterationNodeList2)
         inferVariantEffects(variant.uniqueName, alterationNodeList1, alterationNodeList2)
     }
 
@@ -1214,23 +1211,23 @@ class VariantAnnotationService {
         int localFmin = overlapInfo.localLocation.fmin
         int localFmax = overlapInfo.localLocation.fmax
 
-        if (alterationNode.fmin < feature.fmin) {
+        if (alterationNode.fmin < overlapInfo.location.fmin) {
             // SA is upstream of feature
             println "[ updateOverlapInfoWithAssemblyErrorCorrection ] SA is upstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
             isUpstream = true
             if (sequenceAlteration instanceof Insertion) {
-                modifiedFmin = feature.fmin + alterationOffset
-                modifiedFmax = feature.fmax + alterationOffset
+                modifiedFmin = overlapInfo.location.fmin + alterationOffset
+                modifiedFmax = overlapInfo.location.fmax + alterationOffset
             }
             else if (sequenceAlteration instanceof Deletion) {
-                modifiedFmin = feature.fmin - alterationOffset
-                modifiedFmax = feature.fmax - alterationOffset
+                modifiedFmin = overlapInfo.location.fmin - alterationOffset
+                modifiedFmax = overlapInfo.location.fmax - alterationOffset
             }
             else if (sequenceAlteration instanceof Substitution) {
                 // no change
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmin
             }
 
             if (sequenceAlteration instanceof Insertion) {
@@ -1247,23 +1244,23 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin < feature.fmax) {
+        else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmin < overlapInfo.location.fmax) {
             // SA is within feature
             println "[ updateOverlapInfoWithAssemblyErrorCorrection ] SA is within feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
             overlaps = true
             if (sequenceAlteration instanceof Insertion) {
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax + alterationOffset
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax + alterationOffset
             }
             else if (sequenceAlteration instanceof Deletion) {
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax - alterationOffset
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax - alterationOffset
             }
             else if (sequenceAlteration instanceof Substitution) {
                 // no change
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax
             }
 
             if (sequenceAlteration instanceof Insertion) {
@@ -1280,14 +1277,14 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin > feature.fmax) {
+        else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmin > overlapInfo.location.fmax) {
             // SA is downstream of feature
             // no change
             println "[ updateOverlapInfoWithAssemblyErrorCorrection ] SA is downstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = false
             isDownstream = true
-            modifiedFmin = feature.fmin
-            modifiedFmax = feature.fmax
+            modifiedFmin = overlapInfo.location.fmin
+            modifiedFmax = overlapInfo.location.fmax
             modifiedLocalFmin = localFmin
             modifiedLocalFmax = localFmax
         }
@@ -1306,12 +1303,12 @@ class VariantAnnotationService {
         if (getSequence) {
             StringBuilder builder = new StringBuilder(overlapInfo.locationSeq)
 
-            if (alterationNode.fmin < feature.fmin) {
+            if (alterationNode.fmin < overlapInfo.location.fmin) {
                 // SA is upstream of feature
             }
-            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax < feature.fmax) {
+            else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmax < overlapInfo.location.fmax) {
                 // SA is within feature
-                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, alterationNode.fmin)
+                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(overlapInfo.location.fmin, overlapInfo.location.fmax, overlapInfo.strand, alterationNode.fmin)
                 if (sequenceAlteration instanceof Insertion) {
                     builder.insert(alterationLocalFmin, alterationResidue)
                 }
@@ -1322,7 +1319,7 @@ class VariantAnnotationService {
                     builder.replace(alterationLocalFmin, alterationLocalFmin + alterationResidue.length(), alterationResidue)
                 }
             }
-            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax > feature.fmax) {
+            else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmax > overlapInfo.location.fmax) {
                 // SA is downstream of feature
                 // no change
             }
@@ -1344,23 +1341,23 @@ class VariantAnnotationService {
         int localFmin = overlapInfo.localLocation.fmin
         int localFmax = overlapInfo.localLocation.fmax
 
-        if (alterationNode.fmin < feature.fmin) {
+        if (alterationNode.fmin < overlapInfo.location.fmin) {
             // SA is upstream of feature
             println "[ updateOverlapInfoWithVariant ] variant is upstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
             isUpstream = true
             if (variant instanceof Insertion) {
-                modifiedFmin = feature.fmin + alterationOffset
-                modifiedFmax = feature.fmax + alterationOffset
+                modifiedFmin = overlapInfo.location.fmin + alterationOffset
+                modifiedFmax = overlapInfo.location.fmax + alterationOffset
             }
             else if (variant instanceof Deletion) {
-                modifiedFmin = feature.fmin - alterationOffset
-                modifiedFmax = feature.fmax - alterationOffset
+                modifiedFmin = overlapInfo.location.fmin - alterationOffset
+                modifiedFmax = overlapInfo.location.fmax - alterationOffset
             }
             else if (variant instanceof Substitution) {
                 // no change
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax
             }
 
             if (variant instanceof Insertion) {
@@ -1377,23 +1374,23 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin < feature.fmax) {
+        else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmin < overlapInfo.location.fmax) {
             // SA is within feature
             println "[ updateOverlapInfoWithVariant ] variant is within feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = true
             overlaps = true
             if (variant instanceof Insertion) {
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax + alterationOffset
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax + alterationOffset
             }
             else if (variant instanceof Deletion) {
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax - alterationOffset
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax - alterationOffset
             }
             else if (variant instanceof Substitution) {
                 // no change
-                modifiedFmin = feature.fmin
-                modifiedFmax = feature.fmax
+                modifiedFmin = overlapInfo.location.fmin
+                modifiedFmax = overlapInfo.location.fmax
             }
 
             if (variant instanceof Insertion) {
@@ -1410,14 +1407,14 @@ class VariantAnnotationService {
                 modifiedLocalFmax = localFmax
             }
         }
-        else if (alterationNode.fmin > feature.fmin && alterationNode.fmin > feature.fmax) {
+        else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmin > overlapInfo.location.fmax) {
             // SA is downstream of feature
             // no change
             println "[ updateOverlapInfoWithVariant ] variant is downstream of feature ${feature.uniqueName} ${feature.class.simpleName}"
             isModified = false
             isDownstream = true
-            modifiedFmin = feature.fmin
-            modifiedFmax = feature.fmax
+            modifiedFmin = overlapInfo.location.fmin
+            modifiedFmax = overlapInfo.location.fmax
             modifiedLocalFmin = localFmin
             modifiedLocalFmax = localFmax
         }
@@ -1436,13 +1433,13 @@ class VariantAnnotationService {
         if (getSequence) {
             StringBuilder builder = new StringBuilder(overlapInfo.locationSeq)
 
-            if (alterationNode.fmin < feature.fmin) {
+            if (alterationNode.fmin < overlapInfo.location.fmin) {
                 // SA is upstream of feature
             }
-            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax < feature.fmax) {
+            else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmax < overlapInfo.location.fmax) {
                 // SA is within feature
-                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, alterationNode.fmin)
-                int alterationLocalFmax = convertSourceCoordinateToLocalCoordinateNew(feature.fmin, feature.fmax, feature.strand, alterationNode.fmax)
+                int alterationLocalFmin = convertSourceCoordinateToLocalCoordinateNew(overlapInfo.location.fmin, overlapInfo.location.fmax, overlapInfo.strand, alterationNode.fmin)
+                int alterationLocalFmax = convertSourceCoordinateToLocalCoordinateNew(overlapInfo.location.fmin, overlapInfo.location.fmax, overlapInfo.strand, alterationNode.fmax)
                 println "[ createOverlapInfoWithVariant ] ALTERATION LOCAL FMIN: ${alterationLocalFmin}"
                 if (variant instanceof Insertion) {
                     println "[ createOverlapInfoWithVariant ][ INS ] at index ${alterationLocalFmin}-${alterationLocalFmin + 1}, replacing with ${alterationResidue}"
@@ -1457,7 +1454,7 @@ class VariantAnnotationService {
                     builder.replace(alterationLocalFmin, alterationLocalFmin + alterationResidue.length(), alterationResidue)
                 }
             }
-            else if (alterationNode.fmin > feature.fmin && alterationNode.fmax > feature.fmax) {
+            else if (alterationNode.fmin > overlapInfo.location.fmin && alterationNode.fmax > overlapInfo.location.fmax) {
                 // SA is downstream of feature
                 // no change
             }
@@ -1478,7 +1475,7 @@ class VariantAnnotationService {
         else if (sequenceAlteration instanceof Deletion) {
             offset = 0
         }
-        println ">>>> [ getAlterationOffset ][ SA ]  returning with offset: ${offset}"
+        println "[ getAlterationOffset ][ SA ]  returning with offset: ${offset}"
         return offset
     }
 
@@ -1488,294 +1485,112 @@ class VariantAnnotationService {
             offset = allele.alterationResidue.length()
         }
         else if (variant instanceof Deletion) {
+            println "%%%% VARIANT REF BASE: ${variant.referenceBases}"
+            println "%%%% ALLELE ALTERATION RESIDUE: ${allele.alterationResidue}"
+            println "%%%% ALLELE ALT BASE: ${allele.bases}"
             offset = allele.alterationResidue.length()
         }
         else if (variant instanceof Deletion) {
             offset = 0
         }
 
-        println ">>>> [ getAlterationOffset ][ VARIANT ]  returning with offset: ${offset}"
+        println "[ getAlterationOffset ][ VARIANT ]  returning with offset: ${offset}"
         return offset
     }
 
-//    def inferVariantEffects(String variantUniqueName, def alterationNodeList) {
-//        // temporary method that creates a generic VariantEffect
-//        AlterationNode variantAlterationNode
-//        for (AlterationNode alterationNode : alterationNodeList) {
-//            if (alterationNode.uniquename == variantUniqueName) {
-//                variantAlterationNode = alterationNode
-//                break
-//            }
-//        }
-//        AlterationNode finalAlterationNode = alterationNodeList.last()
-//        createVariantEffects(variantAlterationNode, finalAlterationNode)
-//    }
+    def inferVariantEffects(String variantUniqueName, def originalState, def finalState) {
+        AlterationNode originalStateNode
+        boolean originalStateAvailable = false
+        if (originalState.size() > 0) {
+            originalStateAvailable = true
+            originalStateNode = originalState.last()
+        }
 
-
-    def inferVariantEffects(String variantUniqueName, def alterationNodeList) {
+        AlterationNode finalStateNode = finalState.last()
         AlterationNode variantAlterationNode
-        for (AlterationNode alterationNode : alterationNodeList) {
+
+        for (AlterationNode alterationNode : finalState) {
             if (alterationNode.uniquename == variantUniqueName) {
                 variantAlterationNode = alterationNode
-                break
             }
         }
-        AlterationNode finalAlterationNode = alterationNodeList.last()
 
-        for (OverlapInfo overlapInfo : finalAlterationNode.overlapInfo) {
+        /*
+        originalStateNode - contains information of the states of transcripts with only sequence alterations
+        variantAlterationNode - contains information of the states of transcripts when incorporating the variant,
+        but this node is only used for variant specific properties
+        finalStateNode - contains information of the states of transcripts after incorporating all
+        sequence alterations and the variant itself
+         */
+
+        for (int i = 0; i < finalStateNode.overlapInfo.size(); i++) {
             // transcript
-            Feature feature = Feature.findByUniqueName(overlapInfo.uniquename)
-            int variantLocalFmin = convertSourceCoordinateToLocalCoordinateNew(overlapInfo.modLocation.fmin, overlapInfo.modLocation.fmax, overlapInfo.strand, variantAlterationNode.fmin)
-            int variantLocalFmax = convertSourceCoordinateToLocalCoordinateNew(overlapInfo.modLocation.fmin, overlapInfo.modLocation.fmax, overlapInfo.strand, variantAlterationNode.fmax)
-            println ">>>> [ inferVariantEffectsNew ] Variant Local Fmin: ${variantLocalFmin} Variant Local Fmax:${variantLocalFmax}"
-            String genomicSeq = overlapInfo.modLocationSeq
-            String cdnaSeq = ""
-            String finalCdnaSeq = ""
+            OverlapInfo originalStateOverlapInfo
+            if (originalStateAvailable) originalStateOverlapInfo = originalStateNode.overlapInfo.get(i)
+            OverlapInfo finalStateOverlapInfo = finalStateNode.overlapInfo.get(i)
+            OverlapInfo variantOverlapInfo = variantAlterationNode.overlapInfo.get(i)
+
+            Feature feature = Feature.findByUniqueName(finalStateOverlapInfo.uniquename)
+            int variantLocalFmin = convertSourceCoordinateToLocalCoordinateNew(finalStateOverlapInfo.modLocation.fmin, finalStateOverlapInfo.modLocation.fmax, finalStateOverlapInfo.strand, variantAlterationNode.fmin)
+            int variantLocalFmax = convertSourceCoordinateToLocalCoordinateNew(finalStateOverlapInfo.modLocation.fmin, finalStateOverlapInfo.modLocation.fmax, finalStateOverlapInfo.strand, variantAlterationNode.fmax)
+            println "[ inferVariantEffects ] Variant local fmin: ${variantLocalFmin} local fmax: ${variantLocalFmax}"
+            String originalStateGenomicSeq
+            if (originalStateAvailable) {
+                originalStateGenomicSeq = originalStateOverlapInfo.modLocationSeq
+            }
+            else {
+                originalStateGenomicSeq = sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_GENOMIC.value)
+            }
+            String finalStateGenomicSeq = finalStateOverlapInfo.modLocationSeq
+
+            String originalStateCdnaSeq = ""
+            String finalStateCdnaSeq = ""
             boolean overlapsExon = false
 
-            if (overlapInfo.isUpstream) {
+            def finalStateExonFminArray = []
+            def finalStateExonFmaxArray = []
+
+            if (variantOverlapInfo.isUpstream) {
                 // variant is upstream of transcript
-                println ">>>> [ inferVariantEffectsNew ] Variant is UPSTREAM"
+                println "[ inferVariantEffects ] Variant is UPSTREAM"
                 VariantEffect variantEffect = new VariantEffect(
-                        feature: Feature.findByUniqueName(overlapInfo.uniquename),
+                        feature: feature,
                         variant: SequenceAlteration.findByUniqueName(variantAlterationNode.uniquename),
                         alternateAllele: Allele.findById(variantAlterationNode.alleleId)
                 ).save()
                 variantEffect.addToEffects(new UpstreamGeneVariant(variantEffect: variantEffect).save())
             }
 
-            if (overlapInfo.isDownstream) {
+            if (variantOverlapInfo.isDownstream) {
                 // variant is downstream of transcript
-                println ">>>> [ inferVariantEffectsNew ] Variant is DOWNSTREAM"
+                println "[ inferVariantEffects ] Variant is DOWNSTREAM"
                 VariantEffect variantEffect = new VariantEffect(
-                        feature: Feature.findByUniqueName(overlapInfo.uniquename),
+                        feature: feature,
                         variant: SequenceAlteration.findByUniqueName(variantAlterationNode.uniquename),
                         alternateAllele: Allele.findById(variantAlterationNode.alleleId)
                 ).save()
                 variantEffect.addToEffects(new DownstreamGeneVariant(variantEffect: variantEffect).save())
             }
 
-            if (overlapInfo.overlaps) {
-                // variant overlaps transcript
-                println ">>>> [ inferVariantEffectsNew ] Variant OVERLAPS transcript"
-                for (OverlapInfo childOverlapInfo : overlapInfo.children) {
-                    // scan through child OverlapInfo (exons)
-                    cdnaSeq += genomicSeq.substring(childOverlapInfo.modLocalLocation.fmin, childOverlapInfo.modLocalLocation.fmax)
-                    println ">>>> [ inferVariantEffectsNew ] ChildOverlapInfo for exon: ${childOverlapInfo.uniquename}"
-                    if (childOverlapInfo.overlaps) {
-                        // variant overlaps current exon
-                        println ">>>> [ inferVariantEffectsNew ] Variant has an insertion of ${variantAlterationNode.alterationResidue} at position ${variantLocalFmin} - ${variantLocalFmax} of exon ${childOverlapInfo.uniquename}"
-                        println ">>>> [ inferVariantEffectsNew ] Alteration residues: ${variantAlterationNode.alterationResidue}"
-                        println ">>>> [ inferVariantEffectsNew ] Alteration offset: ${variantAlterationNode.offset}"
-                        overlapsExon = true
-                    }
-                }
-            }
-
-            if (overlapsExon) {
-                SequenceAlteration variant = SequenceAlteration.findByUniqueName(variantAlterationNode.uniquename)
-                Allele allele = Allele.findById(variantAlterationNode.alleleId)
-
-                if (overlapInfo.strand == Strand.NEGATIVE.value) {
-                    finalCdnaSeq = SequenceTranslationHandler.reverseComplementSequence(cdnaSeq)
-                }
-                else {
-                    finalCdnaSeq = cdnaSeq
-                }
-
-                int cdsStart, cdsEnd
-                def results = featureService.calculateLongestORF(finalCdnaSeq, configWrapperService.getTranslationTable(), false)
-                cdsStart = results.get(1)
-                cdsEnd = results.get(2)
-                println ">>>> [ inferVariantEffectsNew ] CDS Start: ${cdsStart} CDS End: ${cdsEnd}"
-
-                def exonFminArray = []
-                def exonFmaxArray = []
-                overlapInfo.children.each { child ->
-                    exonFminArray.add(child.modLocation.fmin)
-                    exonFmaxArray.add(child.modLocation.fmax)
-                }
-
-                int cdsFmin, cdsFmax
-//                cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, cdsStart)
-//                cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, cdsEnd)
-
-                if (overlapInfo.strand == Strand.NEGATIVE.value) {
-                    cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, overlapInfo.strand, cdsEnd)
-                    cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, overlapInfo.strand, cdsStart)
-                }
-                else {
-                    cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, overlapInfo.strand, cdsStart)
-                    cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, overlapInfo.strand, cdsEnd)
-                }
-
-                println ">>>> [ inferVariantEffectsNew ] CDS fmin: ${cdsFmin} CDS fmax: ${cdsFmax}"
-                println ">>>> [ inferVariantEffectsNew ] Final alteration offset: ${finalAlterationNode.cumulativeOffset} and ${finalAlterationNode.offset}"
-                println ">>>> [ inferVariantEffectsNew ] Alt type: ${finalAlterationNode.type}"
-                int adjustedCdsFmin, adjustedCdsFmax
-                // NOTE: variantAlterationNode.offset is different from finalAlterationNode.offset (AECs)
-                int offset
-                if (finalAlterationNode.alterationType == FeatureStringEnum.VARIANT.value) {
-                    offset = finalAlterationNode.alterationResidue.length()
-                }
-                else {
-                    offset = finalAlterationNode.offset
-                }
-
-                adjustedCdsFmin = cdsFmin
-                if (finalAlterationNode.type == Insertion.cvTerm) {
-                    if (overlapInfo.strand == Strand.NEGATIVE.value) {
-                        adjustedCdsFmax = (cdsFmax - offset) - finalAlterationNode.cumulativeOffset
-                    }
-                    else {
-                        adjustedCdsFmax = (cdsFmax - offset) - finalAlterationNode.cumulativeOffset
-                    }
-                }
-                else if (finalAlterationNode.type == Deletion.cvTerm) {
-                    if (overlapInfo.strand == Strand.NEGATIVE.value) {
-                        adjustedCdsFmax = cdsFmax + offset - finalAlterationNode.cumulativeOffset
-                    }
-                    else {
-                        adjustedCdsFmax = cdsFmax + offset- finalAlterationNode.cumulativeOffset
-                    }
-                }
-                else if (finalAlterationNode.type == Substitution.cvTerm || finalAlterationNode.type == SNV.cvTerm || finalAlterationNode.type == MNV.cvTerm) {
-                    // no adjustment required
-                    adjustedCdsFmax = cdsFmax - finalAlterationNode.cumulativeOffset
-                }
-
-
-
-                println ">>>> [ inferVariantEffectsNew ] Adjusted CDS fmin: ${adjustedCdsFmin} fmax: ${adjustedCdsFmax}"
-                cdsLocationInfoTrace.add(new LocationInfo(adjustedCdsFmin, adjustedCdsFmax))
-
-                if (variantAlterationNode.type == Insertion.cvTerm) {
-                    // Insertion variant
-                    println ">>>> [ inferVariantEffectsNew ][ INS ] SEQ: ${cdnaSeq}"
-                    println ">>>> [ inferVariantEffectsNew ][ INS ] is this right?: ${genomicSeq.substring(variantLocalFmin + 1, variantLocalFmin + 1 + variantAlterationNode.alterationResidue.length())}"
-
-                }
-                else if (variantAlterationNode.type == Deletion.cvTerm) {
-                    // Deletion variant
-                    println ">>>> [ inferVariantEffectsNew ][ DEL ] SEQ: ${cdnaSeq}"
-                    println ">>>> [ inferVariantEffectsNew ][ DEL ] is this right?: ${genomicSeq.substring(variantLocalFmin + 1, variantLocalFmax)}"
-                }
-                else if (variantAlterationNode.type == Substitution.cvTerm) {
-                    // Substitution variant
-                    println ">>>> [ inferVariantEffectsNew ][ SUB ] SEQ: ${cdnaSeq}"
-                    println ">>>> [ inferVariantEffectsNew ][ SUB ] is this right?: ${genomicSeq.substring(variantLocalFmin + 1, variantLocalFmax)}"
-
-                }
-
-                CDS cds = transcriptService.getCDS(feature)
-                JSONObject transcriptJsonObject = featureService.convertFeatureToJSON(feature)
-
-                if (adjustedCdsFmin != cds.fmin || adjustedCdsFmax != cds.fmax) {
-                    println ">>>> [ inferVariantEffectsNew ] CDS has been altered; creating a Protein Altering Variant Effect"
-                    // CDS has been altered
-                    VariantEffect variantEffect = new VariantEffect(
-                            feature: feature,
-                            variant: variant,
-                            alternateAllele: allele
-                    ).save()
-                    variantEffect.addToEffects(new ProteinAlteringVariant(VariantEffect: variantEffect))
-                    updateCdsInTranscriptJson(adjustedCdsFmin, adjustedCdsFmax, transcriptJsonObject)
-                    variantEffect.metadata = transcriptJsonObject.toString()
-
-                }
-                else {
-                    // creating a generic Variant Effect
-                    println ">>>> [ inferVariantEffectsNew ] creating a generic Variant Effect"
-                    VariantEffect variantEffect = new VariantEffect(
-                            feature: feature,
-                            variant: variant,
-                            alternateAllele: allele
-                    ).save()
-                    variantEffect.addToEffects(new SequenceVariant(VariantEffect: variantEffect).save())
-                    variantEffect.metadata = transcriptJsonObject.toString()
-                }
-
-
-            }
-
-
-        }
-
-    }
-
-
-    def inferVariantEffects(String variantUniqueName, def before, def after) {
-        // contains the accumulated info from just AECs
-        //AlterationNode beforeAlterationNode
-        //if (before.size() > 0) {
-        //    beforeAlterationNode = before.last()
-        //}
-
-        AlterationNode afterAlterationNode = after.last()
-        AlterationNode variantAlterationNode
-        def allUpstreamOffsets = []
-        def allDownstreamOffsets = []
-        boolean seenVariant = false
-        for (AlterationNode alterationNode : after) {
-            if (alterationNode.uniquename == variantUniqueName) {
-                variantAlterationNode = alterationNode
-                seenVariant = true
-            }
-            else {
-                if (seenVariant) {
-                    allDownstreamOffsets.add(alterationNode.offset)
-                }
-                else {
-                    allUpstreamOffsets.add(alterationNode.offset)
-                }
-            }
-        }
-
-        //println "Before AlterationNode: ${beforeAlterationNode.toString()}"
-        println "After AlterationNode: ${afterAlterationNode.toString()}"
-        println "Variant AlterationNode: ${variantAlterationNode.toString()}"
-
-        for(int i = 0; i < afterAlterationNode.overlapInfo.size(); i++) {
-            // transcript
-            //OverlapInfo beforeOverlapInfo = beforeAlterationNode.overlapInfo.get(i)
-            OverlapInfo afterOverlapInfo = afterAlterationNode.overlapInfo.get(i)
-            OverlapInfo variantOverlapInfo = variantAlterationNode.overlapInfo.get(i)
-
-            Feature feature = Feature.findByUniqueName(afterOverlapInfo.uniquename)
-            int variantLocalFmin = convertSourceCoordinateToLocalCoordinateNew(afterOverlapInfo.modLocation.fmin, afterOverlapInfo.modLocation.fmax, afterOverlapInfo.strand, variantAlterationNode.fmin)
-            int variantLocalFmax = convertSourceCoordinateToLocalCoordinateNew(afterOverlapInfo.modLocation.fmin, afterOverlapInfo.modLocation.fmax, afterOverlapInfo.strand, variantAlterationNode.fmax)
-            println ">>>> [ inferVariantEffects ] Variant local fmin: ${variantLocalFmin} local fmax: ${variantLocalFmax}"
-            //String beforeGenomicSeq = beforeOverlapInfo.modLocationSeq
-            String afterGenomicSeq = afterOverlapInfo.modLocationSeq
-            String variantGenomicSeq = variantOverlapInfo.modLocationSeq
-
-            String beforeCdnaSeq = ""
-            String variantCnaSeq = ""
-            boolean overlapsExon = false
-
-            def exonFminArray = []
-            def exonFmaxArray = []
-
-            if (variantOverlapInfo.isUpstream) {
-                // variant is upstream of transcript
-            }
-
-            if (variantOverlapInfo.isDownstream) {
-                // variant is downstream of transcript
-            }
-
             if (variantOverlapInfo.overlaps) {
                 // variant overlaps transcript
-                println ">>>> [ inferVariantEffects ] Variant OVERLAPS transcript"
+                println "[ inferVariantEffects ] Variant OVERLAPS transcript"
                 for (int j = 0; j < variantOverlapInfo.children.size(); j++) {
-                    // scan through the child OverlapInfo (exons)
-                    //OverlapInfo beforeChildOverlapInfo = beforeOverlapInfo.children.get(j)
+                    // scan through the child OverlapInfo (representing exons)
+                    OverlapInfo originalStateChildOverlapInfo
+                    if (originalStateAvailable) originalStateChildOverlapInfo = originalStateOverlapInfo.children.get(j)
+                    OverlapInfo finalStateChildOverlapInfo = finalStateOverlapInfo.children.get(j)
                     OverlapInfo variantChildOverlapInfo = variantOverlapInfo.children.get(j)
-                    println ">>>> [ inferVariantEffects ] ChildOverlapInfo for exon: ${variantChildOverlapInfo.uniquename}"
-                    //beforeCdnaSeq += beforeGenomicSeq.substring(beforeChildOverlapInfo.modLocalLocation.fmin, beforeChildOverlapInfo.modLocalLocation.fmax)
-                    variantCnaSeq += variantGenomicSeq.substring(variantChildOverlapInfo.modLocalLocation.fmin, variantChildOverlapInfo.modLocalLocation.fmax)
-                    exonFminArray.add(variantChildOverlapInfo.modLocation.fmin)
-                    exonFmaxArray.add(variantChildOverlapInfo.modLocation.fmax)
+                    println "[ inferVariantEffects ] ChildOverlapInfo for exon: ${variantChildOverlapInfo.uniquename}"
+                    if (originalStateAvailable) {
+                        originalStateCdnaSeq += originalStateGenomicSeq.substring(originalStateChildOverlapInfo.modLocalLocation.fmin, originalStateChildOverlapInfo.modLocalLocation.fmax)
+                    }
+                    else {
+                        originalStateCdnaSeq = sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_CDNA.value)
+                    }
+                    finalStateCdnaSeq += finalStateGenomicSeq.substring(finalStateChildOverlapInfo.modLocalLocation.fmin, finalStateChildOverlapInfo.modLocalLocation.fmax)
+                    finalStateExonFminArray.add(finalStateChildOverlapInfo.modLocation.fmin)
+                    finalStateExonFmaxArray.add(finalStateChildOverlapInfo.modLocation.fmax)
 
                     if (variantChildOverlapInfo.overlaps) {
                         // variant overlaps current exon
@@ -1784,219 +1599,284 @@ class VariantAnnotationService {
                 }
             }
 
+            println "[ inferVariantEffects ] original CDNA seq: ${originalStateCdnaSeq}"
+            println "[ inferVariantEffects ] final CDNA seq: ${finalStateCdnaSeq}"
+
             if (overlapsExon) {
                 SequenceAlteration variant = SequenceAlteration.findByUniqueName(variantAlterationNode.uniquename)
                 Allele allele = Allele.findByIdAndVariant(variantAlterationNode.alleleId, variant)
 
-                String finalVariantCdnaSeq
+                String finalCdnaSeq
                 if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                    finalVariantCdnaSeq = SequenceTranslationHandler.reverseComplementSequence(variantCnaSeq)
+                    finalCdnaSeq = SequenceTranslationHandler.reverseComplementSequence(finalStateCdnaSeq)
                 }
                 else {
-                    finalVariantCdnaSeq = variantCnaSeq
+                    finalCdnaSeq = finalStateCdnaSeq
                 }
 
-                if (variantAlterationNode.type == Insertion.cvTerm) {
-                    println ">>>> [ inferVariantEffects ][INS] Variant substitutes to ${variantAlterationNode.alterationResidue} at position ${variantLocalFmin} - ${variantLocalFmax}"
-                    println ">>>> [ inferVariantEffects ][INS] Alteration residues: ${variantAlterationNode.alterationResidue}"
-                    println ">>>> [ inferVariantEffects ][INS] Alteration offset: ${variantAlterationNode.offset}"
+                println "[ inferVariantEffects ] variantAlterationNode of type: ${variantAlterationNode.type}"
+                println "[ inferVariantEffects ] Variant substitutes to ${variantAlterationNode.alterationResidue} at position ${variantLocalFmin} - ${variantLocalFmax}"
+                println "[ inferVariantEffects ] Alteration residues: ${variantAlterationNode.alterationResidue}"
+                println "[ inferVariantEffects ] Alteration offset: ${variantAlterationNode.offset}"
 
-                    CDS originalCds = transcriptService.getCDS(feature)
-                    String originalCdsSeq = sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_CDS.value)
-                    int cdsStart, cdsEnd
-                    def results = featureService.calculateLongestORF(finalVariantCdnaSeq, configWrapperService.getTranslationTable(), false)
-                    def variantCdsSeq = finalVariantCdnaSeq.substring(cdsStart, cdsEnd)
-                    cdsStart = results.get(1)
-                    cdsEnd = results.get(2)
-                    println ">>>> [ inferVariantEffects ][INS] CDS start: ${cdsStart} end: ${cdsEnd}"
+                CDS originalCds = transcriptService.getCDS(feature)
+                boolean stopCodonReadThrough = cdsService.getStopCodonReadThrough(originalCds) ? true : false
+                int finalCdsStart, finalCdsEnd
 
-                    int upstreamOffset = 0
-                    if (allUpstreamOffsets) {
-                        upstreamOffset = allUpstreamOffsets.sum()
-                    }
+                def results = featureService.calculateLongestORF(finalCdnaSeq, configWrapperService.getTranslationTable(), stopCodonReadThrough)
+                finalCdsStart = results.get(1)
+                finalCdsEnd = results.get(2)
+                println "[ inferVariantEffects ] CDS start: ${finalCdsStart} end: ${finalCdsEnd}"
 
-                    println ">>>> [ inferVariantEffects ][INS][DEBUG] upstream offset: ${upstreamOffset}"
+                def finalCdsSeq = finalCdnaSeq.substring(finalCdsStart, finalCdsEnd)
 
-                    int cdsFmin, cdsFmax
-                    // first adjust local cds fmax
-                    if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd - upstreamOffset)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
-                    }
-                    else {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd - upstreamOffset)
-                    }
-
-                    println ">>>> [ inferVariantEffects ][INS] CDS fmin: ${cdsFmin} CDS fmax: ${cdsFmax}"
-                    println ">>>> [ inferVariantEffects ][INS] variant alteration cumulativeOffset: ${variantAlterationNode.cumulativeOffset} and offset: ${variantAlterationNode.offset}"
-
-                    int adjustedCdsFmin, adjustedCdsFmax
-                    adjustedCdsFmin = cdsFmin
-
-                    println ">>>> [ inferVariantEffects ][INS] All upstream offsets: ${allUpstreamOffsets}"
-
-
-                    int offset = variantAlterationNode.alterationResidue.length()
-
-                    // then adjust global cds fmax
-                    if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        adjustedCdsFmax = cdsFmax - offset
-                    }
-                    else {
-                        //adjustedCdsFmax = (cdsFmax - variantAlterationNode.cumulativeOffset) - offset
-                        adjustedCdsFmax = cdsFmax - offset
-                    }
-                    println ">>>> [ inferVariantEffects ][INS][1] Adjusted (for rendering) CDS fmin: ${adjustedCdsFmin} CDS fmax: ${adjustedCdsFmax}"
-                    cdsLocationInfoTrace.add(new LocationInfo(adjustedCdsFmin, adjustedCdsFmax))
-
-                    JSONObject transcriptJsonObject = featureService.convertFeatureToJSON(feature)
-
-                    if (originalCds.fmin != adjustedCdsFmin || originalCds.fmax != adjustedCdsFmax) {
-                        println ">>>> [ inferVariantEffects ][INS] CDS differs from original"
-                        // TODO
-                        compareCdsSequences(originalCdsSeq, variantCdsSeq)
-                        VariantEffect variantEffect = new VariantEffect(
-                                feature: feature,
-                                variant: variant,
-                                alternateAllele: allele
-                        ).save()
-                        variantEffect.addToEffects(new ProteinAlteringVariant(VariantEffect: variantEffect))
-                        updateCdsInTranscriptJson(adjustedCdsFmin, adjustedCdsFmax, transcriptJsonObject)
-                        variantEffect.metadata = transcriptJsonObject.toString()
-                    }
-                    else {
-                        // creating a generic Variant Effect
-                        println ">>>> [ inferVariantEffectsNew ] creating a generic Variant Effect"
-                        VariantEffect variantEffect = new VariantEffect(
-                                feature: feature,
-                                variant: variant,
-                                alternateAllele: allele
-                        ).save()
-                        variantEffect.addToEffects(new SequenceVariant(VariantEffect: variantEffect).save())
-                        variantEffect.metadata = transcriptJsonObject.toString()
-                    }
-
+                int finalCdsFmin, finalCdsFmax
+                if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
+                    finalCdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(finalStateExonFminArray, finalStateExonFmaxArray, variantOverlapInfo.strand, finalCdsEnd)
+                    finalCdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(finalStateExonFminArray, finalStateExonFmaxArray, variantOverlapInfo.strand, finalCdsStart)
                 }
-                else if (variantAlterationNode.type == Deletion.cvTerm) {
-                    println ">>>> [ inferVariantEffects ][DEL] Variant substitutes to ${variantAlterationNode.alterationResidue} at position ${variantLocalFmin} - ${variantLocalFmax}"
-                    println ">>>> [ inferVariantEffects ][DEL] Alteration residues: ${variantAlterationNode.alterationResidue}"
-                    println ">>>> [ inferVariantEffects ][DEL] Alteration offset: ${variantAlterationNode.offset}"
-
-                    CDS originalCds = transcriptService.getCDS(feature)
-                    String originalCdsSeq = sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_CDS.value)
-                    int cdsStart, cdsEnd
-                    def results = featureService.calculateLongestORF(finalVariantCdnaSeq, configWrapperService.getTranslationTable(), false)
-                    def variantCdsSeq = finalVariantCdnaSeq.substring(cdsStart, cdsEnd)
-                    cdsStart = results.get(1)
-                    cdsEnd = results.get(2)
-                    println ">>>> [ inferVariantEffects ][DEL] CDS start: ${cdsStart} end: ${cdsEnd}"
-
-                    int cdsFmin, cdsFmax
-                    if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
-                    }
-                    else {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd)
-                    }
-
-                    println ">>>> [ inferVariantEffects ][DEL] CDS fmin: ${cdsFmin} CDS fmax: ${cdsFmax}"
-                    println ">>>> [ inferVariantEffects ][DEL] variant alteration cumulativeOffset: ${variantAlterationNode.cumulativeOffset} and offset: ${variantAlterationNode.offset}"
-
-                    int adjustedCdsFmin, adjustedCdsFmax
-                    adjustedCdsFmin = cdsFmin
-
-                    println ">>>> [ inferVariantEffects ][DEL] All upstream offsets: ${allUpstreamOffsets}"
-
-
-                    int offset = variantAlterationNode.alterationResidue.length()
-
-                    if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        adjustedCdsFmax = cdsFmax + offset
-                    }
-                    else {
-                        adjustedCdsFmax = (cdsFmax - variantAlterationNode.cumulativeOffset) + offset
-                    }
-                    println ">>>> [ inferVariantEffects ][DEL][1] Adjusted (for rendering) CDS fmin: ${adjustedCdsFmin} CDS fmax: ${adjustedCdsFmax}"
-                    cdsLocationInfoTrace.add(new LocationInfo(adjustedCdsFmin, adjustedCdsFmax))
-
+                else {
+                    finalCdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(finalStateExonFminArray, finalStateExonFmaxArray, variantOverlapInfo.strand, finalCdsStart)
+                    finalCdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(finalStateExonFminArray, finalStateExonFmaxArray, variantOverlapInfo.strand, finalCdsEnd)
                 }
-                else if (variantAlterationNode.type in [Substitution.cvTerm, SNV.cvTerm, MNV.cvTerm]) {
-                    println ">>>> [ inferVariantEffects ][INS] Variant substitutes to ${variantAlterationNode.alterationResidue} at position ${variantLocalFmin} - ${variantLocalFmax}"
-                    println ">>>> [ inferVariantEffects ][INS] Alteration residues: ${variantAlterationNode.alterationResidue}"
-                    println ">>>> [ inferVariantEffects ][INS] Alteration offset: ${variantAlterationNode.offset}"
 
-                    CDS originalCds = transcriptService.getCDS(feature)
-                    String originalCdsSeq = sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_CDS.value)
-                    int cdsStart, cdsEnd
-                    def results = featureService.calculateLongestORF(finalVariantCdnaSeq, configWrapperService.getTranslationTable(), false)
-                    def variantCdsSeq = finalVariantCdnaSeq.substring(cdsStart, cdsEnd)
-                    cdsStart = results.get(1)
-                    cdsEnd = results.get(2)
-                    println ">>>> [ inferVariantEffects ][SUB] CDS start: ${cdsStart} end: ${cdsEnd}"
+                println "[ inferVariantEffects ] CDS fmin: ${finalCdsFmin} CDS fmax: ${finalCdsFmax}"
+                println "[ inferVariantEffects ] variant alteration cumulativeOffset: ${variantAlterationNode.cumulativeOffset} and offset: ${variantAlterationNode.offset}"
 
-                    int cdsFmin, cdsFmax
-                    if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
+                // for visualization
+                int adjustedFinalCdsFmin, adjustedFinalCdsFmax
+                (adjustedFinalCdsFmin, adjustedFinalCdsFmax) = applyOffsetForVisualRepresentation(finalState, finalCdsFmin, finalCdsFmax, finalStateOverlapInfo.strand)
+                println "[ inferVariantEffects ][INS] Adjusted CDS fmin: ${adjustedFinalCdsFmin} fmax: ${adjustedFinalCdsFmax}"
+                //
+                cdsLocationInfoTrace.add(new LocationInfo(adjustedFinalCdsFmin, adjustedFinalCdsFmax))
+
+                JSONObject transcriptJsonObject = featureService.convertFeatureToJSON(feature)
+
+                if (originalCds.fmin != adjustedFinalCdsFmin || originalCds.fmax != adjustedFinalCdsFmax) {
+                    // TODO
+                    compareCdsSequences(sequenceService.getSequenceForFeature(feature, FeatureStringEnum.TYPE_CDS.value), finalCdsSeq)
+                    VariantEffect variantEffect = new VariantEffect(
+                            feature: feature,
+                            variant: variant,
+                            alternateAllele: allele
+                    ).save()
+                    variantEffect.addToEffects(new ProteinAlteringVariant(VariantEffect: variantEffect))
+                    updateCdsInTranscriptJson(adjustedFinalCdsFmin, adjustedFinalCdsFmax, transcriptJsonObject)
+                    variantEffect.metadata = transcriptJsonObject.toString()
+                }
+                else {
+                    // creating a generic Variant Effect
+                    println "[ inferVariantEffects ] creating a generic Variant Effect"
+                    VariantEffect variantEffect = new VariantEffect(
+                            feature: feature,
+                            variant: variant,
+                            alternateAllele: allele
+                    ).save()
+                    variantEffect.addToEffects(new SequenceVariant(VariantEffect: variantEffect).save())
+                    variantEffect.metadata = transcriptJsonObject.toString()
+                }
+            }
+        }
+
+
+    }
+
+    /**
+     * Experimental but works and can be extended further for additional edge cases
+     */
+    def applyOffsetForVisualRepresentation(def state, int cdsFmin, int cdsFmax, int strand) {
+
+        int previousOffset = 0
+        int adjustedFinalCdsFmin = cdsFmin
+        int adjustedFinalCdsFmax = cdsFmax
+
+        for (AlterationNode alterationNode : state) {
+            int alterationFmin = alterationNode.fmin
+            int alterationFmax = alterationNode.fmax
+
+            int offset = alterationNode.offset
+            if (alterationNode.alterationType == FeatureStringEnum.VARIANT.value) {
+                if (alterationNode.type == Insertion.cvTerm) {
+                    alterationFmin += 1
+                    alterationFmax += 1
+                }
+                else if (alterationNode.type == Deletion.cvTerm) {
+                    alterationFmin += 1
+                    offset = alterationFmax - alterationFmin
+                }
+            }
+            else {
+                if (alterationNode.type == Deletion.cvTerm) {
+                    offset = alterationFmax - alterationFmin
+                }
+            }
+
+            println "[ applyOffsetForVisualRepresentation ] ALTERATION FMIN: ${alterationFmin} FMAX: ${alterationFmax} OFFSET: ${offset}"
+            println "[ applyOffsetForVisualRepresentation ]  CDS FMIN: ${adjustedFinalCdsFmin} FMAX: ${adjustedFinalCdsFmax}"
+            if (strand == Strand.POSITIVE.value) {
+                if (alterationNode.type == Insertion.cvTerm) {
+                    alterationFmin = alterationFmin - previousOffset
+                    alterationFmax = alterationFmax - previousOffset
+
+                    if (adjustedFinalCdsFmin == alterationFmin) {
+                        // cdsFmin is right at the insertion start
+                        // Ex: ATG insertion and CDS fmin starts from this codon
+                        // do nothing
+                        println "[ applyOffsetForVisualRepresentation ][+][INS][A1] no need to adjust CDS fmin"
                     }
-                    else {
-                        cdsFmin = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsStart)
-                        cdsFmax = convertLocalCoordinateToSourceCoordinateForTranscript(exonFminArray, exonFmaxArray, variantOverlapInfo.strand, cdsEnd)
+                    else if (adjustedFinalCdsFmin > alterationFmin && adjustedFinalCdsFmin <= alterationFmax + offset) {
+                        // cdsFmin is between insertion start and end
+                        // Ex: AATG insertion and CDS fmin starts from the 2nd base of the insertion
+                        println "[ applyOffsetForVisualRepresentation ][+][INS][A2] adjusting CDS fmin"
+                        adjustedFinalCdsFmin = alterationFmin
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmax + offset) {
+                        // cdsFmin starts after the insertion
+                        println "[ applyOffsetForVisualRepresentation ][+][INS][A3] adjusting CDS fmin"
+                        adjustedFinalCdsFmin += offset
+
                     }
 
-                    println ">>>> [ inferVariantEffects ][SUB] CDS fmin: ${cdsFmin} CDS fmax: ${cdsFmax}"
-                    println ">>>> [ inferVariantEffects ][SUB] variant alteration cumulativeOffset: ${variantAlterationNode.cumulativeOffset} and offset: ${variantAlterationNode.offset}"
-
-                    int adjustedCdsFmin, adjustedCdsFmax
-                    adjustedCdsFmin = cdsFmin
-
-                    println ">>>> [ inferVariantEffects ][SUB] All upstream offsets: ${allUpstreamOffsets}"
-
-
-                    if (variantOverlapInfo.strand == Strand.NEGATIVE.value) {
-                        adjustedCdsFmax = cdsFmax
+                    if (adjustedFinalCdsFmax == alterationFmin) {
+                        // cdsFmax is right at the insertion start
+                        // do nothing
+                        println "[+][INS][B1] no need to adjust CDS fmax"
                     }
-                    else {
-                        adjustedCdsFmax = cdsFmax - variantAlterationNode.cumulativeOffset
+                    else if (adjustedFinalCdsFmax > alterationFmin && adjustedFinalCdsFmax <= alterationFmax + offset) {
+                        // cdsFmax is between insertion start and end
+                        println "[ applyOffsetForVisualRepresentation ][+][INS][B2] adjusting CDS fmax"
+                        adjustedFinalCdsFmax = alterationFmax
+                    }
+                    else if (adjustedFinalCdsFmax > alterationFmax + offset) {
+                        // cdsFmax starts after the insertion
+                        println "[ applyOffsetForVisualRepresentation ][+][INS][B3] adjusting CDS fmax"
+                        adjustedFinalCdsFmax -= offset
+
+                    }
+                }
+                else if (alterationNode.type == Deletion.cvTerm) {
+                    alterationFmin = alterationFmin - previousOffset
+                    alterationFmax = alterationFmax - previousOffset
+
+                    if (adjustedFinalCdsFmin == alterationFmin) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][+][DEL][A1] no need to adjust CDS fmin"
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmin && adjustedFinalCdsFmin <= alterationFmax - offset) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][+][DEL][A2] no need to adjust CDS fmin"
+                        adjustedFinalCdsFmin = alterationFmin
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmax + offset) {
+                        // cdsFmin starts after the deletion
+                        println "[ applyOffsetForVisualRepresentation ][+][DEL][A3] adjusting CDS fmin"
+                        adjustedFinalCdsFmin += offset
                     }
 
-                    println ">>>> [ inferVariantEffects ][SUB][1] Adjusted (for rendering) CDS fmin: ${adjustedCdsFmin} CDS fmax: ${adjustedCdsFmax}"
-                    cdsLocationInfoTrace.add(new LocationInfo(adjustedCdsFmin, adjustedCdsFmax))
-
-                    JSONObject transcriptJsonObject = featureService.convertFeatureToJSON(feature)
-
-                    if (originalCds.fmin != adjustedCdsFmin || originalCds.fmax != adjustedCdsFmax) {
-                        println ">>>> [ inferVariantEffects ][SUB] CDS differs from original"
-                        // TODO
-                        compareCdsSequences(originalCdsSeq, variantCdsSeq)
-                        VariantEffect variantEffect = new VariantEffect(
-                                feature: feature,
-                                variant: variant,
-                                alternateAllele: allele
-                        ).save()
-                        variantEffect.addToEffects(new ProteinAlteringVariant(VariantEffect: variantEffect))
-                        updateCdsInTranscriptJson(adjustedCdsFmin, adjustedCdsFmax, transcriptJsonObject)
-                        variantEffect.metadata = transcriptJsonObject.toString()
+                    if (adjustedFinalCdsFmax == alterationFmin) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][+][DEL][B1] no need to adjust CDS fmax"
                     }
-                    else {
-                        // creating a generic Variant Effect
-                        println ">>>> [ inferVariantEffectsNew ] creating a generic Variant Effect"
-                        VariantEffect variantEffect = new VariantEffect(
-                                feature: feature,
-                                variant: variant,
-                                alternateAllele: allele
-                        ).save()
-                        variantEffect.addToEffects(new SequenceVariant(VariantEffect: variantEffect).save())
-                        variantEffect.metadata = transcriptJsonObject.toString()
+                    else if (adjustedFinalCdsFmax > alterationFmin && adjustedFinalCdsFmax <= alterationFmax + offset) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][+][DEL][B2] no need to adjust CDS fmax"
+                        adjustedFinalCdsFmax = alterationFmax + offset
+                    }
+                    else if (adjustedFinalCdsFmax > alterationFmax + offset) {
+                        // cdsFmax starts after the deletion
+                        println "[ applyOffsetForVisualRepresentation ][+][DEL][B3] adjusting CDS fmax"
+                        adjustedFinalCdsFmax += offset
+                    }
+                }
+                else if (alterationNode.type == Substitution.cvTerm) {
+                    // no need for adjusting
+                }
+            }
+            else {
+                // strand is negative
+                if (alterationNode.type == Insertion.cvTerm) {
+                    alterationFmin = alterationFmin - previousOffset
+                    alterationFmax = alterationFmax - previousOffset
+                    if (adjustedFinalCdsFmin == alterationFmin) {
+                        // cdsFmin is right at the insertion start
+                        // Ex: ATG insertion and CDS fmin starts from this codon
+                        // do nothing
+                        println "[ applyOffsetForVisualRepresentation ][-][INS][A1] no need to adjust CDS fmin"
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmin && adjustedFinalCdsFmin <= alterationFmax + offset) {
+                        // cdsFmin is between insertion start and end
+                        // Ex: AATG insertion and CDS fmin starts from the 2nd base of the insertion
+                        println "[ applyOffsetForVisualRepresentation ][-][INS][A2] adjusting CDS fmin"
+                        adjustedFinalCdsFmin = alterationFmin
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmax + offset) {
+                        // cdsFmin starts after the insertion
+                        println "[ applyOffsetForVisualRepresentation ][-][INS][A3] adjusting CDS fmin"
+                        adjustedFinalCdsFmin -= offset
+
+                    }
+
+                    if (adjustedFinalCdsFmax == alterationFmin) {
+                        // cdsFmax is right at the insertion start
+                        // do nothing
+                        println "[ applyOffsetForVisualRepresentation ][-][INS][B1] no need to adjust CDS fmax"
+                    }
+                    else if (adjustedFinalCdsFmax > alterationFmin && adjustedFinalCdsFmax <= alterationFmax + offset) {
+                        // cdsFmax is between insertion start and end
+                        println "[ applyOffsetForVisualRepresentation ][-][INS][B2] adjusting CDS fmax"
+                        adjustedFinalCdsFmax = alterationFmax + offset
+                    }
+                    else if (adjustedFinalCdsFmax > alterationFmax + offset) {
+                        // cdsFmax starts after the insertion
+                        println "[ applyOffsetForVisualRepresentation ][-][INS][B3] adjusting CDS fmax"
+                        adjustedFinalCdsFmax -= offset
+
+                    }
+                }
+                else if (alterationNode.type == Deletion.cvTerm) {
+                    alterationFmin = alterationFmin - previousOffset
+                    alterationFmax = alterationFmax - previousOffset
+                    if (adjustedFinalCdsFmin == alterationFmin) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][-][DEL][A1] no need to adjust CDS fmin"
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmin && adjustedFinalCdsFmin <= alterationFmax - offset) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][-][DEL][A2] no need to adjust CDS fmin"
+                        adjustedFinalCdsFmin = alterationFmin
+                    }
+                    else if (adjustedFinalCdsFmin > alterationFmax + offset) {
+                        // cdsFmin starts after the deletion
+                        println "[ applyOffsetForVisualRepresentation ][-][DEL][A3] adjusting CDS fmin"
+                        adjustedFinalCdsFmin += offset
+                    }
+
+                    if (adjustedFinalCdsFmax == alterationFmin) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][-][DEL][B1] no need to adjust CDS fmax"
+                    }
+                    else if (adjustedFinalCdsFmax > alterationFmin && adjustedFinalCdsFmax <= alterationFmax - offset) {
+                        // will this ever happen?
+                        println "[ applyOffsetForVisualRepresentation ][-][DEL][B2] no need to adjust CDS fmax"
+                        adjustedFinalCdsFmax = alterationFmax
+                    }
+                    else if (adjustedFinalCdsFmax > alterationFmax + offset) {
+                        // cdsFmax starts after the deletion
+                        println "[ applyOffsetForVisualRepresentation ][-][DEL][B3] adjusting CDS fmax"
+                        adjustedFinalCdsFmax += offset
                     }
                 }
             }
 
-
+            if (alterationNode.type == Insertion.cvTerm) {
+                previousOffset += offset
+            }
+            else if (alterationNode.type == Deletion.cvTerm) {
+                previousOffset -= offset
+            }
+            println "[ applyOffsetForVisualRepresentation ] ADJUSTED CDS FMIN: ${adjustedFinalCdsFmin} FMAX: ${adjustedFinalCdsFmax}"
         }
+        return [adjustedFinalCdsFmin, adjustedFinalCdsFmax]
     }
 
     def compareCdsSequences(String originalCds, String variantCds) {
