@@ -88,6 +88,31 @@
          "label" : "Annotations",
          "type" : "WebApollo/View/Track/AnnotTrack",
          "subfeatures" : 1
+      },
+      {
+        "key" : "Variant Effects",
+        "baseUrl" : "../../variantEffectTrack",
+        "storeClass" : "JBrowse/Store/SeqFeature/REST",
+        "noCache" : true,
+        "label" : "variant_effects_track",
+        "type" : "JBrowse/View/Track/HTMLFeatures",
+        "style" : {
+          "subfeatureClasses": {
+            "UTR": "webapollo-UTR",
+            "CDS": "webapollo-CDS",
+            "exon": "container-100pct",
+            "intron": null,
+            "wholeCDS": null,
+            "start_codon": null,
+            "stop_codon": null,
+            "match_part": "darkblue-80pct",
+            "insertion": "insertion_variant",
+            "deletion": "deletion_variant",
+            "substitution": "substitution_variant",
+            "SNV": "substitution_variant",
+            "MNV": "substitution_variant"
+          }
+        }
       }
     ],
    "favicon" : "./plugins/WebApollo/img/webapollo_favicon.ico",
