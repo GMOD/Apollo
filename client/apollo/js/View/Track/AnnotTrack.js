@@ -7002,6 +7002,8 @@ define([
             },
 
             updateMenu: function () {
+                this.updateGetSequenceMenuItem();
+                this.updateGetGff3MenuItem();
                 this.updateDeleteMenuItem();
                 this.updateChangeAnnotationTypeMenuItem();
                 this.updateSetTranslationStartMenuItem();
@@ -7087,6 +7089,30 @@ define([
                 }
             },
 
+            updateGetSequenceMenuItem: function() {
+                var menuItem = this.getMenuItem("get_sequence");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
+                }
+            },
+
+            updateGetGff3MenuItem: function() {
+                var menuItem = this.getMenuItem("get_gff3");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
+                }
+            },
+
             updateDeleteMenuItem: function () {
                 var menuItem = this.getMenuItem("delete");
                 var selected = this.selectionManager.getSelection();
@@ -7102,8 +7128,8 @@ define([
             updateChangeAnnotationTypeMenuItem: function () {
                 var menuItem = this.getMenuItem("change_annotation_type");
                 var selected = this.selectionManager.getSelection();
-                var currentType = selected[0].feature.afeature.type.name.toUpperCase();
-                if (JSONUtils.variantTypes.indexOf(currentType) != -1) {
+                var currentType = selected[0].feature.get('type').toUpperCase();
+                if (JSONUtils.variantTypes.includes(currentType)) {
                     menuItem.set("disabled", true);
                 }
                 else {
