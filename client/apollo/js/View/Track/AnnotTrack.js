@@ -1200,17 +1200,39 @@ define([
 
                 for (var i in selection_records) {
                     var dragfeat = selection_records[i].feature;
-                    var afeat = JSONUtils.createApolloVariant(dragfeat, true);
-                    featuresToAdd.push(afeat);
-                }
+                    target_track.browser.getStore('refseqs', dojo.hitch(this, function(refSeqStore) {
+                        if (refSeqStore) {
+                            refSeqStore.getReferenceSequence(
+                                { ref: this.refSeq.name, start: dragfeat.get('start'), end: dragfeat.get('end')},
+                                // feature callback
+                                function (seq) {
+                                    if (seq != dragfeat.get('reference_allele')) {
+                                        var variantPosition = dragfeat.get('start') + 1;
+                                        var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position."
+                                        var confirmDialog = new ConfirmDialog({
+                                            title: 'Cannot Add Variant',
+                                            message: message,
+                                            confirmLabel: 'OK',
+                                            denyLabel: 'Cancel'
+                                        }).show();
+                                    }
+                                    else {
+                                        var afeat = JSONUtils.createApolloVariant(dragfeat, true);
+                                        featuresToAdd.push(afeat);
 
-                var postData = {
-                    track: target_track.getUniqueTrackName(),
-                    features: featuresToAdd,
-                    operation: "add_variant"
-                };
-                console.log("PostData: ", postData);
-                target_track.executeUpdateOperation(JSON.stringify(postData));
+                                        var postData = {
+                                            track: target_track.getUniqueTrackName(),
+                                            features: featuresToAdd,
+                                            operation: "add_variant"
+                                        };
+                                        console.log("PostData: ", postData);
+                                        target_track.executeUpdateOperation(JSON.stringify(postData));
+                                    }
+                                }
+                            );
+                        }
+                    }));
+                }
             },
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
