@@ -17,12 +17,13 @@ class VariantService {
     def nameService
 
     def createVariant(JSONObject jsonFeature, Sequence sequence, Boolean suppressHistory) {
-        SequenceAlteration variant = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
-        variant.alterationType = FeatureStringEnum.VARIANT.value
-
-        if (variant.referenceBases == null || variant.alternateAlleles == null) {
+        SequenceAlteration createdVariant
+        if (! (jsonFeature.has(FeatureStringEnum.REFERENCE_BASES.value) && jsonFeature.has(FeatureStringEnum.ALTERNATE_ALLELES.value))) {
             // This scenario would happen only while creating a de-novo genomic variant
             log.info "A de-novo variant"
+            SequenceAlteration variant = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            variant.alterationType = FeatureStringEnum.VARIANT.value
+
             if (variant instanceof Deletion) {
                 log.info "variant is instanceof Deletion"
                 String alterationResidue = sequenceService.getResidueFromFeatureLocation(variant.featureLocation)
@@ -78,10 +79,22 @@ class VariantService {
             // Assigning the de-novo variant to the 'reference' individual
             Individual referenceIndividual = Individual.findByName("reference")
             variant.individual = referenceIndividual
+            createdVariant = variant
         }
         else {
             // this scenario would happen when a variant is created from an evidence track such as a VCF track
             log.info "A variant from evidence track"
+            if (! (jsonFeature.has(FeatureStringEnum.ALTERNATE_ALLELES.value) &&
+                    jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value).size() > 0)) {
+                throw new AnnotationException("Variant has no alternate allele(s)");
+            }
+            if (! validateRefBases(jsonFeature, sequence)) {
+                throw new AnnotationException("REF allele from Variant at position: ${jsonFeature.get(FeatureStringEnum.LOCATION.value).fmin} does not match the genomic residues at the same position.")
+            }
+
+            SequenceAlteration variant = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            variant.alterationType = FeatureStringEnum.VARIANT.value
+
             if (variant instanceof Deletion) {
                 log.info "variant is instanceof Deletion"
                 for (Allele allele : variant.alternateAlleles) {
@@ -109,23 +122,24 @@ class VariantService {
             else {
                 log.error "Unexpected type of variant"
             }
+            createdVariant = variant
         }
 
-        variant.name = nameService.makeUniqueVariantName(variant)
+        createdVariant.name = nameService.makeUniqueVariantName(createdVariant)
 
         User owner = permissionService.getCurrentUser(jsonFeature)
         if (owner) {
-            featureService.setOwner(variant, owner)
+            featureService.setOwner(createdVariant, owner)
         }
         else {
             log.error "Unable to find valid user to set on variant: " + jsonFeature.toString()
         }
 
-        featureService.updateNewGsolFeatureAttributes(variant, sequence)
-        variant.save(flush: true)
+        featureService.updateNewGsolFeatureAttributes(createdVariant, sequence)
+        createdVariant.save(flush: true)
 
         // TODO: parse metadata to handle individual
-        return variant
+        return createdVariant
     }
 
     def addAlternateAlleles(JSONObject jsonFeature) {
@@ -472,5 +486,13 @@ class VariantService {
             log.error "More than one allele: ${alleleBase} for variant: ${variantUniqueName}"
         }
         return allele
+    }
+
+    def validateRefBases(JSONObject feature, Sequence sequence) {
+        String refString = feature.get(FeatureStringEnum.REFERENCE_BASES.value)
+        int fmin = feature.get(FeatureStringEnum.LOCATION.value).fmin
+        int fmax = feature.get(FeatureStringEnum.LOCATION.value).fmax
+        String genomicResidues = sequenceService.getRawResiduesFromSequence(sequence, fmin, fmax)
+        return (refString == genomicResidues)
     }
 }
