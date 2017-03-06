@@ -848,12 +848,15 @@ define([
             /* feature_records ==> { feature: the_feature, track: track_feature_is_from } */
             addToAnnotation: function (annot, feature_records) {
                 var target_track = this;
-
                 var subfeats = [];
                 var allSameStrand = 1;
                 for (var i = 0; i < feature_records.length; ++i) {
                     var feature_record = feature_records[i];
                     var original_feat = feature_record.feature;
+                    var type = original_feat.get('type');
+                    if (JSONUtils.variantTypes.includes(type.toUpperCase())) {
+                        return;
+                    }
                     var feat = JSONUtils.makeSimpleFeature(original_feat);
                     var isSubfeature = !!feat.parent();  // !! is
                     // shorthand for
