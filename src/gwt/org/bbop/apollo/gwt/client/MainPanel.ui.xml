@@ -93,7 +93,9 @@
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
-            <gwt:NamedFrame ui:field="frame" width="100%" height="100%" visible="true" name="genomeViewer"/>
+            <!--<gwt:AbsolutePanel ui:field="genomeViewContainer" width="100%"-->
+            <!--<gwt:NamedFrame ui:field="genomeViewContainer" width="100%" height="100%" visible="true" name="genomeViewer"/>-->
+            <gwt:AbsolutePanel ui:field="genomeViewContainer" width="100%" height="100%" visible="true"/>
         </gwt:center>
         <gwt:east size="600">
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
