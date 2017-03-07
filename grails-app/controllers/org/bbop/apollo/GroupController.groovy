@@ -54,7 +54,7 @@ class GroupController {
         try {
             log.debug "loadGroups"
             JSONObject dataObject = permissionService.handleInput(request,params)
-            if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -147,7 +147,7 @@ class GroupController {
     @Transactional
     def createGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -174,7 +174,7 @@ class GroupController {
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -219,7 +219,7 @@ class GroupController {
     def updateGroup() {
         log.info "Updating group"
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -332,7 +332,7 @@ class GroupController {
     @Transactional
     def updateMembership() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
