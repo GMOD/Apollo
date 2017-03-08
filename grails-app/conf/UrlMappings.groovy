@@ -31,6 +31,8 @@ class UrlMappings {
 //            permanent = true
         }
 
+        "/jbrowse/test.html${path}"(controller: "jbrowse", action: "testview",params:params)
+
         "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")

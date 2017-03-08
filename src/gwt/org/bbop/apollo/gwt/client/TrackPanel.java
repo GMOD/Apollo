@@ -36,8 +36,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
 
-import static org.bbop.apollo.gwt.client.MainPanel.frame;
-
 
 /**
  * Created by ndunn on 12/16/14.
