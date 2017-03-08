@@ -5,20 +5,20 @@
     <title>JBrowse</title>
     <link rel="stylesheet" type="text/css" href="css/genome.css">
 
-    <asset:javascript src="spring-websocket"/>
-    <script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>
-    <script>
+    %{--<asset:javascript src="spring-websocket"/>--}%
+    %{--<script type="text/javascript" language="javascript" src="annotator.nocache.js"></script>--}%
+    %{--<script>--}%
         %{--rootUrl: '${applicationContext.servletContext.getContextPath()}'--}%
-        var Options = {
-            showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'
-            , userId: '${userKey}'
-            , clientToken: '${clientToken}'
-//            ,top: "10"
-//            ,topUnit: "PCT" // PX, EM, PC, PT, IN, CM
-//            ,height: "80"
-//            ,heightUnit: "PCT" // PX, EM, PC, PT, IN, CM
-        };
-    </script>
+        %{--var Options = {--}%
+            %{--showFrame: '${params.showFrame  && params.showFrame == 'true' ? 'true' : 'false' }'--}%
+            %{--, userId: '${userKey}'--}%
+            %{--, clientToken: '${clientToken}'--}%
+%{--//            ,top: "10"--}%
+%{--//            ,topUnit: "PCT" // PX, EM, PC, PT, IN, CM--}%
+%{--//            ,height: "80"--}%
+%{--//            ,heightUnit: "PCT" // PX, EM, PC, PT, IN, CM--}%
+        %{--};--}%
+%{--//    </script>--}%
     <script type="text/javascript">
         // jshint unused: false
         var dojoConfig = {
@@ -125,7 +125,7 @@
 </head>
 
 <body>
-<div id="ApolloPanel" style="width: 50%;height: 100%"></div>
+%{--<div id="ApolloPanel" style="width: 50%;height: 100%"></div>--}%
 <div class="jbrowse jbrowsecontainer" id="GenomeBrowser" style="height: 100%; width: 50%; padding: 0; border: 0;"></div>
 <div style="display: none">JBrowseDefaultMainPage</div>
 </body>

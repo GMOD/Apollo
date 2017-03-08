@@ -486,6 +486,7 @@ class JbrowseController {
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
 
+    def testview(){}
 
     def passthrough() {
         println params

@@ -167,12 +167,12 @@ public class MainPanel extends Composite {
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
-        DivElement genomeViewDiv = DivElement.as(DOM.createDiv());
-        genomeViewDiv.setId("GenomeBrowser");
-        genomeViewDiv.addClassName("jbrowse");
-        genomeViewDiv.addClassName("jbrowsecontainer");
+//        DivElement genomeViewDiv = DivElement.as(DOM.createDiv());
+//        genomeViewDiv.setId("GenomeBrowser");
+//        genomeViewDiv.addClassName("jbrowse");
+//        genomeViewDiv.addClassName("jbrowsecontainer");
 //        <div class="jbrowse jbrowsecontainer" id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
-        genomeViewContainer.getElement().appendChild(genomeViewDiv);
+//        genomeViewContainer.getElement().appendChild(genomeViewDiv);
 
         trackListToggle.setWidth(isCurrentUserAdmin()? "20px":"25px");
 
