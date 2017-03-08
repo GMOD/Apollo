@@ -2,7 +2,9 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -165,10 +167,4 @@ public class Annotator implements EntryPoint {
 
     }
 
-    private native void getInnerDiv()/*-{
-        var iframe = $doc.getElementById("genomeViewer");
-        var innerDoc = iframe.contentDocument ; // .contentWindow.document
-        // this is the JBrowse div
-        var genomeBrowser = innerDoc.getElementById("GenomeBrowser");
-    }-*/;
 }

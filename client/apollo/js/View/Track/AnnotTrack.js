@@ -319,6 +319,12 @@ define([
                     }));
 
 
+                    var navigateToLocation = function (urlObject) {
+                        browser.callLocation(urlObject.url);
+                    };
+
+                    window.parent.registerFunction("navigateToLocation",navigateToLocation);
+
                     var sendTracks = function (trackList, visibleTrackNames, showLabels) {
                         var filteredTrackList = [];
                         for (var trackConfigIndex in trackList) {

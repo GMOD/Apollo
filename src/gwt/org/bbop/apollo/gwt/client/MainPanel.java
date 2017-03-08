@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -10,6 +11,7 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -140,6 +142,7 @@ public class MainPanel extends Composite {
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
+    private static JavaScriptObject browserObject ;
 
     public static MainPanel getInstance() {
         if (instance == null) {
@@ -299,7 +302,7 @@ public class MainPanel extends Composite {
 
                 if (updateViewer) {
 //                    updateGenomicViewer();
-                    updateGenomicViewerForLocation(currentSequence.getName(),currentStartBp,currentEndBp,true);
+                    updateGenomicViewerForLocation(currentSequence.getName(),currentStartBp,currentEndBp,true,false);
                 }
                 if (blocking) {
                     loadingDialog.hide();
@@ -442,7 +445,7 @@ public class MainPanel extends Composite {
     }
 
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false);
+        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false,false);
     }
 
     /**
@@ -450,7 +453,7 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload) {
+    public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload, boolean forceUrl) {
 
         if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             int oldLength = maxRegion - minRegion;
@@ -511,7 +514,14 @@ public class MainPanel extends Composite {
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
 
-        frame.setUrl(trackListString);
+        if(!forceUrl && getInnerDiv()!=null){
+            JSONObject commandObject = new JSONObject();
+            commandObject.put("url", new JSONString(selectedSequence+":"+currentStartBp+".."+currentEndBp));
+            MainPanel.executeFunction("navigateToLocation", commandObject.getJavaScriptObject());
+        }
+        else{
+            frame.setUrl(trackListString);
+        }
 
         if(Window.Location.getParameter("tracks")!=null){
             String newURL = Window.Location.createUrlBuilder().removeParameter("tracks").buildString();
@@ -525,6 +535,22 @@ public class MainPanel extends Composite {
         $wnd.history.pushState(newUrl, "", newUrl);
     }-*/;
 
+    public static void navigateToUrl(String url){
+//        if(browserObject!=null){
+//            browserObject.
+//        }
+    }
+
+    public static native Element getInnerDiv()/*-{
+        var iframe = $doc.getElementById("genomeViewer");
+        var innerDoc = iframe.contentDocument ; // .contentWindow.document
+        if(!innerDoc){
+            innerDoc = iframe.contentWindow.document ;
+        }
+        // this is the JBrowse div
+        var genomeBrowser = innerDoc.getElementById("GenomeBrowser");
+        return genomeBrowser ;
+    }-*/;
 
     private static String getCurrentQueryParamsAsString() {
         String returnString = "";
@@ -542,20 +568,16 @@ public class MainPanel extends Composite {
         return returnString;
     }
 
-    public static void updateGenomicViewer(boolean forceReload) {
+    public static void updateGenomicViewer(boolean forceReload,boolean forceUrl) {
         if(currentSequence==null) {
             GWT.log("Current sequence not set");
             return ;
         }
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload,forceUrl);
         } else {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(), forceReload);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(), forceReload,forceUrl);
         }
-    }
-
-    public static void updateGenomicViewer() {
-        updateGenomicViewer(false);
     }
 
     public void setAppState(AppStateInfo appStateInfo) {
@@ -580,7 +602,7 @@ public class MainPanel extends Composite {
 
         if (currentOrganism != null) {
             updatePermissionsForOrganism();
-            updateGenomicViewer(true);
+            updateGenomicViewer(true,true);
         }
 
 
@@ -995,6 +1017,10 @@ public class MainPanel extends Composite {
         trackPanel.updateTrackToggle(useNativeTracklist);
     }
 
+    public static void registerBrowser(JavaScriptObject javaScriptObject) {
+        browserObject = javaScriptObject;
+    }
+
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
@@ -1002,6 +1028,7 @@ public class MainPanel extends Composite {
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
         $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
+        $wnd.registerBrowser = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerBrowser(Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.handleNavigationEvent = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleNavigationEvent(Ljava/lang/String;));
         $wnd.handleFeatureAdded = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureAdded(Ljava/lang/String;));
         $wnd.handleFeatureDeleted = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureDeleted(Ljava/lang/String;));
