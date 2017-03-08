@@ -530,28 +530,28 @@ public class MainPanel extends Composite {
     }
 
     private static native String getRegion()/*-{
-        var element = $doc.getElementById("GenomeBrowser");
-        if(element)
-        return $doc.getElementById("GenomeBrowser").makeCurrentViewURL();
-//        $wnd.history.pushState(newUrl, "", newUrl);
-        if(element){
-            console.log('element found!');
-            element.makeCurrentViewURL();
-        }
-        else{
-            console.log('element NOT found!');
-        }
+//        var element = $doc.getElementById("GenomeBrowser");
+//        if(element)
+//        return $doc.getElementById("GenomeBrowser").makeCurrentViewURL();
+////        $wnd.history.pushState(newUrl, "", newUrl);
+//        if(element){
+//            console.log('element found!');
+//            element.makeCurrentViewURL();
+//        }
+//        else{
+//            console.log('element NOT found!');
+//        }
     }-*/;
 
     private static native void setRegion(String newUrl)/*-{
-        var element = $doc.getElementById("GenomeBrowser");
-        if(element){
-            console.log('element found!');
-            element.showRegion(newUrl);
-        }
-        else{
-            console.log('element NOT found!');
-        }
+//        var element = $doc.getElementById("GenomeBrowser");
+//        if(element){
+//            console.log('element found!');
+//            element.showRegion(newUrl);
+//        }
+//        else{
+//            console.log('element NOT found!');
+//        }
 //        $wnd.getElementsById("GenomeBrowser").navigateToLocation(newUrl);
 //        $wnd.history.pushState(newUrl, "", newUrl);
     }-*/;
