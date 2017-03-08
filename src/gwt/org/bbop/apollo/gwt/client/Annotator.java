@@ -164,4 +164,11 @@ public class Annotator implements EntryPoint {
         return token ;
 
     }
+
+    private native void getInnerDiv()/*-{
+        var iframe = $doc.getElementById("genomeViewer");
+        var innerDoc = iframe.contentDocument ; // .contentWindow.document
+        // this is the JBrowse div
+        var genomeBrowser = innerDoc.getElementById("GenomeBrowser");
+    }-*/;
 }

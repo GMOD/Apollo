@@ -545,6 +545,7 @@ public class MainPanel extends Composite {
     public static void updateGenomicViewer(boolean forceReload) {
         if(currentSequence==null) {
             GWT.log("Current sequence not set");
+            return ;
         }
         if (currentStartBp != null && currentEndBp != null) {
             updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload);
