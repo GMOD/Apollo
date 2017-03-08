@@ -133,6 +133,8 @@ class AnnotatorController {
 
     }
 
+    def testview(){}
+
     /**
      * Loads the main annotator panel.
      */
@@ -492,4 +494,5 @@ class AnnotatorController {
             redirect(uri: "/auth/login")
         }
     }
+
 }

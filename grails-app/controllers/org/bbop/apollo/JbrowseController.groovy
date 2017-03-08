@@ -486,7 +486,9 @@ class JbrowseController {
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
 
+
     def passthrough() {
+        println params
         String dataFileName = params.prefix + "/" + params.path
         String fileName = FilenameUtils.getName(params.path)
         // have to prefix with a "/"
@@ -494,6 +496,7 @@ class JbrowseController {
             dataFileName = "/" + dataFileName
         }
         File file = new File(servletContext.getRealPath(dataFileName))
+        println "file path ${file.path}"
 
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
