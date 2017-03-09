@@ -88,6 +88,13 @@ class FeatureService {
         }
     }
 
+    def getOverlappingSequenceAlterations(Sequence sequence, int fmin, int fmax) {
+        Feature.executeQuery(
+                "SELECT DISTINCT sa FROM SequenceAlteration sa JOIN sa.featureLocations fl WHERE fl.sequence = :sequence AND ((fl.fmin <= :fmin AND fl.fmax > :fmin) OR (fl.fmin <= :fmax AND fl.fmax >= :fmax) OR (fl.fmin >= :fmin AND fl.fmax <= :fmax))",
+                [fmin: fmin, fmax: fmax, sequence: sequence]
+        )
+    }
+
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
