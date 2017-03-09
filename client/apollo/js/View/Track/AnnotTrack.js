@@ -320,7 +320,13 @@ define([
 
 
                     var navigateToLocation = function (urlObject) {
-                        browser.callLocation(urlObject.url);
+                        if(urlObject.exact){
+                            browser.callLocation(urlObject.url);
+                        }
+                        else{
+                            var location = Util.parseLocString( urlObject.url);
+                            browser.showRegion(location);
+                        }
                     };
 
                     window.parent.registerFunction("navigateToLocation",navigateToLocation);
