@@ -301,7 +301,6 @@ public class MainPanel extends Composite {
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
-//                    updateGenomicViewer();
                     updateGenomicViewerForLocation(currentSequence.getName(),currentStartBp,currentEndBp,true,false);
                 }
                 if (blocking) {
@@ -315,7 +314,7 @@ public class MainPanel extends Composite {
                 if (blocking) {
                     loadingDialog.hide();
                 }
-                Bootbox.alert("failed to set JBrowse sequence: " + exception);
+                Bootbox.alert("Failed to sequence: " + exception);
             }
         };
 
@@ -535,11 +534,6 @@ public class MainPanel extends Composite {
         $wnd.history.pushState(newUrl, "", newUrl);
     }-*/;
 
-    public static void navigateToUrl(String url){
-//        if(browserObject!=null){
-//            browserObject.
-//        }
-    }
 
     public static native Element getInnerDiv()/*-{
         var iframe = $doc.getElementById("genomeViewer");
@@ -1091,4 +1085,18 @@ public class MainPanel extends Composite {
     public static SequencePanel getSequencePanel() {
         return sequencePanel;
     }
+
+    public static SequenceInfo getCurrentSequence() {
+        return currentSequence;
+    }
+
+    SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {
+        currentSequence = newSequence;
+        currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
+        currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
+        currentSequence.setStartBp(currentStartBp);
+        currentSequence.setEndBp(currentEndBp);
+        return currentSequence;
+    }
+
 }

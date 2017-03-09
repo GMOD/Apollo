@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.bbop.apollo.gwt.client.MainPanel.sequenceSuggestBox;
+
 /**
  * Created by ndunn on 12/17/14.
  */
@@ -213,9 +215,12 @@ public class SequencePanel extends Composite {
                     RequestCallback requestCallback = new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
-                            if (sequenceInfo != null) {
-                                OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
-                            }
+                            JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
+                            MainPanel mainPanel = MainPanel.getInstance();
+                            SequenceInfo currentSequence = mainPanel.setCurrentSequenceAndEnds(SequenceInfoConverter.convertFromJson(sequenceInfoJson));
+                            mainPanel.sequenceSuggestBox.setText(currentSequence.getName());
+                            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),mainPanel.getCurrentOrganism().getName()));
+                            MainPanel.updateGenomicViewerForLocation(currentSequence.getName(),currentSequence.getStartBp(),currentSequence.getEndBp(),true,false);
                         }
 
                         @Override
@@ -244,9 +249,6 @@ public class SequencePanel extends Composite {
                         }
                     });
                 }
-//                else {
-//                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
-//                }
             }
         });
 
