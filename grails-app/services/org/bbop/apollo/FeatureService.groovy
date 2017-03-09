@@ -2883,8 +2883,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             updateNewGsolFeatureAttributes(feature, sequence)
 
             // setting back the original name for feature
-            if (useName && jsonFeature.has(FeatureStringEnum.USE_NAME.value)) {
-                feature.name = jsonFeature.get(FeatureStringEnum.USE_NAME.value)
+            if (useName && jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
             }
 
             setOwner(feature, user);

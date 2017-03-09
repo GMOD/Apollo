@@ -1695,8 +1695,8 @@ class RequestHandlingService {
                 }
             }
             else {
-                // jsonFeature is of type *RNA, transposable_element or repeat_region
-                Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory)
+                // jsonFeature is of type transposable_element or repeat_region
+                Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory, true)
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                 JSONObject jsonObject = newFeatureJsonObject
 
