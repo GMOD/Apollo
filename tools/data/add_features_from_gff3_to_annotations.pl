@@ -835,6 +835,7 @@ sub convert_mrna_feature {
     my $features = shift;
     my $gene_json_feature = shift;
     my $cds_feature = undef;
+    my $rtsc_json_feature = undef;
     my $mrna_json_feature = convert_feature($features, $mrna_type_out, $name_attributes);
     if ($disable_cds_recalculation) {
         $mrna_json_feature->{use_cds} = "true";
@@ -867,6 +868,10 @@ sub convert_mrna_feature {
                     $cds_feature->[0]->{end} = $end;
                 }
             }
+            my $cds_subfeatures = get_subfeatures($cds_feature);
+            if (scalar(@{$cds_subfeatures}) > 0) {
+                $rtsc_json_feature = convert_feature(${$cds_subfeatures}[0], "stop_codon_read_through", $name_attributes);
+            }
         }
         else {
             print "Ignoring unsupported sub-feature type: $type\n";
@@ -874,8 +879,9 @@ sub convert_mrna_feature {
     }
 
     if ($cds_feature) {
-        my $cds = convert_feature($cds_feature, $cds_type_out, $name_attributes);
-        push(@{$mrna_json_feature->{children}}, $cds);
+        my $cds_json_feature = convert_feature($cds_feature, $cds_type_out, $name_attributes);
+        push(@{$cds_json_feature->{children}}, $rtsc_json_feature) if ($rtsc_json_feature);
+        push(@{$mrna_json_feature->{children}}, $cds_json_feature);
     }
 
     return $mrna_json_feature;
