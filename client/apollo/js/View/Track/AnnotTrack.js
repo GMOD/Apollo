@@ -319,6 +319,18 @@ define([
                     }));
 
 
+                    var navigateToLocation = function (urlObject) {
+                        if(urlObject.exact){
+                            browser.callLocation(urlObject.url);
+                        }
+                        else{
+                            var location = Util.parseLocString( urlObject.url);
+                            browser.showRegion(location);
+                        }
+                    };
+
+                    window.parent.registerFunction("navigateToLocation",navigateToLocation);
+
                     var sendTracks = function (trackList, visibleTrackNames, showLabels) {
                         var filteredTrackList = [];
                         for (var trackConfigIndex in trackList) {
