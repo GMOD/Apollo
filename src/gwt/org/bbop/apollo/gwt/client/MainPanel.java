@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -17,6 +18,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
@@ -80,8 +82,9 @@ public class MainPanel extends Composite {
 
     @UiField
     Button dockOpenClose;
-    @UiField(provided = false)
-    static NamedFrame frame;
+//    @UiField(provided = false)
+    @UiField
+    static AbsolutePanel genomeViewContainer;
     @UiField
     static AnnotatorPanel annotatorPanel;
     @UiField
@@ -167,7 +170,12 @@ public class MainPanel extends Composite {
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
-        frame.getElement().setAttribute("id", frame.getName());
+//        DivElement genomeViewDiv = DivElement.as(DOM.createDiv());
+//        genomeViewDiv.setId("GenomeBrowser");
+//        genomeViewDiv.addClassName("jbrowse");
+//        genomeViewDiv.addClassName("jbrowsecontainer");
+//        <div class="jbrowse jbrowsecontainer" id="GenomeBrowser" style="height: 100%; width: 100%; padding: 0; border: 0;"></div>
+//        genomeViewContainer.getElement().appendChild(genomeViewDiv);
 
         trackListToggle.setWidth(isCurrentUserAdmin()? "20px":"25px");
 
@@ -454,7 +462,7 @@ public class MainPanel extends Composite {
      */
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion, boolean forceReload, boolean forceUrl) {
 
-        if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
+        if (!forceReload && currentSequence != null && currentSequence.getName().equals(selectedSequence) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && getRegion().startsWith("http")) {
             int oldLength = maxRegion - minRegion;
             double diff1 = (Math.abs(currentStartBp - minRegion)) / (float) oldLength;
             double diff2 = (Math.abs(currentEndBp - maxRegion)) / (float) oldLength;
@@ -513,14 +521,7 @@ public class MainPanel extends Composite {
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
 
-        if(!forceUrl && getInnerDiv()!=null){
-            JSONObject commandObject = new JSONObject();
-            commandObject.put("url", new JSONString(selectedSequence+":"+currentStartBp+".."+currentEndBp));
-            MainPanel.executeFunction("navigateToLocation", commandObject.getJavaScriptObject());
-        }
-        else{
-            frame.setUrl(trackListString);
-        }
+        setRegion(trackListString);
 
         if(Window.Location.getParameter("tracks")!=null){
             String newURL = Window.Location.createUrlBuilder().removeParameter("tracks").buildString();
@@ -529,6 +530,33 @@ public class MainPanel extends Composite {
 
         currentQueryParams = Window.Location.getParameterMap();
     }
+
+    private static native String getRegion()/*-{
+//        var element = $doc.getElementById("GenomeBrowser");
+//        if(element)
+//        return $doc.getElementById("GenomeBrowser").makeCurrentViewURL();
+////        $wnd.history.pushState(newUrl, "", newUrl);
+//        if(element){
+//            console.log('element found!');
+//            element.makeCurrentViewURL();
+//        }
+//        else{
+//            console.log('element NOT found!');
+//        }
+    }-*/;
+
+    private static native void setRegion(String newUrl)/*-{
+//        var element = $doc.getElementById("GenomeBrowser");
+//        if(element){
+//            console.log('element found!');
+//            element.showRegion(newUrl);
+//        }
+//        else{
+//            console.log('element NOT found!');
+//        }
+//        $wnd.getElementsById("GenomeBrowser").navigateToLocation(newUrl);
+//        $wnd.history.pushState(newUrl, "", newUrl);
+    }-*/;
 
     private static native void newUrl(String newUrl)/*-{
         $wnd.history.pushState(newUrl, "", newUrl);

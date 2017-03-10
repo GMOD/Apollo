@@ -16,6 +16,7 @@ import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.core.java.util.HashMap_CustomFieldSerializer;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.RootPanel;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -42,7 +43,8 @@ public class Annotator implements EntryPoint {
      */
     public void onModuleLoad() {
         MainPanel mainPanel = MainPanel.getInstance();
-        RootLayoutPanel rp = RootLayoutPanel.get();
+//        RootLayoutPanel rp = RootLayoutPanel.get();
+        RootPanel rp = RootPanel.get("ApolloPanel");
         rp.add(mainPanel);
 
         Dictionary optionsDictionary = Dictionary.getDictionary("Options");
@@ -69,7 +71,8 @@ public class Annotator implements EntryPoint {
         if (optionsDictionary.keySet().contains("heightUnit")) {
             heightUnit = Style.Unit.valueOf(optionsDictionary.get("heightUnit").toUpperCase());
         }
-        rp.setWidgetTopHeight(mainPanel, top, topUnit, height, heightUnit);
+//        rp.setWidgetTopHeight(mainPanel, top, topUnit, height, heightUnit);
+        rp.setWidgetPosition(mainPanel, 0, top.intValue());
 
         exportStaticMethod();
     }
