@@ -486,6 +486,12 @@ class JbrowseController {
         return (substring.length() > 0) ? Long.parseLong(substring) : -1;
     }
 
+    def testview2(){
+        String uuid = UUID.randomUUID().toString()
+        String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
+        [userKey: uuid, clientToken: clientToken]
+    }
+
     def testview(){
         String uuid = UUID.randomUUID().toString()
         String clientToken = params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value) ? params.get(FeatureStringEnum.CLIENT_TOKEN.value) : null
