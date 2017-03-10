@@ -221,9 +221,19 @@ sub process_gff {
         process_gff_entry($features, $seq_ids_to_genes, $seq_ids_to_transcripts, $seq_ids_to_sequence_alterations);
     }
     if ($test) {
-        print_features($seq_ids_to_genes);
-        print_features($seq_ids_to_transcripts);
-        print_features($seq_ids_to_sequence_alterations);
+        print "[";
+        if (keys %{$seq_ids_to_genes} > 0) {
+            print_features($seq_ids_to_genes, "addFeature");
+            print ",";
+        }
+        if (keys %{$seq_ids_to_transcripts}) {
+            print_features($seq_ids_to_transcripts, "addTranscript");
+            print ",";
+        }
+        if (keys %{$seq_ids_to_sequence_alterations}) {
+            print_features($seq_ids_to_sequence_alterations, "addSequenceAlteration");
+        }
+        print "]";
     }
     else {
         write_features("addFeature", $seq_ids_to_genes);
@@ -697,8 +707,10 @@ sub process_rna {
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
-        my $exon = convert_feature($subfeature, $exon_type_out, $name_attributes);
-        push(@{$rna->{children}}, $exon);
+        if ($type =~ /$exon_types_in/) {
+            my $exon = convert_feature($subfeature, $exon_type_out, $name_attributes);
+            push(@{$rna->{children}}, $exon);
+        }
     }
     return $rna;
 }
@@ -889,13 +901,16 @@ sub convert_mrna_feature {
 
 sub print_features {
     my $data = shift;
+    my $operation = shift;
     while (my ($seq_id, $features) = each(%{$data})) {
         my @to_be_written = ();
         my @ids = ();
+        print "{\"$operation\": [";
         for (my $i = 0; $i < scalar(@${features}); ++$i) {
             my $feature = $features->[$i];
             print to_json(@$feature[0]);
-            print "\n";
+            print "," if ($i != scalar(@$features) - 1);
         }
+        print "]}";
     }
 }
