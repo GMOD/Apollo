@@ -53,10 +53,7 @@ public class MainPanel extends Composite {
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
     private boolean toggleOpen = true;
-    public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
-    // state info
-    private static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static SequenceInfo currentSequence;
@@ -142,7 +139,6 @@ public class MainPanel extends Composite {
 
     private LoginDialog loginDialog = new LoginDialog();
     private RegisterDialog registerDialog = new RegisterDialog();
-    private static JavaScriptObject browserObject ;
 
     public static MainPanel getInstance() {
         if (instance == null) {
@@ -332,6 +328,7 @@ public class MainPanel extends Composite {
 
     private void updatePermissionsForOrganism() {
         String globalRole = currentUser.getRole();
+        PermissionEnum highestPermission ;
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
@@ -516,7 +513,7 @@ public class MainPanel extends Composite {
         if(!forceUrl && getInnerDiv()!=null){
             JSONObject commandObject = new JSONObject();
             commandObject.put("url", new JSONString(selectedSequence+":"+currentStartBp+".."+currentEndBp));
-            MainPanel.executeFunction("navigateToLocation", commandObject.getJavaScriptObject());
+            MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
         }
         else{
             frame.setUrl(trackListString);
@@ -529,6 +526,17 @@ public class MainPanel extends Composite {
 
         currentQueryParams = Window.Location.getParameterMap();
     }
+
+    void postMessage(String message, JSONObject object){
+        object.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString(message));
+        postMessage(object.getJavaScriptObject());
+    }
+
+    private native void postMessage(JavaScriptObject message)/*-{
+        var genomeViewer = $wnd.document.getElementById("genomeViewer").contentWindow;
+        var domain = $wnd.location.protocol+"//"+$wnd.location.hostname +":"+$wnd.location.port  ;
+        genomeViewer.postMessage(message,domain);
+    }-*/;
 
     private static native void newUrl(String newUrl)/*-{
         $wnd.history.pushState(newUrl, "", newUrl);
@@ -789,15 +797,6 @@ public class MainPanel extends Composite {
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
 
-    public void clearExternalFunctions() {
-        annotrackFunctionMap.clear();
-    }
-
-    public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
-        annotrackFunctionMap.put(name, javaScriptObject);
-    }
-
-
     @UiHandler("generateLink")
     public void toggleLink(ClickEvent clickEvent) {
         String text = "";
@@ -869,25 +868,6 @@ public class MainPanel extends Composite {
     public void logout(ClickEvent clickEvent) {
         UserRestService.logout();
     }
-
-
-    public static String executeFunction(String name) {
-        return executeFunction(name, JavaScriptObject.createObject());
-    }
-
-    public static String executeFunction(String name, JavaScriptObject dataObject) {
-        JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
-        if (targetFunction == null) {
-            return "function " + name + " not found";
-        }
-        return executeFunction(targetFunction, dataObject);
-    }
-
-
-    public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
-        return targetFunction(data);
-    }-*/;
-
 
     public static void reloadAnnotator() {
         GWT.log("MainPanel reloadAnnotator");
@@ -1011,9 +991,6 @@ public class MainPanel extends Composite {
         trackPanel.updateTrackToggle(useNativeTracklist);
     }
 
-    public static void registerBrowser(JavaScriptObject javaScriptObject) {
-        browserObject = javaScriptObject;
-    }
 
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
@@ -1021,8 +998,6 @@ public class MainPanel extends Composite {
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
-        $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
-        $wnd.registerBrowser = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerBrowser(Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.handleNavigationEvent = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleNavigationEvent(Ljava/lang/String;));
         $wnd.handleFeatureAdded = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureAdded(Ljava/lang/String;));
         $wnd.handleFeatureDeleted = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureDeleted(Ljava/lang/String;));

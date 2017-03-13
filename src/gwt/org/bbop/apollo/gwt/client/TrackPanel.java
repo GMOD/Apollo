@@ -131,7 +131,7 @@ public class TrackPanel extends Composite {
                     jsonObject.put("command", new JSONString("hide"));
                 }
 
-                MainPanel.executeFunction("handleTrackVisibility", jsonObject.getJavaScriptObject());
+                MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
             }
         });
         showColumn.setSortable(true);
@@ -312,7 +312,7 @@ public class TrackPanel extends Composite {
     public void reload() {
         JSONObject commandObject = new JSONObject();
         commandObject.put("command", new JSONString("list"));
-        MainPanel.executeFunction("handleTrackVisibility", commandObject.getJavaScriptObject());
+        MainPanel.getInstance().postMessage("handleTrackVisibility", commandObject);
     }
 
     public static void updateTracks(String jsonString) {

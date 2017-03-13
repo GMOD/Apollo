@@ -317,8 +317,7 @@ define([
                     window.parent.handleNavigationEvent(JSON.stringify(currRegion));
                 }));
 
-
-                var navigateToLocation = function (urlObject) {
+                function navigateToLocation(urlObject) {
                     if(urlObject.exact){
                         browser.callLocation(urlObject.url);
                     }
@@ -326,9 +325,7 @@ define([
                         var location = Util.parseLocString( urlObject.url);
                         browser.showRegion(location);
                     }
-                };
-
-                window.parent.registerFunction("navigateToLocation",navigateToLocation);
+                }
 
                 var sendTracks = function (trackList, visibleTrackNames, showLabels) {
                     var filteredTrackList = [];
@@ -350,6 +347,8 @@ define([
                         window.parent.loadTracks(JSON.stringify(filteredTrackList));
                     }
                 };
+
+
 
                 var handleTrackVisibility = function (trackInfo) {
                     var command = trackInfo.command;
@@ -379,8 +378,27 @@ define([
                     console.log("hide update");
                     handleTrackVisibility({command: "list"});
                 });
-                window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
 
+                function handleMessage(event){
+                    var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
+                    var hostUrl = window.location.protocol +"//" + window.location.hostname + ":" + window.location.port;
+                    if (origin !== hostUrl){
+                        console.log("Bad Host Origin");
+                        return;
+                    }
+
+                    if(event.data.description === "navigateToLocation"){
+                        navigateToLocation(event.data);
+                    }
+                    else
+                    if(event.data.description === "handleTrackVisibility"){
+                        handleTrackVisibility(event.data);
+                    }
+                    else{
+                        console.log("Unknown command: "+event.data.description);
+                    }
+                }
+                window.addEventListener("message",handleMessage,true);
 
 
                 client.connect({}, function () {
