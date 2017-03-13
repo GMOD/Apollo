@@ -311,13 +311,13 @@ define([
                 var track = this;
                 var browser = this.gview.browser;
 
-                console.log('Registering embedded system with ApolloGwt-2.0.');
+                console.log('Registering Apollo listeners.');
 
                 browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                     window.parent.handleNavigationEvent(JSON.stringify(currRegion));
                 }));
 
-                function navigateToLocation(urlObject) {
+                var navigateToLocation = function(urlObject) {
                     if(urlObject.exact){
                         browser.callLocation(urlObject.url);
                     }
@@ -325,7 +325,7 @@ define([
                         var location = Util.parseLocString( urlObject.url);
                         browser.showRegion(location);
                     }
-                }
+                };
 
                 var sendTracks = function (trackList, visibleTrackNames, showLabels) {
                     var filteredTrackList = [];
@@ -367,7 +367,7 @@ define([
                         sendTracks(trackList, visibleTrackNames, showLabels);
                     }
                     else {
-                        console.log('unknown command: ' + command);
+                        console.error('unknown command: ' + command);
                     }
                 };
                 browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
@@ -383,7 +383,7 @@ define([
                     var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
                     var hostUrl = window.location.protocol +"//" + window.location.hostname + ":" + window.location.port;
                     if (origin !== hostUrl){
-                        console.log("Bad Host Origin");
+                        console.error("Bad Host Origin: "+origin);
                         return;
                     }
 
