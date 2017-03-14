@@ -361,6 +361,11 @@ public class TrackPanel extends Composite {
         }
     }
 
+    public void  clear(){
+        categoryMap.clear();
+        dataGrid.clear();
+    }
+
     private static void renderFiltered() {
         dataGrid.clear();
 //        categoryMap.clear();

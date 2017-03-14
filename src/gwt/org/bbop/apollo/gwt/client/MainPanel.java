@@ -583,6 +583,7 @@ public class MainPanel extends Composite {
     }
 
     public void setAppState(AppStateInfo appStateInfo) {
+        trackPanel.clear();
         organismInfoList = appStateInfo.getOrganismList();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
