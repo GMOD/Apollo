@@ -324,17 +324,14 @@ public class TrackPanel extends Composite {
 
         private void decorate() {
             HTML label = new HTML(trackInfo.getLabel());
-            label.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    MainPanel.getTrackPanel().setTrackInfo(trackInfo);
-                }
-            });
             label.addStyleName("track-link");
             final CheckBox selected = new CheckBox();
             selected.setValue(trackInfo.getVisible());
-            add(label);
+            selected.addStyleName("track-link");
+
             add(selected);
+            add(label);
+            setWidth("100%");
 
             selected.addClickHandler(new ClickHandler() {
                 @Override
@@ -348,6 +345,12 @@ public class TrackPanel extends Composite {
                         jsonObject.put("command", new JSONString("hide"));
                     }
                     MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
+                }
+            });
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    MainPanel.getTrackPanel().setTrackInfo(trackInfo);
                 }
             });
         }
@@ -392,8 +395,10 @@ public class TrackPanel extends Composite {
             panel.add(panelHeader);
 
             PanelCollapse panelCollapse = new PanelCollapse();
+//            panelCollapse.setIn(true);
             panelCollapse.setId("collapse" + count++);
             panel.add(panelCollapse);
+            panelCollapse.setWidth("100%");
 
             if (trackInfoList.size() > 0) {
                 for (TrackInfo trackInfo : trackInfoList) {
