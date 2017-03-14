@@ -12,24 +12,11 @@ public class TrackInfo implements Comparable<TrackInfo> {
     private String type;
     private Boolean visible;
     private String urlTemplate ;
+    private String category;
 
     private JSONObject payload ;
 
     public TrackInfo(){}
-
-
-    public TrackInfo(String name, String type, Boolean visible) {
-        this.name = name;
-        this.type = type;
-        this.visible = visible;
-    }
-
-    public TrackInfo(String name) {
-        this.name = name;
-        this.type = Math.random() > 0.5 ? "CanvasFeature" : "HTMLFeature";
-        this.visible = Math.random() > 0.5 ;
-
-    }
 
     @Override
     public int compareTo(TrackInfo o) {
@@ -84,6 +71,14 @@ public class TrackInfo implements Comparable<TrackInfo> {
         this.payload = payload;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -94,6 +89,7 @@ public class TrackInfo implements Comparable<TrackInfo> {
         if (!getName().equals(trackInfo.getName())) return false;
         if (getLabel() != null ? !getLabel().equals(trackInfo.getLabel()) : trackInfo.getLabel() != null) return false;
         if (!getType().equals(trackInfo.getType())) return false;
+        if (!getCategory().equals(trackInfo.getCategory())) return false;
         return getUrlTemplate() != null ? getUrlTemplate().equals(trackInfo.getUrlTemplate()) : trackInfo.getUrlTemplate() == null;
 
     }
@@ -104,6 +100,7 @@ public class TrackInfo implements Comparable<TrackInfo> {
         result = 31 * result + (getLabel() != null ? getLabel().hashCode() : 0);
         result = 31 * result + getType().hashCode();
         result = 31 * result + (getUrlTemplate() != null ? getUrlTemplate().hashCode() : 0);
+        result = 31 * result + (getCategory() != null ? getCategory().hashCode() : 0);
         return result;
     }
 }

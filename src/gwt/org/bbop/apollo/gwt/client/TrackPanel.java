@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -144,7 +145,17 @@ public class TrackPanel extends Composite {
         };
         nameColumn.setSortable(true);
 
+
+        TextColumn<TrackInfo> categoryColumn = new TextColumn<TrackInfo>() {
+            @Override
+            public String getValue(TrackInfo track) {
+                return track.getCategory();
+            }
+        };
+        categoryColumn.setSortable(true);
+
         dataGrid.addColumn(showColumn, "Show");
+        dataGrid.addColumn(categoryColumn, "Category");
         dataGrid.addColumn(nameColumn, "Name");
         dataGrid.setColumnWidth(0, "10%");
         dataGrid.setSelectionModel(singleSelectionModel);
@@ -179,6 +190,15 @@ public class TrackPanel extends Composite {
             @Override
             public int compare(TrackInfo o1, TrackInfo o2) {
                 return o1.getName().compareTo(o2.getName());
+            }
+        });
+        sortHandler.setComparator(categoryColumn, new Comparator<TrackInfo>() {
+            @Override
+            public int compare(TrackInfo o1, TrackInfo o2) {
+                if(o1.getCategory()==null && o2.getCategory()!=null ) return -1 ;
+                if(o1.getCategory()!=null && o2.getCategory()==null ) return 1 ;
+                if(o1.getCategory()==null && o2.getCategory()==null ) return 0 ;
+                return o1.getCategory().compareTo(o2.getCategory());
             }
         });
 
@@ -342,12 +362,19 @@ public class TrackPanel extends Composite {
             TrackInfo trackInfo = new TrackInfo();
             // track label can never be null, but key can be
             trackInfo.setName(object.get("key")==null?object.get("label").isString().stringValue():object.get("key").isString().stringValue());
+
             if(object.get("label")!=null) trackInfo.setLabel(object.get("label").isString().stringValue());
             else Bootbox.alert("Track label should not be null, please check your tracklist");
+
             if(object.get("type")!=null) trackInfo.setType(object.get("type").isString().stringValue());
+
             if(object.get("urlTemplate") != null) trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+
             if(object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
             else trackInfo.setVisible(false);
+
+            if(object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
+
             trackInfo.setPayload(object);
             trackInfoList.add(trackInfo);
         }
