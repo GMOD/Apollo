@@ -23,6 +23,10 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.client.shared.event.HiddenEvent;
+import org.gwtbootstrap3.client.shared.event.HiddenHandler;
+import org.gwtbootstrap3.client.shared.event.ShowEvent;
+import org.gwtbootstrap3.client.shared.event.ShowHandler;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Panel;
@@ -312,6 +316,7 @@ public class TrackPanel extends Composite {
     }
 
     private static Map<String, List<TrackInfo>> categoryMap = new TreeMap<>();
+    private static Map<String, Boolean> categoryOpen = new TreeMap<>();
 
     static class TrackBodyPanel extends PanelBody {
 
@@ -358,10 +363,13 @@ public class TrackPanel extends Composite {
 
     private static void renderFiltered() {
         dataGrid.clear();
-        categoryMap.clear();
+//        categoryMap.clear();
         // populate the map of categories
         for (TrackInfo trackInfo : trackInfoList) {
             categoryMap.put(trackInfo.getStandardCategory(), new ArrayList<TrackInfo>());
+            if(!categoryOpen.containsKey(trackInfo.getStandardCategory())){
+                categoryOpen.put(trackInfo.getStandardCategory(),false);
+            }
         }
 
         for (TrackInfo trackInfo : filteredTrackInfoList) {
@@ -373,7 +381,7 @@ public class TrackPanel extends Composite {
 
         // build up categories, first, processing any / all levels
         int count = 1;
-        for (String key : categoryMap.keySet()) {
+        for (final String key : categoryMap.keySet()) {
             List<TrackInfo> trackInfoList = categoryMap.get(key);
             Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
                 @Override
@@ -394,11 +402,26 @@ public class TrackPanel extends Composite {
             panelHeader.add(badge);
             panel.add(panelHeader);
 
-            PanelCollapse panelCollapse = new PanelCollapse();
-//            panelCollapse.setIn(true);
+            final PanelCollapse panelCollapse = new PanelCollapse();
+            panelCollapse.setIn(categoryOpen.get(key));
             panelCollapse.setId("collapse" + count++);
             panel.add(panelCollapse);
             panelCollapse.setWidth("100%");
+            panelHeader.setDataTarget("#" + panelCollapse.getId());
+
+            panelCollapse.addHiddenHandler(new HiddenHandler() {
+                @Override
+                public void onHidden(HiddenEvent event) {
+                    categoryOpen.put(key,false);
+                }
+            });
+
+            panelCollapse.addShowHandler(new ShowHandler() {
+                @Override
+                public void onShow(ShowEvent showEvent) {
+                    categoryOpen.put(key,true);
+                }
+            });
 
             if (trackInfoList.size() > 0) {
                 for (TrackInfo trackInfo : trackInfoList) {
@@ -407,14 +430,13 @@ public class TrackPanel extends Composite {
                     panelCollapse.add(panelBody);
                 }
             }
-            panelHeader.setDataTarget("#" + panelCollapse.getId());
 
-            PanelBody panelBody = getPanelBodyForCategory(key);
-            if (panelBody == null) {
+//            PanelBody panelBody = getPanelBodyForCategory(key);
+//            if (panelBody == null) {
                 dataGrid.add(panel);
-            } else {
-                panelBody.add(panel);
-            }
+//            } else {
+//                panelBody.add(panel);
+//            }
             // else, find the PanelBody and insert there
         }
     }
