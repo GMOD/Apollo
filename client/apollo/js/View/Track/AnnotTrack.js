@@ -272,21 +272,15 @@ define([
             },
 
             getClientToken: function () {
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    var token = window.parent.getClientToken();
-                    //alert("AnnotTrack have to get client token in AnnotTrack.js using GWT function: "+token);
-                    return token ;
+                if (this.runningApollo()) {
+                    return this.getApollo().getClientToken();
                 }
                 else{
                     var returnItem = window.sessionStorage.getItem("clientToken");
                     if (!returnItem) {
                         var randomNumber = this.generateRandomNumber(20);
-                        //alert('AnnotTrack generating and storing random number: '+randomNumber);
                         window.sessionStorage.setItem("clientToken", randomNumber);
                     }
-                    //else{
-                    //    alert("AnnotTrack found client token: "+returnItem);
-                    //}
                     return window.sessionStorage.getItem("clientToken");
                 }
             },
@@ -310,11 +304,12 @@ define([
                 var client = this.client;
                 var track = this;
                 var browser = this.gview.browser;
+                var apolloMainPanel = this.getApollo();
 
                 console.log('Registering Apollo listeners.');
 
                 browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                    window.parent.handleNavigationEvent(JSON.stringify(currRegion));
+                    apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
                 }));
 
                 var navigateToLocation = function(urlObject) {
@@ -343,8 +338,8 @@ define([
                     }
 
                     // if for some reason this method is called in the wrong place, we catch the error
-                    if(window.parent){
-                        window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                    if(apolloMainPanel){
+                        apolloMainPanel.loadTracks(JSON.stringify(filteredTrackList));
                     }
                 };
 
@@ -403,9 +398,9 @@ define([
 
                 client.connect({}, function () {
                     // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                    var organism = JSON.parse(window.parent.getCurrentOrganism());
-                    var sequence = JSON.parse(window.parent.getCurrentSequence());
-                    var user = JSON.parse(window.parent.getCurrentUser());
+                    var organism = JSON.parse(apolloMainPanel.getCurrentOrganism());
+                    var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                    var user = JSON.parse(apolloMainPanel.getCurrentUser());
                     client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
                     client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                 });
@@ -429,7 +424,7 @@ define([
                         }
                         else{
                             alert("You have been logged out or your session has expired");
-                            if (window.parent) {
+                            if (this.getApollo()) {
                                 parent.location.reload();
                             }
                             else {
@@ -456,7 +451,7 @@ define([
                         else {
                             track.annotationsAddedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureAdded(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "DELETE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -465,7 +460,7 @@ define([
                         else {
                             track.annotationsDeletedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "UPDATE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -502,7 +497,7 @@ define([
                             track.selectionAdded(selection,track.selectionManager);
                         }
 
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
 
 
 
@@ -1400,6 +1395,14 @@ define([
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 this.deleteAnnotations(selected);
+            },
+
+            getApollo: function(){
+                return window.parent;
+            },
+
+            runningApollo: function(){
+                return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
             },
 
             deleteAnnotations: function (records) {
@@ -4330,8 +4333,12 @@ define([
                     timeout: 5 * 1000, // Time in milliseconds
                     // The LOAD function will be called on a successful response.
                     load: function (response, ioArgs) { //
-                        if (window.parent) window.parent.location.reload();
-                        else window.location.reload();
+                        if (this.getApollo()) {
+                            this.getApollo().location.reload();
+                        }
+                        else {
+                            window.location.reload();
+                        }
                     },
                     error: function (response, ioArgs) { //
                         console.log('Failed to log out cleanly.  May already be logged out.');
@@ -4425,10 +4432,12 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (window.parent){
-                                          window.parent.location.reload();
+                                        if (this.getApollo()){
+                                          this.getApollo().location.reload();
                                         }
-                                        else window.location.reload();
+                                        else {
+                                            window.location.reload();
+                                        }
                                     },
                                     error: function (response, ioArgs) { //
                                         alert('Failed to log out cleanly!  Please refresh your browser.');
