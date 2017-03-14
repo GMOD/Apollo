@@ -1060,6 +1060,7 @@ public class MainPanel extends Composite {
     public static SequencePanel getSequencePanel() {
         return sequencePanel;
     }
+    public static TrackPanel getTrackPanel() { return trackPanel ; }
 
     public static SequenceInfo getCurrentSequence() {
         return currentSequence;

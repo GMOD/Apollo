@@ -132,3 +132,14 @@ h1 {
   cursor: pointer;
   font-size: medium;
 }
+
+.track-link{
+    display: inline;
+    cursor: pointer;
+    font-size: small;
+}
+
+.track-link:hover{
+    color: blue;
+    text-decoration: underline;
+}

@@ -1,37 +1,30 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.http.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
-import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
-import com.google.gwt.dom.client.BrowserEvents;
-import com.google.gwt.view.client.CellPreviewEvent;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Panel;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.HeadingSize;
@@ -68,7 +61,7 @@ public class TrackPanel extends Composite {
     ToggleSwitch trackListToggle;
 
 
-//    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    //    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 //    @UiField(provided = true)
 //    static DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
@@ -98,12 +91,12 @@ public class TrackPanel extends Composite {
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
 //        dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
-        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
-            @Override
-            public Boolean getValue(TrackInfo track) {
-                return track.getVisible();
-            }
-        };
+//        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
+//            @Override
+//            public Boolean getValue(TrackInfo track) {
+//                return track.getVisible();
+//            }
+//        };
 //        dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TrackInfo>() {
 //
 //            @Override
@@ -119,47 +112,47 @@ public class TrackPanel extends Composite {
 //            }
 //        });
 
-        showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
-            /**
-             * TODO: emulate . . underTrackList . . Create an external function in Annotrack to then call from here
-             * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
-             * uses DOJO publish mechanism (http://dojotoolkit.org/reference-guide/1.7/dojo/publish.html)
+//        showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
+//            /**
+//             * TODO: emulate . . underTrackList . . Create an external function in Annotrack to then call from here
+//             * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
+//             * uses DOJO publish mechanism (http://dojotoolkit.org/reference-guide/1.7/dojo/publish.html)
+//
+//             * @param index
+//             * @param trackInfo
+//             * @param value
+//             */
+//            @Override
+//            public void update(int index, TrackInfo trackInfo, Boolean value) {
+//                JSONObject jsonObject = trackInfo.getPayload();
+//                trackInfo.setVisible(value);
+//                if (value) {
+//                    jsonObject.put("command", new JSONString("show"));
+//                } else {
+//                    jsonObject.put("command", new JSONString("hide"));
+//                }
+//
+//                MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
+//            }
+//        });
+//        showColumn.setSortable(true);
 
-             * @param index
-             * @param trackInfo
-             * @param value
-             */
-            @Override
-            public void update(int index, TrackInfo trackInfo, Boolean value) {
-                JSONObject jsonObject = trackInfo.getPayload();
-                trackInfo.setVisible(value);
-                if (value) {
-                    jsonObject.put("command", new JSONString("show"));
-                } else {
-                    jsonObject.put("command", new JSONString("hide"));
-                }
-
-                MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
-            }
-        });
-        showColumn.setSortable(true);
-
-        TextColumn<TrackInfo> nameColumn = new TextColumn<TrackInfo>() {
-            @Override
-            public String getValue(TrackInfo track) {
-                return track.getName();
-            }
-        };
-        nameColumn.setSortable(true);
-
-
-        TextColumn<TrackInfo> categoryColumn = new TextColumn<TrackInfo>() {
-            @Override
-            public String getValue(TrackInfo track) {
-                return track.getCategory();
-            }
-        };
-        categoryColumn.setSortable(true);
+//        TextColumn<TrackInfo> nameColumn = new TextColumn<TrackInfo>() {
+//            @Override
+//            public String getValue(TrackInfo track) {
+//                return track.getName();
+//            }
+//        };
+//        nameColumn.setSortable(true);
+//
+//
+//        TextColumn<TrackInfo> categoryColumn = new TextColumn<TrackInfo>() {
+//            @Override
+//            public String getValue(TrackInfo track) {
+//                return track.getCategory();
+//            }
+//        };
+//        categoryColumn.setSortable(true);
 
 //        dataGrid.addColumn(showColumn, "Show");
 //        dataGrid.addColumn(categoryColumn, "Category");
@@ -209,10 +202,7 @@ public class TrackPanel extends Composite {
 //        });
 
 
-
-
-
-        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE,new OrganismChangeEventHandler(){
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
                 loadTracks(2000);
@@ -221,7 +211,7 @@ public class TrackPanel extends Composite {
 
     }
 
-    public void loadTracks(int delay){
+    public void loadTracks(int delay) {
 //        dataGrid.setLoadingIndicator(new Label("Loading..."));
 //        dataGrid.setEmptyTableWidget(new Label("Loading..."));
         filteredTrackInfoList.clear();
@@ -230,9 +220,9 @@ public class TrackPanel extends Composite {
             @Override
             public boolean execute() {
                 reload();
-                if(trackInfoList.size()==0){
+                if (trackInfoList.size() == 0) {
 //                    dataGrid.setEmptyTableWidget(new Label("Loading..."));
-                    return true ;
+                    return true;
                 }
                 return false;
             }
@@ -240,7 +230,7 @@ public class TrackPanel extends Composite {
     }
 
     public void reloadIfEmpty() {
-        if(dataProvider.getList().size()==0){
+        if (dataProvider.getList().size() == 0) {
             loadTracks(7000);
         }
     }
@@ -308,14 +298,12 @@ public class TrackPanel extends Composite {
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
                 Integer filteredIndex = filteredTrackInfoList.indexOf(trackInfo);
-                if( filteredIndex < 0 ){
+                if (filteredIndex < 0) {
                     filteredTrackInfoList.add(trackInfo);
-                }
-                else{
+                } else {
                     filteredTrackInfoList.get(filteredIndex).setVisible(trackInfo.getVisible());
                 }
-            }
-            else{
+            } else {
                 filteredTrackInfoList.remove(trackInfo);
             }
         }
@@ -323,26 +311,66 @@ public class TrackPanel extends Composite {
 //        dataGrid.redraw();
     }
 
-    private static Map<String,List<TrackInfo>> categoryMap = new TreeMap<>();
+    private static Map<String, List<TrackInfo>> categoryMap = new TreeMap<>();
+
+    static class TrackBodyPanel extends PanelBody {
+
+        private final TrackInfo trackInfo;
+
+        public TrackBodyPanel(TrackInfo trackInfo) {
+            this.trackInfo = trackInfo;
+            decorate();
+        }
+
+        private void decorate() {
+            HTML label = new HTML(trackInfo.getLabel());
+            label.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    MainPanel.getTrackPanel().setTrackInfo(trackInfo);
+                }
+            });
+            label.addStyleName("track-link");
+            final CheckBox selected = new CheckBox();
+            selected.setValue(trackInfo.getVisible());
+            add(label);
+            add(selected);
+
+            selected.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    JSONObject jsonObject = trackInfo.getPayload();
+                    Boolean value = selected.getValue();
+                    trackInfo.setVisible(value);
+                    if (value) {
+                        jsonObject.put("command", new JSONString("show"));
+                    } else {
+                        jsonObject.put("command", new JSONString("hide"));
+                    }
+                    MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
+                }
+            });
+        }
+    }
 
     private static void renderFiltered() {
         dataGrid.clear();
         categoryMap.clear();
         // populate the map of categories
-        for(TrackInfo trackInfo : trackInfoList){
-            categoryMap.put(trackInfo.getStandardCategory(),new ArrayList<TrackInfo>());
+        for (TrackInfo trackInfo : trackInfoList) {
+            categoryMap.put(trackInfo.getStandardCategory(), new ArrayList<TrackInfo>());
         }
 
-        for(TrackInfo trackInfo : filteredTrackInfoList){
+        for (TrackInfo trackInfo : filteredTrackInfoList) {
             List<TrackInfo> trackInfoList = categoryMap.get(trackInfo.getStandardCategory());
             trackInfoList.add(trackInfo);
-            categoryMap.put(trackInfo.getStandardCategory(),trackInfoList);
+            categoryMap.put(trackInfo.getStandardCategory(), trackInfoList);
         }
 
 
         // build up categories, first, processing any / all levels
-        int count = 1 ;
-        for(String key: categoryMap.keySet()){
+        int count = 1;
+        for (String key : categoryMap.keySet()) {
             List<TrackInfo> trackInfoList = categoryMap.get(key);
             Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
                 @Override
@@ -355,47 +383,44 @@ public class TrackPanel extends Composite {
             Panel panel = new Panel();
             PanelHeader panelHeader = new PanelHeader();
             panelHeader.setDataToggle(Toggle.COLLAPSE);
-            Heading heading = new Heading(HeadingSize.H4,key );
+            Heading heading = new Heading(HeadingSize.H4, key);
             panelHeader.add(heading);
             heading.addStyleName("track-header");
-            Badge badge = new Badge(trackInfoList.size()+"");
+            Badge badge = new Badge(trackInfoList.size() + "");
             badge.setPull(Pull.RIGHT);
             panelHeader.add(badge);
             panel.add(panelHeader);
 
             PanelCollapse panelCollapse = new PanelCollapse();
-            panelCollapse.setId("collapse"+count++);
+            panelCollapse.setId("collapse" + count++);
             panel.add(panelCollapse);
 
-            if(trackInfoList.size()>0){
-                for(TrackInfo trackInfo : trackInfoList){
-                    PanelBody panelBody = new PanelBody();
-                    panelBody.add(new Label(trackInfo.getLabel()));
+            if (trackInfoList.size() > 0) {
+                for (TrackInfo trackInfo : trackInfoList) {
+                    TrackBodyPanel panelBody = new TrackBodyPanel(trackInfo);
+//                    panelBody.add(new Label(trackInfo.getLabel()));
                     panelCollapse.add(panelBody);
                 }
             }
-            panelHeader.setDataTarget("#"+panelCollapse.getId());
+            panelHeader.setDataTarget("#" + panelCollapse.getId());
 
             PanelBody panelBody = getPanelBodyForCategory(key);
-            if(panelBody==null){
+            if (panelBody == null) {
                 dataGrid.add(panel);
-            }
-            else{
+            } else {
                 panelBody.add(panel);
             }
             // else, find the PanelBody and insert there
         }
-//
-//        // count filtered tracks and do count
     }
 
     private static PanelBody getPanelBodyForCategory(String key) {
-        Element element = Document.get().getElementById("#panelBody"+key);
-        if(element!=null){
+        Element element = Document.get().getElementById("#panelBody" + key);
+        if (element != null) {
             com.google.gwt.user.client.EventListener listener = DOM.getEventListener((com.google.gwt.user.client.Element) element);
             return (PanelBody) listener;
         }
-        return null ;
+        return null;
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
@@ -421,20 +446,21 @@ public class TrackPanel extends Composite {
         updateTracks(returnValueObject);
     }
 
-    public List<String> getTrackList(){
-        if(trackInfoList.size()==0){
-            reload() ;
+    public List<String> getTrackList() {
+        if (trackInfoList.size() == 0) {
+            reload();
         }
         List<String> trackListArray = new ArrayList<>();
-        for(TrackInfo trackInfo : trackInfoList){
-            if(trackInfo.getVisible()&&
+        for (TrackInfo trackInfo : trackInfoList) {
+            if (trackInfo.getVisible() &&
                     !isReferenceSequence(trackInfo) &&
-                    !isAnnotationTrack(trackInfo)){
+                    !isAnnotationTrack(trackInfo)) {
                 trackListArray.add(trackInfo.getLabel());
             }
         }
         return trackListArray;
     }
+
     public static void updateTracks(JSONArray array) {
         trackInfoList.clear();
 
@@ -442,19 +468,20 @@ public class TrackPanel extends Composite {
             JSONObject object = array.get(i).isObject();
             TrackInfo trackInfo = new TrackInfo();
             // track label can never be null, but key can be
-            trackInfo.setName(object.get("key")==null?object.get("label").isString().stringValue():object.get("key").isString().stringValue());
+            trackInfo.setName(object.get("key") == null ? object.get("label").isString().stringValue() : object.get("key").isString().stringValue());
 
-            if(object.get("label")!=null) trackInfo.setLabel(object.get("label").isString().stringValue());
+            if (object.get("label") != null) trackInfo.setLabel(object.get("label").isString().stringValue());
             else Bootbox.alert("Track label should not be null, please check your tracklist");
 
-            if(object.get("type")!=null) trackInfo.setType(object.get("type").isString().stringValue());
+            if (object.get("type") != null) trackInfo.setType(object.get("type").isString().stringValue());
 
-            if(object.get("urlTemplate") != null) trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+            if (object.get("urlTemplate") != null)
+                trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
 
-            if(object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
+            if (object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
             else trackInfo.setVisible(false);
 
-            if(object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
+            if (object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
 
             trackInfo.setPayload(object);
             trackInfoList.add(trackInfo);
@@ -464,7 +491,7 @@ public class TrackPanel extends Composite {
 
     @UiHandler("trackListToggle")
     public void trackListToggle(ValueChangeEvent<Boolean> event) {
-        MainPanel.useNativeTracklist=trackListToggle.getValue();
+        MainPanel.useNativeTracklist = trackListToggle.getValue();
         MainPanel.getInstance().trackListToggle.setActive(MainPanel.useNativeTracklist);
         updateTrackToggle(MainPanel.useNativeTracklist);
     }
@@ -476,13 +503,13 @@ public class TrackPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v= JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
+                JSONValue v = JSONParser.parseStrict(response.getText());
+                JSONObject o = v.isObject();
+                if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Updating User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
                 }
 
-                MainPanel.updateGenomicViewer(true,true);
+                MainPanel.updateGenomicViewer(true, true);
             }
 
             @Override
