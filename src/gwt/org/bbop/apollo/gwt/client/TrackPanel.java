@@ -38,6 +38,7 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 
 /**
@@ -328,7 +329,7 @@ public class TrackPanel extends Composite {
         }
 
         private void decorate() {
-            HTML label = new HTML(trackInfo.getLabel());
+            HTML label = new HTML(trackInfo.getName());
             label.addStyleName("track-link");
             final CheckBox selected = new CheckBox();
             selected.setValue(trackInfo.getVisible());
@@ -388,6 +389,9 @@ public class TrackPanel extends Composite {
         int count = 1;
         for (final String key : categoryMap.keySet()) {
             List<TrackInfo> trackInfoList = categoryMap.get(key);
+
+
+
             Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
                 @Override
                 public int compare(TrackInfo o1, TrackInfo o2) {
@@ -402,9 +406,9 @@ public class TrackPanel extends Composite {
             Heading heading = new Heading(HeadingSize.H4, key);
             panelHeader.add(heading);
             heading.addStyleName("track-header");
-            Badge badge = new Badge(trackInfoList.size() + "");
-            badge.setPull(Pull.RIGHT);
-            panelHeader.add(badge);
+            Badge totalBadge = new Badge(trackInfoList.size() + "");
+            totalBadge.setPull(Pull.RIGHT);
+            panelHeader.add(totalBadge);
             panel.add(panelHeader);
 
             final PanelCollapse panelCollapse = new PanelCollapse();
@@ -428,13 +432,17 @@ public class TrackPanel extends Composite {
                 }
             });
 
+            Integer numVisible = 0 ;
             if (trackInfoList.size() > 0) {
                 for (TrackInfo trackInfo : trackInfoList) {
+                    if(trackInfo.getVisible()) ++numVisible;
                     TrackBodyPanel panelBody = new TrackBodyPanel(trackInfo);
 //                    panelBody.add(new Label(trackInfo.getLabel()));
                     panelCollapse.add(panelBody);
                 }
             }
+            totalBadge.setText(numVisible + "/" + trackInfoList.size());
+
 
 //            PanelBody panelBody = getPanelBodyForCategory(key);
 //            if (panelBody == null) {
