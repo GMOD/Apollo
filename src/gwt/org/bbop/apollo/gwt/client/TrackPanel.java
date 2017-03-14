@@ -4,6 +4,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.http.client.*;
@@ -15,7 +17,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
@@ -348,6 +350,8 @@ public class TrackPanel extends Composite {
                     return o1.getLabel().compareTo(o2.getLabel());
                 }
             });
+
+            // if this is a root panel
             Panel panel = new Panel();
             PanelHeader panelHeader = new PanelHeader();
             panelHeader.setDataToggle(Toggle.COLLAPSE);
@@ -372,10 +376,26 @@ public class TrackPanel extends Composite {
             }
             panelHeader.setDataTarget("#"+panelCollapse.getId());
 
-            dataGrid.add(panel);
+            PanelBody panelBody = getPanelBodyForCategory(key);
+            if(panelBody==null){
+                dataGrid.add(panel);
+            }
+            else{
+                panelBody.add(panel);
+            }
+            // else, find the PanelBody and insert there
         }
 //
 //        // count filtered tracks and do count
+    }
+
+    private static PanelBody getPanelBodyForCategory(String key) {
+        Element element = Document.get().getElementById("#panelBody"+key);
+        if(element!=null){
+            com.google.gwt.user.client.EventListener listener = DOM.getEventListener((com.google.gwt.user.client.Element) element);
+            return (PanelBody) listener;
+        }
+        return null ;
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
