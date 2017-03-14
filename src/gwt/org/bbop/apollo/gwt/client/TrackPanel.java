@@ -26,9 +26,12 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.*;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.view.client.CellPreviewEvent;
+import org.gwtbootstrap3.client.ui.Panel;
+import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.HeadingSize;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
@@ -62,25 +65,26 @@ public class TrackPanel extends Composite {
     ToggleSwitch trackListToggle;
 
 
-    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-    @UiField(provided = true)
-    static DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
+//    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+//    @UiField(provided = true)
+//    static DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
     DockLayoutPanel layoutPanel;
     @UiField
     Tree optionTree;
-
+    @UiField
+    static PanelGroup dataGrid;
 
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
-    private SingleSelectionModel<TrackInfo> singleSelectionModel = new SingleSelectionModel<TrackInfo>();
-    private boolean trackSelectionFix; // this fixes the fact that firefox requires two clicks to select a CheckboxCell
+//    private SingleSelectionModel<TrackInfo> singleSelectionModel = new SingleSelectionModel<TrackInfo>();
+//    private boolean trackSelectionFix; // this fixes the fact that firefox requires two clicks to select a CheckboxCell
 
     public TrackPanel() {
         exportStaticMethod();
-        trackSelectionFix=true;
+//        trackSelectionFix=true;
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
@@ -89,7 +93,7 @@ public class TrackPanel extends Composite {
 
         // Set the message to display when the table is empty.
         // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
-        dataGrid.setEmptyTableWidget(new Label("No tracks!"));
+//        dataGrid.setEmptyTableWidget(new Label("No tracks!"));
 
         Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
             @Override
@@ -97,20 +101,20 @@ public class TrackPanel extends Composite {
                 return track.getVisible();
             }
         };
-        dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TrackInfo>() {
-
-            @Override
-            public void onCellPreview(final CellPreviewEvent<TrackInfo> event) {
-
-                if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-                    trackSelectionFix=false;
-                    final TrackInfo value = event.getValue();
-                    final Boolean state = !event.getDisplay().getSelectionModel().isSelected(value);
-                    event.getDisplay().getSelectionModel().setSelected(value, state);
-                    event.setCanceled(true);
-                }
-            }
-        });
+//        dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TrackInfo>() {
+//
+//            @Override
+//            public void onCellPreview(final CellPreviewEvent<TrackInfo> event) {
+//
+//                if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
+//                    trackSelectionFix=false;
+//                    final TrackInfo value = event.getValue();
+//                    final Boolean state = !event.getDisplay().getSelectionModel().isSelected(value);
+//                    event.getDisplay().getSelectionModel().setSelected(value, state);
+//                    event.setCanceled(true);
+//                }
+//            }
+//        });
 
         showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
             /**
@@ -154,53 +158,52 @@ public class TrackPanel extends Composite {
         };
         categoryColumn.setSortable(true);
 
-        dataGrid.addColumn(showColumn, "Show");
-        dataGrid.addColumn(categoryColumn, "Category");
-        dataGrid.addColumn(nameColumn, "Name");
-        dataGrid.setColumnWidth(0, "10%");
-        dataGrid.setSelectionModel(singleSelectionModel);
-        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-            @Override
-            public void onSelectionChange(SelectionChangeEvent event) {
-                if(!trackSelectionFix) setTrackInfo(singleSelectionModel.getSelectedObject());
-                trackSelectionFix=true;
-            }
-        });
+//        dataGrid.addColumn(showColumn, "Show");
+//        dataGrid.addColumn(categoryColumn, "Category");
+//        dataGrid.addColumn(nameColumn, "Name");
+//        dataGrid.setColumnWidth(0, "10%");
+//        dataGrid.setSelectionModel(singleSelectionModel);
+//        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+//            @Override
+//            public void onSelectionChange(SelectionChangeEvent event) {
+//                if(!trackSelectionFix) setTrackInfo(singleSelectionModel.getSelectedObject());
+//                trackSelectionFix=true;
+//            }
+//        });
 
+//        dataProvider.addDataDisplay(dataGrid);
+//
+//
+//        ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
+//        dataGrid.addColumnSortHandler(sortHandler);
 
-        dataProvider.addDataDisplay(dataGrid);
-
-
-        ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
-        dataGrid.addColumnSortHandler(sortHandler);
-
-        sortHandler.setComparator(showColumn, new Comparator<TrackInfo>() {
-            @Override
-            public int compare(TrackInfo o1, TrackInfo o2) {
-                if (o1.getVisible() == o2.getVisible()) {
-                    return 0;
-                }  else if (o1.getVisible()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
-            }
-        });
-        sortHandler.setComparator(nameColumn, new Comparator<TrackInfo>() {
-            @Override
-            public int compare(TrackInfo o1, TrackInfo o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        sortHandler.setComparator(categoryColumn, new Comparator<TrackInfo>() {
-            @Override
-            public int compare(TrackInfo o1, TrackInfo o2) {
-                if(o1.getCategory()==null && o2.getCategory()!=null ) return -1 ;
-                if(o1.getCategory()!=null && o2.getCategory()==null ) return 1 ;
-                if(o1.getCategory()==null && o2.getCategory()==null ) return 0 ;
-                return o1.getCategory().compareTo(o2.getCategory());
-            }
-        });
+//        sortHandler.setComparator(showColumn, new Comparator<TrackInfo>() {
+//            @Override
+//            public int compare(TrackInfo o1, TrackInfo o2) {
+//                if (o1.getVisible() == o2.getVisible()) {
+//                    return 0;
+//                }  else if (o1.getVisible()) {
+//                    return 1;
+//                } else {
+//                    return -1;
+//                }
+//            }
+//        });
+//        sortHandler.setComparator(nameColumn, new Comparator<TrackInfo>() {
+//            @Override
+//            public int compare(TrackInfo o1, TrackInfo o2) {
+//                return o1.getName().compareTo(o2.getName());
+//            }
+//        });
+//        sortHandler.setComparator(categoryColumn, new Comparator<TrackInfo>() {
+//            @Override
+//            public int compare(TrackInfo o1, TrackInfo o2) {
+//                if(o1.getCategory()==null && o2.getCategory()!=null ) return -1 ;
+//                if(o1.getCategory()!=null && o2.getCategory()==null ) return 1 ;
+//                if(o1.getCategory()==null && o2.getCategory()==null ) return 0 ;
+//                return o1.getCategory().compareTo(o2.getCategory());
+//            }
+//        });
 
 
 
@@ -216,8 +219,8 @@ public class TrackPanel extends Composite {
     }
 
     public void loadTracks(int delay){
-        dataGrid.setLoadingIndicator(new Label("Loading..."));
-        dataGrid.setEmptyTableWidget(new Label("Loading..."));
+//        dataGrid.setLoadingIndicator(new Label("Loading..."));
+//        dataGrid.setEmptyTableWidget(new Label("Loading..."));
         filteredTrackInfoList.clear();
         trackInfoList.clear();
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
@@ -225,7 +228,7 @@ public class TrackPanel extends Composite {
             public boolean execute() {
                 reload();
                 if(trackInfoList.size()==0){
-                    dataGrid.setEmptyTableWidget(new Label("Loading..."));
+//                    dataGrid.setEmptyTableWidget(new Label("Loading..."));
                     return true ;
                 }
                 return false;
@@ -292,7 +295,6 @@ public class TrackPanel extends Composite {
 
     @UiHandler("nameSearchBox")
     public void doSearch(KeyUpEvent keyUpEvent) {
-
         filterList();
     }
 
@@ -314,7 +316,27 @@ public class TrackPanel extends Composite {
                 filteredTrackInfoList.remove(trackInfo);
             }
         }
-        dataGrid.redraw();
+        renderFiltered();
+//        dataGrid.redraw();
+    }
+
+    private static void renderFiltered() {
+        dataGrid.clear();
+        // build up categories, first, processing any / all levels
+        for(TrackInfo trackInfo : trackInfoList){
+            Panel panel = new Panel();
+            PanelHeader panelHeader = new PanelHeader();
+            Heading heading = new Heading(HeadingSize.H4,trackInfo.getLabel());
+
+            panelHeader.add(heading);
+            panel.add(panelHeader);
+            dataGrid.add(panel);
+        }
+
+        // count filtered tracks and do count
+        for(TrackInfo trackInfo : filteredTrackInfoList){
+
+        }
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
