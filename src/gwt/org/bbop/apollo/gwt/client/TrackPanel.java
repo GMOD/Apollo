@@ -334,6 +334,8 @@ public class TrackPanel extends Composite {
             final CheckBox selected = new CheckBox();
             selected.setValue(trackInfo.getVisible());
             selected.addStyleName("track-link");
+            setPaddingTop(2);
+            setPaddingBottom(2);
 
             add(selected);
             add(label);
@@ -369,7 +371,6 @@ public class TrackPanel extends Composite {
 
     private static void renderFiltered() {
         dataGrid.clear();
-//        categoryMap.clear();
         // populate the map of categories
         for (TrackInfo trackInfo : trackInfoList) {
             categoryMap.put(trackInfo.getStandardCategory(), new ArrayList<TrackInfo>());
@@ -390,8 +391,6 @@ public class TrackPanel extends Composite {
         for (final String key : categoryMap.keySet()) {
             List<TrackInfo> trackInfoList = categoryMap.get(key);
 
-
-
             Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
                 @Override
                 public int compare(TrackInfo o1, TrackInfo o2) {
@@ -402,6 +401,8 @@ public class TrackPanel extends Composite {
             // if this is a root panel
             Panel panel = new Panel();
             PanelHeader panelHeader = new PanelHeader();
+            panelHeader.setPaddingTop(2);
+            panelHeader.setPaddingBottom(2);
             panelHeader.setDataToggle(Toggle.COLLAPSE);
             Heading heading = new Heading(HeadingSize.H4, key);
             panelHeader.add(heading);
