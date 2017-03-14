@@ -81,7 +81,8 @@ public class TrackInfo implements Comparable<TrackInfo> {
 
     public String getStandardCategory(){
         if(category==null || category.trim().length()==0){
-            return "None";
+            return "-----------";
+//            return "        ";
         }
         else{
             String categoryString = "";
