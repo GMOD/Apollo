@@ -79,6 +79,19 @@ public class TrackInfo implements Comparable<TrackInfo> {
         this.category = category;
     }
 
+    public String getStandardCategory(){
+        if(category==null || category.trim().length()==0){
+            return "None";
+        }
+        else{
+            String categoryString = "";
+            for(String c : category.split("\\/")){
+                categoryString+=c +"/";
+            }
+            return  categoryString.substring(0,categoryString.length()-1);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

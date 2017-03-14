@@ -126,3 +126,9 @@ h1 {
   /*height: 25px;*/
   /*width: 100px;*/
 }
+
+.track-header{
+  display: inline;
+  cursor: pointer;
+  font-size: medium;
+}

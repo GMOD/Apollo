@@ -17,6 +17,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -32,12 +33,12 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import org.gwtbootstrap3.client.ui.Panel;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.HeadingSize;
+import org.gwtbootstrap3.client.ui.constants.Pull;
+import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 
 /**
@@ -320,23 +321,61 @@ public class TrackPanel extends Composite {
 //        dataGrid.redraw();
     }
 
+    private static Map<String,List<TrackInfo>> categoryMap = new TreeMap<>();
+
     private static void renderFiltered() {
         dataGrid.clear();
-        // build up categories, first, processing any / all levels
+        categoryMap.clear();
+        // populate the map of categories
         for(TrackInfo trackInfo : trackInfoList){
+            categoryMap.put(trackInfo.getStandardCategory(),new ArrayList<TrackInfo>());
+        }
+
+        for(TrackInfo trackInfo : filteredTrackInfoList){
+            List<TrackInfo> trackInfoList = categoryMap.get(trackInfo.getStandardCategory());
+            trackInfoList.add(trackInfo);
+            categoryMap.put(trackInfo.getStandardCategory(),trackInfoList);
+        }
+
+
+        // build up categories, first, processing any / all levels
+        int count = 1 ;
+        for(String key: categoryMap.keySet()){
+            List<TrackInfo> trackInfoList = categoryMap.get(key);
+            Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
+                @Override
+                public int compare(TrackInfo o1, TrackInfo o2) {
+                    return o1.getLabel().compareTo(o2.getLabel());
+                }
+            });
             Panel panel = new Panel();
             PanelHeader panelHeader = new PanelHeader();
-            Heading heading = new Heading(HeadingSize.H4,trackInfo.getLabel());
-
+            panelHeader.setDataToggle(Toggle.COLLAPSE);
+            Heading heading = new Heading(HeadingSize.H4,key );
             panelHeader.add(heading);
+            heading.addStyleName("track-header");
+            Badge badge = new Badge(trackInfoList.size()+"");
+            badge.setPull(Pull.RIGHT);
+            panelHeader.add(badge);
             panel.add(panelHeader);
+
+            PanelCollapse panelCollapse = new PanelCollapse();
+            panelCollapse.setId("collapse"+count++);
+            panel.add(panelCollapse);
+
+            if(trackInfoList.size()>0){
+                for(TrackInfo trackInfo : trackInfoList){
+                    PanelBody panelBody = new PanelBody();
+                    panelBody.add(new Label(trackInfo.getLabel()));
+                    panelCollapse.add(panelBody);
+                }
+            }
+            panelHeader.setDataTarget("#"+panelCollapse.getId());
+
             dataGrid.add(panel);
         }
-
-        // count filtered tracks and do count
-        for(TrackInfo trackInfo : filteredTrackInfoList){
-
-        }
+//
+//        // count filtered tracks and do count
     }
 
     private static boolean isAnnotationTrack(TrackInfo trackInfo) {
