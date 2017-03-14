@@ -311,120 +311,105 @@ define([
                 var track = this;
                 var browser = this.gview.browser;
 
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    console.log('Registering embedded system with ApolloGwt-2.0.');
+                console.log('Registering Apollo listeners.');
 
-                    browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                        window.parent.handleNavigationEvent(JSON.stringify(currRegion));
-                    }));
+                browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                    window.parent.handleNavigationEvent(JSON.stringify(currRegion));
+                }));
 
+                var navigateToLocation = function(urlObject) {
+                    if(urlObject.exact){
+                        browser.callLocation(urlObject.url);
+                    }
+                    else{
+                        var location = Util.parseLocString( urlObject.url);
+                        browser.showRegion(location);
+                    }
+                };
 
-                    var navigateToLocation = function (urlObject) {
-                        if(urlObject.exact){
-                            browser.callLocation(urlObject.url);
-                        }
-                        else{
-                            var location = Util.parseLocString( urlObject.url);
-                            browser.showRegion(location);
-                        }
-                    };
+                var sendTracks = function (trackList, visibleTrackNames, showLabels) {
+                    var filteredTrackList = [];
+                    for (var trackConfigIndex in trackList) {
+                        var filteredTrack = {};
+                        var trackConfig = trackList[trackConfigIndex];
+                        var visible = visibleTrackNames.indexOf(trackConfig.label) >= 0 || showLabels.indexOf(trackConfig.label) >= 0;
+                        filteredTrack.label = trackConfig.label;
+                        filteredTrack.key = trackConfig.key;
+                        filteredTrack.name = trackConfig.name;
+                        filteredTrack.type = trackConfig.type;
+                        filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                        filteredTrack.visible = visible;
+                        filteredTrackList.push(filteredTrack);
+                    }
 
-                    window.parent.registerFunction("navigateToLocation",navigateToLocation);
-
-                    var sendTracks = function (trackList, visibleTrackNames, showLabels) {
-                        var filteredTrackList = [];
-                        for (var trackConfigIndex in trackList) {
-                            var filteredTrack = {};
-                            var trackConfig = trackList[trackConfigIndex];
-                            var visible = visibleTrackNames.indexOf(trackConfig.label) >= 0 || showLabels.indexOf(trackConfig.label) >= 0;
-                            filteredTrack.label = trackConfig.label;
-                            filteredTrack.key = trackConfig.key;
-                            filteredTrack.name = trackConfig.name;
-                            filteredTrack.type = trackConfig.type;
-                            filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                            filteredTrack.visible = visible;
-                            filteredTrackList.push(filteredTrack);
-                        }
-
-                        // if for some reason this method is called in the wrong place, we catch the error
-                        if(window.parent){
-                            window.parent.loadTracks(JSON.stringify(filteredTrackList));
-                        }
-                    };
-
-                    var handleTrackVisibility = function (trackInfo) {
-                        var command = trackInfo.command;
-                        if (command == "show") {
-                            browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
-                        }
-                        else if (command == "hide") {
-                            browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
-                        }
-                        else if (command == "list") {
-                            var trackList = browser.trackConfigsByName;
-                            var visibleTrackNames = browser.view.visibleTrackNames();
-                            var showLabels = array.map(trackInfo.labels, function (track) {
-                                return track.label;
-                            });
-                            sendTracks(trackList, visibleTrackNames, showLabels);
-                        }
-                        else {
-                            console.log('unknown command: ' + command);
-                        }
-                    };
-                    browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
-                        console.log("show update");
-                        handleTrackVisibility({command: "list", labels: labels});
-                    });
-                    browser.subscribe('/jbrowse/v1/c/tracks/hide', function () {
-                        console.log("hide update");
-                        handleTrackVisibility({command: "list"});
-                    });
-                    window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+                    // if for some reason this method is called in the wrong place, we catch the error
+                    if(window.parent){
+                        window.parent.loadTracks(JSON.stringify(filteredTrackList));
+                    }
+                };
 
 
 
-                    client.connect({}, function () {
-                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        var organism = JSON.parse(window.parent.getCurrentOrganism());
-                        var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        var user = JSON.parse(window.parent.getCurrentUser());
-                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
-                        client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
-                    });
-                    console.log('connection established');
+                var handleTrackVisibility = function (trackInfo) {
+                    var command = trackInfo.command;
+                    if (command == "show") {
+                        browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                    }
+                    else if (command == "hide") {
+                        browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                    }
+                    else if (command == "list") {
+                        var trackList = browser.trackConfigsByName;
+                        var visibleTrackNames = browser.view.visibleTrackNames();
+                        var showLabels = array.map(trackInfo.labels, function (track) {
+                            return track.label;
+                        });
+                        sendTracks(trackList, visibleTrackNames, showLabels);
+                    }
+                    else {
+                        console.error('unknown command: ' + command);
+                    }
+                };
+                browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
+                    console.log("show update");
+                    handleTrackVisibility({command: "list", labels: labels});
+                });
+                browser.subscribe('/jbrowse/v1/c/tracks/hide', function () {
+                    console.log("hide update");
+                    handleTrackVisibility({command: "list"});
+                });
+
+                function handleMessage(event){
+                    var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
+                    var hostUrl = window.location.protocol +"//" + window.location.hostname + ":" + window.location.port;
+                    if (origin !== hostUrl){
+                        console.error("Bad Host Origin: "+origin);
+                        return;
+                    }
+
+                    if(event.data.description === "navigateToLocation"){
+                        navigateToLocation(event.data);
+                    }
+                    else
+                    if(event.data.description === "handleTrackVisibility"){
+                        handleTrackVisibility(event.data);
+                    }
+                    else{
+                        console.log("Unknown command: "+event.data.description);
+                    }
                 }
-                else
-                // TODO: note this code will likely be removed with an error that it has to be wrapped
-                {
-                    console.log('No embedded server is present.');
-                    client.connect({}, function () {
+                window.addEventListener("message",handleMessage,true);
 
-                        var request = {
-                            "name": track.refSeq.name,
-                            "organism": track.webapollo.organism,
-                            "clientToken": track.getClientToken()
-                        };
 
-                        xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
-                            data: JSON.stringify(request),
-                            handleAs: "json"
-                        }).then(function (response) {
-                                if (response.error) {
-                                    alert("Failed to subscribe to websocket, no seq/org id available");
-                                    return;
-                                }
-                                if (typeof track.webapollo.organism == 'undefined') {
-                                    track.webapollo.organism = response.organismId;
-                                }
-                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response.id, dojo.hitch(track, 'annotationNotification'));
-                                client.subscribe("/topic/AnnotationNotification/user/" + track.username, dojo.hitch(track, 'annotationNotification'));
-                            },
-                            function () {
-                                console.log("Received error in organism lookup, anonymous mode jbrowse");
-                            });
-                    });
-                }
+                client.connect({}, function () {
+                    // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                    var organism = JSON.parse(window.parent.getCurrentOrganism());
+                    var sequence = JSON.parse(window.parent.getCurrentSequence());
+                    var user = JSON.parse(window.parent.getCurrentUser());
+                    client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                    client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
+                });
+                console.log('connection established');
             },
             annotationNotification: function (message) {
                 var track = this;
