@@ -17,6 +17,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -65,10 +66,6 @@ public class TrackPanel extends Composite {
     @UiField
     ToggleSwitch trackListToggle;
 
-
-    //    private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
-//    @UiField(provided = true)
-//    static DataGrid<TrackInfo> dataGrid = new DataGrid<TrackInfo>(1000, tablecss);
     @UiField
     DockLayoutPanel layoutPanel;
     @UiField
@@ -80,131 +77,15 @@ public class TrackPanel extends Composite {
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
-//    private SingleSelectionModel<TrackInfo> singleSelectionModel = new SingleSelectionModel<TrackInfo>();
-//    private boolean trackSelectionFix; // this fixes the fact that firefox requires two clicks to select a CheckboxCell
 
     public TrackPanel() {
         exportStaticMethod();
-//        trackSelectionFix=true;
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
 
         dataGrid.setWidth("100%");
 
-        // Set the message to display when the table is empty.
-        // fix selected style: http://comments.gmane.org/gmane.org.google.gwt/70747
-//        dataGrid.setEmptyTableWidget(new Label("No tracks!"));
-
-//        Column<TrackInfo, Boolean> showColumn = new Column<TrackInfo, Boolean>(new CheckboxCell(true, false)) {
-//            @Override
-//            public Boolean getValue(TrackInfo track) {
-//                return track.getVisible();
-//            }
-//        };
-//        dataGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TrackInfo>() {
-//
-//            @Override
-//            public void onCellPreview(final CellPreviewEvent<TrackInfo> event) {
-//
-//                if (BrowserEvents.CLICK.equals(event.getNativeEvent().getType())) {
-//                    trackSelectionFix=false;
-//                    final TrackInfo value = event.getValue();
-//                    final Boolean state = !event.getDisplay().getSelectionModel().isSelected(value);
-//                    event.getDisplay().getSelectionModel().setSelected(value, state);
-//                    event.setCanceled(true);
-//                }
-//            }
-//        });
-
-//        showColumn.setFieldUpdater(new FieldUpdater<TrackInfo, Boolean>() {
-//            /**
-//             * TODO: emulate . . underTrackList . . Create an external function in Annotrack to then call from here
-//             * a good example: http://www.springindepth.com/book/gwt-comet-gwt-dojo-cometd-spring-bayeux-jetty.html
-//             * uses DOJO publish mechanism (http://dojotoolkit.org/reference-guide/1.7/dojo/publish.html)
-//
-//             * @param index
-//             * @param trackInfo
-//             * @param value
-//             */
-//            @Override
-//            public void update(int index, TrackInfo trackInfo, Boolean value) {
-//                JSONObject jsonObject = trackInfo.getPayload();
-//                trackInfo.setVisible(value);
-//                if (value) {
-//                    jsonObject.put("command", new JSONString("show"));
-//                } else {
-//                    jsonObject.put("command", new JSONString("hide"));
-//                }
-//
-//                MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
-//            }
-//        });
-//        showColumn.setSortable(true);
-
-//        TextColumn<TrackInfo> nameColumn = new TextColumn<TrackInfo>() {
-//            @Override
-//            public String getValue(TrackInfo track) {
-//                return track.getName();
-//            }
-//        };
-//        nameColumn.setSortable(true);
-//
-//
-//        TextColumn<TrackInfo> categoryColumn = new TextColumn<TrackInfo>() {
-//            @Override
-//            public String getValue(TrackInfo track) {
-//                return track.getCategory();
-//            }
-//        };
-//        categoryColumn.setSortable(true);
-
-//        dataGrid.addColumn(showColumn, "Show");
-//        dataGrid.addColumn(categoryColumn, "Category");
-//        dataGrid.addColumn(nameColumn, "Name");
-//        dataGrid.setColumnWidth(0, "10%");
-//        dataGrid.setSelectionModel(singleSelectionModel);
-//        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-//            @Override
-//            public void onSelectionChange(SelectionChangeEvent event) {
-//                if(!trackSelectionFix) setTrackInfo(singleSelectionModel.getSelectedObject());
-//                trackSelectionFix=true;
-//            }
-//        });
-
-//        dataProvider.addDataDisplay(dataGrid);
-//
-//
-//        ColumnSortEvent.ListHandler<TrackInfo> sortHandler = new ColumnSortEvent.ListHandler<TrackInfo>(filteredTrackInfoList);
-//        dataGrid.addColumnSortHandler(sortHandler);
-
-//        sortHandler.setComparator(showColumn, new Comparator<TrackInfo>() {
-//            @Override
-//            public int compare(TrackInfo o1, TrackInfo o2) {
-//                if (o1.getVisible() == o2.getVisible()) {
-//                    return 0;
-//                }  else if (o1.getVisible()) {
-//                    return 1;
-//                } else {
-//                    return -1;
-//                }
-//            }
-//        });
-//        sortHandler.setComparator(nameColumn, new Comparator<TrackInfo>() {
-//            @Override
-//            public int compare(TrackInfo o1, TrackInfo o2) {
-//                return o1.getName().compareTo(o2.getName());
-//            }
-//        });
-//        sortHandler.setComparator(categoryColumn, new Comparator<TrackInfo>() {
-//            @Override
-//            public int compare(TrackInfo o1, TrackInfo o2) {
-//                if(o1.getCategory()==null && o2.getCategory()!=null ) return -1 ;
-//                if(o1.getCategory()!=null && o2.getCategory()==null ) return 1 ;
-//                if(o1.getCategory()==null && o2.getCategory()==null ) return 0 ;
-//                return o1.getCategory().compareTo(o2.getCategory());
-//            }
-//        });
 
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
@@ -217,8 +98,6 @@ public class TrackPanel extends Composite {
     }
 
     public void loadTracks(int delay) {
-//        dataGrid.setLoadingIndicator(new Label("Loading..."));
-//        dataGrid.setEmptyTableWidget(new Label("Loading..."));
         filteredTrackInfoList.clear();
         trackInfoList.clear();
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
@@ -226,7 +105,6 @@ public class TrackPanel extends Composite {
             public boolean execute() {
                 reload();
                 if (trackInfoList.size() == 0) {
-//                    dataGrid.setEmptyTableWidget(new Label("Loading..."));
                     return true;
                 }
                 return false;
@@ -313,7 +191,6 @@ public class TrackPanel extends Composite {
             }
         }
         renderFiltered();
-//        dataGrid.redraw();
     }
 
     private static Map<String, List<TrackInfo>> categoryMap = new TreeMap<>();
@@ -367,6 +244,7 @@ public class TrackPanel extends Composite {
     public void  clear(){
         categoryMap.clear();
         dataGrid.clear();
+        dataGrid.add(new org.gwtbootstrap3.client.ui.Label("Loading..."));
     }
 
     private static void renderFiltered() {
@@ -445,13 +323,7 @@ public class TrackPanel extends Composite {
             totalBadge.setText(numVisible + "/" + trackInfoList.size());
 
 
-//            PanelBody panelBody = getPanelBodyForCategory(key);
-//            if (panelBody == null) {
-                dataGrid.add(panel);
-//            } else {
-//                panelBody.add(panel);
-//            }
-            // else, find the PanelBody and insert there
+            dataGrid.add(panel);
         }
     }
 

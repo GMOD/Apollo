@@ -32,7 +32,6 @@
                         <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
                     </b:Column>
                     <b:Column size="MD_6">
-                        <!--<b:CheckBox ui:field="trackListToggle"  text="Show JBrowse Track Selector" visible="true"/>-->
                         <toggle:ToggleSwitch ui:field="trackListToggle" size="MINI" labelText="JBrowse Track Selector" onText="Hide" offText="Show" visible="true"/>
                     </b:Column>
                 </b:Row>
@@ -40,9 +39,10 @@
         </gwt:north>
         <gwt:center>
             <gwt:ScrollPanel>
-                <b:PanelGroup ui:field="dataGrid"/>
+                <b:PanelGroup ui:field="dataGrid">
+                    <b:Label text="Loading..."/>
+                </b:PanelGroup>
             </gwt:ScrollPanel>
-            <!--<cellview:DataGrid ui:field="dataGrid" styleName="{style.cellTable}"/>-->
         </gwt:center>
         <gwt:south size="200">
             <gwt:TabLayoutPanel barHeight="35">
