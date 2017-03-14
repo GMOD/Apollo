@@ -224,13 +224,17 @@ sub process_gff {
         print "[";
         if (keys %{$seq_ids_to_genes} > 0) {
             print_features($seq_ids_to_genes, "addFeature");
-            print ",";
         }
         if (keys %{$seq_ids_to_transcripts}) {
+            if (keys %{$seq_ids_to_genes} > 0) {
+                print ",";
+            }
             print_features($seq_ids_to_transcripts, "addTranscript");
-            print ",";
         }
         if (keys %{$seq_ids_to_sequence_alterations}) {
+            if (keys %{$seq_ids_to_sequence_alterations} > 0) {
+                print ",";
+            }
             print_features($seq_ids_to_sequence_alterations, "addSequenceAlteration");
         }
         print "]";
