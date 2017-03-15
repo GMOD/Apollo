@@ -2,7 +2,9 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -92,7 +94,7 @@ public class Annotator implements EntryPoint {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
                             int statusCode = response.getStatusCode();
-                            if (statusCode == 200) {
+                            if(statusCode==200 && response.getText().equals("{}")){
                                 GWT.log("Still connected");
                             } else {
                                 if (!confirmOpen) {
@@ -193,4 +195,5 @@ public class Annotator implements EntryPoint {
         return token;
 
     }
+
 }

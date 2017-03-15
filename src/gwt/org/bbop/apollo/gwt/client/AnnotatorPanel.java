@@ -430,7 +430,7 @@ public class AnnotatorPanel extends Composite {
 
 
 
-        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false);
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false,false);
     }
 
     static AssemblageInfo collectAssemblageFromSelectedFeature(AnnotationInfo annotationInfo) {
@@ -780,6 +780,14 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
+//    @UiHandler("gotoAnnotation")
+//    void gotoAnnotation(ClickEvent clickEvent) {
+//        Integer min = selectedAnnotationInfo.getMin() - 50;
+//        Integer max = selectedAnnotationInfo.getMax() + 50;
+//        min = min < 0 ? 0 : min;
+//        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+//    }
+
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
@@ -820,7 +828,7 @@ public class AnnotatorPanel extends Composite {
         assemblageInfo.setStart(min);
         assemblageInfo.setEnd(max);
 
-        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false);
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false,false);
     }
 
     // also used by javascript function
@@ -843,7 +851,7 @@ public class AnnotatorPanel extends Composite {
         assemblageInfo.setStart(min);
         assemblageInfo.setEnd(max);
 
-        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false);
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false,false);
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{

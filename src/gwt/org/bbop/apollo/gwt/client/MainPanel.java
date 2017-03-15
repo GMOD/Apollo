@@ -3,12 +3,14 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -52,10 +54,7 @@ public class MainPanel extends Composite {
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
     private boolean toggleOpen = true;
-    public static Map<String, JavaScriptObject> annotrackFunctionMap = new HashMap<>();
 
-    // state info
-    private static PermissionEnum highestPermission = PermissionEnum.NONE; // the current logged-in user
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static AssemblageInfo currentAssemblage;
@@ -303,7 +302,7 @@ public class MainPanel extends Composite {
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(),currentOrganism.getName()));
 
                 if (updateViewer) {
-                    updateGenomicViewerForAssemblage(currentAssemblage,currentStartBp,currentEndBp,true);
+                    updateGenomicViewerForAssemblage(currentAssemblage,currentStartBp,currentEndBp,false,false);
                 }
                 if (blocking) {
                     loadingDialog.hide();
@@ -316,7 +315,7 @@ public class MainPanel extends Composite {
                 if (blocking) {
                     loadingDialog.hide();
                 }
-                Bootbox.alert("failed to set JBrowse sequence: " + exception);
+                Bootbox.alert("Failed to sequence: " + exception);
             }
         };
 
@@ -334,6 +333,7 @@ public class MainPanel extends Composite {
 
     private void updatePermissionsForOrganism() {
         String globalRole = currentUser.getRole();
+        PermissionEnum highestPermission ;
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
@@ -446,7 +446,7 @@ public class MainPanel extends Composite {
     }
 
     public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion) {
-        updateGenomicViewerForAssemblage(selectedSequence, minRegion, maxRegion, false);
+        updateGenomicViewerForAssemblage(selectedSequence, minRegion, maxRegion, false,false);
     }
 
     /**
@@ -463,7 +463,7 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(returnValue);
-                updateGenomicViewer(true);
+                updateGenomicViewer(true,true);
 
             }
 
@@ -482,7 +482,7 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo, Long minRegion, Long maxRegion, Boolean forceReload) {
+    public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
 
         if (!forceReload && currentAssemblage != null && currentAssemblage.getDescription().equals(assemblageInfo.getDescription()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             long oldLength = maxRegion - minRegion;
@@ -553,8 +553,17 @@ public class MainPanel extends Composite {
         else{
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
+
         trackListString += "&locationBox=none";
-        frame.setUrl(trackListString);
+        // TODO: this should work correclty
+//        if(!forceUrl && getInnerDiv()!=null){
+//            JSONObject commandObject = new JSONObject();
+//            commandObject.put("url", new JSONString(selectedSequence+":"+currentStartBp+".."+currentEndBp));
+//            MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
+//        }
+//        else{
+            frame.setUrl(trackListString);
+//        }
 
         if(Window.Location.getParameter("tracks")!=null){
             String newURL = Window.Location.createUrlBuilder().removeParameter("tracks").buildString();
@@ -572,7 +581,7 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload) {
+    public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
 
         AssemblageInfo assemblageInfo;
         if (selectedSequence.startsWith("{")) {
@@ -585,13 +594,35 @@ public class MainPanel extends Composite {
             assemblageSequenceList.addSequence(assemblageSequence);
             assemblageInfo.setSequenceList(assemblageSequenceList);
         }
-        updateGenomicViewerForAssemblage(assemblageInfo,minRegion,maxRegion,forceReload);
+        updateGenomicViewerForAssemblage(assemblageInfo,minRegion,maxRegion,forceReload,forceUrl);
     }
+
+    void postMessage(String message, JSONObject object){
+        object.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString(message));
+        postMessage(object.getJavaScriptObject());
+    }
+
+    private native void postMessage(JavaScriptObject message)/*-{
+        var genomeViewer = $wnd.document.getElementById("genomeViewer").contentWindow;
+        var domain = $wnd.location.protocol+"//"+$wnd.location.hostname +":"+$wnd.location.port  ;
+        genomeViewer.postMessage(message,domain);
+    }-*/;
 
     private static native void newUrl(String newUrl)/*-{
         $wnd.history.pushState(newUrl, "", newUrl);
     }-*/;
 
+
+    public static native Element getInnerDiv()/*-{
+        var iframe = $doc.getElementById("genomeViewer");
+        var innerDoc = iframe.contentDocument ; // .contentWindow.document
+        if(!innerDoc){
+            innerDoc = iframe.contentWindow.document ;
+        }
+        // this is the JBrowse div
+        var genomeBrowser = innerDoc.getElementById("GenomeBrowser");
+        return genomeBrowser ;
+    }-*/;
 
     private static String getCurrentQueryParamsAsString() {
         String returnString = "";
@@ -610,19 +641,16 @@ public class MainPanel extends Composite {
     }
 
 
-    public static void updateGenomicViewer(boolean forceReload) {
+    public static void updateGenomicViewer(boolean forceReload,boolean forceUrl) {
         if(currentAssemblage==null) {
             GWT.log("Current sequence not set");
+            return ;
         }
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForAssemblage(currentAssemblage, currentStartBp, currentEndBp, forceReload);
+            updateGenomicViewerForAssemblage(currentAssemblage, currentStartBp, currentEndBp, forceReload,forceUrl);
         } else {
-            updateGenomicViewerForAssemblage(currentAssemblage, currentAssemblage.getStart(), currentAssemblage.getEnd(), forceReload);
+            updateGenomicViewerForAssemblage(currentAssemblage, currentAssemblage.getStart(), currentAssemblage.getEnd(), forceReload,forceUrl);
         }
-    }
-
-    public static void updateGenomicViewer() {
-        updateGenomicViewer(false);
     }
 
     public void setAppState(AppStateInfo appStateInfo) {
@@ -648,7 +676,7 @@ public class MainPanel extends Composite {
 
         if (currentOrganism != null) {
             updatePermissionsForOrganism();
-            updateGenomicViewer(true);
+            updateGenomicViewer(true,true);
         }
 
 
@@ -844,15 +872,6 @@ public class MainPanel extends Composite {
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
     }
 
-    public void clearExternalFunctions() {
-        annotrackFunctionMap.clear();
-    }
-
-    public static void registerFunction(String name, JavaScriptObject javaScriptObject) {
-        annotrackFunctionMap.put(name, javaScriptObject);
-    }
-
-
     @UiHandler("generateLink")
     public void toggleLink(ClickEvent clickEvent) {
         String text = "";
@@ -932,25 +951,6 @@ public class MainPanel extends Composite {
         reloadTabPerIndex(TabPanelIndex.ASSEMBLAGE.getIndex());
         assemblagePanel.setAssemablageInfo(currentAssemblage);
     }
-
-
-    public static String executeFunction(String name) {
-        return executeFunction(name, JavaScriptObject.createObject());
-    }
-
-    public static String executeFunction(String name, JavaScriptObject dataObject) {
-        JavaScriptObject targetFunction = annotrackFunctionMap.get(name);
-        if (targetFunction == null) {
-            return "function " + name + " not found";
-        }
-        return executeFunction(targetFunction, dataObject);
-    }
-
-
-    public static native String executeFunction(JavaScriptObject targetFunction, JavaScriptObject data) /*-{
-        return targetFunction(data);
-    }-*/;
-
 
     public static void reloadAnnotator() {
         GWT.log("MainPanel reloadAnnotator");
@@ -1075,13 +1075,13 @@ public class MainPanel extends Composite {
         trackPanel.updateTrackToggle(useNativeTracklist);
     }
 
+
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
         $wnd.reloadSequences = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadSequences());
         $wnd.reloadOrganisms = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadOrganisms());
         $wnd.reloadUsers = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUsers());
         $wnd.reloadUserGroups = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadUserGroups());
-        $wnd.registerFunction = $entry(@org.bbop.apollo.gwt.client.MainPanel::registerFunction(Ljava/lang/String;Lcom/google/gwt/core/client/JavaScriptObject;));
         $wnd.handleNavigationEvent = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleNavigationEvent(Ljava/lang/String;));
         $wnd.handleFeatureAdded = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureAdded(Ljava/lang/String;));
         $wnd.handleFeatureDeleted = $entry(@org.bbop.apollo.gwt.client.MainPanel::handleFeatureDeleted(Ljava/lang/String;));
@@ -1159,5 +1159,19 @@ public class MainPanel extends Composite {
         setCurrentAssemblage(assemblageInfo);
         updateGenomicViewerForAssemblage(assemblageInfo);
     }
+
+
+//    public static SequenceInfo getCurrentSequence() {
+//        return currentSequence;
+//    }
+//
+//    SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {
+//        currentSequence = newSequence;
+//        currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
+//        currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
+//        currentSequence.setStartBp(currentStartBp);
+//        currentSequence.setEndBp(currentEndBp);
+//        return currentSequence;
+//    }
 
 }

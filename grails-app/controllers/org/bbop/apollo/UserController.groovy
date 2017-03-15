@@ -270,6 +270,7 @@ class UserController {
             , @RestApiParam(name = "firstName", type = "string", paramType = RestApiParamType.QUERY, description = "First name of user to add")
             , @RestApiParam(name = "lastName", type = "string", paramType = RestApiParamType.QUERY, description = "Last name of user to add")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "User metadata (optional)")
+            , @RestApiParam(name = "role", type = "string", paramType = RestApiParamType.QUERY, description = "User role USER / ADMIN (optional: default USER) ")
             , @RestApiParam(name = "newPassword", type = "string", paramType = RestApiParamType.QUERY, description = "Password of user to add")
     ])
     @Transactional
@@ -297,8 +298,11 @@ class UserController {
             )
             user.save(insert: true)
 
-            String roleString = dataObject.role
+            String roleString = dataObject.role ?: UserService.USER
             Role role = Role.findByName(roleString.toUpperCase())
+            if(!role){
+                role = Role.findByName(UserService.USER)
+            }
             log.debug "adding role: ${role}"
             user.addToRoles(role)
             role.addToUsers(user)

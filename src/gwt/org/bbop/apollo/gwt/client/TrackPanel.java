@@ -15,7 +15,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -35,8 +34,6 @@ import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
-
-import static org.bbop.apollo.gwt.client.MainPanel.frame;
 
 
 /**
@@ -134,7 +131,7 @@ public class TrackPanel extends Composite {
                     jsonObject.put("command", new JSONString("hide"));
                 }
 
-                MainPanel.executeFunction("handleTrackVisibility", jsonObject.getJavaScriptObject());
+                MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
             }
         });
         showColumn.setSortable(true);
@@ -315,7 +312,7 @@ public class TrackPanel extends Composite {
     public void reload() {
         JSONObject commandObject = new JSONObject();
         commandObject.put("command", new JSONString("list"));
-        MainPanel.executeFunction("handleTrackVisibility", commandObject.getJavaScriptObject());
+        MainPanel.getInstance().postMessage("handleTrackVisibility", commandObject);
     }
 
     public static void updateTracks(String jsonString) {
@@ -377,7 +374,7 @@ public class TrackPanel extends Composite {
                     new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
                 }
 
-                MainPanel.updateGenomicViewer(true);
+                MainPanel.updateGenomicViewer(true,true);
             }
 
             @Override

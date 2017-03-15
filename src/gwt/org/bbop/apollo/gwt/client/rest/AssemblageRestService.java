@@ -94,7 +94,7 @@ public class AssemblageRestService {
     private static void updateForAssemblage(Response response){
         AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
         MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
-        MainPanel.updateGenomicViewer(true);
+        MainPanel.updateGenomicViewer(true,true);
     }
 
     public static void projectFeatures(JSONObject projectionCommand) {
@@ -150,7 +150,7 @@ public class AssemblageRestService {
             public void onResponseReceived(Request request, Response response) {
                 AssemblageInfo assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(response.getText()).isObject());
                 MainPanel.getInstance().setCurrentAssemblage(assemblageInfo);
-                MainPanel.updateGenomicViewer(true);
+                MainPanel.updateGenomicViewer(true,true);
             }
 
             @Override

@@ -13,13 +13,15 @@ import groovyx.net.http.RESTClient
 String usageString = "add_users.groovy <options>\n" +
         "Example: \n" +
         "./add_users.groovy -inputfile somefile.csv -destinationurl http://localhost:8080/Apollo/\n" +
-        "./add_users.groovy -newuser newuser@test.com -newpassword newuserpass -destinationurl http://localhost:8080/Apollo/\n"
+        "./add_users.groovy -firstName New -lastName User -newuser newuser@test.com -newpassword newuserpass -destinationurl http://localhost:8080/Apollo/\n"
 
 def cli = new CliBuilder(usage: 'add_users.groovy <options>')
 cli.setStopAtNonOption(true)
 cli.inputfile('CSV file with format <email>,<firstname>,<lastname>,<password>,<role>', required: false, args: 1)
 cli.username('Admin password', required: false, args: 1)
 cli.password('Admin username', required: false, args: 1)
+cli.firstName('firstName', required: false, args: 1)
+cli.lastName('lastName', required: false, args: 1)
 cli.newuser('New user name (if not from csv)',required: false, args: 1)
 cli.newpassword('New user password (if not from csv)',required: false, args: 1)
 cli.newrole('New user role (if not from csv)',required: false, args: 1)
