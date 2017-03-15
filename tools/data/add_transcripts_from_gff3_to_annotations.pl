@@ -67,7 +67,8 @@ my %ignored_properties = (  owner               => 1,
 $| = 1;
 
 parse_options();
-process_gff();
+print_deprecation_note();
+exit();
 
 sub parse_options {
     my $help;
@@ -125,12 +126,9 @@ sub parse_options {
 }
 
 sub print_usage {
+    print_deprecation_note();
     my $progname = basename($0);
     die << "END";
-
-*note*: This script is meant for importing protein coding genes into Apollo's Annotations track
-        and is superseded by add_features_from_gff3_to_annotations.pl, which supports importing
-        all types of annotations that are currently supported by Apollo.
 
 usage: $progname
     --url|-U <URL to Apollo instance>
@@ -209,6 +207,15 @@ usage: $progname
     x: test mode
     h: this help screen
 END
+}
+
+sub print_deprecation_note {
+    print "\n\n";
+    print "*********************************************************************************************\n";
+    print "* This script has been deprecated and replaced by add_features_from_gff3_to_annotations.pl, *\n";
+    print "* which supports importing all types of annotations that are currently supported by Apollo. *\n";
+    print "*********************************************************************************************\n";
+    print "\n\n";
 }
 
 sub process_gff {

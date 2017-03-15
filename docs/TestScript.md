@@ -242,13 +242,13 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
  
 15.2.1) Verify that it also works for the shell (curl) script as well.
 
-15.3) Make sure that you can add annotations using the ```add_transcripts_from_gff3_to_annotations.pl``` script from exported annotations. 
+15.3) Make sure that you can add annotations using the ```add_features_from_gff3_to_annotations.pl``` script from exported annotations.
 
 15.3.1) Create annotations for new user on new organism.
 
 15.3.2) Download annotations as GFF3.
 
-15.3.3) Run ```add_transcripts_from_gff3_to_annotations.pl``` against the same organism and user and confirm that it works. ```./add_transcripts_from_gff3_to_annotations.pl -U http://testserver.gov/Apollo-staging -u adminuser@admin.gov -p adminpassword -i Annotations-chrI.gff3  --organism SampleOrganism```
+15.3.3) Run ```add_features_from_gff3_to_annotations.pl``` against the same organism and user and confirm that it works. ```./add_features_from_gff3_to_annotations.pl -U http://testserver.gov/Apollo-staging -u adminuser@admin.gov -p adminpassword -i Annotations-chrI.gff3  --organism SampleOrganism```
 
 15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  ```groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism
 
