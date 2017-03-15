@@ -516,6 +516,10 @@ class JbrowseController {
                     // We add the data refSeq here
                     String fileText = new File(dataFileName).text
                     JSONArray inputArray = JSON.parse(fileText) as JSONArray
+                    Assemblage.findAllByOrganism(currentOrganism).each {
+                        sequenceArray.addAll(projectionService.fixProjectionName(JSON.parse(it.sequenceList) as JSONArray))
+                    }
+
                     sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
 
                     response.outputStream << sequenceArray.toString()
