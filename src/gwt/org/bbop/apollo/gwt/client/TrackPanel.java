@@ -16,7 +16,6 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -286,24 +285,32 @@ public class TrackPanel extends Composite {
 
             // if this is a root panel
             Panel panel = new Panel();
-            PanelHeader panelHeader = new PanelHeader();
-            panelHeader.setPaddingTop(2);
-            panelHeader.setPaddingBottom(2);
-            panelHeader.setDataToggle(Toggle.COLLAPSE);
-            Heading heading = new Heading(HeadingSize.H4, key);
-            panelHeader.add(heading);
-            heading.addStyleName("track-header");
-            Badge totalBadge = new Badge(trackInfoList.size() + "");
-            totalBadge.setPull(Pull.RIGHT);
-            panelHeader.add(totalBadge);
-            panel.add(panelHeader);
+
+            PanelHeader panelHeader = null ;
+            Badge totalBadge = null ;
+            if(!key.equals(TrackInfo.TRACK_UNCATEGORIZED) && categoryOpen.size()==1){
+                panelHeader = new PanelHeader();
+                panelHeader.setPaddingTop(2);
+                panelHeader.setPaddingBottom(2);
+                panelHeader.setDataToggle(Toggle.COLLAPSE);
+                Heading heading = new Heading(HeadingSize.H4, key);
+                panelHeader.add(heading);
+                heading.addStyleName("track-header");
+                totalBadge = new Badge(trackInfoList.size() + "");
+                totalBadge.setPull(Pull.RIGHT);
+                panelHeader.add(totalBadge);
+                panel.add(panelHeader);
+            }
+
+
 
             final PanelCollapse panelCollapse = new PanelCollapse();
             panelCollapse.setIn(categoryOpen.get(key));
             panelCollapse.setId("collapse" + count++);
             panel.add(panelCollapse);
             panelCollapse.setWidth("100%");
-            panelHeader.setDataTarget("#" + panelCollapse.getId());
+
+            if(panelHeader!=null) panelHeader.setDataTarget("#" + panelCollapse.getId());
 
             panelCollapse.addHiddenHandler(new HiddenHandler() {
                 @Override
@@ -324,11 +331,10 @@ public class TrackPanel extends Composite {
                 for (TrackInfo trackInfo : trackInfoList) {
                     if(trackInfo.getVisible()) ++numVisible;
                     TrackBodyPanel panelBody = new TrackBodyPanel(trackInfo);
-//                    panelBody.add(new Label(trackInfo.getLabel()));
                     panelCollapse.add(panelBody);
                 }
             }
-            totalBadge.setText(numVisible + "/" + trackInfoList.size());
+            if(totalBadge!=null) totalBadge.setText(numVisible + "/" + trackInfoList.size());
 
 
             dataGrid.add(panel);
