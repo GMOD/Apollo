@@ -517,7 +517,7 @@ class JbrowseController {
                     String fileText = new File(dataFileName).text
                     JSONArray inputArray = JSON.parse(fileText) as JSONArray
                     Assemblage.findAllByOrganism(currentOrganism).each {
-                        sequenceArray.addAll(projectionService.fixProjectionName(JSON.parse(it.sequenceList) as JSONArray))
+                        sequenceArray.add(projectionService.fixProjectionName( (JSON.parse(it.sequenceList) as JSONArray)).first())
                     }
 
                     sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
