@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -36,6 +37,7 @@ import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
+import org.gwtbootstrap3.extras.toggleswitch.client.ui.base.constants.SizeType;
 
 import java.util.*;
 
@@ -206,9 +208,14 @@ public class TrackPanel extends Composite {
         private void decorate() {
             HTML label = new HTML(trackInfo.getName());
             label.addStyleName("track-link");
-            final CheckBox selected = new CheckBox();
+//            final CheckBox selected = new CheckBox();
+            final ToggleSwitch selected = new ToggleSwitch();
+            selected.setSize(SizeType.MINI);
+            selected.setAnimate(false);
+            selected.setOffText("Show");
+            selected.setOnText("Hide");
             selected.setValue(trackInfo.getVisible());
-            selected.addStyleName("track-link");
+            selected.addStyleName("track-slider");
             setPaddingTop(2);
             setPaddingBottom(2);
 
@@ -216,9 +223,9 @@ public class TrackPanel extends Composite {
             add(label);
             setWidth("100%");
 
-            selected.addClickHandler(new ClickHandler() {
+            selected.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onValueChange(ValueChangeEvent<Boolean> event) {
                     JSONObject jsonObject = trackInfo.getPayload();
                     Boolean value = selected.getValue();
                     trackInfo.setVisible(value);
