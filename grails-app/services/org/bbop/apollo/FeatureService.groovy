@@ -88,6 +88,13 @@ class FeatureService {
         }
     }
 
+    def getOverlappingSequenceAlterations(Sequence sequence, int fmin, int fmax) {
+        Feature.executeQuery(
+                "SELECT DISTINCT sa FROM SequenceAlteration sa JOIN sa.featureLocations fl WHERE fl.sequence = :sequence AND ((fl.fmin <= :fmin AND fl.fmax > :fmin) OR (fl.fmin <= :fmax AND fl.fmax >= :fmax) OR (fl.fmin >= :fmin AND fl.fmax <= :fmax))",
+                [fmin: fmin, fmax: fmax, sequence: sequence]
+        )
+    }
+
     @Transactional
     void updateNewGsolFeatureAttributes(Feature gsolFeature, Sequence sequence = null) {
 
@@ -126,6 +133,7 @@ class FeatureService {
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
+        boolean readThroughStopCodon = false
 
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
@@ -138,8 +146,13 @@ class FeatureService {
 
             setOwner(transcript, owner);
 
-            if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript);
+            CDS cds = transcriptService.getCDS(transcript)
+            if (cds) {
+                readThroughStopCodon = cdsService.getStopCodonReadThrough(cds) ? true : false
+            }
+
+            if (!useCDS || cds == null) {
+                calculateCDS(transcript, readThroughStopCodon)
             }
             else {
                 // if there are any sequence alterations that overlaps this transcript then
@@ -189,8 +202,13 @@ class FeatureService {
                     //this one is working, but was marked as needing improvement
                     setOwner(tmpTranscript, owner);
 
-                    if (!useCDS || transcriptService.getCDS(tmpTranscript) == null) {
-                        calculateCDS(tmpTranscript);
+                    CDS cds = transcriptService.getCDS(tmpTranscript)
+                    if (cds) {
+                        readThroughStopCodon = cdsService.getStopCodonReadThrough(cds) ? true : false
+                    }
+
+                    if (!useCDS || cds == null) {
+                        calculateCDS(tmpTranscript, readThroughStopCodon)
                     }
                     else {
                         // if there are any sequence alterations that overlaps this transcript then
@@ -326,8 +344,13 @@ class FeatureService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
             transcript = transcriptService.getTranscripts(gene).iterator().next();
-            if (!useCDS || transcriptService.getCDS(transcript) == null) {
-                calculateCDS(transcript);
+            CDS cds = transcriptService.getCDS(transcript)
+            if (cds) {
+                readThroughStopCodon = cdsService.getStopCodonReadThrough(cds) ? true : false
+            }
+
+            if (!useCDS || cds == null) {
+                calculateCDS(transcript, readThroughStopCodon)
             }
             else {
                 // if there are any sequence alterations that overlaps this transcript then
@@ -2876,8 +2899,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             updateNewGsolFeatureAttributes(feature, sequence)
 
             // setting back the original name for feature
-            if (useName && jsonFeature.has(FeatureStringEnum.USE_NAME.value)) {
-                feature.name = jsonFeature.get(FeatureStringEnum.USE_NAME.value)
+            if (useName && jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                feature.name = jsonFeature.get(FeatureStringEnum.NAME.value)
             }
 
             setOwner(feature, user);

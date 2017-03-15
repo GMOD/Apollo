@@ -1230,6 +1230,12 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
+            int fmin = jsonFeature.get(FeatureStringEnum.LOCATION.value).fmin
+            int fmax = jsonFeature.get(FeatureStringEnum.LOCATION.value).fmax
+            if (featureService.getOverlappingSequenceAlterations(sequence, fmin, fmax)) {
+                // found an overlapping sequence alteration
+                throw new AnnotationException("Cannot create an overlapping sequence alteration");
+            }
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
             if (activeUser) {
                 featureService.setOwner(sequenceAlteration, activeUser)
@@ -1689,8 +1695,8 @@ class RequestHandlingService {
                 }
             }
             else {
-                // jsonFeature is of type *RNA, transposable_element or repeat_region
-                Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory)
+                // jsonFeature is of type transposable_element or repeat_region
+                Feature newFeature = featureService.addFeature(jsonFeature, sequence, user, suppressHistory, true)
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                 JSONObject jsonObject = newFeatureJsonObject
 

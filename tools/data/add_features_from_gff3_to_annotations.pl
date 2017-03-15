@@ -15,10 +15,12 @@ use Getopt::Long qw(:config no_ignore_case bundling);
 use IO::File;
 use LWP::UserAgent;
 use JSON;
+use Data::Dumper;
 
 my $gene_types_in = "gene";
 my $pseudogene_types_in = "pseudogene";
 my $transcript_types_in = "transcript|mRNA";
+my $noncoding_rna_types = "ncRNA|rRNA|tRNA|snRNA|snoRNA|miRNA";
 my $exon_types_in = "exon";
 my $cds_types_in = "CDS";
 my $ontology = "sequence";
@@ -28,6 +30,7 @@ my $mrna_type_out = "mRNA";
 my $transcript_type_out = "transcript";
 my $exon_type_out = "exon";
 my $cds_type_out = "CDS";
+my $sequence_alteration_types = "insertion|deletion|substitution";
 my $annotation_track_prefix = "";
 my $property_ontology = "feature_property";
 my $comment_type_out = "comment";
@@ -128,10 +131,6 @@ sub print_usage {
     my $progname = basename($0);
     die << "END";
 
-*note*: This script is meant for importing protein coding genes into Apollo's Annotations track
-        and is superseded by add_features_from_gff3_to_annotations.pl, which supports importing
-        all types of annotations that are currently supported by Apollo.
-
 usage: $progname
     --url|-U <URL to Apollo instance>
     --username|-u <username>
@@ -215,19 +214,37 @@ sub process_gff {
     my $gffio = Bio::GFF3::LowLevel::Parser->open($in);
     my $seq_ids_to_transcripts = {};
     my $seq_ids_to_genes = {};
+    my $seq_ids_to_sequence_alterations = {};
+
     while (my $features = $gffio->next_item()) {
         next if ref $features ne "ARRAY";
-        process_gff_entry($features, $seq_ids_to_genes, $seq_ids_to_transcripts);
+        process_gff_entry($features, $seq_ids_to_genes, $seq_ids_to_transcripts, $seq_ids_to_sequence_alterations);
     }
     if ($test) {
-        print_features($seq_ids_to_genes);
-        print_features($seq_ids_to_transcripts);
+        print "[";
+        if (keys %{$seq_ids_to_genes} > 0) {
+            print_features($seq_ids_to_genes, "addFeature");
+        }
+        if (keys %{$seq_ids_to_transcripts}) {
+            if (keys %{$seq_ids_to_genes} > 0) {
+                print ",";
+            }
+            print_features($seq_ids_to_transcripts, "addTranscript");
+        }
+        if (keys %{$seq_ids_to_sequence_alterations}) {
+            if (keys %{$seq_ids_to_sequence_alterations} > 0) {
+                print ",";
+            }
+            print_features($seq_ids_to_sequence_alterations, "addSequenceAlteration");
+        }
+        print "]";
     }
     else {
         write_features("addFeature", $seq_ids_to_genes);
         write_features("addTranscript", $seq_ids_to_transcripts);
-        if (!scalar(keys(%{$seq_ids_to_genes})) && !scalar(keys(%{$seq_ids_to_transcripts}))) {
-            print "No genes of type \"$gene_types_in\" or transcripts of type \"$transcript_types_in\" found\n";
+        write_features("addSequenceAlteration", $seq_ids_to_sequence_alterations);
+        if (!scalar(keys(%{$seq_ids_to_genes})) && !scalar(keys(%{$seq_ids_to_transcripts})) && !scalar(keys(%{$seq_ids_to_sequence_alterations}))) {
+            print "No genes of type \"$gene_types_in\" or transcripts of type \"$transcript_types_in\" or sequence alterations of type \"$sequence_alteration_types\" found\n";
         }
     }
 
@@ -381,6 +398,87 @@ sub convert_feature {
     return $json_feature;
 }
 
+sub convert_sequence_alteration {
+    my $features = shift;
+    my $type = shift;
+    my $name_attributes = shift;
+    my $start = get_start($features);
+    my $end = get_end($features);
+    my $strand = get_strand($features);
+    #my $name = get_name($features,$name_attributes);
+    my $comments = get_comments($features);
+
+    if ($type =~ /insertion/) {
+        $start--;
+        $end--;
+    }
+    else {
+        $start--;
+    }
+
+    my $json_feature = {
+        location => {
+            fmin => $start,
+            fmax => $end,
+            strand => $strand
+        },
+        type => {
+            cv => {
+                name => $ontology
+            },
+            name => $type
+        }
+    };
+
+    #if ($name) {
+    #    $json_feature->{name} = $name;
+    #}
+
+    my $json_properties = [];
+    foreach my $comment (@{$comments}) {
+        my $json_comment = {
+            value => $comment,
+            type => {
+                cv => {
+                    name => $property_ontology
+                },
+                name => $comment_type_out
+            }
+        };
+        push @{$json_properties}, $json_comment;
+    }
+
+
+    foreach my $feature(@{$features}) {
+        while (my ($tag, $values) = each(%{$feature->{attributes}})) {
+            next if $tag =~ /^[A-Z]/;
+            next if $ignored_properties{$tag};
+            if ($tag =~ /residues/) {
+                $json_feature->{residues} = $values->[0];
+                next;
+            }
+
+            my $type = $tag;
+            foreach my $value (@{$values}) {
+                my $json_property = {
+                    value => $value,
+                    type => {
+                        cv => {
+                            name => $property_ontology
+                        },
+                        name => $type
+                    }
+                };
+                push @{$json_properties}, $json_property;
+            }
+        }
+        if (scalar(@{$json_properties})) {
+            $json_feature->{properties} = $json_properties;
+        }
+    }
+    return $json_feature;
+}
+
 sub get_editor_url {
     return "$url/annotationEditor";
 }
@@ -506,6 +604,9 @@ sub get_end {
 sub get_strand {
     my $features = shift;
     my $strand = $features->[0]->{strand};
+    if (!defined $strand) {
+        $strand = "."
+    }
     if ($strand eq "+") {
         return 1;
     }
@@ -544,6 +645,10 @@ sub process_gene {
         if ($type =~ /$transcript_types_in/) {
             my $transcript = process_transcript($subfeature);
             push(@{$gene->{children}}, $transcript) if $transcript;
+        }
+        elsif ($type =~ /$noncoding_rna_types/) {
+            my $rna = process_rna($subfeature);
+            push(@{$gene->{children}}, $rna) if $rna;
         }
     }
     return $gene;
@@ -596,6 +701,24 @@ sub process_transcript {
     return $transcript;
 }
 
+sub process_rna {
+    my $features = shift;
+    my $type = get_type($features);
+    my $rna = convert_feature($features, $type, $name_attributes);
+    if ($use_name_for_feature) {
+        $rna->{use_name} = "true";
+    }
+    my $subfeatures = get_subfeatures($features);
+    foreach my $subfeature (@{$subfeatures}) {
+        my $type = get_type($subfeature);
+        if ($type =~ /$exon_types_in/) {
+            my $exon = convert_feature($subfeature, $exon_type_out, $name_attributes);
+            push(@{$rna->{children}}, $exon);
+        }
+    }
+    return $rna;
+}
+
 sub get_subfeatures {
     my @subfeatures;
     my $features = shift;
@@ -609,11 +732,35 @@ sub process_gff_entry {
     my $features = shift;
     my $seq_ids_to_genes = shift;
     my $seq_ids_to_transcripts = shift;
+    my $seq_ids_to_sequence_alterations = shift;
     my $type = get_type($features);
     if ($type !~ /$gene_types_in/ && $type !~ /$transcript_types_in/) {
-        foreach my $subfeature (@{get_subfeatures($features)}) {
-            process_gff_entry($subfeature, $seq_ids_to_genes, $seq_ids_to_transcripts);
+        my @subfeatures_array = get_subfeatures($features);
+        if ($#subfeatures_array) {
+            foreach my $subfeature (@subfeatures_array) {
+                process_gff_entry($subfeature, $seq_ids_to_genes, $seq_ids_to_transcripts);
+            }
         }
+        else {
+            my @json_features = process_singleton_feature($features);
+            if (scalar(@json_features) != 0) {
+                foreach my $json_feature (@json_features) {
+                    my $id = get_id($features);
+                    if ($skip_ids{$id}) {
+                        print "Skipping $id\n";
+                        next;
+                    }
+                    my $seq_id = get_seq_id($features);
+                    if ($json_feature->{type}->{name} =~ /$sequence_alteration_types/) {
+                        push(@{$seq_ids_to_sequence_alterations->{$seq_id}}, [$json_feature, $id]);
+                    }
+                    else {
+                        push(@{$seq_ids_to_genes->{$seq_id}}, [$json_feature, $id]);
+                    }
+                }
+            }
+        }
+
     }
     else {
         my @json_features = @{process_feature($features)};
@@ -646,8 +793,12 @@ sub process_feature {
             # process with mRNA at top-level and gene information as 'parent'
             return process_mrna($features);
         }
+        elsif ($transcript_type =~ /$noncoding_rna_types/) {
+            # process noncoding RNAs
+            return [process_gene($features)];
+        }
         else {
-            # process gene
+            # process top-level
             return [process_gene($features)];
         }
     }
@@ -655,6 +806,24 @@ sub process_feature {
         return [process_transcript($features)];
     }
     return undef;
+}
+
+sub process_singleton_feature {
+    my $features = shift;
+    my $type = get_type($features);
+    my $feature;
+    if ($type =~ /$sequence_alteration_types/) {
+        # process sequence alterations
+        $feature = convert_sequence_alteration($features, $type, $name_attributes);
+    }
+    else {
+        # process other singletons
+        $feature = convert_feature($features, $type, $name_attributes);
+        if ($use_name_for_feature) {
+            $feature->{use_name} = "true";
+        }
+    }
+    return $feature;
 }
 
 sub get_subfeature_type {
@@ -682,6 +851,7 @@ sub convert_mrna_feature {
     my $features = shift;
     my $gene_json_feature = shift;
     my $cds_feature = undef;
+    my $rtsc_json_feature = undef;
     my $mrna_json_feature = convert_feature($features, $mrna_type_out, $name_attributes);
     if ($disable_cds_recalculation) {
         $mrna_json_feature->{use_cds} = "true";
@@ -714,6 +884,10 @@ sub convert_mrna_feature {
                     $cds_feature->[0]->{end} = $end;
                 }
             }
+            my $cds_subfeatures = get_subfeatures($cds_feature);
+            if (scalar(@{$cds_subfeatures}) > 0) {
+                $rtsc_json_feature = convert_feature(${$cds_subfeatures}[0], "stop_codon_read_through", $name_attributes);
+            }
         }
         else {
             print "Ignoring unsupported sub-feature type: $type\n";
@@ -721,8 +895,9 @@ sub convert_mrna_feature {
     }
 
     if ($cds_feature) {
-        my $cds = convert_feature($cds_feature, $cds_type_out, $name_attributes);
-        push(@{$mrna_json_feature->{children}}, $cds);
+        my $cds_json_feature = convert_feature($cds_feature, $cds_type_out, $name_attributes);
+        push(@{$cds_json_feature->{children}}, $rtsc_json_feature) if ($rtsc_json_feature);
+        push(@{$mrna_json_feature->{children}}, $cds_json_feature);
     }
 
     return $mrna_json_feature;
@@ -730,13 +905,16 @@ sub convert_mrna_feature {
 
 sub print_features {
     my $data = shift;
+    my $operation = shift;
     while (my ($seq_id, $features) = each(%{$data})) {
         my @to_be_written = ();
         my @ids = ();
+        print "{\"$operation\": [";
         for (my $i = 0; $i < scalar(@${features}); ++$i) {
             my $feature = $features->[$i];
             print to_json(@$feature[0]);
-            print "\n";
+            print "," if ($i != scalar(@$features) - 1);
         }
+        print "]}";
     }
 }
