@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -277,28 +278,33 @@ public class SequencePanel extends Composite {
         Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
-                if(MainPanel.getInstance().getCurrentUser()!=null) {
+                if (MainPanel.getInstance().getCurrentUser() != null) {
                     if (MainPanel.getInstance().isCurrentUserAdmin()) {
                         exportChadoButton.setVisible(true);
                         getChadoExportStatus();
                     } else {
                         exportChadoButton.setVisible(false);
                     }
-                    return false ;
+                    return false;
                 }
-                return true ;
+                return true;
             }
-        },100);
+        }, 100);
 
     }
 
-    private void viewSingleSequence(){
+    private void viewSingleSequence() {
         final SequenceInfo sequenceInfo = multiSelectionModel.getSelectedSet().iterator().next();
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 if (sequenceInfo != null) {
+//                    JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+//                    MainPanel mainPanel = MainPanel.getInstance();
+//                    AssemblageInfo currentAssemblage = mainPanel.setCurrentAssemblageAndEnds(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject));
+//                    Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(), mainPanel.getCurrentOrganism().getName()));
+//                    MainPanel.updateGenomicViewerForAssemblage(currentAssemblage.getName(), currentAssemblage.getStartBp(), currentAssemblage.getEndBp(), true, true);
                     OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
                 }
             }
@@ -328,10 +334,9 @@ public class SequencePanel extends Composite {
 
     @UiHandler("viewSequence")
     void viewSequence(ClickEvent clickEvent) {
-        if(multiSelectionModel.getSelectedSet().size()==1){
+        if (multiSelectionModel.getSelectedSet().size() == 1) {
             viewSingleSequence();
-        }
-        else{
+        } else {
             AssemblageInfo assemblageInfo = new AssemblageInfo();
             assemblageInfo.addSequenceInfoSet(multiSelectionModel.getSelectedSet());
             AssemblageRestService.addAssemblageAndView(assemblageInfo);

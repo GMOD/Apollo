@@ -556,14 +556,14 @@ public class MainPanel extends Composite {
 
         trackListString += "&locationBox=none";
         // TODO: this should work correclty
-//        if(!forceUrl && getInnerDiv()!=null){
-//            JSONObject commandObject = new JSONObject();
-//            commandObject.put("url", new JSONString(selectedSequence+":"+currentStartBp+".."+currentEndBp));
-//            MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
-//        }
-//        else{
+        if(!forceUrl && getInnerDiv()!=null){
+            JSONObject commandObject = new JSONObject();
+            commandObject.put("url", new JSONString(currentAssemblage.getName()+":"+currentStartBp+".."+currentEndBp));
+            MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
+        }
+        else{
             frame.setUrl(trackListString);
-//        }
+        }
 
         if(Window.Location.getParameter("tracks")!=null){
             String newURL = Window.Location.createUrlBuilder().removeParameter("tracks").buildString();
@@ -1167,13 +1167,13 @@ public class MainPanel extends Composite {
 //        return currentSequence;
 //    }
 //
-//    SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {
-//        currentSequence = newSequence;
-//        currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
-//        currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
-//        currentSequence.setStartBp(currentStartBp);
-//        currentSequence.setEndBp(currentEndBp);
-//        return currentSequence;
-//    }
+    AssemblageInfo setCurrentAssemblageAndEnds(AssemblageInfo newAssemblage) {
+        currentAssemblage = newAssemblage;
+        currentStartBp = currentAssemblage.getStartBp()!=null ? currentAssemblage.getStartBp() : 0 ;
+        currentEndBp = currentAssemblage.getEndBp()!=null ? currentAssemblage.getEndBp() : currentAssemblage.getLength() ;
+        currentAssemblage.setStartBp(currentStartBp);
+        currentAssemblage.setEndBp(currentEndBp);
+        return currentAssemblage;
+    }
 
 }
