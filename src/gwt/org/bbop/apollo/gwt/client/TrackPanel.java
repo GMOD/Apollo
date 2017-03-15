@@ -16,8 +16,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -39,7 +39,6 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 
 /**
@@ -77,6 +76,9 @@ public class TrackPanel extends Composite {
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
+
+    private static Map<String, List<TrackInfo>> categoryMap = new TreeMap<>();
+    private static Map<String, Boolean> categoryOpen = new TreeMap<>();
 
     public TrackPanel() {
         exportStaticMethod();
@@ -193,9 +195,6 @@ public class TrackPanel extends Composite {
         renderFiltered();
     }
 
-    private static Map<String, List<TrackInfo>> categoryMap = new TreeMap<>();
-    private static Map<String, Boolean> categoryOpen = new TreeMap<>();
-
     static class TrackBodyPanel extends PanelBody {
 
         private final TrackInfo trackInfo;
@@ -243,6 +242,7 @@ public class TrackPanel extends Composite {
 
     public void  clear(){
         categoryMap.clear();
+        categoryOpen.clear();
         dataGrid.clear();
         dataGrid.add(new org.gwtbootstrap3.client.ui.Label("Loading..."));
     }
@@ -251,16 +251,24 @@ public class TrackPanel extends Composite {
         dataGrid.clear();
         // populate the map of categories
         for (TrackInfo trackInfo : trackInfoList) {
-            categoryMap.put(trackInfo.getStandardCategory(), new ArrayList<TrackInfo>());
-            if(!categoryOpen.containsKey(trackInfo.getStandardCategory())){
-                categoryOpen.put(trackInfo.getStandardCategory(),false);
+            if( !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)){
+                categoryMap.put(trackInfo.getStandardCategory(), new ArrayList<TrackInfo>());
+                if(!categoryOpen.containsKey(trackInfo.getStandardCategory())){
+                    categoryOpen.put(trackInfo.getStandardCategory(),false);
+                }
             }
         }
 
+        if(categoryOpen.size()==1){
+            categoryOpen.put(categoryOpen.keySet().iterator().next(),true);
+        }
+
         for (TrackInfo trackInfo : filteredTrackInfoList) {
-            List<TrackInfo> trackInfoList = categoryMap.get(trackInfo.getStandardCategory());
-            trackInfoList.add(trackInfo);
-            categoryMap.put(trackInfo.getStandardCategory(), trackInfoList);
+            if( !isReferenceSequence(trackInfo) && !isAnnotationTrack(trackInfo)) {
+                List<TrackInfo> trackInfoList = categoryMap.get(trackInfo.getStandardCategory());
+                trackInfoList.add(trackInfo);
+                categoryMap.put(trackInfo.getStandardCategory(), trackInfoList);
+            }
         }
 
 

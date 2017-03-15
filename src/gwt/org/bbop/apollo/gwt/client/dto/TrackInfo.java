@@ -7,6 +7,9 @@ import com.google.gwt.json.client.JSONObject;
  */
 public class TrackInfo implements Comparable<TrackInfo> {
 
+
+    public static final String TRACK_UNCATEGORIZED = "Uncategorized";
+
     private String name;
     private String label;
     private String type;
@@ -81,8 +84,7 @@ public class TrackInfo implements Comparable<TrackInfo> {
 
     public String getStandardCategory(){
         if(category==null || category.trim().length()==0){
-            return "-----------";
-//            return "        ";
+            return TRACK_UNCATEGORIZED ;
         }
         else{
             String categoryString = "";
