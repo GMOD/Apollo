@@ -3432,16 +3432,15 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert mrna.featureProperties.size() == 4
     }
 
-    //@IgnoreRest
     void "a round-trip with all feature types"() {
         given: "a set of features"
         String addTranscript1String = " { ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":524298,\"fmax\":525125},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":526023,\"fmax\":526249},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":532689,\"fmax\":532805},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":536610,\"fmax\":536847},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":539048,\"fmax\":539200},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":553190,\"fmax\":553407},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":556835,\"fmax\":556997},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":557487,\"fmax\":557685},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":558584,\"fmax\":558694},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":561618,\"fmax\":561953},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":566512,\"fmax\":566761},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":568097,\"fmax\":568401},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":572026,\"fmax\":572691},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":524303,\"fmax\":572204},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40818-RA\",\"location\":{\"strand\":1,\"fmin\":524298,\"fmax\":572691},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String addTranscript3String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":588910},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":592526,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":592678},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40820-RA\",\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String setReadthroughStopCodonString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"readthrough_stop_codon\":true}],\"track\":\"Group1.10\",\"operation\":\"set_readthrough_stop_codon\"}"
-        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTTTCTA\",\"location\":{\"strand\":1,\"fmin\":583014,\"fmax\":583014},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addDeletionString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":583299,\"fmax\":583320},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSubstitutionString = "{ ${testCredentials} \"features\":[{\"residues\":\"A\",\"location\":{\"strand\":1,\"fmin\":583225,\"fmax\":583226},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTACTAGTG\",\"location\":{\"strand\":1,\"fmin\":592775,\"fmax\":592775},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addDeletionString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":592699,\"fmax\":592714},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSubstitutionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":593549,\"fmax\":593552},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
 
         String addPseudogeneString = " { ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":622330},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":623090,\"fmax\":623213},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624547,\"fmax\":624610},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624680,\"fmax\":624743},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624885,\"fmax\":624927},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":625015,\"fmax\":625090},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":627962,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":622270,\"fmax\":628037},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"gnomon_1560033_mRNA\",\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"transcript\"}}],\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"pseudogene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addTRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":664578,\"fmax\":664637},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":665671,\"fmax\":665933},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":666034,\"fmax\":666168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":667804,\"fmax\":667895},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":667965,\"fmax\":668110},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":666088,\"fmax\":667992},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"fgeneshpp_with_rnaseq_Group1.10_150_mRNA\",\"location\":{\"strand\":-1,\"fmin\":664578,\"fmax\":668110},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"tRNA\"}}],\"location\":{\"strand\":-1,\"fmin\":664578,\"fmax\":668110},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
@@ -3478,7 +3477,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         requestHandlingService.setReadthroughStopCodon(JSON.parse(setReadthroughStopCodonString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
         CDS cds = transcriptService.getCDS(mrna)
         StopCodonReadThrough scrt = cdsService.getStopCodonReadThrough(cds).first()
-        // here, the CDS -> SCRT relationship exists
         assert scrt != null
 
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
@@ -3506,13 +3504,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         then: "we grab the contents of the GFF3"
         String tempFileText = tempFile.text
-        // there is no read_through_stop_codon feature in the GFF3 export, even though it was added and verified to exist
-        println "GFF3 export output:\n${tempFileText}"
 
         assert tempFileText != ""
 
         when: "we delete all features"
-        // while deleting features, the read_through_stop_codon isn't recursively deleted along with other features
         Feature.all.each {
             if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, Insertion.cvTerm, Deletion.cvTerm, Substitution.cvTerm]) {
                 featureRelationshipService.deleteFeatureAndChildren(it)
@@ -3520,8 +3515,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
 
         then: "we see no features"
-        // assertion fails because read_through_stop_codon is left behind
-        println "Whats left in feature table: ${Feature.all.cvTerm}"
         assert Feature.count == 0
 
         when: "we import this GFF3"
