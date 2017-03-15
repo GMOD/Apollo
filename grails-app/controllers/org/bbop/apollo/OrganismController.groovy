@@ -146,7 +146,15 @@ class OrganismController {
 
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
+
+                    // Creating a reference individual for the current organism
+                    Individual referenceIndividual = new Individual(
+                            name: "reference",
+                            description: "reference individual created for ${organism.commonName}",
+                            organism: organism
+                    ).save()
                 }
+
                 preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
                 sequenceService.loadRefSeqs(organism)
                 render findAllOrganisms()

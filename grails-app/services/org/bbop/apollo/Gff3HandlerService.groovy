@@ -177,7 +177,7 @@ public class Gff3HandlerService {
     
     public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends Feature> features) {
         for (Feature feature : features) {
-            if (feature instanceof SequenceAlteration) {
+            if (feature.class.name in requestHandlingService.viewableAlterations) {
                 writeFastaForSequenceAlteration(writeObject, feature)
             }
         }

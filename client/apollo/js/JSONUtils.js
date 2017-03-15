@@ -10,6 +10,7 @@ function JSONUtils() {
 }
 
 JSONUtils.verbose_conversion = false;
+JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INSERTION", "DELETION" ];
 
 /**
 *  creates a feature in JBrowse JSON format
@@ -183,26 +184,42 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
 JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
     var loc = afeature.location; 
     var uid = afeature.uniquename;
+
     var justification;
     for (var i = 0; i < afeature.properties.length; i++) {
         if (afeature.properties[i].type.name === "justification") {
             justification = afeature.properties[i].value;
         }
     }
-
-    return new SimpleFeature({
-        data: {
-            start:    loc.fmin,
-            end:      loc.fmax,
-            strand:   loc.strand,
-            id:       uid,
-            type:     afeature.type.name,
-            residues: afeature.residues,
-            seq:      afeature.residues,
-            justification: justification
-        },
-        id: uid
-    });
+    if (afeature.type.name === "SNV") {
+        return new SimpleFeature({
+           data: {
+               start:           loc.fmin,
+               end:             loc.fmax,
+               strand:          loc.strand,
+               id:              uid,
+               type:            afeature.type.name,
+               reference_bases:   afeature.referenceBases,
+               alternate_alleles:   [{ bases: afeature.alternateBases }]
+           },
+           id: uid
+        });
+    }
+    else {
+        return new SimpleFeature({
+            data: {
+                start:    loc.fmin,
+                end:      loc.fmax,
+                strand:   loc.strand,
+                id:       uid,
+                type:     afeature.type.name,
+                residues: afeature.residues,
+                seq:      afeature.residues,
+                justification: justification
+            },
+            id: uid
+        });
+    }
 };
 
 
@@ -407,6 +424,156 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     }
     if (diagnose)  { console.log("result:"); console.log(afeature); }
     return afeature;
+};
+
+JSONUtils.createApolloVariant = function( feat, useName ) {
+    var afeature = new Object();
+    var astrand = 1; // variants are represented w.r.t. the sense strand
+    var fmin = feat.get('start');
+    var fmax = feat.get('end');
+    var referenceBases = feat.get('reference_allele');
+    var alternativeAlleles = feat.get('alternative_alleles').values.split(',');
+    console.log("alternate alleles array: ", alternativeAlleles);
+
+    afeature.location = {
+        fmin: fmin,
+        fmax: fmax,
+        strand: astrand
+    };
+
+
+
+    var typename = JSONUtils.classifyVariant(referenceBases, alternativeAlleles, fmin, fmax);
+
+    if (typename) {
+        afeature.type = {
+            cv: {
+                name: "sequence"
+            }
+        };
+        afeature.type.name = typename;
+    }
+
+    var name = feat.get('name');
+    if (useName && name) {
+        afeature.name = name;
+    }
+
+    afeature.reference_bases = referenceBases;
+    afeature.description = feat.get('description');
+    afeature.score = feat.get('score');
+
+    // parsing genotypes, if available - deferred
+    // var genotypes = feat.get('genotypes');
+    // if (genotypes) {
+    //     afeature.genotypes = genotypes;
+    // }
+
+    // parsing the metadata
+    var variant_specific_metadata = [];
+    var allele_specific_metadata = [];
+    for (var property in feat.data) {
+        if (feat.data.hasOwnProperty(property)) {
+            console.log("> ", property);
+            if (! ['description', 'score', 'start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
+                var entry = feat.get(property);
+                if (entry) {
+                    console.log('Got ', feat.get(property));
+                    if (entry.meta) {
+                        if (entry.meta.number == "A") {
+                            allele_specific_metadata.push(feat.get(property));
+                        }
+                        else if (entry.meta.number == "0") {
+                            variant_specific_metadata.push(feat.get(property));
+                        }
+                        else if (entry.meta.number == "1") {
+                            variant_specific_metadata.push(feat.get(property));
+                        }
+                        else if (entry.meta.number == ".") {
+                            variant_specific_metadata.push(feat.get(property));
+                        }
+                        else {
+                            console.log("Unhandled metadata 1: ", entry);
+                        }
+                    }
+                    else {
+                        console.log("Unhandled metadata 2: ", entry);
+                    }
+                }
+            }
+        }
+    }
+
+    var alternativeAllelesArray = [];
+    for (var i = 0; i < alternativeAlleles.length; ++i) {
+        var allele = { bases: alternativeAlleles[i] };
+        allele.allele_info = [];
+        for (var j = 0; j < allele_specific_metadata.length; ++j) {
+            var tag = allele_specific_metadata[j].meta.id[0];
+            var value = allele_specific_metadata[j].values[i];
+            var allele_info = {tag: tag, value: value};
+            allele.allele_info.push(allele_info);
+        }
+        alternativeAllelesArray.push(allele);
+    }
+    afeature.alternate_alleles = alternativeAllelesArray;
+
+    var metadata = [];
+    for (var i = 0; i < variant_specific_metadata.length; ++i) {
+        if (variant_specific_metadata[i].filters) {
+            // 'filter'
+            var value = variant_specific_metadata[i].values[0];
+            metadata.push({tag: "filters", value: value});
+        }
+        else {
+            var tag = variant_specific_metadata[i].meta.id[0];
+            var value = variant_specific_metadata[i].values[0];
+            if (tag == "AA") {
+                // some bug upstream that introduces '|' in the value field for 'AA' tag
+                value = value.replace(/\|/g, '');
+            }
+            // TODO: What if there are more than one values corresponding to this tag?
+            metadata.push({tag: tag, value: value});
+        }
+    }
+
+    afeature.variant_info = metadata;
+    console.log("created Apollo feature: ", afeature);
+    return afeature;
+};
+
+JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
+    // http://genome.sph.umich.edu/wiki/Variant_classification
+    // SNV - The reference and alternate sequences are of length 1 and the base nucleotide is different from one another.
+    // SNP - Same as a SNV but occurs at a relatively high frequency.
+    // MNV - The reference and alternate sequences are of the same length and have to be greater than 1 and all nucleotides in the sequences differ from one another
+    // MNP - Same as a MNV but occurs at a relatively high frequency.
+    // insertion - insertion of bases
+    // deletion - deletion of bases
+
+    var type;
+    var altAllele = altAlleles[0]; // type defaults to type of the first occuring alt allele
+    var refLength = refAllele.length;
+    var altLength = altAllele.length;
+
+    if (refLength - altLength == 0) {
+        if (refLength == 1 && refAllele != altAllele) {
+            type = "SNV";
+        }
+        else if (refLength > 1) {
+            type = "MNV";
+        }
+    }
+    else {
+        if (refLength < altLength) {
+            type = "insertion"
+        }
+        else if (refLength > altLength) {
+            type = "deletion"
+        }
+    }
+    console.log("variant type inferred: ", type);
+    return type;
 };
 
 // experimenting with forcing export of JSONUtils into global namespace...

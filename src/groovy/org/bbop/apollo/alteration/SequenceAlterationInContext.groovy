@@ -9,6 +9,7 @@ class SequenceAlterationInContext {
     int strand
     String instanceOf
     String type
+    String alterationType
     String name
     String originalAlterationUniqueName
     int offset

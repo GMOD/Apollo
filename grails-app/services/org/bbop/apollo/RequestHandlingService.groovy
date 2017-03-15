@@ -32,6 +32,9 @@ class RequestHandlingService {
     def transcriptService
     def cdsService
     def exonService
+    def sequenceService
+    def variantService
+    def variantAnnotationService
     def nonCanonicalSplitSiteService
     def configWrapperService
     def nameService
@@ -45,8 +48,13 @@ class RequestHandlingService {
 
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
-            TransposableElement.class.name
+            TransposableElement.class.name,
+            SNV.class.name,
+            SNP.class.name,
+            MNV.class.name,
+            MNP.class.name
     ]
+
     public static final List<String> viewableAnnotationTranscriptParentList = [
             Gene.class.name,
             Pseudogene.class.name
@@ -66,8 +74,17 @@ class RequestHandlingService {
     public static final List<String> viewableAlterations = [
             Deletion.class.name,
             Insertion.class.name,
-            Substitution.class.name
+            Substitution.class.name,
     ]
+
+    public static final List<String> variantList = [
+            SNV.class.name,
+            SNP.class.name,
+            MNV.class.name,
+            MNP.class.name
+    ]
+
+    public static final List<String> variantTypes = [SNV.cvTerm, SNP.cvTerm, MNV.cvTerm, MNP.cvTerm, Indel.cvTerm ]
 
     public static final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
     public static final List<String> viewableAnnotationTypesList = viewableAnnotationFeatureList + viewableAnnotationTranscriptList + viewableAnnotationTranscriptParentList
@@ -540,12 +557,25 @@ class RequestHandlingService {
             fetchMode 'parentFeatureRelationships.childFeature.featureProperties', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.featureDBXrefs', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships.childFeature.owners', FetchMode.JOIN
-            'in'('class', viewableAnnotationTranscriptList+viewableAnnotationFeatureList)
+            'in'('class', viewableAnnotationTranscriptList+viewableAnnotationFeatureList+viewableAlterations)
+
         }
 
+        // TODO: optimize
+        def finalFeatures = []
+        features.each {
+            if (it instanceof SequenceAlteration) {
+                if (it.alterationType == FeatureStringEnum.VARIANT.value) {
+                    finalFeatures.add(it)
+                }
+            }
+            else {
+                finalFeatures.add(it)
+            }
+        }
 
         JSONArray jsonFeatures = new JSONArray()
-        features.each { feature ->
+        finalFeatures.each { feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false)
             jsonFeatures.put(jsonObject)
         }
@@ -1184,12 +1214,12 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-            FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
+            def overlappingFeatures = featureService.getOverlappingFeatures(sequenceAlteration.getFeatureLocation(), false)
             deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
             sequenceAlteration.delete(flush: true)
 
-            for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
+            for (Feature feature : overlappingFeatures) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
                         featureService.setLongestORF(transcript)
@@ -1231,6 +1261,19 @@ class RequestHandlingService {
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            sequenceAlteration.alterationType = FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value
+
+            // moved to here from convertJSONToFeature
+            if (sequenceAlteration instanceof Deletion) {
+                sequenceService.setResiduesForFeatureFromLocation((Deletion) sequenceAlteration)
+            } else {
+                if (jsonFeature.has(FeatureStringEnum.RESIDUES.value)) {
+                    if (sequenceAlteration instanceof Insertion || sequenceAlteration instanceof Substitution) {
+                        sequenceService.setResiduesForFeature(sequenceAlteration, jsonFeature.getString(FeatureStringEnum.RESIDUES.value))
+                    }
+                }
+            }
+
             if (activeUser) {
                 featureService.setOwner(sequenceAlteration, activeUser)
             } else {
@@ -2296,5 +2339,205 @@ class RequestHandlingService {
         }
 
         return featureContainer
+    }
+
+    def addVariant(JSONObject inputObject) {
+        println "@addVariant: ${inputObject.toString()}"
+        JSONObject returnObject = createJSONFeatureContainer();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        boolean suppressHistory = false
+        boolean suppressEvents = false
+
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_HISTORY.value)) {
+            suppressHistory = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_HISTORY.value)
+        }
+        if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
+            suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
+        }
+
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
+            SequenceAlteration variant = variantService.createVariant(jsonFeature, sequence, suppressHistory)
+            variantAnnotationService.calculateEffectOfVariant(variant)
+
+            if (variant.fmin < 0 || variant.fmax < 0) {
+                throw new AnnotationException("Feature cannot have negative coordinates");
+            }
+
+            if (!suppressHistory) {
+                // TODO: History tracking
+            }
+            returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(variant, true))
+        }
+
+        if (!suppressEvents) {
+            AnnotationEvent addAnnotationEvent = new AnnotationEvent(
+                    features: returnObject,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.ADD,
+                    sequenceAlterationEvent: false
+            )
+            fireAnnotationEvent(addAnnotationEvent)
+        }
+
+        return returnObject
+    }
+
+    def addAlternateAlleles(JSONObject inputObject) {
+        println "@addAlternateAlleles: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature feature = variantService.addAlternateAlleles(jsonFeature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.ADD
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+    }
+
+    def deleteAlternateAlleles(JSONObject inputObject) {
+        println "@deleteAlternateAlleles: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature feature = variantService.deleteAlternateAlleles(jsonFeature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+    }
+
+    def updateAlternateAlleles(JSONObject inputObject) {
+        println "@updateAlternateAlleles: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.updateAlternateAlleles(jsonFeature)
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+        }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        return updateFeatureContainer
+    }
+
+    def addVariantInfo(JSONObject inputObject) {
+        println "@addVariantInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature feature = variantService.addVariantInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def deleteVariantInfo(JSONObject inputObject) {
+        println "@deleteVariantInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = variantService.deleteVariantInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def updateVariantInfo(JSONObject inputObject) {
+        println "@updateVariantInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = variantService.updateVariantInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def addAlleleInfo(JSONObject inputObject) {
+        println "@addAlleleInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            Feature feature = variantService.addAlleleInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def deleteAlleleInfo(JSONObject inputObject) {
+        println "@deleteAlleleInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = variantService.deleteAlleleInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
+    }
+
+    def updateAlleleInfo(JSONObject inputObject) {
+        println "@updateAlleleInfo: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); i++) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = variantService.updateAlleleInfo(jsonFeature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+        }
+        return updateFeatureContainer
     }
 }

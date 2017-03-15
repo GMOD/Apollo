@@ -30,5 +30,21 @@
 	font-family: courier,monospace;
 }
 
+.variant_input_label {
+    margin-left: 5px;
+    font-size: 1.0em;
+    font-family: courier, monospace;
+}
+
+.variant_input_field {
+    margin-left: 20px;
+    font-family: courier, monospace;
+    text-transform: uppercase;
+}
+
 .sequence_alteration_button {
+}
+
+.add_variant_button {
+
 }

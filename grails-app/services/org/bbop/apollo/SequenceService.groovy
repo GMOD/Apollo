@@ -61,6 +61,17 @@ class SequenceService {
         return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
     }
 
+    List<SequenceAlteration> getSequenceAlterationsForSequence(Sequence sequence) {
+        def sequenceAlterations = []
+        List<SequenceAlteration> results = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId ",[seqId:sequence.id])
+        results.each {
+            if (it.class.name in featureService.assemblyErrorCorrectionTypes) {
+                sequenceAlterations.add(it)
+            }
+        }
+        return sequenceAlterations
+    }
+
     /**
      * Just meant for non-transcript genomic sequence
      * @param sequence
@@ -76,7 +87,10 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId and fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax",[seqId:sequence.id, fmin: fmin, fmax: fmax])
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery(
+                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId and ((fl.fmin >= :fmin and fl.fmin <= :fmax) or (fl.fmax >= :fmin and fl.fmax <= :fmax)) and sa.alterationType = :alterationType",
+                [seqId:sequence.id, fmin: fmin, fmax: fmax, alterationType: FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value]
+        )
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
@@ -86,13 +100,13 @@ class SequenceService {
                 // alteration is within the generic feature
                 sa.fmin = alterationFmin
                 sa.fmax = alterationFmax
-                if (sequenceAlteration instanceof Insertion) {
+                if (sequenceAlteration.class.name == Insertion.class.name) {
                     sa.instanceOf = Insertion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
+                else if (sequenceAlteration.class.name == Deletion.class.name) {
                     sa.instanceOf = Deletion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
+                else if (sequenceAlteration.class.name == Substitution.class.name) {
                     sa.instanceOf = Substitution.canonicalName
                 }
                 sa.type = 'within'
@@ -108,13 +122,13 @@ class SequenceService {
                 int difference = alterationFmax - fmax
                 sa.fmin = alterationFmin
                 sa.fmax = Math.min(fmax,alterationFmax)
-                if (sequenceAlteration instanceof Insertion) {
+                if (sequenceAlteration.class.name == Insertion.class.name) {
                     sa.instanceOf = Insertion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
+                else if (sequenceAlteration.class.name == Deletion.class.name) {
                     sa.instanceOf = Deletion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
+                else if (sequenceAlteration.class.name == Substitution.class.name) {
                     sa.instanceOf = Substitution.canonicalName
                 }
                 sa.type = 'exon-to-intron'
@@ -130,13 +144,13 @@ class SequenceService {
                 int difference = fmin - alterationFmin
                 sa.fmin = Math.max(fmin, alterationFmin)
                 sa.fmax = alterationFmax
-                if (sequenceAlteration instanceof Insertion) {
+                if (sequenceAlteration.class.name == Insertion.class.name) {
                     sa.instanceOf = Insertion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
+                else if (sequenceAlteration.class.name == Deletion.class.name) {
                     sa.instanceOf = Deletion.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
+                else if (sequenceAlteration.class.name == Substitution.class.name) {
                     sa.instanceOf = Substitution.canonicalName
                 }
                 sa.type = 'intron-to-exon'
@@ -286,7 +300,7 @@ class SequenceService {
                 if (cdsService.getStopCodonReadThrough(cds).size() > 0) {
                     readThroughStop = true
                 }
-                String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
+                String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                 featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, readThroughStop)
                 if (featureResidues.charAt(featureResidues.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.size() - 1)
@@ -323,7 +337,7 @@ class SequenceService {
             }
         } else if (type.equals(FeatureStringEnum.TYPE_CDS.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
-                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature))
+                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(transcriptService.getCDS((Transcript) gbolFeature), [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
                 boolean hasStopCodonReadThrough = false
                 if (cdsService.getStopCodonReadThrough(transcriptService.getCDS((Transcript) gbolFeature)).size() > 0) {
                     hasStopCodonReadThrough = true
@@ -349,7 +363,7 @@ class SequenceService {
 
         } else if (type.equals(FeatureStringEnum.TYPE_CDNA.value)) {
             if (gbolFeature instanceof Transcript || gbolFeature instanceof Exon) {
-                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature)
+                featureResidues = featureService.getResiduesWithAlterationsAndFrameshifts(gbolFeature, [FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
             } else {
                 featureResidues = ""
             }

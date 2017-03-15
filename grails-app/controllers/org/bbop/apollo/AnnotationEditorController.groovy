@@ -476,8 +476,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
-        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
+//        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
+//                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
+
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery(
+                "select sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence s where s = :sequence and sa.alterationType = :alterationType",
+                [sequence: sequence, alterationType: FeatureStringEnum.ASSEMBLY_ERROR_CORRECTION.value])
+
         for (SequenceAlteration alteration : sequenceAlterationList) {
             jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
         }
@@ -976,6 +981,50 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
 
+    @RestApiMethod(description = "Add a variant", path = "/annotationEditor/addVariant", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
+            @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY),
+            @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name"),
+            @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism ID or common name"),
+            @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray with variant feature objects, as described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/")
+    ])
+    def addVariant() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.addVariant(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    def addAlternateAlleles() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.addAlternateAlleles(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    def deleteAlternateAlleles() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.deleteAlternateAlleles(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+    def updateAlternateAlleles() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.updateAlternateAlleles(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
     @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence
@@ -1015,6 +1064,46 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_CREATION.value, feature.dateCreated.time);
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
+
+            if (feature instanceof SequenceAlteration && feature.alterationType == FeatureStringEnum.VARIANT.value) {
+                newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
+                newFeature.put(FeatureStringEnum.REFERENCE_BASES.value, feature.referenceBases);
+                JSONArray alternateAllelesArray = new JSONArray()
+                for (Allele allele : feature.alternateAlleles) {
+                    JSONObject alternateAlleleObject = new JSONObject()
+                    alternateAlleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
+                    if (allele.alleleFrequency) {
+                        alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
+                    }
+                    if (allele.provenance) {
+                        alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance)
+                    }
+                    if (allele.alleleInfo) {
+                        JSONArray alleleInfoArray = new JSONArray()
+                        allele.alleleInfo.each { alleleInfo ->
+                            JSONObject alleleInfoObject = new JSONObject()
+                            alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
+                            alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
+                            alleleInfoArray.add(alleleInfoObject)
+                        }
+                        alternateAlleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
+                    }
+                    alternateAllelesArray.add(alternateAlleleObject)
+                }
+                newFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray);
+
+                if (feature.variantInfo) {
+                    JSONArray variantInfoArray = new JSONArray()
+                    for (FeatureProperty variantInfo : feature.variantInfo) {
+                        JSONObject variantInfoObject = new JSONObject()
+                        variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
+                        variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
+                        variantInfoArray.add(variantInfoObject)
+                    }
+                    newFeature.put(FeatureStringEnum.VARIANT_INFO.value, variantInfoArray)
+                }
+
+            }
 
             if (feature.featureLocation) {
                 newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);

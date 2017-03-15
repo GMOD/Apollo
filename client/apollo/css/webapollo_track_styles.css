@@ -497,6 +497,17 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
+.Apollo .sequence-alteration.SNV,
+.Apollo .sequence-alteration.plus-SNV,
+.Apollo .sequence-alteration.minus-SNV {
+    border-style: solid;
+    border-color: #CC564B;
+    border-width: 1px;
+    height: 100%;
+    background-color: rgba(255,112,98,0.3);
+    z-index: 20;
+}
+
 .Apollo .sequence-alteration.substitution, 
 .Apollo .sequence-alteration.plus-substitution,
 .Apollo .sequence-alteration.minus-substitution {
@@ -767,6 +778,38 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     background-color: blue;
 }
 
+.red-ibeam {
+    height: 12px;
+    border-left-color: red;
+    border-right-color: red;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
+}
+
+.red-ibeam-render {
+    height: 3px;
+    margin-top: 4px;
+    background-color: red;
+}
+
+.green-ibeam {
+    height: 12px;
+    border-left-color: lawngreen;
+    border-right-color: lawngreen;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
+}
+
+.green-ibeam-render {
+    height: 3px;
+    margin-top: 4px;
+    background-color: lawngreen;
+}
+
 .magenta-80pct,
 .plus-magenta-80pct, 
 .minus-magenta-80pct {
@@ -791,3 +834,119 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     outline-width: 3px;
 }
 
+.insertion_variant,
+.plus-insertion_variant,
+.minus-insertion_variant {
+    position: absolute;
+    height: 16px;
+    background-color: #B12222;
+    border-style: solid;
+    border-color: darkgrey;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 15;
+    min-width: 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.deletion_variant,
+.plus-deletion_variant,
+.minus-deletion_variant {
+    position: absolute;
+    height: 16px;
+    background-color: #4AB7B7;
+    border-style: solid;
+    border-color: darkgrey;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 15;
+    min-width: 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.substitution_variant,
+.plus-substitution_variant,
+.minus-substitution_variant {
+    position: absolute;
+    height: 16px;
+    background-color: #F1B309;
+    border-style: solid;
+    border-color: darkgrey;
+    border-width: 1px;
+    cursor: pointer;
+    z-index: 15;
+    min-width: 1px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.snv-variant {
+    height: 15px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-width: 0px 0px 0px 0px;
+    border-style: none;
+    background-color: #F1B309;
+    z-index: 10;
+}
+
+.snv-variant-render {
+    height: 15px;
+    margin-top: 0px;
+    background-color: #F1B309;
+}
+
+.mnv-variant {
+    height: 15px;
+    border-left-color: transparent;
+    border-right-color: transparent;
+    border-width: 0px 0px 0px 0px;
+    border-style: none;
+    background-color: #F1B309;
+    z-index: 10;
+}
+
+.mnv-variant-render {
+    height: 15px;
+    margin-top: 0px;
+    background-color: #F1B309;
+}
+
+.insertion-variant {
+    height: 16px;
+    border-width: 0px 0px 0px 0px;
+    border-style: none;
+    background-color: transparent;
+    z-index: 10;
+}
+
+.insertion-variant-render {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 12px solid #B12222;
+    background-color: transparent;
+}
+
+.deletion-variant {
+    height: 15px;
+    border-left-color: #4AB7B7;
+    border-right-color: #4AB7B7;
+    border-width: 0px 2px 0px 2px;
+    border-style: solid;
+    background-color: transparent;
+    z-index: 10;
+}
+
+.deletion-variant-render {
+    height: 3px;
+    margin-top: 5px;
+    background-color: #4AB7B7;
+
+}
