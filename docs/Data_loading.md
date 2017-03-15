@@ -203,11 +203,11 @@ the genome browser, for example:
 
 #### GFF3
 
-You can use the `tools/data/add_transcripts_from_gff3_to_annotations.pl` script to bulk load GFF3 files with transcripts
+You can use the `tools/data/add_features_from_gff3_to_annotations.pl` script to bulk load GFF3 files with transcripts
 to the user annotation track. Let's say we want to load our `maker.gff` transcripts.
 
 ``` 
-    tools/data/add_transcripts_from_gff3_to_annotations.pl \
+    tools/data/add_features_from_gff3_to_annotations.pl \
         -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
         -i scf1117875582023.gff -t mRNA -o "name of organism"
 ```
@@ -220,13 +220,13 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 `blastn.gff` file as an example.
 
 ``` 
-    tools/data/add_transcripts_from_gff3_to_annotations.pl \
+    tools/data/add_features_from_gff3_to_annotations.pl \
        -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
        -i cf1117875582023.gff -t match -e match_part -o "name of organism"
 ```
 
 
-You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option for all available options.
+You can view the add_features_from_gff3_to_annotations.pl help (`-h`) option for all available options.
 
 **Note:** Apollo makes a clear distinction between a transcript and an mRNA. Genes that have mRNA as its child feature
 are treated as protein coding annotations and Genes that have transcript as its child feature are treated as non-coding
