@@ -401,9 +401,13 @@ define([
                 client.connect({}, function () {
                     // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                     var organism = JSON.parse(apolloMainPanel.getCurrentOrganism());
-                    var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                    //var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                    var assemblage= JSON.parse(apolloMainPanel.getCurrentAssemblage());
                     var user = JSON.parse(apolloMainPanel.getCurrentUser());
-                    client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                    assemblage.sequenceList.forEach(function(obj){
+                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
+                    });
+                    //client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
                     client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                 });
                 console.log('connection established');
