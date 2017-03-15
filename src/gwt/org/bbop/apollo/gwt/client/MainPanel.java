@@ -654,6 +654,7 @@ public class MainPanel extends Composite {
     }
 
     public void setAppState(AppStateInfo appStateInfo) {
+        trackPanel.clear();
         organismInfoList = appStateInfo.getOrganismList();
         currentAssemblage = appStateInfo.getCurrentAssemblage();
         currentOrganism = appStateInfo.getCurrentOrganism();
@@ -1146,6 +1147,7 @@ public class MainPanel extends Composite {
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo assemblageInfo) {
         assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
     }
+    public static TrackPanel getTrackPanel() { return trackPanel ; }
 
     public AssemblageInfo getCurrentAssemblage() {
         return currentAssemblage;

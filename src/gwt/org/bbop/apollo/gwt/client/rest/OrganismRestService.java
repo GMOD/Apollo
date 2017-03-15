@@ -77,30 +77,6 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback, "organism/updateOrganismInfo", "data=" + organismInfoObject.toString());
     }
 
-//    public static void changeOrganism(String newOrganismId) {
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
-//                OrganismInfo organismInfo = OrganismInfoConverter.convertFromJson(returnValue);
-//
-//                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS);
-//                List<OrganismInfo> organismInfoList = new ArrayList<OrganismInfo>();
-//                organismInfoList.add(organismInfo);
-//                organismChangeEvent.setOrganismInfoList(organismInfoList);
-//                Annotator.eventBus.fireEvent(organismChangeEvent);
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Bootbox.alert("Error changing organisms");
-//            }
-//        };
-//        String payload = "data={organismId:'"+newOrganismId+"'}";
-//
-//        RestService.sendRequest(requestCallback, "organism/changeOrganism", payload);
-//
-//    }
 
     public static void createOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
         RestService.sendRequest(requestCallback,"organism/addOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));

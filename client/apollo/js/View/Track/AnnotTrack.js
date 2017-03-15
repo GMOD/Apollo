@@ -332,6 +332,7 @@ define([
                         filteredTrack.key = trackConfig.key;
                         filteredTrack.name = trackConfig.name;
                         filteredTrack.type = trackConfig.type;
+                        filteredTrack.category = trackConfig.category;
                         filteredTrack.urlTemplate = trackConfig.urlTemplate;
                         filteredTrack.visible = visible;
                         filteredTrackList.push(filteredTrack);

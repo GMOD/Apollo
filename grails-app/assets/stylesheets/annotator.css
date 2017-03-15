@@ -167,6 +167,24 @@ h1 {
   /*width: 100px;*/
 }
 
+.track-header{
+  display: inline;
+  cursor: pointer;
+  font-size: medium;
+}
+
+.track-link{
+    display: inline !important;
+    cursor: pointer;
+    font-size: small;
+}
+
+.track-link:hover{
+    display: inline !important;
+    color: blue;
+    text-decoration: underline;
+}
+
 .individual-label{
   color: white;
   padding: 5px;
