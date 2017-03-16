@@ -241,6 +241,27 @@ class FeatureService {
         return overlappingFeatures.unique()
     }
 
+
+    def getOverlappingSequenceAlterations(Assemblage assemblage, int fmin, int fmax) {
+        List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
+//        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
+        def sequences = assemblageService.getSequencesFromAssemblage(assemblage)
+        int calculatedFmin = assemblageService.getMinForFullScaffold(fmin,assemblage)
+        int calculatedFmax = assemblageService.getMaxForFullScaffold(fmax,assemblage)
+
+
+        // TODO: project these individually
+        // case minCase
+        // case middleCase
+        // case maxCase
+
+        for(sequence in sequences){
+            sequenceAlterationList.addAll(getOverlappingSequenceAlterations(sequence,fmin,fmax))
+        }
+
+        return sequenceAlterationList
+    }
+
     /**
      * Set sequence based on FeatureLocation.
      * If a sequence has multiple feature locations, then use the first one?
@@ -248,8 +269,8 @@ class FeatureService {
      * @param feature
      * @param assemblage
      */
-    def getOverlappingSequenceAlterations(Sequence sequence, int fmin, int fmax) {
-        Feature.executeQuery(
+    List<SequenceAlteration> getOverlappingSequenceAlterations(Sequence sequence, int fmin, int fmax) {
+        SequenceAlteration.executeQuery(
                 "SELECT DISTINCT sa FROM SequenceAlteration sa JOIN sa.featureLocations fl WHERE fl.sequence = :sequence AND ((fl.fmin <= :fmin AND fl.fmax > :fmin) OR (fl.fmin <= :fmax AND fl.fmax >= :fmax) OR (fl.fmin >= :fmin AND fl.fmax <= :fmax))",
                 [fmin: fmin, fmax: fmax, sequence: sequence]
         )

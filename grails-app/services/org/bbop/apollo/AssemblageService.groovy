@@ -382,17 +382,20 @@ class AssemblageService {
      * @return
      */
     int getMinForFeatureFullScaffold(Feature feature, Assemblage assemblage) {
-        Integer calculatedMin = feature.fmin
+        return getMinForFullScaffold(feature.fmin,assemblage)
+    }
+
+    int getMinForFullScaffold(Integer fmin, Assemblage assemblage) {
         List<Sequence> sequencesList = getSequencesFromAssemblage(assemblage)
 
-        Sequence firstSequence = feature.getFirstSequence()
+        Sequence firstSequence = sequencesList.first()
         Integer sequenceOrder = sequencesList.indexOf(firstSequence)
 
         // add the entire length of each sequence in view
         for (int i = 0; i < sequenceOrder; i++) {
-            calculatedMin += sequencesList.get(i).length
+            fmin += sequencesList.get(i).length
         }
-        return calculatedMin
+        return fmin
     }
 
     /**
@@ -402,18 +405,27 @@ class AssemblageService {
      * @return
      */
     int getMaxForFeatureFullScaffold(Feature feature, Assemblage assemblage) {
-        Integer calculatedMax = feature.fmax
+        return getMaxForFullScaffold(feature.fmax,assemblage)
+    }
+
+    /**
+     * We want the maximum location of a feature in the context of its assemblage
+     * @param feature
+     * @param assemblage
+     * @return
+     */
+    int getMaxForFullScaffold(Integer fmax, Assemblage assemblage) {
         List<Sequence> sequencesList = getSequencesFromAssemblage(assemblage)
 
         // we use the first sequence here, since fmax uses prior sequences
-        Sequence firstSequence = feature.getFirstSequence()
+        Sequence firstSequence = sequencesList.first()
         Integer sequenceOrder = sequencesList.indexOf(firstSequence)
 
         // add the entire length of each sequence in view
         for (int i = 0; i < sequenceOrder; i++) {
-            calculatedMax += sequencesList.get(i).length
+            fmax += sequencesList.get(i).length
         }
-        return calculatedMax
+        return fmax
     }
 
     def removeAssemblageById(Long id, User user) {

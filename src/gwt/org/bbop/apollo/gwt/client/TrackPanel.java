@@ -29,7 +29,6 @@ import org.gwtbootstrap3.client.shared.event.HiddenHandler;
 import org.gwtbootstrap3.client.shared.event.ShowEvent;
 import org.gwtbootstrap3.client.shared.event.ShowHandler;
 import org.gwtbootstrap3.client.ui.*;
-import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Panel;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.HeadingSize;
@@ -295,7 +294,8 @@ public class TrackPanel extends Composite {
 
             PanelHeader panelHeader = null ;
             Badge totalBadge = null ;
-            if(!key.equals(TrackInfo.TRACK_UNCATEGORIZED) && categoryOpen.size()==1){
+            // if we only have a single uncategorized category, then do not add a header
+            if(categoryOpen.size()!=1 || (!key.equals(TrackInfo.TRACK_UNCATEGORIZED) && categoryOpen.size()==1  )){
                 panelHeader = new PanelHeader();
                 panelHeader.setPaddingTop(2);
                 panelHeader.setPaddingBottom(2);

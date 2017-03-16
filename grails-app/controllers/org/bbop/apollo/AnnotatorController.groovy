@@ -348,10 +348,10 @@ class AnnotatorController {
             long start = System.currentTimeMillis()
             log.debug "${sort} ${sortorder}"
 
-            List<Sequence> sequenceList
-            if (assemblage) {
-                sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
-            }
+//            List<Sequence> sequenceList
+//            if (assemblage) {
+//                sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
+//            }
 //            else{
 //
 //            }
