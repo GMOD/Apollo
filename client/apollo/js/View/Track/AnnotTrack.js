@@ -378,8 +378,11 @@ define([
                 function handleMessage(event){
                     var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
                     var hostUrl = window.location.protocol +"//" + window.location.hostname + ":" + window.location.port;
+                    if(window.location.port != "80"){
+                        hostUrl = hostUrl + ":" + window.location.port;
+                    }
                     if (origin !== hostUrl){
-                        console.error("Bad Host Origin: "+origin);
+                        console.error("Bad Host Origin: "+origin + " vs "+hostUrl);
                         return;
                     }
 
