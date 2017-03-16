@@ -384,7 +384,7 @@ define([
                         hostUrl = hostUrl + ":" + window.location.port;
                     }
                     if (origin !== hostUrl){
-                        console.error("Bad Host Origin: "+origin + " vs "+hostUrl);
+                        console.error("Bad Host Origin: "+origin );
                         return;
                     }
 
