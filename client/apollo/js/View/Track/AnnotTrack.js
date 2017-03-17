@@ -313,12 +313,21 @@ define([
                 }));
 
                 var navigateToLocation = function(urlObject) {
-                    alert(JSON.stringify(urlObject));
+                    alert('navigating with: ' + JSON.stringify(urlObject));
                     if(urlObject.exact){
                         browser.callLocation(urlObject.url);
                     }
                     else{
+                        alert('parsing: '+urlObject.url);
+                        alert(browser.allRefs.length);
+                        for(r in browser.allRefs){
+                            name = browser.allRefs[r].name;
+                            if(name.indexOf("{")>0){
+                                console.log("JSON name: " + name) ;
+                            }
+                        }
                         var location = Util.parseLocString( urlObject.url);
+                        alert(location);
                         browser.showRegion(location);
                     }
                 };

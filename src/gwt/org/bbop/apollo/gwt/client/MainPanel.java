@@ -556,11 +556,12 @@ public class MainPanel extends Composite {
 
         trackListString += "&locationBox=none";
         // TODO: this should work correclty
-        Window.alert("force URL: " + forceUrl);
         if(!forceUrl && getInnerDiv()!=null){
             JSONObject commandObject = new JSONObject();
+            Window.alert("current assemblage: "+currentAssemblage);
+            Window.alert("current assemblage NAME: "+currentAssemblage.getName());
             commandObject.put("url", new JSONString(currentAssemblage.getName()+":"+currentStartBp+".."+currentEndBp));
-            Window.alert(commandObject.toString());
+            Window.alert("command object: " + commandObject.toString());
             MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
         }
         else{

@@ -127,7 +127,15 @@ public class AssemblageDetailPanel extends Composite {
             }
         }
 
+        // set name now
+        String assemblageName = generateAssemblageName(assemblageInfo);
+        assemblageInfo.setName(assemblageName);
+
         return assemblageInfo;
+    }
+
+    private String generateAssemblageName(AssemblageInfo assemblageInfo) {
+        return assemblageInfo.getSequenceList().toString();
     }
 
     public void setAssemblageInfo(Set<AssemblageInfo> selectedObjects) {

@@ -36,7 +36,6 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults;
@@ -303,10 +302,7 @@ public class SequencePanel extends Composite {
                 MainPanel mainPanel = MainPanel.getInstance();
                 AssemblageInfo currentAssemblage = mainPanel.setCurrentAssemblageAndEnds(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject));
                 Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(), mainPanel.getCurrentOrganism().getName()));
-                MainPanel.updateGenomicViewerForAssemblage(currentAssemblage.getName(), currentAssemblage.getStartBp(), currentAssemblage.getEndBp(), false, false);
-//                if (sequenceInfo != null) {
-//                    OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
-//                }
+                MainPanel.updateGenomicViewerForAssemblage(currentAssemblage, currentAssemblage.getStartBp(), currentAssemblage.getEndBp(), false, false);
             }
 
             @Override

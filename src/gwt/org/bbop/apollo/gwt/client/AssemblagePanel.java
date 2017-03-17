@@ -251,8 +251,8 @@ public class AssemblagePanel extends Composite {
      */
     @UiHandler("viewButton")
     public void view(ClickEvent event) {
-        JSONObject merge1 = getAssemblagePanelAsJson();
-        MainPanel.updateGenomicViewerForAssemblage(merge1.toString().trim(), -1L, -1L);
+        AssemblageInfo assemblageInfo = assemblageDetailPanel.getAssemblageInfo();
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, -1L, -1L,false,false);
     }
 
 
