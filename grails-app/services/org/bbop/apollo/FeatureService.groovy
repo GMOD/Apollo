@@ -246,8 +246,8 @@ class FeatureService {
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         def sequences = assemblageService.getSequencesFromAssemblage(assemblage)
-        int calculatedFmin = assemblageService.getMinForFullScaffold(fmin,assemblage)
-        int calculatedFmax = assemblageService.getMaxForFullScaffold(fmax,assemblage)
+        int calculatedFmin = assemblageService.getMinForFullScaffold(min,assemblage)
+        int calculatedFmax = assemblageService.getMaxForFullScaffold(max,assemblage)
 
         List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(min,max)
         // TODO: project these individually
