@@ -242,21 +242,75 @@ class FeatureService {
     }
 
 
-    def getOverlappingSequenceAlterations(Assemblage assemblage, int fmin, int fmax) {
+    def getOverlappingSequenceAlterations(Assemblage assemblage, int min, int max) {
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
-//        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
+        MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         def sequences = assemblageService.getSequencesFromAssemblage(assemblage)
         int calculatedFmin = assemblageService.getMinForFullScaffold(fmin,assemblage)
         int calculatedFmax = assemblageService.getMaxForFullScaffold(fmax,assemblage)
 
-
+        List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(min,max)
         // TODO: project these individually
-        // case minCase
-        // case middleCase
-        // case maxCase
 
-        for(sequence in sequences){
-            sequenceAlterationList.addAll(getOverlappingSequenceAlterations(sequence,fmin,fmax))
+        // similar to FPS::setFeatureLocationsForProjection
+        int firstIndex = 0
+        int lastIndex = projectionSequenceList.size() - 1
+
+        projectionSequenceList.eachWithIndex { ProjectionSequence projectionSequence, int i ->
+
+            int calculatedMin
+            int calculatedMax
+
+            Organism organism = Organism.findByCommonName(projectionSequence.organism)
+            Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
+
+            if (projectionSequence.reverse) {
+                // if first index, then we calculate the min
+                if (i == firstIndex) {
+                    calculatedMin = projectionSequence.end - min - projectionSequence.offset
+                }
+                // if the min is in the middle, then it must be 0
+                // if the min is the last, then it must be 0
+                else {
+                    calculatedMin = projectionSequence.end
+                }
+
+                // if the max if the last, then we calculate it properly
+                if (i == lastIndex) {
+                    calculatedMax = projectionSequence.end - max - projectionSequence.offset
+                } else {
+                    // if the max is in the middle, then it must be the sequence.unprojectedLength
+                    // if the max is in the first of many, then it must be sequence.unprojectedLength
+//                    calculatedMax = projectionSequence.unprojectedLength
+                    calculatedMax = 0
+                }
+
+                // swap values
+                int temp = calculatedMin
+                calculatedMin = calculatedMax
+                calculatedMax = temp
+
+            } else {
+                // if first index, then we calculate the min
+                if (i == firstIndex) {
+                    calculatedMin = min + projectionSequence.start - projectionSequence.offset
+                }
+                // if the min is in the middle, then it must be 0
+                // if the min is the last, then it must be 0
+                else {
+                    calculatedMin = 0
+                }
+
+                // if the max if the last, then we calculate it properly
+                if (i == lastIndex) {
+                    calculatedMax = max + projectionSequence.start - projectionSequence.offset
+                } else {
+                    // if the max is in the middle, then it must be the sequence.unprojectedLength
+                    // if the max is in the first of many, then it must be sequence.unprojectedLength
+                    calculatedMax = projectionSequence.unprojectedLength
+                }
+            }
+            sequenceAlterationList.addAll(getOverlappingSequenceAlterations(sequence,calculatedMin,calculatedMax))
         }
 
         return sequenceAlterationList

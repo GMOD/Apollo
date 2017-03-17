@@ -313,6 +313,7 @@ define([
                 }));
 
                 var navigateToLocation = function(urlObject) {
+                    alert(JSON.stringify(urlObject));
                     if(urlObject.exact){
                         browser.callLocation(urlObject.url);
                     }

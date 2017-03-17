@@ -556,9 +556,11 @@ public class MainPanel extends Composite {
 
         trackListString += "&locationBox=none";
         // TODO: this should work correclty
+        Window.alert("force URL: " + forceUrl);
         if(!forceUrl && getInnerDiv()!=null){
             JSONObject commandObject = new JSONObject();
             commandObject.put("url", new JSONString(currentAssemblage.getName()+":"+currentStartBp+".."+currentEndBp));
+            Window.alert(commandObject.toString());
             MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
         }
         else{
@@ -584,6 +586,7 @@ public class MainPanel extends Composite {
     public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
 
         AssemblageInfo assemblageInfo;
+        Window.alert("updating genomic view with "+selectedSequence);
         if (selectedSequence.startsWith("{")) {
             assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
         } else {

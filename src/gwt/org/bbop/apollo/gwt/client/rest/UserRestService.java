@@ -42,7 +42,15 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue j=JSONParser.parseStrict(response.getText());
+                JSONValue j= null ;
+                try {
+                    j = JSONParser.parseStrict(response.getText());
+                } catch (Exception e) {
+                    GWT.log("Error parsing login response: "+e);
+                    Window.alert("Error parsing login response, reloading");
+                    Window.Location.reload();
+                    return ;
+                }
                 JSONObject o=j.isObject();
                 if(o.get("error")!=null) {
                     loginDialog.setError(o.get("error").isString().stringValue() + "!");

@@ -144,7 +144,6 @@ class FeatureProjectionService {
         int rank = 0
         int firstIndex = 0
         int lastIndex = projectionSequenceList.size() - 1
-//        for(projectionSequence in projectionSequenceList){
         projectionSequenceList.eachWithIndex { ProjectionSequence projectionSequence, int i ->
 
             int calculatedMin

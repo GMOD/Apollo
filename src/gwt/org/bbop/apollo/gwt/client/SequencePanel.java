@@ -299,14 +299,14 @@ public class SequencePanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                if (sequenceInfo != null) {
-//                    JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
-//                    MainPanel mainPanel = MainPanel.getInstance();
-//                    AssemblageInfo currentAssemblage = mainPanel.setCurrentAssemblageAndEnds(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject));
-//                    Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(), mainPanel.getCurrentOrganism().getName()));
-//                    MainPanel.updateGenomicViewerForAssemblage(currentAssemblage.getName(), currentAssemblage.getStartBp(), currentAssemblage.getEndBp(), true, true);
-                    OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
-                }
+                JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                MainPanel mainPanel = MainPanel.getInstance();
+                AssemblageInfo currentAssemblage = mainPanel.setCurrentAssemblageAndEnds(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(jsonObject));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(), mainPanel.getCurrentOrganism().getName()));
+                MainPanel.updateGenomicViewerForAssemblage(currentAssemblage.getName(), currentAssemblage.getStartBp(), currentAssemblage.getEndBp(), false, false);
+//                if (sequenceInfo != null) {
+//                    OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
+//                }
             }
 
             @Override

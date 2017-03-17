@@ -113,7 +113,10 @@ class SequenceController {
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
 //        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceInstance.name)
-        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, assemblage.sequenceList.toString())
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequenceInstance)
+        String assemblageString = assemblageService.convertAssemblageToJson(assemblage).toString()
+//        JSONArray sequenceArray = (JSON.parse(assemblage.sequenceList)) as JSONArray
+        session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, assemblage.name)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
@@ -131,7 +134,8 @@ class SequenceController {
         sequenceObject.endBp = userOrganismPreference.endbp
 
 //        render userOrganismPreference.assemblage.sequenceList
-        render sequenceObject as JSON
+//        render sequenceObject as JSON
+        render assemblageString
     }
 
 
