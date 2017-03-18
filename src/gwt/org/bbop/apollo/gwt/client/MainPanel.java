@@ -558,7 +558,6 @@ public class MainPanel extends Composite {
         // TODO: this should work correclty
         if(!forceUrl && getInnerDiv()!=null){
             JSONObject commandObject = new JSONObject();
-            Window.alert("current assemblage: "+currentAssemblage);
             Window.alert("current assemblage NAME: "+currentAssemblage.getName());
             commandObject.put("url", new JSONString(currentAssemblage.getName()+":"+currentStartBp+".."+currentEndBp));
             Window.alert("command object: " + commandObject.toString());

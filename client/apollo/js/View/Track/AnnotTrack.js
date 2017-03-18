@@ -313,21 +313,34 @@ define([
                 }));
 
                 var navigateToLocation = function(urlObject) {
-                    alert('navigating with: ' + JSON.stringify(urlObject));
                     if(urlObject.exact){
                         browser.callLocation(urlObject.url);
                     }
                     else{
-                        alert('parsing: '+urlObject.url);
-                        alert(browser.allRefs.length);
-                        for(r in browser.allRefs){
-                            name = browser.allRefs[r].name;
-                            if(name.indexOf("{")>0){
-                                console.log("JSON name: " + name) ;
-                            }
-                        }
-                        var location = Util.parseLocString( urlObject.url);
-                        alert(location);
+                        // for(r in browser.allRefs){
+                        //     name = browser.allRefs[r].name;
+                            // if(name.indexOf("Group7.21")>0){
+                            //     console.log("existing name: "+name );
+                            // }
+                        // }
+                        var url = urlObject.url ;
+                        console.log("parsing: "+url);
+
+                        // ref:start..end
+                        // TODO: parse correctly
+                        var ref = url.substr(0,url.lastIndexOf(":"));
+                        console.log(ref) ;
+                        var locString = url.substr(url.lastIndexOf(":")+1,url.length);
+                        console.log(locString) ;
+                        var locs = locString.split("\.\.");
+                        console.log(locs);
+                        var location = {
+                            ref: ref,
+                            start: locs[0],
+                            end: locs[1]
+                        };
+                        // var location = Util.parseLocString( urlObject.url);
+                        console.log(location);
                         browser.showRegion(location);
                     }
                 };
