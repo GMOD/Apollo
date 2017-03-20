@@ -317,12 +317,23 @@ define([
                         browser.callLocation(urlObject.url);
                     }
                     else{
-                        // for(r in browser.allRefs){
-                        //     name = browser.allRefs[r].name;
-                            // if(name.indexOf("Group7.21")>0){
-                            //     console.log("existing name: "+name );
-                            // }
-                        // }
+                        var refCount = 0 ;
+                        for(r in browser.allRefs){
+                            refCount = refCount + 1;
+                            var ref = browser.allRefs[r] ;
+                            if(ref.sequenceList){
+                                var sequenceListString = JSON.stringify(ref.sequenceList);
+                                if(sequenceListString.indexOf("Group11.4")>0){
+                                    console.log('has sequence list: '+sequenceListString);
+                                }
+                            }
+                            name = ref.name;
+                            if(name.indexOf("Group11.4")>=0){
+                                console.log("existing name: "+name );
+                                console.log("for ref: "+JSON.stringify(ref) );
+                            }
+                        }
+                        console.log('# of refseq: '+ refCount);
                         var url = urlObject.url ;
                         console.log("parsing: "+url);
 

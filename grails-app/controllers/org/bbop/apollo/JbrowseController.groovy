@@ -516,11 +516,45 @@ class JbrowseController {
                     // We add the data refSeq here
                     String fileText = new File(dataFileName).text
                     JSONArray inputArray = JSON.parse(fileText) as JSONArray
-                    Assemblage.findAllByOrganism(currentOrganism).each {
-                        sequenceArray.add(projectionService.fixProjectionName( (JSON.parse(it.sequenceList) as JSONArray)).first())
+                    println "${sequenceArray.get(0).sequenceList}"
+
+                    println "PRE sequence array: ${sequenceArray.size()}"
+                    for(assemblage in Assemblage.findAllByOrganism(currentOrganism)){
+                        JSONObject assemblageRefSeq = projectionService.generateRefSeqForAssemblage(assemblage)
+                        String arrayString = assemblageRefSeq
+                        if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
+                            println "found array string ${arrayString}"
+                        }
+//                        sequenceArray.add(projectionService.fixProjectionName( (JSON.parse(assemblage.sequenceList) as JSONArray)).first())
+//                        sequenceArray.add(projectionService.fixProjectionName( (JSON.parse(assemblage.sequenceList) as JSONArray)))
+
+                        sequenceArray.add(assemblageRefSeq)
+
                     }
+                    println "POST sequence array: ${sequenceArray.size()}"
+
+                    for(array in sequenceArray){
+                        String arrayString = array.toString()
+//                        println "array string: ${arrayString}"
+                        if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
+                            println "FOUND string ${arrayString} "
+                        }
+
+                    }
+                    println "ABCD-1"
 
                     sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
+                    println "POST POST sequence array: ${sequenceArray.size()}"
+
+                    for(array in sequenceArray){
+                        String arrayString = array.toString()
+//                        println "array string: ${arrayString}"
+                        if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
+                            println "FOUND last array string ${arrayString}"
+                        }
+                    }
+                    println "ABCD-2"
+
 
                     response.outputStream << sequenceArray.toString()
 

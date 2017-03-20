@@ -632,4 +632,23 @@ class ProjectionService {
         }
         return jsonArray
     }
+
+    JSONObject generateRefSeqForAssemblage(Assemblage assemblage) {
+        JSONObject refSeqObj = new JSONObject()
+//        refSeqObj.id = assemblage.id
+        refSeqObj.put(FeatureStringEnum.START.value,assemblage.start)
+        refSeqObj.put(FeatureStringEnum.END.value,assemblage.end)
+        refSeqObj.put(FeatureStringEnum.SEQUENCE_LIST.value,JSON.parse(assemblage.sequenceList) as JSONArray)
+        refSeqObj.seqChunkSize  = 20000
+        refSeqObj.put(FeatureStringEnum.NAME.value,assemblage.sequenceList)
+
+        long length = 0l
+
+        for(seq in refSeqObj.sequenceList){
+            length += seq.length
+        }
+        refSeqObj.length = length
+
+        return refSeqObj
+    }
 }

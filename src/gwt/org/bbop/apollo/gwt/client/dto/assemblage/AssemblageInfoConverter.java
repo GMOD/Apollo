@@ -69,20 +69,25 @@ public class AssemblageInfoConverter {
             assemblageInfo.setEnd((long) jsonObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
         }
 
-        JSONArray sequenceListArray = jsonObject.containsKey("sequenceList") ? jsonObject.get("sequenceList").isArray() : null ;
         // some weird stuff here
-        if (sequenceListArray == null) {
-            try {
-                String sequenceArrayString = jsonObject.get("sequenceList").isString().stringValue();
-                sequenceArrayString = sequenceArrayString.replaceAll("\\\\", "");
-                sequenceListArray = JSONParser.parseStrict(sequenceArrayString).isArray();
+        if(jsonObject.containsKey(FeatureStringEnum.SEQUENCE_LIST.getValue())){
+            JSONArray sequenceListArray = jsonObject.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray() ;
+            if (sequenceListArray == null) {
+                try {
+                    String sequenceArrayString = jsonObject.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString().stringValue();
+                    sequenceArrayString = sequenceArrayString.replaceAll("\\\\", "");
+                    sequenceListArray = JSONParser.parseStrict(sequenceArrayString).isArray();
+                }
+                catch (RuntimeException e){
+                    Window.alert("Unable to find string: "+jsonObject.toString() + " e: "+e.toString());
+                }
             }
-            catch (RuntimeException e){
-                Window.alert("Unable to find string: "+jsonObject.toString());
-            }
+            AssemblageSequenceList assemblageSequenceList = convertJSONArrayToSequenceList(sequenceListArray);
+            assemblageInfo.setSequenceList(assemblageSequenceList);
         }
-        AssemblageSequenceList assemblageSequenceList = convertJSONArrayToSequenceList(sequenceListArray);
-        assemblageInfo.setSequenceList(assemblageSequenceList);
+        else{
+            Window.alert("does not contain: "+jsonObject.toString());
+        }
 
         return assemblageInfo;
     }

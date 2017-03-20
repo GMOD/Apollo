@@ -4,6 +4,7 @@ import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.ColorGenerator
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 /**
@@ -46,6 +47,28 @@ class ProjectionGridTrackController {
         return referer.substring(startClientIndex,endClientIndex)
     }
 
+    private JSONObject getSequenceObjectForString(String sequenceName){
+        JSONObject sequenceObject
+        println "getting sequence object ${sequenceObject} for ${sequenceName}"
+        Integer endIndex
+        if(sequenceName.startsWith("[")){
+            endIndex = sequenceName.indexOf("]:") + 1
+            sequenceObject = new JSONObject()
+            JSONArray sequenceListArray = (endIndex == 0 ? JSON.parse(sequenceName): JSON.parse(sequenceName.substring(0, endIndex))) as JSONArray
+            sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.SEQUENCE_LIST.value,sequenceListArray)
+        }
+        else
+        if(sequenceName.startsWith("{")){
+            endIndex = sequenceName.indexOf("}:") + 1
+            sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        }
+        else{
+            println "now sure how to handle ${sequenceName}"
+        }
+
+        return sequenceObject
+    }
+
     /**
      *{"featureDensity": 0.02,
 
@@ -61,13 +84,9 @@ class ProjectionGridTrackController {
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
         String sequenceName = refererLoc
-        Integer endIndex = sequenceName.indexOf("}:") + 1
 
-
-
-
-
-        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        println "sequence name: ${sequenceName}"
+        JSONObject sequenceObject = getSequenceObjectForString(sequenceName)
         sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         Integer featureCount = sequenceObject.sequenceList.size()
 
@@ -96,8 +115,11 @@ class ProjectionGridTrackController {
         Integer start = Integer.parseInt(params.start)
         Integer end = Integer.parseInt(params.end)
         String sequenceName = params.sequenceName
-        Integer endIndex = sequenceName.indexOf("}:") + 1
-        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+
+
+        JSONObject sequenceObject = getSequenceObjectForString(sequenceName)
+//        Integer endIndex = sequenceName.indexOf("}:") + 1
+//        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
         sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
         List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
@@ -122,8 +144,9 @@ class ProjectionGridTrackController {
         Integer end = Integer.parseInt(params.end)
         String referer = request.getHeader("Referer")
 
-        Integer endIndex = sequenceName.indexOf("}:") + 1
-        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
+        JSONObject sequenceObject = getSequenceObjectForString(sequenceName)
+//        Integer endIndex = sequenceName.indexOf("}:") + 1
+//        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
         sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
 
