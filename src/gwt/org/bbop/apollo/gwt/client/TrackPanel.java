@@ -282,12 +282,12 @@ public class TrackPanel extends Composite {
         for (final String key : categoryMap.keySet()) {
             List<TrackInfo> trackInfoList = categoryMap.get(key);
 
-            Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
-                @Override
-                public int compare(TrackInfo o1, TrackInfo o2) {
-                    return o1.getLabel().compareTo(o2.getLabel());
-                }
-            });
+//            Collections.sort(trackInfoList, new Comparator<TrackInfo>() {
+//                @Override
+//                public int compare(TrackInfo o1, TrackInfo o2) {
+//                    return o1.getLabel().compareTo(o2.getLabel());
+//                }
+//            });
 
             // if this is a root panel
             Panel panel = new Panel();
