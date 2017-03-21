@@ -323,15 +323,11 @@ define([
                             var ref = browser.allRefs[r] ;
                             if(ref.sequenceList){
                                 var sequenceListString = JSON.stringify(ref.sequenceList);
-                                if(sequenceListString.indexOf("Group11.4")>0){
-                                    console.log('has sequence list: '+sequenceListString);
-                                }
+                                console.log('has sequence list: '+sequenceListString);
                             }
                             name = ref.name;
-                            if(name.indexOf("Group11.4")>=0){
-                                console.log("existing name: "+name );
-                                console.log("for ref: "+JSON.stringify(ref) );
-                            }
+                            console.log("existing name: "+name );
+                            console.log("for ref: "+JSON.stringify(ref) );
                         }
                         console.log('# of refseq: '+ refCount);
                         var url = urlObject.url ;

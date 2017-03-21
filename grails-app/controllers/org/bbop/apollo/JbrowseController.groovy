@@ -496,6 +496,7 @@ class JbrowseController {
                         refererObject = new JSONObject(sequenceString)
                         refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
+                        println "adding projection object ${refererObject as JSON}"
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                     } else
                     if (AssemblageService.isProjectionReferer(refererLoc)) {
@@ -505,6 +506,7 @@ class JbrowseController {
                         refererObject = new JSONObject(refererLoc)
                         sequenceArray.add(refererObject)
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                        println "adding reffer object ${refererObject as JSON}"
                     } else {
                         // get the sequence
                         String sequenceName = refererLoc.split(":")[0]
@@ -512,24 +514,17 @@ class JbrowseController {
                         refererObject = new JSONObject()
                         refererObject.putAll(sequence.properties)
                         sequenceArray.add(refererObject)
+                        println "adding other object ${refererObject as JSON}"
                     }
                     // We add the data refSeq here
                     String fileText = new File(dataFileName).text
                     JSONArray inputArray = JSON.parse(fileText) as JSONArray
-                    println "${sequenceArray.get(0).sequenceList}"
 
                     println "PRE sequence array: ${sequenceArray.size()}"
                     for(assemblage in Assemblage.findAllByOrganism(currentOrganism)){
                         JSONObject assemblageRefSeq = projectionService.generateRefSeqForAssemblage(assemblage)
-                        String arrayString = assemblageRefSeq
-                        if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
-                            println "found array string ${arrayString}"
-                        }
-//                        sequenceArray.add(projectionService.fixProjectionName( (JSON.parse(assemblage.sequenceList) as JSONArray)).first())
-//                        sequenceArray.add(projectionService.fixProjectionName( (JSON.parse(assemblage.sequenceList) as JSONArray)))
-
+                        assemblageRefSeq.name = assemblageRefSeq.toString()
                         sequenceArray.add(assemblageRefSeq)
-
                     }
                     println "POST sequence array: ${sequenceArray.size()}"
 
@@ -539,7 +534,6 @@ class JbrowseController {
                         if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
                             println "FOUND string ${arrayString} "
                         }
-
                     }
                     println "ABCD-1"
 

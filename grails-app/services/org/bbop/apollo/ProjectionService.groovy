@@ -604,7 +604,7 @@ class ProjectionService {
     }
 
     @NotTransactional
-    String generateNameForObjcet(JSONObject jsonObject){
+    String generateNameForObject(JSONObject jsonObject){
         String returnString = ""
 //        JSONObject returnObject = new JSONObject()
         JSONArray sequenceArray = new JSONArray()
@@ -628,7 +628,7 @@ class ProjectionService {
             // to
 //            "{"id":9796,"name":"Group1.1","description":"Group1.1","padding":0,"start":0,"end":1382403,"sequenceList":[{"name":"Group1.1","start":0,"end":1382403,"reverse":false}]}:97510..378397"
 
-            obj.name = generateNameForObjcet(obj)
+            obj.name = generateNameForObject(obj)
         }
         return jsonArray
     }
@@ -638,16 +638,18 @@ class ProjectionService {
 //        refSeqObj.id = assemblage.id
         refSeqObj.put(FeatureStringEnum.START.value,assemblage.start)
         refSeqObj.put(FeatureStringEnum.END.value,assemblage.end)
-        refSeqObj.put(FeatureStringEnum.SEQUENCE_LIST.value,JSON.parse(assemblage.sequenceList) as JSONArray)
-        refSeqObj.seqChunkSize  = 20000
-        refSeqObj.put(FeatureStringEnum.NAME.value,assemblage.sequenceList)
+//        refSeqObj.put(FeatureStringEnum.SEQUENCE_LIST.value,JSON.parse(assemblage.sequenceList) as JSONArray)
+        refSeqObj.put(FeatureStringEnum.SEQUENCE_LIST.value,assemblage.sequenceList)
+//        refSeqObj.seqChunkSize  = 20000
+//        refSeqObj.put(FeatureStringEnum.NAME.value,assemblage.sequenceList)
+//        refSeqObj.put(FeatureStringEnum.NAME.value,assemblage.name)
 
-        long length = 0l
-
-        for(seq in refSeqObj.sequenceList){
-            length += seq.length
-        }
-        refSeqObj.length = length
+//        long length = 0l
+//
+//        for(seq in refSeqObj.sequenceList){
+//            length += seq.length
+//        }
+//        refSeqObj.length = length
 
         return refSeqObj
     }

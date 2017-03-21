@@ -168,7 +168,7 @@ class ProjectionServiceSpec extends Specification {
 
         when:"we parse the string"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
-        String name = service.generateNameForObjcet(jsonObject)
+        String name = service.generateNameForObject(jsonObject)
 
         then: "we should get the appropriate name"
         assert name==expectedString
