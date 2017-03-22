@@ -82,7 +82,7 @@
                         <b:Row styleName="{style.row}">
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
-                                    <b:InputGroupAddon>Blat database</b:InputGroupAddon>
+                                    <b:InputGroupAddon>Search database</b:InputGroupAddon>
                                     <b:TextBox autoComplete="false" ui:field="blatdb" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
