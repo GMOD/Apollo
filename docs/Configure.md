@@ -210,7 +210,8 @@ View your instances page for more details. For example
 Apollo can be configured to work with various sequence search tools. UCSC's BLAT tool is configured by default and you
 can customize it as follows by making modifications in the ```apollo-config.groovy``` file.  Here we replace blat with blast 
 (there is an existing wrapper for Blast).  The database for each file will be passed in via params (globally) or using the 
-```Blat database``` field in the organism tab:
+```Blat database``` field in the organism tab.  For blast the database will be the root name of the blast database files 
+without the suffix.
 
 ``` 
 apollo{
