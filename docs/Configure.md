@@ -208,29 +208,33 @@ View your instances page for more details. For example
 ### Search tools
 
 Apollo can be configured to work with various sequence search tools. UCSC's BLAT tool is configured by default and you
-can customize it as follows:
+can customize it as follows by making modifications in the ```apollo-config.groovy``` file.  Here we replace blat with blast 
+(there is an existing wrapper for Blast).  The database for each file will be passed in via params (globally) or using the 
+```Blat database``` field in the organism tab:
 
 ``` 
-sequence_search_tools = [
-  blat_nuc: [
-    search_exe: "/usr/local/bin/blat",
-    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
-    name: "Blat nucleotide",
-    params: ""
-  ],
-  blat_prot: [
-    search_exe: "/usr/local/bin/blat",
-    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
-    name: "Blat protein",
-    params: "",
-    tmp_dir: "/opt/apollo/tmp" //optional, uses system tmp dir by default
-  ]
-  your_custom_search_tool: [
-    search_exe: "/usr/local/customtool",
-    search_class: "org.your.custom.Class",
-    name: "Custom search"
-  ]
-]
+apollo{
+	sequence_search_tools {
+        blat_nuc {
+            search_exe = "/usr/local/bin/blastn"
+            search_class = "org.bbop.apollo.sequence.search.blast.BlastCommandLine"
+            name = "Blast nucleotide"
+            params = ""
+        }
+        blat_prot {
+            search_exe = "/usr/local/bin/tblastn"
+            search_class = "org.bbop.apollo.sequence.search.blast.BlastCommandLine"
+            name = "Blast protein to translated nucleotide"
+            params = ""
+            //tmp_dir: "/opt/apollo/tmp" optional param
+        }
+        your_custom_search_tool {
+          search_exe = "/usr/local/customtool"
+          search_class = "org.your.custom.Class"
+          name: "Custom search"
+        }
+    }
+}
 
 ```
 

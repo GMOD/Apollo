@@ -75,7 +75,8 @@ public class BlastCommandLine extends SequenceSearchTool {
             throws IOException, AlignmentParsingException, InterruptedException {
         PrintWriter log = new PrintWriter(new BufferedWriter(new FileWriter(dir + "/search.log")));
         String queryArg = createQueryFasta(dir, query);
-        String databaseArg = database + (databaseId != null ? ":" + databaseId : "");
+//        String databaseArg = database + (databaseId != null ? ":" + databaseId : "");
+        String databaseArg = database ;
         String outputArg = dir.getAbsolutePath() + "/results.tab";
         List<String> commands = new ArrayList<String>();
         commands.add(blastBin);
@@ -111,8 +112,10 @@ public class BlastCommandLine extends SequenceSearchTool {
     }
     private void runCommand(List<String> commands, PrintWriter log) throws IOException, InterruptedException {
         log.println("Command:");
+        System.out.println("ASDFASDFASDFASDFASDFASDFADSF");
         for (String arg : commands) {
             log.print(arg + " ");
+            System.out.print(arg + " ");
         }
         ProcessBuilder pb = new ProcessBuilder(commands);
         Process p = pb.start();
