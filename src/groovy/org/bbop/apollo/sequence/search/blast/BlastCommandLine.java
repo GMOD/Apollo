@@ -112,10 +112,8 @@ public class BlastCommandLine extends SequenceSearchTool {
     }
     private void runCommand(List<String> commands, PrintWriter log) throws IOException, InterruptedException {
         log.println("Command:");
-        System.out.println("ASDFASDFASDFASDFASDFASDFADSF");
         for (String arg : commands) {
             log.print(arg + " ");
-            System.out.print(arg + " ");
         }
         ProcessBuilder pb = new ProcessBuilder(commands);
         Process p = pb.start();
