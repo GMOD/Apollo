@@ -526,7 +526,8 @@ class FeatureService {
     @Transactional
     def calculateCDS(Transcript transcript) {
         // NOTE: isPseudogene call seemed redundant with isProtenCoding
-        calculateCDS(transcript, false)
+        CDS cds = transcriptService.getCDS(transcript)
+        calculateCDS(transcript, cdsService.hasStopCodonReadThrough(cds))
 //        if (transcriptService.isProteinCoding(transcript) && (transcriptService.getGene(transcript) == null)) {
 ////            calculateCDS(editor, transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
 ////            calculateCDS(transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
