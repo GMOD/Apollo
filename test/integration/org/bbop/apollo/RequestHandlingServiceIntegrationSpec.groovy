@@ -3595,4 +3595,66 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String mrna2CdsSequence = sequenceService.getSequenceForFeature(mrna2, FeatureStringEnum.TYPE_CDS.value)
         assert mrna2CdsSequence == recalculatedCdsSequenceString
     }
+
+    void "while adding an overlapping sequence alteration to a transcript, Apollo should take pre-existing read_through_stop_codon into consideration while recalculating ORF"() {
+        given: "transcripts and sequence alterations"
+        String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":974327,\"fmax\":974467},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":974616,\"fmax\":975772},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":975852,\"fmax\":976988},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":974636,\"fmax\":975982},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40833-RA\",\"location\":{\"strand\":1,\"fmin\":974327,\"fmax\":976988},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":982839,\"fmax\":984089},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":984503,\"fmax\":984707},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":985678,\"fmax\":985915},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":987924,\"fmax\":988085},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":992629,\"fmax\":992713},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":983963,\"fmax\":992699},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40731-RA\",\"location\":{\"strand\":-1,\"fmin\":982839,\"fmax\":992713},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addSequenceAlteration1String = "{ ${testCredentials} \"features\":[{\"residues\":\"TGA\",\"location\":{\"strand\":1,\"fmin\":975949,\"fmax\":975949},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlteration2String = "{ ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":983963,\"fmax\":983966},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String setReadThroughStopCodonString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"readthrough_stop_codon\":true}],\"track\":\"Group1.10\",\"operation\":\"set_readthrough_stop_codon\"}"
+        String deleteSequenceAlterationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"delete_sequence_alteration\"}"
+
+        when: "we add the transcripts"
+        JSONObject addTranscript1ReturnOject = requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+        JSONObject addTranscript2ReturnOject = requestHandlingService.addTranscript(JSON.parse(addTranscript2String) as JSONObject)
+
+        String transcript1UniqueName = addTranscript1ReturnOject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        String transcript2UniqueName = addTranscript2ReturnOject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        println transcript1UniqueName
+        println transcript2UniqueName
+
+        then: "we see the transcripts"
+        assert Transcript.count == 2
+
+        when: "we set the read through stop codon"
+        requestHandlingService.setReadthroughStopCodon(JSON.parse(setReadThroughStopCodonString.replace("@UNIQUENAME@", transcript1UniqueName)) as JSONObject)
+        requestHandlingService.setReadthroughStopCodon(JSON.parse(setReadThroughStopCodonString.replace("@UNIQUENAME@", transcript2UniqueName)) as JSONObject)
+
+        then: "we see the read through stop codon"
+        StopCodonReadThrough scrt1 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript1UniqueName))).first()
+        assert scrt1.fmin == 975979
+        assert scrt1.fmax == 975982
+
+        StopCodonReadThrough scrt2 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript2UniqueName))).first()
+        assert scrt2.fmin == 983963
+        assert scrt2.fmax == 983966
+
+        when: "we add the sequence alterations"
+        JSONObject addSequenceAlteration1ReturnObject = requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlteration1String) as JSONObject)
+        JSONObject addSequenceAlteration2ReturnObject = requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlteration2String) as JSONObject)
+
+        then: "the stop codon read throughs should still be there"
+        StopCodonReadThrough scrt3 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript1UniqueName))).first()
+        assert scrt3.fmin == 974621
+        assert scrt3.fmax == 974624
+
+        StopCodonReadThrough scrt4 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript2UniqueName))).first()
+        assert scrt4.fmin == 983957
+        assert scrt4.fmax == 983960
+
+        when: "we delete the sequence alterations"
+        requestHandlingService.deleteSequenceAlteration(JSON.parse(deleteSequenceAlterationString.replace("@UNIQUENAME@", Insertion.all.first().uniqueName)) as JSONObject)
+        requestHandlingService.deleteSequenceAlteration(JSON.parse(deleteSequenceAlterationString.replace("@UNIQUENAME@", Substitution.all.first().uniqueName)) as JSONObject)
+
+        then: "the stop codon read throughs should still exist and snap back to the original position"
+        StopCodonReadThrough scrt5 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript1UniqueName))).first()
+        assert scrt5.fmin == 975979
+        assert scrt5.fmax == 975982
+
+        StopCodonReadThrough scrt6 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript2UniqueName))).first()
+        assert scrt6.fmin == 983963
+        assert scrt6.fmax == 983966
+
+    }
 }

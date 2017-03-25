@@ -526,7 +526,8 @@ class FeatureService {
     @Transactional
     def calculateCDS(Transcript transcript) {
         // NOTE: isPseudogene call seemed redundant with isProtenCoding
-        calculateCDS(transcript, false)
+        CDS cds = transcriptService.getCDS(transcript)
+        calculateCDS(transcript, cdsService.hasStopCodonReadThrough(cds))
 //        if (transcriptService.isProteinCoding(transcript) && (transcriptService.getGene(transcript) == null)) {
 ////            calculateCDS(editor, transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
 ////            calculateCDS(transcript, transcript.getCDS() != null ? transcript.getCDS().getStopCodonReadThrough() != null : false);
@@ -1182,6 +1183,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             log.debug "Final CDS fmin: ${cds.fmin} fmax: ${cds.fmax}"
 
             if (readThroughStopCodon) {
+                cdsService.deleteStopCodonReadThrough(cds)
                 String aa = SequenceTranslationHandler.translateSequence(getResiduesWithAlterationsAndFrameshifts(cds), translationTable, true, true);
                 int firstStopIndex = aa.indexOf(TranslationTable.STOP);
                 if (firstStopIndex < aa.length() - 1) {
@@ -1541,8 +1543,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     int convertSourceCoordinateToLocalCoordinateForCDS(Feature feature, int sourceCoordinate) {
-        List<Exon> exons = exonService.getSortedExons(feature, true)
-        CDS cds = transcriptService.getCDS(feature)
+        def exons = []
+        CDS cds
+        if (feature instanceof Transcript) {
+            exons = exonService.getSortedExons(feature, true)
+            cds = transcriptService.getCDS(feature)
+        }
+        else if (feature instanceof CDS) {
+            Transcript transcript = transcriptService.getTranscript(feature)
+            exons = exonService.getSortedExons(transcript, true)
+            cds = feature
+        }
+
         int localCoordinate = 0
 
         if (!(cds.fmin <= sourceCoordinate && cds.fmax >= sourceCoordinate)) {
@@ -2225,7 +2237,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     def sequenceAlterationInContextOverlapper(Feature feature, SequenceAlterationInContext sequenceAlteration) {
-        List<Exon> exonList = exonService.getSortedExons(feature, true)
+        def exonList = []
+        if (feature instanceof Transcript) {
+            exonList = exonService.getSortedExons(feature, true)
+        }
+        else if (feature instanceof CDS) {
+            Transcript transcript = transcriptService.getTranscript(feature)
+            exonList = exonService.getSortedExons(transcript, true)
+        }
+
         for (Exon exon : exonList) {
             int fmin = exon.fmin
             int fmax = exon.fmax
