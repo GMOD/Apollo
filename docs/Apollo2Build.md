@@ -10,7 +10,7 @@ This guide will cover the "development mode" scenario which should be easy to st
 
 ### Java / JDK
 
-You have to install Java and the Java Development Kit (JDK) 7 or higher to run Apollo.  Both the Oracle and OpenJDK versions have been tested.
+You have to install Java and the Java Development Kit (JDK) 8 or higher to run Apollo.  Both the Oracle and OpenJDK versions have been tested.
 
 ### Node.js / NPM / Bower
 

@@ -11,7 +11,7 @@ documentation for additional information.
 
 ```
 # Install prereqs
-apt-get install tomcat8 git ant openjdk-7-jdk nodejs
+apt-get install tomcat8 git ant openjdk-8-jdk nodejs
 # Upped tomcat memory per Apollo devs instructions:
 echo "export CATALINA_OPTS="-Xms512m -Xmx1g \
               -XX:+CMSClassUnloadingEnabled \

@@ -12,7 +12,7 @@ have sample settings for various database engines.
 
 ## Production pre-requisites
 
-You will minimally need to have Java 7 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
+You will minimally need to have Java 8 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
 [ant](http://ant.apache.org/), a servlet container e.g. [tomcat7+](http://tomcat.apache.org/), jetty, or resin. An
 external database such as PostgreSQL or MySQL is generally used for production, but instructions for the H2 database is
 also provided.
