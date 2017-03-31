@@ -238,6 +238,7 @@ class OrganismController {
             , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
             , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "a common name used for the organism")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
     ])
     @Transactional
     def updateOrganismInfo() {
@@ -247,11 +248,12 @@ class OrganismController {
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {
-                log.debug "Adding public mode ${organismJson.publicMode}"
+                log.debug "Updating organism info ${organismJson as JSON}"
                 organism.commonName = organismJson.name
                 organism.blatdb = organismJson.blatdb
                 organism.species = organismJson.species
                 organism.genus = organismJson.genus
+                organism.metadata = organismJson.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode
 
@@ -262,6 +264,37 @@ class OrganismController {
                 }
             } else {
                 throw new Exception('organism not found')
+            }
+//            render findAllOrganisms()
+            render new JSONObject() as JSON
+        }
+        catch (e) {
+            def error = [error: 'problem saving organism: ' + e]
+            render error as JSON
+            log.error(error.error)
+        }
+    }
+
+    @RestApiMethod(description = "Update organism metadata", path = "/organism/updateOrganismMetadata", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
+    ])
+    @Transactional
+    def updateOrganismMetadata() {
+        log.debug "updating organism metadata ${params}"
+        try {
+            JSONObject organismJson = permissionService.handleInput(request, params)
+            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+            Organism organism = Organism.findById(organismJson.id)
+            if (organism) {
+                log.debug "Updating organism metadata ${organismJson as JSON}"
+                organism.metadata = organismJson.metadata
+                organism.save(flush: true, insert: false, failOnError: true)
+            } else {
+                throw new Exception('Organism not found')
             }
 //            render findAllOrganisms()
             render new JSONObject() as JSON
