@@ -373,6 +373,7 @@ class OrganismController {
                         species        : organism.species,
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
+                        metadata       : organism.metadata,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
                 ] as JSONObject
                 jsonArray.add(jsonObject)
