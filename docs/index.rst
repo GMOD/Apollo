@@ -43,7 +43,6 @@ Contents:
    Migration
    Permissions
    Testing_notes
-   Contributing
    Architecture
    Command_line
    Web_services
