@@ -39,6 +39,7 @@ Contents:
    Configure
    ChadoExport
    Data_loading
+   ../.github/CONTRIBUTING.md
    Troubleshooting
    Migration
    Permissions
