@@ -1,0 +1,2 @@
+
+We gladly accept contributions.  Please fork this project and [create a pull request](https://help.github.com/articles/creating-a-pull-request/) and we will review and test your contribution at our earliest convenience.  
