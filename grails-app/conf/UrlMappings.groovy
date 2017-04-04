@@ -13,6 +13,7 @@ class UrlMappings {
         "/menu"(view: '/menu')
         "/version.jsp"(controller: 'annotator', view: "version")
         "/${clientToken}/version.jsp"(controller: 'annotator', view: "version")
+        "/track/${trackName}/${organism}/${scaffold}:${fmin}..${fmax}.json"(controller: "track", action: "data")
 
         // set this routing here
         "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
