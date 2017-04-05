@@ -50,17 +50,26 @@ class User implements Ontological {
         validateMetaData()
         JSONObject jsonObject = JSON.parse(metadata) as JSONObject
         jsonObject.put(key,value)
+        metadata = jsonObject.toString()
         return jsonObject
     }
 
     def getMetaData(String key){
         validateMetaData()
         JSONObject jsonObject = JSON.parse(metadata) as JSONObject
-        jsonObject.containsKey(key) ? jsonObject.get(key) : null
+        return jsonObject.containsKey(key) ? jsonObject.get(key) : null
     }
 
     JSONObject getMetaDataObject(){
         validateMetaData()
         return JSON.parse(metadata) as JSONObject
+    }
+
+    def removeMetaData(String key){
+        validateMetaData()
+        JSONObject jsonObject = JSON.parse(metadata) as JSONObject
+        String value = jsonObject.remove(key)
+        metadata = jsonObject.toString()
+        return value
     }
 }
