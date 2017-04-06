@@ -39,11 +39,11 @@ Contents:
    Configure
    ChadoExport
    Data_loading
+   Contributing
    Troubleshooting
    Migration
    Permissions
    Testing_notes
-   Contributing
    Architecture
    Command_line
    Web_services

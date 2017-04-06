@@ -90,7 +90,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
             log.error("Problem authenticating: " + ae.fillInStackTrace())
             // force authentication
             log.error "Failed to authenticate user ${authToken.username}, resaving password and forcing"
-            user.put(INTERNAL_PASSWORD,randomPassword)
+            user.addMetaData(INTERNAL_PASSWORD,randomPassword)
             user.passwordHash = passwordHash
             log.warn("reset password and saving: " + user.getMetaData(INTERNAL_PASSWORD))
             user.save(flush: true, failOnError: true, insert: false)
