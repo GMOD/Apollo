@@ -7,6 +7,7 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
+import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import groovy.json.JsonSlurper
@@ -277,7 +278,7 @@ class SequenceService {
         // Method returns the sequence for a single feature
         // Directly called for FASTA Export
         String featureResidues = null
-        StandardTranslationTable standardTranslationTable = new StandardTranslationTable()
+        TranslationTable translationTable = configWrapperService.translationTable
         
         if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
@@ -287,7 +288,7 @@ class SequenceService {
                     readThroughStop = true
                 }
                 String rawSequence = featureService.getResiduesWithAlterationsAndFrameshifts(cds)
-                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, readThroughStop)
+                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, translationTable, true, readThroughStop)
                 if (featureResidues.charAt(featureResidues.size() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.size() - 1)
                 }
@@ -306,7 +307,7 @@ class SequenceService {
                 if (cdsService.getStopCodonReadThrough(transcriptService.getCDS(exonService.getTranscript((Exon) gbolFeature))).size() > 0) {
                     readThroughStop = true
                 }
-                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, standardTranslationTable, true, readThroughStop)
+                featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, translationTable, true, readThroughStop)
                 if (featureResidues.length()>0 && featureResidues.charAt(featureResidues.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.length() - 1)
                 }
