@@ -46,9 +46,6 @@ class TranscriptService {
         return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
-    public Collection<Exon> getSortedExons(Transcript transcript) {
-
-    }
     public Collection<Exon> getSortedExons(Transcript transcript, boolean sortByStrand ) {
         Collection<Exon> exons = getExons(transcript)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
