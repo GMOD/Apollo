@@ -2353,7 +2353,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         
 //        when: "we set exon boundary of transcript2"
-//        Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+//        Exon exon = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
 //        setExonBoundary1ForTranscript2 = setExonBoundary1ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
 //        JSONObject setExonBoundary1ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary1ForTranscript2) as JSONObject).get("features")
 //

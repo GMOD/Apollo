@@ -565,7 +565,7 @@ class TranscriptService {
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript,assemblage)
         oldTranscript.save()
 
-        return oldTranscript;
+        return oldTranscript
     }
 
     String getResiduesFromTranscript(Transcript transcript) {

@@ -13,6 +13,7 @@ class NonCanonicalSplitSiteService {
 
     def featureRelationshipService
     def exonService
+    def transcriptService
     def featureService
     def sequenceService
     def transcriptService
@@ -87,9 +88,10 @@ class NonCanonicalSplitSiteService {
         deleteAllNonCanonicalFivePrimeSpliceSites(transcript)
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
-        List<Exon> exons = transcriptService.getSortedExons(transcript,false,assemblage)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true,assemblage)
         int fmin = assemblageService.getMinForFeatureFullScaffold(transcript,assemblage)
         int fmax = assemblageService.getMaxForFeatureFullScaffold(transcript,assemblage)
+        Sequence sequence=transcript.getFeatureLocation().sequence
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
 
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)

@@ -209,30 +209,29 @@ public class Gff3HandlerService {
             }
             Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
 
-            List<Exon> exons = transcriptService.getSortedExons(transcript,true)
-            int length = 0;
-            for (Exon exon : exons) {
-                if (!overlapperService.overlaps(exon, cds)) {
-                    continue;
-                }
-                int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
-                int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
-                String phase;
-                if (length % 3 == 0) {
-                    phase = "0";
-                } else if (length % 3 == 1) {
-                    phase = "2";
-                } else {
-                    phase = "1";
-                }
-                length += fmax - fmin;
-                GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
-                entry.setAttributes(extractAttributes(writeObject, cds));
-                gffEntries.add(entry);
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
+        int length = 0;
+        for (Exon exon : exons) {
+            if (!overlapperService.overlaps(exon, cds)) {
+                continue;
             }
-            for (Feature child : featureRelationshipService.getChildren(cds)) {
-                convertToEntry(writeObject, child, source, gffEntries);
+            int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
+            int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
+            String phase;
+            if (length % 3 == 0) {
+                phase = "0";
+            } else if (length % 3 == 1) {
+                phase = "2";
+            } else {
+                phase = "1";
             }
+            length += fmax - fmin;
+            GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
+            entry.setAttributes(extractAttributes(writeObject, cds));
+            gffEntries.add(entry);
+        }
+        for (Feature child : featureRelationshipService.getChildren(cds)) {
+            convertToEntry(writeObject, child, source, gffEntries);
         }
     }
 

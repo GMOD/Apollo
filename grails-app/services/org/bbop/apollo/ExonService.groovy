@@ -199,9 +199,10 @@ class ExonService {
         exon.save()
         splitExon.save()
 
-        return splitExon;
+        return splitExon
     }
 //
+
 
     /**
      * Set exon boundaries.

@@ -916,7 +916,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec{
         List<Exon> exonList40788 = transcriptService.getSortedExons(mrna40788, true)
         String exon788UniqueName = exonList40788.first().uniqueName
         Exon exon788 = Exon.findByUniqueName(exon788UniqueName)
-        FeatureLocation featureLocation788 = exon788.firstFeatureLocation
+        FeatureLocation featureLocation788 = exon788.featureLocation
         List<Exon> exonList40787 = transcriptService.getSortedExons(mrna40787, true)
         String exon787UniqueName = exonList40787.last().uniqueName
         Exon exon787 = Exon.findByUniqueName(exon787UniqueName)
