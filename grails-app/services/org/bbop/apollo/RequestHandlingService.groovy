@@ -1250,7 +1250,8 @@ class RequestHandlingService {
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
-                        featureService.setLongestORF(transcript,false,projectionService.createMultiSequenceProjection(assemblage))
+                        CDS cds = transcriptService.getCDS(transcript)
+                        featureService.setLongestORF(transcript, cdsService.hasStopCodonReadThrough(cds),projectionService.createMultiSequenceProjection(assemblage))
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,assemblage)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true,assemblage));
                     }
@@ -1337,7 +1338,8 @@ class RequestHandlingService {
             for (Feature feature : featureService.getOverlappingFeatures(sequenceAlteration.firstFeatureLocation, false)) {
                 if (feature instanceof Gene) {
                     for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
-                        featureService.setLongestORF(transcript,false,projectionService.createMultiSequenceProjection(assemblage))
+                        CDS cds = transcriptService.getCDS(transcript)
+                        featureService.setLongestORF(transcript, cdsService.hasStopCodonReadThrough(cds),projectionService.createMultiSequenceProjection(assemblage))
                         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript,assemblage)
                         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, false,assemblage));
                     }

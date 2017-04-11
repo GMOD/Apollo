@@ -80,6 +80,7 @@ class CdsService {
     def deleteStopCodonReadThrough(CDS cds, StopCodonReadThrough stopCodonReadThrough) {
         featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
         featureRelationshipService.deleteParentForTypes(stopCodonReadThrough, Transcript.ontologyId)
+        stopCodonReadThrough.delete()
     }
 
     def deleteStopCodonReadThrough(CDS cds) {
@@ -137,7 +138,11 @@ class CdsService {
         cds.save(flush: true,failOnError: true)
 
     }
-    
+
+    def hasStopCodonReadThrough(CDS cds) {
+        return getStopCodonReadThrough(cds).size() != 0
+    }
+
     def getResiduesFromCDS(CDS cds) {
         // New implementation that infers CDS based on overlapping exons
         Transcript transcript = transcriptService.getTranscript(cds)
