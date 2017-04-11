@@ -550,7 +550,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
 
         when: "we get the sorted exons"
-        List<Exon> sortedExons = exonService.getSortedExons(MRNA.first())
+        List<Exon> sortedExons = transcriptService.getSortedExons(MRNA.first(),true)
 
         then: "there should be 2 and in the right order"
         assert sortedExons.size() == 2
@@ -568,7 +568,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnMRNA = returnFeaturesArray.getJSONObject(0)
         JSONArray returnedChildren = returnMRNA.getJSONArray(FeatureStringEnum.CHILDREN.value)
-        List<Exon> finalSortedExons = exonService.getSortedExons(MRNA.first())
+        List<Exon> finalSortedExons = transcriptService.getSortedExons(MRNA.first(),true)
         Exon lastExon = finalSortedExons.get(2)
 
         then: "we should see that it is removed"
@@ -635,7 +635,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         }
 
         when: "we get the sorted exons"
-        List<Exon> sortedExons = exonService.getSortedExons(MRNA.first())
+        List<Exon> sortedExons = transcriptService.getSortedExons(MRNA.first(),true)
 
         then: "there should be 2 and in the right order"
         assert sortedExons.size() == 2
@@ -1899,7 +1899,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert MRNA.count == 1
         assert Exon.count == 4
         MRNA transcript = MRNA.findByName("GB40843-RA-00001")
-        List<Exon> exonList = exonService.getSortedExons(transcript, true)
+        List<Exon> exonList = transcriptService.getSortedExons(transcript, true)
 
         when: "we add a deletion at position 1094156"
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
@@ -2053,7 +2053,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert knownTranscriptCdsSequence == cdsSequence
 
         when: "we export the peptide sequence and CDS sequence from exon 6 of the transcript"
-        def exons = exonService.getSortedExons(mrna, true)
+        def exons = transcriptService.getSortedExons(mrna, true)
         String exon6PeptideSequence = sequenceService.getSequenceForFeature(exons.get(5), FeatureStringEnum.TYPE_PEPTIDE.value)
         String exon6CdsSequence = sequenceService.getSequenceForFeature(exons.get(5), FeatureStringEnum.TYPE_CDS.value)
 
@@ -2087,7 +2087,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert cdsService.getStopCodonReadThrough(cds).size() == 1
 
         when: "we get the CDS and peptide sequence of the exon 2 and exon 3"
-        def exons = transcriptService.getSortedExons(mrna)
+        def exons = transcriptService.getSortedExons(mrna,false)
         String exon2CdsSequence = sequenceService.getSequenceForFeature(exons.get(1), FeatureStringEnum.TYPE_CDS.value)
         String exon3CdsSequence = sequenceService.getSequenceForFeature(exons.get(2), FeatureStringEnum.TYPE_CDS.value)
 
@@ -2117,7 +2117,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we add the positive transcript"
         requestHandlingService.addTranscript(JSON.parse(postiveStrandedTranscript) as JSONObject)
-        List<Exon> exonList = exonService.getSortedExons(MRNA.first(), true)
+        List<Exon> exonList = transcriptService.getSortedExons(MRNA.first(), true)
         String exonUniqueName = exonList.get(1).uniqueName
         setExonBoundaryCommand = setExonBoundaryCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
         setUpstreamSpliceAcceptorCommand = setUpstreamSpliceAcceptorCommand.replace("@EXON_UNIQUENAME@",exonUniqueName)
@@ -2353,7 +2353,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
         
 //        when: "we set exon boundary of transcript2"
-//        Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+//        Exon exon = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
 //        setExonBoundary1ForTranscript2 = setExonBoundary1ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
 //        JSONObject setExonBoundary1ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary1ForTranscript2) as JSONObject).get("features")
 //
@@ -2370,7 +2370,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
 //        assert sameBaseName
 
         when: "we set exon boundary of transcript2"
-        Exon exon = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+        Exon exon = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[0]
         setExonBoundary2ForTranscript2 = setExonBoundary2ForTranscript2.replace("@UNIQUENAME@", exon.uniqueName)
         JSONObject setExonBoundary2ForTranscript2ReturnObject = requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundary2ForTranscript2) as JSONObject).get("features")
         String modifiedTranscript2Name = setExonBoundary2ForTranscript2ReturnObject.name
@@ -2444,13 +2444,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript1UniqueName = addTranscript1ReturnObject.uniquename
         
         when: "we merge exon 1 with exon2 of transcript1"
-        String exon1UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName))[0].uniqueName
-        String exon2UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName))[1].uniqueName
+        String exon1UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName),true)[0].uniqueName
+        String exon2UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName),true)[1].uniqueName
         String mergeExonsForTranscript1 = mergeExons.replace("@UNIQUENAME1@", exon1UniqueName).replace("@UNIQUENAME2@", exon2UniqueName)
         JSONObject mergeExonsForTranscript1ReturnObject = requestHandlingService.mergeExons(JSON.parse(mergeExonsForTranscript1) as JSONObject)
         
         then: "we have a transcript that has only 1 exon"
-        assert exonService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName)).size() == 1
+        assert transcriptService.getSortedExons(MRNA.findByUniqueName(transcript1UniqueName),true).size() == 1
         
         when: "now we add transcript2"
         JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
@@ -2467,8 +2467,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcript1Gene.uniqueName != transcript2Gene.uniqueName
         
         when: "we merge exon 1 with exon2 of transcript2"
-        exon1UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0].uniqueName
-        exon2UniqueName = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[1].uniqueName
+        exon1UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[0].uniqueName
+        exon2UniqueName = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[1].uniqueName
         String mergeExonsForTranscript2 = mergeExons.replace("@UNIQUENAME1@", exon1UniqueName).replace("@UNIQUENAME2@", exon2UniqueName)
         JSONObject mergeExonsForTranscript2ReturnObject = requestHandlingService.mergeExons(JSON.parse(mergeExonsForTranscript2) as JSONObject).get("features")
         
@@ -2498,7 +2498,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         String transcript2UniqueName = addTranscript2ReturnObject.uniquename
 
         when: "we delete the first exon of transcript2"
-        Exon firstExonOfTranscript2 = exonService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName))[0]
+        Exon firstExonOfTranscript2 = transcriptService.getSortedExons(MRNA.findByUniqueName(transcript2UniqueName),true)[0]
         String deleteExonOfTranscript2 = deleteExon.replace("@UNIQUENAME@", firstExonOfTranscript2.uniqueName)
         JSONObject deleteExonOfTranscript2ReturnObject = requestHandlingService.deleteFeature(JSON.parse(deleteExonOfTranscript2) as JSONObject).get("features")
         
@@ -2625,7 +2625,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         def mrnas = MRNA.all.sort{ a,b -> a.name <=> b.name }
         Transcript transcript1 = mrnas[0]
         Transcript transcript2 = mrnas[1]
-        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2,false)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
 
@@ -2673,7 +2673,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we split the transcript"
         Transcript transcript1 = MRNA.all[0]
         Transcript transcript2 = MRNA.all[1]
-        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2,false)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
 
@@ -2734,7 +2734,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we split the transcript"
         Transcript transcript1 = MRNA.all[0]
         Transcript transcript2 = MRNA.all[1]
-        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2)
+        ArrayList<Exon> exonList = transcriptService.getSortedExons(transcript2,false)
         String exon1UniqueName = exonList.get(0).uniqueName
         String exon2UniqueName = exonList.get(1).uniqueName
 

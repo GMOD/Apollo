@@ -467,7 +467,7 @@ class FeatureService {
      */
     @Transactional
     def removeExonOverlapsAndAdjacencies(Transcript transcript) throws AnnotationException {
-        List<Exon> sortedExons = transcriptService.getSortedExons(transcript)
+        List<Exon> sortedExons = transcriptService.getSortedExons(transcript,false)
         if (!sortedExons || sortedExons?.size() <= 1) {
             return;
         }
@@ -481,7 +481,7 @@ class FeatureService {
                 if (overlapperService.overlaps(leftExon, rightExon) || isAdjacentTo(leftExon.getFeatureLocation(), rightExon.getFeatureLocation())) {
                     try {
                         exonService.mergeExons(leftExon, rightExon);
-                        sortedExons = transcriptService.getSortedExons(transcript)
+                        sortedExons = transcriptService.getSortedExons(transcript,false)
                         // we have to reload the sortedExons again and start over
                         ++inc;
                     } catch (AnnotationException e) {
@@ -639,7 +639,7 @@ class FeatureService {
 
     int convertLocalCoordinateToSourceCoordinateForTranscript(Transcript transcript, int localCoordinate) {
         // Method converts localCoordinate to sourceCoordinate in reference to the Transcript
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         int sourceCoordinate = -1;
         if (exons.size() == 0) {
             return convertLocalCoordinateToSourceCoordinate(transcript, localCoordinate);
@@ -669,7 +669,7 @@ class FeatureService {
             return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate);
         }
         int offset = 0;
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         if (exons.size() == 0) {
             log.debug "FS::convertLocalCoordinateToSourceCoordinateForCDS() - No exons for given transcript"
             return convertLocalCoordinateToSourceCoordinate(cds, localCoordinate)
@@ -1523,8 +1523,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
     }
 
-    int convertSourceCoordinateToLocalCoordinateForTranscript(Feature feature, int sourceCoordinate) {
-        List<Exon> exons = exonService.getSortedExons(feature)
+    int convertSourceCoordinateToLocalCoordinateForTranscript(Transcript transcript, int sourceCoordinate) {
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         int localCoordinate = -1
         int currentCoordinate = 0
         for (Exon exon : exons) {
@@ -1546,12 +1546,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         def exons = []
         CDS cds
         if (feature instanceof Transcript) {
-            exons = exonService.getSortedExons(feature, true)
+            exons = transcriptService.getSortedExons(feature, true)
             cds = transcriptService.getCDS(feature)
         }
         else if (feature instanceof CDS) {
             Transcript transcript = transcriptService.getTranscript(feature)
-            exons = exonService.getSortedExons(transcript, true)
+            exons = transcriptService.getSortedExons(transcript, true)
             cds = feature
         }
 
@@ -2239,11 +2239,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     def sequenceAlterationInContextOverlapper(Feature feature, SequenceAlterationInContext sequenceAlteration) {
         def exonList = []
         if (feature instanceof Transcript) {
-            exonList = exonService.getSortedExons(feature, true)
+            exonList = transcriptService.getSortedExons(feature, true)
         }
         else if (feature instanceof CDS) {
             Transcript transcript = transcriptService.getTranscript(feature)
-            exonList = exonService.getSortedExons(transcript, true)
+            exonList = transcriptService.getSortedExons(transcript, true)
         }
 
         for (Exon exon : exonList) {
@@ -2288,7 +2288,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         for (SequenceAlterationInContext sequenceAlteration : orderedSequenceAlterationInContextList) {
             int localCoordinate
             if (feature instanceof Transcript) {
-                localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript(feature, sequenceAlteration.fmin);
+                localCoordinate = convertSourceCoordinateToLocalCoordinateForTranscript((Transcript) feature, sequenceAlteration.fmin);
 
             } else if (feature instanceof CDS) {
                 if (!((sequenceAlteration.fmin >= feature.fmin && sequenceAlteration.fmin <= feature.fmax) || (sequenceAlteration.fmax >= feature.fmin && sequenceAlteration.fmax <= feature.fmin))) {
@@ -2417,7 +2417,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
         } else {
-            List<Exon> exonList = feature instanceof CDS ? exonService.getSortedExons(transcriptService.getTranscript(feature)) : exonService.getSortedExons(feature, true)
+            List<Exon> exonList = feature instanceof CDS ? transcriptService.getSortedExons(transcriptService.getTranscript(feature),true) : transcriptService.getSortedExons( (Transcript) feature, true)
             for (Exon exon : exonList) {
                 int exonFmin = exon.fmin
                 int exonFmax = exon.fmax
@@ -2542,7 +2542,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 coordinateInContext = convertSourceCoordinateToLocalCoordinateForCDS(feature, alteration.fmin)
             } else if (feature instanceof Transcript) {
                 // if feature is Transcript then calling convertSourceCoordinateToLocalCoordinateForTranscript
-                coordinateInContext = convertSourceCoordinateToLocalCoordinateForTranscript(feature, alteration.fmin)
+                coordinateInContext = convertSourceCoordinateToLocalCoordinateForTranscript( (Transcript) feature, alteration.fmin)
             } else {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin)
