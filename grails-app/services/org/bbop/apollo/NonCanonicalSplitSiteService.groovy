@@ -11,6 +11,7 @@ class NonCanonicalSplitSiteService {
 
     def featureRelationshipService
     def exonService
+    def transcriptService
     def featureService
     def sequenceService
 
@@ -82,7 +83,7 @@ class NonCanonicalSplitSiteService {
         deleteAllNonCanonicalFivePrimeSpliceSites(transcript)
         deleteAllNonCanonicalThreePrimeSpliceSites(transcript)
 
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         int fmin=transcript.getFeatureLocation().fmin
         int fmax=transcript.getFeatureLocation().fmax
         Sequence sequence=transcript.getFeatureLocation().sequence
