@@ -74,6 +74,10 @@ class SequenceTranslationHandler {
         for (int i = 0; i + 3 <= sequence.length(); i += 3) {
             String codon = sequence.substring(i, i + 3);
             String aminoAcid = translationTable.translateCodon(codon);
+            if(i==0 && translationTable.isStartCodon(codon)){
+                aminoAcid = "M"
+            }
+
             if (aminoAcid.equals(TranslationTable.STOP)) {
                 if (includeStop) {
                     buffer.append(aminoAcid);
