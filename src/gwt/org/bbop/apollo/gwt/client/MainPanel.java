@@ -556,8 +556,8 @@ public class MainPanel extends Composite {
 
         trackListString += "&locationBox=none";
         // TODO: this should work correclty
-        Window.alert("the track list link '"+trackListString+"'");
-        if(!forceUrl && getInnerDiv()!=null){
+//        Window.alert("the track list link '"+trackListString+"'");
+        if(false && !forceUrl && getInnerDiv()!=null){
             JSONObject commandObject = new JSONObject();
 //            Window.alert("current assemblage NAME: "+currentAssemblage.getName());
             commandObject.put("url", new JSONString(currentAssemblage.getName()+":"+currentStartBp+".."+currentEndBp));
