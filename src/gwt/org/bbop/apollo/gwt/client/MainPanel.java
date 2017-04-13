@@ -511,7 +511,10 @@ public class MainPanel extends Composite {
         }
         currentStartBp = minRegion;
         currentEndBp = maxRegion;
-        trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString().replaceAll(", ",","));
+//        trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString().replaceAll(", ",",").replaceAll("\\\\\\\\\\\\","\\\\\\\\"));
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),currentAssemblage.getSequenceList());
+        trackListString += URL.encodeQueryString(jsonObject.toString().replaceAll(", ",","));
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 
         trackListString += getCurrentQueryParamsAsString();

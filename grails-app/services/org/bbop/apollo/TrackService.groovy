@@ -480,6 +480,7 @@ class TrackService {
                 if(ncListEntryA.getInt(0)==ncListEntryB.getInt(0)){
                     int classIndex = ncListEntryA.getInt(0)
                     TrackIndex trackIndex = trackMapperService.getIndices(organismName, trackName, classIndex)
+                    println "trackIndex ${trackIndex as JSON} trackNAme ${trackName} and class index ${classIndex} and organism ${organismName}"
                     if(ncListEntryA.getString(trackIndex.id)==ncListEntryB.getString(trackIndex.id)){
                         return true
                     }
