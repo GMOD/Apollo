@@ -392,7 +392,7 @@ class AssemblageService {
         List<Sequence> sequenceList = getSequencesFromAssemblage(assemblage)
         for(Sequence sequence in sequenceList){
             if(firstFeatureLocation.sequence==sequence){
-                return getMinForFullScaffold(feature.fmin + offset , assemblage)
+                return getMinForFullScaffold(firstFeatureLocation.fmin + offset , assemblage)
             }
             else{
                 offset += sequence.length
@@ -427,7 +427,7 @@ class AssemblageService {
         List<Sequence> sequenceList = getSequencesFromAssemblage(assemblage)
         for(Sequence sequence in sequenceList){
             if(lastFeatureLocation.sequence==sequence){
-                return getMaxForFullScaffold(feature.fmax + offset , assemblage)
+                return getMaxForFullScaffold(lastFeatureLocation.fmax + offset , assemblage)
             }
             else{
                 offset += sequence.length
