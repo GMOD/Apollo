@@ -325,7 +325,7 @@ define([
                                 var sequenceListString = JSON.stringify(ref.sequenceList);
                                 console.log('has sequence list: '+sequenceListString);
                             }
-                            name = ref.name;
+                            var name = ref.name;
                             console.log("existing name: "+name );
                             console.log("for ref: "+JSON.stringify(ref) );
                         }
