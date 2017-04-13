@@ -329,7 +329,7 @@ class JbrowseController {
 
 
                     JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, currentOrganism)
-                    if (trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
+                    if (trackObject == null || trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value).size() == 0) {
                         cache = new SequenceCache(key: dataFileName, value: HttpServletResponse.SC_NOT_FOUND).save(insert: true)
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {

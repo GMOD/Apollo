@@ -251,6 +251,10 @@ class TrackService {
 
     JSONObject loadTrackData(String path, String refererLoc, Organism currentOrganism) {
         File file = new File(path)
+        if(!file.exists()){
+            log.warn("File ${file.absolutePath} is not present.")
+            return null
+        }
         String inputText = file.text
         JSONObject trackDataJsonObject = new JSONObject(inputText)
         String sequenceName = projectionService.getSequenceName(file.absolutePath)
@@ -694,35 +698,37 @@ class TrackService {
 
             // this loads PROJECTED
             JSONObject trackObject = loadTrackData(sequencePathName, refererLoc, currentOrganism)
-            JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
-            JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
-            trackMapperService.storeTrack(currentOrganism.commonName,trackName,intervalsObject.getJSONArray("classes"))
-            Integer lastLength = 0
-            Integer lastChunkArrayOffset = 0
-            JSONObject sequenceKey= sequenceMap.keySet().find(){
-                it.name == sequenceArrayObject.name && it.start == sequenceArrayObject.start && it.end == sequenceArrayObject.end
-            }
-            Integer sequenceLength= sequenceMap.get(sequenceKey)
-            for (int i = 0; i < ncListArray.size(); i++) {
-                JSONArray internalArray = ncListArray.getJSONArray(i)
-                TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
-                if (trackIndex.hasChunk()) {
-                    projectionChunk.addChunk()
+            if(trackObject){
+                JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+                JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
+                trackMapperService.storeTrack(currentOrganism.commonName,trackName,intervalsObject.getJSONArray("classes"))
+                Integer lastLength = 0
+                Integer lastChunkArrayOffset = 0
+                JSONObject sequenceKey= sequenceMap.keySet().find(){
+                    it.name == sequenceArrayObject.name && it.start == sequenceArrayObject.start && it.end == sequenceArrayObject.end
                 }
-                lastLength = sequenceLength
+                Integer sequenceLength= sequenceMap.get(sequenceKey)
+                for (int i = 0; i < ncListArray.size(); i++) {
+                    JSONArray internalArray = ncListArray.getJSONArray(i)
+                    TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
+                    if (trackIndex.hasChunk()) {
+                        projectionChunk.addChunk()
+                    }
+                    lastLength = sequenceLength
 
-                ++lastChunkArrayOffset
+                    ++lastChunkArrayOffset
+                }
+
+                projectionChunk.chunkArrayOffset = priorChunkArrayOffset
+                projectionChunk.sequenceOffset = priorSequenceLength
+
+                priorSequenceLength = priorSequenceLength + lastLength
+                priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
+
+                projectionChunkList.addChunk(projectionChunk)
+
+                trackObjectList.put(sequenceArrayObject.name, trackObject)
             }
-
-            projectionChunk.chunkArrayOffset = priorChunkArrayOffset
-            projectionChunk.sequenceOffset = priorSequenceLength
-
-            priorSequenceLength = priorSequenceLength + lastLength
-            priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
-
-            projectionChunkList.addChunk(projectionChunk)
-
-            trackObjectList.put(sequenceArrayObject.name, trackObject)
         }
 
         multiSequenceProjection.projectionChunkList = projectionChunkList
@@ -730,21 +736,23 @@ class TrackService {
 
         JSONObject trackObject = mergeTrackObject(trackObjectList, multiSequenceProjection,currentOrganism,trackName)
 
-        if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
-            trackObject.intervals.minStart = calculatedStart
-            trackObject.intervals.maxEnd = calculatedEnd
-        }
-        else{
-            trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
-            trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
-        }
+        if(trackObject){
+            if(refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)){
+                trackObject.intervals.minStart = calculatedStart
+                trackObject.intervals.maxEnd = calculatedEnd
+            }
+            else{
+                trackObject.intervals.minStart = multiSequenceProjection.projectValue(trackObject.intervals.minStart)
+                trackObject.intervals.maxEnd = multiSequenceProjection.projectValue(trackObject.intervals.maxEnd)
+            }
 
-        ProjectionSequence projectionSequenceStart = multiSequenceProjection.getProjectionSequence(trackObject.intervals.minStart)
-        ProjectionSequence projectionSequenceEnd = multiSequenceProjection.getProjectionSequence(trackObject.intervals.maxEnd)
-        if(projectionSequenceStart?.reverse == projectionSequenceEnd?.reverse){
-            int temp = trackObject.intervals.minStart
-            trackObject.intervals.minStart = trackObject.intervals.maxEnd
-            trackObject.intervals.maxEnd = temp
+            ProjectionSequence projectionSequenceStart = multiSequenceProjection.getProjectionSequence(trackObject.intervals.minStart)
+            ProjectionSequence projectionSequenceEnd = multiSequenceProjection.getProjectionSequence(trackObject.intervals.maxEnd)
+            if(projectionSequenceStart?.reverse == projectionSequenceEnd?.reverse){
+                int temp = trackObject.intervals.minStart
+                trackObject.intervals.minStart = trackObject.intervals.maxEnd
+                trackObject.intervals.maxEnd = temp
+            }
         }
 
         return trackObject
