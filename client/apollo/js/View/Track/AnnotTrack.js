@@ -318,7 +318,7 @@ define([
                     }
                     else{
                         var refCount = 0 ;
-                        for(r in browser.allRefs){
+                        for(var r in browser.allRefs){
                             refCount = refCount + 1;
                             var ref = browser.allRefs[r] ;
                             if(ref.sequenceList){
