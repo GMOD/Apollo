@@ -431,6 +431,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
+    @IgnoreRest
     void "I can set the exon boundary on the RHS of a transcript with two exons"() {
 
         given: "if we create a transcript in the latter half of a combined scaffold it should not have any non-canonical splice sites"

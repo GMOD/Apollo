@@ -377,12 +377,28 @@ class AssemblageService {
 
     /**
      * We want the minimimum location of a feature in the context of its assemblage
+     *
+     // get each feature location for the feature and create an offset for the "minimum" location
+     // e.g., if the location doesn't start until the the second scaffold of the assemblage, that is the offset
+     *
      * @param feature
      * @param assemblage
      * @return
      */
     int getMinForFeatureFullScaffold(Feature feature, Assemblage assemblage) {
-        return getMinForFullScaffold(feature.fmin,assemblage)
+
+        int offset = 0
+        FeatureLocation firstFeatureLocation = feature.firstFeatureLocation
+        List<Sequence> sequenceList = getSequencesFromAssemblage(assemblage)
+        for(Sequence sequence in sequenceList){
+            if(firstFeatureLocation.sequence==sequence){
+                return getMinForFullScaffold(feature.fmin + offset , assemblage)
+            }
+            else{
+                offset += sequence.length
+            }
+        }
+        throw new AnnotationException("Unable to find a feature min for feature ${feature} and assemblage ${assemblage}" )
     }
 
     int getMinForFullScaffold(Integer fmin, Assemblage assemblage) {
@@ -405,7 +421,19 @@ class AssemblageService {
      * @return
      */
     int getMaxForFeatureFullScaffold(Feature feature, Assemblage assemblage) {
-        return getMaxForFullScaffold(feature.fmax,assemblage)
+
+        int offset = 0
+        FeatureLocation lastFeatureLocation = feature.lastFeatureLocation
+        List<Sequence> sequenceList = getSequencesFromAssemblage(assemblage)
+        for(Sequence sequence in sequenceList){
+            if(lastFeatureLocation.sequence==sequence){
+                return getMaxForFullScaffold(feature.fmax + offset , assemblage)
+            }
+            else{
+                offset += sequence.length
+            }
+        }
+        throw new AnnotationException("Unable to find a feature max for feature ${feature} and assemblage ${assemblage}" )
     }
 
     /**
