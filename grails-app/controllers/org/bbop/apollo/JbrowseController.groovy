@@ -303,6 +303,7 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
+        println "data directory ${dataDirectory} refererLoc = ${refererLoc}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
@@ -324,6 +325,7 @@ class JbrowseController {
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
+                println "putative sequence array ${sequenceArray as JSON}"
 
                 if (fileName.endsWith("trackData.json")) {
 

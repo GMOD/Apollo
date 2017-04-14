@@ -218,24 +218,26 @@ class AssemblageService {
         return name
     }
 
-    List<Sequence> getSequencesFromAssemblage(Organism organism, String sequenceListString) {
-        JSONArray sequenceArray = JSON.parse(sequenceListString) as JSONArray
+    List<Sequence> getSequencesFromAssemblage(Organism organism, JSONArray sequenceArray) {
         List<Sequence> sequenceList = []
 
         for (int i = 0; i < sequenceArray.size(); i++) {
             String sequenceName = sequenceArray.getJSONObject(i).name
+            Sequence sequence
             if (organism) {
-                sequenceList << Sequence.findByOrganismAndName(organism, sequenceName)
+                sequence = Sequence.findByOrganismAndName(organism, sequenceName)
+                sequenceList << sequence
             } else {
-                sequenceList << Sequence.findByName(sequenceName)
+                sequence = Sequence.findByName(sequenceName)
+                sequenceList << sequence
             }
         }
         return sequenceList
     }
 
     List<Sequence> getSequencesFromAssemblage(Assemblage assemblage) {
-
-        return getSequencesFromAssemblage(assemblage.organism, assemblage.sequenceList)
+        JSONArray sequenceArray = JSON.parse(assemblage.sequenceList) as JSONArray
+        return getSequencesFromAssemblage(assemblage.organism, sequenceArray)
     }
 
     /**
@@ -275,7 +277,7 @@ class AssemblageService {
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
         }
-        List<Sequence> sequences1 = getSequencesFromAssemblage(organism, sequenceArray.toString())
+        List<Sequence> sequences1 = getSequencesFromAssemblage(organism, sequenceArray)
         Map<String, Sequence> sequenceMap = sequences1.collectEntries() {
             [it.name, it]
         }

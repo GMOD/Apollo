@@ -28,6 +28,15 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         ).save(failOnError: true)
 
         new Sequence(
+                length: 1566327
+                , seqChunkSize: 20000
+                , start: 0
+                , end: 1566327
+                , organism: organism
+                , name: "Group11.6"
+        ).save(failOnError: true)
+
+        new Sequence(
                 length: 78258
                 , seqChunkSize: 20000
                 , start: 0
@@ -500,7 +509,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject trackObject = trackService.projectTrackData(sequenceStrings, dataFileName, refererLoc, Organism.first())
 //
         then: "we expect to get sane results"
-        assert trackObject.featureCount == 10
+        assert trackObject.featureCount == 10G
         assert trackObject.intervals.nclist.size() == 3
         assert trackObject.intervals.nclist.getJSONArray(0).getInt(1)==6709 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==15048+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
@@ -532,6 +541,39 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==25147
         assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==25547 + org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+
+    }
+
+    void "get two large scaffold chunks, 1.10::11.6"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":false},{\"name\":\"Group11.6\",\"start\":0,\"end\":1566327,\"reverse\":false}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we ingest the data"
+        println "# of sequences ${Sequence.count}"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
+
+        then: "we expect stuff not to blow up"
+        assert trackObject != null
+
+        when: "when we get the nclist"
+        JSONArray nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+
+        then: "we expect the start and the stop to be in order "
+        assert nclistArray.size()==5
+        assert nclistArray[0][1] < nclistArray[0][2]
+        assert nclistArray[0][2] < nclistArray[1][1]
+        assert nclistArray[1][1] < nclistArray[1][2]
+        assert nclistArray[1][2] < nclistArray[2][1]
+        assert nclistArray[2][1] < nclistArray[2][2]
+        assert nclistArray[2][2] < nclistArray[3][1]
+        assert nclistArray[3][1] < nclistArray[3][2]
+        assert nclistArray[3][2] < nclistArray[4][1]
+        assert nclistArray[4][1] < nclistArray[4][2]
 
     }
 }
