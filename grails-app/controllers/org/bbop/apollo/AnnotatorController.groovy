@@ -285,6 +285,11 @@ class AnnotatorController {
             Organism organism = sequenceObj.organism
             Integer index = Integer.parseInt(request)
 
+            if(!organism) {
+                render ([:] as JSON)
+                return
+            }
+
             List<String> viewableTypes
 
             if (type) {
