@@ -21,6 +21,13 @@ class AvailableStatusController {
 
     def permissionService
 
+    def beforeInterceptor = {
+        if(!permissionService.isAdmin()){
+            forward action: "notAuthorized" ,controller: "annotator"
+            return
+        }
+    }
+
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
         respond AvailableStatus.list(params), model:[availableStatusInstanceCount: AvailableStatus.count()]
@@ -125,13 +132,13 @@ class AvailableStatusController {
         JSONObject statusJson = permissionService.handleInput(request, params)
         try {
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(statusJson))) {
-                if (statusJson.get("name") == "") {
+                if (!statusJson.name) {
                     throw new Exception('empty fields detected')
                 }
 
                 log.debug "Adding ${statusJson.name}"
                 AvailableStatus status = new AvailableStatus(
-                        label: statusJson.name
+                        value: statusJson.name
                 ).save(flush: true)
 
                 render status as JSON
@@ -165,10 +172,7 @@ class AvailableStatusController {
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(statusJson))) {
 
                 log.debug "status ID: ${statusJson.id}"
-                AvailableStatus status = AvailableStatus.findById(statusJson.id)
-                if (!status) {
-                    status = AvailableStatus.findByLabel(statusJson.old_name)
-                }
+                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.old_name)
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()
@@ -177,7 +181,7 @@ class AvailableStatusController {
                     return
                 }
 
-                status.label = statusJson.new_name
+                status.value = statusJson.new_name
                 status.save(flush: true)
 
                 log.info "Success updating status: ${status.id}"
@@ -209,10 +213,7 @@ class AvailableStatusController {
             log.debug "Deleting status ${statusJson}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(statusJson))) {
 
-                AvailableStatus status = AvailableStatus.findById(statusJson.id)
-                if (!status) {
-                    status = AvailableStatus.findByLabel(statusJson.name)
-                }
+                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.name)
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()
@@ -258,7 +259,7 @@ class AvailableStatusController {
             if (statusJson.id || statusJson.name) {
                 AvailableStatus status = AvailableStatus.findById(statusJson.id)
                 if (!status) {
-                    status = AvailableStatus.findByLabel(statusJson.name)
+                    status = AvailableStatus.findByValue(statusJson.name)
                 }
 
                 if (!status) {
@@ -272,7 +273,7 @@ class AvailableStatusController {
                 render status as JSON
             }
             else {
-                statuses = AvailableStatus.all
+                def statuses = AvailableStatus.all
 
                 log.info "Success showing all statuses"
                 render statuses as JSON
