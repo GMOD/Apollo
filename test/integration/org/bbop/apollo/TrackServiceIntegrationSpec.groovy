@@ -685,4 +685,82 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert nclistArray[1][2] < nclistArray[2][1]
         assert nclistArray[2][1] < nclistArray[2][2]
     }
+
+    void "get two small scaffolds, 11.4,Un87"(){
+
+        given: "proper 11.4 and Un87, should go the duration, though if we reverse 11.4, it should still go the length (beyond the length of the first one)"
+        // TODO: set this properly
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":false},{\"name\":\"Group11.6\",\"start\":0,\"end\":1566327,\"reverse\":false}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we ingest the data"
+        println "# of sequences ${Sequence.count}"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
+
+        then: "we expect stuff not to blow up"
+        assert trackObject != null
+
+        when: "when we get the nclist"
+        JSONArray nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+
+        then: "we expect the start and the stop to be in order "
+        assert nclistArray.size()==5
+        assert nclistArray[0][1] < nclistArray[0][2]
+        assert nclistArray[0][2] < nclistArray[1][1]
+        assert nclistArray[1][1] < nclistArray[1][2]
+        assert nclistArray[1][2] < nclistArray[2][1]
+        assert nclistArray[2][1] < nclistArray[2][2]
+        assert nclistArray[2][2] < nclistArray[3][1]
+        assert nclistArray[3][1] < nclistArray[3][2]
+        assert nclistArray[3][2] < nclistArray[4][1]
+        assert nclistArray[4][1] < nclistArray[4][2]
+
+
+        when: "we reverse the next one"
+
+
+        then: "same set of values, and we are still in both scaffolds"
+        assert false
+    }
+
+    void "get two large scaffolds, 1.10::11.6 we should be able to reverse the first one and still have it extend properly"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":false},{\"name\":\"Group11.6\",\"start\":0,\"end\":1566327,\"reverse\":false}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we ingest the data"
+        println "# of sequences ${Sequence.count}"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
+
+        then: "we expect stuff not to blow up"
+        assert trackObject != null
+
+        when: "when we get the nclist"
+        JSONArray nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+
+        then: "we expect the start and the stop to be in order "
+        assert nclistArray.size()==5
+        assert nclistArray[0][1] < nclistArray[0][2]
+        assert nclistArray[0][2] < nclistArray[1][1]
+        assert nclistArray[1][1] < nclistArray[1][2]
+        assert nclistArray[1][2] < nclistArray[2][1]
+        assert nclistArray[2][1] < nclistArray[2][2]
+        assert nclistArray[2][2] < nclistArray[3][1]
+        assert nclistArray[3][1] < nclistArray[3][2]
+        assert nclistArray[3][2] < nclistArray[4][1]
+        assert nclistArray[4][1] < nclistArray[4][2]
+
+        when: "we reverse the next one"
+
+
+        then: "same set of values, and we are still in both scaffolds"
+        assert false
+    }
 }
