@@ -756,6 +756,26 @@ class TrackService {
             }
         }
 
+        // sort nclist top-level
+        JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+        JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
+        // sort by column 1
+        JSONArray replacementNcListArray = new JSONArray()
+        for(JSONArray array in ncListArray){
+            int index = 0
+            for(def replacementArray in replacementNcListArray){
+                if(replacementArray instanceof JSONArray){
+                    if(replacementArray[1] < array[1]){
+                        ++index
+                    }
+                }
+            }
+            replacementNcListArray.add(index,array)
+        }
+        intervalsObject.put(FeatureStringEnum.NCLIST.value,replacementNcListArray)
+        trackObject.put(FeatureStringEnum.INTERVALS.value,intervalsObject)
+
+
         return trackObject
 
     }

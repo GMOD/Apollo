@@ -511,10 +511,10 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect to get sane results"
         assert trackObject.featureCount == 10G
         assert trackObject.intervals.nclist.size() == 3
-        assert trackObject.intervals.nclist.getJSONArray(0).getInt(1)==6709 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==15048+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==200+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==6309+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(0).getInt(1)==200+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==6309+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==6709 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==15048+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==15448+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
@@ -625,15 +625,15 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we expect the order to be correct"
         assert nclistArray.size()==5
-        assert nclistArray[0][1] > nclistArray[0][2]
-        assert nclistArray[0][2] > nclistArray[1][1]
-        assert nclistArray[1][1] > nclistArray[1][2]
-        assert nclistArray[1][2] > nclistArray[2][1]
-        assert nclistArray[2][1] > nclistArray[2][2]
-        assert nclistArray[2][2] < nclistArray[3][1]
-        assert nclistArray[3][1] > nclistArray[3][2]
-        assert nclistArray[3][2] > nclistArray[4][1]
-        assert nclistArray[4][1] > nclistArray[4][2]
+        assert nclistArray[0][1] < nclistArray[0][2]
+        assert nclistArray[0][2] < nclistArray[1][1]
+        assert nclistArray[1][1] < nclistArray[1][2]
+        assert nclistArray[1][2] < nclistArray[2][1]
+        assert nclistArray[2][1] < nclistArray[2][2]
+        assert nclistArray[2][2] > nclistArray[3][1]
+        assert nclistArray[3][1] < nclistArray[3][2]
+        assert nclistArray[3][2] < nclistArray[4][1]
+        assert nclistArray[4][1] < nclistArray[4][2]
     }
 
     void "large scaffold should be reversed properly"(){
@@ -679,10 +679,10 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we expect the order to be correct"
         assert nclistArray.size()==3
-        assert nclistArray[0][1] > nclistArray[0][2]
-        assert nclistArray[0][2] > nclistArray[1][1]
-        assert nclistArray[1][1] > nclistArray[1][2]
-        assert nclistArray[1][2] > nclistArray[2][1]
-        assert nclistArray[2][1] > nclistArray[2][2]
+        assert nclistArray[0][1] < nclistArray[0][2]
+        assert nclistArray[0][2] < nclistArray[1][1]
+        assert nclistArray[1][1] < nclistArray[1][2]
+        assert nclistArray[1][2] < nclistArray[2][1]
+        assert nclistArray[2][1] < nclistArray[2][2]
     }
 }
