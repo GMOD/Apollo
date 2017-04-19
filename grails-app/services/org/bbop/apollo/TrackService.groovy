@@ -736,16 +736,17 @@ class TrackService {
                 trackObject.intervals.minStart = trackObject.intervals.maxEnd
                 trackObject.intervals.maxEnd = temp
             }
+            
+            // sort nclist top-level
+            JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
+            JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
+            // sort by column 1
+            JSONArray replacementNcListArray = sortNcListArray(ncListArray)
+
+            intervalsObject.put(FeatureStringEnum.NCLIST.value, replacementNcListArray)
+            trackObject.put(FeatureStringEnum.INTERVALS.value, intervalsObject)
         }
 
-        // sort nclist top-level
-        JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
-        JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
-        // sort by column 1
-        JSONArray replacementNcListArray = sortNcListArray(ncListArray)
-
-        intervalsObject.put(FeatureStringEnum.NCLIST.value, replacementNcListArray)
-        trackObject.put(FeatureStringEnum.INTERVALS.value, intervalsObject)
 
 
         return trackObject
