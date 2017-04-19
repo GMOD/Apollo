@@ -6,7 +6,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import spock.lang.Ignore
-import spock.lang.IgnoreRest
+//import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -708,13 +708,22 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect the start and the stop to be in order "
         assert nclistArray.size()==9
         assert nclistArray[0][1] < nclistArray[1][1]
+        assert nclistArray[0][5] == "Group11.4"
         assert nclistArray[1][1] < nclistArray[2][1]
+        assert nclistArray[1][5] == "Group11.4"
         assert nclistArray[2][1] < nclistArray[3][1]
+        assert nclistArray[2][5] == "Group11.4"
         assert nclistArray[3][1] < nclistArray[4][1]
+        assert nclistArray[3][5] == "Group11.4"
         assert nclistArray[4][1] < nclistArray[5][1]
+        assert nclistArray[4][5] == "Group11.4"
         assert nclistArray[5][1] < nclistArray[6][1]
+        assert nclistArray[5][5] == "GroupUn87"
         assert nclistArray[6][1] < nclistArray[7][1]
+        assert nclistArray[6][5] == "GroupUn87"
         assert nclistArray[7][1] < nclistArray[8][1]
+        assert nclistArray[7][5] == "GroupUn87"
+        assert nclistArray[8][5] == "GroupUn87"
 
 
         when: "we reverse the next one"
@@ -728,13 +737,22 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect the start and the stop to be in order "
         assert nclistArray.size()==9
         assert nclistArray[0][1] < nclistArray[1][1]
+        assert nclistArray[0][5] == "Group11.4"
         assert nclistArray[1][1] < nclistArray[2][1]
+        assert nclistArray[1][5] == "Group11.4"
         assert nclistArray[2][1] < nclistArray[3][1]
+        assert nclistArray[2][5] == "Group11.4"
         assert nclistArray[3][1] < nclistArray[4][1]
+        assert nclistArray[3][5] == "Group11.4"
         assert nclistArray[4][1] < nclistArray[5][1]
+        assert nclistArray[4][5] == "Group11.4"
         assert nclistArray[5][1] < nclistArray[6][1]
+        assert nclistArray[5][5] == "GroupUn87"
         assert nclistArray[6][1] < nclistArray[7][1]
+        assert nclistArray[6][5] == "GroupUn87"
         assert nclistArray[7][1] < nclistArray[8][1]
+        assert nclistArray[7][5] == "GroupUn87"
+        assert nclistArray[8][5] == "GroupUn87"
 
         when: "we reverse both"
         sequenceList = "[{\"name\":\"Group11.4\",\"start\":0,\"end\":75085,\"reverse\":true},{\"name\":\"GroupUn87\",\"start\":0,\"end\":78258,\"reverse\":true}]"
@@ -747,13 +765,22 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect the start and the stop to be in order "
         assert nclistArray.size()==9
         assert nclistArray[0][1] < nclistArray[1][1]
+        assert nclistArray[0][5] == "Group11.4"
         assert nclistArray[1][1] < nclistArray[2][1]
+        assert nclistArray[1][5] == "Group11.4"
         assert nclistArray[2][1] < nclistArray[3][1]
+        assert nclistArray[2][5] == "Group11.4"
         assert nclistArray[3][1] < nclistArray[4][1]
+        assert nclistArray[3][5] == "Group11.4"
         assert nclistArray[4][1] < nclistArray[5][1]
+        assert nclistArray[4][5] == "Group11.4"
         assert nclistArray[5][1] < nclistArray[6][1]
+        assert nclistArray[5][5] == "GroupUn87"
         assert nclistArray[6][1] < nclistArray[7][1]
+        assert nclistArray[6][5] == "GroupUn87"
         assert nclistArray[7][1] < nclistArray[8][1]
+        assert nclistArray[7][5] == "GroupUn87"
+        assert nclistArray[8][5] == "GroupUn87"
     }
 
     void "get two large scaffolds, 1.10::11.6 we should be able to reverse the first one and still have it extend properly"(){

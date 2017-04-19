@@ -659,7 +659,7 @@ class TrackService {
                         , end: sequenceObject.end
                         , name: sequenceObject.name
                 )
-                sequenceMap.put(storeObject, multiSequenceProjection.projectValue(sequenceObject.end, 0, 0))
+                sequenceMap.put(storeObject, multiSequenceProjection.projectValue( sequenceObject.reverse ? sequenceObject.start : sequenceObject.end, 0, 0))
             }
         } else {
             for (Sequence sequence in sequenceEntryMaps.values()) {
@@ -697,7 +697,8 @@ class TrackService {
                     if (trackIndex.hasChunk()) {
                         projectionChunk.addChunk()
                     }
-                    lastLength = sequenceLength
+                    // only take if its greater
+                    lastLength = sequenceLength > lastLength ? sequenceLength : lastLength
 
                     ++lastChunkArrayOffset
                 }
