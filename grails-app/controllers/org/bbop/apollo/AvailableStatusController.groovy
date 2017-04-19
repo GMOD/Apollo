@@ -23,7 +23,7 @@ class AvailableStatusController {
 
     def beforeInterceptor = {
         if(!permissionService.isAdmin()){
-            forward action: "notAuthorized" ,controller: "annotator"
+            forward action: "notAuthorized", controller: "annotator"
             return
         }
     }
@@ -124,7 +124,7 @@ class AvailableStatusController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to add")
+            , @RestApiParam(name = "value", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to add")
     ]
     )
     @Transactional
@@ -132,13 +132,13 @@ class AvailableStatusController {
         JSONObject statusJson = permissionService.handleInput(request, params)
         try {
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(statusJson))) {
-                if (!statusJson.name) {
+                if (!statusJson.value) {
                     throw new Exception('empty fields detected')
                 }
 
-                log.debug "Adding ${statusJson.name}"
+                log.debug "Adding ${statusJson.value}"
                 AvailableStatus status = new AvailableStatus(
-                        value: statusJson.name
+                        value: statusJson.value
                 ).save(flush: true)
 
                 render status as JSON
@@ -159,9 +159,9 @@ class AvailableStatusController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Status ID to update (or specify the old_name)")
-            , @RestApiParam(name = "old_name", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to update")
-            , @RestApiParam(name = "new_name", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to change to (the only editable option)")
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Status ID to update (or specify the old_value)")
+            , @RestApiParam(name = "old_value", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to update")
+            , @RestApiParam(name = "new_value", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to change to (the only editable option)")
     ]
     )
     @Transactional
@@ -170,9 +170,12 @@ class AvailableStatusController {
             JSONObject statusJson = permissionService.handleInput(request, params)
             log.debug "Updating status ${statusJson}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(statusJson))) {
+                if (!statusJson.new_value) {
+                    throw new Exception('empty fields detected')
+                }
 
                 log.debug "status ID: ${statusJson.id}"
-                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.old_name)
+                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.old_value)
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()
@@ -181,19 +184,19 @@ class AvailableStatusController {
                     return
                 }
 
-                status.value = statusJson.new_name
+                status.value = statusJson.new_value
                 status.save(flush: true)
 
                 log.info "Success updating status: ${status.id}"
                 render new JSONObject() as JSON
             } else {
-                def error = [error: 'not authorized to delete status']
+                def error = [error: 'not authorized to edit status']
                 log.error(error.error)
                 render error as JSON
             }
         }
         catch (Exception e) {
-            def error = [error: 'problem deleting status: ' + e]
+            def error = [error: 'problem editing status: ' + e]
             log.error(error.error)
             render error as JSON
         }
@@ -204,7 +207,7 @@ class AvailableStatusController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Status ID to remove (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to delete")
+            , @RestApiParam(name = "value", type = "string", paramType = RestApiParamType.QUERY, description = "Status name to delete")
     ])
     @Transactional
     def deleteStatus() {
@@ -213,7 +216,7 @@ class AvailableStatusController {
             log.debug "Deleting status ${statusJson}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(statusJson))) {
 
-                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.name)
+                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.value)
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()
