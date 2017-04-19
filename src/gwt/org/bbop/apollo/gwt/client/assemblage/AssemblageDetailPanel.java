@@ -128,8 +128,8 @@ public class AssemblageDetailPanel extends Composite {
         }
 
         // set name now
-        String assemblageName = generateAssemblageName(assemblageInfo);
-        assemblageInfo.setName(assemblageName);
+//        String assemblageName = generateAssemblageName(assemblageInfo);
+        assemblageInfo.setName("Unnamed");
 
         return assemblageInfo;
     }
