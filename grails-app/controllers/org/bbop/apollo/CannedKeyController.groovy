@@ -38,9 +38,6 @@ class CannedKeyController {
     }
 
     def create() {
-        CannedKey cannedKey = new CannedKey(params)
-        println "validated ${cannedKey.validate()} and errors: ${cannedKey.errors}"
-
         respond new CannedKey(params)
     }
 
