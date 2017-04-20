@@ -1495,7 +1495,7 @@ define([
                 return null;
             },
 
-            getLeftExon: function (rightExon) {
+            getRightExon: function (rightExon) {
                 var parent = rightExon.feature._parent;
                 var children = parent.afeature.children;
 
@@ -1513,7 +1513,7 @@ define([
                 return leftExon;
             },
 
-            getRightExon: function (leftExon) {
+            getLeftExon: function (leftExon) {
                 var parent = leftExon.feature._parent;
                 var children = parent.afeature.children;
 
@@ -5305,8 +5305,8 @@ define([
                 var menuItem = this.getMenuItem("fold_exons_left");
                 if (selected.length == 1) {
                     var type1 = selected[0].feature.afeature.type.name;
-                    var rightExon = this.getRightExon(selected[0])
-                    if (type1 === "exon" && rightExon) {
+                    var leftExon = this.getLeftExon(selected[0])
+                    if (type1 === "exon" && leftExon) {
                         menuItem.set("disabled", false);
                         return;
                     }
@@ -5320,14 +5320,13 @@ define([
                 var menuItem = this.getMenuItem("fold_exons_right");
                 if (selected.length == 1) {
                     var type1 = selected[0].feature.afeature.type.name;
-                    var leftExon = this.getLeftExon(selected[0])
-                    if (type1 === "exon" && leftExon) {
+                    var rightExon = this.getRightExon(selected[0])
+                    if (type1 === "exon" && rightExon) {
                         menuItem.set("disabled", false);
                         return;
                     }
                 }
                 menuItem.set("disabled", true);
-
             },
 
             updateFoldBetweenExonsMenuItem: function () {
