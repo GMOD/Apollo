@@ -260,10 +260,7 @@ class AvailableStatusController {
             }
 
             if (statusJson.id || statusJson.name) {
-                AvailableStatus status = AvailableStatus.findById(statusJson.id)
-                if (!status) {
-                    status = AvailableStatus.findByValue(statusJson.name)
-                }
+                AvailableStatus status = AvailableStatus.findById(statusJson.id) ?: AvailableStatus.findByValue(statusJson.name)
 
                 if (!status) {
                     JSONObject jsonObject = new JSONObject()

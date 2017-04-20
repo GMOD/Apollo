@@ -23,7 +23,7 @@ class CannedCommentController {
 
     def beforeInterceptor = {
         if(!permissionService.isAdmin()){
-            forward action: "notAuthorized" ,controller: "annotator"
+            forward action: "notAuthorized", controller: "annotator"
             return
         }
     }
@@ -269,10 +269,7 @@ class CannedCommentController {
             }
 
             if (commentJson.id || commentJson.comment) {
-                CannedComment comment = CannedComment.findById(commentJson.id)
-                if (!comment) {
-                    comment = CannedComment.findByComment(commentJson.comment)
-                }
+                CannedComment comment = CannedComment.findById(commentJson.id) ?: CannedComment.findByComment(commentJson.comment)
 
                 if (!comment) {
                     JSONObject jsonObject = new JSONObject()
