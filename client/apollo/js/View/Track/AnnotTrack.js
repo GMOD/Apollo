@@ -1497,6 +1497,7 @@ define([
 
             getRightExon: function (rightExon) {
                 var parent = rightExon.feature._parent;
+                if(!parent) return null ;
                 var children = parent.afeature.children;
 
                 var index = this.getExonIndex(rightExon);
@@ -1514,6 +1515,7 @@ define([
 
             getLeftExon: function (leftExon) {
                 var parent = leftExon.feature._parent;
+                if(!parent) return null ;
                 var children = parent.afeature.children;
 
                 var index = this.getExonIndex(leftExon);
