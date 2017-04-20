@@ -1486,7 +1486,9 @@ define([
                 var parent = exon.feature._parent;
                 var children = parent.afeature.children;
                 for (var c in children) {
-                    if (children[c].uniquename == exon._uniqueID) {
+                    console.log(children[c] + ' vs '+ exon);
+                    console.log(children[c].uniquename + ' vs '+ exon.feature._uniqueID);
+                    if (children[c].uniquename == exon.feature._uniqueID) {
                         return c;
                     }
                 }
@@ -1498,6 +1500,7 @@ define([
                 var children = parent.afeature.children;
 
                 var index = this.getExonIndex(rightExon);
+                console.log('index: '+index);
                 var leftExon;
                 for (var c in children) {
                     if (c < index && children[c].type.name == 'exon') {
@@ -1507,7 +1510,7 @@ define([
                         return leftExon ;
                     }
                 }
-                return null;
+                return leftExon;
             },
 
             getRightExon: function (leftExon) {
@@ -1515,7 +1518,7 @@ define([
                 var children = parent.afeature.children;
 
                 var index = this.getExonIndex(leftExon);
-                var rightExon;
+                console.log('index: '+index);
                 for (var c in children) {
                     if (c > index && children[c].type.name == 'exon') {
                         return children[c];
@@ -5302,7 +5305,8 @@ define([
                 var menuItem = this.getMenuItem("fold_exons_left");
                 if (selected.length == 1) {
                     var type1 = selected[0].feature.afeature.type.name;
-                    if (type1 === "exon" && this.getLeftExon(selected[0])) {
+                    var rightExon = this.getRightExon(selected[0])
+                    if (type1 === "exon" && rightExon) {
                         menuItem.set("disabled", false);
                         return;
                     }
@@ -5316,7 +5320,8 @@ define([
                 var menuItem = this.getMenuItem("fold_exons_right");
                 if (selected.length == 1) {
                     var type1 = selected[0].feature.afeature.type.name;
-                    if (type1 === "exon" && this.getRightExon(selected[0])) {
+                    var leftExon = this.getLeftExon(selected[0])
+                    if (type1 === "exon" && leftExon) {
                         menuItem.set("disabled", false);
                         return;
                     }
