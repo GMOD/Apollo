@@ -1500,7 +1500,6 @@ define([
                 var children = parent.afeature.children;
 
                 var index = this.getExonIndex(rightExon);
-                console.log('index: '+index);
                 var leftExon;
                 for (var c in children) {
                     if (c < index && children[c].type.name == 'exon') {
@@ -1518,7 +1517,6 @@ define([
                 var children = parent.afeature.children;
 
                 var index = this.getExonIndex(leftExon);
-                console.log('index: '+index);
                 for (var c in children) {
                     if (c > index && children[c].type.name == 'exon') {
                         return children[c];
@@ -1538,7 +1536,7 @@ define([
                 var leftExon = this.getLeftExon(rightExon);
                 var array = [
                     {'uniquename': leftExon.uniquename},
-                    {'uniquename': rightExon.uniquename}
+                    {'uniquename': rightExon.feature._uniqueID}
                 ];
 
                 this.getApollo().foldBetweenExons(JSON.stringify(array), this.refSeq.name);
@@ -1554,7 +1552,7 @@ define([
                 var leftExon = selected[0];
                 var rightExon = this.getRightExon(leftExon);
                 var array = [
-                    {'uniquename': leftExon.uniquename},
+                    {'uniquename': leftExon.feature._uniqueID},
                     {'uniquename': rightExon.uniquename}
                 ];
 
@@ -5310,6 +5308,7 @@ define([
                         menuItem.set("disabled", false);
                         return;
                     }
+                    menuItem.set("disabled", true);
                 }
                 menuItem.set("disabled", true);
 
