@@ -255,8 +255,15 @@ class FeatureProjectionService {
     @NotTransactional
     def splitRegionForCoordinates(MultiSequenceProjection projection, Feature feature) {
         // TODO: this does not work if we cross the sequence boundary, but good enough for now
-        ProjectionSequence projectionSequence = projection.getProjectionSequence(feature.fmin)
+        println "getting sequence for ${feature.fmin}"
+
+        Integer fmin = projectionService.getMinForFeatureInProjection(feature,projection)
+        println "but actual fmin, with offsets ${fmin}"
+        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(fmin)
         // first we have to clear out all of the projections for that region
+        println "sequence: ${projectionSequence}"
+        println "size: ${projection.getSequenceDiscontinuousProjectionMap()?.size()}"
+        println "contains: ${projection.getSequenceDiscontinuousProjectionMap().containsKey(projectionSequence)}"
         DiscontinuousProjection discontinuousProjection = projection.getSequenceDiscontinuousProjectionMap().get(projectionSequence)
         discontinuousProjection.clear()
         if (feature.name) {
@@ -275,6 +282,9 @@ class FeatureProjectionService {
             projection.addCoordinate(locationLeft)
             ++count
         }
+
+        println "feature ${feature}"
+        println "projectionsequence ${projectionSequence}"
 
         if (feature.fmax < projectionSequence.end) {
             // project on the RHS
