@@ -872,4 +872,21 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         assert nclistArray[2][1] < nclistArray[2][2]
     }
+
+    void "project a single feature from a chunked scaffold"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":891079,\"end\":933237,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40737-RA\",\"start\":891079,\"end\":933237}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String fileName = "lf-2.json"
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName}"
+
+        when: "we project the data"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, Organism.first(),trackName)
+
+        then: "we expect the start and the stop to be in order and there should be NO overlap"
+        assert trackArray.size()>0
+    }
 }
