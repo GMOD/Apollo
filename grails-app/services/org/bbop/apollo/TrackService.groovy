@@ -647,19 +647,31 @@ class TrackService {
         int calculatedEnd = 0
         int calculatedStart = 0
         Map<JSONObject, Long> sequenceMap = new HashMap<>()
+        Long fullSequenceId = null
+        Integer fullSequenceOffset = 0
+
         if (refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
             for (int i = 0; i < sequenceArray.size(); i++) {
                 def sequenceObject = sequenceArray.getJSONObject(i)
-                sequenceObject.start = sequenceObject.start ?: sequenceEntryMaps.get(sequenceObject.name).start
-                sequenceObject.end = sequenceObject.end ?: sequenceEntryMaps.get(sequenceObject.name).end
-                calculatedStart += multiSequenceProjection.projectValue(sequenceObject.start, 0, 0)
-                calculatedEnd += multiSequenceProjection.projectValue(sequenceObject.end, 0, 0)
+                Sequence sequence = sequenceEntryMaps.get(sequenceObject.name)
+                sequenceObject.start = sequenceObject.start ?: sequence.start
+                sequenceObject.end = sequenceObject.end ?: sequence.end
+                Integer sequenceStart = sequenceObject.reverse ? sequenceObject.end : sequenceObject.start
+                Integer sequenceEnd = sequenceObject.reverse ? sequenceObject.start : sequenceObject.end
+                Integer projectedEnd = multiSequenceProjection.projectValue(sequenceEnd+ fullSequenceOffset, fullSequenceOffset, 0)
+                Integer projectedStart = multiSequenceProjection.projectValue(sequenceStart+ fullSequenceOffset, fullSequenceOffset, 0)
+                calculatedStart += projectedStart
+                calculatedEnd += projectedEnd
                 JSONObject storeObject = new JSONObject(
                         start: sequenceObject.start
                         , end: sequenceObject.end
                         , name: sequenceObject.name
                 )
-                sequenceMap.put(storeObject, multiSequenceProjection.projectValue( sequenceObject.reverse ? sequenceObject.start : sequenceObject.end, 0, 0))
+                sequenceMap.put(storeObject, projectedEnd)
+                if(sequence.id!=fullSequenceId){
+                    fullSequenceOffset += sequence.length
+                    fullSequenceId = sequence.id
+                }
             }
         } else {
             for (Sequence sequence in sequenceEntryMaps.values()) {

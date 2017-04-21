@@ -6,6 +6,8 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
+
 //import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
@@ -43,6 +45,15 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
                 , end: 78258
                 , organism: organism
                 , name: "GroupUn87"
+        ).save(failOnError: true)
+
+        new Sequence(
+                length: 494196
+                , seqChunkSize: 20000
+                , start: 0
+                , end: 494196
+                , organism: organism
+                , name: "Group4.1"
         ).save(failOnError: true)
     }
 
@@ -515,8 +526,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackObject.intervals.nclist.getJSONArray(0).getInt(2)==6309+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(1)==6709 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(2)==15048+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==15448+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31656+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1)==15194+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2)==31402+ MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
     }
 
@@ -792,7 +803,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
         JSONArray sequenceArray = new JSONArray(sequenceList)
 
-        when: "we ingest the data"
+        when: "we project the data"
         JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
         JSONArray nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
 
@@ -830,5 +841,31 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert nclistArray[1][1] < nclistArray[2][1]
         assert nclistArray[2][1] < nclistArray[3][1]
         assert nclistArray[3][1] < nclistArray[4][1]
+    }
+
+    void "if we have three small feature scaffolds, they should all be offset correctly"(){
+
+        given: "proper input"
+        // String http://localhost:8080/apollo/615463246294435289153778572/jbrowse/data/tracks/Official%20Gene%20Set%20v3.2/%7B%22sequenceList%22:[%7B%22name%22:%22Group11.4%22,%22start%22:10057,%22end%22:18796,%22reverse%22:false,%22feature%22:%7B%22name%22:%22GB52238-RA%22,%22start%22:10057,%22end%22:18796,%22parent_id%22:%22Group11.4%22%7D%7D,%7B%22name%22:%22GroupUn87%22,%22start%22:29196,%22end%22:30529,%22reverse%22:false,%22feature%22:%7B%22name%22:%22GB53498-RA%22,%22start%22:29196,%22end%22:30529,%22parent_id%22:%22GroupUn87%22%7D%7D,%7B%22name%22:%22Group4.1%22,%22start%22:352310,%22end%22:399504,%22reverse%22:false,%22feature%22:%7B%22name%22:%22GB49640-RA%22,%22start%22:352310,%22end%22:399504,%22parent_id%22:%22Group4.1%22%7D%7D]%7D:-1..-1/trackData.json
+//        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":false},{\"name\":\"Group11.6\",\"start\":0,\"end\":1566327,\"reverse\":false}]"
+        String sequenceList = "[{\"name\":\"Group11.4\",\"start\":10057,\"end\":18796,\"reverse\":false,\"feature\":{\"name\":\"GB52238-RA\",\"start\":10057,\"end\":18796,\"parent_id\":\"Group11.4\"}},{\"name\":\"GroupUn87\",\"start\":29196,\"end\":30529,\"reverse\":false,\"feature\":{\"name\":\"GB53498-RA\",\"start\":29196,\"end\":30529,\"parent_id\":\"GroupUn87\"}},{\"name\":\"Group4.1\",\"start\":352310,\"end\":399504,\"reverse\":false,\"feature\":{\"name\":\"GB49640-RA\",\"start\":352310,\"end\":399504,\"parent_id\":\"Group4.1\"}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we project the data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
+        JSONArray nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+
+        then: "we expect the start and the stop to be in order and there should be NO overlap"
+        assert nclistArray.size()==3
+        assert nclistArray[0][1] < nclistArray[0][2]
+        assert nclistArray[0][2] < nclistArray[1][1]
+
+        assert nclistArray[1][1] < nclistArray[1][2]
+        assert nclistArray[1][1] < nclistArray[2][1]
+
+        assert nclistArray[2][1] < nclistArray[2][2]
     }
 }
