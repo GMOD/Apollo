@@ -819,6 +819,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         refererLoc= "{\"sequenceList\":${sequenceList}}"
         dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
         sequenceArray = new JSONArray(sequenceList)
+        trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
+        nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
 
 
         then: "same set of values, and we are still in both scaffolds"
@@ -833,6 +835,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         refererLoc= "{\"sequenceList\":${sequenceList}}"
         dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/Official Gene Set v3.2/${refererLoc}${location}/trackData.json"
         sequenceArray = new JSONArray(sequenceList)
+        trackObject = trackService.projectTrackData(sequenceArray, dataFileName, refererLoc, Organism.first())
+        nclistArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
 
 
         then: "same set of values, and we are still in both scaffolds"
