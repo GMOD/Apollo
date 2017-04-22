@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.projection.ProjectionChunkList
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
@@ -873,6 +874,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert nclistArray[2][1] < nclistArray[2][2]
     }
 
+    @IgnoreRest
     void "project a single feature from a chunked scaffold"(){
 
         given: "proper input"
@@ -881,12 +883,25 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         String location = ":2516297..1566327"
         String trackName = "Official Gene Set v3.2"
         String fileName = "lf-2.json"
-        String dataFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName}"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName}"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
 
         when: "we project the data"
-        JSONArray trackArray = trackService.projectTrackChunk(fileName, dataFileName, refererLoc, Organism.first(),trackName)
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
+        assert "Group1.10"==projectionChunkList.get(0).sequence
+        assert 3==projectionChunkList.size()
+
+
+        when: "when we get lf-2.json (or lf-0.json) it should now work"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName, chunkFileName, refererLoc, Organism.first(),trackName)
 
         then: "we expect the start and the stop to be in order and there should be NO overlap"
+
         assert trackArray.size()>0
     }
 }
