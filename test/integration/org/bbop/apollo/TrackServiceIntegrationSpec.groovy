@@ -874,7 +874,6 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert nclistArray[2][1] < nclistArray[2][2]
     }
 
-    @IgnoreRest
     void "project a single feature from a chunked scaffold"(){
 
         given: "proper input"
@@ -893,15 +892,15 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
         then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
-        assert "Group1.10"==projectionChunkList.get(0).sequence
-        assert 3==projectionChunkList.size()
+//        assert "Group1.10"==projectionChunkList.get(0).sequence
+        assert 1==projectionChunkList.size()
 
 
         when: "when we get lf-2.json (or lf-0.json) it should now work"
         JSONArray trackArray = trackService.projectTrackChunk(fileName, chunkFileName, refererLoc, Organism.first(),trackName)
 
         then: "we expect the start and the stop to be in order and there should be NO overlap"
-
-        assert trackArray.size()>0
+        assert trackArray.size()==1
+        assert trackArray[0].size()==11
     }
 }

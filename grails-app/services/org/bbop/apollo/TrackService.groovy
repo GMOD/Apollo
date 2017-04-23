@@ -686,7 +686,7 @@ class TrackService {
 
         for (JSONObject sequenceArrayObject in sequenceArray) {
             ProjectionChunk projectionChunk = new ProjectionChunk(
-                    sequence: sequenceArrayObject
+                    sequence: sequenceArrayObject,
             )
             String sequencePathName = generateTrackNameForSequence(dataFileName, sequenceArrayObject.name)
             trackName = getTrackPathName(sequencePathName)
@@ -708,6 +708,9 @@ class TrackService {
                     TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, internalArray.getInt(0))
                     if (trackIndex.hasChunk()) {
                         projectionChunk.addChunk()
+                        Integer chunkIndex = trackIndex.getChunk()
+                        Integer chunkID = internalArray.getInt(chunkIndex)
+                        projectionChunk.setChunkID(chunkID)
                     }
                     // only take if its greater
                     lastLength = sequenceLength > lastLength ? sequenceLength : lastLength
