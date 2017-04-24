@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.gwt.shared.projection.ProjectionChunkList
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
@@ -902,5 +901,38 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect the start and the stop to be in order and there should be NO overlap"
         assert trackArray.size()==1
         assert trackArray[0].size()==11
+    }
+
+    @IgnoreRest
+    void "for a large scaffold, provide two features"(){
+        given: "proper input"
+//        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":891079,\"end\":933237,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40737-RA\",\"start\":891079,\"end\":933237}}]"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String fileName = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName}"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we project the data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
+//        assert "Group1.10"==projectionChunkList.get(0).sequence
+        assert 2==projectionChunkList.size()
+
+
+        when: "when we get lf-2.json (or lf-0.json) it should now work"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName, chunkFileName, refererLoc, Organism.first(),trackName)
+
+        then: "we expect the start and the stop to be in order and there should be NO overlap"
+        assert trackArray.size()==2
+        assert trackArray[0].size()==11
+        assert trackArray[1].size()==11
+
     }
 }
