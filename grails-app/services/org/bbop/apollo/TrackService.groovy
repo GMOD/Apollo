@@ -207,7 +207,7 @@ class TrackService {
         }
     }
 
-    def String getTrackPathName(String inputName) {
+    String getTrackPathName(String inputName) {
         if (inputName.contains("/")) {
             String[] tokens = inputName.split("/")
             // the sequenceString path should be the second to the last one
@@ -216,7 +216,7 @@ class TrackService {
         return null
     }
 
-    def JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism, Integer offset, String trackName) {
+    JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism, Integer offset, String trackName) {
         println "loading chunk data with offset ${offset}"
         File file = new File(path)
         String inputText = file.text
@@ -294,15 +294,34 @@ class TrackService {
             TrackIndex trackIndex = trackMapperService.getIndices(currentOrganism.commonName, trackName, coordinateArray.getInt(0))
             if (coordinateArray.size() == 4) {
                 // [4,19636,588668,1]
-                if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.getInt(trackIndex.end)) {
+                if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.getInt(trackIndex.end) == -1) {
                     coordinateJsonArray.remove(coordinateArray)
                     --i
                 }
             } else {
-                if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.get(trackIndex.end) == -1) {
+                if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.getInt(trackIndex.end) == -1) {
                     // eliminate coordinate array since top level feature has -1 coordinates
-                    coordinateJsonArray.remove(coordinateArray)
-                    --i
+                    if (coordinateArray.size() == 12) {
+                        // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
+                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).getJSONArray("Sublist"), currentOrganism, trackName)
+                        // we know we want to remove this regardless
+                        coordinateJsonArray.remove(coordinateArray)
+                        --i
+                        // if there is a valid subarray, we pull that to the top
+                        if(sanitizedSubListArray) {
+                            for(int subIndex = 0 ; subIndex < sanitizedSubListArray.size() ; ++subIndex){
+                                JSONArray validSubArray = sanitizedSubListArray.getJSONArray(subIndex)
+                                if (validSubArray.getInt(trackIndex.start) != -1  && validSubArray.getInt(trackIndex.end) != -1 ) {
+                                    ++i
+                                    coordinateJsonArray.add(i, validSubArray)
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        coordinateJsonArray.remove(coordinateArray)
+                        --i
+                    }
                 } else {
                     if (trackIndex.hasSubFeatures() && coordinateArray.get(trackIndex.subFeaturesColumn)) {
                         // coordinateArray has subFeaturesColumn
