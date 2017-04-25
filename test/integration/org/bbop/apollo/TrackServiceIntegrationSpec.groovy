@@ -602,7 +602,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray[0].size()==11
     }
 
-    void "for a large scaffold, provide two features"(){
+//    @IgnoreRest
+    void "for a large scaffold (1.10), provide two features (GB40809 and GB40811)"(){
         given: "proper input"
         String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}}]"
         String refererLoc= "{\"sequenceList\":${sequenceList}}"
@@ -716,7 +717,6 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
-//    @IgnoreRest
     void "for one large scaffolds (1.10), we should view two feature objects (GB40809-RA and GB408056-RA)"(){
 
         given: "proper input"
@@ -743,20 +743,14 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         then: "we should get a single track defined by GB4076 (which covers GB40811)"
-        assert trackArray.size()==1
+        assert trackArray.size()==2
         assert trackArray[0][8]=="GB40809-RA"
         assert trackArray[0][1]==200
         assert trackArray[0][2]==24002
+        assert trackArray[1][8]=="GB408056-RA"
+        assert trackArray[1][1]==24402
+        assert trackArray[1][2]==29263
 
-        when: "when we get lf-2.json it should now work"
-        String fileName2 = "lf-2.json"
-        trackArray = trackService.projectTrackChunk(fileName2, chunkFileName, refererLoc, Organism.first(),trackName)
-
-        then: "we expect the start and the stop to be in order and there should be NO overlap"
-        assert trackArray.size()==1
-        assert trackArray[0].size()==11
-        assert trackArray[0][6]=="GB55200-RA"
-        assert trackArray[0][11]["Sublist"].size()==2
     }
 
 

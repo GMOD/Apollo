@@ -26,11 +26,10 @@ class PreferenceService {
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
             Organism organism = getOrganismForToken(organismString)
-            if(organism){
+            if (organism) {
                 log.debug "return organism ${organism} by ID ${organismString}"
                 return organism
-            }
-            else{
+            } else {
                 log.info "organism not found ${organismString}"
             }
         }
@@ -48,7 +47,6 @@ class PreferenceService {
         }
 
     }
-
 
     /**
      * Get the current user preference.
@@ -95,7 +93,7 @@ class PreferenceService {
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
             def sequences = Sequence.findAllByOrganism(organism)
-            if(!sequences){
+            if (!sequences) {
                 log.warn "Sequences not loaded for organism ${organism.commonName}, so not setting preference for user ${user.username}."
                 return
             }
@@ -104,7 +102,7 @@ class PreferenceService {
                     user: user
                     , organism: organism
                     , currentOrganism: true
-                    , assemblage:assemblage
+                    , assemblage: assemblage
                     , clientToken: clientToken
             ).save(flush: true, insert: true)
         } else if (!userOrganismPreference.currentOrganism) {
@@ -133,26 +131,22 @@ class PreferenceService {
                     , assemblage: assemblage
                     , clientToken: clientToken
             ).save(flush: true)
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
-        }
-        else
-        if(!userOrganismPreference.currentOrganism) {
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+        } else if (!userOrganismPreference.currentOrganism) {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.assemblage = assemblage
             userOrganismPreference.save()
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user,clientToken)
-        }
-        else{
+            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+        } else {
             userOrganismPreference.assemblage = assemblage
             userOrganismPreference.save()
         }
     }
 
-//    def setCurrentSequence(User user, Sequence sequence) {
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
         Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
-        if(user && assemblage){
+        if (user && assemblage) {
             user.addToAssemblages(assemblage)
         }
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndAssemblage(user, organism, clientToken, assemblage, [sort: "lastUpdated", order: "desc"])
@@ -163,8 +157,6 @@ class PreferenceService {
 
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
 
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientTokenAndAssemblage(user, organism, clientToken, assemblage,[max: 1, sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
                     user: user
@@ -189,28 +181,8 @@ class PreferenceService {
         if (!currentOrganism) {
             throw new AnnotationException("Organism preference is not set for user")
         }
-//        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
-//        if(!sequence && sequenceName.startsWith("{")){
-//            sequenceName = JSON.parse(sequenceName).name
-//            if(sequenceName){
-//                sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
-//            }
-//        }
-//        println "sequence ${sequence} for ${sequenceName} and ${currentOrganism}"
-//        if (!sequence) {
-//            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
-//        }
 
-        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientTokenAndOrganism(currentUser, true, clientToken,currentOrganism,[sort: "lastUpdated", order: "desc"])
-//        def userOrganismPreferences = UserOrganismPreference.createCriteria().list {
-//            createAlias('assemblage', 'assemblage', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
-//            and {
-//                eq("user", currentUser)
-//                eq("clientToken", clientToken)
-//                eq("assemblage.name", sequenceName)
-//                eq("organism", currentOrganism)
-//            }
-//        }
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientTokenAndOrganism(currentUser, true, clientToken, currentOrganism, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
             setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), currentUser, clientToken)
@@ -226,19 +198,14 @@ class PreferenceService {
                     , organism: currentOrganism
                     , clientToken: clientToken
             ).save(insert: true)
-//            userOrganismPreference = UserOrganismPreference.findByUser(currentUser,[max: 1, sort: "lastUpdated", order: "desc"])
         }
-//        if (!userOrganismPreference) {
-//            throw new AnnotationException("Organism preference is not set for user")
-//        }
 
-        Assemblage assemblage ;
-        if(AssemblageService.isProjectionString(sequenceName)){
+        Assemblage assemblage;
+        if (AssemblageService.isProjectionString(sequenceName)) {
             JSONObject jsonObject = JSON.parse(sequenceName) as JSONObject
-            jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value,clientToken)
+            jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
             assemblage = assemblageService.convertJsonToAssemblage(jsonObject)
-        }
-        else{
+        } else {
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
             assemblage = assemblageService.generateAssemblageForSequence(sequence)
         }
@@ -342,13 +309,13 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            if(!assemblage){
-                Sequence sequence =  trackName ? Sequence.findByNameAndOrganism(trackName,organism) : null
+            if (!assemblage) {
+                Sequence sequence = trackName ? Sequence.findByNameAndOrganism(trackName, organism) : null
                 sequence = sequence ?: organism.sequences.first()
                 assemblage = assemblageService.generateAssemblageForSequence(sequence)
             }
 
-            if(user){
+            if (user) {
                 UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
                         user: user
                         , organism: organism
@@ -359,8 +326,7 @@ class PreferenceService {
                         , endbp: assemblage.end
                 ).save(insert: true, flush: true)
                 return newUserOrganismPreference
-            }
-            else{
+            } else {
                 return null
             }
         }
@@ -406,19 +372,18 @@ class PreferenceService {
 
             // get user client tokens
             Map<User, Map<Organism, UserOrganismPreference>> userClientTokens = [:]
-            UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth,[sort: "lastUpdated", order: "desc"]).each {
+            UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth, [sort: "lastUpdated", order: "desc"]).each {
                 Map<Organism, UserOrganismPreference> organismPreferenceMap = userClientTokens.containsKey(it.user) ? userClientTokens.get((it.user)) : [:]
                 if (organismPreferenceMap.containsKey(it.organism)) {
-                    UserOrganismPreference preference= organismPreferenceMap.get(it.organism)
+                    UserOrganismPreference preference = organismPreferenceMap.get(it.organism)
                     // since we are sorting from the newest to the oldest, so just delete the older one
                     preference.delete()
                     ++removalCount
                     organismPreferenceMap.remove(it.organism)
+                } else {
+                    organismPreferenceMap.put(it.organism, it)
                 }
-                else {
-                    organismPreferenceMap.put(it.organism,it)
-                }
-                userClientTokens.put(it.user,organismPreferenceMap)
+                userClientTokens.put(it.user, organismPreferenceMap)
             }
 
             log.error "Removed ${removalCount} stale preferences"
