@@ -5,6 +5,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import spock.lang.Ignore
 import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
@@ -588,7 +589,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
-        then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
+        then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
 //        assert "Group1.10"==projectionChunkList.get(0).sequence
         assert 1==projectionChunkList.size()
 
@@ -617,12 +618,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
-        then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
+        then: "should we have multiple chunks (1-2) or map chunk 2 to 0 and get lf-1.json instead"
 //        assert "Group1.10"==projectionChunkList.get(0).sequence
         assert 2==projectionChunkList.size()
 
 
-        when: "when we get lf-2.json (or lf-0.json) it should now work"
+        when: "when we get lf-2.json (or lf-1.json) it should now work"
         JSONArray trackArray = trackService.projectTrackChunk(fileName, chunkFileName, refererLoc, Organism.first(),trackName)
 
         then: "we expect the start and the stop to be in order and there should be NO overlap"
@@ -631,6 +632,175 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray.size()==2
         assert trackArray[0].size()==11
         assert trackArray[1].size()==11
+
+    }
+
+    void "for two large scaffolds (1.10 and 11.6), if the first has one feature (GB40811) regions and the second one has one (GB55200)"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}},{\"name\":\"Group11.6\",\"start\":680818,\"end\":758231,\"reverse\":false,\"feature\":{\"parent_id\":\"Group11.6\",\"name\":\"GB55200-RA\",\"start\":680818,\"end\":758231}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
+        assert 2==projectionChunkList.size()
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(),trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which coverse GB40811)"
+        assert trackArray.size()==1
+        assert trackArray[0].size()==12
+        assert trackArray[0][6]=="GB40764-RA"
+        assert trackArray[0][11]["Sublist"][0][8]=="GB40811-RA"
+
+
+        when: "when we get lf-2.json (or lf-0.json) it should now work"
+        String fileName2 = "lf-2.json"
+        trackArray = trackService.projectTrackChunk(fileName2, chunkFileName, refererLoc, Organism.first(),trackName)
+
+        then: "we expect the start and the stop to be in order and there should be NO overlap"
+        assert trackArray.size()==1
+        assert trackArray[0].size()==12
+        assert trackArray[0][6]=="GB55200-RA"
+        assert trackArray[0][11]["Sublist"].size()==2
+
+    }
+
+
+    void "for one large scaffolds (1.10), we should view two feature objects (GB40809-RA and GB408011-RA)"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}},{\"name\":\"Group11.6\",\"start\":680818,\"end\":758231,\"reverse\":false,\"feature\":{\"parent_id\":\"Group11.6\",\"name\":\"GB55200-RA\",\"start\":680818,\"end\":758231}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
+        assert 3==projectionChunkList.size()
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(),trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which covers GB40811)"
+        assert trackArray.size()==2
+        assert trackArray[0][8]=="GB40809-RA"
+        assert trackArray[0][1]==200
+        assert trackArray[0][2]==24002
+        assert trackArray[1][8]=="GB40811-RA"
+        assert trackArray[1][1]==24402
+        assert trackArray[1][2]==29263
+
+    }
+
+
+//    @IgnoreRest
+    void "for one large scaffolds (1.10), we should view two feature objects (GB40809-RA and GB408056-RA)"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":1216624,\"end\":1235816,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40856-RA\",\"start\":1216624,\"end\":1235816}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
+        assert 2==projectionChunkList.size()
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(),trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which covers GB40811)"
+        assert trackArray.size()==1
+        assert trackArray[0][8]=="GB40809-RA"
+        assert trackArray[0][1]==200
+        assert trackArray[0][2]==24002
+
+        when: "when we get lf-2.json it should now work"
+        String fileName2 = "lf-2.json"
+        trackArray = trackService.projectTrackChunk(fileName2, chunkFileName, refererLoc, Organism.first(),trackName)
+
+        then: "we expect the start and the stop to be in order and there should be NO overlap"
+        assert trackArray.size()==1
+        assert trackArray[0].size()==11
+        assert trackArray[0][6]=="GB55200-RA"
+        assert trackArray[0][11]["Sublist"].size()==2
+    }
+
+
+    void "for two large scaffolds (1.10 and 11.6), if the first has two features (GB40809, GB40811) regions and the second one has one (GB55200)"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}},{\"name\":\"Group11.6\",\"start\":680818,\"end\":758231,\"reverse\":false,\"feature\":{\"parent_id\":\"Group11.6\",\"name\":\"GB55200-RA\",\"start\":680818,\"end\":758231}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
+        assert 2==projectionChunkList.size()
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(),trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which coverse GB40811)"
+        assert trackArray.size()==1
+        assert trackArray[0].size()==11
+        assert trackArray[0][7]=="GB40764-RA"
+        assert trackArray[0][10]["Sublist"].size()==10
+        assert trackArray[0][10]["Sublist"][9]=="GB40811-RA"
+
+
+        when: "when we get lf-2.json (or lf-1.json) it should now work"
+        String fileName2 = "lf-2.json"
+        trackArray = trackService.projectTrackChunk(fileName2, chunkFileName, refererLoc, Organism.first(),trackName)
+
+        then: "we expect the start and the stop to be in order and there should be NO overlap"
+        assert trackArray.size()==1
+        assert trackArray[0].size()==11
+        assert trackArray[0][6]=="GB55200-RA"
+        assert trackArray[0][10]["Sublist"].size()==2
 
     }
 }
