@@ -301,9 +301,9 @@ class TrackService {
             } else {
                 if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.getInt(trackIndex.end) == -1) {
                     // eliminate coordinate array since top level feature has -1 coordinates
-                    if (coordinateArray.size() == 12) {
+                    if (coordinateArray.size() > 10 && coordinateArray.get(coordinateArray.size()-1) instanceof JSONObject && coordinateArray.getJSONObject(coordinateArray.size()-1).containsKey("Sublist")) {
                         // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
-                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).getJSONArray("Sublist"), currentOrganism, trackName)
+                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(coordinateArray.size()-1).getJSONArray("Sublist"), currentOrganism, trackName)
                         // we know we want to remove this regardless
                         coordinateJsonArray.remove(coordinateArray)
                         --i
