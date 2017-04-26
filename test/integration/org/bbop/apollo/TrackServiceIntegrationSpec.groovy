@@ -680,10 +680,11 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
+//    @IgnoreRest
     void "for one large scaffolds (1.10), we should view two feature objects (GB40809-RA and GB408011-RA)"(){
 
         given: "proper input"
-        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}},{\"name\":\"Group11.6\",\"start\":680818,\"end\":758231,\"reverse\":false,\"feature\":{\"parent_id\":\"Group11.6\",\"name\":\"GB55200-RA\",\"start\":680818,\"end\":758231}}]"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}}]"
         String refererLoc= "{\"sequenceList\":${sequenceList}}"
         String location = ":2516297..1566327"
         String trackName = "Official Gene Set v3.2"
@@ -693,11 +694,14 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we get the initial track data"
         JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
         MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
         then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
-        assert 3==projectionChunkList.size()
+        assert ncListArray.size()==1
+        assert ncListArray[0].size()==4
+        assert projectionChunkList.size()==2
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"
@@ -710,9 +714,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray[0][8]=="GB40809-RA"
         assert trackArray[0][1]==200
         assert trackArray[0][2]==24002
-        assert trackArray[1][8]=="GB40811-RA"
-        assert trackArray[1][1]==24402
-        assert trackArray[1][2]==29263
+//        assert trackArray[1][8]=="GB40811-RA"
+        assert trackArray[1][8]=="GB40764-RA"
+        assert trackArray[1][1]==24202
+        assert trackArray[1][2]==29463
+        // note that we have a sublist as well
+        assert trackArray[1][11]["Sublist"][4]=="GB40811-RA"
 
     }
 
@@ -741,8 +748,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncListArray[0][1]==0
         assert ncListArray[0][2]==24202
         assert ncListArray[0][3]==1
-        assert ncListArray[1][1]==24203
-        assert ncListArray[1][2]==43395
+        assert ncListArray[1][1]==24202
+        assert ncListArray[1][2]==43394
         assert ncListArray[1][3]==2
 
 
