@@ -717,6 +717,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
+//    @IgnoreRest
     void "for one large scaffolds (1.10), we should view two feature objects (GB40809-RA and GB408056-RA)"(){
 
         given: "proper input"
@@ -730,11 +731,20 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we get the initial track data"
         JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
         MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
         then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
-        assert 2==projectionChunkList.size()
+        assert projectionChunkList.size()==2
+        assert ncListArray.size()==2
+        assert ncListArray[0][1]==0
+        assert ncListArray[0][2]==24202
+        assert ncListArray[0][3]==1
+        assert ncListArray[1][1]==24203
+        assert ncListArray[1][2]==43395
+        assert ncListArray[1][3]==2
+
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"

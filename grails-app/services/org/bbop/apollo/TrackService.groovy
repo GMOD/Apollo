@@ -667,6 +667,7 @@ class TrackService {
         int calculatedStart = 0
         Map<JSONObject, Long> sequenceMap = new HashMap<>()
         Long fullSequenceId = null
+        Integer previousFullSequenceOffset = 0 // we store this until we need it
         Integer fullSequenceOffset = 0
 
         if (refererLoc.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
@@ -688,8 +689,16 @@ class TrackService {
                 )
                 sequenceMap.put(storeObject, projectedEnd)
                 if(sequence.id!=fullSequenceId){
-                    fullSequenceOffset += sequence.length
-                    fullSequenceId = sequence.id
+                    // if this is the initial
+                    if(fullSequenceId==null){
+                        fullSequenceOffset = 0
+                        fullSequenceId = sequence.id
+                        previousFullSequenceOffset = sequence.length
+                    }
+                    else{
+                        fullSequenceOffset += previousFullSequenceOffset
+                        fullSequenceId = sequence.id
+                    }
                 }
             }
         } else {
@@ -780,7 +789,6 @@ class TrackService {
             intervalsObject.put(FeatureStringEnum.NCLIST.value, replacementNcListArray)
             trackObject.put(FeatureStringEnum.INTERVALS.value, intervalsObject)
         }
-
 
 
         return trackObject
