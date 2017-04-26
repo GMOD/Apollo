@@ -714,12 +714,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray[0][8]=="GB40809-RA"
         assert trackArray[0][1]==200
         assert trackArray[0][2]==24002
-//        assert trackArray[1][8]=="GB40811-RA"
-        assert trackArray[1][8]=="GB40764-RA"
-        assert trackArray[1][1]==24202
-        assert trackArray[1][2]==29463
+        assert trackArray[1][8]=="GB40811-RA"
+//        assert trackArray[1][8]=="GB40764-RA"
+        assert trackArray[1][1]==24402
+        assert trackArray[1][2]==29263
         // note that we have a sublist as well
-        assert trackArray[1][11]["Sublist"][4]=="GB40811-RA"
+//        assert trackArray[1][11]["Sublist"][4]=="GB40811-RA"
 
     }
 
@@ -746,10 +746,10 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert projectionChunkList.size()==2
         assert ncListArray.size()==2
         assert ncListArray[0][1]==0
-        assert ncListArray[0][2]==24202
+        assert ncListArray[0][2]==24200
         assert ncListArray[0][3]==1
         assert ncListArray[1][1]==24202
-        assert ncListArray[1][2]==43394
+        assert ncListArray[1][2]==43392
         assert ncListArray[1][3]==2
 
 
@@ -765,8 +765,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray[0][1]==200
         assert trackArray[0][2]==24002
         assert trackArray[1][8]=="GB408056-RA"
-        assert trackArray[1][1]==24402
-        assert trackArray[1][2]==29263
+        assert trackArray[1][1]==24403
+        assert trackArray[1][2]==24403 + 19192
 
     }
 
@@ -787,7 +787,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
         then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
-        assert 2==projectionChunkList.size()
+        assert 3==projectionChunkList.size()
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"
