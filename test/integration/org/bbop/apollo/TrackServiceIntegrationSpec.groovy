@@ -725,7 +725,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
 //    @IgnoreRest
-    void "for one large scaffolds (1.10), we should view two feature objects (GB40809-RA and GB408056-RA)"(){
+    void "for one large scaffolds (1.10), we should view two feature objects, but in different chunks (GB40809-RA and GB408056-RA)"(){
 
         given: "proper input"
         String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":1216624,\"end\":1235816,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40856-RA\",\"start\":1216624,\"end\":1235816}}]"
@@ -746,10 +746,10 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert projectionChunkList.size()==2
         assert ncListArray.size()==2
         assert ncListArray[0][1]==0
-        assert ncListArray[0][2]==24200
+        assert ncListArray[0][2]==24202
         assert ncListArray[0][3]==1
         assert ncListArray[1][1]==24202
-        assert ncListArray[1][2]==43392
+        assert ncListArray[1][2]==43394
         assert ncListArray[1][3]==2
 
 

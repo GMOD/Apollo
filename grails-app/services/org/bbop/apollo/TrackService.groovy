@@ -380,6 +380,13 @@ class TrackService {
 //                && coordinate.get(2) instanceof Integer
         ) {
             TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism, trackName, coordinate.getInt(0))
+            // TODO: uncomment this to get 408011 to work and set the projectionSequence.offset to 0
+//            List<ProjectionSequence> projectionSequenceList = projection.getProjectionSequences(coordinate.getInt(trackIndex.getStart()),coordinate.getInt(trackIndex.getEnd()))
+//            if(projectionSequenceList){
+//                projectionSequence = projectionSequenceList.first()
+////                offset = projectionSequence.offset
+//            }
+
             Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
             assert oldMin <= oldMax
@@ -690,15 +697,17 @@ class TrackService {
                 sequenceMap.put(storeObject, projectedEnd)
                 if(sequence.id!=fullSequenceId){
                     // if this is the initial
-                    if(fullSequenceId==null){
-                        fullSequenceOffset = 0
-                        fullSequenceId = sequence.id
-                        previousFullSequenceOffset = sequence.length
-                    }
-                    else{
-                        fullSequenceOffset += previousFullSequenceOffset
-                        fullSequenceId = sequence.id
-                    }
+                    fullSequenceOffset += sequence.length
+                    fullSequenceId = sequence.id
+//                    if(fullSequenceId==null){
+//                        fullSequenceOffset = 0
+//                        fullSequenceId = sequence.id
+//                        previousFullSequenceOffset = sequence.length
+//                    }
+//                    else{
+//                        fullSequenceOffset += previousFullSequenceOffset
+//                        fullSequenceId = sequence.id
+//                    }
                 }
             }
         } else {
