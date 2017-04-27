@@ -30,6 +30,7 @@ class SecurityFilters {
                         || controllerName == "cannedKey"
                         || controllerName == "cannedValue"
                         || controllerName == "cannedComment"
+                        || controllerName == "availableStatus"
                         || controllerName == "proxy"
                         || controllerName == "featureType"
                         || actionName == "report"

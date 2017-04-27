@@ -86,6 +86,8 @@ class TranslationTable {
         return alternateTranslationTable;
     }
 
-
+    boolean isStartCodon(String s) {
+        return startCodons.contains(s)
+    }
 
 }
