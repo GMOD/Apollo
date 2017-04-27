@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.shared.projection
 
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
@@ -892,17 +891,17 @@ class MultiSequenceProjectionSpec extends Specification {
         coordinateCollection.get(2).max == 27l
         coordinateCollection.get(3).min == 60l
         coordinateCollection.get(3).max == 63l
-        assert 0l == projectionSequenceList.get(0).offset
+        assert 0l == projectionSequenceList.get(0).projectedOffset
         assert 6l == multiSequenceProjection.getProjectionForSequence(projectionSequenceList.get(0)).bufferedLength
-        assert 6l == projectionSequenceList.get(1).offset
+        assert 6l == projectionSequenceList.get(1).projectedOffset
         assert 8l == multiSequenceProjection.getProjectionForSequence(projectionSequenceList.get(1)).bufferedLength
         assert "Sequence1" == projectionSequence1.name
         assert "Sequence2" == projectionSequence2.name
-        assert 0l == projectionSequence1.offset
-        assert 6l == projectionSequence2.offset
+        assert 0l == projectionSequence1.projectedOffset
+        assert 6l == projectionSequence2.projectedOffset
         assert 0l == projectionSequence1.originalOffset
         assert 100l == projectionSequence2.originalOffset
-        assert 6l == multiSequenceProjection.getProjectionSequence(60 + offset).offset
+        assert 6l == multiSequenceProjection.getProjectionSequence(60 + offset).projectedOffset
 
         assert 0l == multiSequenceProjection.projectValue(10)
         assert 2l == multiSequenceProjection.projectValue(12)
@@ -1099,9 +1098,9 @@ class MultiSequenceProjectionSpec extends Specification {
         assert "Sequence1" == projectionSequence1.name
         assert "Sequence1" == projectionSequence2.name
         assert "Sequence2" == projectionSequence3.name
-        assert 0l == projectionSequence1.offset
-        assert 2l == projectionSequence2.offset
-        assert 2 + 3l == projectionSequence3.offset
+        assert 0l == projectionSequence1.projectedOffset
+        assert 2l == projectionSequence2.projectedOffset
+        assert 2 + 3l == projectionSequence3.projectedOffset
         assert 0l == projectionSequence1.originalOffset
         assert 0l == projectionSequence2.originalOffset
         assert projectionSequence1.unprojectedLength == projectionSequence3.originalOffset
@@ -1245,11 +1244,11 @@ class MultiSequenceProjectionSpec extends Specification {
         multiSequenceProjection.getProjectionSequence(63).name == "Sequence1"
 
         // we should be able to project the proper value as well
-        assert 0l == projectionSequence3.offset
+        assert 0l == projectionSequence3.projectedOffset
         assert 0l == projectionSequence3.originalOffset
-        assert 3l == projectionSequence1.offset
+        assert 3l == projectionSequence1.projectedOffset
         assert 0l == projectionSequence1.originalOffset
-        assert 5l == projectionSequence2.offset
+        assert 5l == projectionSequence2.projectedOffset
         assert 0l == projectionSequence2.originalOffset
         assert 0l == multiSequenceProjection.projectValue(60)
         assert 3l == multiSequenceProjection.projectValue(63)

@@ -431,6 +431,7 @@ class PermissionService {
         if (assemblage) {
             preferenceService.setCurrentAssemblage(user, assemblage, clientToken)
             if ((inputObject.track instanceof JSONObject) && inputObject?.track?.projection) {
+                // TODO: remove?
                 assemblage.projection = inputObject.track.projection
                 assemblage.padding = inputObject.track?.padding
 //                assemblage.referenceTrack = inputObject.track?.referenceTrack

@@ -254,9 +254,9 @@ class JbrowseController {
 //                int currentPosition = thisSeq.start ?: 0
                 regionObject.originalPosition = 0 ;
 //                currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
-                regionObject.start =  projectionSequence.offset
+                regionObject.start =  projectionSequence.projectedOffset
 //                regionObject.end = projectedLength + projectionSequence.offset
-                regionObject.end = projectionSequence.offset + 1
+                regionObject.end = projectionSequence.projectedOffset + 1
                 regionObject.ref = refererLoc
                 regionObject.'background-color' = 'yellow'
                 regionObject.color = 'yellow'

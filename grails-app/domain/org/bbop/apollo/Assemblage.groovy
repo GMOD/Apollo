@@ -4,15 +4,14 @@ package org.bbop.apollo
 class Assemblage {
 
 
-    String projection
-    Integer padding
-    String payload
+    String projection // TODO: remove?
+    Integer padding // TODO: remove?
+    String payload // metadata
     String sequenceList // JSON array of sequence list
-//    String referenceTrack  // JSON array of reference tracks or single string, TODO: remove
     Organism organism
     Integer start
     Integer end
-    String name // given namve of the assemblage
+    String name // given name of the assemblage
 
     static constraints = {
         projection nullable: true

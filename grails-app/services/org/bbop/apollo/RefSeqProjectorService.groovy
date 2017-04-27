@@ -45,7 +45,7 @@ class RefSeqProjectorService {
 
                     sequence.order = projectionSequence.order
                     sequence.color = ColorGenerator.getColorForIndex(projectionSequence.order)
-                    sequence.offset = projectionSequence.offset
+                    sequence.offset = projectionSequence.projectedOffset
                 }
 //"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}]
 //                        {"sequenceList":[{"name":"GroupUn87", "feature":{"name":"GB53499-RA"}, "start":45455, "end":45575},{"name":"Group11.4", "feature":{"name":"GB52236-RA"}, "start":52853, "end":58962}], "start":45455, "end":104537, "label":"GB53499-RAGroupUn87::GB52236-RAGroup11.4"}:45455..104537

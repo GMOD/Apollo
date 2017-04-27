@@ -11,7 +11,7 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
     public String name;
     private String organism;
     private Integer order ; // what order this should be processed as
-    private Long offset = 0l;  // projected offset from originalOffset
+    private Long projectedOffset = 0l;  // projected offset from originalOffset
     private Long originalOffset = 0l; // original incoming coordinates . .  0 implies order = 0, >0 implies that order > 0
     private List<String> features;// a list of Features  // default is a single entry ALL . . if empty then all
     private Long unprojectedLength = 0l;
@@ -135,12 +135,12 @@ public class ProjectionSequence implements Comparable<ProjectionSequence>{
         this.order = order;
     }
 
-    public Long getOffset() {
-        return offset;
+    public Long getProjectedOffset() {
+        return projectedOffset;
     }
 
-    public void setOffset(Long offset) {
-        this.offset = offset;
+    public void setProjectedOffset(Long projectedOffset) {
+        this.projectedOffset = projectedOffset;
     }
 
     public Long getOriginalOffset() {

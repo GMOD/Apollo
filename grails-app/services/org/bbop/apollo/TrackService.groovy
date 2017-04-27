@@ -410,8 +410,8 @@ class TrackService {
 
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax - 1)
             if (newCoordinate && newCoordinate.isValid()) {
-                coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.offset)
-                coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.offset + 1)
+                coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.projectedOffset)
+                coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.projectedOffset + 1)
                 if (projectionSequence.reverse) {
                     int temp = coordinate.get(trackIndex.start)
                     if (trackIndex.strand > 0) {

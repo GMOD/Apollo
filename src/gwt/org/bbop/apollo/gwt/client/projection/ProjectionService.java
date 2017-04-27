@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.*;
-import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
@@ -219,7 +218,7 @@ public class ProjectionService {
             for (int i = 0; i < projectionSequenceList.size(); i++) {
                 ProjectionSequence projectionSequence = projectionSequenceList.get(i);
 
-                Long offset = projectionSequence.getOffset();
+                Long offset = projectionSequence.getProjectedOffset();
                 Long length = projectionSequence.getLength();
 
                 // in this case we have both a left and a right boundary at projected right
@@ -250,7 +249,7 @@ public class ProjectionService {
         jsonObject.put(FeatureStringEnum.START.getValue(), new JSONNumber(projectionSequence.getStart()));
         jsonObject.put(FeatureStringEnum.END.getValue(), new JSONNumber(projectionSequence.getEnd()));
         jsonObject.put(FeatureStringEnum.REVERSE.getValue(), JSONBoolean.getInstance(projectionSequence.getReverse()));
-        jsonObject.put("offset", new JSONNumber(projectionSequence.getOffset()));
+        jsonObject.put("offset", new JSONNumber(projectionSequence.getProjectedOffset()));
         jsonObject.put("originalOffset", new JSONNumber(projectionSequence.getOriginalOffset()));
         return jsonObject;
     }

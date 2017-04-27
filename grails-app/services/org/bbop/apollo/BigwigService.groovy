@@ -95,8 +95,8 @@ class BigwigService {
         for (Integer i = actualStart; i < actualStop; i += stepSize) {
             JSONObject globalFeature = new JSONObject()
             Integer endStep = i + stepSize
-            globalFeature.put("start", i+projectionSequence.offset)
-            globalFeature.put("end", endStep+projectionSequence.offset)
+            globalFeature.put("start", i+projectionSequence.projectedOffset)
+            globalFeature.put("end", endStep+projectionSequence.projectedOffset)
             Integer reverseStart = projection.projectReverseValue(i)
             Integer reverseEnd = projection.projectReverseValue(endStep)
             edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, reverseStart, reverseEnd)

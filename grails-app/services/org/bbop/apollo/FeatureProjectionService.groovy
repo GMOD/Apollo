@@ -7,7 +7,6 @@ import org.bbop.apollo.gwt.shared.projection.Coordinate
 import org.bbop.apollo.gwt.shared.projection.DiscontinuousProjection
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
-import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -157,7 +156,7 @@ class FeatureProjectionService {
             if (projectionSequence.reverse) {
                 // if first index, then we calculate the min
                 if (i == firstIndex) {
-                    calculatedMin = projectionSequence.end - min - projectionSequence.offset
+                    calculatedMin = projectionSequence.end - min - projectionSequence.projectedOffset
                     calculatedMinPartial = false
                 }
                 // if the min is in the middle, then it must be 0
@@ -168,7 +167,7 @@ class FeatureProjectionService {
 
                 // if the max if the last, then we calculate it properly
                 if (i == lastIndex) {
-                    calculatedMax = projectionSequence.end - max - projectionSequence.offset
+                    calculatedMax = projectionSequence.end - max - projectionSequence.projectedOffset
                     calculatedMaxPartial = false
                 } else {
                     // if the max is in the middle, then it must be the sequence.unprojectedLength
@@ -185,7 +184,7 @@ class FeatureProjectionService {
             } else {
                 // if first index, then we calculate the min
                 if (i == firstIndex) {
-                    calculatedMin = min + projectionSequence.start - projectionSequence.offset
+                    calculatedMin = min + projectionSequence.start - projectionSequence.projectedOffset
                     calculatedMinPartial = false
                 }
                 // if the min is in the middle, then it must be 0
@@ -196,7 +195,7 @@ class FeatureProjectionService {
 
                 // if the max if the last, then we calculate it properly
                 if (i == lastIndex) {
-                    calculatedMax = max + projectionSequence.start - projectionSequence.offset
+                    calculatedMax = max + projectionSequence.start - projectionSequence.projectedOffset
                     calculatedMaxPartial = false
                 } else {
                     // if the max is in the middle, then it must be the sequence.unprojectedLength

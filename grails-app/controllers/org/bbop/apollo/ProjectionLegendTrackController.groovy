@@ -109,8 +109,8 @@ class ProjectionLegendTrackController {
 //            def thisStart = start > projectionSequence.start + offset ? start : projectionSequence.start + offset
 //            def thisEnd = end < projectionSequence.end+ offset ? end : projectionSequence.end + offset
             JSONObject feature = new JSONObject(
-                    start: projectionSequence.start + projectionSequence.offset,
-                    end: projectionSequence.end + + projectionSequence.offset ,
+                    start: projectionSequence.start + projectionSequence.projectedOffset,
+                    end: projectionSequence.end + + projectionSequence.projectedOffset ,
                     name: projectionSequence.name,
                     type: "exon",
                     label: projectionSequence.name,

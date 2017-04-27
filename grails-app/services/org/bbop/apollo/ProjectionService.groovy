@@ -452,10 +452,10 @@ class ProjectionService {
         }
 
         if (firstProjectionSequence.reverse) {
-            Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + (firstProjectionSequence.end - firstFeatureLocation.fmin)
+            Integer calculatedMin = firstProjectionSequence.projectedOffset - firstProjectionSequence.start + (firstProjectionSequence.end - firstFeatureLocation.fmin)
             return calculatedMin
         } else {
-            Integer calculatedMin = firstProjectionSequence.offset - firstProjectionSequence.start + firstFeatureLocation.fmin
+            Integer calculatedMin = firstProjectionSequence.projectedOffset - firstProjectionSequence.start + firstFeatureLocation.fmin
             return calculatedMin
         }
 
@@ -478,10 +478,10 @@ class ProjectionService {
         }
 
         if (lastProjectionSequence.reverse) {
-            Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + (lastProjectionSequence.end - lastFeatureLocation.fmax)
+            Integer calculatedMax = lastProjectionSequence.projectedOffset - lastProjectionSequence.start + (lastProjectionSequence.end - lastFeatureLocation.fmax)
             return calculatedMax
         } else {
-            Integer calculatedMax = lastProjectionSequence.offset - lastProjectionSequence.start + lastFeatureLocation.fmax
+            Integer calculatedMax = lastProjectionSequence.projectedOffset - lastProjectionSequence.start + lastFeatureLocation.fmax
             return calculatedMax
         }
     }
@@ -565,7 +565,7 @@ class ProjectionService {
         jsonObject.name = projectionSequence.name
         jsonObject.organism = projectionSequence.organism
         jsonObject.order = projectionSequence.order
-        jsonObject.offset = projectionSequence.offset
+        jsonObject.offset = projectionSequence.projectedOffset
         jsonObject.originalOffset = projectionSequence.originalOffset
         jsonObject.start = projectionSequence.start
         jsonObject.end = projectionSequence.end

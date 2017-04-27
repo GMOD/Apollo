@@ -11,6 +11,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
     private TreeMap<ProjectionSequence, DiscontinuousProjection> sequenceDiscontinuousProjectionMap = new TreeMap<>();
 
+    // TODO: refactor into TrackProjection, not needed elsewhere
     public ProjectionChunkList projectionChunkList = new ProjectionChunkList();
 
     public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
@@ -22,7 +23,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
         for (ProjectionSequence projectionSequence : getProjectedSequences()) {
             Long bufferedLength = sequenceDiscontinuousProjectionMap.get(projectionSequence).getBufferedLength();
-            if (input >= projectionSequence.getOffset() && input <= projectionSequence.getOffset() + bufferedLength) {
+            if (input >= projectionSequence.getProjectedOffset() && input <= projectionSequence.getProjectedOffset() + bufferedLength) {
                 projectionSequenceList.add(projectionSequence);
             }
         }
@@ -152,7 +153,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
-        return projectValue(input, projectionSequence.getOriginalOffset(), projectionSequence.getOffset());
+        return projectValue(input, projectionSequence.getOriginalOffset(), projectionSequence.getProjectedOffset());
     }
 
     public Long projectLocalReverseValue(Long input) {
@@ -160,7 +161,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
-        Long reverseValue = projectReverseValue(input, projectionSequence.getOffset(), projectionSequence.getOriginalOffset());
+        Long reverseValue = projectReverseValue(input, projectionSequence.getProjectedOffset(), projectionSequence.getOriginalOffset());
         if (projectionSequence.getReverse()) {
 //            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
 //            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
@@ -177,7 +178,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
-        return projectReverseValue(input, projectionSequence.getOffset(), projectionSequence.getOriginalOffset());
+        return projectReverseValue(input, projectionSequence.getProjectedOffset(), projectionSequence.getOriginalOffset());
     }
 
     public Long projectReverseValue(Long input, Long inputOffset, Long outputOffset) {
@@ -191,7 +192,7 @@ public class MultiSequenceProjection extends AbstractProjection {
             // need to flip the reverse value : the context of the projection sequence
             // length - ( i - offset ) + offset
             // length - i + (2 * offset)
-            Long alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.getOffset();
+            Long alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.getProjectedOffset();
             return discontinuousProjection.projectReverseValue(alteredInput) + outputOffset;
         } else {
             return discontinuousProjection.projectReverseValue(input - inputOffset) + outputOffset;
@@ -200,7 +201,7 @@ public class MultiSequenceProjection extends AbstractProjection {
 
     public Long getLength() {
         Map.Entry<ProjectionSequence, DiscontinuousProjection> entry = sequenceDiscontinuousProjectionMap.lastEntry();
-        return entry.getKey().getOffset() + entry.getValue().getLength();
+        return entry.getKey().getProjectedOffset() + entry.getValue().getLength();
     }
 
     @Override
@@ -340,7 +341,7 @@ public class MultiSequenceProjection extends AbstractProjection {
         for (ProjectionSequence projectionSequence : projectionSequences) {
             DiscontinuousProjection discontinuousProjection = sequenceDiscontinuousProjectionMap.get(projectionSequence);
 
-            projectionSequence.setOffset(lastLength);
+            projectionSequence.setProjectedOffset(lastLength);
             projectionSequence.setOriginalOffset(originalOffsetMap.get(projectionSequence.getName()));
 
             assert projectionSequence.getUnprojectedLength() != null;

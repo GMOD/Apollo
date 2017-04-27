@@ -267,7 +267,7 @@ class FeatureService {
             if (projectionSequence.reverse) {
                 // if first index, then we calculate the min
                 if (i == firstIndex) {
-                    calculatedMin = projectionSequence.end - min - projectionSequence.offset
+                    calculatedMin = projectionSequence.end - min - projectionSequence.projectedOffset
                 }
                 // if the min is in the middle, then it must be 0
                 // if the min is the last, then it must be 0
@@ -277,7 +277,7 @@ class FeatureService {
 
                 // if the max if the last, then we calculate it properly
                 if (i == lastIndex) {
-                    calculatedMax = projectionSequence.end - max - projectionSequence.offset
+                    calculatedMax = projectionSequence.end - max - projectionSequence.projectedOffset
                 } else {
                     // if the max is in the middle, then it must be the sequence.unprojectedLength
                     // if the max is in the first of many, then it must be sequence.unprojectedLength
@@ -293,7 +293,7 @@ class FeatureService {
             } else {
                 // if first index, then we calculate the min
                 if (i == firstIndex) {
-                    calculatedMin = min + projectionSequence.start - projectionSequence.offset
+                    calculatedMin = min + projectionSequence.start - projectionSequence.projectedOffset
                 }
                 // if the min is in the middle, then it must be 0
                 // if the min is the last, then it must be 0
@@ -303,7 +303,7 @@ class FeatureService {
 
                 // if the max if the last, then we calculate it properly
                 if (i == lastIndex) {
-                    calculatedMax = max + projectionSequence.start - projectionSequence.offset
+                    calculatedMax = max + projectionSequence.start - projectionSequence.projectedOffset
                 } else {
                     // if the max is in the middle, then it must be the sequence.unprojectedLength
                     // if the max is in the first of many, then it must be sequence.unprojectedLength
