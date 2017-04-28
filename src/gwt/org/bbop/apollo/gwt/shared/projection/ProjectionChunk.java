@@ -15,7 +15,7 @@ public class ProjectionChunk {
     // what is the LAST bp of the prior sequence
     private Long sequenceOffset = 0L;
 
-    // if I have chunks 50 and 52 . . . they are probably 1 and 3 . . but have to map to the right sequene
+    // if I have chunks 50 and 52 . . . they are probably 1 and 3 . . but have to map to the right sequence
     private Integer chunkArrayOffset = 0;
 
     public Integer getChunkID() {
