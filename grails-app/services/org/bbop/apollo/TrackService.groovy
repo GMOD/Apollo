@@ -860,6 +860,7 @@ class TrackService {
 
         Integer chunkIndex = getChunkIndex(fileName)
         ProjectionChunk projectionChunk = multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
+        println "chunk index: ${chunkIndex}"
         String sequenceString = projectionChunk.sequence
         Integer sequenceOffset = projectionChunk.sequenceOffset
         // calculate offset for chunk and replace the filename
