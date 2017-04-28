@@ -61,8 +61,6 @@ class DomainMarshallerService {
         JSON.registerObjectMarshaller(Assemblage) {
             def returnArray = [:]
             returnArray['id'] = it?.id
-            returnArray['projection'] = it?.projection ?: "NONE"
-            returnArray['padding'] = it?.padding ?: 0
             returnArray['payload'] = it?.payload ?: "{}"
             returnArray['name'] = it?.name
             returnArray['start'] = it?.start

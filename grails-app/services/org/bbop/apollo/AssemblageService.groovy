@@ -249,21 +249,13 @@ class AssemblageService {
     JSONObject convertAssemblageToJson(Assemblage assemblage) {
         JSONObject jsonObject = new JSONObject()
         jsonObject.id = assemblage.id
-        jsonObject.projection = assemblage.projection ?: "NONE"
-
-
-        jsonObject.padding = assemblage.padding ?: 0
-//        jsonObject.referenceTrack = assemblage.referenceTrack
-
         jsonObject.payload = assemblage.payload ?: "{}"
         jsonObject.organism = assemblage.organism.commonName
         jsonObject.start = assemblage.start
         jsonObject.end = assemblage.end
         jsonObject.name = assemblage.name
-//        jsonObject.name = URLEncoder.encode(assemblage.name,"UTF-8")
         // in theory these should be the same
         jsonObject.sequenceList = JSON.parse(assemblage.sequenceList) as JSONArray
-
         return jsonObject
     }
 
@@ -338,11 +330,6 @@ class AssemblageService {
             log.info "creating assemblage from ${jsonObject as JSON} "
             assemblage = new Assemblage()
         }
-//        else {
-//            return assemblage
-//        }
-//        assemblage.id = jsonObject.id
-        assemblage.projection = jsonObject.projection
         assemblage.sequenceList = lookupString
         assemblage.name = jsonObject.name ?: assemblage.name
 
