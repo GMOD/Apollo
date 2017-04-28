@@ -379,6 +379,9 @@ class TrackService {
 //                && coordinate.get(1) instanceof Integer
 //                && coordinate.get(2) instanceof Integer
         ) {
+            // the problem is that the projectionSequence is incorrect, though its the same name
+
+
             TrackIndex trackIndex = trackMapperService.getIndices(projectionSequence.organism, trackName, coordinate.getInt(0))
             // TODO: uncomment this to get 408011 to work and set the projectionSequence.offset to 0
 //            List<ProjectionSequence> projectionSequenceList = projection.getProjectionSequences(coordinate.getInt(trackIndex.getStart()),coordinate.getInt(trackIndex.getEnd()))
@@ -390,6 +393,16 @@ class TrackService {
             Integer oldMin = coordinate.getInt(trackIndex.start) + projectionSequence.originalOffset
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
             assert oldMin <= oldMax
+
+            Boolean useOffset = true
+            // TODO: evaluate if this piece of code is correct
+            if(oldMin > projectionSequence.originalOffsetStart + projectionSequence.start || oldMax < projectionSequence.originalOffsetStart + projectionSequence.end){
+                List<ProjectionSequence> projectionSequenceList = projection.getProjectionSequences(oldMin,oldMax)
+                if(projectionSequenceList){
+                    projectionSequence = projectionSequenceList.first()
+                    useOffset = false
+                }
+            }
 
             // case 1: coordinates encompass the projection, so both the LHS and RHS will be bound (and partial)
             if (oldMin < projectionSequence.originalOffsetStart && oldMax > projectionSequence.originalOffsetEnd) {
@@ -410,8 +423,14 @@ class TrackService {
 
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax - 1)
             if (newCoordinate && newCoordinate.isValid()) {
-                coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.projectedOffset)
-                coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.projectedOffset + 1)
+                if(useOffset){
+                    coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.projectedOffset)
+                    coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.projectedOffset + 1)
+                }
+                else{
+                    coordinate.set(trackIndex.start, newCoordinate.min + offset)
+                    coordinate.set(trackIndex.end, newCoordinate.max + offset + 1)
+                }
                 if (projectionSequence.reverse) {
                     int temp = coordinate.get(trackIndex.start)
                     if (trackIndex.strand > 0) {
@@ -441,7 +460,7 @@ class TrackService {
      * @param mergeTrackObject
      * @return
      */
-    def JSONObject mergeTrackObject(Map<String, JSONObject> trackList, MultiSequenceProjection multiSequenceProjection, Organism organism, String trackName) {
+    JSONObject mergeTrackObject(Map<String, JSONObject> trackList, MultiSequenceProjection multiSequenceProjection, Organism organism, String trackName) {
 
         JSONObject finalObject = null
         int endSize = 0
@@ -733,6 +752,9 @@ class TrackService {
             if (trackObject) {
                 JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
                 JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
+                if(ncListArray && ncListArray[0].size()==4){
+                    println "nclist array ${ncListArray}"
+                }
                 trackMapperService.storeTrack(currentOrganism.commonName, trackName, intervalsObject.getJSONArray("classes"))
                 Integer lastLength = 0
                 Integer lastChunkArrayOffset = 0

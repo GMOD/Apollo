@@ -724,8 +724,96 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
+    void "for one large scaffolds (1.10), we should view two feature objects, in the same scaffold, but NOT the first chunk (GB40856-RA and GB40857-RA)"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":1216624,\"end\":1235816,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40856-RA\",\"start\":1216624,\"end\":1235816}},{\"name\":\"Group1.10\",\"start\":1241950,\"end\":1247222,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40857-RA\",\"start\":1241950,\"end\":1247222}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have a single chunk on 2"
+        assert ncListArray.size()==1
+        assert ncListArray[0][1]==0
+        assert ncListArray[0][2]==19192
+        assert ncListArray[0][3]==2
+        assert projectionChunkList.size()==2
+
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-2.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(),trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which covers GB40811)"
+        assert trackArray.size()==2
+        assert trackArray[0][8]=="GB40856-RA"
+        assert trackArray[0][1]==200
+        assert trackArray[0][2]==19192-200
+        assert trackArray[1][8]=="GB40857-RA"
+        assert trackArray[1][1]==19192+200
+        assert trackArray[1][2]==24264
+
+    }
+
 //    @IgnoreRest
-    void "for one large scaffolds (1.10), we should view two feature objects, but in different chunks (GB40809-RA and GB408056-RA)"(){
+    void "for one large scaffolds (1.10), we should view two feature objects, in different scaffolds, but NEITHER in the first chunk (GB40856-RA and GB40866-RA)"(){
+
+        given: "proper input"
+        String sequenceList = "[{\"name\":\"Group1.10\",\"start\":1216624,\"end\":1235816,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40856-RA\",\"start\":1216624,\"end\":1235816}},{\"name\":\"Group1.10\",\"start\":1378918,\"end\":1383692,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40866-RA\",\"start\":1378918,\"end\":1383692}}]"
+        String refererLoc= "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
+        assert projectionChunkList.size()==2
+        assert ncListArray.size()==2
+        assert ncListArray[0][1]==0
+        assert ncListArray[0][2]==19192
+        assert ncListArray[0][3]==2
+        assert ncListArray[1][1]==19192
+        assert ncListArray[1][2]==23966 // ?
+        assert ncListArray[1][3]==3
+
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(),trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which covers GB40811)"
+        assert trackArray.size()==2
+        assert trackArray[0][8]=="GB40856-RA"
+        assert trackArray[0][1]==200
+        assert trackArray[0][2]==19192-200
+        assert trackArray[1][8]=="GB40866-RA"
+        assert trackArray[1][1]==19192+200
+        assert trackArray[1][2]==25000 // ?
+
+    }
+
+//    @IgnoreRest
+    void "for one large scaffolds (1.10), we should view two feature objects, but in different chunks (GB40809-RA and GB40856-RA)"(){
 
         given: "proper input"
         String sequenceList = "[{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":1216624,\"end\":1235816,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40856-RA\",\"start\":1216624,\"end\":1235816}}]"
@@ -764,7 +852,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray[0][8]=="GB40809-RA"
         assert trackArray[0][1]==200
         assert trackArray[0][2]==24002
-        assert trackArray[1][8]=="GB408056-RA"
+        assert trackArray[1][8]=="GB40856-RA"
         assert trackArray[1][1]==24403
         assert trackArray[1][2]==24403 + 19192
 

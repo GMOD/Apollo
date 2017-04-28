@@ -20,10 +20,10 @@ public class ProjectionChunkList {
 
     public ProjectionChunk findProjectChunkForIndex(Integer index){
         for(ProjectionChunk projectionChunk : projectionChunkList){
-            if(projectionChunk.getChunkID().equals(index)){
+            if(index >= projectionChunk.getChunkArrayOffset() && index <= projectionChunk.getNumChunks()+ projectionChunk.getChunkArrayOffset()){
                 return projectionChunk;
             }
-            if(index >= projectionChunk.getChunkArrayOffset() && index <= projectionChunk.getNumChunks()+ projectionChunk.getChunkArrayOffset()){
+            if(projectionChunk.getChunkID().equals(index)){
                 return projectionChunk;
             }
         }
