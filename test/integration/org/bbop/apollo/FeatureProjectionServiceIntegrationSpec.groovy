@@ -102,16 +102,16 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should have reasonable locations based on length or previously projected feature arrays . . . "
         assert 1 == firstLocation.getInt(FeatureStringEnum.STRAND.value)
-        assert 29396 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == firstLocation.getInt(FeatureStringEnum.FMIN.value)
-        assert 29403 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == firstLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 29396 + 75085 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == firstLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 29403 + 75085 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == firstLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1 == secondLocation.getInt(FeatureStringEnum.STRAND.value)
-        assert 29396 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == secondLocation.getInt(FeatureStringEnum.FMIN.value)
-        assert 30271 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == secondLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 29396 + 75085 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == secondLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 30271 + 75085 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == secondLocation.getInt(FeatureStringEnum.FMAX.value)
 
         assert 1 == thirdLocation.getInt(FeatureStringEnum.STRAND.value)
-        assert 29928 + 75085 - 1 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMIN.value)
-        assert 30329 + 75085 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMAX.value)
+        assert 29928 + 75085 - 1 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMIN.value)
+        assert 30329 + 75085 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == thirdLocation.getInt(FeatureStringEnum.FMAX.value)
 
 
         when: "we get the features within the set sequence"
@@ -181,12 +181,12 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert locationObject.sequence.contains("\"name\":\"Group11.4\"")
         assert locationObject.sequence.contains("\"name\":\"GroupUn87\"")
         assert locationObject.sequence.indexOf("\"name\":\"Group11.4\"") < locationObject.sequence.indexOf("\"name\":\"GroupUn87\"")
-        assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert MRNA.first().featureLocations.first().fmin == 85051 - Sequence.findByName("Group11.4").length + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert MRNA.first().featureLocations.first().fmax == 85264 - Sequence.findByName("Group11.4").length + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
         // the features array should be relative to the contiguous sequences
-        assert locationObject.fmin == 85051 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert locationObject.fmax == 85264 + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert locationObject.fmin == 85051 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert locationObject.fmax == 85264 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
     }
 
@@ -336,7 +336,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should only see locations on Group11.4"
         assert locationJsonObject.fmin == 0
-        assert locationJsonObject.fmax + org.bbop.apollo.projection.MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == 79565 - 78258
+        assert locationJsonObject.fmax + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH == 79565 - 78258
 
 //        when: "we retrieve features on the reverse group"
 //        retrievedFeatures = requestHandlingService.getFeatures(JSON.parse(getFeaturesStringReverse) as JSONObject).features
