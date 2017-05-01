@@ -1046,7 +1046,7 @@ class RequestHandlingService {
             Integer transcriptFmax = projectionService.getMaxForFeatureInProjection(transcript,multiSequenceProjection)
 
             // TODO: not sure what happens when it crosses over
-            if(multiSequenceProjection.getReverseProjectionSequence(exonFmin).reverse){
+            if(multiSequenceProjection.getUnProjectedSequence(exonFmin).reverse){
                 int tempExon = exonFmin
                 exonFmin = exonFmax
                 exonFmax = tempExon

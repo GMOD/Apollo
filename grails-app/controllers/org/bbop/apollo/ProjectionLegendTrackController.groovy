@@ -76,7 +76,7 @@ class ProjectionLegendTrackController {
         Integer endIndex = sequenceName.indexOf("}:") + 1
         JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
-        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
         Integer featureCount = projectionSequences.size()
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
@@ -101,7 +101,7 @@ class ProjectionLegendTrackController {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
-        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
         projectionSequences.each { ProjectionSequence projectionSequence ->
 //        // TODO: show if
 //            def thisStart = start < projectionSequence.start + offset ? start : projectionSequence.start + offset

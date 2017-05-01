@@ -237,9 +237,9 @@ class JbrowseController {
             // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
             // we also have folding information once that is available
             JSONArray displayArray = new JSONArray()
-//            List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+//            List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
             def projectionLength = projection.getLength()
-            List<ProjectionSequence> projectionSequences = projection.getReverseProjectionSequences(0,projectionLength-1)
+            List<ProjectionSequence> projectionSequences = projection.getUnProjectedSequences(0,projectionLength-1)
 
 
 //            int offset = 0
