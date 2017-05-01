@@ -13,11 +13,11 @@ public interface ProjectionInterface {
      */
     Long projectValue(Long input);
 
-    Long projectReverseValue(Long input);
+    Long unProjectValue(Long input);
 
 
     Coordinate projectCoordinate(Long min, Long max);
-    Coordinate projectReverseCoordinate(Long min, Long max);
+    Coordinate unProjectCoordinate(Long min, Long max);
     Long getLength();
 
     /**

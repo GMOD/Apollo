@@ -23,13 +23,12 @@ public class DiscontinuousProjection extends AbstractProjection {
      * @return
      */
     @Override
-    public Long projectReverseValue(Long input) {
+    public Long unProjectValue(Long input) {
 
         Iterator<Long> minIterator = minMap.keySet().iterator();
         Iterator<Long> maxIterator = maxMap.keySet().iterator();
         Long min, max;
 
-        // TODO: for speed generate a reverse map for quick lookup whilst doing this or another operation
         // here we can assume that the input maps onto the current length
         Long currentLength = 0L;
         Long bucketCount = 0L;
@@ -343,9 +342,9 @@ public class DiscontinuousProjection extends AbstractProjection {
     }
 
     @Override
-    public Coordinate projectReverseCoordinate(Long min, Long max) {
-        Long newMin = projectReverseValue(min);
-        Long newMax = projectReverseValue(max);
+    public Coordinate unProjectCoordinate(Long min, Long max) {
+        Long newMin = unProjectValue(min);
+        Long newMax = unProjectValue(max);
         if (newMin < 0 && newMax < 0) {
             return null;
         }

@@ -21,9 +21,9 @@ class FeatureProjectionService {
     // TODO: make this configurable somehow
     private final Integer DEFAULT_FOLDING_BUFFER = 20
 
-    JSONArray projectTrack(JSONArray inputFeaturesArray, Assemblage assemblage, Boolean reverseProjection = false) {
+    JSONArray projectTrack(JSONArray inputFeaturesArray, Assemblage assemblage, Boolean unProject = false) {
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
-        return projectFeaturesArray(inputFeaturesArray, projection, reverseProjection, 0)
+        return projectFeaturesArray(inputFeaturesArray, projection, unProject, 0)
     }
 
     /**
@@ -34,7 +34,7 @@ class FeatureProjectionService {
      * @return
      */
     @NotTransactional
-    private JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
+    private JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) {
             return inputFeature
         }
@@ -44,15 +44,15 @@ class FeatureProjectionService {
 
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
-        ProjectionSequence projectionSequence1 = reverseProjection ? projection.getReverseProjectionSequence(fmin) : projection.getProjectionSequence(fmin + offset)
-        ProjectionSequence projectionSequence2 = reverseProjection ? projection.getReverseProjectionSequence(fmax) : projection.getProjectionSequence(fmax + offset)
+        ProjectionSequence projectionSequence1 = unProject ? projection.getUnProjectedSequence(fmin) : projection.getProjectionSequence(fmin + offset)
+        ProjectionSequence projectionSequence2 = unProject ? projection.getUnProjectedSequence(fmax) : projection.getProjectionSequence(fmax + offset)
 
-        if (reverseProjection) {
+        if (unProject) {
             // TODO: add reverse offset?
-            fmin = fmin ? projection.projectReverseValue(fmin) : null
+            fmin = fmin ? projection.unProjectValue(fmin) : null
 
             // we are projecting a REVERSE, exclusive value
-            fmax = fmax ? projection.projectReverseValue(fmax) : null
+            fmax = fmax ? projection.unProjectValue(fmax) : null
         } else {
             fmin = fmin ? projection.projectValue(fmin + offset) : null
 
@@ -73,7 +73,7 @@ class FeatureProjectionService {
                 if (!locationObject.sequence) {
                     locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
                 }
-                projectionService.reverseLocation(projectionSequence1, locationObject)
+                projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
             } else if (projectionSequence1.name != projectionSequence2.name) {
                 locationObject.put(FeatureStringEnum.SEQUENCE.value, "[{\"name\":\"" + projectionSequence1.name + "\"},{\"name\":\"" + projectionSequence2.name + "\"}]")
                 // TODO: not sure how to handle this case
@@ -83,12 +83,12 @@ class FeatureProjectionService {
             if (!locationObject.sequence) {
                 locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
             }
-            projectionService.reverseLocation(projectionSequence1, locationObject)
+            projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
         } else if (projectionSequence2) {
             if (!locationObject.sequence) {
                 locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence2.name)
             }
-            projectionService.reverseLocation(projectionSequence2, locationObject)
+            projectionService.evaluateReverseLocation(projectionSequence2, locationObject)
         } else {
             log.debug("Neither projection is valid, so ignoring")
 //            throw new AnnotationException("Neither projection sequence seems to be valid")
@@ -97,7 +97,7 @@ class FeatureProjectionService {
         return inputFeature
     }
 
-    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean reverseProjection, Integer offset) {
+    private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
         for (int i = 0; i < inputFeaturesArray.size(); i++) {
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
 
@@ -109,11 +109,11 @@ class FeatureProjectionService {
                 // no offset to calculate??
             }
 
-            projectFeature(inputFeature, projection, reverseProjection, offset)
+            projectFeature(inputFeature, projection, unProject, offset)
 
             if (inputFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                projectFeaturesArray(childFeatures, projection, reverseProjection, offset)
+                projectFeaturesArray(childFeatures, projection, unProject, offset)
             }
         }
         return inputFeaturesArray
@@ -137,7 +137,7 @@ class FeatureProjectionService {
         feature.featureLocations.clear()
 
         // this will only return valid projection sequences
-        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(min, max)
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getUnProjectedSequences(min, max)
 
         // they should be ordered, right?
         int rank = 0
@@ -258,7 +258,7 @@ class FeatureProjectionService {
 
         Integer fmin = projectionService.getMinForFeatureInProjection(feature,projection)
         println "but actual fmin, with offsets ${fmin}"
-        ProjectionSequence projectionSequence = projection.getReverseProjectionSequence(fmin)
+        ProjectionSequence projectionSequence = projection.getUnProjectedSequence(fmin)
         // first we have to clear out all of the projections for that region
         println "sequence: ${projectionSequence}"
         println "size: ${projection.getSequenceDiscontinuousProjectionMap()?.size()}"

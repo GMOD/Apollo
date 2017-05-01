@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
-import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 
 //@GrailsCompileStatic
 @Transactional(readOnly = true)
@@ -188,7 +187,7 @@ class TranscriptService {
             Integer transcriptFmax = projectionService.getMaxForFeatureInProjection(t,multiSequenceProjection)
 
             // TODO:
-            if(multiSequenceProjection.getReverseProjectionSequence(transcriptFmin).reverse){
+            if(multiSequenceProjection.getUnProjectedSequence(transcriptFmin).reverse){
                 int temp = transcriptFmin
                 transcriptFmin = transcriptFmax
                 transcriptFmax = temp
@@ -289,7 +288,7 @@ class TranscriptService {
         boolean updateTransriptBoundaries = false
 
         // TODO: not sure what happens when it crosses over
-        Boolean isRevesered = multiSequenceProjection.getReverseProjectionSequence(exonFmin).reverse
+        Boolean isRevesered = multiSequenceProjection.getUnProjectedSequence(exonFmin).reverse
         if(isRevesered){
             int tempExon = exonFmin
             exonFmin = exonFmax

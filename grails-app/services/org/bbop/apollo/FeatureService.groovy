@@ -73,7 +73,7 @@ class FeatureService {
         } else {
 
             // TODO: this should be the default / only method if possible
-            List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(min, max)
+            List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getUnProjectedSequences(min, max)
 
             for (ProjectionSequence projectionSequence in projectionSequenceList) {
                 sequenceListString.add(projectionSequence.name)
@@ -125,7 +125,7 @@ class FeatureService {
         int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
         int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
 
-        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getReverseProjectionSequences(fmin, fmax)
+        List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getUnProjectedSequences(fmin, fmax)
 //        assert projectionSequenceList.size()==2
         ProjectionSequence firstProjectionSequence = projectionSequenceList.first()
         ProjectionSequence lastProjectionSequence = projectionSequenceList.last()
@@ -133,8 +133,8 @@ class FeatureService {
 //        if (false) {
         // case 1, fmin and fmax are both within the projectSequence and match the order, nothing to do
         if (firstProjectionSequence == lastProjectionSequence && projectionSequence.order == firstProjectionSequence.order) {
-//            fmin = multiSequenceProjection.projectReverseValue(fmin)
-//            fmax = multiSequenceProjection.projectReverseValue(fmax)
+//            fmin = multiSequenceProjection.unProjectValue(fmin)
+//            fmax = multiSequenceProjection.unProjectValue(fmax)
         }
         // case 2, fmin and fmax are both outside the projectSequence
         if (firstProjectionSequence.name != projectionSequence.name && lastProjectionSequence.name != projectionSequence.name) {
@@ -147,7 +147,7 @@ class FeatureService {
                 && lastProjectionSequence.order == projectionSequence.order
         ) {
             fmin = projectionSequence.originalOffset
-//            fmax = multiSequenceProjection.projectReverseValue(fmax)
+//            fmax = multiSequenceProjection.unProjectValue(fmax)
         }
         // case 4, fmin is inside and fmax is to the right
         if (lastProjectionSequence.name != projectionSequence.name
@@ -155,7 +155,7 @@ class FeatureService {
                 && firstProjectionSequence.name == projectionSequence.name
                 && firstProjectionSequence.order == projectionSequence.order
         ) {
-//            fmin = multiSequenceProjection.projectReverseValue(fmax)
+//            fmin = multiSequenceProjection.unProjectValue(fmax)
             fmax = projectionSequence.originalOffset + projectionSequence.unprojectedLength
         }
 //        }
@@ -249,7 +249,7 @@ class FeatureService {
         int calculatedFmin = assemblageService.getMinForFullScaffold(min,assemblage)
         int calculatedFmax = assemblageService.getMaxForFullScaffold(max,assemblage)
 
-        List<ProjectionSequence> projectionSequenceList = projection.getReverseProjectionSequences(min,max)
+        List<ProjectionSequence> projectionSequenceList = projection.getUnProjectedSequences(min,max)
         // TODO: project these individually
 
         // similar to FPS::setFeatureLocationsForProjection
@@ -342,7 +342,7 @@ class FeatureService {
             feature.featureLocations.each() {
                 // if its set . . . don't reset!
                 if (!it.sequence) {
-                    ProjectionSequence projectionSequence = multiSequenceProjection.getReverseProjectionSequence(it.fmin)
+                    ProjectionSequence projectionSequence = multiSequenceProjection.getUnProjectedSequence(it.fmin)
                     String sequenceName = projectionSequence.name
                     organism = organism ?: preferenceService.getOrganismForToken(projectionSequence.organism)
                     it.sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
@@ -1216,8 +1216,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<Frameshift> frameshiftList = transcriptService.getFrameshifts(transcript)
         for (Frameshift frameshift : frameshiftList) {
 
-            ProjectionSequence projectionSequence1 = multiSequenceProjection.getReverseProjectionSequence(frameshift.coordinate)
-            ProjectionSequence projectionSequence2 = multiSequenceProjection.getReverseProjectionSequence(frameshift.coordinate + frameshift.frameshiftValue)
+            ProjectionSequence projectionSequence1 = multiSequenceProjection.getUnProjectedSequence(frameshift.coordinate)
+            ProjectionSequence projectionSequence2 = multiSequenceProjection.getUnProjectedSequence(frameshift.coordinate + frameshift.frameshiftValue)
             if (projectionSequence1 != projectionSequence2) {
                 throw new AnnotationException("Can not getFrameshits across a scaffold boundary.  Please report this bug.")
             }

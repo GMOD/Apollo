@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.shared.projection
 
-import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
@@ -87,14 +86,14 @@ class DiscontinuousProjectionSpec extends Specification {
         assert new Coordinate(1,  7) == discontinuousProjection.projectCoordinate(1, 9)
 
         // test reverse values
-        assert 0l == discontinuousProjection.projectReverseValue(0)
-        assert 1l == discontinuousProjection.projectReverseValue(1)
-        assert 2l == discontinuousProjection.projectReverseValue(2)
-        assert 4l == discontinuousProjection.projectReverseValue(3)
-        assert 5l == discontinuousProjection.projectReverseValue(4)
-        assert 6l == discontinuousProjection.projectReverseValue(5)
-        assert 8l == discontinuousProjection.projectReverseValue(6)
-        assert 9l == discontinuousProjection.projectReverseValue(7)
+        assert 0l == discontinuousProjection.unProjectValue(0)
+        assert 1l == discontinuousProjection.unProjectValue(1)
+        assert 2l == discontinuousProjection.unProjectValue(2)
+        assert 4l == discontinuousProjection.unProjectValue(3)
+        assert 5l == discontinuousProjection.unProjectValue(4)
+        assert 6l == discontinuousProjection.unProjectValue(5)
+        assert 8l == discontinuousProjection.unProjectValue(6)
+        assert 9l == discontinuousProjection.unProjectValue(7)
 
     }
 

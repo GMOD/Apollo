@@ -97,9 +97,9 @@ class BigwigService {
             Integer endStep = i + stepSize
             globalFeature.put("start", i+projectionSequence.projectedOffset)
             globalFeature.put("end", endStep+projectionSequence.projectedOffset)
-            Integer reverseStart = projection.projectReverseValue(i)
-            Integer reverseEnd = projection.projectReverseValue(endStep)
-            edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, reverseStart, reverseEnd)
+            Integer originalStart = projection.unProjectValue(i)
+            Integer originalEnd = projection.unProjectValue(endStep)
+            edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
             Integer value = innerContig.mean()
 //                ProjectionSequence startProjectionSequence = projection.getProjectionSequence(reverseStart)
 //                ProjectionSequence endProjectionSequence = projection.getProjectionSequence(reverseEnd)

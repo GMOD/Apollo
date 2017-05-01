@@ -7,7 +7,6 @@ import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
 
-//@GrailsCompileStatic
 @Transactional
 class NonCanonicalSplitSiteService {
 
@@ -24,14 +23,14 @@ class NonCanonicalSplitSiteService {
      *
      * @param nonCanonicalFivePrimeSpliceSite - NonCanonicalFivePrimeSpliceSite to be deleted
      */
-    public void deleteNonCanonicalFivePrimeSpliceSite(Transcript transcript, NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
+    void deleteNonCanonicalFivePrimeSpliceSite(Transcript transcript, NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
 
         featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
         featureRelationshipService.deleteParentForTypes(nonCanonicalFivePrimeSpliceSite,Transcript.ontologyId)
         nonCanonicalFivePrimeSpliceSite.delete(flush: true)
     }
 
-    public void deleteNonCanonicalThreePrimeSpliceSite(Transcript transcript, NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
+    void deleteNonCanonicalThreePrimeSpliceSite(Transcript transcript, NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
         featureRelationshipService.deleteChildrenForTypes(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
         featureRelationshipService.deleteParentForTypes(nonCanonicalThreePrimeSpliceSite,Transcript.ontologyId)
         nonCanonicalThreePrimeSpliceSite.delete(flush: true )
@@ -41,7 +40,7 @@ class NonCanonicalSplitSiteService {
      *  non canonical 5' splice sites -> transcript relationships.
      *
      */
-    public void deleteAllNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
+    void deleteAllNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalFivePrimeSpliceSite spliceSite : getNonCanonicalFivePrimeSpliceSites(transcript)) {
             deleteNonCanonicalFivePrimeSpliceSite(transcript,spliceSite);
         }
@@ -53,7 +52,7 @@ class NonCanonicalSplitSiteService {
      *
      * @return Collection of non canonical 5' splice sites associated with this transcript
      */
-    public Collection<NonCanonicalFivePrimeSpliceSite> getNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
+    Collection<NonCanonicalFivePrimeSpliceSite> getNonCanonicalFivePrimeSpliceSites(Transcript transcript) {
         return (Collection<NonCanonicalFivePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,NonCanonicalFivePrimeSpliceSite.ontologyId)
     }
 
@@ -63,7 +62,7 @@ class NonCanonicalSplitSiteService {
      *
      * @return Collection of non canonical 3' splice sites associated with this transcript
      */
-    public Collection<NonCanonicalThreePrimeSpliceSite> getNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
+    Collection<NonCanonicalThreePrimeSpliceSite> getNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
 //        return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,FeatureStringEnum.NONCANONICALTHREEPRIMESPLICESITE)
         return (Collection<NonCanonicalThreePrimeSpliceSite>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript,NonCanonicalThreePrimeSpliceSite.ontologyId)
     }
@@ -72,7 +71,7 @@ class NonCanonicalSplitSiteService {
      *  non canonical 3' splice sites -> transcript relationships.
      *
      */
-    public void deleteAllNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
+    void deleteAllNonCanonicalThreePrimeSpliceSites(Transcript transcript) {
         for (NonCanonicalThreePrimeSpliceSite spliceSite : getNonCanonicalThreePrimeSpliceSites(transcript)) {
             deleteNonCanonicalThreePrimeSpliceSite(transcript,spliceSite)
         }
@@ -80,7 +79,7 @@ class NonCanonicalSplitSiteService {
 
 
     @Timed
-    public void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript, Assemblage assemblage) {
+    void findNonCanonicalAcceptorDonorSpliceSites(Transcript transcript, Assemblage assemblage) {
 
         transcript.attach()
 
@@ -93,8 +92,8 @@ class NonCanonicalSplitSiteService {
         Strand strand=transcript.isNegativeStrand()?Strand.NEGATIVE:Strand.POSITIVE
 
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
-        ProjectionSequence minProjectionSequence = projection.getReverseProjectionSequence(fmin)
-        ProjectionSequence maxProjectionSequence = projection.getReverseProjectionSequence(fmax)
+        ProjectionSequence minProjectionSequence = projection.getUnProjectedSequence(fmin)
+        ProjectionSequence maxProjectionSequence = projection.getUnProjectedSequence(fmax)
         if(fmin > fmax && minProjectionSequence.reverse && maxProjectionSequence.reverse){
             int temp = fmin
             fmin = fmax
@@ -188,7 +187,7 @@ class NonCanonicalSplitSiteService {
      *
      * @param nonCanonicalFivePrimeSpliceSite - Non canonical 5' splice site to be added
      */
-    public void addNonCanonicalFivePrimeSpliceSite(Transcript transcript,NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
+    void addNonCanonicalFivePrimeSpliceSite(Transcript transcript,NonCanonicalFivePrimeSpliceSite nonCanonicalFivePrimeSpliceSite) {
 //        CVTerm partOfCvterm = cvTermService.partOf
 
         // add non canonical 5' splice site
@@ -206,7 +205,7 @@ class NonCanonicalSplitSiteService {
      *
      * @param nonCanonicalThreePrimeSpliceSite - Non canonical 3' splice site to be added
      */
-    public void addNonCanonicalThreePrimeSpliceSite(Transcript transcript,NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
+    void addNonCanonicalThreePrimeSpliceSite(Transcript transcript,NonCanonicalThreePrimeSpliceSite nonCanonicalThreePrimeSpliceSite) {
 
         // add non canonical 3' splice site
         FeatureRelationship fr = new FeatureRelationship(
