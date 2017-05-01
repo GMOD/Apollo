@@ -265,7 +265,8 @@ public class ProjectionService {
         Integer fmax = Integer.parseInt(fmaxString);
         MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
         Coordinate reverseCoordinate = multiSequenceProjection.projectReverseCoordinate((long) fmin, (long) fmax);
-        return (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
+        ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence((long) fmin);
+        return projectionSequence.getReverse() ? (fmax - fmin != reverseCoordinate.getMin() - reverseCoordinate.getMax()) : (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
     }
 
     private static void projectFeatures(String features, String refSeqString) {
@@ -342,7 +343,7 @@ public class ProjectionService {
 //                    GWT.log("startBase "+startBase + " vs left "+firstCoordate.getMax() + " projecteed left: " + discontinuousProjection.projectValue(firstCoordate.getMax()));
 //                    GWT.log("endBase "+endBase + " vs right "+lastCoordinate.getMin() + " projectied right: " + discontinuousProjection.projectValue(lastCoordinate.getMin()));
 
-                    if(leftEdge >= startBase && rightEdge <= endBase ){
+                    if (leftEdge >= startBase && rightEdge <= endBase) {
                         JSONObject jsonObject = new JSONObject();
                         Long foldPoint = projection.projectReverseValue(firstCoordate.getMax());
                         jsonObject.put("foldPoint", new JSONNumber(foldPoint));
@@ -400,7 +401,7 @@ public class ProjectionService {
 //        Long fmax = Math.round(referenceProjection.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
 
 
-        JSONArray sequenceListArray ;
+        JSONArray sequenceListArray;
         if (referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString() != null) {
             String sequenceString = referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString().stringValue();
             sequenceListArray = JSONParser.parseStrict(sequenceString).isArray();
