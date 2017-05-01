@@ -45,7 +45,7 @@ class DomainMarshallerService {
             returnArray['name'] = it.name
             returnArray['organism'] = it.organism
             returnArray['order'] = it.order
-            returnArray['offset'] = it.getProjectedOffset
+            returnArray['projectedOffset'] = it.projectedOffset
             returnArray['originalOffset'] = it.originalOffset
             returnArray['features'] = it.features?.join("::")
             return returnArray
