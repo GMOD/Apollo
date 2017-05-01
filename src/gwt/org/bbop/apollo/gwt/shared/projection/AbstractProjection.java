@@ -14,8 +14,8 @@ public abstract class AbstractProjection implements ProjectionInterface{
     }
 
     @Override
-    public Coordinate projectReverseCoordinate(Long min, Long max) {
-        return new Coordinate(projectReverseValue(min),projectReverseValue(max));
+    public Coordinate unProjectCoordinate(Long min, Long max) {
+        return new Coordinate(unProjectValue(min), unProjectValue(max));
     }
 
     @Override

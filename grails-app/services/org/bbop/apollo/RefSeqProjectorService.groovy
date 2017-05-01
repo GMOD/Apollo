@@ -128,7 +128,7 @@ class RefSeqProjectorService {
         Integer projectedEnd = chunkSize * (chunkNumber + 1) // this an exclusive end
 
         // determine the current "offsets" based on the chunk
-        Coordinate unprojectedCoordinate = projection.projectReverseCoordinate(projectedStart, projectedEnd)
+        Coordinate unprojectedCoordinate = projection.unProjectCoordinate(projectedStart, projectedEnd)
 
         // if it projects off the edge of known space .  . we just take it to the maximum in the projection realm . . .
         if (unprojectedCoordinate.max < 0) {
@@ -149,7 +149,7 @@ class RefSeqProjectorService {
         Integer unprojectedEnd = unprojectedCoordinate.max
 
 
-        List<ProjectionSequence> sequences = projection.getReverseProjectionSequences(projectedStart, projectedEnd)
+        List<ProjectionSequence> sequences = projection.getUnProjectedSequences(projectedStart, projectedEnd)
 
         // determine files to read for cu
         def stringList = []

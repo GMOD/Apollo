@@ -122,7 +122,7 @@ class ProjectionGridTrackController {
 //        JSONObject sequenceObject = JSON.parse(sequenceName.substring(0, endIndex)) as JSONObject
         sequenceObject.put(org.bbop.apollo.gwt.shared.FeatureStringEnum.CLIENT_TOKEN.value,extractClientToken(referer))
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
-        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
         Integer featureCount = projectionSequences.size()
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
@@ -151,7 +151,7 @@ class ProjectionGridTrackController {
         MultiSequenceProjection multiSequenceProjection = projectionService.getProjection(sequenceObject)
 
         JSONObject jsonObject = requestHandlingService.createJSONFeatureContainer()
-        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getReverseProjectionSequences(start, end)
+        List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
 
         int range = end - start
         int stepsPerView = 10
@@ -204,7 +204,7 @@ class ProjectionGridTrackController {
 //            )
 //            jsonObject.features.add(tickRight)
 //            for(int i = projectionSequence.start ; i < projectionSequence.end ; i+=step){
-//                int value = multiSequenceProjection.projectReverseValue(i+projectionSequence.offset)
+//                int value = multiSequenceProjection.unProjectValue(i+projectionSequence.offset)
 //                JSONObject feature = new JSONObject(
 //                        type: 'grid',
 //                        start: i + projectionSequence.offset,

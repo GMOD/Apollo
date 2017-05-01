@@ -34,20 +34,20 @@ class ProjectionService {
 
 
     @NotTransactional
-    JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, DiscontinuousProjection projection, Boolean reverseProjection) {
+    JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, DiscontinuousProjection projection, Boolean unProject) {
         for (int i = 0; i < inputFeaturesArray.size(); i++) {
             JSONObject inputFeature = inputFeaturesArray.getJSONObject(i)
-            projectFeature(inputFeature, projection, reverseProjection)
+            projectFeature(inputFeature, projection, unProject)
             if (inputFeature.has(FeatureStringEnum.CHILDREN.value)) {
                 JSONArray childFeatures = inputFeature.getJSONArray(FeatureStringEnum.CHILDREN.value)
-                projectFeaturesArray(childFeatures, projection, reverseProjection)
+                projectFeaturesArray(childFeatures, projection, unProject)
             }
         }
         return inputFeaturesArray
     }
 
     @NotTransactional
-    JSONObject projectFeature(JSONObject inputFeature, DiscontinuousProjection projection, Boolean reverseProjection) {
+    JSONObject projectFeature(JSONObject inputFeature, DiscontinuousProjection projection, Boolean unProject) {
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) return inputFeature
 
         JSONObject locationObject = inputFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
@@ -55,9 +55,9 @@ class ProjectionService {
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
 
-        if (reverseProjection) {
-            fmin = fmin ? projection.projectReverseValue(fmin) : null
-            fmax = fmax ? projection.projectReverseValue(fmax) : null
+        if (unProject) {
+            fmin = fmin ? projection.unProjectValue(fmin) : null
+            fmax = fmax ? projection.unProjectValue(fmax) : null
         } else {
             fmin = fmin ? projection.projectValue(fmin) : null
             fmax = fmax ? projection.projectValue(fmax) : null
@@ -512,7 +512,7 @@ class ProjectionService {
  * @return
  */
     @NotTransactional
-    JSONObject reverseLocation(ProjectionSequence projectionSequence, JSONObject locationObject) {
+    JSONObject evaluateReverseLocation(ProjectionSequence projectionSequence, JSONObject locationObject) {
         if (projectionSequence.reverse) {
             if (locationObject.containsKey(FeatureStringEnum.STRAND.value)) {
                 Strand strand = Strand.getStrandForValue(locationObject.strand)

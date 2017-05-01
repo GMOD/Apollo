@@ -16,7 +16,12 @@ public class MultiSequenceProjection extends AbstractProjection {
 
     public static int DEFAULT_SCAFFOLD_BORDER_LENGTH = 0;
 
-    public ProjectionSequence getReverseProjectionSequence(Long input) {
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public ProjectionSequence getUnProjectedSequence(Long input) {
         if (input == null) {
             return null;
         }
@@ -57,11 +62,17 @@ public class MultiSequenceProjection extends AbstractProjection {
         return orderedSequences;
     }
 
-    public List<ProjectionSequence> getReverseProjectionSequences(Long minInput, Long maxInput) {
+    /**
+     * Finds Project Sequences for projected min and max.
+     * @param minInput
+     * @param maxInput
+     * @return
+     */
+    public List<ProjectionSequence> getUnProjectedSequences(Long minInput, Long maxInput) {
         List<ProjectionSequence> orderedSequences = new ArrayList<>();
 
-        ProjectionSequence minProjectionSequence = getReverseProjectionSequence(minInput);
-        ProjectionSequence maxProjectionSequence = getReverseProjectionSequence(maxInput);
+        ProjectionSequence minProjectionSequence = getUnProjectedSequence(minInput);
+        ProjectionSequence maxProjectionSequence = getUnProjectedSequence(maxInput);
 
         // TODO this is hacky as we should be more accurately determining this by using the offset
         Integer startOrder = minProjectionSequence != null ? minProjectionSequence.getOrder() : null;
@@ -157,15 +168,12 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
     public Long projectLocalReverseValue(Long input) {
-        ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
+        ProjectionSequence projectionSequence = getUnProjectedSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
         Long reverseValue = projectReverseValue(input, projectionSequence.getProjectedOffset(), projectionSequence.getOriginalOffset());
         if (projectionSequence.getReverse()) {
-//            reverseValue = reverseValue - projectionSequence.getOriginalOffset() ;
-//            reverseValue = projectionSequence.getLength() - reverseValue  + projectionSequence.getStart();
-//            reverseValue = reverseValue + projectionSequence.getStart();
             // simplifies to this
             return projectionSequence.getLength() - reverseValue + projectionSequence.getOriginalOffset() + 2 * projectionSequence.getStart();
         } else {
@@ -173,8 +181,8 @@ public class MultiSequenceProjection extends AbstractProjection {
         }
     }
 
-    public Long projectReverseValue(Long input) {
-        ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
+    public Long unProjectValue(Long input) {
+        ProjectionSequence projectionSequence = getUnProjectedSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
@@ -182,7 +190,7 @@ public class MultiSequenceProjection extends AbstractProjection {
     }
 
     public Long projectReverseValue(Long input, Long inputOffset, Long outputOffset) {
-        ProjectionSequence projectionSequence = getReverseProjectionSequence(input);
+        ProjectionSequence projectionSequence = getUnProjectedSequence(input);
         if (projectionSequence == null) {
             return UNMAPPED_VALUE;
         }
@@ -193,9 +201,9 @@ public class MultiSequenceProjection extends AbstractProjection {
             // length - ( i - offset ) + offset
             // length - i + (2 * offset)
             Long alteredInput = discontinuousProjection.getBufferedLength(1) - input + projectionSequence.getProjectedOffset();
-            return discontinuousProjection.projectReverseValue(alteredInput) + outputOffset;
+            return discontinuousProjection.unProjectValue(alteredInput) + outputOffset;
         } else {
-            return discontinuousProjection.projectReverseValue(input - inputOffset) + outputOffset;
+            return discontinuousProjection.unProjectValue(input - inputOffset) + outputOffset;
         }
     }
 
