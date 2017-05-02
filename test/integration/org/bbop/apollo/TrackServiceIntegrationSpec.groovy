@@ -882,7 +882,6 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
-    @Ignore
     void "for two large scaffolds (1.10 and 11.6), if the first has two features (GB40809, GB40811) regions and the second one has one (GB55200)"() {
 
         given: "proper input"
@@ -948,4 +947,73 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 //        assert trackArray[0][10]["Sublist"].size() == 2
 
     }
+
+    void "on two large scaffolds, if the the first has one feature Group2.19 (GB55415-RA) and the second has two features Group1.10 (GB40809-RA, GB40811-RA)"(){
+        given: "proper input"
+        // TODO: encode
+        String sequenceList = "[{\"name\":\"Group2.19\",\"start\":1660760,\"end\":1661749,\"reverse\":false,\"feature\":{\"parent_id\":\"Group2.19\",\"name\":\"GB55415-RA\",\"start\":1660760,\"end\":1661749}},{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}}]"
+        String refererLoc = "{\"sequenceList\":${sequenceList}}"
+        String location = ":2516297..1566327"
+        String trackName = "Official Gene Set v3.2"
+        String trackDataName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/trackData.json"
+        JSONArray sequenceArray = new JSONArray(sequenceList)
+
+        when: "we get the initial track data"
+        JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
+        JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
+        MultiSequenceProjection multiSequenceProjection = projectionService.getCachedProjection(refererLoc)
+        def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
+
+        then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
+        // should provide 2 chunks . . .apparently, 1 and 5
+
+        // the first chunks is on Sequence 1.10 and the second chunk is on
+        assert ncListArray.size() == 2
+        assert ncListArray[0].size() == 4
+        assert ncListArray[0][1] == 0
+        // TODO: should be 29463, won't affect much as it calls the chunk
+        assert ncListArray[0][2] == 989
+        assert ncListArray[0][3] == 1
+
+        assert ncListArray[1].size() == 4
+        // TODO: should be 29463, won't affect much as it calls the chunk
+        assert ncListArray[1][1] == 989
+        // TODO: should 106876, won't affect much as it calls the chunk
+        assert ncListArray[1][2] == 101615 // don't know
+        assert ncListArray[1][3] == 2 // not sure if this is correct
+        assert projectionChunkList.size() == 3
+
+        when: "we project the first chunk lf-1.json"
+        String fileName1 = "lf-1.json"
+        String chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName1}"
+        JSONArray trackArray = trackService.projectTrackChunk(fileName1, chunkFileName, refererLoc, Organism.first(), trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which coverse GB40811)"
+        assert trackArray.size() == 1
+        assert trackArray[0][5] == "GB55415-RA"
+        assert trackArray[0][1] == 200
+        // TODO: should be 29463, won't affect much as it calls the chunk
+        assert trackArray[0][2] == 789
+
+        when: "we project the second chunk lf-2.json"
+        String fileName2 = "lf-2.json"
+        chunkFileName = "test/integration/resources/sequences/honeybee-tracks/tracks/${trackName}/${refererLoc}${location}/${fileName2}"
+        trackArray = trackService.projectTrackChunk(fileName2, chunkFileName, refererLoc, Organism.first(), trackName)
+
+
+        then: "we should get a single track defined by GB4076 (which coverse GB40811)"
+        assert trackArray.size() == 2
+        assert trackArray[0][5] == "GB40809-RA"
+        assert trackArray[0][1] == 200
+        // TODO: should be 29463, won't affect much as it calls the chunk
+        assert trackArray[0][2] == 789
+
+        assert trackArray[1][5] == "GB40811-RA"
+        assert trackArray[1][1] == 200 // TODO:
+        // TODO: should be 29463, won't affect much as it calls the chunk
+        assert trackArray[1][2] == 789
+
+    }
+
 }
