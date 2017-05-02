@@ -114,4 +114,8 @@ class ConfigWrapperService {
     Boolean getPhoneHome() {
         return grailsApplication.config.apollo.phone.phoneHome
     }
+
+    def getExtraTabs(){
+        return grailsApplication.config.apollo.extraTabs
+    }
 }

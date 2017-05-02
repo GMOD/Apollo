@@ -99,7 +99,7 @@ grails.hibernate.osiv.readonly = false
 grails.cache.config = {
     // avoid ehcache naming conflict to run multiple WA instances
     provider {
-        name "ehcache-apollo-"+(new Date().format("yyyyMMddHHmmss"))
+        name "ehcache-apollo-" + (new Date().format("yyyyMMddHHmmss"))
     }
     cache {
         enabled = true
@@ -162,9 +162,8 @@ log4j.main = {
             'org.hibernate',
             'net.sf.ehcache.hibernate'
 
-
     // enable logging of our webapollo instance (uncomment debug for extensive output)
-	warn 'grails.app'
+    warn 'grails.app'
 //    debug 'grails.app'
 //    debug 'liquibase'
 //    debug 'org.bbop.apollo'
@@ -225,92 +224,91 @@ apollo {
     get_translation_code = 1
     proxies = [
             [
-                    referenceUrl: 'http://golr.geneontology.org/select',
-                    targetUrl   : 'http://golr.geneontology.org/select',
-                    active      : true,
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.geneontology.org/select',
+                    active       : true,
                     fallbackOrder: 0,
-                    replace: false
+                    replace      : false
             ]
             ,
             [
-                    referenceUrl: 'http://golr.geneontology.org/select',
-                    targetUrl   : 'http://golr.berkeleybop.org/select',
-                    active      : false,
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.berkeleybop.org/select',
+                    active       : false,
                     fallbackOrder: 1,
-                    replace: false
+                    replace      : false
             ]
             ,
             [
-                    referenceUrl: 'http://golr.geneontology.org/select',
-                    targetUrl   : 'http://golr.berkeleybop.org/solr/select',
-                    active      : false,
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.berkeleybop.org/solr/select',
+                    active       : false,
                     fallbackOrder: 2,
-                    replace: false
+                    replace      : false
             ]
     ]
     sequence_search_tools = [
-        blat_nuc: [
-            search_exe: "/usr/local/bin/blat",
-            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
-            name: "Blat nucleotide",
-            params: ""
-        ],
-        blat_prot: [
-            search_exe: "/usr/local/bin/blat",
-            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
-            name: "Blat protein",
-            params: ""
-            //tmp_dir: "/opt/apollo/tmp" optional param
-        ]
+            blat_nuc : [
+                    search_exe  : "/usr/local/bin/blat",
+                    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+                    name        : "Blat nucleotide",
+                    params      : ""
+            ],
+            blat_prot: [
+                    search_exe  : "/usr/local/bin/blat",
+                    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+                    name        : "Blat protein",
+                    params      : ""
+                    //tmp_dir: "/opt/apollo/tmp" optional param
+            ]
     ]
     data_adapters = [[
-        permission: 1,
-        key: "GFF3",
-        data_adapters: [[
-            permission: 1,
-            key: "Only GFF3",
-            options: "output=file&format=gzip&type=GFF3&exportGff3Fasta=false"
-        ],
-        [
-            permission: 1,
-            key: "GFF3 with FASTA",
-            options: "output=file&format=gzip&type=GFF3&exportGff3Fasta=true"
-        ]]
-    ],
-    [
-        permission: 1,
-        key : "FASTA",
-        data_adapters :[[
-            permission : 1,
-            key : "peptide",
-            options : "output=file&format=gzip&type=FASTA&seqType=peptide"
-        ],
-        [
-            permission : 1,
-            key : "cDNA",
-            options : "output=file&format=gzip&type=FASTA&seqType=cdna"
-        ]
-        ,
-        [
-            permission : 1,
-            key : "CDS",
-            options : "output=file&format=gzip&type=FASTA&seqType=cds"
-        ]
-        ,
-        [
-                permission : 1,
-                key : "highlighted region",
-                options : "output=file&format=gzip&type=FASTA&seqType=genomic"
-        ]
-        ]
+                             permission   : 1,
+                             key          : "GFF3",
+                             data_adapters: [[
+                                                     permission: 1,
+                                                     key       : "Only GFF3",
+                                                     options   : "output=file&format=gzip&type=GFF3&exportGff3Fasta=false"
+                                             ],
+                                             [
+                                                     permission: 1,
+                                                     key       : "GFF3 with FASTA",
+                                                     options   : "output=file&format=gzip&type=GFF3&exportGff3Fasta=true"
+                                             ]]
+                     ],
+                     [
+                             permission   : 1,
+                             key          : "FASTA",
+                             data_adapters: [[
+                                                     permission: 1,
+                                                     key       : "peptide",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=peptide"
+                                             ],
+                                             [
+                                                     permission: 1,
+                                                     key       : "cDNA",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=cdna"
+                                             ]
+                                             ,
+                                             [
+                                                     permission: 1,
+                                                     key       : "CDS",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=cds"
+                                             ]
+                                             ,
+                                             [
+                                                     permission: 1,
+                                                     key       : "highlighted region",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=genomic"
+                                             ]
+                             ]
 
-    ]]
-    
+                     ]]
 
     // TODO: should come from config or via preferences database
     splice_donor_sites = ["GT"]
     splice_acceptor_sites = ["AG"]
-    gff3.source= "."
+    gff3.source = "."
     bootstrap = false
 
     info_editor = {
@@ -325,36 +323,36 @@ apollo {
     // customize admin tab on annotator panel with these links
     administrativePanel = [
             ['label': "Canned Comments", 'link': "/cannedComment/"]
-            ,['label': "Canned Key", 'link': "/cannedKey/"]
-            ,['label': "Canned Values", 'link': "/cannedValue/"]
-            ,['label': "Feature Types", 'link': "/featureType/"]
-            ,['label': "Statuses", 'link': "/availableStatus/"]
-            ,['label': "Proxies", 'link': "/proxy/"]
-            ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
-            ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
-            ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
-            ,['label': "Report::Changes", 'link': "/featureEvent/report/",'type':"report"]
-            ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
-            ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
-            ,['label': "WebServices", 'link': "/WebServices/",'type':"report"]
+            , ['label': "Canned Key", 'link': "/cannedKey/"]
+            , ['label': "Canned Values", 'link': "/cannedValue/"]
+            , ['label': "Feature Types", 'link': "/featureType/"]
+            , ['label': "Statuses", 'link': "/availableStatus/"]
+            , ['label': "Proxies", 'link': "/proxy/"]
+            , ['label': "Report::Organisms", 'link': "/organism/report/", 'type': "report"]
+            , ['label': "Report::Sequences", 'link': "/sequence/report/", 'type': "report"]
+            , ['label': "Report::Annotator", 'link': "/annotator/report/", 'type': "report"]
+            , ['label': "Report::Changes", 'link': "/featureEvent/report/", 'type': "report"]
+            , ['label': "System Info", 'link': "/home/systemInfo/", 'type': "report"]
+            , ['label': "Performance Metrics", 'link': "/home/metrics/", 'type': "report"]
+            , ['label': "WebServices", 'link': "/WebServices/", 'type': "report"]
     ]
 
-    // customize new tabs on the annotator panel with these links
-    customPanel = [
-            //['name':'GenSas2','link':'http://localhost/gensas2']
+    extraTabs = [
+            ['title': 'extra1', 'url': 'https://google.com'],
+            ['title': 'extra2', 'content': 'abc 123123']
     ]
 
 
     authentications = [
-        ["name":"Username Password Authenticator",
-            "className":"usernamePasswordAuthenticatorService",
-            "active":true,
-        ]
-        ,
-        ["name":"Remote User Authenticator",
-         "className":"remoteUserAuthenticatorService",
-         "active":false,
-        ]
+            ["name"     : "Username Password Authenticator",
+             "className": "usernamePasswordAuthenticatorService",
+             "active"   : true,
+            ]
+            ,
+            ["name"     : "Remote User Authenticator",
+             "className": "remoteUserAuthenticatorService",
+             "active"   : false,
+            ]
     ]
 
     // comment out if you don't want this to be reported
@@ -381,12 +379,10 @@ auditLog {
 
 }
 
-
-
-// Default JBrowse configuration 
+// Default JBrowse configuration
 jbrowse {
     git {
-        url= "https://github.com/gmod/jbrowse"
+        url = "https://github.com/gmod/jbrowse"
         tag = "99d8e6e1e7dfe290b839d41c18f41cf92d9afc7c"
 //		tag = "1.12.2-apollo"
 //        branch = "master"
@@ -403,7 +399,7 @@ jbrowse {
 //	// Warning: We are still testing the performance of the NeatFeatures plugins in combination with Apollo.
 //	// We advise caution if enabling these plugins with Apollo until this process is finalized.
     plugins {
-        WebApollo{
+        WebApollo {
             included = true
         }
 //        NeatHTMLFeatures{
@@ -413,10 +409,10 @@ jbrowse {
 //        NeatCanvasFeatures{
 //            included = true
 //        }
-        RegexSequenceSearch{
+        RegexSequenceSearch {
             included = true
         }
-        HideTrackLabels{
+        HideTrackLabels {
             included = true
         }
 //        MyVariantInfo {

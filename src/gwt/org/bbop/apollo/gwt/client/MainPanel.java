@@ -9,10 +9,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -26,6 +23,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -236,7 +234,64 @@ public class MainPanel extends Composite {
         reservedList.add("loc");
         reservedList.add("trackList");
 
+
         loginUser();
+
+        checkExtraTabs();
+    }
+
+    private void checkExtraTabs() {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONArray jsonArray= JSONParser.parseStrict(response.getText()).isArray();
+                Window.alert(jsonArray.toString());
+                for(int i = 0 ; i < jsonArray.size() ; i ++){
+                    JSONObject jsonObject = jsonArray.get(i).isObject();
+                    final String title = jsonObject.get("title").isString().stringValue();
+                    if(jsonObject.containsKey("content")){
+                        HTML htmlContent = new HTML(jsonObject.get("content").isString().stringValue());
+                        detailTabs.add(htmlContent,title);
+                    }
+                    else
+                    if(jsonObject.containsKey("url")){
+                        final String url = jsonObject.get("url").isString().stringValue();
+//                        detailTabs.add(,title);
+                        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+                        try {
+                            Request panelRequest = builder.sendRequest(null, new RequestCallback() {
+
+                                public void onResponseReceived(Request request, Response response) {
+                                    if (200 == response.getStatusCode()) {
+                                        detailTabs.add(new HTML(response.getText()),title);
+                                        // Process the response in response.getText()
+                                    } else {
+                                        Bootbox.alert("Problem loading custom page: "+url);
+                                        // Handle the error.  Can get the status text from response.getStatusText()
+                                    }
+                                }
+
+                                public void onError(Request request, Throwable exception) {
+                                    Bootbox.alert(exception.toString());
+                                }
+                            });
+                        } catch (RequestException e) {
+                            Bootbox.alert(e.toString());
+                        }
+
+                    }
+                    else{
+                        Bootbox.alert("Unsure how to process "+jsonObject.toString());
+                    }
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+            }
+        };
+        RestService.sendGetRequest(requestCallback,"annotator/getExtraTabs");
     }
 
 
