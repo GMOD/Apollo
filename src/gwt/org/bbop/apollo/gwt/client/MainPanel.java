@@ -262,6 +262,8 @@ public class MainPanel extends Composite {
                     } else if (jsonObject.containsKey("url")) {
                         final String url = jsonObject.get("url").isString().stringValue();
                         Frame frame = new Frame(url);
+                        frame.setWidth("100%");
+                        frame.setHeight("100%");
                         detailTabs.add(frame,title);
 //                        detailTabs.add(,title);
 //                        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
