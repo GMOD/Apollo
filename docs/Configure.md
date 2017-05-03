@@ -385,7 +385,6 @@ http://nginx.org/en/docs/http/websocket.html
         ''      close;
     }
     
-    
     server {
         # Main
         listen   80; server_name  myserver;
@@ -398,6 +397,18 @@ http://nginx.org/en/docs/http/websocket.html
             proxy_pass      http://127.0.0.1:8080;
         }
     }
+```
+
+### Adding extra tabs
+
+Extra tabs can be added to the side panel by over-riding the apollo configuration extraTabs:
+
+```
+    extraTabs = [
+            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
+            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="http://genomearchitect.org" target="_blank">linked here</a>']
+    ]
+
 ```
 
 

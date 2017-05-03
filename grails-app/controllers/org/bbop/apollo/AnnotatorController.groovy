@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
@@ -30,6 +31,7 @@ class AnnotatorController {
     def preferenceService
     def reportService
     def featureRelationshipService
+    def configWrapperService
 
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
@@ -136,6 +138,7 @@ class AnnotatorController {
     /**
      * Loads the main annotator panel.
      */
+    @NotTransactional
     def index() {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
@@ -143,7 +146,13 @@ class AnnotatorController {
         [userKey: uuid, clientToken: clientToken]
     }
 
+    @NotTransactional
+    def getExtraTabs(){
+        def extraTabs = configWrapperService.extraTabs
+        render extraTabs as JSON
+    }
 
+    @NotTransactional
     def adminPanel() {
         if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             def administativePanel = grailsApplication.config.apollo.administrativePanel
