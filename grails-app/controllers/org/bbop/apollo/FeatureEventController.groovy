@@ -36,7 +36,8 @@ class FeatureEventController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "date", type = "Date", paramType = RestApiParamType.QUERY, description = "Date to query yyyy-MM-dd:HH:mm:ss or yyyy-MM-dd")
-            , @RestApiParam(name = "afterDate", type = "Boolean", paramType = RestApiParamType.QUERY, description = "Search after the given date.")
+            , @RestApiParam(name = "afterDate", type = "Boolean", paramType = RestApiParamType.QUERY, description = "Search after or on the given date.")
+            , @RestApiParam(name = "beforeDate", type = "Boolean", paramType = RestApiParamType.QUERY, description = "Search before or on the given date.")
             , @RestApiParam(name = "max", type = "Integer", paramType = RestApiParamType.QUERY, description = "Max to return")
             , @RestApiParam(name = "sort", type = "String", paramType = RestApiParamType.QUERY, description = "Sort parameter (lastUpdated).  See FeatureEvent object/table.")
             , @RestApiParam(name = "order", type = "String", paramType = RestApiParamType.QUERY, description = "desc/asc sort order by sort param")
@@ -80,8 +81,6 @@ class FeatureEventController {
      * @return
      */
     def report(Integer max) {
-
-        log.error "${params}"
 
         params.max = Math.min(max ?: 15, 100)
 
@@ -140,14 +139,26 @@ class FeatureEventController {
                 }
             }
 
-            log.debug "afterDateDate ${params.afterDateDate}"
-            log.debug "beforeDate ${params.beforeDate}"
             if (params.afterDate) {
-                gte('dateCreated', params.afterDate)
+                Calendar calendar = GregorianCalendar.getInstance()
+                calendar.setTime(params.afterDate)
+                calendar.set(Calendar.HOUR,0)
+                calendar.set(Calendar.MINUTE,0)
+                calendar.set(Calendar.SECOND,0)
+                gte('lastUpdated', calendar.getTime())
             }
             if (params.beforeDate) {
-                lte('dateCreated', params.beforeDate)
+                Date beforeDate = params.beforeDate
+                // set the before date to the very end of day
+                Calendar calendar = GregorianCalendar.getInstance()
+                calendar.setTime(params.beforeDate)
+                calendar.set(Calendar.HOUR,23)
+                calendar.set(Calendar.MINUTE,59)
+                calendar.set(Calendar.SECOND,59)
+                lte('lastUpdated', calendar.getTime())
             }
+            log.debug "afterDateDate ${params.afterDateDate}"
+            log.debug "beforeDate ${params.beforeDate}"
 
 
             'in'('class', requestHandlingService.viewableAnnotationList)
@@ -164,7 +175,6 @@ class FeatureEventController {
         Date veryOldDate = today.minus(20 * 365)  // 20 years back
         Date beforeDate = params.beforeDate ?: today
         Date afterDate = params.afterDate ?: veryOldDate
-        println "after date ${afterDate}"
 
         render view: "report", model: [afterDate: afterDate, beforeDate: beforeDate, sequenceName: params.sequenceName, features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes: featureTypes, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }

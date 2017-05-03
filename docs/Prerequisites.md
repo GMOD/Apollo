@@ -13,15 +13,16 @@ Note: see the [Apollo 2.x quick-start](Apollo2Build.md) for the
 quickest way to take care of pre-requisites.
 
 -   System pre-requisites (see quick-start guide for simple setup)
-    -   Any Unix like system (e.g., Unix, Linux, Mac OS X)
-    -   Servlet container (must support servlet spec 3.0+) such as tomcat 8
+    -   Any Unix like system (e.g., Unix, Linux, Mac OS X).
+    -   Servlet container (must support servlet spec 3.0+) such as tomcat 8 for production (not needed for development).
     -   Java 8+  OpenJDK or Oracle should work.
-    -   Grails (optional, but good for development).   The easiest way to install is using sdkman, see [Apollo 2.x quick-start](Apollo2Build.md) for this step)
-    -   Ant 1.8+ (most package managers will have this)
+    -   [npm 2.X or better / node.js](https://nodejs.org/en/download/package-manager/)
+    -   Grails (optional, but good for development).   The easiest way to install is using sdkman, see [Apollo 2.x quick-start](Apollo2Build.md) for this step).
+    -   Ant 1.8+ (most package managers will have this).
     -   A database (RDMS) system. Sample configurations for PostgreSQL and MySQL are available. H2 configuration does not require any manual installation.
-    -   Basic tools like Git, Curl, a text editor, etc
+    -   Basic tools like Git, Curl, a text editor, etc.
 -   Data generation pipeline pre-requisites (for full list see http://gmod.org/wiki/JBrowse_Configuration_Guide)
-    -   System packages
+    -   System packages:
         -   libpng12-0 (optional, for JBrowse imagetrack)
         -   libpng12-dev (optional, for JBrowse imagetrack)
         -   zlib1g (Debian/Ubuntu)
@@ -31,10 +32,10 @@ quickest way to take care of pre-requisites.
         -   libexpat1-dev (Debian/Ubuntu)
         -   expat-dev (RedHat/CentOS)
 -   Perl pre-requisites:
-    -   Apollo will automatically try to install all perl-pre-requisites
+    -   Apollo will automatically try to install all perl-pre-requisites.
     -   If you are building Apollo in "release" mode, perl 5.10 or up will be required
--   Sequence search (optional)
-    -   Blat (download [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/) or [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/) binaries)
+-   Sequence search (optional).
+    -   Blat (download [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/) or [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/) binaries).
 
 #### Package manager commands
 

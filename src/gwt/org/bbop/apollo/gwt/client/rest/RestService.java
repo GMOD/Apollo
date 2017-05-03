@@ -19,16 +19,19 @@ public class RestService {
         sendRequest(requestCallback, url, (String) null);
     }
 
-
     public static void sendRequest(RequestCallback requestCallback, String url, JSONObject jsonObject) {
         sendRequest(requestCallback, url, "data=" + jsonObject.toString());
+    }
+
+    public static void sendRequest(RequestCallback requestCallback, String url, String data) {
+        sendRequest(requestCallback, url, data, RequestBuilder.POST);
     }
 
     public static void sendRequest(RequestCallback requestCallback, String url, JSONArray jsonArray) {
         sendRequest(requestCallback, url, "data=" + jsonArray.toString());
     }
 
-    public static void sendRequest(RequestCallback requestCallback, String url, String data) {
+    public static void sendRequest(RequestCallback requestCallback, String url, String data, RequestBuilder.Method method) {
         String rootUrl = Annotator.getRootUrl();
         if (!url.startsWith(rootUrl)) {
             url = rootUrl + url;
@@ -40,7 +43,7 @@ public class RestService {
             url += "=";
             url += Annotator.getClientToken();
         }
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+        RequestBuilder builder = new RequestBuilder(method, URL.encode(url));
         if (data != null) {
             builder.setRequestData(data);
         }
@@ -53,6 +56,10 @@ public class RestService {
         } catch (RequestException e) {
             Bootbox.alert(e.getMessage());
         }
+
     }
 
+    public static void sendGetRequest(RequestCallback requestCallback, String url) {
+        sendRequest(requestCallback, url, null, RequestBuilder.GET);
+    }
 }
