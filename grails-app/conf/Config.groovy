@@ -338,8 +338,8 @@ apollo {
     ]
 
     extraTabs = [
-            ['title': 'extra1', 'url': 'https://google.com'],
-            ['title': 'extra2', 'content': 'abc 123123']
+//            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
+//            ['title': 'extra2', 'content': '<b>Some content</b><a href="http://google.com" target="_blank">Google</a>']
     ]
 
 

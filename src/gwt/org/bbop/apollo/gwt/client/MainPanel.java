@@ -36,7 +36,9 @@ import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -44,6 +46,7 @@ import java.util.*;
 public class MainPanel extends Composite {
 
 
+    private static final int DEFAULT_TAB_COUNT = 7;
 
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
@@ -57,7 +60,7 @@ public class MainPanel extends Composite {
     private static SequenceInfo currentSequence;
     private static Integer currentStartBp; // start base pair
     private static Integer currentEndBp; // end base pair
-    private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
+    private static Map<String, List<String>> currentQueryParams; // list of organisms for user
     static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
@@ -163,7 +166,7 @@ public class MainPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
         frame.getElement().setAttribute("id", frame.getName());
 
-        trackListToggle.setWidth(isCurrentUserAdmin()? "20px":"25px");
+        trackListToggle.setWidth(isCurrentUserAdmin() ? "20px" : "25px");
 
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
@@ -220,9 +223,11 @@ public class MainPanel extends Composite {
         String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
         try {
             int selectedTab = Integer.parseInt(tabPreferenceString);
-            detailTabs.selectTab(selectedTab);
-            if(selectedTab==TabPanelIndex.TRACKS.index){
-                trackPanel.reloadIfEmpty();
+            if(selectedTab<detailTabs.getWidgetCount()){
+                detailTabs.selectTab(selectedTab);
+                if (selectedTab == TabPanelIndex.TRACKS.index) {
+                    trackPanel.reloadIfEmpty();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -242,48 +247,57 @@ public class MainPanel extends Composite {
 
     private void checkExtraTabs() {
 
+        removeExtraTabs();
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONArray jsonArray= JSONParser.parseStrict(response.getText()).isArray();
-                Window.alert(jsonArray.toString());
-                for(int i = 0 ; i < jsonArray.size() ; i ++){
+                JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isArray();
+                for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.get(i).isObject();
                     final String title = jsonObject.get("title").isString().stringValue();
-                    if(jsonObject.containsKey("content")){
+                    if (jsonObject.containsKey("content")) {
                         HTML htmlContent = new HTML(jsonObject.get("content").isString().stringValue());
-                        detailTabs.add(htmlContent,title);
-                    }
-                    else
-                    if(jsonObject.containsKey("url")){
+                        detailTabs.add(htmlContent, title);
+                    } else if (jsonObject.containsKey("url")) {
                         final String url = jsonObject.get("url").isString().stringValue();
+                        Frame frame = new Frame(url);
+                        detailTabs.add(frame,title);
 //                        detailTabs.add(,title);
-                        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-                        try {
-                            Request panelRequest = builder.sendRequest(null, new RequestCallback() {
+//                        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
+//                        try {
+//                            Request panelRequest = builder.sendRequest(null, new RequestCallback() {
+//
+//                                public void onResponseReceived(Request request, Response response) {
+//                                    if (200 == response.getStatusCode()) {
+////                                        detailTabs.add(new HTML(response.getText()),title);
+//                                        detailTabs.add(new HTML(response.getText()),title);
+//                                        // Process the response in response.getText()
+//                                    } else {
+//                                        Bootbox.alert("Problem loading custom page: "+url);
+//                                        // Handle the error.  Can get the status text from response.getStatusText()
+//                                    }
+//                                }
+//
+//                                public void onError(Request request, Throwable exception) {
+//                                    Bootbox.alert(exception.toString());
+//                                }
+//                            });
+//                        } catch (RequestException e) {
+//                            Bootbox.alert(e.toString());
+//                        }
 
-                                public void onResponseReceived(Request request, Response response) {
-                                    if (200 == response.getStatusCode()) {
-                                        detailTabs.add(new HTML(response.getText()),title);
-                                        // Process the response in response.getText()
-                                    } else {
-                                        Bootbox.alert("Problem loading custom page: "+url);
-                                        // Handle the error.  Can get the status text from response.getStatusText()
-                                    }
-                                }
-
-                                public void onError(Request request, Throwable exception) {
-                                    Bootbox.alert(exception.toString());
-                                }
-                            });
-                        } catch (RequestException e) {
-                            Bootbox.alert(e.toString());
-                        }
-
+                    } else {
+                        Bootbox.alert("Unsure how to process " + jsonObject.toString());
                     }
-                    else{
-                        Bootbox.alert("Unsure how to process "+jsonObject.toString());
-                    }
+                }
+                String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
+                int selectedTab = Integer.parseInt(tabPreferenceString);
+                if(selectedTab < detailTabs.getWidgetCount()){
+                    detailTabs.selectTab(selectedTab);
+                }
+                else{
+                    selectedTab = 0 ;
                 }
             }
 
@@ -291,7 +305,13 @@ public class MainPanel extends Composite {
             public void onError(Request request, Throwable exception) {
             }
         };
-        RestService.sendGetRequest(requestCallback,"annotator/getExtraTabs");
+        RestService.sendGetRequest(requestCallback, "annotator/getExtraTabs");
+    }
+
+    private void removeExtraTabs() {
+        for(int i = 0 ; i < detailTabs.getWidgetCount()-DEFAULT_TAB_COUNT ; i++){
+            detailTabs.remove(i+DEFAULT_TAB_COUNT);
+        }
     }
 
 
@@ -335,24 +355,22 @@ public class MainPanel extends Composite {
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentSequence = SequenceInfoConverter.convertFromJson(sequenceInfoJson);
 
-                if(start==null){
-                    currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
+                if (start == null) {
+                    currentStartBp = currentSequence.getStartBp() != null ? currentSequence.getStartBp() : 0;
+                } else {
+                    currentStartBp = start;
                 }
-                else{
-                    currentStartBp = start ;
-                }
-                if(end==null){
-                    currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
-                }
-                else{
-                    currentEndBp = end ;
+                if (end == null) {
+                    currentEndBp = currentSequence.getEndBp() != null ? currentSequence.getEndBp() : currentSequence.getLength();
+                } else {
+                    currentEndBp = end;
                 }
                 sequenceSuggestBox.setText(currentSequence.getName());
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),currentOrganism.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(), currentOrganism.getName()));
 
                 if (updateViewer) {
-                    updateGenomicViewerForLocation(currentSequence.getName(),currentStartBp,currentEndBp,true,false);
+                    updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, true, false);
                 }
                 if (blocking) {
                     loadingDialog.hide();
@@ -371,10 +389,9 @@ public class MainPanel extends Composite {
 
         handlingNavEvent = true;
 
-        if(start==null && end==null){
-            SequenceRestService.setCurrentSequenceForString(requestCallback, sequenceNameString,currentOrganism);
-        }
-        else{
+        if (start == null && end == null) {
+            SequenceRestService.setCurrentSequenceForString(requestCallback, sequenceNameString, currentOrganism);
+        } else {
             SequenceRestService.setCurrentSequenceAndLocation(requestCallback, sequenceNameString, start, end);
         }
 
@@ -383,7 +400,7 @@ public class MainPanel extends Composite {
 
     private void updatePermissionsForOrganism() {
         String globalRole = currentUser.getRole();
-        PermissionEnum highestPermission ;
+        PermissionEnum highestPermission;
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
@@ -496,7 +513,7 @@ public class MainPanel extends Composite {
     }
 
     public static void updateGenomicViewerForLocation(String selectedSequence, Integer minRegion, Integer maxRegion) {
-        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false,false);
+        updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false, false);
     }
 
     /**
@@ -519,8 +536,8 @@ public class MainPanel extends Composite {
         currentEndBp = maxRegion;
 
 
-        String trackListString = Annotator.getRootUrl() ;
-        trackListString +=  Annotator.getClientToken() +"/";
+        String trackListString = Annotator.getRootUrl();
+        trackListString += Annotator.getClientToken() + "/";
         trackListString += "jbrowse/index.html?loc=";
         trackListString += selectedSequence;
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
@@ -529,52 +546,47 @@ public class MainPanel extends Composite {
 
 
         // if the trackList contains a string, it should over-ride and set?
-        if(trackListString.contains(trackListViewString)){
+        if (trackListString.contains(trackListViewString)) {
             // replace with whatever is in the toggle ? ? ?
             Boolean showTrackValue = trackPanel.trackListToggle.getValue();
 
-            String positiveString = trackListViewString+"1";
-            String negativeString = trackListViewString+"0";
-            if(trackListString.contains(positiveString) && !showTrackValue){
-                trackListString = trackListString.replace(positiveString,negativeString);
-            }
-            else
-            if(trackListString.contains(negativeString) && showTrackValue){
-                trackListString = trackListString.replace(negativeString,positiveString);
+            String positiveString = trackListViewString + "1";
+            String negativeString = trackListViewString + "0";
+            if (trackListString.contains(positiveString) && !showTrackValue) {
+                trackListString = trackListString.replace(positiveString, negativeString);
+            } else if (trackListString.contains(negativeString) && showTrackValue) {
+                trackListString = trackListString.replace(negativeString, positiveString);
             }
 
-            MainPanel.useNativeTracklist = showTrackValue ;
+            MainPanel.useNativeTracklist = showTrackValue;
         }
-        if(trackListString.contains(openAnnotatorPanelString)){
-            String positiveString = openAnnotatorPanelString+"1";
-            String negativeString = openAnnotatorPanelString+"0";
-            if(trackListString.contains(positiveString)){
-                trackListString = trackListString.replace(positiveString,"");
+        if (trackListString.contains(openAnnotatorPanelString)) {
+            String positiveString = openAnnotatorPanelString + "1";
+            String negativeString = openAnnotatorPanelString + "0";
+            if (trackListString.contains(positiveString)) {
+                trackListString = trackListString.replace(positiveString, "");
                 MainPanel.getInstance().openPanel();
-            }
-            else
-            if(trackListString.contains(negativeString)){
-                trackListString = trackListString.replace(negativeString,"");
+            } else if (trackListString.contains(negativeString)) {
+                trackListString = trackListString.replace(negativeString, "");
                 MainPanel.getInstance().closePanel();
             }
 
 
         }
         // otherwise we use the nativeTrackList
-        else{
+        else {
             trackListString += "&tracklist=" + (MainPanel.useNativeTracklist ? "1" : "0");
         }
 
-        if(!forceUrl && getInnerDiv()!=null){
+        if (!forceUrl && getInnerDiv() != null) {
             JSONObject commandObject = new JSONObject();
-            commandObject.put("url", new JSONString(selectedSequence+":"+currentStartBp+".."+currentEndBp));
-            MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
-        }
-        else{
+            commandObject.put("url", new JSONString(selectedSequence + ":" + currentStartBp + ".." + currentEndBp));
+            MainPanel.getInstance().postMessage("navigateToLocation", commandObject);
+        } else {
             frame.setUrl(trackListString);
         }
 
-        if(Window.Location.getParameter("tracks")!=null){
+        if (Window.Location.getParameter("tracks") != null) {
             String newURL = Window.Location.createUrlBuilder().removeParameter("tracks").buildString();
             newUrl(newURL);
         }
@@ -582,15 +594,15 @@ public class MainPanel extends Composite {
         currentQueryParams = Window.Location.getParameterMap();
     }
 
-    void postMessage(String message, JSONObject object){
-        object.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString(message));
+    void postMessage(String message, JSONObject object) {
+        object.put(FeatureStringEnum.DESCRIPTION.getValue(), new JSONString(message));
         postMessage(object.getJavaScriptObject());
     }
 
     private native void postMessage(JavaScriptObject message)/*-{
         var genomeViewer = $wnd.document.getElementById("genomeViewer").contentWindow;
-        var domain = $wnd.location.protocol+"//"+$wnd.location.hostname +":"+$wnd.location.port  ;
-        genomeViewer.postMessage(message,domain);
+        var domain = $wnd.location.protocol + "//" + $wnd.location.hostname + ":" + $wnd.location.port;
+        genomeViewer.postMessage(message, domain);
     }-*/;
 
     private static native void newUrl(String newUrl)/*-{
@@ -600,40 +612,40 @@ public class MainPanel extends Composite {
 
     public static native Element getInnerDiv()/*-{
         var iframe = $doc.getElementById("genomeViewer");
-        var innerDoc = iframe.contentDocument ; // .contentWindow.document
-        if(!innerDoc){
-            innerDoc = iframe.contentWindow.document ;
+        var innerDoc = iframe.contentDocument; // .contentWindow.document
+        if (!innerDoc) {
+            innerDoc = iframe.contentWindow.document;
         }
         // this is the JBrowse div
         var genomeBrowser = innerDoc.getElementById("GenomeBrowser");
-        return genomeBrowser ;
+        return genomeBrowser;
     }-*/;
 
     private static String getCurrentQueryParamsAsString() {
         String returnString = "";
-        if(currentQueryParams==null){
+        if (currentQueryParams == null) {
             return returnString;
         }
 
-        for(String key : currentQueryParams.keySet()){
-            if(!reservedList.contains(key)){
-                for(String value : currentQueryParams.get(key)){
-                    returnString += "&"+key + "=" + value;
+        for (String key : currentQueryParams.keySet()) {
+            if (!reservedList.contains(key)) {
+                for (String value : currentQueryParams.get(key)) {
+                    returnString += "&" + key + "=" + value;
                 }
             }
         }
         return returnString;
     }
 
-    public static void updateGenomicViewer(boolean forceReload,boolean forceUrl) {
-        if(currentSequence==null) {
+    public static void updateGenomicViewer(boolean forceReload, boolean forceUrl) {
+        if (currentSequence == null) {
             GWT.log("Current sequence not set");
-            return ;
+            return;
         }
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload,forceUrl);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentStartBp, currentEndBp, forceReload, forceUrl);
         } else {
-            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(), forceReload,forceUrl);
+            updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStart(), currentSequence.getEnd(), forceReload, forceUrl);
         }
     }
 
@@ -660,7 +672,7 @@ public class MainPanel extends Composite {
 
         if (currentOrganism != null) {
             updatePermissionsForOrganism();
-            updateGenomicViewer(true,true);
+            updateGenomicViewer(true, true);
         }
 
 
@@ -675,7 +687,7 @@ public class MainPanel extends Composite {
 
     public void getAppState() {
         String url = Annotator.getRootUrl() + "annotator/getAppState";
-        url += "?"+FeatureStringEnum.CLIENT_TOKEN.getValue() + "=" + Annotator.getClientToken();
+        url += "?" + FeatureStringEnum.CLIENT_TOKEN.getValue() + "=" + Annotator.getClientToken();
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
         final LoadingDialog loadingDialog = new LoadingDialog();
@@ -873,7 +885,7 @@ public class MainPanel extends Composite {
 
     public String generatePublicUrl() {
         String url2 = Annotator.getRootUrl();
-        url2 += currentOrganism.getId()+"/";
+        url2 += currentOrganism.getId() + "/";
         url2 += "jbrowse/index.html";
         if (currentStartBp != null) {
             url2 += "?loc=" + currentSequence.getName() + ":" + currentStartBp + ".." + currentEndBp;
@@ -1024,7 +1036,7 @@ public class MainPanel extends Composite {
     }
 
     public static boolean hasCurrentUser() {
-        return currentUser!=null ;
+        return currentUser != null;
     }
 
     public static String getCurrentUserAsJson() {
@@ -1042,7 +1054,7 @@ public class MainPanel extends Composite {
     }
 
     @UiHandler("trackListToggle")
-    public void trackListToggleButtonHandler(ClickEvent event){
+    public void trackListToggleButtonHandler(ClickEvent event) {
         useNativeTracklist = !trackListToggle.isActive();
         trackPanel.updateTrackToggle(useNativeTracklist);
     }
@@ -1116,7 +1128,10 @@ public class MainPanel extends Composite {
     public static SequencePanel getSequencePanel() {
         return sequencePanel;
     }
-    public static TrackPanel getTrackPanel() { return trackPanel ; }
+
+    public static TrackPanel getTrackPanel() {
+        return trackPanel;
+    }
 
     public static SequenceInfo getCurrentSequence() {
         return currentSequence;
@@ -1124,8 +1139,8 @@ public class MainPanel extends Composite {
 
     SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {
         currentSequence = newSequence;
-        currentStartBp = currentSequence.getStartBp()!=null ? currentSequence.getStartBp() : 0 ;
-        currentEndBp = currentSequence.getEndBp()!=null ? currentSequence.getEndBp() : currentSequence.getLength() ;
+        currentStartBp = currentSequence.getStartBp() != null ? currentSequence.getStartBp() : 0;
+        currentEndBp = currentSequence.getEndBp() != null ? currentSequence.getEndBp() : currentSequence.getLength();
         currentSequence.setStartBp(currentStartBp);
         currentSequence.setEndBp(currentEndBp);
         return currentSequence;
