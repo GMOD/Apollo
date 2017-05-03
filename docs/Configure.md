@@ -384,7 +384,6 @@ http://nginx.org/en/docs/http/websocket.html
         default upgrade;
         ''      close;
     }
-    n
     
     server {
         # Main
