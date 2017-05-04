@@ -18,7 +18,12 @@ class TrackMapperService {
 
     @NotTransactional
     JSONObject getClass(String organism,String track,Integer index){
-        return tracks.get(organism)?.get(track)?.getJSONObject(index)
+//        try {
+            return tracks.get(organism)?.get(track)?.getJSONObject(index)
+//        } catch (e) {
+//            println "failed to process ${organism} ${track} ${index} for ${e}"
+//            reutrn null
+//        }
     }
 
     @NotTransactional

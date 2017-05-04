@@ -226,11 +226,12 @@ class AssemblageService {
             Sequence sequence
             if (organism) {
                 sequence = Sequence.findByOrganismAndName(organism, sequenceName)
-                sequenceList << sequence
+                sequenceList.add(sequence)
             } else {
                 sequence = Sequence.findByName(sequenceName)
-                sequenceList << sequence
             }
+            assert sequence!=null
+            sequenceList.add(sequence)
         }
         return sequenceList
     }
