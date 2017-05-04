@@ -18,6 +18,12 @@ public class ProjectionChunkList {
         projectionChunkList.add(projectionChunk);
     }
 
+    /**
+     * If a chunk lf-{index}.json is requested, get a chunk to request the actual chunks on the back end.
+     *
+     * @param index
+     * @return a ProjectionChunk that represents the chunk being requested.
+     */
     public ProjectionChunk findProjectChunkForIndex(Integer index){
         for(ProjectionChunk projectionChunk : projectionChunkList){
             if(index >= projectionChunk.getChunkArrayOffset() && index <= projectionChunk.getNumChunks()+ projectionChunk.getChunkArrayOffset()){

@@ -754,6 +754,7 @@ class TrackService {
             }
         }
 
+        Map<JSONObject,ProjectionChunk> previousTrackMap = new HashMap<>()
         for (JSONObject sequenceArrayObject in sequenceArray) {
             ProjectionChunk projectionChunk = new ProjectionChunk(
                     sequence: sequenceArrayObject,
@@ -797,9 +798,19 @@ class TrackService {
                 priorSequenceLength = priorSequenceLength + lastLength
                 priorChunkArrayOffset = priorChunkArrayOffset + lastChunkArrayOffset
 
-                projectionChunkList.addChunk(projectionChunk)
+                // if we are projecting the same object, we don't a
+                if(previousTrackMap.containsKey(trackObject)){
+                    --priorChunkArrayOffset
+//                    ProjectionChunk previousChunk = previousTrackMap.get(trackObject)
+//                    previousChunk.chunkArrayOffset = projectionChunk.chunkArrayOffset
+//                    previousChunk.sequenceOffset = projectionChunk.sequenceOffset
+                }
+                else{
+                    projectionChunkList.addChunk(projectionChunk)
+                }
 
                 trackObjectList.put(sequenceArrayObject.name, trackObject)
+                previousTrackMap.put(trackObject,projectionChunk)
             }
         }
 

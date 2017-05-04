@@ -224,8 +224,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackObject.intervals.nclist.getJSONArray(0).getInt(2) == 6309 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(1) == 6709 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
         assert trackObject.intervals.nclist.getJSONArray(1).getInt(2) == 15048 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1) == 15194 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
-        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2) == 31402 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(1) == 15448 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
+        assert trackObject.intervals.nclist.getJSONArray(2).getInt(2) == 31656 + MultiSequenceProjection.DEFAULT_SCAFFOLD_BORDER_LENGTH
 
     }
 
@@ -619,12 +619,11 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "should we have multiple chunks (1-2) or map chunk 2 to 0 and get lf-1.json instead"
 //        assert "Group1.10"==projectionChunkList.get(0).sequence
-        assert projectionChunkList.size()==2
+        assert projectionChunkList.size()==1
         assert ncListArray.size()==1
         assert ncListArray[0].size() == 4
         assert ncListArray[0][1] == 0
-        // TODO: should be 29463, won't affect much as it calls the chunk
-        assert ncListArray[0][2] == 24202
+        assert ncListArray[0][2] == 29463
         assert ncListArray[0][3] == 1
 
 
@@ -706,7 +705,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "should we have multiple chunks (1-2) or map chunk 2 to 1 and get lf-1.json instead"
         assert ncListArray.size() == 1
         assert ncListArray[0].size() == 4
-        assert projectionChunkList.size() == 2
+        assert projectionChunkList.size() == 1
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"
@@ -749,9 +748,9 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "should we have a single chunk on 2"
         assert ncListArray.size() == 1
         assert ncListArray[0][1] == 0
-        assert ncListArray[0][2] == 19192
+        assert ncListArray[0][2] == 24464
         assert ncListArray[0][3] == 2
-        assert projectionChunkList.size() == 2
+        assert projectionChunkList.size() == 1
 
 
         when: "we project the first chunk lf-1.json"
@@ -790,7 +789,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
         then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
-        assert projectionChunkList.size() == 2
+        assert projectionChunkList.size() == 1
         assert ncListArray.size() == 2
         assert ncListArray[0][1] == 0
         assert ncListArray[0][2] == 19192
@@ -845,7 +844,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         def projectionChunkList = multiSequenceProjection.projectionChunkList.projectionChunkList
 
         then: "should we have multiple chunks (0-2) or map chunk 2 to 0 and get lf-0.json instead"
-        assert projectionChunkList.size() == 2
+        assert projectionChunkList.size() == 1
         assert ncListArray.size() == 2
         assert ncListArray[0][1] == 0
         assert ncListArray[0][2] == 24202
@@ -893,7 +892,6 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
      * The second chunk is on Group11.16 should be from 680K - 758K and maps to 29K to 106K
      *
      */
-    @IgnoreRest
     void "for two large scaffolds (1.10 and 11.6), if the first has two features (GB40809, GB40811) regions and the second one has one (GB55200)"() {
 
         given: "proper input"
@@ -926,13 +924,11 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         // TODO: should 106876, won't affect much as it calls the chunk
         assert ncListArray[1][2] == 101615 + 5261
         assert ncListArray[1][3] == 2 // not sure if this is correct
-        assert projectionChunkList.size() == 3
+        assert projectionChunkList.size() == 2
         assert projectionChunkList[0].sequenceOffset==0
         assert projectionChunkList[0].chunkArrayOffset==0
-        assert projectionChunkList[1].sequenceOffset==24202
+        assert projectionChunkList[1].sequenceOffset==29463
         assert projectionChunkList[1].chunkArrayOffset==1
-        assert projectionChunkList[2].sequenceOffset==29463
-//        assert projectionChunkList[2].chunkArrayOffset==1 // chunk is in a different space
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"
@@ -958,10 +954,10 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we expect the start and the stop to be in order and there should be NO overlap"
         assert trackArray.size() == 1
-        assert trackArray[0].size() == 11
+        assert trackArray[0].size() == 12
         assert trackArray[0][6] == "GB55200-RA"
-        assert trackArray[0][1] ==  29463 // ?
-        assert trackArray[0][2] == 106000
+        assert trackArray[0][1] ==  29663 // ?
+        assert trackArray[0][2] == 106676
 //        assert trackArray[0][10]["Sublist"].size() == 2
 
     }
