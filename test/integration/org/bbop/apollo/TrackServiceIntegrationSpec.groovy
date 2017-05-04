@@ -6,6 +6,7 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
+import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -881,7 +882,18 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-
+    /**
+     *  Two chunks are implied:
+     *  - chunk 1 (lf-1.json) on Group1.10 from 19636 to 588668 -> 0-29463 (or so)
+     *  - chunk 2 (lf-2.json) on Group11.16 from // 680K to 758K- > 29463 - 106876 , but it is still using chunk 1
+     *
+     * The first chunk is on Group1.10 should contain GB40809 and GB40811 (2 tracks) from 0-24202 and 24202 to 29463 (roughly),
+     * the original coordinates are 291K - 316K  and 366K - 372K
+     *
+     * The second chunk is on Group11.16 should be from 680K - 758K and maps to 29K to 106K
+     *
+     */
+    @IgnoreRest
     void "for two large scaffolds (1.10 and 11.6), if the first has two features (GB40809, GB40811) regions and the second one has one (GB55200)"() {
 
         given: "proper input"
@@ -906,15 +918,21 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncListArray[0].size() == 4
         assert ncListArray[0][1] == 0
         // TODO: should be 29463, won't affect much as it calls the chunk
-        assert ncListArray[0][2] == 24202
+        assert ncListArray[0][2] == 24202 + 5261
         assert ncListArray[0][3] == 1
         assert ncListArray[1].size() == 4
         // TODO: should be 29463, won't affect much as it calls the chunk
-        assert ncListArray[1][1] == 24202
+        assert ncListArray[1][1] == 24202 + 5261
         // TODO: should 106876, won't affect much as it calls the chunk
-        assert ncListArray[1][2] == 101615
+        assert ncListArray[1][2] == 101615 + 5261
         assert ncListArray[1][3] == 2 // not sure if this is correct
         assert projectionChunkList.size() == 3
+        assert projectionChunkList[0].sequenceOffset==0
+        assert projectionChunkList[0].chunkArrayOffset==0
+        assert projectionChunkList[1].sequenceOffset==24202
+        assert projectionChunkList[1].chunkArrayOffset==1
+        assert projectionChunkList[2].sequenceOffset==29463
+//        assert projectionChunkList[2].chunkArrayOffset==1 // chunk is in a different space
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"
@@ -942,8 +960,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray.size() == 1
         assert trackArray[0].size() == 11
         assert trackArray[0][6] == "GB55200-RA"
-        assert trackArray[0][1] == 29500 // ?
-        assert trackArray[0][2] == 29800 // ?
+        assert trackArray[0][1] ==  29463 // ?
+        assert trackArray[0][2] == 106000
 //        assert trackArray[0][10]["Sublist"].size() == 2
 
     }

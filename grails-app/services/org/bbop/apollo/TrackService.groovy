@@ -301,24 +301,23 @@ class TrackService {
             } else {
                 if (coordinateArray.getInt(trackIndex.start) == -1 && coordinateArray.getInt(trackIndex.end) == -1) {
                     // eliminate coordinate array since top level feature has -1 coordinates
-                    if (coordinateArray.size() > 10 && coordinateArray.get(coordinateArray.size()-1) instanceof JSONObject && coordinateArray.getJSONObject(coordinateArray.size()-1).containsKey("Sublist")) {
+                    if (coordinateArray.size() > 10 && coordinateArray.get(coordinateArray.size() - 1) instanceof JSONObject && coordinateArray.getJSONObject(coordinateArray.size() - 1).containsKey("Sublist")) {
                         // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
-                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(coordinateArray.size()-1).getJSONArray("Sublist"), currentOrganism, trackName)
+                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(coordinateArray.size() - 1).getJSONArray("Sublist"), currentOrganism, trackName)
                         // we know we want to remove this regardless
                         coordinateJsonArray.remove(coordinateArray)
                         --i
                         // if there is a valid subarray, we pull that to the top
-                        if(sanitizedSubListArray) {
-                            for(int subIndex = 0 ; subIndex < sanitizedSubListArray.size() ; ++subIndex){
+                        if (sanitizedSubListArray) {
+                            for (int subIndex = 0; subIndex < sanitizedSubListArray.size(); ++subIndex) {
                                 JSONArray validSubArray = sanitizedSubListArray.getJSONArray(subIndex)
-                                if (validSubArray.getInt(trackIndex.start) != -1  && validSubArray.getInt(trackIndex.end) != -1 ) {
+                                if (validSubArray.getInt(trackIndex.start) != -1 && validSubArray.getInt(trackIndex.end) != -1) {
                                     ++i
                                     coordinateJsonArray.add(i, validSubArray)
                                 }
                             }
                         }
-                    }
-                    else{
+                    } else {
                         coordinateJsonArray.remove(coordinateArray)
                         --i
                     }
@@ -394,28 +393,38 @@ class TrackService {
             Integer oldMax = coordinate.getInt(trackIndex.end) + projectionSequence.originalOffset
             assert oldMin <= oldMax
 
+            long originalOffsetStart = projectionSequence.originalOffsetStart
+            long originalOffsetEnd = projectionSequence.originalOffsetEnd
+            long projectedOffset = projectionSequence.projectedOffset
+            boolean reverse = projectionSequence.reverse
+
             Boolean useOffset = true
             // TODO: evaluate if this piece of code is correct
-            if(oldMin > projectionSequence.originalOffsetStart + projectionSequence.start || oldMax < projectionSequence.originalOffsetStart + projectionSequence.end){
-                List<ProjectionSequence> projectionSequenceList = projection.getProjectionSequences(oldMin,oldMax)
-                if(projectionSequenceList){
-                    projectionSequence = projectionSequenceList.first()
+            if (oldMin > projectionSequence.originalOffsetStart + projectionSequence.start || oldMax < projectionSequence.originalOffsetStart + projectionSequence.end) {
+                List<ProjectionSequence> projectionSequenceList = projection.getProjectionSequences(oldMin, oldMax)
+                if (projectionSequenceList) {
+                    def firstProjectionSequence = projectionSequenceList.first()
+                    def lastProjectionSequence = projectionSequenceList.last()
+                    originalOffsetStart = firstProjectionSequence.originalOffsetStart
+                    originalOffsetEnd = lastProjectionSequence.originalOffsetEnd
+                    projectedOffset = firstProjectionSequence.projectedOffset
+                    reverse = firstProjectionSequence.reverse
                     useOffset = false
                 }
             }
 
             // case 1: coordinates encompass the projection, so both the LHS and RHS will be bound (and partial)
-            if (oldMin < projectionSequence.originalOffsetStart && oldMax > projectionSequence.originalOffsetEnd) {
-                oldMin = projectionSequence.originalOffsetStart
-                oldMax = projectionSequence.originalOffsetEnd
+            if (oldMin < originalOffsetStart && oldMax > originalOffsetEnd) {
+                oldMin = originalOffsetStart
+                oldMax = originalOffsetEnd
             } else
             // case 2: coordinates span the LHS (and are thus partial)
-            if (oldMin < projectionSequence.originalOffsetStart && oldMax > projectionSequence.originalOffsetStart && oldMax < projectionSequence.originalOffsetEnd) {
-                oldMax = projectionSequence.originalOffsetEnd
+            if (oldMin < originalOffsetStart && oldMax > originalOffsetStart && oldMax < originalOffsetEnd) {
+                oldMax = originalOffsetEnd
             } else
             // case 3: coordinates span the RHS of the projection (and are thus partial)
-            if (oldMin > projectionSequence.originalOffsetStart && oldMin < projectionSequence.originalOffsetEnd && oldMax > projectionSequence.originalOffsetEnd) {
-                oldMax = projectionSequence.originalOffsetStart
+            if (oldMin > originalOffsetStart && oldMin < originalOffsetEnd && oldMax > originalOffsetEnd) {
+                oldMax = originalOffsetStart
             }
             // else do nothing, and they will be mapped internally
             // case 4: coordinates are outside the scope of the projection, so no processing
@@ -423,15 +432,14 @@ class TrackService {
 
             Coordinate newCoordinate = projection.projectCoordinate(oldMin, oldMax - 1)
             if (newCoordinate && newCoordinate.isValid()) {
-                if(useOffset){
-                    coordinate.set(trackIndex.start, newCoordinate.min + offset - projectionSequence.projectedOffset)
-                    coordinate.set(trackIndex.end, newCoordinate.max + offset - projectionSequence.projectedOffset + 1)
-                }
-                else{
+                if (useOffset) {
+                    coordinate.set(trackIndex.start, newCoordinate.min + offset - projectedOffset)
+                    coordinate.set(trackIndex.end, newCoordinate.max + offset - projectedOffset + 1)
+                } else {
                     coordinate.set(trackIndex.start, newCoordinate.min + offset)
                     coordinate.set(trackIndex.end, newCoordinate.max + offset + 1)
                 }
-                if (projectionSequence.reverse) {
+                if (reverse) {
                     int temp = coordinate.get(trackIndex.start)
                     if (trackIndex.strand > 0) {
                         int newStrand = org.bbop.apollo.sequence.Strand.getStrandForValue(coordinate.get(trackIndex.strand)).reverse().value
@@ -700,6 +708,10 @@ class TrackService {
             for (int i = 0; i < sequenceArray.size(); i++) {
                 def sequenceObject = sequenceArray.getJSONObject(i)
                 Sequence sequence = sequenceEntryMaps.get(sequenceObject.name)
+                // add the offset if not the same one, then we now use the offset
+                if (sequence.id != fullSequenceId) {
+                    fullSequenceOffset += previousFullSequenceOffset
+                }
                 sequenceObject.start = sequenceObject.start ?: sequence.start
                 sequenceObject.end = sequenceObject.end ?: sequence.end
                 Integer sequenceStart = sequenceObject.reverse ? sequenceObject.end : sequenceObject.start
@@ -714,14 +726,16 @@ class TrackService {
                         , name: sequenceObject.name
                 )
                 sequenceMap.put(storeObject, projectedEnd)
-                if(sequence.id!=fullSequenceId){
+
+                // if the sequence had changed or is the initial sequence, then we should add the previous offset
+                if (sequence.id != fullSequenceId) {
                     // if this is the initial
-                    fullSequenceOffset += sequence.length
-                    fullSequenceId = sequence.id
+//                    fullSequenceOffset += sequence.length
+//                    fullSequenceId = sequence.id
 //                    if(fullSequenceId==null){
-//                        fullSequenceOffset = 0
-//                        fullSequenceId = sequence.id
-//                        previousFullSequenceOffset = sequence.length
+//                    fullSequenceOffset = 0
+                    fullSequenceId = sequence.id
+                    previousFullSequenceOffset = sequence.length
 //                    }
 //                    else{
 //                        fullSequenceOffset += previousFullSequenceOffset
@@ -752,7 +766,7 @@ class TrackService {
             if (trackObject) {
                 JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
                 JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
-                if(ncListArray && ncListArray[0].size()==4){
+                if (ncListArray && ncListArray[0].size() == 4) {
                     println "nclist array ${ncListArray}"
                 }
                 trackMapperService.storeTrack(currentOrganism.commonName, trackName, intervalsObject.getJSONArray("classes"))
@@ -810,7 +824,7 @@ class TrackService {
                 trackObject.intervals.minStart = trackObject.intervals.maxEnd
                 trackObject.intervals.maxEnd = temp
             }
-            
+
             // sort nclist top-level
             JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
             JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
