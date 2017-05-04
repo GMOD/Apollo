@@ -110,7 +110,7 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.12.2-apollo"
+//        tag = "1.12.3-release"
 ////        branch = "master"
 //        alwaysPull = true
 //        alwaysRecheck = true
