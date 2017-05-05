@@ -3,9 +3,9 @@ package org.bbop.apollo
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -158,7 +158,12 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         String fileText = trackDataFile.text
         JSONObject trackDataObject = JSON.parse(fileText) as JSONObject
         JSONArray trackDataArray = trackDataObject.getJSONObject("intervals").getJSONArray("classes")
-        trackMapperService.storeTrack(organism.commonName, "Official Gene Set v3.2", "Group1.1", trackDataArray)
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                organismCommonName: organism.commonName
+                , trackName: "Official Gene Set v3.2"
+                , sequenceName: "Group1.1"
+        )
+        trackMapperService.storeTrack(sequenceDTO, trackDataArray)
 
         // top-level feature has -1 coordinates
         String payloadOneString = "[[0,-1,-1,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
@@ -178,7 +183,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has a top-level feature with invalid coordinates"
         JSONArray payloadOneArray = JSON.parse(payloadOneString) as JSONArray
-        JSONArray payloadOneReturnArray = trackService.sanitizeCoordinateArray(payloadOneArray, organism, trackName,"Group1.1")
+        JSONArray payloadOneReturnArray = trackService.sanitizeCoordinateArray(payloadOneArray, sequenceDTO)
 
         then: "we should see an empty coordinate JSON array"
         println "PAYLOAD ONE RETURN ARRAY: ${payloadOneReturnArray.toString()}"
@@ -187,7 +192,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has 2 sub-features with invalid coordinates"
         JSONArray payloadTwoArray = JSON.parse(payloadTwoString) as JSONArray
-        JSONArray payloadTwoReturnArray = trackService.sanitizeCoordinateArray(payloadTwoArray, organism, trackName,"Group1.1")
+        JSONArray payloadTwoReturnArray = trackService.sanitizeCoordinateArray(payloadTwoArray, sequenceDTO)
 
         then: "we should see a valid coordinate JSON array without those 2 sub-features"
         println "PAYLOAD TWO RETURN ARRAY: ${payloadTwoReturnArray.toString()}"
@@ -196,7 +201,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has a subList whose top-level feature has invalid coordinates"
         JSONArray payloadThreeArray = JSON.parse(payloadThreeString) as JSONArray
-        JSONArray payloadThreeReturnArray = trackService.sanitizeCoordinateArray(payloadThreeArray, organism, trackName,"Group1.1")
+        JSONArray payloadThreeReturnArray = trackService.sanitizeCoordinateArray(payloadThreeArray, sequenceDTO)
 
         then: " we should see a valid coordinate JSON array with an empty subList"
         println "PAYLOAD THREE RETURN ARRAY: ${payloadThreeReturnArray.toString()}"
@@ -205,7 +210,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has a subList whose sub-features have invalid coordinates"
         JSONArray payloadFourArray = JSON.parse(payloadFourString) as JSONArray
-        JSONArray payloadFourReturnArray = trackService.sanitizeCoordinateArray(payloadFourArray, organism, trackName,"Group1.1")
+        JSONArray payloadFourReturnArray = trackService.sanitizeCoordinateArray(payloadFourArray, sequenceDTO)
 
         then: "we should see a valid coordinate JSON array that has a subList without those sub-features"
         println "PAYLOAD FOUR RETURN ARRAY: ${payloadFourReturnArray.toString()}"
@@ -970,7 +975,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    @IgnoreRest
+//    @IgnoreRest
 //    @Ignore
     void "on two large scaffolds, if the the first has one feature Group2.19 (GB55415-RA) and the second has two features Group1.10 (GB40809-RA, GB40811-RA)"() {
         given: "proper input"

@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.commons.collections.map.MultiKeyMap
 import org.bbop.apollo.gwt.shared.projection.TrackIndex
 import org.bbop.apollo.gwt.shared.projection.NclistColumnEnum
+import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -15,13 +16,12 @@ class TrackMapperService {
     /**
      * Format Organism, Track, JSONArray
      */
-//    Map<String,Map<String,JSONArray>> tracks = new HashMap<>()
     MultiKeyMap tracks = new MultiKeyMap()
 
 
     @NotTransactional
-    List<String> getAttributes(String organism,String track,String sequenceName,Integer index){
-        JSONArray classArray = tracks.get(organism,track,sequenceName)
+    List<String> getAttributes(SequenceDTO sequenceDTO,Integer index){
+        JSONArray classArray = tracks.get(sequenceDTO.organismCommonName,sequenceDTO.trackName,sequenceDTO.sequenceName)
         JSONObject classObject =classArray.getJSONObject(index)
         JSONArray attributesArray = classObject?.getJSONArray("attributes")
         List<String> returnAttributes = []
@@ -32,13 +32,13 @@ class TrackMapperService {
     }
 
     @NotTransactional
-    def storeTrack(String organismName, String trackName,String sequenceName, JSONArray jsonArray) {
-        tracks.put(organismName,trackName,sequenceName,jsonArray)
+    def storeTrack(SequenceDTO sequenceDTO, JSONArray jsonArray) {
+        tracks.put(sequenceDTO.organismCommonName,sequenceDTO.trackName,sequenceDTO.sequenceName,jsonArray)
     }
 
     @NotTransactional
-    TrackIndex getIndices(String organismName, String trackName,String sequenceName, Integer index) {
-        List<String> attributes = getAttributes(organismName,trackName,sequenceName,index)
+    TrackIndex getIndices(SequenceDTO sequenceDTO, Integer index) {
+        List<String> attributes = getAttributes(sequenceDTO,index)
         TrackIndex trackIndex = new TrackIndex()
         trackIndex.start = attributes.indexOf(NclistColumnEnum.START.value)+1
         trackIndex.end = attributes.indexOf(NclistColumnEnum.END.value)+1
@@ -56,8 +56,8 @@ class TrackMapperService {
         trackIndex.fixCoordinates()
 
 
-        trackIndex.trackName = trackName
-        trackIndex.organism = organismName
+        trackIndex.trackName = sequenceDTO.trackName
+        trackIndex.organism = sequenceDTO.organismCommonName
         trackIndex.classIndex = index
 
         assert trackIndex.start != 0
