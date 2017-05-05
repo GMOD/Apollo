@@ -972,7 +972,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 //    @IgnoreRest
-//    @Ignore
+    @Ignore
     void "on two large scaffolds, if the the first has one feature Group2.19 (GB55415-RA) and the second has two features Group1.10 (GB40809-RA, GB40811-RA)"(){
         given: "proper input"
         // TODO: encode
