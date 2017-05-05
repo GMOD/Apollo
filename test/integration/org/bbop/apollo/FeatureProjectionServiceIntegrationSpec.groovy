@@ -264,6 +264,7 @@ class FeatureProjectionServiceIntegrationSpec extends AbstractIntegrationSpec {
 //
 //    }
 
+//    @IgnoreRest
     void "Add a transcript to the three prime side side and correctly calculate splice sites and then set the exon boundaries and return them"() {
 
         given: "if we create a transcript in the latter half of a combined scaffold it should not have any non-canonical splice sites"
