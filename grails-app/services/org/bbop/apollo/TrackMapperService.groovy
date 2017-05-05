@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.apache.commons.collections.map.MultiKeyMap
 import org.bbop.apollo.gwt.shared.projection.TrackIndex
 import org.bbop.apollo.gwt.shared.projection.NclistColumnEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -14,21 +15,14 @@ class TrackMapperService {
     /**
      * Format Organism, Track, JSONArray
      */
-    Map<String,Map<String,JSONArray>> tracks = new HashMap<>()
+//    Map<String,Map<String,JSONArray>> tracks = new HashMap<>()
+    MultiKeyMap tracks = new MultiKeyMap()
+
 
     @NotTransactional
-    JSONObject getClass(String organism,String track,Integer index){
-//        try {
-            return tracks.get(organism)?.get(track)?.getJSONObject(index)
-//        } catch (e) {
-//            println "failed to process ${organism} ${track} ${index} for ${e}"
-//            reutrn null
-//        }
-    }
-
-    @NotTransactional
-    List<String> getAttributes(String organism,String track,Integer index){
-        JSONObject classObject = getClass(organism,track,index)
+    List<String> getAttributes(String organism,String track,String sequenceName,Integer index){
+        JSONArray classArray = tracks.get(organism,track,sequenceName)
+        JSONObject classObject =classArray.getJSONObject(index)
         JSONArray attributesArray = classObject?.getJSONArray("attributes")
         List<String> returnAttributes = []
         for(int i = 0 ; attributesArray && i < attributesArray.size() ; i++){
@@ -38,15 +32,13 @@ class TrackMapperService {
     }
 
     @NotTransactional
-    def storeTrack(String organismName, String trackName, JSONArray jsonArray) {
-        Map<String,JSONArray> organismTracks = tracks.get(organismName) ?: new HashMap<>()
-        organismTracks.put(trackName,jsonArray)
-        tracks.put(organismName,organismTracks)
+    def storeTrack(String organismName, String trackName,String sequenceName, JSONArray jsonArray) {
+        tracks.put(organismName,trackName,sequenceName,jsonArray)
     }
 
     @NotTransactional
-    TrackIndex getIndices(String organismName, String trackName, Integer index) {
-        List<String> attributes = getAttributes(organismName,trackName,index)
+    TrackIndex getIndices(String organismName, String trackName,String sequenceName, Integer index) {
+        List<String> attributes = getAttributes(organismName,trackName,sequenceName,index)
         TrackIndex trackIndex = new TrackIndex()
         trackIndex.start = attributes.indexOf(NclistColumnEnum.START.value)+1
         trackIndex.end = attributes.indexOf(NclistColumnEnum.END.value)+1

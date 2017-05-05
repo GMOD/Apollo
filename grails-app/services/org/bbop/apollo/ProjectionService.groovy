@@ -328,61 +328,61 @@ class ProjectionService {
         return projectionSequenceList
     }
 
-    List<Coordinate> extractHighLevelCoordinates(JSONArray coordinate, Organism organism, String trackName) {
-        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
-
-        log.debug "processing high level array  ${coordinate as JSON}"
-        // process array in 10
-        if (trackIndex.hasSubFeatures()) {
-            List<Coordinate> localExonArray = extractExonArrayCoordinates(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName)
-            return localExonArray
-        }
-        return new ArrayList<Coordinate>()
-
-    }
-
-    List<Coordinate> extractExonArrayCoordinates(JSONArray coordinate, Organism organism, String trackName) {
-        List<Coordinate> coordinates = new ArrayList<>()
-        log.debug "processing exon array ${coordinate as JSON}"
-        def classType = coordinate.get(0)
-
-        // then we assume tht the rest are arrays if the first are . . and process them accordingly
-        if (classType instanceof JSONArray) {
-            for (int i = 0; i < coordinate.size(); i++) {
-                log.debug "subarray ${coordinate.get(i) as JSON}"
-                coordinates.addAll(extractExonArrayCoordinates(coordinate.getJSONArray(i), organism, trackName))
-            }
-            return coordinates
-        }
-        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
-        String featureType = coordinate.getString(trackIndex.type)
-        if (trackIndex.hasSubFeatures()) {
-            coordinates.addAll(extractExonArrayCoordinates(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName))
-        }
-        if (trackIndex.hasChunk()) {
-            JSONObject sublist = coordinate.getJSONObject(coordinate.size() - 1)
-            coordinates.addAll(extractHighLevelCoordinates(sublist.getJSONArray("Sublist"), organism, trackName))
-        }
-
-        // TODO: or repeat region?
-        if (featureType && featureType == "exon") {
-            String sequenceName = coordinate.getString(trackIndex.seqId)
-            ProjectionSequence projectionSequence1 = new ProjectionSequence(
-                    name: sequenceName
-                    , organism: organism.commonName
-
-            )
-            coordinates.add(
-                    new Coordinate(
-                            coordinate.getInt(trackIndex.start)
-                            , coordinate.getInt(trackIndex.end) - 1 // the end is exclusive from track, we store inclusive
-                            , projectionSequence1
-                    )
-            )
-        }
-
-        return coordinates
-    }
+//    List<Coordinate> extractHighLevelCoordinates(JSONArray coordinate, Organism organism, String trackName) {
+//        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
+//
+//        log.debug "processing high level array  ${coordinate as JSON}"
+//        // process array in 10
+//        if (trackIndex.hasSubFeatures()) {
+//            List<Coordinate> localExonArray = extractExonArrayCoordinates(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName)
+//            return localExonArray
+//        }
+//        return new ArrayList<Coordinate>()
+//
+//    }
+//
+//    List<Coordinate> extractExonArrayCoordinates(JSONArray coordinate, Organism organism, String trackName) {
+//        List<Coordinate> coordinates = new ArrayList<>()
+//        log.debug "processing exon array ${coordinate as JSON}"
+//        def classType = coordinate.get(0)
+//
+//        // then we assume tht the rest are arrays if the first are . . and process them accordingly
+//        if (classType instanceof JSONArray) {
+//            for (int i = 0; i < coordinate.size(); i++) {
+//                log.debug "subarray ${coordinate.get(i) as JSON}"
+//                coordinates.addAll(extractExonArrayCoordinates(coordinate.getJSONArray(i), organism, trackName))
+//            }
+//            return coordinates
+//        }
+//        TrackIndex trackIndex = trackMapperService.getIndices(organism.commonName, trackName, coordinate.getInt(0))
+//        String featureType = coordinate.getString(trackIndex.type)
+//        if (trackIndex.hasSubFeatures()) {
+//            coordinates.addAll(extractExonArrayCoordinates(coordinate.getJSONArray(trackIndex.subFeaturesColumn), organism, trackName))
+//        }
+//        if (trackIndex.hasChunk()) {
+//            JSONObject sublist = coordinate.getJSONObject(coordinate.size() - 1)
+//            coordinates.addAll(extractHighLevelCoordinates(sublist.getJSONArray("Sublist"), organism, trackName))
+//        }
+//
+//        // TODO: or repeat region?
+//        if (featureType && featureType == "exon") {
+//            String sequenceName = coordinate.getString(trackIndex.seqId)
+//            ProjectionSequence projectionSequence1 = new ProjectionSequence(
+//                    name: sequenceName
+//                    , organism: organism.commonName
+//
+//            )
+//            coordinates.add(
+//                    new Coordinate(
+//                            coordinate.getInt(trackIndex.start)
+//                            , coordinate.getInt(trackIndex.end) - 1 // the end is exclusive from track, we store inclusive
+//                            , projectionSequence1
+//                    )
+//            )
+//        }
+//
+//        return coordinates
+//    }
 
     JSONObject convertProjectionToAssemblageJsonObject(String putativeProjectionLoc, Organism organism) {
         JSONObject assemblageJsonObject = JSON.parse(putativeProjectionLoc) as JSONObject

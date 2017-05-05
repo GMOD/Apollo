@@ -5,7 +5,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
 import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
@@ -159,7 +158,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         String fileText = trackDataFile.text
         JSONObject trackDataObject = JSON.parse(fileText) as JSONObject
         JSONArray trackDataArray = trackDataObject.getJSONObject("intervals").getJSONArray("classes")
-        trackMapperService.storeTrack(organism.commonName, "Official Gene Set v3.2", trackDataArray)
+        trackMapperService.storeTrack(organism.commonName, "Official Gene Set v3.2", "Group1.1", trackDataArray)
 
         // top-level feature has -1 coordinates
         String payloadOneString = "[[0,-1,-1,-1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42155-RA\",1,\"GB42155-RA\",\"mRNA\",[[1,38227,38597,-1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,37711,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",2,\"CDS\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,38597,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"five_prime_UTR\"],[2,37229,37711,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"three_prime_UTR\"],[2,35285,37228,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,37229,38226,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38227,38627,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"],[2,38628,38907,-1,\"amel_OGSv3.2\",\"Group1.1\",1,\"exon\"]],{\"Sublist\":[[0,509862,511494,1,\"amel_OGSv3.2\",\"Group1.1\",\"GB42176-RA\",0.999828,\"GB42176-RA\",\"mRNA\",[[1,510317,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[1,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",1,\"CDS\"],[1,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0,\"CDS\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,510289,510317,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"five_prime_UTR\"],[2,509862,510161,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510289,510370,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510467,510572,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510695,510755,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,510948,511213,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"],[2,511377,511494,1,\"amel_OGSv3.2\",\"Group1.1\",0.999828,\"exon\"]]]]}]]"
@@ -179,7 +178,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has a top-level feature with invalid coordinates"
         JSONArray payloadOneArray = JSON.parse(payloadOneString) as JSONArray
-        JSONArray payloadOneReturnArray = trackService.sanitizeCoordinateArray(payloadOneArray, organism, trackName)
+        JSONArray payloadOneReturnArray = trackService.sanitizeCoordinateArray(payloadOneArray, organism, trackName,"Group1.1")
 
         then: "we should see an empty coordinate JSON array"
         println "PAYLOAD ONE RETURN ARRAY: ${payloadOneReturnArray.toString()}"
@@ -188,7 +187,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has 2 sub-features with invalid coordinates"
         JSONArray payloadTwoArray = JSON.parse(payloadTwoString) as JSONArray
-        JSONArray payloadTwoReturnArray = trackService.sanitizeCoordinateArray(payloadTwoArray, organism, trackName)
+        JSONArray payloadTwoReturnArray = trackService.sanitizeCoordinateArray(payloadTwoArray, organism, trackName,"Group1.1")
 
         then: "we should see a valid coordinate JSON array without those 2 sub-features"
         println "PAYLOAD TWO RETURN ARRAY: ${payloadTwoReturnArray.toString()}"
@@ -197,7 +196,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has a subList whose top-level feature has invalid coordinates"
         JSONArray payloadThreeArray = JSON.parse(payloadThreeString) as JSONArray
-        JSONArray payloadThreeReturnArray = trackService.sanitizeCoordinateArray(payloadThreeArray, organism, trackName)
+        JSONArray payloadThreeReturnArray = trackService.sanitizeCoordinateArray(payloadThreeArray, organism, trackName,"Group1.1")
 
         then: " we should see a valid coordinate JSON array with an empty subList"
         println "PAYLOAD THREE RETURN ARRAY: ${payloadThreeReturnArray.toString()}"
@@ -206,7 +205,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we try to sanitize a coordinate JSON array that has a subList whose sub-features have invalid coordinates"
         JSONArray payloadFourArray = JSON.parse(payloadFourString) as JSONArray
-        JSONArray payloadFourReturnArray = trackService.sanitizeCoordinateArray(payloadFourArray, organism, trackName)
+        JSONArray payloadFourReturnArray = trackService.sanitizeCoordinateArray(payloadFourArray, organism, trackName,"Group1.1")
 
         then: "we should see a valid coordinate JSON array that has a subList without those sub-features"
         println "PAYLOAD FOUR RETURN ARRAY: ${payloadFourReturnArray.toString()}"
@@ -628,8 +627,8 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "should we have multiple chunks (1-2) or map chunk 2 to 0 and get lf-1.json instead"
 //        assert "Group1.10"==projectionChunkList.get(0).sequence
-        assert projectionChunkList.size()==1
-        assert ncListArray.size()==1
+        assert projectionChunkList.size() == 1
+        assert ncListArray.size() == 1
         assert ncListArray[0].size() == 4
         assert ncListArray[0][1] == 0
         assert ncListArray[0][2] == 29463
@@ -934,10 +933,10 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncListArray[1][2] == 101615 + 5261
         assert ncListArray[1][3] == 2 // not sure if this is correct
         assert projectionChunkList.size() == 2
-        assert projectionChunkList[0].sequenceOffset==0
-        assert projectionChunkList[0].chunkArrayOffset==0
-        assert projectionChunkList[1].sequenceOffset==29463
-        assert projectionChunkList[1].chunkArrayOffset==1
+        assert projectionChunkList[0].sequenceOffset == 0
+        assert projectionChunkList[0].chunkArrayOffset == 0
+        assert projectionChunkList[1].sequenceOffset == 29463
+        assert projectionChunkList[1].chunkArrayOffset == 1
 
         when: "we project the first chunk lf-1.json"
         String fileName1 = "lf-1.json"
@@ -965,15 +964,15 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert trackArray.size() == 1
         assert trackArray[0].size() == 12
         assert trackArray[0][6] == "GB55200-RA"
-        assert trackArray[0][1] ==  29663 // ?
+        assert trackArray[0][1] == 29663 // ?
         assert trackArray[0][2] == 106676
 //        assert trackArray[0][10]["Sublist"].size() == 2
 
     }
 
-//    @IgnoreRest
-    @Ignore
-    void "on two large scaffolds, if the the first has one feature Group2.19 (GB55415-RA) and the second has two features Group1.10 (GB40809-RA, GB40811-RA)"(){
+    @IgnoreRest
+//    @Ignore
+    void "on two large scaffolds, if the the first has one feature Group2.19 (GB55415-RA) and the second has two features Group1.10 (GB40809-RA, GB40811-RA)"() {
         given: "proper input"
         // TODO: encode
         String sequenceList = "[{\"name\":\"Group2.19\",\"start\":1660760,\"end\":1661749,\"reverse\":false,\"feature\":{\"parent_id\":\"Group2.19\",\"name\":\"GB55415-RA\",\"start\":1660760,\"end\":1661749}},{\"name\":\"Group1.10\",\"start\":291158,\"end\":315360,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40809-RA\",\"start\":291158,\"end\":315360}},{\"name\":\"Group1.10\",\"start\":366840,\"end\":372101,\"reverse\":false,\"feature\":{\"parent_id\":\"Group1.10\",\"name\":\"GB40811-RA\",\"start\":366840,\"end\":372101}}]"
@@ -999,7 +998,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncListArray[0][1] == 0
         // TODO: should be 29463, won't affect much as it calls the chunk
         assert ncListArray[0][2] == 989
-        assert ncListArray[0][3] == 4 // I think this should be 1
+        assert ncListArray[0][3] == 1 // I think this should be 1
 
         assert ncListArray[1].size() == 4
         // TODO: should be 29463, won't affect much as it calls the chunk
