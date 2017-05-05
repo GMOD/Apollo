@@ -207,13 +207,12 @@ public class TrackPanel extends Composite {
         private void decorate() {
             HTML label = new HTML(trackInfo.getName());
             label.addStyleName("track-link");
-//            final CheckBox selected = new CheckBox();
             final ToggleSwitch selected = new ToggleSwitch();
+            selected.setValue(trackInfo.getVisible());
             selected.setSize(SizeType.MINI);
             selected.setAnimate(false);
             selected.setOffText("Show");
             selected.setOnText("Hide");
-            selected.setValue(trackInfo.getVisible());
             selected.addStyleName("track-slider");
             setPaddingTop(2);
             setPaddingBottom(2);

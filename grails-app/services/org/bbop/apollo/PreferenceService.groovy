@@ -366,7 +366,7 @@ class PreferenceService {
     def removeStalePreferences() {
 
         try {
-            log.error "Removing stale preferences"
+            log.info"Removing stale preferences"
             Date lastMonth = new Date().minus(0)
             int removalCount = 0
 
@@ -386,7 +386,7 @@ class PreferenceService {
                 userClientTokens.put(it.user, organismPreferenceMap)
             }
 
-            log.error "Removed ${removalCount} stale preferences"
+            log.info "Removed ${removalCount} stale preferences"
         } catch (e) {
             log.error("Error removing preferences ${e}")
         }
