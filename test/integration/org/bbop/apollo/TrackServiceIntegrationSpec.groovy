@@ -6,6 +6,7 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.IgnoreRest
 
 class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 

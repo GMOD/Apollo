@@ -811,7 +811,6 @@ class TrackService {
                     }
                     // only take if its greater
                     lastLength = sequenceLength > lastLength ? sequenceLength : lastLength
-
                     ++lastChunkArrayOffset
                 }
 
@@ -824,9 +823,6 @@ class TrackService {
                 // if we are projecting the same object, we don't a
                 if (previousTrackMap.containsKey(trackObject)) {
                     --priorChunkArrayOffset
-//                    ProjectionChunk previousChunk = previousTrackMap.get(trackObject)
-//                    previousChunk.chunkArrayOffset = projectionChunk.chunkArrayOffset
-//                    previousChunk.sequenceOffset = projectionChunk.sequenceOffset
                 } else {
                     projectionChunkList.addChunk(projectionChunk)
                 }
