@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.shared.projection;
 /**
  * This an object that maps the projected chunk requested to the actual chunk.
  *
- *
+ * The index within the ChunkList is the projected chunk.  
  *
  * Created by nathandunn on 11/10/15.
  */
@@ -19,7 +19,7 @@ public class ProjectionChunk {
     private Integer numChunks = 0;
 
     /**
-     * used to request the original ID, but I think this might be incorrect.
+     * The original ID.
      */
     private Integer chunkID = null ;
 
