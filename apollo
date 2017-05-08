@@ -34,7 +34,7 @@ fi
 
 function deploy_message(){
    echo "***************************************"
-   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://genomearchitect.readthedocs.io/en/latest/Troubleshooting/#tomcat-memory"
+   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://genomearchitect.readthedocs.io/en/latest/Troubleshooting.html#suggested-tomcat-memory-settings"
    echo "***************************************"
 }
 
