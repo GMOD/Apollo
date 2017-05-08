@@ -221,16 +221,18 @@ public class MainPanel extends Composite {
         setUserNameForCurrentUser();
 
         String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
-        try {
-            int selectedTab = Integer.parseInt(tabPreferenceString);
-            if(selectedTab<detailTabs.getWidgetCount()){
-                detailTabs.selectTab(selectedTab);
-                if (selectedTab == TabPanelIndex.TRACKS.index) {
-                    trackPanel.reloadIfEmpty();
+        if(tabPreferenceString!=null){
+            try {
+                int selectedTab = Integer.parseInt(tabPreferenceString);
+                if(selectedTab<detailTabs.getWidgetCount()){
+                    detailTabs.selectTab(selectedTab);
+                    if (selectedTab == TabPanelIndex.TRACKS.index) {
+                        trackPanel.reloadIfEmpty();
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
 
@@ -265,41 +267,23 @@ public class MainPanel extends Composite {
                         frame.setWidth("100%");
                         frame.setHeight("100%");
                         detailTabs.add(frame,title);
-//                        detailTabs.add(,title);
-//                        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
-//                        try {
-//                            Request panelRequest = builder.sendRequest(null, new RequestCallback() {
-//
-//                                public void onResponseReceived(Request request, Response response) {
-//                                    if (200 == response.getStatusCode()) {
-////                                        detailTabs.add(new HTML(response.getText()),title);
-//                                        detailTabs.add(new HTML(response.getText()),title);
-//                                        // Process the response in response.getText()
-//                                    } else {
-//                                        Bootbox.alert("Problem loading custom page: "+url);
-//                                        // Handle the error.  Can get the status text from response.getStatusText()
-//                                    }
-//                                }
-//
-//                                public void onError(Request request, Throwable exception) {
-//                                    Bootbox.alert(exception.toString());
-//                                }
-//                            });
-//                        } catch (RequestException e) {
-//                            Bootbox.alert(e.toString());
-//                        }
 
                     } else {
                         Bootbox.alert("Unsure how to process " + jsonObject.toString());
                     }
                 }
                 String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
-                int selectedTab = Integer.parseInt(tabPreferenceString);
-                if(selectedTab < detailTabs.getWidgetCount()){
+                if(tabPreferenceString!=null){
+                    int selectedTab = 0 ;
+                    try {
+                        selectedTab = Integer.parseInt(tabPreferenceString);
+                        if(selectedTab >= detailTabs.getWidgetCount()){
+                            selectedTab = 0 ;
+                        }
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
                     detailTabs.selectTab(selectedTab);
-                }
-                else{
-                    selectedTab = 0 ;
                 }
             }
 
