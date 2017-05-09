@@ -13,7 +13,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class ProjectionService {
 
     def assemblageService
-    def trackMapperService
     def permissionService
 
 
@@ -551,7 +550,6 @@ class ProjectionService {
     @NotTransactional
     String generateNameForObject(JSONObject jsonObject){
         String returnString = ""
-//        JSONObject returnObject = new JSONObject()
         JSONArray sequenceArray = new JSONArray()
         JSONObject sequenceObject = new JSONObject(jsonObject)
         sequenceArray.add(sequenceObject)
@@ -572,7 +570,6 @@ class ProjectionService {
             // {seqChunkSize: 20000, length: 1382403, name: "Group1.1", start: 0, end: 1382403}
             // to
 //            "{"id":9796,"name":"Group1.1","description":"Group1.1","padding":0,"start":0,"end":1382403,"sequenceList":[{"name":"Group1.1","start":0,"end":1382403,"reverse":false}]}:97510..378397"
-
             obj.name = generateNameForObject(obj)
         }
         return jsonArray
@@ -580,21 +577,9 @@ class ProjectionService {
 
     JSONObject generateRefSeqForAssemblage(Assemblage assemblage) {
         JSONObject refSeqObj = new JSONObject()
-//        refSeqObj.id = assemblage.id
         refSeqObj.put(FeatureStringEnum.START.value,assemblage.start)
         refSeqObj.put(FeatureStringEnum.END.value,assemblage.end)
-//        refSeqObj.put(FeatureStringEnum.SEQUENCE_LIST.value,JSON.parse(assemblage.sequenceList) as JSONArray)
         refSeqObj.put(FeatureStringEnum.SEQUENCE_LIST.value,assemblage.sequenceList)
-//        refSeqObj.seqChunkSize  = 20000
-//        refSeqObj.put(FeatureStringEnum.NAME.value,assemblage.sequenceList)
-//        refSeqObj.put(FeatureStringEnum.NAME.value,assemblage.name)
-
-//        long length = 0l
-//
-//        for(seq in refSeqObj.sequenceList){
-//            length += seq.length
-//        }
-//        refSeqObj.length = length
 
         return refSeqObj
     }

@@ -132,34 +132,30 @@ public class ProjectionService {
     }
 
     public static Long projectValue(String referenceString, Long input) {
-//        GWT.log("trying to project a value in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         Long projectedValue = projection.projectValue(input);
-//        GWT.log("projected a value " + projectedValue + " for " + input);
         return projectedValue;
     }
 
-    public static Long projectReverseValue(String referenceString, String otherType) {
+    public static Long unProjectValue(String referenceString, String otherType) {
         Integer input = Integer.parseInt(otherType);
-        return projectReverseValue(referenceString, (long) input);
+        return unProjectValue(referenceString, (long) input);
     }
 
 
-    public static Long projectReverseValue(String referenceString, Long input) {
-//        GWT.log("trying to project a value in GWT: " + input);
+    public static Long unProjectValue(String referenceString, Long input) {
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         Long projectedValue = projection.unProjectValue(input);
-//        GWT.log("projected a value " + projectedValue + " for " + input);
         return projectedValue;
     }
 
-    public static String projectReverseSequence(String referenceString, String otherType) {
+    public static String unProjectSequence(String referenceString, String otherType) {
         Integer input = Integer.parseInt(otherType);
-        return projectReverseSequence(referenceString, (long) input);
+        return unProjectSequence(referenceString, (long) input);
     }
 
 
-    public static String projectReverseSequence(String referenceString, Long input) {
+    public static String unProjectSequence(String referenceString, Long input) {
 //        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         ProjectionSequence projectionSequence = projection.getUnProjectedSequence(input);
@@ -168,12 +164,12 @@ public class ProjectionService {
         return projectionSequence.getName();
     }
 
-    public static JavaScriptObject getReverseProjection(String referenceString, String inputString) {
+    public static JavaScriptObject getOriginalProjection(String referenceString, String inputString) {
         Integer input = Integer.parseInt(inputString);
-        return getReverseProjection(referenceString, (long) input);
+        return getOrginalProjection(referenceString, (long) input);
     }
 
-    public static JavaScriptObject getReverseProjection(String referenceString, Long input) {
+    public static JavaScriptObject getOrginalProjection(String referenceString, Long input) {
 //        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         JSONObject jsonObject = new JSONObject();
@@ -340,9 +336,6 @@ public class ProjectionService {
                     Long leftEdge = discontinuousProjection.projectValue(firstCoordate.getMax());
                     Long rightEdge = discontinuousProjection.projectValue(lastCoordinate.getMin());
 
-//                    GWT.log("startBase "+startBase + " vs left "+firstCoordate.getMax() + " projecteed left: " + discontinuousProjection.projectValue(firstCoordate.getMax()));
-//                    GWT.log("endBase "+endBase + " vs right "+lastCoordinate.getMin() + " projectied right: " + discontinuousProjection.projectValue(lastCoordinate.getMin()));
-
                     if (leftEdge >= startBase && rightEdge <= endBase) {
                         JSONObject jsonObject = new JSONObject();
                         Long foldPoint = projection.unProjectValue(firstCoordate.getMax());
@@ -363,10 +356,7 @@ public class ProjectionService {
 
         JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
 
-//        Long fmin = Math.round(jsonObject.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
-//        Long fmax = Math.round(jsonObject.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
         String sequenceString = jsonObject.get(FeatureStringEnum.SEQUENCE.getValue()).isString().stringValue();
-
 
         JSONArray sequenceListArray = JSONParser.parseStrict(sequenceString).isArray();
 
@@ -379,27 +369,16 @@ public class ProjectionService {
         // Note: parsing to a Long fails (renders 0).  Would have to parse to a double (or pass in a number) and move to a long.
         Integer startBase = Integer.valueOf(startBaseString);
         Integer endBase = Integer.valueOf(endBaseString);
-//        GWT.log("parsed startBase "+startBase + " from startBaseString '" + startBaseString+"'");
-//        GWT.log("parsed endBase "+endBase + " from endBaseString '" + endBaseString+"'");
         JSONArray foldPoints = getReversedFolds(multiSequenceProjection, startBase, endBase);
 
         return JsonUtils.safeEval(foldPoints.toString());
     }
 
     private static JavaScriptObject getFoldsForRegion(String refSeqString, String startBaseString, String endBaseString) {
-
-//        JSONObject jsonObject = JSONParser.parseStrict(locationString).isObject();
-//        GWT.log("input refseqname '"+refSeqString+"'");
         if (!refSeqString.endsWith("}")) {
-//            String locationString = refSeqString.substring(refSeqString.lastIndexOf(":") + 1, refSeqString.length());
-//            Long projectedFmin = Long.parseLong(locationString.split("\\.\\.")[0]);
-//            Long projectedFmax = Long.parseLong(locationString.split("\\.\\.")[1]);
             refSeqString = refSeqString.substring(0, refSeqString.lastIndexOf(":"));
         }
         JSONObject referenceProjection = JSONParser.parseStrict(refSeqString).isObject();
-//        Long fmin = Math.round(referenceProjection.get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
-//        Long fmax = Math.round(referenceProjection.get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
-
 
         JSONArray sequenceListArray;
         if (referenceProjection.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isString() != null) {
@@ -429,9 +408,9 @@ public class ProjectionService {
 
     public static native void exportStaticMethod() /*-{
         $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
-        $wnd.projectReverseValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseValue(Ljava/lang/String;Ljava/lang/String;));
-        $wnd.projectReverseSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectReverseSequence(Ljava/lang/String;Ljava/lang/String;));
-        $wnd.getReverseProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getReverseProjection(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.unProjectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::unProjectValue(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.unProjectSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::unProjectSequence(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.getOriginalProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getOriginalProjection(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
         $wnd.getProjectionLength = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getProjectionLength(Ljava/lang/String;));
         $wnd.regionContainsFolds = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::regionContainsFolds(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
