@@ -1048,7 +1048,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    @IgnoreRest
+//    @IgnoreRest
     void "view a small scaffold"(){
         given: "proper input"
         Integer maxValue = 78258
@@ -1063,7 +1063,7 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject trackObject = trackService.projectTrackData(sequenceArray, trackDataName, refererLoc, Organism.first())
         JSONArray ncListArray = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value).getJSONArray(FeatureStringEnum.NCLIST.value)
 
-        then: "we should get 4 features"
+        then: "we should get 4 features in the correct order"
         assert ncListArray.size()==4
         assert ncListArray[0][3]==1
         assert ncListArray[0][2]-ncListArray[0][1]==10179-9966
@@ -1073,6 +1073,9 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncListArray[2][2]-ncListArray[2][1]==30329-29396
         assert ncListArray[3][3]==1
         assert ncListArray[3][2]-ncListArray[3][1]==45575-45455
+
+        assert ncListArray[0][2]==10179
+        assert ncListArray[3][2]==45575
 
 
         when: "we reverse this"
@@ -1094,6 +1097,9 @@ class TrackServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncListArray[0][3]==-1
         assert ncListArray[0][2]-ncListArray[0][1]==45575-45455
 
+
+        assert ncListArray[3][1]==78258 - 10179
+        assert ncListArray[0][1]==78258 - 45575
     }
 
 }
