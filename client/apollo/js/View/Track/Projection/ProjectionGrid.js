@@ -106,6 +106,10 @@ define([
 
                 },
 
+                getApollo: function(){
+                    return window.parent;
+                },
+
                 fillBlock: function (args) {
                     var blockIndex = args.blockIndex;
                     var block = args.block;
@@ -123,7 +127,7 @@ define([
                     var posLabel = document.createElement("div");
 
                     var refSeqString = JSON.stringify(this.refSeq);
-                    var projectedValue = window.parent.getReverseProjection(refSeqString,labelNumber);
+                    var projectedValue = this.getApollo().getOriginalProjection(refSeqString,labelNumber);
                     labelNumber = projectedValue.reverseValue ;
 
                     var filterNumber = -1 ;
