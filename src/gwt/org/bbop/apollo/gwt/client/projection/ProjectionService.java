@@ -181,7 +181,7 @@ public class ProjectionService {
             return JsonUtils.safeEval(new JSONObject().toString());
         }
 
-        Long reverseValue = projection.projectLocalReverseValue(input);
+        Long reverseValue = projection.unProjectLocalValue(input);
 
         jsonObject.put("sequence", convertToJsonObject(projectionSequence));
         jsonObject.put("reverseValue", new JSONNumber(reverseValue));
