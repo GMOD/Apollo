@@ -451,9 +451,11 @@ class TrackService {
             if (newCoordinate && newCoordinate.isValid()) {
                 if (useOffset) {
                     coordinate.set(trackIndex.start, newCoordinate.min + offset - projectedOffset)
+                    // add one because the end is exclusive
                     coordinate.set(trackIndex.end, newCoordinate.max + offset - projectedOffset + 1)
                 } else {
                     coordinate.set(trackIndex.start, newCoordinate.min + offset)
+                    // add one because the end is exclusive
                     coordinate.set(trackIndex.end, newCoordinate.max + offset + 1)
                 }
                 if (reverse) {
@@ -462,7 +464,9 @@ class TrackService {
                         int newStrand = org.bbop.apollo.sequence.Strand.getStrandForValue(coordinate.get(trackIndex.strand)).reverse().value
                         coordinate.set(trackIndex.strand, newStrand)
                     }
-                    coordinate.set(trackIndex.start, coordinate.get(trackIndex.end))
+                    // because the old end was exclusive and the old scaffold was, I think we are subtracting two to account for the offset of each
+                    coordinate.set(trackIndex.start, coordinate.get(trackIndex.end)-2)
+                    // because the old end was inclusive, we add one to make it exclusive
                     coordinate.set(trackIndex.end, temp)
                 }
             } else {
