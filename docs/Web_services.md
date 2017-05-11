@@ -40,14 +40,14 @@ A [python client](https://github.com/galaxy-genome-annotation/python-apollo) has
 Apollo web services, which is easy to setup:
 
 ```
-pip install apollo==3.0
+pip install apollo
 arrow init # provide Apollo credentials
 arrow -h
 ## have fun
 arrow groups get_groups
 ```
 
-[Documentation on commands](https://stedolan.github.io/jq/tutorial/) and [some examples](http://python-apollo.readthedocs.io/en/latest/arrow.html) working with [jq](https://stedolan.github.io/jq/tutorial/): 
+[Documentation on commands](http://python-apollo.readthedocs.io/en/latest/commands.html) and [some examples](http://python-apollo.readthedocs.io/en/latest/arrow.html) working with [jq](https://stedolan.github.io/jq/tutorial/): 
 
 
 ## What is the Web Service API?
