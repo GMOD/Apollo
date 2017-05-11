@@ -19,7 +19,7 @@ that you use https (which adds encryption ssl) instead of http.
 
 ### Examples
 
-We provide an [examples directory](docs/web_services/examples/groovy/).
+We provide an [examples directory](docs/web_services/examples/).
 
 ``` 
 curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \
