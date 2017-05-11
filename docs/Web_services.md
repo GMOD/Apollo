@@ -11,6 +11,45 @@ The most up to date Web Service API documentation is deployed from the source co
 
 See [http://icebox.lbl.gov/Apollo2/jbrowse/web_services/api](http://icebox.lbl.gov/Apollo2/jbrowse/web_services/api/) for details
 
+### Warning
+
+If you are sending password you care about over the wire (even if not using web services) it is *highly recommended*
+that you use https (which adds encryption ssl) instead of http.
+
+
+### Examples
+
+We provide an [examples directory](docs/web_services/examples/groovy/).
+
+``` 
+curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \
+    -H "Content-Type:application/json" \
+    -d "{'username': 'demo', 'password': 'demo'}" \
+    "http://localhost:8080/apollo/Login?operation=login"
+```
+
+
+Login expects two parameters: <code>username</code> and <code>password</code>, and optionally rememberMe for a
+persistent cookie.
+
+A successful login returns a empty JSON object
+
+### Python Client
+
+A [python client](https://github.com/galaxy-genome-annotation/python-apollo) has been provided over many of the
+Apollo web services, which is easy to setup:
+
+```
+pip install apollo
+arrow init # provide Apollo credentials
+arrow -h
+## have fun
+arrow groups get_groups
+```
+
+[Documentation on commands](http://python-apollo.readthedocs.io/en/latest/commands.html) and [some examples](http://python-apollo.readthedocs.io/en/latest/arrow.html) working with [jq](https://stedolan.github.io/jq/tutorial/): 
+
+
 ## What is the Web Service API?
 
 For a given Apollo server url (e.g., `https://localhost:8080/apollo` or any other Apollo site on the web), the
@@ -33,38 +72,12 @@ Most API requests will take:
 - uniquename - (if applicable) the uniquename is a [UUID](https://docs.oracle.com/javase/7/docs/api/java/util/UUID.html)
  used to guarantee a unique ID
 
-
 ### Errors If an error has occurred, a proper HTTP error code (most likely 400 or 500) and an error message.  is
 returned, in JSON format:
 
 ``` 
 { "error": "error message" }
 ```
-
-### Additional Notes
-
-If you are sending password you care about over the wire (even if not using web services) it is *highly recommended*
-that you use https (which adds encryption ssl) instead of http.
-
-Examples are provided in the docs/web_services/examples/groovy/ directory for using SSL and optionally ignoring
-certificates.
-
-
-### Example
-
-
-``` 
-curl -b cookies.txt -c cookies.txt -e "http://localhost:8080" \
-    -H "Content-Type:application/json" \
-    -d "{'username': 'demo', 'password': 'demo'}" \
-    "http://localhost:8080/apollo/Login?operation=login"
-```
-
-
-Login expects two parameters: <code>username</code> and <code>password</code>, and optionally rememberMe for a
-persistent cookie.
-
-A successful login returns a empty JSON object
 
 
 ### Cookies
