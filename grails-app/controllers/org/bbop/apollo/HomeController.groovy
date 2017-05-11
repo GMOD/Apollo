@@ -103,15 +103,18 @@ class HomeController {
             returnString += getClassName(timerName) +","+getMethodName(timerName)+","
             JSONObject timerData = timerObjects.getJSONObject(timerName)
             returnString += timerData.getInt("count") * timerData.getDouble("mean")
+            returnString += ","
             returnString += timerData.getInt("count")
+            returnString += ","
             returnString += timerData.getDouble("min")
+            returnString += ","
             returnString += timerData.getDouble("max")
+            returnString += ","
             returnString += timerData.getDouble("mean")
+            returnString += ","
             returnString += timerData.getDouble("stddev")
             returnString += "\n"
         }
-
-
 
         String fileName = "apollo-performance-metrics-${new Date().format('dd-MMM-yyyy')}"
         response.setHeader "Content-disposition", "attachment; filename=${fileName}.csv"
@@ -119,5 +122,6 @@ class HomeController {
         response.contentType = 'text/csv'
         response.outputStream << returnString
         response.outputStream.flush()
+        response.outputStream.close()
     }
 }
