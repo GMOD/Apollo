@@ -58,7 +58,7 @@ class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getCdsSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", transcript.uniqueName)
         getCdsSequenceString = getCdsSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDS.value)
         JSONObject commandObject = JSON.parse(getCdsSequenceString) as JSONObject
-        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getCDSSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
         
         then: "we should get the anticipated CDS sequence"
         assert getCDSSequenceReturnObject.residues != null

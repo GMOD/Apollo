@@ -39,7 +39,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getPeptideSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getPeptideSequenceString = getPeptideSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getPeptideSequenceString) as JSONObject
-        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getPeptideSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
         
         then: "we should get back the expected peptide sequence"
         assert getPeptideSequenceReturnObject.residues != null
@@ -50,7 +50,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getCDSSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDSSequenceString = getCDSSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDS.value)
         commandObject = JSON.parse(getCDSSequenceString) as JSONObject
-        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getCDSSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDS sequence"
         assert getCDSSequenceReturnObject.residues != null
@@ -61,7 +61,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getCDNASequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDNASequenceString = getCDNASequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDNA.value)
         commandObject = JSON.parse(getCDNASequenceString) as JSONObject
-        JSONObject getCDNASequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getCDNASequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDNA sequence"
         assert getCDNASequenceReturnObject.residues != null
@@ -72,7 +72,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getGenomicSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getGenomicSequenceString = getGenomicSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicSequenceString) as JSONObject
-        JSONObject getGenomicSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getGenomicSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 //
         then: "we should get back the expected genomic sequence"
         assert getGenomicSequenceReturnObject.residues != null
@@ -84,7 +84,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         getGenomicFlankSequenceString = getGenomicFlankSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicFlankSequenceString) as JSONObject
         commandObject.put("flank", 500)
-        JSONObject getGenomicFlankSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getGenomicFlankSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected genomic sequence including the flanking regions"
         assert getGenomicFlankSequenceReturnObject.residues != null
@@ -134,7 +134,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getPeptideSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getPeptideSequenceString = getPeptideSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getPeptideSequenceString) as JSONObject
-        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getPeptideSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected peptide sequence"
         assert getPeptideSequenceReturnObject.residues != null
@@ -145,7 +145,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getCDSSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDSSequenceString = getCDSSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDS.value)
         commandObject = JSON.parse(getCDSSequenceString) as JSONObject
-        JSONObject getCDSSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getCDSSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDS sequence"
         assert getCDSSequenceReturnObject.residues != null
@@ -156,7 +156,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getCDNASequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getCDNASequenceString = getCDNASequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_CDNA.value)
         commandObject = JSON.parse(getCDNASequenceString) as JSONObject
-        JSONObject getCDNASequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getCDNASequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected CDNA sequence"
         assert getCDNASequenceReturnObject.residues != null
@@ -167,7 +167,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getGenomicSequenceString = getSequenceString.replaceAll("@UNIQUENAME@", uniqueName)
         getGenomicSequenceString = getGenomicSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicSequenceString) as JSONObject
-        JSONObject getGenomicSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getGenomicSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 //
         then: "we should get back the expected genomic sequence"
         assert getGenomicSequenceReturnObject.residues != null
@@ -179,7 +179,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         getGenomicFlankSequenceString = getGenomicFlankSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_GENOMIC.value)
         commandObject = JSON.parse(getGenomicFlankSequenceString) as JSONObject
         commandObject.put("flank", 500)
-        JSONObject getGenomicFlankSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getGenomicFlankSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
 
         then: "we should get back the expected genomic sequence including the flanking regions"
         assert getGenomicFlankSequenceReturnObject.residues != null
@@ -258,11 +258,11 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         when: "a request is sent for the peptide sequence"
         String uniqueName = MRNA.findByName("GB40744-RA-00001").uniqueName
-        String getPeptideSequenceTemplateString = "{\"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
+        String getPeptideSequenceTemplateString = "{ ${testCredentials} \"operation\":\"get_sequence\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"type\":\"@SEQUENCE_TYPE@\"}"
         String getPeptideSequenceString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", uniqueName)
         getPeptideSequenceString = getPeptideSequenceString.replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         JSONObject commandObject = JSON.parse(getPeptideSequenceString) as JSONObject
-        JSONObject getPeptideSequenceReturnObject = sequenceService.getSequenceForFeatures(commandObject)
+        JSONObject getPeptideSequenceReturnObject = requestHandlingService.getSequenceForFeatures(commandObject)
         
         then: "we should get back the expected peptide sequence"
         assert getPeptideSequenceReturnObject.residues != null
@@ -280,27 +280,27 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         String getExon1PeptideString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", exonUniqueNameList[0]).replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         println "GET EXON STRING: ${getExon1PeptideString}"
         commandObject = JSON.parse(getExon1PeptideString) as JSONObject
-        String exon1PeptideSequence = sequenceService.getSequenceForFeatures(commandObject).residues
+        String exon1PeptideSequence = requestHandlingService.getSequenceForFeatures(commandObject)[0].residues
 
         String getExon2PeptideString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", exonUniqueNameList[1]).replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getExon2PeptideString) as JSONObject
-        String exon2PeptideSequence = sequenceService.getSequenceForFeatures(commandObject).residues
+        String exon2PeptideSequence = requestHandlingService.getSequenceForFeatures(commandObject)[0].residues
         
         String getExon3PeptideString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", exonUniqueNameList[2]).replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getExon3PeptideString) as JSONObject
-        String exon3PeptideSequence = sequenceService.getSequenceForFeatures(commandObject).residues
+        String exon3PeptideSequence = requestHandlingService.getSequenceForFeatures(commandObject)[0].residues
         
         String getExon4PeptideString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", exonUniqueNameList[3]).replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getExon4PeptideString) as JSONObject
-        String exon4PeptideSequence = sequenceService.getSequenceForFeatures(commandObject).residues
+        String exon4PeptideSequence = requestHandlingService.getSequenceForFeatures(commandObject)[0].residues
         
         String getExon5PeptideString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", exonUniqueNameList[4]).replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getExon5PeptideString) as JSONObject
-        String exon5PeptideSequence = sequenceService.getSequenceForFeatures(commandObject).residues
+        String exon5PeptideSequence = requestHandlingService.getSequenceForFeatures(commandObject)[0].residues
         
         String getExon6PeptideString = getPeptideSequenceTemplateString.replaceAll("@UNIQUENAME@", exonUniqueNameList[5]).replaceAll("@SEQUENCE_TYPE@", FeatureStringEnum.TYPE_PEPTIDE.value)
         commandObject = JSON.parse(getExon6PeptideString) as JSONObject
-        String exon6PeptideSequence = sequenceService.getSequenceForFeatures(commandObject).residues
+        String exon6PeptideSequence = requestHandlingService.getSequenceForFeatures(commandObject)[0].residues
         
         
         then: "we should get the expected peptide sequence"
