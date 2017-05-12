@@ -46,6 +46,7 @@ class RequestHandlingService {
     def assemblageService
     def featureProjectionService
     def sequenceService
+    def fastaHandlerService
 
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
@@ -2417,6 +2418,7 @@ class RequestHandlingService {
         }
         // project all the feature JSON Objects in returnFeaturesArray according to current assemblage
         featureProjectionService.projectTrack(returnFeaturesArray, assemblage, false)
+        fastaHandlerService.generateFeatureFastaHeader(returnFeaturesArray, type, flank)
         return returnFeaturesArray
     }
 }
