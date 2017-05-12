@@ -46,7 +46,6 @@ class RequestHandlingService {
     def assemblageService
     def featureProjectionService
     def sequenceService
-    def fastaHandlerService
 
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
@@ -2389,36 +2388,5 @@ class RequestHandlingService {
         }
 
         return featureContainer
-    }
-
-    @Timed
-    def getSequenceForFeatures(JSONObject inputObject, File outputFile = null) {
-        Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
-        log.debug "input at getSequenceForFeature: ${inputObject}"
-        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        JSONArray returnFeaturesArray = new JSONArray()
-        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        int flank
-        if (inputObject.has('flank')) {
-            flank = inputObject.getInt("flank")
-            log.debug "flank from request object: ${flank}"
-        } else {
-            flank = 0
-        }
-
-        for (int i = 0; i < featuresArray.length(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i)
-            String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
-            Feature gbolFeature = Feature.findByUniqueName(uniqueName)
-            JSONObject gbolFeatureAsJsonObject = featureService.convertFeatureToJSON(gbolFeature, false, assemblage)
-            String sequence = sequenceService.getSequenceForFeature(gbolFeature, type, flank)
-            gbolFeatureAsJsonObject.put("residues", sequence)
-            gbolFeatureAsJsonObject.put("uniquename", uniqueName)
-            returnFeaturesArray.add(gbolFeatureAsJsonObject)
-        }
-        // project all the feature JSON Objects in returnFeaturesArray according to current assemblage
-        featureProjectionService.projectTrack(returnFeaturesArray, assemblage, false)
-        fastaHandlerService.generateFeatureFastaHeader(returnFeaturesArray, type, flank)
-        return returnFeaturesArray
     }
 }
