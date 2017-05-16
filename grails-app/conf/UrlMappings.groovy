@@ -34,9 +34,11 @@ class UrlMappings {
         "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/plugins/WebApollo/json/annot.json"(controller:"jbrowse", action: "annotInclude")
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/getSeqBoundaries"(controller: "jbrowse", action: "getSeqBoundaries")
 
 
 
@@ -108,5 +110,26 @@ class UrlMappings {
             action= "data"
             fileType = "gff"
         }
+        // add other types
+        "/bigwig/stats/global"(controller: "bigwig",action: "global")
+        "/bigwig/stats/region"(controller: "bigwig",action: "region")
+        "/bigwig/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
+        "/bigwig/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName)
+        "/sequence/stats/global"(controller: "sequence",action: "statsGlobal",params:params)
+        "/sequence/stats/region"(controller: "sequence",action: "statsRegion",params:params)
+        "/sequence/stats/regionFeatureDensities"(controller: "sequence",action: "regionFeatureDensities",params:params)
+        "/sequence/features/${sequenceName}"(controller: "sequence",action: "features",params:params,sequenceName:sequenceName)
+
+        "/projectionLegend/stats/global"(controller: "projectionLegendTrack",action: "statsGlobal",params:params)
+        "/projectionLegend/stats/region"(controller: "projectionLegendTrack",action: "statsRegion",params:params)
+        "/projectionLegend/stats/regionFeatureDensities"(controller: "projectionLegendTrack",action: "regionFeatureDensities",params:params)
+        "/projectionLegend/features/${sequenceName}"(controller: "projectionLegendTrack",action: "features",params:params,sequenceName:sequenceName)
+
+        "/projectionGrid/stats/global"(controller: "projectionGridTrack",action: "statsGlobal",params:params)
+        "/projectionGrid/stats/region"(controller: "projectionGridTrack",action: "statsRegion",params:params)
+        "/projectionGrid/stats/regionFeatureDensities"(controller: "projectionGridTrack",action: "regionFeatureDensities",params:params)
+        "/projectionGrid/features/${sequenceName}"(controller: "projectionGridTrack",action: "features",params:params,sequenceName:sequenceName)
+//        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
+
     }
 }

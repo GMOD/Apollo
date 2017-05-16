@@ -4,10 +4,8 @@ import org.apache.commons.lang.WordUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.grails.plugins.metrics.groovy.Timed
-import org.springframework.format.datetime.DateFormatter
+
 import java.text.SimpleDateFormat
-
-
 
 public class Gff3HandlerService {
 
@@ -16,14 +14,16 @@ public class Gff3HandlerService {
     def transcriptService
     def exonService
     def configWrapperService
-    def requestHandlingService 
+    def requestHandlingService
     def featureService
     def overlapperService
     def featurePropertyService
 
     SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
-    static final def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
+    static final
+    def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
+
     @Timed
     public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
@@ -55,7 +55,7 @@ public class Gff3HandlerService {
         writeObject.out = out
         out.println("##gff-version 3")
         writeFeatures(writeObject, features, source)
-        if(exportSequence) {
+        if (exportSequence) {
             writeFastaForReferenceSequences(writeObject, sequences)
             writeFastaForSequenceAlterations(writeObject, features)
         }
@@ -68,15 +68,17 @@ public class Gff3HandlerService {
     public void writeFeatures(WriteObject writeObject, Collection<? extends Feature> features, String source) throws IOException {
         Map<Sequence, Collection<Feature>> featuresBySource = new HashMap<Sequence, Collection<Feature>>();
         for (Feature feature : features) {
-            Sequence sourceFeature = feature.featureLocation.sequence
-            Collection<Feature> featureList = featuresBySource.get(sourceFeature);
-            if (!featureList) {
-                featureList = new ArrayList<Feature>();
-                featuresBySource.put(sourceFeature, featureList);
+            feature.featureLocations.each { featureLocation ->
+                Sequence sourceFeature = featureLocation.sequence
+                Collection<Feature> featureList = featuresBySource.get(sourceFeature);
+                if (!featureList) {
+                    featureList = new ArrayList<Feature>();
+                    featuresBySource.put(sourceFeature, featureList);
+                }
+                featureList.add(feature);
             }
-            featureList.add(feature);
         }
-        featuresBySource.sort{ it.key }
+        featuresBySource.sort { it.key }
         for (Map.Entry<Sequence, Collection<Feature>> entry : featuresBySource.entrySet()) {
             writeGroupDirectives(writeObject, entry.getKey());
             for (Feature feature : entry.getValue()) {
@@ -86,18 +88,18 @@ public class Gff3HandlerService {
         }
     }
 
-    @Timed
-    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
-        while (iterator.hasNext()) {
-            Feature feature = iterator.next();
-            if (needDirectives) {
-                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
-                needDirectives = false;
-            }
-            writeFeature(writeObject, feature, source);
-            writeFeatureGroupEnd(writeObject.out);
-        }
-    }
+//    @Timed
+//    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
+//        while (iterator.hasNext()) {
+//            Feature feature = iterator.next();
+//            if (needDirectives) {
+//                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
+//                needDirectives = false;
+//            }
+//            writeFeature(writeObject, feature, source);
+//            writeFeatureGroupEnd(writeObject.out);
+//        }
+//    }
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
         if (sourceFeature.featureLocations?.size() == 0) return;
@@ -153,13 +155,13 @@ public class Gff3HandlerService {
             }
         }
     }
-    
+
     public void writeFastaForReferenceSequences(WriteObject writeObject, Collection<Sequence> sequences) {
         for (Sequence sequence : sequences) {
             writeFastaForReferenceSequence(writeObject, sequence)
         }
     }
-    
+
     public void writeFastaForReferenceSequence(WriteObject writeObject, Sequence sequence) {
         int lineLength = 60;
         String residues = null
@@ -168,13 +170,13 @@ public class Gff3HandlerService {
         if (residues != null) {
             writeObject.out.println(">" + sequence.name);
             int idx = 0;
-            while(idx < residues.length()) {
+            while (idx < residues.length()) {
                 writeObject.out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())))
                 idx += lineLength
             }
         }
     }
-    
+
     public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends Feature> features) {
         for (Feature feature : features) {
             if (feature instanceof SequenceAlteration) {
@@ -182,21 +184,21 @@ public class Gff3HandlerService {
             }
         }
     }
-    
+
     public void writeFastaForSequenceAlteration(WriteObject writeObject, SequenceAlteration sequenceAlteration) {
         int lineLength = 60;
         String residues = null
         residues = sequenceAlteration.getAlterationResidue()
-        if(residues != null) {
+        if (residues != null) {
             writeObject.out.println(">" + sequenceAlteration.name)
             int idx = 0;
-            while(idx < residues.length()) {
+            while (idx < residues.length()) {
                 writeObject.out.println(residues.substring(idx, Math.min(idx + lineLength, residues.length())))
                 idx += lineLength
             }
         }
     }
-    
+
     private Collection<GFF3Entry> convertToEntry(WriteObject writeObject, Feature feature, String source) {
         List<GFF3Entry> gffEntries = new ArrayList<GFF3Entry>();
         convertToEntry(writeObject, feature, source, gffEntries);
@@ -207,30 +209,31 @@ public class Gff3HandlerService {
     private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 
         //log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
-
-        String seqId = feature.featureLocation.sequence.name
-        String type = featureService.getCvTermFromFeature(feature);
-        int start = feature.getFmin() + 1;
-        int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
-        String score = ".";
-        String strand;
-        if (feature.getStrand() == Strand.POSITIVE.getValue()) {
-            strand = Strand.POSITIVE.getDisplay()
-        } else if (feature.getStrand() == Strand.NEGATIVE.getValue()) {
-            strand = Strand.NEGATIVE.getDisplay()
-        } else {
-            strand = "."
-        }
-        String phase = ".";
-        GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
-        entry.setAttributes(extractAttributes(writeObject, feature));
-        gffEntries.add(entry);
-        if(featureService.typeHasChildren(feature)){
-            for (Feature child : featureRelationshipService.getChildren(feature)) {
-                if (child instanceof CDS) {
-                    convertToEntry(writeObject, (CDS) child, source, gffEntries);
-                } else {
-                    convertToEntry(writeObject, child, source, gffEntries);
+        feature.featureLocations.each { featureLocation ->
+            String seqId = featureLocation.sequence.name
+            String type = featureService.getCvTermFromFeature(feature);
+            int start = feature.getFmin() + 1;
+            int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
+            String score = ".";
+            String strand;
+            if (feature.getStrand() == Strand.POSITIVE.getValue()) {
+                strand = Strand.POSITIVE.getDisplay()
+            } else if (feature.getStrand() == Strand.NEGATIVE.getValue()) {
+                strand = Strand.NEGATIVE.getDisplay()
+            } else {
+                strand = "."
+            }
+            String phase = ".";
+            GFF3Entry entry = new GFF3Entry(seqId, source, type, start, end, score, strand, phase);
+            entry.setAttributes(extractAttributes(writeObject, feature));
+            gffEntries.add(entry);
+            if (featureService.typeHasChildren(feature)) {
+                for (Feature child : featureRelationshipService.getChildren(feature)) {
+                    if (child instanceof CDS) {
+                        convertToEntry(writeObject, (CDS) child, source, gffEntries);
+                    } else {
+                        convertToEntry(writeObject, child, source, gffEntries);
+                    }
                 }
             }
         }
@@ -240,43 +243,47 @@ public class Gff3HandlerService {
     private void convertToEntry(WriteObject writeObject, CDS cds, String source, Collection<GFF3Entry> gffEntries) {
         //log.debug "converting CDS to ${cds.name} entry of # of entries ${gffEntries.size()}"
 
-        String seqId = cds.featureLocation.sequence.name
-        String type = cds.cvTerm
-        String score = ".";
-        String strand;
-        if (cds.getStrand() == 1) {
-            strand = "+";
-        } else if (cds.getStrand() == -1) {
-            strand = "-";
-        } else {
-            strand = ".";
-        }
-        Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
-
-        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
-        int length = 0;
-        for (Exon exon : exons) {
-            if (!overlapperService.overlaps(exon, cds)) {
-                continue;
-            }
-            int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
-            int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
-            String phase;
-            if (length % 3 == 0) {
-                phase = "0";
-            } else if (length % 3 == 1) {
-                phase = "2";
+        cds.featureLocations.each { featureLocation ->
+            String seqId = featureLocation.sequence.name
+            String type = cds.cvTerm
+            String score = ".";
+            String strand;
+            if (cds.getStrand() == 1) {
+                strand = "+";
+            } else if (cds.getStrand() == -1) {
+                strand = "-";
             } else {
-                phase = "1";
+                strand = ".";
             }
-            length += fmax - fmin;
-            GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
-            entry.setAttributes(extractAttributes(writeObject, cds));
-            gffEntries.add(entry);
+            Transcript transcript = transcriptService.getParentTranscriptForFeature(cds)
+
+            List<Exon> exons = transcriptService.getSortedExons(transcript, true)
+            int length = 0;
+            for (Exon exon : exons) {
+                if (!overlapperService.overlaps(exon, cds)) {
+                    continue;
+                }
+                int fmin = exon.getFmin() < cds.getFmin() ? cds.getFmin() : exon.getFmin();
+                int fmax = exon.getFmax() > cds.getFmax() ? cds.getFmax() : exon.getFmax();
+                String phase;
+                if (length % 3 == 0) {
+                    phase = "0";
+                } else if (length % 3 == 1) {
+                    phase = "2";
+                } else {
+                    phase = "1";
+                }
+                length += fmax - fmin;
+                GFF3Entry entry = new GFF3Entry(seqId, source, type, fmin + 1, fmax, score, strand, phase);
+                entry.setAttributes(extractAttributes(writeObject, cds));
+                gffEntries.add(entry);
+            }
+
+            for (Feature child : featureRelationshipService.getChildren(cds)) {
+                convertToEntry(writeObject, child, source, gffEntries);
+            }
         }
-        for (Feature child : featureRelationshipService.getChildren(cds)) {
-            convertToEntry(writeObject, child, source, gffEntries);
-        }
+
     }
 
     @Timed
@@ -286,11 +293,11 @@ public class Gff3HandlerService {
         if (feature.getName() != null && !isBlank(feature.getName()) && writeObject.attributesToExport.contains(FeatureStringEnum.NAME.value)) {
             attributes.put(FeatureStringEnum.EXPORT_NAME.value, encodeString(feature.getName()));
         }
-        if (!(feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAlterations)) {
-            def parent= featureRelationshipService.getParentForFeature(feature)
+        if (!(feature.class.name in requestHandlingService.viewableAnnotationList + requestHandlingService.viewableAlterations)) {
+            def parent = featureRelationshipService.getParentForFeature(feature)
             attributes.put(FeatureStringEnum.EXPORT_PARENT.value, encodeString(parent.uniqueName));
         }
-        if(configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList+requestHandlingService.viewableAlterations) {
+        if (configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList + requestHandlingService.viewableAnnotationTranscriptList + requestHandlingService.viewableAlterations) {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
                 Iterator<Synonym> synonymIter = feature.synonyms.iterator();
                 if (synonymIter.hasNext()) {
@@ -303,7 +310,6 @@ public class Gff3HandlerService {
                     attributes.put(FeatureStringEnum.EXPORT_ALIAS.value, synonyms.toString());
                 }
             }
-
 
             //TODO: Target
             //TODO: Gap
@@ -371,8 +377,7 @@ public class Gff3HandlerService {
                     for (Map.Entry<String, StringBuilder> iter : properties.entrySet()) {
                         if (iter.getKey() in unusedStandardAttributes) {
                             attributes.put(encodeString(WordUtils.capitalizeFully(iter.getKey())), iter.getValue().toString());
-                        }
-                        else {
+                        } else {
                             attributes.put(encodeString(WordUtils.uncapitalize(iter.getKey())), iter.getValue().toString());
                         }
                     }
@@ -393,14 +398,14 @@ public class Gff3HandlerService {
             }
 
 
-            if(feature.class.name in [Insertion.class.name,Substitution.class.name]) {
+            if (feature.class.name in [Insertion.class.name, Substitution.class.name]) {
                 attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
             }
         }
         return attributes;
     }
 
-    String formatDate(Date date){
+    String formatDate(Date date) {
         return gff3DateFormat.format(date)
     }
 
@@ -418,12 +423,11 @@ public class Gff3HandlerService {
         TEXT,
         GZIP
     }
-    
+
     private boolean isBlank(String attributeValue) {
         if (attributeValue == "") {
             return true
-        }
-        else {
+        } else {
             return false
         }
     }

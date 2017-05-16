@@ -1,7 +1,7 @@
 package org.bbop.apollo.sequence
 
 /**
- * Created by ndunn on 4/6/15.
+ * Created by Nathan Dunn on 4/6/15.
  */
 class Range {
     long start;

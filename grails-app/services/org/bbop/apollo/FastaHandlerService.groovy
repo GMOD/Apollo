@@ -103,7 +103,7 @@ public class FastaHandlerService {
             strand = "."
         }
         //int featureLength = sequenceService.getResiduesFromFeature(feature).length()
-        String defline = String.format(">%s (%s) %d residues [%s:%d-%d %s strand] [%s]", feature.getUniqueName(), feature.cvTerm, featureLength, feature.getFeatureLocation().getSequence().name, feature.fmin + 1, feature.fmax, strand, seqType);
+        String defline = String.format(">%s (%s) %d residues [%s:%d-%d %s strand] [%s]", feature.getUniqueName(), feature.cvTerm, featureLength, feature.getSequenceNames(), feature.fmin + 1, feature.fmax, strand, seqType);
         if (!metaDataToExport.isEmpty()) {
             boolean first = true;
             if (metaDataToExport.contains("name") && feature.getName() != null) {

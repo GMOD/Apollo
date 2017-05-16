@@ -9,7 +9,7 @@ import com.google.gwt.user.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
- * Created by ndunn on 1/11/15.
+ * Created by Nathan Dunn on 1/11/15.
  */
 public class PreferencePanel extends Composite {
     interface PreferencePanelUiBinder extends UiBinder<Widget, PreferencePanel> {

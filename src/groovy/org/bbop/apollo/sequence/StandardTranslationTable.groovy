@@ -1,7 +1,7 @@
 package org.bbop.apollo.sequence
 
 /**
- * Created by ndunn on 10/29/14.
+ * Created by Nathan Dunn on 10/29/14.
  */
 class StandardTranslationTable extends TranslationTable {
 
