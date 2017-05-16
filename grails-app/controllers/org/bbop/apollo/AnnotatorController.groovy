@@ -60,7 +60,7 @@ class AnnotatorController {
             // check organism first
             if (params.containsKey(FeatureStringEnum.ORGANISM.value)) {
                 String organismString = params[FeatureStringEnum.ORGANISM.value]
-                organism = preferenceService.getOrganismForToken(organismString)
+                organism = preferenceService.getOrganismForTokenInDB(organismString)
             }
             organism = organism ?: preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
