@@ -23,7 +23,8 @@ class AnnotatorService {
 
             JSONArray organismArray = new JSONArray()
             for (Organism organism in organismList) {
-                Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
+	    	  Integer annotationCount = 0
+//                Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
                 Integer sequenceCount = Sequence.countByOrganism(organism)
                 JSONObject jsonObject = [
                         id             : organism.id as Long,
