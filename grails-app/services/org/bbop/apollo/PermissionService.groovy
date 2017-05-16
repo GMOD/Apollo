@@ -515,6 +515,16 @@ class PermissionService {
         return highestEnum
     }
 
+    Map<Organism,Boolean> userHasOrganismPermissions(PermissionEnum permissionEnum) {
+        Map<Organism,Boolean> organismUserMap = [:]
+        UserOrganismPermission.findAllByUser(currentUser).each { permission ->
+            PermissionEnum highestPermssion = findHighestOrganismPermissionForCurrentUser(permission.organism)
+            organismUserMap.put(permission.organism,highestPermssion?.rank >= permissionEnum?.rank)
+        }
+
+        return organismUserMap
+    }
+
     Boolean userHasOrganismPermission(Organism organism, PermissionEnum permissionEnum) {
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
