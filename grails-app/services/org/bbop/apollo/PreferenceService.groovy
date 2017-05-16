@@ -1,21 +1,71 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.Transactional
+import org.apache.shiro.SecurityUtils
+import org.apache.shiro.session.Session
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class PreferenceService {
 
     def permissionService
 
+    def getSessionPreference(String clientToken) {
+        Session session = SecurityUtils.subject.getSession(false)
+        if (session) {
+            // should be client_token , JSONObject
+//            Map<String, String> preferences = JSON.parse(session.getAttribute(FeatureStringEnum.PREFERENCE.getValue()))
+            String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
+            if (!preferenceString) return null
+            JSONObject preferenceObject = JSON.parse(preferenceString) as JSONObject
+            if (preferenceObject) {
+                try {
+                    println "preference object ${preferenceObject as JSON}"
+//                        JSONObject preferenceJSON = JSON.parse(preferenceObject) as JSONObject
+                    def organismId = preferenceObject.organism.id as Long
+                    return Organism.get(organismId) ?: Organism.findById(organismId)
+                } catch (e) {
+                    log.error("failed to parse ${preferenceObject}:\n" + e)
+                    return null
+                }
+            } else {
+                log.debug "No preference found on session"
+            }
+        } else {
+            log.debug "No session found"
+        }
+        return null
+    }
+
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
         log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
+        Organism organism = getSessionPreference(clientToken)
+        println "found organism in session ${organism} so returning"
+        if (organism) return organism
         if (permissionService.currentUser == null) {
-            return getOrganismForToken(clientToken)
+            println "no user, so just using client token"
+            organism = getOrganismForToken(clientToken)
+            return organism
         } else {
-//            return getCurrentOrganism(permissionService.currentUser, clientToken)
-            return getOrganismFromPreferences(clientToken)
+            UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)
+            return setSessionPreference(clientToken, userOrganismPreference)?.organism
         }
-//        return permissionService.currentUser == null ? null : getCurrentOrganism(permissionService.currentUser,clientToken);
+    }
+
+    UserOrganismPreference setSessionPreference(String clientToken, UserOrganismPreference userOrganismPreference) {
+        Session session = SecurityUtils.subject.getSession(false)
+        if (session) {
+            // should be client_token , JSONObject
+//            String preferenceString  = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue()+"::"+clientToken) ?: [:]
+            String preferenceString = (userOrganismPreference as JSON).toString()
+//            preferences.put(clientToken, preferenceString)
+            session.setAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken, preferenceString)
+        } else {
+            log.debug "No session found"
+        }
+        return null
     }
 
     Organism getOrganismForToken(String s) {
@@ -268,25 +318,24 @@ class PreferenceService {
     def removeStalePreferences() {
 
         try {
-            log.info"Removing stale preferences"
+            log.info "Removing stale preferences"
             Date lastMonth = new Date().minus(0)
             int removalCount = 0
 
             // get user client tokens
             Map<User, Map<Organism, UserOrganismPreference>> userClientTokens = [:]
-            UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth,[sort: "lastUpdated", order: "desc"]).each {
+            UserOrganismPreference.findAllByLastUpdatedLessThan(lastMonth, [sort: "lastUpdated", order: "desc"]).each {
                 Map<Organism, UserOrganismPreference> organismPreferenceMap = userClientTokens.containsKey(it.user) ? userClientTokens.get((it.user)) : [:]
                 if (organismPreferenceMap.containsKey(it.organism)) {
-                    UserOrganismPreference preference= organismPreferenceMap.get(it.organism)
+                    UserOrganismPreference preference = organismPreferenceMap.get(it.organism)
                     // since we are sorting from the newest to the oldest, so just delete the older one
                     preference.delete()
                     ++removalCount
                     organismPreferenceMap.remove(it.organism)
+                } else {
+                    organismPreferenceMap.put(it.organism, it)
                 }
-                else {
-                    organismPreferenceMap.put(it.organism,it)
-                }
-                userClientTokens.put(it.user,organismPreferenceMap)
+                userClientTokens.put(it.user, organismPreferenceMap)
             }
 
             log.info "Removed ${removalCount} stale preferences"
