@@ -52,7 +52,7 @@ class PreferenceService {
                 log.debug "No session found"
             }
         } catch (e) {
-            println "faild to get the gession preference objec5 ${e}"
+            log.debug "faild to get the gession preference objec5 ${e}"
         }
         return null
     }
