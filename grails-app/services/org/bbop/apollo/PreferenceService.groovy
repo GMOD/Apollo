@@ -5,12 +5,19 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.sequence.SequenceLocationDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class PreferenceService {
 
     def permissionService
+
+// enqueue to store
+    private Map<SequenceLocationDTO, Date> saveSequenceLocationMap = [:]
+
+    final Integer PREFERENCE_SAVE_DELAY_SECONDS = 30  // saves every 30 seconds
+
 
     Organism getSessionOrganism(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
@@ -98,31 +105,11 @@ class PreferenceService {
 
 
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user,null,clientToken)
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
         userOrganismPreference.organism = organism
-        setSessionPreference(clientToken,userOrganismPreference)
+        setSessionPreference(clientToken, userOrganismPreference)
 //        storePreferenceInDB(userOrganismPreference)
-        setCurrentOrganismInDB(user,organism,clientToken)
-    }
-
-    // enuque to store
-    private Map<UserOrganismPreference,Date> userOrganismPreferenceDateMap = [:]
-
-    Integer PREFERENCE_SAVE_DELAY_SECONDS = 30  // saves every 30 seconds
-
-    /**
-     * We enqueue with the date and store it appropriately
-     * If it is re-saved prior to that, it restarts the timer
-     * @param userOrganismPreference
-     * @return
-     */
-    int storePreferenceInDB(UserOrganismPreference userOrganismPreference) {
-//        Date saveTime = new Date()
-//        if(userOrganismPreferenceDateMap.containsKey(userOrganismPreference)){
-//            saveTime = userOrganismPreferenceDateMap.get(userOrganismPreference)
-//        }
-//        userOrganismPreferenceDateMap.put()
-        return  userOrganismPreferenceDateMap.size()
+        setCurrentOrganismInDB(user, organism, clientToken)
     }
 
     def setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
@@ -157,11 +144,11 @@ class PreferenceService {
     }
 
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user,null,clientToken)
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
         userOrganismPreference.sequence = sequence
-        setSessionPreference(clientToken,userOrganismPreference)
+        setSessionPreference(clientToken, userOrganismPreference)
 //        storePreferenceInDB(userOrganismPreference)
-        setCurrentSequenceInDB(user,sequence,clientToken)
+        setCurrentSequenceInDB(user, sequence, clientToken)
     }
 
     def setCurrentSequenceInDB(User user, Sequence sequence, String clientToken) {
@@ -191,23 +178,56 @@ class PreferenceService {
     }
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser,sequenceName,clientToken)
-        if(userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence.organismId != userOrganismPreference.organismId){
-            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,userOrganismPreference.organism)
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
+        if (userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence.organismId != userOrganismPreference.organismId) {
+            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
             userOrganismPreference.sequence = sequence
         }
         userOrganismPreference.startbp = startBp
         userOrganismPreference.endbp = endBp
-        setSessionPreference(clientToken,userOrganismPreference)
+        setSessionPreference(clientToken, userOrganismPreference)
 
-//        storePreferenceInDB(userOrganismPreference)
-        setCurrentSequenceLocationInDB(sequenceName,startBp,endBp,clientToken)
+        SequenceLocationDTO sequenceLocationDTO = new SequenceLocationDTO(
+                sequenceName: sequenceName,
+                startBp: startBp,
+                endBp: endBp,
+                clientToken: clientToken
+        )
+        scheduleSaveSequenceLocationInDB(sequenceLocationDTO)
 
         return userOrganismPreference
     }
 
-    UserOrganismPreference setCurrentSequenceLocationInDB(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
+
+
+    def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
+        Date now = new Date()
+        Date date = saveSequenceLocationMap.get(sequenceLocationDTO)
+        if (!date) {
+            println "no time found so saving"
+            setCurrentSequenceLocationInDB(sequenceLocationDTO)
+        }
+        else{
+            def timeDiff = (now.getTime() - date.getTime()) / 1000
+            if(timeDiff > PREFERENCE_SAVE_DELAY_SECONDS){
+                log.debug "saving ${sequenceLocationDTO.clientToken} location to the database"
+                setCurrentSequenceLocationInDB(sequenceLocationDTO)
+            }
+            else{
+                log.debug "not saving ${sequenceLocationDTO.clientToken} location to the database"
+            }
+        }
+        saveSequenceLocationMap.put(sequenceLocationDTO,now)
+    }
+
+
+    UserOrganismPreference setCurrentSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
+        saveSequenceLocationMap.remove(saveSequenceLocationMap)
         User currentUser = permissionService.currentUser
+        String sequenceName = sequenceLocationDTO.sequenceName
+        String clientToken = sequenceLocationDTO.clientToken
+        Integer startBp = sequenceLocationDTO.startBp
+        Integer endBp = sequenceLocationDTO.endBp
 
         Organism currentOrganism = getCurrentOrganismPreference(currentUser, sequenceName, clientToken)?.organism
         if (!currentOrganism) {
