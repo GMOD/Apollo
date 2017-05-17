@@ -13,10 +13,12 @@ class PreferenceService {
 
     def permissionService
 
-// enqueue to store
-    private Map<SequenceLocationDTO, Date> saveSequenceLocationMap = [:]
-
     final Integer PREFERENCE_SAVE_DELAY_SECONDS = 30  // saves every 30 seconds
+    // enqueue to store save
+    private Map<SequenceLocationDTO, Date> saveSequenceLocationMap = [:]
+    // set of client locations
+    private Set<String> currentlySavingLocation = new HashSet<>()
+
 
 
     Organism getSessionOrganism(String clientToken) {
@@ -71,7 +73,7 @@ class PreferenceService {
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
         log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
         Organism organism = getSessionOrganism(clientToken)
-        println "found organism in session ${organism} so returning"
+        log.debug "found organism in session ${organism} so returning"
         if (organism) return organism
         if (permissionService.currentUser == null) {
             println "no user, so just using client token"
@@ -199,25 +201,52 @@ class PreferenceService {
     }
 
 
-
-    def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
-        Date now = new Date()
-        Date date = saveSequenceLocationMap.get(sequenceLocationDTO)
-        if (!date) {
-            println "no time found so saving"
-            setCurrentSequenceLocationInDB(sequenceLocationDTO)
+    def evaluateSave(Date date,SequenceLocationDTO sequenceLocationDTO){
+        if(currentlySavingLocation.contains(sequenceLocationDTO.clientToken)){
+            log.debug "is currently saving these client token, so not trying to save"
+          return
         }
-        else{
+
+        try {
+            currentlySavingLocation.add(sequenceLocationDTO.clientToken)
+            Date now = new Date()
+            log.debug "trying to save it ${sequenceLocationDTO.clientToken}"
             def timeDiff = (now.getTime() - date.getTime()) / 1000
             if(timeDiff > PREFERENCE_SAVE_DELAY_SECONDS){
-                log.debug "saving ${sequenceLocationDTO.clientToken} location to the database"
+                log.debug "saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
                 setCurrentSequenceLocationInDB(sequenceLocationDTO)
             }
             else{
-                log.debug "not saving ${sequenceLocationDTO.clientToken} location to the database"
+                log.debug "not saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
+            }
+        } catch (e) {
+            log.error "Problem saving ${e}"
+        } finally {
+            currentlySavingLocation.remove(sequenceLocationDTO.clientToken)
+        }
+
+    }
+
+    def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
+        Date date = saveSequenceLocationMap.get(sequenceLocationDTO)
+        if (!date) {
+            log.debug "no last save found so saving ${sequenceLocationDTO.clientToken} location to the database"
+            setCurrentSequenceLocationInDB(sequenceLocationDTO)
+        }
+        else{
+            evaluateSave(date,sequenceLocationDTO)
+        }
+        saveSequenceLocationMap.put(sequenceLocationDTO,new Date())
+        saveOutstandingLocationPreferences(sequenceLocationDTO.clientToken)
+    }
+
+    def saveOutstandingLocationPreferences(String ignoreToken=""){
+        log.debug "trying to save outstanding ${saveSequenceLocationMap.size()}"
+        saveSequenceLocationMap.each {
+            if(it.key.clientToken!=ignoreToken){
+                evaluateSave(it.value,it.key)
             }
         }
-        saveSequenceLocationMap.put(sequenceLocationDTO,now)
     }
 
 
