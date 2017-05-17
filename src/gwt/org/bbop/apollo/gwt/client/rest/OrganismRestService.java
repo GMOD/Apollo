@@ -104,7 +104,7 @@ public class OrganismRestService {
             }
         };
 
-        RestService.sendRequest(requestCallback,"annotator/setCurrentOrganism/"+newOrganismId);
+        RestService.sendRequest(requestCallback,"annotator/setCurrentOrganismInDB/"+newOrganismId);
     }
 
     public static void switchSequenceById(String newSequenceId) {

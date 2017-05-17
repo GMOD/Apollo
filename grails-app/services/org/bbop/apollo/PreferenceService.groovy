@@ -22,7 +22,7 @@ class PreferenceService {
     }
 
 
-    UserOrganismPreference getSessionUserOrganismPreference(String clientToken) {
+    UserOrganismPreference getSessionPreference(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
         if (preferenceObject) {
             def preferenceId = preferenceObject.id as Long
@@ -59,6 +59,7 @@ class PreferenceService {
         }
         return userOrganismPreference
     }
+
 
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
         log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
@@ -97,10 +98,38 @@ class PreferenceService {
 
 
     def setCurrentOrganism(User user, Organism organism, String clientToken) {
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user,null,clientToken)
+        userOrganismPreference.organism = organism
+        setSessionPreference(clientToken,userOrganismPreference)
+//        storePreferenceInDB(userOrganismPreference)
+        setCurrentOrganismInDB(user,organism,clientToken)
+    }
+
+    // enuque to store
+    private Map<UserOrganismPreference,Date> userOrganismPreferenceDateMap = [:]
+
+    Integer PREFERENCE_SAVE_DELAY_SECONDS = 30  // saves every 30 seconds
+
+    /**
+     * We enqueue with the date and store it appropriately
+     * If it is re-saved prior to that, it restarts the timer
+     * @param userOrganismPreference
+     * @return
+     */
+    int storePreferenceInDB(UserOrganismPreference userOrganismPreference) {
+//        Date saveTime = new Date()
+//        if(userOrganismPreferenceDateMap.containsKey(userOrganismPreference)){
+//            saveTime = userOrganismPreferenceDateMap.get(userOrganismPreference)
+//        }
+//        userOrganismPreferenceDateMap.put()
+        return  userOrganismPreferenceDateMap.size()
+    }
+
+    def setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(user, organism, clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
         }
 
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
@@ -116,11 +145,11 @@ class PreferenceService {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.save(flush: true, insert: false)
         }
-        setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+        setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
     }
 
     protected static
-    def setOtherCurrentOrganismsFalse(UserOrganismPreference userOrganismPreference, User user, String clientToken) {
+    def setOtherCurrentOrganismsFalseInDB(UserOrganismPreference userOrganismPreference, User user, String clientToken) {
         UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.clientToken = :clientToken",
@@ -128,11 +157,19 @@ class PreferenceService {
     }
 
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user,null,clientToken)
+        userOrganismPreference.sequence = sequence
+        setSessionPreference(clientToken,userOrganismPreference)
+//        storePreferenceInDB(userOrganismPreference)
+        setCurrentSequenceInDB(user,sequence,clientToken)
+    }
+
+    def setCurrentSequenceInDB(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences for sequence and organism: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
         }
 
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
@@ -150,10 +187,26 @@ class PreferenceService {
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save(flush: true, insert: false)
         }
-        setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+        setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
     }
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser,sequenceName,clientToken)
+        if(userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence.organismId != userOrganismPreference.organismId){
+            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,userOrganismPreference.organism)
+            userOrganismPreference.sequence = sequence
+        }
+        userOrganismPreference.startbp = startBp
+        userOrganismPreference.endbp = endBp
+        setSessionPreference(clientToken,userOrganismPreference)
+
+//        storePreferenceInDB(userOrganismPreference)
+        setCurrentSequenceLocationInDB(sequenceName,startBp,endBp,clientToken)
+
+        return userOrganismPreference
+    }
+
+    UserOrganismPreference setCurrentSequenceLocationInDB(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         User currentUser = permissionService.currentUser
 
         Organism currentOrganism = getCurrentOrganismPreference(currentUser, sequenceName, clientToken)?.organism
@@ -177,7 +230,7 @@ class PreferenceService {
         }
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), currentUser, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), currentUser, clientToken)
         }
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
@@ -215,7 +268,7 @@ class PreferenceService {
     }
 
     UserOrganismPreference getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
-        UserOrganismPreference preference = getSessionUserOrganismPreference(clientToken)
+        UserOrganismPreference preference = getSessionPreference(clientToken)
         return preference ?: getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken)
     }
 
@@ -229,7 +282,7 @@ class PreferenceService {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, true, clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
         }
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (userOrganismPreference) {
@@ -240,11 +293,11 @@ class PreferenceService {
         userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, false, clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
         }
         userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (userOrganismPreference) {
-            setOtherCurrentOrganismsFalse(userOrganismPreference, user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
             userOrganismPreference.currentOrganism = true
             userOrganismPreference.save(flush: true, insert: false)
             return userOrganismPreference
@@ -255,7 +308,7 @@ class PreferenceService {
         userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganism(user, true, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalse(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
         }
         userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
 
