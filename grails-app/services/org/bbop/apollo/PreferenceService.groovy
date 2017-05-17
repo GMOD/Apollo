@@ -12,29 +12,38 @@ class PreferenceService {
 
     def permissionService
 
-    def getSessionPreference(String clientToken) {
-        Session session = SecurityUtils.subject.getSession(false)
-        if (session) {
-            // should be client_token , JSONObject
-//            Map<String, String> preferences = JSON.parse(session.getAttribute(FeatureStringEnum.PREFERENCE.getValue()))
-            String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
-            if (!preferenceString) return null
-            JSONObject preferenceObject = JSON.parse(preferenceString) as JSONObject
-            if (preferenceObject) {
-                try {
-                    println "preference object ${preferenceObject as JSON}"
-//                        JSONObject preferenceJSON = JSON.parse(preferenceObject) as JSONObject
-                    def organismId = preferenceObject.organism.id as Long
-                    return Organism.get(organismId) ?: Organism.findById(organismId)
-                } catch (e) {
-                    log.error("failed to parse ${preferenceObject}:\n" + e)
-                    return null
-                }
+    Organism getSessionOrganism(String clientToken) {
+        JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
+        if (preferenceObject) {
+            def organismId = preferenceObject.organism.id as Long
+            return Organism.get(organismId) ?: Organism.findById(organismId)
+        }
+        return null
+    }
+
+
+    UserOrganismPreference getSessionUserOrganismPreference(String clientToken) {
+        JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
+        if (preferenceObject) {
+            def preferenceId = preferenceObject.id as Long
+            return UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
+        }
+        return null
+    }
+
+    JSONObject getSessionPreferenceObject(String clientToken) {
+        try {
+            Session session = SecurityUtils.subject.getSession(false)
+            if (session) {
+                // should be client_token , JSONObject
+                String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
+                if (!preferenceString) return null
+                return JSON.parse(preferenceString) as JSONObject
             } else {
-                log.debug "No preference found on session"
+                log.debug "No session found"
             }
-        } else {
-            log.debug "No session found"
+        } catch (e) {
+            println "faild to get the gession preference objec5 ${e}"
         }
         return null
     }
@@ -53,7 +62,7 @@ class PreferenceService {
 
     Organism getCurrentOrganismForCurrentUser(String clientToken) {
         log.debug "PS: getCurrentOrganismForCurrentUser ${clientToken}"
-        Organism organism = getSessionPreference(clientToken)
+        Organism organism = getSessionOrganism(clientToken)
         println "found organism in session ${organism} so returning"
         if (organism) return organism
         if (permissionService.currentUser == null) {
@@ -78,11 +87,10 @@ class PreferenceService {
     }
 
     Organism getOrganismForToken(String token) {
-        Organism organism = getSessionPreference(token)
-        if(organism){
-          return organism
-        }
-        else{
+        Organism organism = getSessionOrganism(token)
+        if (organism) {
+            return organism
+        } else {
             return getOrganismForTokenInDB(token)
         }
     }
@@ -206,8 +214,12 @@ class PreferenceService {
         userOrganismPreference.save(flush: true, insert: false)
     }
 
-
     UserOrganismPreference getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
+        UserOrganismPreference preference = getSessionUserOrganismPreference(clientToken)
+        return preference ?: getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken)
+    }
+
+    UserOrganismPreference getCurrentOrganismPreferenceInDB(User user, String sequenceName, String clientToken) {
         if (!user && !clientToken) {
             log.warn("No organism preference if no user ${user} or client token ${clientToken}")
             return null
@@ -302,16 +314,8 @@ class PreferenceService {
         return userOrganismPreference
     }
 
-    Organism getOrganismFromPreferences(String clientToken) {
-        getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)?.organism
-    }
-
-    Organism getOrganismFromPreferences(User user, String trackName, String clientToken) {
-        getCurrentOrganismPreference(user, trackName, clientToken)?.organism
-    }
-
-    UserOrganismPreference getCurrentOrganismPreference(String token) {
-        getCurrentOrganismPreference(permissionService.getCurrentUser(), null, token)
+    UserOrganismPreference getCurrentOrganismPreferenceInDB(String token) {
+        getCurrentOrganismPreferenceInDB(permissionService.getCurrentUser(), null, token)
     }
 
     /**

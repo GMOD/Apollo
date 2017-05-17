@@ -43,7 +43,7 @@ class AnnotatorService {
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreference(token)
+            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(token)
             if(currentUserOrganismPreference){
                 Organism currentOrganism = currentUserOrganismPreference?.organism
                 appStateObject.put("currentOrganism", currentOrganism )

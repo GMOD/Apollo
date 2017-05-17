@@ -67,7 +67,7 @@ class JbrowseController {
                 return
             }
             else{
-                organism = preferenceService.getOrganismFromPreferences(clientToken)
+                organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             }
             def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
             if(!availableOrganisms){
