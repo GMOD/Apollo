@@ -61,7 +61,7 @@ class AnnotatorController {
             // check organism first
             if (params.containsKey(FeatureStringEnum.ORGANISM.value)) {
                 String organismString = params[FeatureStringEnum.ORGANISM.value]
-                organism = preferenceService.getOrganismForToken(organismString)
+                organism = preferenceService.getOrganismForTokenInDB(organismString)
             }
             organism = organism ?: preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
@@ -318,11 +318,8 @@ class AnnotatorController {
                 }
             }
 
-//            Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-//            Organism organism = sequenceObj.organism
             Assemblage assemblage
-//            Organism organism = permissionService.currentOrganismPreference.organism
-            Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
 
             returnObject.organism = organism?.id
             if (returnObject.has("track")) {
@@ -478,7 +475,7 @@ class AnnotatorController {
     @Transactional
     def setCurrentOrganism(Organism organismInstance) {
         // set the current organism
-        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance, params[FeatureStringEnum.CLIENT_TOKEN.value])
+        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance, params[FeatureStringEnum.CLIENT_TOKEN.value] as String)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
 
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
@@ -487,7 +484,7 @@ class AnnotatorController {
             return
         }
 
-        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value]) as JSON
+        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value] as String) as JSON
     }
 
     /**
@@ -500,10 +497,10 @@ class AnnotatorController {
             return
         }
         // set the current organism and sequence Id (if both)
-        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance, params[FeatureStringEnum.CLIENT_TOKEN.value])
+        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance, params[FeatureStringEnum.CLIENT_TOKEN.value] as String)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, sequenceInstance.organism.directory)
 
-        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value]) as JSON
+        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value] as String) as JSON
     }
 
     def notAuthorized() {

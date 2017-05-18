@@ -17,35 +17,45 @@ class AnnotatorService {
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
-            def organismList = permissionService.getOrganismsForCurrentUser()
+            List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
             UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token,[max: 1, sort: "lastUpdated", order: "desc"])
             log.debug "found organism preference: ${userOrganismPreference} for token ${token}"
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
 
+            Map<Organism,Boolean> organismBooleanMap  = permissionService.userHasOrganismPermissions(PermissionEnum.ADMINISTRATE)
+            Map<Sequence,Integer> sequenceIntegerMap  = [:]
+            Sequence.executeQuery("select o,count(s) from Organism o join o.sequences s where o in (:organismList) group by o ",[organismList:organismList]).each(){
+                sequenceIntegerMap.put(it[0],it[1])
+            }
+            Map<Organism,Integer> annotationCountMap = [:]
+
+            Feature.executeQuery("select o,count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o in (:organismList) and f.class in (:viewableTypes) group by o", [organismList: organismList, viewableTypes: requestHandlingService.viewableAnnotationList]).each {
+                annotationCountMap.put(it[0],it[1])
+            }
+
 
             JSONArray organismArray = new JSONArray()
             for (Organism organism in organismList) {
-                Integer annotationCount = Feature.executeQuery("select count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o = :organism and f.class in (:viewableTypes)", [organism: organism, viewableTypes: requestHandlingService.viewableAnnotationList])[0] as Integer
-                Integer sequenceCount = Sequence.countByOrganism(organism)
+                Integer sequenceCount = sequenceIntegerMap.get(organism) ?: 0
                 JSONObject jsonObject = [
                         id             : organism.id as Long,
                         commonName     : organism.commonName,
                         blatdb         : organism.blatdb,
                         directory      : organism.directory,
-                        annotationCount: annotationCount,
+                        annotationCount: annotationCountMap.get(organism) ?: 0,
                         sequences      : sequenceCount,
                         genus          : organism.genus,
                         species        : organism.species,
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false,
-                        editable       : permissionService.userHasOrganismPermission(organism,PermissionEnum.ADMINISTRATE)
+                        editable       : organismBooleanMap.get(organism) ?: false
 
                 ] as JSONObject
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreference(token)
+            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(token)
             if(currentUserOrganismPreference){
                 Organism currentOrganism = currentUserOrganismPreference?.organism
                 appStateObject.put("currentOrganism", currentOrganism )

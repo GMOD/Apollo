@@ -79,7 +79,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             User user = User.findByUsername(username)
             log.debug "getting user permission for ${user}, returnObject"
-            Organism organism = preferenceService.getOrganismFromPreferences(user,null,returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
             }

@@ -266,7 +266,7 @@ class AssemblageService {
             organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
         }
         if (!organism && inputObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
-            UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(permissionService.getCurrentUser(),null,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             organism = userOrganismPreference?.organism
         }
         List<Sequence> sequences1 = getSequencesFromAssemblage(organism, sequenceArray)

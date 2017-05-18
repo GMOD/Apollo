@@ -11,7 +11,7 @@ class JbrowseService {
         String[] paths1 = path1.split("/")
         String[] paths2 = path2.split("/")
 
-        println "Comparing ${paths1[paths1.length-1]} to ${paths2[0]}"
+        log.debug "Comparing ${paths1[paths1.length-1]} to ${paths2[0]}"
         if(paths1[paths1.length-1]==paths2[0]){
             return true
         }

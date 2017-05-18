@@ -68,5 +68,17 @@ class DomainMarshallerService {
             returnArray['sequenceList'] = it?.sequenceList
             return returnArray
         }
+
+        JSON.registerObjectMarshaller(UserOrganismPreference) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['organism'] = it.organism
+            returnArray['currentOrganism'] = it.currentOrganism
+            returnArray['nativeTrackList'] = it?.nativeTrackList
+            returnArray['assemblage'] = it?.assemblage
+            returnArray['startbp'] = it?.startbp
+            returnArray['endbp'] = it?.endbp
+            return returnArray
+        }
     }
 }

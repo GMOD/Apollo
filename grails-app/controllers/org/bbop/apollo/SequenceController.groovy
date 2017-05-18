@@ -75,40 +75,6 @@ class SequenceController {
 
         User currentUser = permissionService.currentUser
         preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
-//
-//        if (!userOrganismPreference) {
-//            userOrganismPreference = new UserOrganismPreference(
-//                    user: currentUser
-//                    , organism: organism
-//                    , sequence: sequenceInstance
-//                    , currentOrganism: true
-//                    , clientToken: token
-//            ).save(insert: true, flush: true, failOnError: true)
-//        } else {
-//            userOrganismPreference.sequence = sequenceInstance
-//            userOrganismPreference.currentOrganism = true
-//            userOrganismPreference.save(flush: true, failOnError: true)
-//        }
-//        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
-//        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndClientToken(currentUser, organism,token,[max: 1, sort: "lastUpdated", order: "desc"])
-//
-////        Assemblage assemblage = assemblageService.generateAssemblageForSequence(currentUser,sequenceInstance)
-//        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequenceInstance)
-//        if (!userOrganismPreference) {
-//            userOrganismPreference = new UserOrganismPreference(
-//                    user: currentUser
-//                    , organism: organism
-//                    , assemblage: assemblage
-//                    , currentOrganism: true
-//                    , token: token
-//            ).save(insert: true, flush: true, failOnError: true)
-//        } else {
-//            userOrganismPreference.assemblage = assemblage
-//            userOrganismPreference.currentOrganism = true
-//            userOrganismPreference.save(flush: true, failOnError: true)
-//        }
-//        preferenceService.setOtherCurrentOrganismsFalse(userOrganismPreference, currentUser,token)
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -120,9 +86,6 @@ class SequenceController {
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
         session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequenceInstance.organismId)
 
-//        render userOrganismPreference.sequence.name as String
-//        render sequenceInstance.name as String
-//        JSONObject sequenceObject = sequenceInstance as JSONObject
         JSONObject sequenceObject = new JSONObject()
         sequenceObject.put("id", sequenceInstance.id)
         sequenceObject.put("name", sequenceInstance.name)

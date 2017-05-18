@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
+import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionChunk
@@ -51,13 +53,14 @@ class JbrowseController {
         }
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
-            Organism organism = preferenceService.getOrganismForToken(clientToken)
+//            Organism organism = preferenceService.getOrganismForToken(clientToken)
+            Organism organism = preferenceService.getOrganismForTokenInDB(clientToken)
             if(organism){
                 // we need to generate a client_token and do a redirection
                 paramList = paramList.findAll(){
                     !it.startsWith(FeatureStringEnum.CLIENT_TOKEN.value)
                 }
-                clientToken = org.bbop.apollo.gwt.shared.ClientTokenGenerator.generateRandomString()
+                clientToken = ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
                 String paramString = ""
                 paramList.each {
@@ -73,13 +76,13 @@ class JbrowseController {
                 return
             }
             else{
-                organism = preferenceService.getOrganismFromPreferences(clientToken)
+                organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             }
             def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
             if (!availableOrganisms) {
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
                 String username = permissionService.currentUser.username
-                org.apache.shiro.SecurityUtils.subject.logout()
+                SecurityUtils.subject.logout()
                 forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
                 return
             }

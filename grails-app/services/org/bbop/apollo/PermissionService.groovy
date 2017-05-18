@@ -347,9 +347,9 @@ class PermissionService {
         Organism organism
 
         Map<String, Integer> sequenceStrings = getSequenceNameFromInput(inputObject)
-        String trackName = null
+        String sequenceName = null
         if (sequenceStrings) {
-            trackName = sequenceStrings.keySet().first()
+            sequenceName = sequenceStrings.keySet().first()
         }
 
 
@@ -357,14 +357,14 @@ class PermissionService {
         organism = preferenceService.getOrganismFromInput(inputObject)
 
         if (!organism) {
-            organism = preferenceService.getOrganismFromPreferences(user, trackName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            organism = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
         }
 
 //        Sequence sequence = null
         Assemblage assemblage = null
-        if (!trackName) {
-//            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
-            assemblage = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.assemblage
+        if (!sequenceName) {
+//            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
+            assemblage = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.assemblage
         }
 //        else {
 //            sequence = Sequence.findByNameAndOrganism(trackName, organism)
@@ -565,7 +565,7 @@ class PermissionService {
             organism = getOrganismFromInput(jsonObject)
         }
 
-        organism = organism ?: preferenceService.getCurrentOrganismPreference(clientToken)?.organism
+        organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
         // don't set the preferences if it is coming off a script
         if(clientToken!=FeatureStringEnum.IGNORE.value){
             preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
@@ -606,6 +606,16 @@ class PermissionService {
             }
         }
         return highestEnum
+    }
+
+    Map<Organism,Boolean> userHasOrganismPermissions(PermissionEnum permissionEnum) {
+        Map<Organism,Boolean> organismUserMap = [:]
+        UserOrganismPermission.findAllByUser(currentUser).each { permission ->
+            PermissionEnum highestPermssion = findHighestOrganismPermissionForCurrentUser(permission.organism)
+            organismUserMap.put(permission.organism,highestPermssion?.rank >= permissionEnum?.rank)
+        }
+
+        return organismUserMap
     }
 
     Boolean userHasOrganismPermission(Organism organism, PermissionEnum permissionEnum) {

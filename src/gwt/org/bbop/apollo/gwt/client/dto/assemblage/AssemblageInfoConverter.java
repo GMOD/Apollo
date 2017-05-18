@@ -86,7 +86,8 @@ public class AssemblageInfoConverter {
             assemblageInfo.setSequenceList(assemblageSequenceList);
         }
         else{
-            Window.alert("does not contain sequence list: "+jsonObject.toString());
+//            Window.alert("does not contain sequence list: "+jsonObject.toString());
+            GWT.log("does not contain sequence list: "+jsonObject.toString());
         }
 
         return assemblageInfo;

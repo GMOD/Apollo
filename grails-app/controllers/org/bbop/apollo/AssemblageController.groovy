@@ -24,7 +24,7 @@ class AssemblageController {
         JSONObject inputObject = permissionService.handleInput(request, params)
         User user = permissionService.getCurrentUser(inputObject)
         if (Organism.count > 0) {
-            Organism currentOrganism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             render assemblageService.getAssemblagesForUserAndOrganism(user, currentOrganism).sort() { a, b -> a.sequenceList <=> b.sequenceList } as JSON
         } else {
             render new JSONObject() as JSON
@@ -111,7 +111,7 @@ class AssemblageController {
 
 
         User user = permissionService.currentUser
-        Organism organism = preferenceService.getOrganismFromPreferences(user, inputObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(), inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        Organism organism = preferenceService.getCurrentOrganismPreference(user, inputObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(), inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
 
         // creates a projection based on the Assemblages and caches them
         inputObject.organism = organism.commonName
@@ -163,7 +163,7 @@ class AssemblageController {
         User user = permissionService.getCurrentUser(inputObject);
 
         ArrayList<Assemblage> assemblages = new ArrayList<Assemblage>();
-        Organism currentOrganism = preferenceService.getOrganismFromPreferences(user, null, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
         for (Assemblage assemblage : assemblageService.getAssemblagesForUserAndOrganism(user, currentOrganism)) {
             if (assemblage.sequenceList.toLowerCase().contains(searchQuery)) {
                 if (filter) {
