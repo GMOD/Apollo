@@ -3,13 +3,10 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
-import org.bbop.apollo.authenticator.AuthenticatorService
-import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -309,22 +306,22 @@ class PermissionService {
      */
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
-        String trackName = getSequenceNameFromInput(inputObject)
+        String sequenceName = getSequenceNameFromInput(inputObject)
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
 
         if (!organism) {
-            organism = preferenceService.getOrganismFromPreferences(user, trackName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            organism = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
         }
 
         Sequence sequence
-        if (!trackName) {
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
+        if (!sequenceName) {
+            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
         } else {
-            sequence = Sequence.findByNameAndOrganism(trackName, organism)
+            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
             if(!sequence){
-                throw new AnnotationException("No sequence found for name '${trackName}' and organism '${organism?.commonName}'")
+                throw new AnnotationException("No sequence found for name '${sequenceName}' and organism '${organism?.commonName}'")
             }
         }
 
@@ -472,7 +469,7 @@ class PermissionService {
             organism = getOrganismFromInput(jsonObject)
         }
 
-        organism = organism ?: preferenceService.getCurrentOrganismPreference(clientToken)?.organism
+        organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
         // don't set the preferences if it is coming off a script
         if(clientToken!=FeatureStringEnum.IGNORE.value){
             preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
@@ -513,6 +510,16 @@ class PermissionService {
             }
         }
         return highestEnum
+    }
+
+    Map<Organism,Boolean> userHasOrganismPermissions(PermissionEnum permissionEnum) {
+        Map<Organism,Boolean> organismUserMap = [:]
+        UserOrganismPermission.findAllByUser(currentUser).each { permission ->
+            PermissionEnum highestPermssion = findHighestOrganismPermissionForCurrentUser(permission.organism)
+            organismUserMap.put(permission.organism,highestPermssion?.rank >= permissionEnum?.rank)
+        }
+
+        return organismUserMap
     }
 
     Boolean userHasOrganismPermission(Organism organism, PermissionEnum permissionEnum) {

@@ -10,7 +10,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def requestHandlingService
     def sequenceService
-    def exonService
+    def transcriptService
 
 
     void "add a simple gene model to get its sequence and a valid GFF3"() {
@@ -270,7 +270,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         
         when: "a request is sent for the peptide sequence of each exon"
         Transcript transcript = Transcript.findByName("GB40744-RA-00001")
-        def exons = exonService.getSortedExons(transcript, true)
+        def exons = transcriptService.getSortedExons(transcript, true)
         def exonUniqueNameList = []
         for (Exon exon : exons) {
             exonUniqueNameList.add(exon.uniqueName)

@@ -209,15 +209,10 @@ class ExonService {
         exon.save()
         splitExon.save()
 
-        return splitExon;
+        return splitExon
     }
 //
 
-    List<Exon> getSortedExons(Transcript transcript,boolean sortByStrand = true ) {
-        List<Exon> sortedExons= new LinkedList<Exon>(transcriptService.getExons(transcript));
-        Collections.sort(sortedExons,new FeaturePositionComparator<Exon>(sortByStrand))
-        return sortedExons
-    }
 
     /**
      * Set exon boundaries.
@@ -243,7 +238,7 @@ class ExonService {
         Transcript transcript = getTranscript(exon)
         Gene gene = transcriptService.getGene(transcript)
 
-        List<Exon> exons = getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
 
         Integer nextExonFmin = null;
         Integer nextExonFmax = null;
@@ -314,7 +309,7 @@ class ExonService {
         Transcript transcript = getTranscript(exon);
         Gene gene = transcriptService.getGene(transcript);
 
-        List<Exon> exons = getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
         Integer prevExonFmin = null;
         Integer prevExonFmax = null;
         for (ListIterator<Exon> iter = exons.listIterator(); iter.hasNext(); ) {
@@ -437,7 +432,7 @@ class ExonService {
                 ,Strand.getStrandForValue(exon.featureLocation.strand)
         )
 
-        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }
@@ -458,7 +453,7 @@ class ExonService {
             return phase
         }
 
-        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript)
+        ArrayList <Exon> exons = transcriptService.getSortedExons(transcript,false)
         if (exon.strand == Strand.NEGATIVE.value) {
             Collections.reverse(exons)
         }
