@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 
 import grails.transaction.Transactional
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -29,7 +30,9 @@ class SequenceService {
     def sessionFactory
     def assemblageService
     def projectionService
-
+    def permissionService
+    def featureProjectionService
+    def fastaHandlerService
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
         FeatureLocation.findAllBySequence(sequence)
@@ -462,11 +465,11 @@ class SequenceService {
         return residues
     }
 
-    def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
-        // Method returns a JSONObject
-        // Suitable for 'get sequence' operation from AEC
+    def getSequenceForFeatures(JSONObject inputObject, File outputFile = null) {
+        Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
         log.debug "input at getSequenceForFeature: ${inputObject}"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        JSONArray returnFeaturesArray = new JSONArray()
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
         int flank
         if (inputObject.has('flank')) {
@@ -480,13 +483,16 @@ class SequenceService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
+            JSONObject gbolFeatureAsJsonObject = featureService.convertFeatureToJSON(gbolFeature, false, assemblage)
             String sequence = getSequenceForFeature(gbolFeature, type, flank)
-
-            JSONObject outFeature = featureService.convertFeatureToJSON(gbolFeature)
-            outFeature.put("residues", sequence)
-            outFeature.put("uniquename", uniqueName)
-            return outFeature
+            gbolFeatureAsJsonObject.put("residues", sequence)
+            gbolFeatureAsJsonObject.put("uniquename", uniqueName)
+            returnFeaturesArray.add(gbolFeatureAsJsonObject)
         }
+        // project all the feature JSON Objects in returnFeaturesArray according to current assemblage
+        featureProjectionService.projectTrack(returnFeaturesArray, assemblage, false)
+        fastaHandlerService.generateFeatureFastaHeader(returnFeaturesArray, type, flank)
+        return returnFeaturesArray
     }
 
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
