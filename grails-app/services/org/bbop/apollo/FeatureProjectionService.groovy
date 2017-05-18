@@ -101,12 +101,12 @@ class FeatureProjectionService {
         JSONArray returnArray = new JSONArray()
         projectionSequences.each {
             JSONObject projectionSequenceJsonObject = new JSONObject()
-            projectionSequenceJsonObject.put("id", it.id)
+            projectionSequenceJsonObject.put(FeatureStringEnum.ID.value, it.id)
             projectionSequenceJsonObject.put(FeatureStringEnum.NAME.value, it.name)
-            projectionSequenceJsonObject.put("length", it.unprojectedLength)
-            projectionSequenceJsonObject.put("start", it.start)
-            projectionSequenceJsonObject.put("end", it.end)
-            projectionSequenceJsonObject.put("reverse", it.reverse)
+            projectionSequenceJsonObject.put(FeatureStringEnum.LENGTH.value, it.unprojectedLength)
+            projectionSequenceJsonObject.put(FeatureStringEnum.START.value, it.start)
+            projectionSequenceJsonObject.put(FeatureStringEnum.END.value, it.end)
+            projectionSequenceJsonObject.put(FeatureStringEnum.REVERSE.value, it.reverse)
             returnArray.add(projectionSequenceJsonObject)
         }
         return returnArray.toString()

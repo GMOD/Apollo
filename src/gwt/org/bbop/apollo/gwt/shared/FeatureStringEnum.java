@@ -147,7 +147,8 @@ public enum FeatureStringEnum {
         FEATURE,
         START,
         END,
-        USE_CDS
+        USE_CDS,
+        LENGTH
         ;
 
 
