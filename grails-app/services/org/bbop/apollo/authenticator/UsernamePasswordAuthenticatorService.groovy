@@ -20,7 +20,6 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService{
     def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
         try {
             Subject subject = SecurityUtils.getSubject();
-//            Session session = subject.getSession(true);
             subject.login(authToken)
             if (!subject.authenticated) {
                 log.error "Failed to authenticate user ${authToken.username}"

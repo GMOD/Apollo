@@ -168,7 +168,7 @@ class UserController {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
-                userOrganismPreference = preferenceService.getCurrentOrganismPreference(params[FeatureStringEnum.CLIENT_TOKEN.value])
+                userOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(params[FeatureStringEnum.CLIENT_TOKEN.value])
             } catch (e) {
                 log.error(e)
             }
@@ -200,7 +200,7 @@ class UserController {
             }
             log.info "updateTrackListPreference"
 
-            UserOrganismPreference uop = preferenceService.getCurrentOrganismPreference(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            UserOrganismPreference uop = preferenceService.getCurrentOrganismPreferenceInDB(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
             uop.nativeTrackList = dataObject.get("tracklist")
             uop.save(flush: true)
