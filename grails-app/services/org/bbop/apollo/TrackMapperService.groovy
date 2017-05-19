@@ -1,3 +1,5 @@
+package org.bbop.apollo
+
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.apache.commons.collections.map.MultiKeyMap
