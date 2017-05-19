@@ -1,4 +1,4 @@
-package org.bbop.apollo.gwt.shared.projection;
+package org.bbop.apollo.gwt.shared.track;
 
 /**
  * Created by nathandunn on 12/2/15.
