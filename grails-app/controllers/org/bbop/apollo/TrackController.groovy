@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApi
@@ -12,6 +13,7 @@ class TrackController {
 
     def preferenceService
     def trackService
+    def trackMapperService
 
     /**
      * Just a convenience method
@@ -25,11 +27,17 @@ class TrackController {
         render jsonObject as JSON
     }
 
-    def json(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
-        JSONArray filteredList = trackService.getNCList(trackName, organism, scaffold, fmin, fmax)
-        JSONArray clasesForTrack = trackService.getClassesForTrack(trackName, organism, scaffold)
-
-        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList)
+    def json(String trackName, String organismString, String scaffold, Long fmin, Long fmax) {
+        JSONArray filteredList = trackService.getNCList(trackName, organismString, scaffold, fmin, fmax)
+        JSONArray clasesForTrack = trackService.getClassesForTrack(trackName, organismString, scaffold)
+        Organism organism = preferenceService.getOrganismForToken(organismString)
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                organismCommonName: organism.commonName
+                , trackName: trackName
+                , sequenceName: scaffold
+        )
+        trackMapperService.storeTrack(sequenceDTO,clasesForTrack)
+        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList,sequenceDTO)
         render renderedArray as JSON
     }
 

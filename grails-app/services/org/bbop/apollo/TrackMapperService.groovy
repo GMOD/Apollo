@@ -1,8 +1,8 @@
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.apache.commons.collections.map.MultiKeyMap
-import org.bbop.apollo.gwt.shared.projection.NclistColumnEnum
-import org.bbop.apollo.gwt.shared.projection.TrackIndex
+import org.bbop.apollo.gwt.shared.track.NclistColumnEnum
+import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject

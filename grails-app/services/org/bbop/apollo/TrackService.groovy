@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -49,28 +50,32 @@ class TrackService {
         return filteredList
     }
 
-    JSONObject convertIndividualNCListToObject(JSONArray featureArray,JSONArray classesForTrack) {
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray,SequenceDTO sequenceDTO) {
         JSONObject jsonObject = new JSONObject()
 //        SequenceDTO sequenceDTO = new SequenceDTO(
 //                organismCommonName: currentOrganism.commonName
 //                , trackName: trackName
 //                , sequenceName: sequenceArrayObject.name
 //        )
-//        trackMapperService.storeTrack(sequenceDTO, intervalsObject.getJSONArray("classes"))
+        TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
 
         // bring out fmin,fmax, name, symbol, ??
-        jsonObject.fmin = featureArray[1]
-        jsonObject.fmax = featureArray[2]
-        jsonObject.strand = featureArray[3]==1 ? 1 : -1
+        jsonObject.fmin = featureArray[trackIndex.getStart()]
+        jsonObject.fmax = featureArray[trackIndex.getEnd()]
+        jsonObject.strand = featureArray[trackIndex.getStrand()]
+        jsonObject.source = featureArray[trackIndex.getSource()]
+        jsonObject.seqId = featureArray[trackIndex.getSeqId()]
+        jsonObject.id = featureArray[trackIndex.getId()]
+
 
         return jsonObject
     }
 
-    JSONArray convertAllNCListToObject(JSONArray fullArray,JSONArray classesForTrack) {
+    JSONArray convertAllNCListToObject(JSONArray fullArray,SequenceDTO sequenceDTO) {
         JSONArray returnArray = new JSONArray()
 
         for(JSONArray jsonArray in fullArray){
-            returnArray.add(convertIndividualNCListToObject(jsonArray,classesForTrack))
+            returnArray.add(convertIndividualNCListToObject(jsonArray,sequenceDTO))
         }
 
         return returnArray
