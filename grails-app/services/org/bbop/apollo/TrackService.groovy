@@ -8,12 +8,72 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 @Transactional
 class TrackService {
 
-    def serviceMethod() {
+    def preferenceService
 
+    public static String TRACK_NAME_SPLITTER = "::"
+
+    JSONArray getNCList(String trackName,String organism,String scaffold,Long fmin,Long fmax) {
+        println "trackName ${trackName}"
+        println "organism ${organism}"
+        println "scaffold ${scaffold}"
+        println "fmin ${fmin}"
+        println "fmax ${fmax}"
+
+        assert fmin < fmax
+
+        String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
+
+        // 1. get the trackData.json file
+
+        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${scaffold}"
+        String trackDataFilePath = "${trackPath}/trackData.json"
+
+        File file = new File(trackDataFilePath)
+        if(!file.exists()){
+            println "file does not exist ${trackDataFilePath}"
+            return null
+        }
+
+        JSONObject trackObject = JSON.parse(file.text) as JSONObject
+        JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
+
+
+
+        // 1 - extract the appropriate region for fmin / fmax
+        JSONArray filteredList = filterList(nclistArray,fmin,fmax)
+        println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
+
+
+        // 2 - convert each element to JSON
+
+        return filteredList
     }
 
 
-    public static String TRACK_NAME_SPLITTER = "::"
+    JSONObject getNCListAsObject(JSONArray jsonArray) {
+        return null
+    }
+
+    JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
+        JSONArray jsonArray = new JSONArray()
+
+        for(innerArray in inputArray){
+            println "handling array"
+            // if there is an overlap
+            if(  !(innerArray[2]<fmin || innerArray[1] > fmax) ){
+                // then no
+                jsonArray.add(innerArray)
+            }
+        }
+
+
+        return jsonArray
+    }
+
+
+    JSONObject getNCListAsBioLink(JSONArray jsonArray) {
+        null
+    }
 
     String getTracks(User user, Organism organism) {
         String trackList = ""

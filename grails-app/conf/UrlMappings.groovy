@@ -14,8 +14,14 @@ class UrlMappings {
         "/version.jsp"(controller: 'annotator', view: "version")
         "/${clientToken}/version.jsp"(controller: 'annotator', view: "version")
 
-        "/track/${organism}/${trackName}/${scaffold}:${fmin}..${fmax}.json"(controller: "track", action: "view")
-        "/track/${organism}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "view")
+        "/nclist/${organism}/${trackName}/${scaffold}:${fmin}..${fmax}.json"(controller: "track", action: "nclist")
+        "/nclist/${organism}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "nclist")
+
+        "/json/${organism}/${trackName}/${scaffold}:${fmin}..${fmax}.json"(controller: "track", action: "json")
+        "/json/${organism}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "json")
+
+        "/biolink/${organism}/${trackName}/${scaffold}:${fmin}..${fmax}.biolink"(controller: "track", action: "biolink")
+        "/biolink/${organism}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "biolink")
 
         // set this routing here
         "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
