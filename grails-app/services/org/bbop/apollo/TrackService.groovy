@@ -60,9 +60,12 @@ class TrackService {
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
                 jsonObject.strand = featureArray[trackIndex.getStrand()]
-                jsonObject.source = featureArray[trackIndex.getSource()]
+//                jsonObject.source = featureArray[trackIndex.getSource()]
                 jsonObject.type = featureArray[trackIndex.getType()]
-                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
+                if (trackIndex.id) {
+                    jsonObject.id = featureArray[trackIndex.id] // throws error
+                }
+//                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
 //                jsonObject.id = featureArray[trackIndex.getId()] // throws error
 
 
@@ -78,7 +81,7 @@ class TrackService {
                         childArray.add(convertIndividualNCListToObject(subArrays2, sequenceDTO))
                     }
                 }
-                if(childArray){
+                if (childArray) {
                     jsonObject.children = childArray
                 }
             }
