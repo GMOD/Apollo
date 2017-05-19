@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -9,22 +10,12 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class TrackService {
 
     def preferenceService
+    def trackMapperService
 
     public static String TRACK_NAME_SPLITTER = "::"
 
-    JSONArray getNCList(String trackName,String organism,String scaffold,Long fmin,Long fmax) {
-        println "trackName ${trackName}"
-        println "organism ${organism}"
-        println "scaffold ${scaffold}"
-        println "fmin ${fmin}"
-        println "fmax ${fmax}"
-
-        assert fmin < fmax
-
+    JSONObject getTrackData(String trackName,String organism,String scaffold){
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-
-        // 1. get the trackData.json file
-
         String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${scaffold}"
         String trackDataFilePath = "${trackPath}/trackData.json"
 
@@ -33,11 +24,20 @@ class TrackService {
             println "file does not exist ${trackDataFilePath}"
             return null
         }
+        return  JSON.parse(file.text) as JSONObject
+    }
 
-        JSONObject trackObject = JSON.parse(file.text) as JSONObject
+    JSONArray getClassesForTrack(String trackName,String organism,String scaffold) {
+        JSONObject trackObject = getTrackData(trackName,organism,scaffold)
+        return trackObject.getJSONArray("classes")
+    }
+
+    JSONArray getNCList(String trackName,String organism,String scaffold,Long fmin,Long fmax) {
+        assert fmin < fmax
+
+        // 1. get the trackData.json file
+        JSONObject trackObject = getTrackData(trackName,organism,scaffold)
         JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
-
-
 
         // 1 - extract the appropriate region for fmin / fmax
         JSONArray filteredList = filterList(nclistArray,fmin,fmax)
@@ -49,9 +49,31 @@ class TrackService {
         return filteredList
     }
 
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray,JSONArray classesForTrack) {
+        JSONObject jsonObject = new JSONObject()
+//        SequenceDTO sequenceDTO = new SequenceDTO(
+//                organismCommonName: currentOrganism.commonName
+//                , trackName: trackName
+//                , sequenceName: sequenceArrayObject.name
+//        )
+//        trackMapperService.storeTrack(sequenceDTO, intervalsObject.getJSONArray("classes"))
 
-    JSONObject getNCListAsObject(JSONArray jsonArray) {
-        return null
+        // bring out fmin,fmax, name, symbol, ??
+        jsonObject.fmin = featureArray[1]
+        jsonObject.fmax = featureArray[2]
+        jsonObject.strand = featureArray[3]==1 ? 1 : -1
+
+        return jsonObject
+    }
+
+    JSONArray convertAllNCListToObject(JSONArray fullArray,JSONArray classesForTrack) {
+        JSONArray returnArray = new JSONArray()
+
+        for(JSONArray jsonArray in fullArray){
+            returnArray.add(convertIndividualNCListToObject(jsonArray,classesForTrack))
+        }
+
+        return returnArray
     }
 
     JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
@@ -228,4 +250,5 @@ class TrackService {
         }
         return jsonObject.toString()
     }
+
 }

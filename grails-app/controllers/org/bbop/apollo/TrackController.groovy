@@ -11,15 +11,26 @@ import org.restapidoc.annotation.RestApi
 class TrackController {
 
     def preferenceService
-    def trackMapperService
     def trackService
 
+    /**
+     * Just a convenience method
+     * @param trackName
+     * @param organism
+     * @param scaffold
+     * @return
+     */
+    def trackData(String trackName, String organism, String scaffold) {
+        JSONObject jsonObject = trackService.getTrackData(trackName, organism, scaffold)
+        render jsonObject as JSON
+    }
 
     def json(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
         JSONArray filteredList = trackService.getNCList(trackName, organism, scaffold, fmin, fmax)
+        JSONArray clasesForTrack = trackService.getClassesForTrack(trackName, organism, scaffold)
 
-        JSONObject renderdObject = trackService.getNCListAsObject(filteredList)
-        render renderdObject as JSON
+        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList)
+        render renderedArray as JSON
     }
 
     def biolink(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
