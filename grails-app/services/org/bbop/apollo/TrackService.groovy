@@ -15,67 +15,85 @@ class TrackService {
 
     public static String TRACK_NAME_SPLITTER = "::"
 
-    JSONObject getTrackData(String trackName,String organism,String scaffold){
+    JSONObject getTrackData(String trackName, String organism, String scaffold) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
         String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${scaffold}"
         String trackDataFilePath = "${trackPath}/trackData.json"
 
         File file = new File(trackDataFilePath)
-        if(!file.exists()){
+        if (!file.exists()) {
             println "file does not exist ${trackDataFilePath}"
             return null
         }
-        return  JSON.parse(file.text) as JSONObject
+        return JSON.parse(file.text) as JSONObject
     }
 
-    JSONArray getClassesForTrack(String trackName,String organism,String scaffold) {
-        JSONObject trackObject = getTrackData(trackName,organism,scaffold)
-        return trackObject.getJSONArray("classes")
+    JSONArray getClassesForTrack(String trackName, String organism, String scaffold) {
+        JSONObject trackObject = getTrackData(trackName, organism, scaffold)
+        return trackObject.getJSONObject("intervals").getJSONArray("classes")
     }
 
-    JSONArray getNCList(String trackName,String organism,String scaffold,Long fmin,Long fmax) {
+    JSONArray getNCList(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
         assert fmin < fmax
 
         // 1. get the trackData.json file
-        JSONObject trackObject = getTrackData(trackName,organism,scaffold)
+        JSONObject trackObject = getTrackData(trackName, organism, scaffold)
         JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
 
         // 1 - extract the appropriate region for fmin / fmax
-        JSONArray filteredList = filterList(nclistArray,fmin,fmax)
+        JSONArray filteredList = filterList(nclistArray, fmin, fmax)
         println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
-
 
         // 2 - convert each element to JSON
 
         return filteredList
     }
 
-    JSONObject convertIndividualNCListToObject(JSONArray featureArray,SequenceDTO sequenceDTO) {
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) {
         JSONObject jsonObject = new JSONObject()
-//        SequenceDTO sequenceDTO = new SequenceDTO(
-//                organismCommonName: currentOrganism.commonName
-//                , trackName: trackName
-//                , sequenceName: sequenceArrayObject.name
-//        )
-        TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
 
-        // bring out fmin,fmax, name, symbol, ??
-        jsonObject.fmin = featureArray[trackIndex.getStart()]
-        jsonObject.fmax = featureArray[trackIndex.getEnd()]
-        jsonObject.strand = featureArray[trackIndex.getStrand()]
-        jsonObject.source = featureArray[trackIndex.getSource()]
-        jsonObject.seqId = featureArray[trackIndex.getSeqId()]
-        jsonObject.id = featureArray[trackIndex.getId()]
+        if (featureArray.size() > 3) {
+            if (featureArray[0] instanceof Integer) {
+                TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
+
+                // bring out fmin,fmax, name, symbol, ??
+                jsonObject.fmin = featureArray[trackIndex.getStart()]
+                jsonObject.fmax = featureArray[trackIndex.getEnd()]
+                jsonObject.strand = featureArray[trackIndex.getStrand()]
+                jsonObject.source = featureArray[trackIndex.getSource()]
+                jsonObject.type = featureArray[trackIndex.getType()]
+                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
+//                jsonObject.id = featureArray[trackIndex.getId()] // throws error
+
+
+                JSONArray childArray = new JSONArray()
+                for (int subIndex = 0; subIndex < featureArray.size(); ++subIndex) {
+                    def subArray = featureArray.get(subIndex)
+                    if (subArray instanceof JSONArray) {
+                        def subArray2 = convertAllNCListToObject(subArray, sequenceDTO)
+                        childArray.add(subArray2)
+                    }
+                    if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
+                        def subArrays2 = subArray.getJSONArray("Sublist")
+                        childArray.add(convertIndividualNCListToObject(subArrays2, sequenceDTO))
+                    }
+                }
+                if(childArray){
+                    jsonObject.children = childArray
+                }
+            }
+        }
+
 
 
         return jsonObject
     }
 
-    JSONArray convertAllNCListToObject(JSONArray fullArray,SequenceDTO sequenceDTO) {
+    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
         JSONArray returnArray = new JSONArray()
 
-        for(JSONArray jsonArray in fullArray){
-            returnArray.add(convertIndividualNCListToObject(jsonArray,sequenceDTO))
+        for (JSONArray jsonArray in fullArray) {
+            returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
         }
 
         return returnArray
@@ -84,10 +102,9 @@ class TrackService {
     JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
         JSONArray jsonArray = new JSONArray()
 
-        for(innerArray in inputArray){
-            println "handling array"
+        for (innerArray in inputArray) {
             // if there is an overlap
-            if(  !(innerArray[2]<fmin || innerArray[1] > fmax) ){
+            if (!(innerArray[2] < fmin || innerArray[1] > fmax)) {
                 // then no
                 jsonArray.add(innerArray)
             }
@@ -121,6 +138,7 @@ class TrackService {
         }
         return trackList.trim()
     }
+
     String getTrackPermissions(UserGroup userGroup, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (GroupPermission groupPermission in GroupPermission.findAllByGroupAndOrganism(userGroup, organism)) {
@@ -245,7 +263,6 @@ class TrackService {
 
         return trackVisibilityMap
     }
-
 
 
     private String convertHashMapToJsonString(Map map) {

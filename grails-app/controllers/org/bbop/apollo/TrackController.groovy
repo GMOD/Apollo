@@ -18,16 +18,16 @@ class TrackController {
     /**
      * Just a convenience method
      * @param trackName
-     * @param organism
+     * @param organismString
      * @param scaffold
      * @return
      */
-    def trackData(String trackName, String organism, String scaffold) {
-        JSONObject jsonObject = trackService.getTrackData(trackName, organism, scaffold)
+    def trackData(String organismString, String trackName, String scaffold) {
+        JSONObject jsonObject = trackService.getTrackData(trackName, organismString, scaffold)
         render jsonObject as JSON
     }
 
-    def json(String trackName, String organismString, String scaffold, Long fmin, Long fmax) {
+    def json(String organismString, String trackName, String scaffold, Long fmin, Long fmax) {
         JSONArray filteredList = trackService.getNCList(trackName, organismString, scaffold, fmin, fmax)
         JSONArray clasesForTrack = trackService.getClassesForTrack(trackName, organismString, scaffold)
         Organism organism = preferenceService.getOrganismForToken(organismString)
@@ -41,8 +41,8 @@ class TrackController {
         render renderedArray as JSON
     }
 
-    def biolink(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
-        JSONArray filteredList = trackService.getNCList(trackName, organism, scaffold, fmin, fmax)
+    def biolink(String organismString, String trackName, String scaffold, Long fmin, Long fmax) {
+        JSONArray filteredList = trackService.getNCList(trackName, organismString, scaffold, fmin, fmax)
         JSONObject renderdObject = trackService.getNCListAsBioLink(filteredList)
         render renderdObject as JSON
     }
@@ -57,8 +57,8 @@ class TrackController {
      * @return
      */
     // / track < organism ID or name > / <track name > /  < scaffold name > / min / max
-    def nclist(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
-        JSONArray filteredList = trackService.getNCList(trackName, organism, scaffold, fmin, fmax)
+    def nclist(String organismString, String trackName, String scaffold, Long fmin, Long fmax) {
+        JSONArray filteredList = trackService.getNCList(trackName, organismString, scaffold, fmin, fmax)
         if(!filteredList){
             response.status = 404
             render ""
