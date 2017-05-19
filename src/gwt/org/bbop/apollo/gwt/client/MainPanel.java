@@ -525,8 +525,7 @@ public class MainPanel extends Composite {
         String trackListString = Annotator.getRootUrl();
         trackListString += Annotator.getClientToken() + "/";
         trackListString += "jbrowse/index.html?loc=";
-        trackListString += selectedSequence;
-        trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
+        trackListString += URL.encodeQueryString(selectedSequence+":") + minRegion + ".." + maxRegion;
 
         trackListString += getCurrentQueryParamsAsString();
 
