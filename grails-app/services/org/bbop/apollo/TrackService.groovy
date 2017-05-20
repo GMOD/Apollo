@@ -70,6 +70,9 @@ class TrackService {
                 if (trackIndex.id) {
                     jsonObject.id = featureArray[trackIndex.id] // throws error
                 }
+                if (trackIndex.phase) {
+                    jsonObject.phase = featureArray[trackIndex.phase] // throws error
+                }
                 // sequence source
 //                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
 
