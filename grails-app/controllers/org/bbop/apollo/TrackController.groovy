@@ -35,16 +35,22 @@ class TrackController {
         render jsonObject as JSON
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism string>/<track name>/<sequence name>:<fmin>..<fmax>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism string>/<track name>/<sequence name>:<fmin>..<fmax>?filter=<filter>&excludeFilter=<excludeFilter>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID")
-            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name")
-            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name")
-            , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range")
-            , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range")
+            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
+            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
+            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
+            , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range(required)")
+            , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range(required)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
+            , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
     ])
     def json(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
         if (!checkPermission(organismString)) return
+
+        String name = params.name ?: ""
+        Boolean onlySelected = params.onlySelected ?: false
+
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
@@ -53,7 +59,23 @@ class TrackController {
                 , sequenceName: sequence
         )
         JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        render renderedArray as JSON
+        if (name) {
+            JSONArray returnArray = new JSONArray()
+
+            for (returnObject in renderedArray) {
+                // only set if true?
+                if (returnObject?.id == name) {
+                    returnObject.selected = true
+                    returnArray.add(returnObject)
+                } else if (!onlySelected) {
+                    returnArray.add(returnObject)
+                }
+            }
+
+            render returnArray as JSON
+        } else {
+            render renderedArray as JSON
+        }
     }
 
     def biolink(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
