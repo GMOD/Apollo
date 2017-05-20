@@ -33,3 +33,4 @@ setup.log
 docs/Makefile
 .gradle
 .slcache
+restapi.doc
