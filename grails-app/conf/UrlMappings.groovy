@@ -17,10 +17,12 @@ class UrlMappings {
         "/track/nclist/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "nclist")
         "/track/nclist/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "nclist")
 
+//        "/trackForName/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "jsonName")
+        "/track/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "jsonName")
         "/track/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "json",[params:params])
         "/track/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "json",[params:params])
 
-        // TODO: if we merge with the JSON
+        // TODO: remove if we merge with the JSON
         "/track/biolink/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.biolink"(controller: "track", action: "biolink")
         "/track/biolink/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "biolink")
 

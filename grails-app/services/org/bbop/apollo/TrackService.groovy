@@ -36,7 +36,7 @@ class TrackService {
     }
 
     JSONArray getNCList(String trackName, String organismString, String sequence, Long fmin, Long fmax) {
-        assert fmin < fmax
+        assert fmin <= fmax
 
         // TODO: refactor into a common method
         JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, sequence)
@@ -162,6 +162,8 @@ class TrackService {
 
     @NotTransactional
     JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
+        if(fmin < 0 && fmax < 0 ) return inputArray
+
         JSONArray jsonArray = new JSONArray()
 
         for (innerArray in inputArray) {
