@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
@@ -15,9 +16,9 @@ class TrackService {
 
     public static String TRACK_NAME_SPLITTER = "::"
 
-    JSONObject getTrackData(String trackName, String organism, String scaffold) {
+    JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${scaffold}"
+        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${sequence}"
         String trackDataFilePath = "${trackPath}/trackData.json"
 
         File file = new File(trackDataFilePath)
@@ -28,26 +29,27 @@ class TrackService {
         return JSON.parse(file.text) as JSONObject
     }
 
-    JSONArray getClassesForTrack(String trackName, String organism, String scaffold) {
-        JSONObject trackObject = getTrackData(trackName, organism, scaffold)
+    @NotTransactional
+    JSONArray getClassesForTrack(String trackName, String organism, String sequence) {
+        JSONObject trackObject = getTrackData(trackName, organism, sequence)
         return trackObject.getJSONObject("intervals").getJSONArray("classes")
     }
 
-    JSONArray getNCList(String trackName, String organismString, String scaffold, Long fmin, Long fmax) {
+    JSONArray getNCList(String trackName, String organismString, String sequence, Long fmin, Long fmax) {
         assert fmin < fmax
 
         // TODO: refactor into a common method
-        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, scaffold)
+        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, sequence)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
-                , sequenceName: scaffold
+                , sequenceName: sequence
         )
         trackMapperService.storeTrack(sequenceDTO, clasesForTrack)
 
         // 1. get the trackData.json file
-        JSONObject trackObject = getTrackData(trackName, organismString, scaffold)
+        JSONObject trackObject = getTrackData(trackName, organismString, sequence)
         JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
 
         // 1 - extract the appropriate region for fmin / fmax
@@ -95,6 +97,7 @@ class TrackService {
         return JSON.parse(file.text) as JSONArray
     }
 
+    @NotTransactional
     JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) {
         JSONObject jsonObject = new JSONObject()
 
@@ -146,6 +149,7 @@ class TrackService {
         return jsonObject
     }
 
+    @NotTransactional
     JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
         JSONArray returnArray = new JSONArray()
 
@@ -156,6 +160,7 @@ class TrackService {
         return returnArray
     }
 
+    @NotTransactional
     JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
         JSONArray jsonArray = new JSONArray()
 
@@ -172,10 +177,12 @@ class TrackService {
     }
 
 
+    // TODO
     JSONObject getNCListAsBioLink(JSONArray jsonArray) {
         null
     }
 
+    // TODO: implement with track permissions
     String getTracks(User user, Organism organism) {
         String trackList = ""
         for (UserPermission userPermission in UserPermission.findAllByUserAndOrganism(user, organism)) {
@@ -187,6 +194,7 @@ class TrackService {
         return trackList
     }
 
+    // TODO: implement with track permissions
     String getTracks(UserGroup group, Organism organism) {
         String trackList = ""
         JSONArray jsonArray = new JSONArray()
@@ -196,6 +204,7 @@ class TrackService {
         return trackList.trim()
     }
 
+    // TODO: implement with track permissions
     String getTrackPermissions(UserGroup userGroup, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (GroupPermission groupPermission in GroupPermission.findAllByGroupAndOrganism(userGroup, organism)) {
@@ -204,6 +213,7 @@ class TrackService {
         return jsonArray.toString()
     }
 
+    // TODO: implement with track permissions
     String getTrackPermissions(User user, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (UserPermission userPermission in UserPermission.findAllByUserAndOrganism(user, organism)) {
@@ -216,6 +226,7 @@ class TrackService {
         return returnString
     }
 
+    @NotTransactional
     static Map<String, Boolean> mergeTrackVisibilityMaps(Map<String, Boolean> mapA, Map<String, Boolean> mapB) {
         Map<String, Boolean> returnMap = new HashMap<>()
         mapA.keySet().each { it ->

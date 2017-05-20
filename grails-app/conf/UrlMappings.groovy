@@ -14,14 +14,14 @@ class UrlMappings {
         "/version.jsp"(controller: 'annotator', view: "version")
         "/${clientToken}/version.jsp"(controller: 'annotator', view: "version")
 
-        "/nclist/${organismString}/${trackName}/${scaffold}:${fmin}..${fmax}.json"(controller: "track", action: "nclist")
-        "/nclist/${organismString}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "nclist")
+        "/nclist/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "nclist")
+        "/nclist/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "nclist")
 
-        "/json/${organismString}/${trackName}/${scaffold}:${fmin}..${fmax}.json"(controller: "track", action: "json")
-        "/json/${organismString}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "json")
+        "/json/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "json")
+        "/json/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "json")
 
-        "/biolink/${organismString}/${trackName}/${scaffold}:${fmin}..${fmax}.biolink"(controller: "track", action: "biolink")
-        "/biolink/${organismString}/${trackName}/?loc=${scaffold}:${fmin}..${fmax}"(controller: "track", action: "biolink")
+        "/biolink/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.biolink"(controller: "track", action: "biolink")
+        "/biolink/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "biolink")
 
         // set this routing here
         "/jbrowse/"(controller: "jbrowse", action: "indexRouter", params:params)
