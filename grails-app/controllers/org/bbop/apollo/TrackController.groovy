@@ -35,8 +35,33 @@ class TrackController {
         render jsonObject as JSON
     }
 
+    @RestApiMethod(description = "Remove track cache for an organism and track", path = "/track/cache/clear/<organism name>/<track name>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
+            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name (required)")
+    ])
+    @Transactional
+    def clearTrackCache(String organismName,String trackName){
+        if (!checkPermission(organismName)) return
+        int removed = TrackCache.countByOrganismNameAndTrackName(organismName,trackName)
+        TrackCache.deleteAll(TrackCache.findAllByOrganismNameAndTrackName(organismName,trackName))
+        render new JSONObject( removed: removed) as JSON
+    }
 
-    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism string>/<track name>/<sequence name>/<feature name>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Remove track cache for an organism", path = "/track/cache/clear/<organism name>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
+    ])
+    @Transactional
+    def clearOrganismCache(String organismName){
+        if (!checkPermission(organismName)) return
+        int removed = TrackCache.countByOrganismName(organismName)
+        TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
+        render new JSONObject( removed: removed) as JSON
+    }
+
+
+    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
@@ -84,7 +109,7 @@ class TrackController {
         }
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism string>/<track name>/<sequence name>:<fmin>..<fmax>?filter=<filter>&excludeFilter=<excludeFilter>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>?filter=<filter>&excludeFilter=<excludeFilter>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
