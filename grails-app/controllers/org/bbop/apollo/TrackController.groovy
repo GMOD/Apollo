@@ -35,7 +35,7 @@ class TrackController {
         render jsonObject as JSON
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/json/<organism string>/<track name>/<sequence name>:<fmin>..<fmax>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism string>/<track name>/<sequence name>:<fmin>..<fmax>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name")
@@ -72,15 +72,8 @@ class TrackController {
      * @param fmax
      * @return
      */
-    // / track < organism ID or name > / <track name > /  < sequence name > / min / max
-    @RestApiMethod(description = "Get track data as an NCList JSON Array within an range", path = "/track/nclist/<organism string>/<track name>/<sequence name>:<fmin>..<fmax>", verb = RestApiVerb.GET)
-    @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID")
-            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name")
-            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name")
-            , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range")
-            , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range")
-    ])
+    // TODO: this is just for debuggin
+    // track < organism ID or name > / <track name > /  < sequence name > / min / max
     def nclist(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
         if (!checkPermission(organismString)) return
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
