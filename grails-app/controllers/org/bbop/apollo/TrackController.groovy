@@ -35,15 +35,28 @@ class TrackController {
         render jsonObject as JSON
     }
 
+
     @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism string>/<track name>/<sequence name>/<feature name>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
             , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
+            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
+    @Transactional
     def jsonName(String organismString, String trackName, String sequence, String featureName) {
         if (!checkPermission(organismString)) return
+
+        Boolean ignoreCache = params.ignoreCache!=null ? Boolean.valueOf(params.ignoreCache) : false
+        if(!ignoreCache){
+            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,featureName)
+            if(responseArray != null ){
+                render responseArray as JSON
+                return
+            }
+        }
+
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, -1, -1)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
@@ -62,9 +75,11 @@ class TrackController {
                     returnArray.add(returnObject)
                 }
             }
+            trackService.cacheRequest(returnArray,organismString,trackName,sequence,featureName)
 
             render returnArray as JSON
         } else {
+            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,featureName)
             render renderedArray as JSON
         }
     }
@@ -78,13 +93,22 @@ class TrackController {
             , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
+            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
+    @Transactional
     def json(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
         if (!checkPermission(organismString)) return
 
-        String name = params.name ?: ""
-        Boolean onlySelected = params.onlySelected ?: false
-
+        String name = params.name ? params.name : ""
+        Boolean onlySelected = params.onlySelected!=null ? params.onlySelected: false
+        Boolean ignoreCache = params.ignoreCache!=null ? Boolean.valueOf(params.ignoreCache) : false
+        if(!ignoreCache){
+            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,fmin,fmax)
+            if(responseArray != null ){
+                render responseArray as JSON
+                return
+            }
+        }
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
@@ -106,8 +130,10 @@ class TrackController {
                 }
             }
 
+            trackService.cacheRequest(returnArray,organismString,trackName,sequence,fmin,fmax)
             render returnArray as JSON
         } else {
+            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,fmin,fmax)
             render renderedArray as JSON
         }
     }

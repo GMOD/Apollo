@@ -18,7 +18,7 @@ class UrlMappings {
         "/track/nclist/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "nclist")
 
 //        "/trackForName/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "jsonName")
-        "/track/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "jsonName")
+        "/track/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "jsonName",[params:params])
         "/track/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "json",[params:params])
         "/track/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "json",[params:params])
 

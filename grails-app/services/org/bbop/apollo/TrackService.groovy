@@ -174,7 +174,6 @@ class TrackService {
             }
         }
 
-
         return jsonArray
     }
 
@@ -343,4 +342,37 @@ class TrackService {
         return jsonObject.toString()
     }
 
+    JSONArray checkCache(String organismString, String trackName, String sequence, String featureName) {
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureName(organismString,trackName,sequence,featureName)?.response
+        return response!=null ? JSON.parse(response) as JSONArray : null
+    }
+
+    JSONArray checkCache(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmax(organismString,trackName,sequence,fmin,fmax)?.response
+        println" found cache? "
+        return response!=null ? JSON.parse(response) as JSONArray : null
+    }
+
+    @Transactional
+    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, String featureName) {
+        TrackCache trackCache = new TrackCache(
+                response: jsonArray.toString()
+                ,organismName: organismString
+                ,trackName: trackName
+                ,sequenceName: sequenceName
+                ,featureName: featureName
+        ).save()
+    }
+
+    @Transactional
+    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, Long fmin,Long fmax) {
+        TrackCache trackCache = new TrackCache(
+                response: jsonArray.toString()
+                ,organismName: organismString
+                ,trackName: trackName
+                ,sequenceName: sequenceName
+                ,fmin: fmin
+                ,fmax: fmax
+        ).save()
+    }
 }
