@@ -33,20 +33,66 @@ class TrackService {
         return trackObject.getJSONObject("intervals").getJSONArray("classes")
     }
 
-    JSONArray getNCList(String trackName, String organism, String scaffold, Long fmin, Long fmax) {
+    JSONArray getNCList(String trackName, String organismString, String scaffold, Long fmin, Long fmax) {
         assert fmin < fmax
 
+        // TODO: refactor into a common method
+        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, scaffold)
+        Organism organism = preferenceService.getOrganismForToken(organismString)
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                organismCommonName: organism.commonName
+                , trackName: trackName
+                , sequenceName: scaffold
+        )
+        trackMapperService.storeTrack(sequenceDTO, clasesForTrack)
+
         // 1. get the trackData.json file
-        JSONObject trackObject = getTrackData(trackName, organism, scaffold)
+        JSONObject trackObject = getTrackData(trackName, organismString, scaffold)
         JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
 
         // 1 - extract the appropriate region for fmin / fmax
         JSONArray filteredList = filterList(nclistArray, fmin, fmax)
         println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
 
-        // 2 - convert each element to JSON
+        // if the first featured array has a chunk, then we need to evaluate the chunks instead
+        if (filteredList) {
+            TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, filteredList.getJSONArray(0).getInt(0))
+            if(trackIndex.hasChunk()){
+                List<JSONArray> chunkList = []
+                for (JSONArray chunkArray in filteredList) {
+                    JSONArray chunk = getChunkData(sequenceDTO, chunkArray.getInt(trackIndex.getChunk()))
+                    chunkList.add(filterList(chunk,fmin,fmax))
+                }
+                JSONArray chunkReturnArray = new JSONArray()
+                chunkList.each { ch ->
+                    ch.each {
+                        chunkReturnArray.add(it)
+                    }
+                }
+                return chunkReturnArray
+            }
+        }
 
         return filteredList
+    }
+
+    /**
+     * reads the file lf-{chunk}.json
+     * @param sequenceDTO
+     * @param chunk
+     * @return
+     */
+    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) {
+        String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
+        String trackPath = "${jbrowseDirectory}/tracks/${sequenceDTO.trackName}/${sequenceDTO.sequenceName}"
+        String trackDataFilePath = "${trackPath}/lf-${chunk}.json"
+
+        File file = new File(trackDataFilePath)
+        if (!file.exists()) {
+            println "file does not exist ${trackDataFilePath}"
+            return null
+        }
+        return JSON.parse(file.text) as JSONArray
     }
 
     JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) {
@@ -68,10 +114,10 @@ class TrackService {
                     jsonObject.type = featureArray[trackIndex.getType()]
                 }
                 if (trackIndex.id) {
-                    jsonObject.id = featureArray[trackIndex.id] // throws error
+                    jsonObject.id = featureArray[trackIndex.id]
                 }
                 if (trackIndex.phase) {
-                    jsonObject.phase = featureArray[trackIndex.phase] // throws error
+                    jsonObject.phase = featureArray[trackIndex.phase]
                 }
                 // sequence source
 //                jsonObject.seqId = featureArray[trackIndex.getSeqId()]

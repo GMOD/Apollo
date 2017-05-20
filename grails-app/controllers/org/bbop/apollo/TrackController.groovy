@@ -29,14 +29,12 @@ class TrackController {
 
     def json(String organismString, String trackName, String scaffold, Long fmin, Long fmax) {
         JSONArray filteredList = trackService.getNCList(trackName, organismString, scaffold, fmin, fmax)
-        JSONArray clasesForTrack = trackService.getClassesForTrack(trackName, organismString, scaffold)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: scaffold
         )
-        trackMapperService.storeTrack(sequenceDTO,clasesForTrack)
         JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList,sequenceDTO)
         render renderedArray as JSON
     }
@@ -59,11 +57,11 @@ class TrackController {
     // / track < organism ID or name > / <track name > /  < scaffold name > / min / max
     def nclist(String organismString, String trackName, String scaffold, Long fmin, Long fmax) {
         JSONArray filteredList = trackService.getNCList(trackName, organismString, scaffold, fmin, fmax)
-        if(!filteredList){
-            response.status = 404
-            render ""
-            return
-        }
+//        if(!filteredList){
+//            response.status = 404
+//            render ""
+//            return
+//        }
         render filteredList as JSON
     }
 
