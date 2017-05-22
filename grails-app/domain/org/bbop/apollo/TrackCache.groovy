@@ -10,6 +10,7 @@ class TrackCache {
     Long fmin
     Long fmax
     String featureName
+    String paramMap
 
     String response // JSON response
 
@@ -21,6 +22,7 @@ class TrackCache {
         fmin nullable: true
         fmax nullable: true
         featureName nullable: true
+        paramMap nullable: true, blank: true
     }
 
     static mapping = {

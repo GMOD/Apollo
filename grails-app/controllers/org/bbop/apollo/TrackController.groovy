@@ -61,7 +61,7 @@ class TrackController {
     }
 
 
-    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.json", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
@@ -70,12 +70,15 @@ class TrackController {
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
     @Transactional
-    def jsonName(String organismString, String trackName, String sequence, String featureName) {
+    def featuresByName(String organismString, String trackName, String sequence, String featureName) {
         if (!checkPermission(organismString)) return
 
         Boolean ignoreCache = params.ignoreCache!=null ? Boolean.valueOf(params.ignoreCache) : false
+        Map paramMap = new TreeMap<>()
+        paramMap.put("name",featureName)
+        paramMap.put("onlySelected",true)
         if(!ignoreCache){
-            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,featureName)
+            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,featureName,paramMap)
             if(responseArray != null ){
                 render responseArray as JSON
                 return
@@ -100,16 +103,16 @@ class TrackController {
                     returnArray.add(returnObject)
                 }
             }
-            trackService.cacheRequest(returnArray,organismString,trackName,sequence,featureName)
+            trackService.cacheRequest(returnArray,organismString,trackName,sequence,featureName,paramMap)
 
             render returnArray as JSON
         } else {
-            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,featureName)
+            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,featureName,paramMap)
             render renderedArray as JSON
         }
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>?filter=<filter>&excludeFilter=<excludeFilter>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.json?filter=<filter>&excludeFilter=<excludeFilter>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
@@ -121,14 +124,19 @@ class TrackController {
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
     @Transactional
-    def json(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
+    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
         if (!checkPermission(organismString)) return
 
         String name = params.name ? params.name : ""
         Boolean onlySelected = params.onlySelected!=null ? params.onlySelected: false
         Boolean ignoreCache = params.ignoreCache!=null ? Boolean.valueOf(params.ignoreCache) : false
+        Map paramMap = new TreeMap<>()
+        if(name) {
+            paramMap.put("name",name)
+            paramMap.put("onlySelected",onlySelected)
+        }
         if(!ignoreCache){
-            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,fmin,fmax)
+            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,fmin,fmax,paramMap)
             if(responseArray != null ){
                 render responseArray as JSON
                 return
@@ -155,10 +163,10 @@ class TrackController {
                 }
             }
 
-            trackService.cacheRequest(returnArray,organismString,trackName,sequence,fmin,fmax)
+            trackService.cacheRequest(returnArray,organismString,trackName,sequence,fmin,fmax,paramMap)
             render returnArray as JSON
         } else {
-            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,fmin,fmax)
+            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,fmin,fmax,paramMap)
             render renderedArray as JSON
         }
     }
