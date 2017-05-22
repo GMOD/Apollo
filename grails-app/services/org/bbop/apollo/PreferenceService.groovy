@@ -395,22 +395,20 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            if (organism) {
-                sequence = sequence ?: organism.sequences?.first()
-                UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
-                        user: user
-                        , organism: organism
-                        , currentOrganism: true
-                        , sequence: sequence
-                        , clientToken: clientToken
-                )
-                if (sequence) {
-                    newUserOrganismPreference.startbp = sequence.start
-                    newUserOrganismPreference.endbp = sequence.end
-                }
-                newUserOrganismPreference.save(insert: true, flush: true)
-                return newUserOrganismPreference
+            sequence = sequence ?: organism.sequences?.first()
+            UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
+                    user: user
+                    , organism: organism
+                    , currentOrganism: true
+                    , sequence: sequence
+                    , clientToken: clientToken
+            )
+            if (sequence) {
+                newUserOrganismPreference.startbp = sequence.start
+                newUserOrganismPreference.endbp = sequence.end
             }
+            newUserOrganismPreference.save(insert: true, flush: true)
+            return newUserOrganismPreference
         }
 
         return userOrganismPreference
