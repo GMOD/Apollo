@@ -117,7 +117,7 @@ class TrackService {
                     jsonObject.type = featureArray[trackIndex.getType()]
                 }
                 if (trackIndex.id) {
-                    jsonObject.id = featureArray[trackIndex.id]
+                    jsonObject.name = featureArray[trackIndex.id]
                 }
                 if (trackIndex.phase) {
                     jsonObject.phase = featureArray[trackIndex.phase]

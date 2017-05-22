@@ -22,6 +22,7 @@ class TrackController {
     def preferenceService
     def permissionService
     def trackService
+    def grailsApplication
 
     /**
      * Just a convenience method
@@ -41,11 +42,11 @@ class TrackController {
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name (required)")
     ])
     @Transactional
-    def clearTrackCache(String organismName,String trackName){
+    def clearTrackCache(String organismName, String trackName) {
         if (!checkPermission(organismName)) return
-        int removed = TrackCache.countByOrganismNameAndTrackName(organismName,trackName)
-        TrackCache.deleteAll(TrackCache.findAllByOrganismNameAndTrackName(organismName,trackName))
-        render new JSONObject( removed: removed) as JSON
+        int removed = TrackCache.countByOrganismNameAndTrackName(organismName, trackName)
+        TrackCache.deleteAll(TrackCache.findAllByOrganismNameAndTrackName(organismName, trackName))
+        render new JSONObject(removed: removed) as JSON
     }
 
     @RestApiMethod(description = "Remove track cache for an organism", path = "/track/cache/clear/<organism name>", verb = RestApiVerb.GET)
@@ -53,11 +54,11 @@ class TrackController {
             @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
     ])
     @Transactional
-    def clearOrganismCache(String organismName){
+    def clearOrganismCache(String organismName) {
         if (!checkPermission(organismName)) return
         int removed = TrackCache.countByOrganismName(organismName)
         TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
-        render new JSONObject( removed: removed) as JSON
+        render new JSONObject(removed: removed) as JSON
     }
 
 
@@ -73,13 +74,13 @@ class TrackController {
     def featuresByName(String organismString, String trackName, String sequence, String featureName) {
         if (!checkPermission(organismString)) return
 
-        Boolean ignoreCache = params.ignoreCache!=null ? Boolean.valueOf(params.ignoreCache) : false
+        Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
-        paramMap.put("name",featureName)
-        paramMap.put("onlySelected",true)
-        if(!ignoreCache){
-            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,featureName,paramMap)
-            if(responseArray != null ){
+        paramMap.put("name", featureName)
+        paramMap.put("onlySelected", true)
+        if (!ignoreCache) {
+            JSONArray responseArray = trackService.checkCache(organismString, trackName, sequence, featureName, paramMap)
+            if (responseArray != null) {
                 render responseArray as JSON
                 return
             }
@@ -93,23 +94,19 @@ class TrackController {
                 , sequenceName: sequence
         )
         JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        if (featureName) {
-            JSONArray returnArray = new JSONArray()
+        JSONArray returnArray = new JSONArray()
 
-            for (returnObject in renderedArray) {
-                // only set if true?
-                if (returnObject?.id == featureName) {
-                    returnObject.selected = true
-                    returnArray.add(returnObject)
-                }
+        for (returnObject in renderedArray) {
+            // only set if true?
+            returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${featureName}.json")
+            if (returnObject?.name == featureName) {
+                returnObject.selected = true
+                returnArray.add(returnObject)
             }
-            trackService.cacheRequest(returnArray,organismString,trackName,sequence,featureName,paramMap)
-
-            render returnArray as JSON
-        } else {
-            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,featureName,paramMap)
-            render renderedArray as JSON
         }
+        trackService.cacheRequest(returnArray, organismString, trackName, sequence, featureName, paramMap)
+
+        render returnArray as JSON
     }
 
     @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.json?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
@@ -128,16 +125,16 @@ class TrackController {
         if (!checkPermission(organismString)) return
 
         String name = params.name ? params.name : ""
-        Boolean onlySelected = params.onlySelected!=null ? params.onlySelected: false
-        Boolean ignoreCache = params.ignoreCache!=null ? Boolean.valueOf(params.ignoreCache) : false
+        Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
+        Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
-        if(name) {
-            paramMap.put("name",name)
-            paramMap.put("onlySelected",onlySelected)
+        if (name) {
+            paramMap.put("name", name)
+            paramMap.put("onlySelected", onlySelected)
         }
-        if(!ignoreCache){
-            JSONArray responseArray = trackService.checkCache(organismString,trackName,sequence,fmin,fmax,paramMap)
-            if(responseArray != null ){
+        if (!ignoreCache) {
+            JSONArray responseArray = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, paramMap)
+            if (responseArray != null) {
                 render responseArray as JSON
                 return
             }
@@ -150,23 +147,28 @@ class TrackController {
                 , sequenceName: sequence
         )
         JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        if (name) {
-            JSONArray returnArray = new JSONArray()
+        JSONArray returnArray = new JSONArray()
 
-            for (returnObject in renderedArray) {
-                // only set if true?
-                if (returnObject?.id == name) {
+        for (returnObject in renderedArray) {
+            // only set if true?
+            if (returnObject.name) {
+                returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${returnObject.name}.json")
+            }
+            if (name) {
+                if (returnObject?.name == name) {
                     returnObject.selected = true
-                    returnArray.add(returnObject)
-                } else if (!onlySelected) {
-                    returnArray.add(returnObject)
+                    if(onlySelected) {
+                        returnArray.add(returnObject)
+                    }
                 }
             }
+        }
 
-            trackService.cacheRequest(returnArray,organismString,trackName,sequence,fmin,fmax,paramMap)
+        if(onlySelected){
+            trackService.cacheRequest(returnArray, organismString, trackName, sequence, fmin, fmax, paramMap)
             render returnArray as JSON
         } else {
-            trackService.cacheRequest(renderedArray,organismString,trackName,sequence,fmin,fmax,paramMap)
+            trackService.cacheRequest(renderedArray, organismString, trackName, sequence, fmin, fmax, paramMap)
             render renderedArray as JSON
         }
     }
