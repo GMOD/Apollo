@@ -17,7 +17,7 @@ import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
-@RestApi(name = "Organism Services", description = "Methods for managing organims")
+@RestApi(name = "Organism Services", description = "Methods for managing organisms")
 @Transactional(readOnly = true)
 class OrganismController {
 

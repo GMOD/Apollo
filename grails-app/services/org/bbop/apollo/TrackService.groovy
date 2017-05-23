@@ -1,20 +1,188 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.track.TrackIndex
+import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class TrackService {
 
-    def serviceMethod() {
-
-    }
-
+    def preferenceService
+    def trackMapperService
 
     public static String TRACK_NAME_SPLITTER = "::"
 
+    JSONObject getTrackData(String trackName, String organism, String sequence) {
+        String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
+        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${sequence}"
+        String trackDataFilePath = "${trackPath}/trackData.json"
+
+        File file = new File(trackDataFilePath)
+        if (!file.exists()) {
+            println "file does not exist ${trackDataFilePath}"
+            return null
+        }
+        return JSON.parse(file.text) as JSONObject
+    }
+
+    @NotTransactional
+    JSONArray getClassesForTrack(String trackName, String organism, String sequence) {
+        JSONObject trackObject = getTrackData(trackName, organism, sequence)
+        return trackObject.getJSONObject("intervals").getJSONArray("classes")
+    }
+
+    JSONArray getNCList(String trackName, String organismString, String sequence, Long fmin, Long fmax) {
+        assert fmin <= fmax
+
+        // TODO: refactor into a common method
+        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, sequence)
+        Organism organism = preferenceService.getOrganismForToken(organismString)
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                organismCommonName: organism.commonName
+                , trackName: trackName
+                , sequenceName: sequence
+        )
+        trackMapperService.storeTrack(sequenceDTO, clasesForTrack)
+
+        // 1. get the trackData.json file
+        JSONObject trackObject = getTrackData(trackName, organismString, sequence)
+        JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
+
+        // 1 - extract the appropriate region for fmin / fmax
+        JSONArray filteredList = filterList(nclistArray, fmin, fmax)
+        println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
+
+        // if the first featured array has a chunk, then we need to evaluate the chunks instead
+        if (filteredList) {
+            TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, filteredList.getJSONArray(0).getInt(0))
+            if (trackIndex.hasChunk()) {
+                List<JSONArray> chunkList = []
+                for (JSONArray chunkArray in filteredList) {
+                    JSONArray chunk = getChunkData(sequenceDTO, chunkArray.getInt(trackIndex.getChunk()))
+                    chunkList.add(filterList(chunk, fmin, fmax))
+                }
+                JSONArray chunkReturnArray = new JSONArray()
+                chunkList.each { ch ->
+                    ch.each {
+                        chunkReturnArray.add(it)
+                    }
+                }
+                return chunkReturnArray
+            }
+        }
+
+        return filteredList
+    }
+
+    /**
+     * reads the file lf-{chunk}.json
+     * @param sequenceDTO
+     * @param chunk
+     * @return
+     */
+    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) {
+        String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
+        String trackPath = "${jbrowseDirectory}/tracks/${sequenceDTO.trackName}/${sequenceDTO.sequenceName}"
+        String trackDataFilePath = "${trackPath}/lf-${chunk}.json"
+
+        File file = new File(trackDataFilePath)
+        if (!file.exists()) {
+            println "file does not exist ${trackDataFilePath}"
+            return null
+        }
+        return JSON.parse(file.text) as JSONArray
+    }
+
+    @NotTransactional
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) {
+        JSONObject jsonObject = new JSONObject()
+
+        if (featureArray.size() > 3) {
+            if (featureArray[0] instanceof Integer) {
+                TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
+
+                jsonObject.fmin = featureArray[trackIndex.getStart()]
+                jsonObject.fmax = featureArray[trackIndex.getEnd()]
+                if (trackIndex.strand) {
+                    jsonObject.strand = featureArray[trackIndex.getStrand()]
+                }
+//                if (trackIndex.source) {
+//                    jsonObject.source = featureArray[trackIndex.getSource()]
+//                }
+                if (trackIndex.type) {
+                    jsonObject.type = featureArray[trackIndex.getType()]
+                }
+                if (trackIndex.id) {
+                    jsonObject.name = featureArray[trackIndex.id]
+                }
+                if (trackIndex.phase) {
+                    jsonObject.phase = featureArray[trackIndex.phase]
+                }
+                // sequence source
+//                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
+
+
+                JSONArray childArray = new JSONArray()
+                for (int subIndex = 0; subIndex < featureArray.size(); ++subIndex) {
+                    def subArray = featureArray.get(subIndex)
+                    if (subArray instanceof JSONArray) {
+                        def subArray2 = convertAllNCListToObject(subArray, sequenceDTO)
+                        childArray.add(subArray2)
+                    }
+                    if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
+                        def subArrays2 = subArray.getJSONArray("Sublist")
+                        childArray.add(convertIndividualNCListToObject(subArrays2, sequenceDTO))
+                    }
+                }
+                if (childArray) {
+                    jsonObject.children = childArray
+                }
+            }
+        }
+
+
+
+        return jsonObject
+    }
+
+    @NotTransactional
+    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
+        JSONArray returnArray = new JSONArray()
+
+        for (JSONArray jsonArray in fullArray) {
+            returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+        }
+
+        return returnArray
+    }
+
+    @NotTransactional
+    JSONArray filterList(JSONArray inputArray, long fmin, long fmax) {
+        if (fmin < 0 && fmax < 0) return inputArray
+
+        JSONArray jsonArray = new JSONArray()
+
+        for (innerArray in inputArray) {
+            // if there is an overlap
+            if (!(innerArray[2] < fmin || innerArray[1] > fmax)) {
+                // then no
+                jsonArray.add(innerArray)
+            }
+        }
+
+        return jsonArray
+    }
+
+    // TODO
+    JSONObject getNCListAsBioLink(JSONArray jsonArray) {
+        null
+    }
+
+    // TODO: implement with track permissions
     String getTracks(User user, Organism organism) {
         String trackList = ""
         for (UserPermission userPermission in UserPermission.findAllByUserAndOrganism(user, organism)) {
@@ -26,6 +194,7 @@ class TrackService {
         return trackList
     }
 
+    // TODO: implement with track permissions
     String getTracks(UserGroup group, Organism organism) {
         String trackList = ""
         JSONArray jsonArray = new JSONArray()
@@ -34,6 +203,8 @@ class TrackService {
         }
         return trackList.trim()
     }
+
+    // TODO: implement with track permissions
     String getTrackPermissions(UserGroup userGroup, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (GroupPermission groupPermission in GroupPermission.findAllByGroupAndOrganism(userGroup, organism)) {
@@ -42,6 +213,7 @@ class TrackService {
         return jsonArray.toString()
     }
 
+    // TODO: implement with track permissions
     String getTrackPermissions(User user, Organism organism) {
         JSONArray jsonArray = new JSONArray()
         for (UserPermission userPermission in UserPermission.findAllByUserAndOrganism(user, organism)) {
@@ -54,6 +226,7 @@ class TrackService {
         return returnString
     }
 
+    @NotTransactional
     static Map<String, Boolean> mergeTrackVisibilityMaps(Map<String, Boolean> mapA, Map<String, Boolean> mapB) {
         Map<String, Boolean> returnMap = new HashMap<>()
         mapA.keySet().each { it ->
@@ -160,12 +333,54 @@ class TrackService {
     }
 
 
-
     private String convertHashMapToJsonString(Map map) {
         JSONObject jsonObject = new JSONObject()
         map.keySet().each {
             jsonObject.put(it, map.get(it))
         }
         return jsonObject.toString()
+    }
+
+    JSONArray checkCache(String organismString, String trackName, String sequence, String featureName, Map paramMap) {
+        String mapString = paramMap ? (paramMap as JSON).toString() : null
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName,mapString)?.response
+        return response != null ? JSON.parse(response) as JSONArray : null
+    }
+
+    JSONArray checkCache(String organismString, String trackName, String sequence, Long fmin, Long fmax, Map paramMap) {
+        String mapString = paramMap ? (paramMap as JSON).toString() : null
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndParamMap(organismString, trackName, sequence, fmin, fmax, mapString)?.response
+        return response != null ? JSON.parse(response) as JSONArray : null
+    }
+
+    @Transactional
+    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, String featureName, Map paramMap) {
+        TrackCache trackCache = new TrackCache(
+                response: jsonArray.toString()
+                , organismName: organismString
+                , trackName: trackName
+                , sequenceName: sequenceName
+                , featureName: featureName
+        )
+        if (paramMap) {
+            trackCache.paramMap = (paramMap as JSON).toString()
+        }
+        trackCache.save()
+    }
+
+    @Transactional
+    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, Map paramMap) {
+        TrackCache trackCache = new TrackCache(
+                response: jsonArray.toString()
+                , organismName: organismString
+                , trackName: trackName
+                , sequenceName: sequenceName
+                , fmin: fmin
+                , fmax: fmax
+        )
+        if (paramMap) {
+            trackCache.paramMap = (paramMap as JSON).toString()
+        }
+        trackCache.save()
     }
 }
