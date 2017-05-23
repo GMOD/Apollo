@@ -233,7 +233,7 @@ elif [[ $1 == "compile" ]];then
     $gradle_executable gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
-    $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
+    $grails_executable compile && $grails_executable rest-api-doc && mv -f restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
     clean_all
 elif [[ $1 == "clean" ]];then

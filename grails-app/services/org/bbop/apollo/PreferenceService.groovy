@@ -21,7 +21,6 @@ class PreferenceService {
     private Set<String> currentlySavingLocation = new HashSet<>()
 
 
-
     Organism getSessionOrganism(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
         if (preferenceObject) {
@@ -286,10 +285,10 @@ class PreferenceService {
     }
 
 
-    def evaluateSave(Date date,SequenceLocationDTO sequenceLocationDTO){
-        if(currentlySavingLocation.contains(sequenceLocationDTO.clientToken)){
+    def evaluateSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
+        if (currentlySavingLocation.contains(sequenceLocationDTO.clientToken)) {
             log.debug "is currently saving these client token, so not trying to save"
-          return
+            return
         }
 
         try {
@@ -297,11 +296,10 @@ class PreferenceService {
             Date now = new Date()
             log.debug "trying to save it ${sequenceLocationDTO.clientToken}"
             def timeDiff = (now.getTime() - date.getTime()) / 1000
-            if(timeDiff > PREFERENCE_SAVE_DELAY_SECONDS){
+            if (timeDiff > PREFERENCE_SAVE_DELAY_SECONDS) {
                 log.debug "saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
                 setCurrentSequenceLocationInDB(sequenceLocationDTO)
-            }
-            else{
+            } else {
                 log.debug "not saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
             }
         } catch (e) {
@@ -317,19 +315,18 @@ class PreferenceService {
         if (!date) {
             log.debug "no last save found so saving ${sequenceLocationDTO.clientToken} location to the database"
             setCurrentSequenceLocationInDB(sequenceLocationDTO)
+        } else {
+            evaluateSave(date, sequenceLocationDTO)
         }
-        else{
-            evaluateSave(date,sequenceLocationDTO)
-        }
-        saveSequenceLocationMap.put(sequenceLocationDTO,new Date())
+        saveSequenceLocationMap.put(sequenceLocationDTO, new Date())
         saveOutstandingLocationPreferences(sequenceLocationDTO.clientToken)
     }
 
-    def saveOutstandingLocationPreferences(String ignoreToken=""){
+    def saveOutstandingLocationPreferences(String ignoreToken = "") {
         log.debug "trying to save outstanding ${saveSequenceLocationMap.size()}"
         saveSequenceLocationMap.each {
-            if(it.key.clientToken!=ignoreToken){
-                evaluateSave(it.value,it.key)
+            if (it.key.clientToken != ignoreToken) {
+                evaluateSave(it.value, it.key)
             }
         }
     }
@@ -492,11 +489,14 @@ class PreferenceService {
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , assemblage: assemblage
+                        , sequence:assemblage
                         , clientToken: clientToken
-                        , startbp: assemblage.start
-                        , endbp: assemblage.end
-                ).save(insert: true, flush: true)
+                )
+                if (assemblage) {
+                    newUserOrganismPreference.startbp = assemblage.start
+                    newUserOrganismPreference.endbp = assemblage.end
+                }
+                newUserOrganismPreference.save(insert: true, flush: true)
                 return newUserOrganismPreference
             } else {
                 return null

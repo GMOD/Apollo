@@ -20,7 +20,7 @@ class TrackMapperService {
 
 
     @NotTransactional
-    List<String> getAttributes(SequenceDTO sequenceDTO,Integer index){
+    List<String> getAttributes(SequenceDTO sequenceDTO, Integer index){
         JSONArray classArray = tracks.get(sequenceDTO.organismCommonName,sequenceDTO.trackName,sequenceDTO.sequenceName)
         JSONObject classObject =classArray.getJSONObject(index)
         JSONArray attributesArray = classObject?.getJSONArray("attributes")
