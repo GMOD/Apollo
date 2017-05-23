@@ -22,14 +22,16 @@ class AnnotatorService {
 
             Map<Organism,Boolean> organismBooleanMap  = permissionService.userHasOrganismPermissions(PermissionEnum.ADMINISTRATE)
             Map<Sequence,Integer> sequenceIntegerMap  = [:]
-            Sequence.executeQuery("select o,count(s) from Organism o join o.sequences s where o in (:organismList) group by o ",[organismList:organismList]).each(){
-                sequenceIntegerMap.put(it[0],it[1])
-            }
             Map<Organism,Integer> annotationCountMap = [:]
-
-            Feature.executeQuery("select o,count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o in (:organismList) and f.class in (:viewableTypes) group by o", [organismList: organismList, viewableTypes: requestHandlingService.viewableAnnotationList]).each {
-                annotationCountMap.put(it[0],it[1])
+            if(organismList){
+                Sequence.executeQuery("select o,count(s) from Organism o join o.sequences s where o in (:organismList) group by o ",[organismList:organismList]).each(){
+                    sequenceIntegerMap.put(it[0],it[1])
+                }
+                Feature.executeQuery("select o,count(distinct f) from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s join s.organism o  where f.childFeatureRelationships is empty and o in (:organismList) and f.class in (:viewableTypes) group by o", [organismList: organismList, viewableTypes: requestHandlingService.viewableAnnotationList]).each {
+                    annotationCountMap.put(it[0],it[1])
+                }
             }
+
 
 
             JSONArray organismArray = new JSONArray()
