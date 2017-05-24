@@ -19,8 +19,6 @@ class TrackService {
     def preferenceService
     def trackMapperService
 
-    public static String TRACK_NAME_SPLITTER = "::"
-
     JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
         String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${sequence}"

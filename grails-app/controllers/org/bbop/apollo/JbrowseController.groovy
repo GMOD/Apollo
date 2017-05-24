@@ -33,6 +33,7 @@ class JbrowseController {
     def refSeqProjectorService
     def sequenceCacheService
     def assemblageService
+    def bigwigService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -357,7 +358,8 @@ class JbrowseController {
                     return
                 }
 
-            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            }
+            else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 String sequencePath = sequenceService.calculatePath(params.path)
 
                 SequenceCache cache = SequenceCache.findByKey(sequencePath)
@@ -380,6 +382,11 @@ class JbrowseController {
                 response.outputStream << returnSequence
                 response.outputStream.close()
             }
+            else if (fileName.endsWith(".bw") ) {
+                String bigWigPath = params.path
+                println "bigwig path ${bigWigPath}"
+            }
+
         }
 
         File file = new File(dataFileName)
@@ -478,10 +485,8 @@ class JbrowseController {
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
-//            response.setContentLength((int) file.length());
 
             if (fileName.endsWith(".json") || params.format == "json") {
-//            [{"length":1382403,"name":"Group1.1","seqChunkSize":20000,"end":1382403,"start":0},{"length":1405242,"name":"Group1.10","seqChunkSize":20000,"end":1405242,"start":0},{"length":2557,"name":"Group1.11","seqChunkSize":20000,"end":2557,"start":0},
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
 
@@ -540,10 +545,7 @@ class JbrowseController {
                             println "FOUND string ${arrayString} "
                         }
                     }
-                    println "ABCD-1"
-
                     sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
-                    println "POST POST sequence array: ${sequenceArray.size()}"
 
                     for(array in sequenceArray){
                         String arrayString = array.toString()
@@ -552,17 +554,8 @@ class JbrowseController {
                             println "FOUND last array string ${arrayString}"
                         }
                     }
-                    println "ABCD-2"
-
 
                     response.outputStream << sequenceArray.toString()
-
-//                    JSONArray refSeqJsonObject = new JSONArray(file.text)
-                    // TODO: it should look up the OGS track either default or variable
-//                    if (projectionService.hasProjection(preferenceService.currentOrganismForCurrentUser,projectionService.getTrackName(file.absolutePath))) {
-//                    println "refseq size ${refSeqJsonObject.size()}"
-
-                    // returns projection to a string of some sort
                 } else {
                     // Set content size
                     response.setContentLength((int) file.length());

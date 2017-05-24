@@ -16,6 +16,14 @@ constructor: function( args )  {
     this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
     };
+    this.transformers["JBrowse/View/Track/Wiggle/XYPlot"] = function(trackConfig) {
+        console.log("transforming track from / to bigwig xyplot ");
+        trackConfig.type = "JBrowse/View/Track/Wiggle/XYPlot";
+    };
+    this.transformers["JBrowse/View/Track/Wiggle/Density"] = function(trackConfig) {
+        console.log("transforming track from / to bigwig density ");
+        trackConfig.type = "JBrowse/View/Track/Wiggle/Density";
+    };
 
     this.transformers["JBrowse/View/Track/CanvasFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
