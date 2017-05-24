@@ -551,3 +551,7 @@ If you don't want any reporting set:
     google_analytics = []
 
 
+### System-wide Notifications
+
+The JBrowse plugin [System-wide Notices](https://github.com/TAMU-CPT/SitewideNotices/) provides notification services.
+See the [JBrowse Registry](https://gmod.github.io/jbrowse-registry/#!?page=1&perPage=5&term=Notices) for additional information and a demonstration.
