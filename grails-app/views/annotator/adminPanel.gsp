@@ -14,19 +14,16 @@
 <body>
 
 %{--<ul>--}%
-    %{--<g:each in="${links}" var="link">--}%
-        %{--<li>--}%
-            %{--<g:link target="_blank" uri="${link.link}">${link.label}</g:link>--}%
-        %{--</li>--}%
-    %{--</g:each>--}%
+%{--<g:each in="${links}" var="link">--}%
+%{--<li>--}%
+%{--<g:link target="_blank" uri="${link.link}">${link.label}</g:link>--}%
+%{--</li>--}%
+%{--</g:each>--}%
 %{--</ul>--}%
 
 <div class="list-group">
     <g:each in="${links}" var="link">
-        %{--<a href="#" class="list-group-item">--}%
-            <g:link class="list-group-item" target="_blank" uri="${link.link}">${link.label}</g:link>
-        %{--</a>--}%
-        %{--</li>--}%
+        <g:link class="list-group-item" target="_blank" uri="${link.link}">${link.label}</g:link>
     </g:each>
 </div>
 
