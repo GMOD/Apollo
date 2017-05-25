@@ -36,6 +36,8 @@ class JbrowseController {
     def configWrapperService
     def grailsLinkGenerator
 
+
+
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
     }
@@ -531,7 +533,6 @@ class JbrowseController {
                     String fileText = new File(dataFileName).text
                     JSONArray inputArray = JSON.parse(fileText) as JSONArray
 
-                    println "PRE sequence array: ${sequenceArray.size()}"
                     for(assemblage in Assemblage.findAllByOrganism(currentOrganism)){
                         JSONObject assemblageRefSeq = projectionService.generateRefSeqForAssemblage(assemblage)
                         assemblageRefSeq.name = assemblageRefSeq.toString()
@@ -539,22 +540,7 @@ class JbrowseController {
                     }
                     println "POST sequence array: ${sequenceArray.size()}"
 
-                    for(array in sequenceArray){
-                        String arrayString = array.toString()
-//                        println "array string: ${arrayString}"
-                        if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
-                            println "FOUND string ${arrayString} "
-                        }
-                    }
                     sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
-
-                    for(array in sequenceArray){
-                        String arrayString = array.toString()
-//                        println "array string: ${arrayString}"
-                        if(arrayString.contains("Group11.4") && arrayString.contains("GroupUn87")){
-                            println "FOUND last array string ${arrayString}"
-                        }
-                    }
 
                     response.outputStream << sequenceArray.toString()
                 } else {
@@ -715,7 +701,6 @@ class JbrowseController {
         File file = new File(absoluteFilePath)
 
 
-
         def mimeType = "application/json";
         response.setContentType(mimeType);
         Long id
@@ -728,17 +713,16 @@ class JbrowseController {
         }
 
         // add datasets to the configuration
-        JSONObject jsonObject = JSON.parse(file.text) as JSONObject
-        jsonObject = rewriteTracks(jsonObject)
+        JSONObject trackObject = JSON.parse(file.text) as JSONObject
+        trackObject = rewriteTracks(trackObject)
 
-        println "${jsonObject as JSON}"
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
-            jsonObject.put("dataset_id", currentOrganism.id)
+            trackObject.put("dataset_id", currentOrganism.id)
         } else {
             id = request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
-            jsonObject.put("dataset_id", id);
+            trackObject.put("dataset_id", id);
         }
         List<Organism> list = permissionService.getOrganismsForCurrentUser()
         JSONObject organismObjectContainer = new JSONObject()
@@ -762,25 +746,27 @@ class JbrowseController {
             organismObjectContainer.put(id, organismObject)
         }
 
-        jsonObject.put("datasets", organismObjectContainer)
+        trackService.putOrganismTrack(currentOrganism,trackObject)
 
-        if (jsonObject.include == null) {
-            jsonObject.put("include", new JSONArray())
+        trackObject.put("datasets", organismObjectContainer)
+
+        if (trackObject.include == null) {
+            trackObject.put("include", new JSONArray())
         }
-        jsonObject.include.add("../plugins/WebApollo/json/annot.json")
+        trackObject.include.add("../plugins/WebApollo/json/annot.json")
 
         def plugins = grailsApplication.config.jbrowse?.plugins
         // not sure if I do it this way or via the include
         if (plugins) {
             def pluginKeys = []
-            if (!jsonObject.plugins) {
-                jsonObject.plugins = new JSONArray()
+            if (!trackObject.plugins) {
+                trackObject.plugins = new JSONArray()
             } else {
-                for (int i = 0; i < jsonObject.plugins.size(); i++) {
-                    if (jsonObject.plugins[i] instanceof JSONObject) {
-                        pluginKeys.add(jsonObject.plugins[i].name)
-                    } else if (jsonObject.plugins[i] instanceof String) {
-                        pluginKeys.add(jsonObject.plugins[i])
+                for (int i = 0; i < trackObject.plugins.size(); i++) {
+                    if (trackObject.plugins[i] instanceof JSONObject) {
+                        pluginKeys.add(trackObject.plugins[i].name)
+                    } else if (trackObject.plugins[i] instanceof String) {
+                        pluginKeys.add(trackObject.plugins[i])
                     }
                 }
             }
@@ -793,13 +779,13 @@ class JbrowseController {
                     pluginObject.name = plugin.key
                     pluginObject.location = "./plugins/${plugin.key}"
                     pluginObject.putAll(plugin.value)
-                    jsonObject.plugins.add(pluginObject)
+                    trackObject.plugins.add(pluginObject)
                     log.info "Loading plugin: ${pluginObject.name} details: ${pluginObject as JSON}"
                 }
             }
         }
 
-        response.outputStream << jsonObject.toString()
+        response.outputStream << trackObject.toString()
         response.outputStream.close()
     }
 
@@ -808,7 +794,7 @@ class JbrowseController {
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }

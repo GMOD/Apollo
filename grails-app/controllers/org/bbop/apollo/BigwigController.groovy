@@ -18,6 +18,7 @@ class BigwigController {
     def projectionService
     def assemblageService
     def bigwigService
+    def trackService
 
     /**
      *{"features": [
@@ -90,16 +91,25 @@ class BigwigController {
         render new JSONObject() as JSON
     }
 
-    JSONObject stats(){
 
-    }
-
-    JSONObject global() {
+    JSONObject global(String trackName) {
         println "global params ${params}"
+        JSONObject data = permissionService.handleInput(request, params)
+        println "LGOBAL: data as ${data as JSON}"
+        Organism currentOrganism = preferenceService.getOrganismFromInput(data)
+
+        if(!currentOrganism){
+            String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+            currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        }
+        println "current organism ${currentOrganism}"
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism,trackName)
+        println "track object 2: ${trackObject as JSON}"
+
+
 
         JSONObject returnObject = new JSONObject()
-
-        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
+        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + trackObject.urlTemplate)
 
         println "global path: ${path}"
 

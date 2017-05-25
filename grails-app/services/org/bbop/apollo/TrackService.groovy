@@ -7,8 +7,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.*
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
-import org.bbop.apollo.gwt.shared.track.TrackIndex
-import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -18,6 +16,8 @@ class TrackService {
     def projectionService
     def preferenceService
     def trackMapperService
+
+    private Map<String, JSONObject> organismMap = [:]
 
     JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
@@ -345,7 +345,7 @@ class TrackService {
 
     JSONArray checkCache(String organismString, String trackName, String sequence, String featureName, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName,mapString)?.response
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName, mapString)?.response
         return response != null ? JSON.parse(response) as JSONArray : null
     }
 
@@ -679,7 +679,7 @@ class TrackService {
                         coordinate.set(trackIndex.strand, newStrand)
                     }
                     // because the old end was exclusive and the old scaffold was, I think we are subtracting two to account for the offset of each
-                    coordinate.set(trackIndex.start, coordinate.get(trackIndex.end)-2)
+                    coordinate.set(trackIndex.start, coordinate.get(trackIndex.end) - 2)
                     // because the old end was inclusive, we add one to make it exclusive
                     coordinate.set(trackIndex.end, temp)
                 }
@@ -1149,5 +1149,32 @@ class TrackService {
         trackArray = sortNcListArray(trackArray)
 
         return trackArray
+    }
+
+    @NotTransactional
+    def putOrganismTrack(Organism currentOrganism, JSONObject trackObject) {
+//        println "putting organism ${currentOrganism.commonName} and putting in ${trackObject.toString().length()}"
+        organismMap.put(currentOrganism.commonName, trackObject)
+        println "org map ${organismMap.size()}"
+    }
+
+    @NotTransactional
+    JSONObject getTrackObjectForOrganism(Organism organism) {
+        return organism ? organismMap.get(organism.commonName) : null
+    }
+
+    @NotTransactional
+    JSONObject getTrackObjectForOrganismAndTrack(Organism organism, String trackName) {
+        JSONObject trackObject = getTrackObjectForOrganism(organism)
+        println "org ${organism} for ${trackName}"
+        println "foudn object ${trackObject?.tracks?.size()} as ${organism?.commonName}"
+        if (trackObject) {
+            for(JSONObject obj in trackObject.getJSONArray(FeatureStringEnum.TRACKS.value)){
+                if(obj.key == trackName){
+                    return obj
+                }
+            }
+        }
+        return null
     }
 }
