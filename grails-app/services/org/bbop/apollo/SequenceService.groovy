@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 
 import grails.transaction.Transactional
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -8,6 +10,7 @@ import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
+
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import groovy.json.JsonSlurper
@@ -29,6 +32,8 @@ class SequenceService {
     def sessionFactory
     def assemblageService
     def projectionService
+    def permissionService
+    def featureProjectionService
 
 
     List<FeatureLocation> getFeatureLocations(Sequence sequence){
@@ -490,8 +495,10 @@ class SequenceService {
     }
 
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
-        List<Feature> featuresToWrite = new ArrayList<>();
+        Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        List<Feature> featuresToWrite = new ArrayList<>();
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
@@ -508,7 +515,17 @@ class SequenceService {
                 featuresToWrite += listOfSequenceAlterations
             }
         }
-        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
+
+        JSONArray featuresToWriteArray = new JSONArray()
+        for (Feature feature : featuresToWrite) {
+            featuresToWriteArray.add(featureService.convertFeatureToJSON(feature, false))
+        }
+
+        // projecting all features (mostly its just one feature) onto the current assemblage
+        featureProjectionService.projectFeaturesArray(featuresToWriteArray, multiSequenceProjection, false, 0)
+        def assemblageToFeaturesMap = [:]
+        assemblageToFeaturesMap.put(assemblage, featuresToWriteArray)
+        gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, assemblageToFeaturesMap, grailsApplication.config.apollo.gff3.source as String)
     }
 
     /**
