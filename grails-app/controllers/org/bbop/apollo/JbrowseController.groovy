@@ -33,7 +33,8 @@ class JbrowseController {
     def refSeqProjectorService
     def sequenceCacheService
     def assemblageService
-    def bigwigService
+    def configWrapperService
+    def grailsLinkGenerator
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -807,7 +808,7 @@ class JbrowseController {
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl = "http://localhost:8080/apollo/bigwig"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }

@@ -12,13 +12,11 @@ import java.nio.file.Path
 
 class BigwigController {
 
-    def grailsApplication
     def permissionService
     def preferenceService
     def sequenceService
     def projectionService
     def assemblageService
-//    def trackService
     def bigwigService
 
     /**
@@ -92,12 +90,19 @@ class BigwigController {
         render new JSONObject() as JSON
     }
 
+    JSONObject stats(){
+
+    }
+
     JSONObject global() {
-        println "params ${params}"
+        println "global params ${params}"
 
         JSONObject returnObject = new JSONObject()
+
         Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
-        // TODO: should cache these if open
+
+        println "global path: ${path}"
+
         BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
         returnObject.put("scoreMin", bigWigFileReader.min())
         returnObject.put("scoreMax", bigWigFileReader.max())
