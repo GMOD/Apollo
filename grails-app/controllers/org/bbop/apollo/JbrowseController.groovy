@@ -709,8 +709,12 @@ class JbrowseController {
         log.debug "track list client token: ${clientToken}"
         String dataDirectory = getJBrowseDirectoryForSession(clientToken)
         log.debug "got data directory of . . . ? ${dataDirectory}"
+
         String absoluteFilePath = dataDirectory + "/trackList.json"
-        File file = new File(absoluteFilePath);
+        File file = new File(absoluteFilePath)
+
+
+
         def mimeType = "application/json";
         response.setContentType(mimeType);
         Long id
@@ -724,6 +728,10 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+        jsonObject = rewriteTracks(jsonObject)
+
+        println "${jsonObject as JSON}"
+
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
@@ -792,6 +800,26 @@ class JbrowseController {
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
+    }
+
+
+    JSONObject rewriteTrack(JSONObject obj) {
+        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl = "http://localhost:8080/apollo/bigwig"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+        }
+        return obj
+    }
+
+    JSONObject rewriteTracks(JSONObject jsonObject) {
+        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+        for(JSONObject obj in tracksArray){
+            obj = rewriteTrack(obj)
+        }
+        return jsonObject
     }
 
     def annotInclude() {

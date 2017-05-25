@@ -12,12 +12,13 @@ import java.nio.file.Path
 
 class BigwigController {
 
+    def grailsApplication
     def permissionService
     def preferenceService
     def sequenceService
     def projectionService
     def assemblageService
-    def trackService
+//    def trackService
     def bigwigService
 
     /**

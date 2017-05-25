@@ -153,7 +153,7 @@
 //  "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Annotations",
   "alwaysOnTracks": "DNA,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
-  "bookmarkService": "getSeqBoundaries",
+//  "bookmarkService": "getSeqBoundaries",
   "classicMenu" : 1,
   "formatVersion" : 1
 }
