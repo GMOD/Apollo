@@ -87,21 +87,21 @@ environments {
 //            included = true
 //        }
 //        Notification {
-//            git = 'https://github.com/TAMU-CPT/SitewideNotices/'
+//            git = 'https://github.com/TAMU-CPT/SitewideNotices'
 //            branch = 'master'
 //            alwaysPull = "true"
 //        }
-////        MyVariantInfo {
-////            git = 'https://github.com/GMOD/myvariantviewer'
-////            branch = 'master'
-////            alwaysRecheck = "true"
-////            alwaysPull = "true"
-////        }
-////        SashimiPlot {
-////            git = 'https://github.com/cmdcolin/sashimiplot'
-////            branch = 'master'
-////            alwaysPull = "true"
-////        }
+//        MyVariantInfo {
+//            git = 'https://github.com/GMOD/myvariantviewer'
+//            branch = 'master'
+//            alwaysRecheck = "true"
+//            alwaysPull = "true"
+//        }
+//        SashimiPlot {
+//            git = 'https://github.com/cmdcolin/sashimiplot'
+//            branch = 'master'
+//            alwaysPull = "true"
+//        }
 //    }
 //}
 

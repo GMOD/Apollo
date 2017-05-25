@@ -135,7 +135,7 @@ environments {
 //            included = true
 //        }
 //        Notification {
-//            git = 'https://github.com/TAMU-CPT/SitewideNotices/'
+//            git = 'https://github.com/TAMU-CPT/SitewideNotices'
 //            branch = 'master'
 //            alwaysPull = "true"
 //        }
