@@ -387,9 +387,6 @@ public class Gff3HandlerService {
                     JSONObject cdsLocation = cdsJsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
                     int length = 0
                     JSONArray cdsPartsJsonArray = new JSONArray()
-                    exons.each {
-                        println it.getJSONObject("location").get("fmin")
-                    }
                     for (JSONObject exon : exons) {
                         JSONObject exonLocation = exon.getJSONObject(FeatureStringEnum.LOCATION.value)
                         JSONObject cdsPartObject = JSON.parse(cdsJsonFeature.toString()) as JSONObject
