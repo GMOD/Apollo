@@ -28,7 +28,7 @@ public class AssemblageInfoService {
         Map<String,Boolean> scaffoldComplementMap = new HashMap<>();
         AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
 
-        for(int i = 0 ; i < assemblageSequenceList.size() ; i++){
+        for(int i = 0 ; assemblageSequenceList!=null && i < assemblageSequenceList.size() ; i++){
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
             String scaffoldName = assemblageSequence.getName();
             Integer featureCount = scaffoldFeatureMap.get(scaffoldName);
