@@ -376,6 +376,7 @@ public class Gff3HandlerService {
                             cdsJsonFeature = childJsonFeature
                         }
                     }
+                    sortFeaturesJsonArray(exons, true)
                     boolean hasChildren = cdsJsonFeature.has(FeatureStringEnum.CHILDREN.value)
                     JSONArray cdsChildFeaturesJsonArray
                     if (hasChildren) {
@@ -386,6 +387,9 @@ public class Gff3HandlerService {
                     JSONObject cdsLocation = cdsJsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value)
                     int length = 0
                     JSONArray cdsPartsJsonArray = new JSONArray()
+                    exons.each {
+                        println it.getJSONObject("location").get("fmin")
+                    }
                     for (JSONObject exon : exons) {
                         JSONObject exonLocation = exon.getJSONObject(FeatureStringEnum.LOCATION.value)
                         JSONObject cdsPartObject = JSON.parse(cdsJsonFeature.toString()) as JSONObject
@@ -776,6 +780,16 @@ public class Gff3HandlerService {
             }
         }
         return attributes
+    }
+
+    def sortFeaturesJsonArray(JSONArray featuresJsonArray, boolean sortByStrand = false) {
+        int strand = featuresJsonArray.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value).getInt(FeatureStringEnum.STRAND.value)
+        featuresJsonArray.sort {a,b -> a.location.fmin <=> b.location.fmin }
+        if (sortByStrand) {
+            if (strand == Strand.NEGATIVE.value) {
+                featuresJsonArray.reverse(true)
+            }
+        }
     }
 
     static private def formatAssemblageName(JSONArray sequenceListArray) {
