@@ -192,8 +192,5 @@ class OverlapperService implements Overlapper{
                         leftFmin >= rightFmin && leftFmin < rightFmax)
     }
 
-    boolean overlaps(long leftFmin, long leftFmax, long rightFmin, long rightFmax) {
-        return (leftFmin <= rightFmin && leftFmax > rightFmin || leftFmin >= rightFmin && leftFmin < rightFmax)
-    }
 
 }

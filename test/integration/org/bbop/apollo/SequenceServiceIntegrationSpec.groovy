@@ -187,7 +187,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert getGenomicFlankSequenceReturnObject.residues == expectedGenomicSequenceWithFlank
         
         when: "A request is sent for the GFF3 of a gene with UTRs"
-        String getGff3String = "{${testCredentials} \"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
+        String getGff3String = "{\"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\"}"
         getGff3String = getGff3String.replaceAll("@UNIQUENAME@", uniqueName)
         JSONObject inputObject = JSON.parse(getGff3String) as JSONObject
         Sequence refSequence = Sequence.first()
@@ -225,7 +225,7 @@ class SequenceServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "A request is sent for the GFF3 of a list of genes"
         String uniqueName1 = MRNA.findByName("GB40722-RA-00001").uniqueName
         String uniqueName2 = MRNA.findByName("GB40827-RA-00001").uniqueName
-        String getGff3String = "{ ${testCredentials} \"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME1@\"}, {\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\"}"
+        String getGff3String = "{\"operation\":\"get_gff3\",\"features\":[{\"uniquename\":\"@UNIQUENAME1@\"}, {\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\"}"
         getGff3String = getGff3String.replaceAll("@UNIQUENAME1@", uniqueName1)
         getGff3String = getGff3String.replaceAll("@UNIQUENAME2@", uniqueName2)
         JSONObject inputObject = JSON.parse(getGff3String) as JSONObject
