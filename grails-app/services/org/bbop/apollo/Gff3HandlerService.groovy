@@ -766,7 +766,7 @@ public class Gff3HandlerService {
             }
 
             if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
-                // TODO
+                // TODO: currently featureSynonym table is empty and thus nothing to export
             }
 
             // TODO: Target
