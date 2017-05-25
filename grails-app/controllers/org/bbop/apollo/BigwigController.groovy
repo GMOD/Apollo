@@ -47,12 +47,6 @@ class BigwigController {
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
 
         Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
-//        Organism currentOrganism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,)
-
-//        String referer = request.getHeader("Referer")
-//        println "referer ${referer}"
-//        String refererLoc = trackService.extractLocation(sequenceName)
-//        println "refererLoc ${refererLoc}"
         println "sequenceName: ${sequenceName}"
 
 

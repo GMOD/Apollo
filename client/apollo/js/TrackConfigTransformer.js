@@ -21,13 +21,17 @@ constructor: function( args )  {
         console.log(trackConfig);
         trackConfig.storeClass = "JBrowse/View/Store/SeqFeature/REST";
         trackConfig.baseUrl = "http://localhost:8080/apollo/bigwig";
+        delete trackConfig.urlTemplate;
         console.log("transforming track from / to bigwig xyplot last");
         console.log(trackConfig);
         // trackConfig.storeClass = "WebApollo/Store/SeqFeature/BigWig";
     };
     this.transformers["JBrowse/View/Track/Wiggle/Density"] = function(trackConfig) {
         console.log("transforming track from / to bigwig density ");
-        trackConfig.storeClass = "WebApollo/Store/SeqFeature/BigWig";
+        trackConfig.storeClass = "JBrowse/View/Store/SeqFeature/REST";
+        trackConfig.baseUrl = "http://localhost:8080/apollo/bigwig";
+        console.log("final transforming track from / to bigwig density");
+        console.log(trackConfig);
     };
 
     this.transformers["JBrowse/View/Track/CanvasFeatures"] = function(trackConfig) {
