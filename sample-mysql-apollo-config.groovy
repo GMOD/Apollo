@@ -86,11 +86,6 @@ environments {
 //        HideTrackLabels{
 //            included = true
 //        }
-//        Notification {
-//            git = 'https://github.com/TAMU-CPT/SitewideNotices'
-//            branch = 'master'
-//            alwaysPull = "true"
-//        }
 //        MyVariantInfo {
 //            git = 'https://github.com/GMOD/myvariantviewer'
 //            branch = 'master'
