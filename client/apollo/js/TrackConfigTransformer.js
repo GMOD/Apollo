@@ -17,8 +17,13 @@ constructor: function( args )  {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
     };
     this.transformers["JBrowse/View/Track/Wiggle/XYPlot"] = function(trackConfig) {
-        console.log("transforming track from / to bigwig xyplot ");
-        trackConfig.storeClass = "WebApollo/Store/SeqFeature/BigWig";
+        console.log("transforming track from / to bigwig xyplot early");
+        console.log(trackConfig);
+        trackConfig.storeClass = "JBrowse/View/Store/SeqFeature/REST";
+        trackConfig.baseUrl = "http://localhost:8080/apollo/bigwig";
+        console.log("transforming track from / to bigwig xyplot last");
+        console.log(trackConfig);
+        // trackConfig.storeClass = "WebApollo/Store/SeqFeature/BigWig";
     };
     this.transformers["JBrowse/View/Track/Wiggle/Density"] = function(trackConfig) {
         console.log("transforming track from / to bigwig density ");
