@@ -376,6 +376,7 @@ public class Gff3HandlerService {
                             cdsJsonFeature = childJsonFeature
                         }
                     }
+                    sortFeaturesJsonArray(exons, true)
                     boolean hasChildren = cdsJsonFeature.has(FeatureStringEnum.CHILDREN.value)
                     JSONArray cdsChildFeaturesJsonArray
                     if (hasChildren) {
@@ -765,7 +766,7 @@ public class Gff3HandlerService {
             }
 
             if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
-                // TODO
+                // TODO: currently featureSynonym table is empty and thus nothing to export
             }
 
             // TODO: Target
@@ -776,6 +777,16 @@ public class Gff3HandlerService {
             }
         }
         return attributes
+    }
+
+    def sortFeaturesJsonArray(JSONArray featuresJsonArray, boolean sortByStrand = false) {
+        int strand = featuresJsonArray.getJSONObject(0).getJSONObject(FeatureStringEnum.LOCATION.value).getInt(FeatureStringEnum.STRAND.value)
+        featuresJsonArray.sort {a,b -> a.location.fmin <=> b.location.fmin }
+        if (sortByStrand) {
+            if (strand == Strand.NEGATIVE.value) {
+                featuresJsonArray.reverse(true)
+            }
+        }
     }
 
     static private def formatAssemblageName(JSONArray sequenceListArray) {
