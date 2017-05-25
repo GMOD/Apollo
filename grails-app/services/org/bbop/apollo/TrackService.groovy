@@ -355,6 +355,25 @@ class TrackService {
         return response != null ? JSON.parse(response) as JSONArray : null
     }
 
+
+    JSONObject getBigWigFromCache(Organism organism, String sequenceName, int fmin, int fmax, String templateUrl) {
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmax(organism.commonName, templateUrl, sequenceName, fmin, fmax)?.response
+        return response != null ? JSON.parse(response) as JSONObject : null
+    }
+
+    @Transactional
+    JSONObject cacheBigWig(JSONObject storeObject ,Organism organism, String sequenceName, int fmin, int fmax, String templateUrl) {
+        TrackCache trackCache = new TrackCache(
+                response: storeObject.toString()
+                , organismName: organism.commonName
+                , trackName: templateUrl
+                , sequenceName: sequenceName
+                , fmin: fmin
+                , fmax: fmax
+        ).save()
+        return storeObject
+    }
+
     @Transactional
     def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, String featureName, Map paramMap) {
         TrackCache trackCache = new TrackCache(

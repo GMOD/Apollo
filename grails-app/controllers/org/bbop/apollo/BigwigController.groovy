@@ -42,13 +42,14 @@ class BigwigController {
 
         JSONObject data = permissionService.handleInput(request, params)
         println "data as ${data as JSON}"
-        JSONObject returnObject = new JSONObject()
+        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+        if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
+            println "cache found !"
+            render returnObject as JSON
+        }
         JSONArray featuresArray = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
-
-        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
-        println "sequenceName: ${sequenceName}"
-
 
         BigWigFileReader bigWigFileReader
         Path path
@@ -65,6 +66,7 @@ class BigwigController {
             } else {
                 bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
+            trackService.cacheBigWig(returnObject,organism,sequenceName,start,end,params.urlTemplate)
             println "end array ${featuresArray.size()}"
         } catch (e) {
             println "baddness ${e} -> ${path}"
