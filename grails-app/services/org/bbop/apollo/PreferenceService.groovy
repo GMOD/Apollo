@@ -480,8 +480,10 @@ class PreferenceService {
 
             if (!assemblage) {
                 Sequence sequence = sequenceName ? Sequence.findByNameAndOrganism(sequenceName, organism) : null
-                sequence = sequence ?: organism.sequences.first()
-                assemblage = assemblageService.generateAssemblageForSequence(sequence)
+                sequence = sequence ?: organism.sequences?.first()
+                if(sequence){
+                    assemblage = assemblageService.generateAssemblageForSequence(sequence)
+                }
             }
 
             if (user) {
@@ -489,7 +491,7 @@ class PreferenceService {
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , sequence:assemblage
+                        , assemblage: assemblage  // can be null
                         , clientToken: clientToken
                 )
                 if (assemblage) {
