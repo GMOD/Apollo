@@ -85,20 +85,6 @@ class BigwigService {
             Integer originalEnd = projection.unProjectValue(endStep)
             edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
             Integer value = innerContig.mean()
-//                ProjectionSequence startProjectionSequence = projection.getProjectionSequence(reverseStart)
-//                ProjectionSequence endProjectionSequence = projection.getProjectionSequence(reverseEnd)
-//                Integer value
-//                if(startProjectionSequence.name==endProjectionSequence.name){
-//                    edu.unc.genomics.Contig innerContig = bigWigFileReader.query(startProjectionSequence.name, reverseStart, reverseEnd)
-//                    value = innerContig.mean()
-//                }
-//                else{
-//                    Integer firstChromStop = bigWigFileReader.getChrStop(startProjectionSequence.name)
-//                    Integer lastChromStart = bigWigFileReader.getChrStart(endProjectionSequence.name)
-//                    edu.unc.genomics.Contig innerConti1 = bigWigFileReader.query(startProjectionSequence.name, reverseStart, firstChromStop)
-//                    edu.unc.genomics.Contig innerConti2 = bigWigFileReader.query(endProjectionSequence.name, lastChromStart, reverseEnd)
-//                    value = (innerConti1.total() + innerConti2.total()) / ((float) (innerConti1.actualNumberOfValues() + innerConti2.actualNumberOfValues()))
-//                }
 
             if (value >= 0) {
 //                        // TODO: this should be th mean value

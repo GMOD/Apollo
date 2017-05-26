@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
@@ -289,7 +290,7 @@ class JbrowseController {
         }
     }
 
-    def generateRefSeqLabel(JSONObject refSeqObject) {
+    private def generateRefSeqLabel(JSONObject refSeqObject) {
         String returnLabel = ""
         if (refSeqObject.feature) {
             returnLabel += refSeqObject.feature.name + " ("
@@ -796,7 +797,8 @@ class JbrowseController {
     }
 
 
-    JSONObject rewriteTrack(JSONObject obj) {
+    @NotTransactional
+    private JSONObject rewriteTrack(JSONObject obj) {
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -807,7 +809,8 @@ class JbrowseController {
         return obj
     }
 
-    JSONObject rewriteTracks(JSONObject jsonObject) {
+    @NotTransactional
+    private JSONObject rewriteTracks(JSONObject jsonObject) {
         JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
         for(JSONObject obj in tracksArray){
             obj = rewriteTrack(obj)
