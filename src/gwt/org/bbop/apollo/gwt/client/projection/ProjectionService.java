@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.*;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
@@ -40,7 +41,7 @@ public class ProjectionService {
 
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
         List<Coordinate> coordinates = new ArrayList<>();
-        for (int i = 0; i < assemblageSequenceList.size(); i++) {
+        for (int i = 0; assemblageSequenceList !=null && i < assemblageSequenceList.size(); i++) {
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
 
             ProjectionSequence projectionSequence = generateProjectSequenceFromAssemblageSequence(assemblageSequence);
@@ -164,12 +165,22 @@ public class ProjectionService {
         return projectionSequence.getName();
     }
 
-    public static JavaScriptObject getOriginalProjection(String referenceString, String inputString) {
-        Integer input = Integer.parseInt(inputString);
-        return getOrginalProjection(referenceString, (long) input);
+    public static String getSequenceNames(String referenceString) {
+        MultiSequenceProjection projection = getProjectionForString(referenceString);
+        List<ProjectionSequence> projectionSequences = projection.getProjectedSequences();
+        JSONArray jsonArray = new JSONArray();
+        for(ProjectionSequence projectionSequence : projectionSequences){
+            jsonArray.set(jsonArray.size(),new JSONString(projectionSequence.name));
+        }
+        return jsonArray.toString();
     }
 
-    public static JavaScriptObject getOrginalProjection(String referenceString, Long input) {
+    public static JavaScriptObject getOriginalProjection(String referenceString, String inputString) {
+        Integer input = Integer.parseInt(inputString);
+        return getOriginalProjection(referenceString, (long) input);
+    }
+
+    public static JavaScriptObject getOriginalProjection(String referenceString, Long input) {
 //        GWT.log("trying to project a sequence in GWT: " + input);
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         JSONObject jsonObject = new JSONObject();
@@ -410,6 +421,7 @@ public class ProjectionService {
         $wnd.projectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::projectValue(Ljava/lang/String;Ljava/lang/String;));
         $wnd.unProjectValue = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::unProjectValue(Ljava/lang/String;Ljava/lang/String;));
         $wnd.unProjectSequence = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::unProjectSequence(Ljava/lang/String;Ljava/lang/String;));
+        $wnd.getSequenceNames = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getSequenceNames(Ljava/lang/String;));
         $wnd.getOriginalProjection = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getOriginalProjection(Ljava/lang/String;Ljava/lang/String;));
         $wnd.getBorders = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getBorders(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;));
         $wnd.getProjectionLength = $entry(@org.bbop.apollo.gwt.client.projection.ProjectionService::getProjectionLength(Ljava/lang/String;));

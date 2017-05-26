@@ -12,6 +12,7 @@ import org.bbop.apollo.sequence.TranslationTable
 class ConfigWrapperService {
 
     def grailsApplication
+    def grailsLinkGenerator
 
     Boolean useCDS() {
         return grailsApplication.config.apollo.use_cds_for_new_transcripts
@@ -118,4 +119,9 @@ class ConfigWrapperService {
     def getExtraTabs(){
         return grailsApplication.config.apollo.extraTabs
     }
+
+    String getBaseLink(){
+        grailsLinkGenerator.serverBaseURL + ':' + (System.properties['server.port']?:'8080') + grailsLinkGenerator.contextPath
+    }
+
 }
