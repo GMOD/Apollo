@@ -50,19 +50,8 @@ class BigwigService {
     @NotTransactional
     def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BigWigFileReader bigWigFileReader, int start, int end) {
 
-        int maxInView = 500
-
-        Integer realStart = 0
+        int maxInView = 1000
         Integer realEnd = 0
-        int stepSize = 1
-
-//        for (ProjectionChunk projectionChunk in projection.projectionChunkList.projectionChunkList) {
-//            realEnd += bigWigFileReader.getChrStop(projectionChunk.sequence)
-//        }
-//
-//        for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
-//            realEnd += bigWigFileReader.getChrStop(projectionSequence.name)
-//        }
 
         Map<Integer,Integer> lengthMap = new TreeMap<>()
         for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
@@ -70,19 +59,14 @@ class BigwigService {
             realEnd += bigWigFileReader.getChrStop(projectionSequence.name)
         }
 
-        Integer actualStart = start
-        Integer actualStop = end
-
         Integer offset = 0
         Integer order = 0
         for (ProjectionSequence projectionSequence in projection.sequenceDiscontinuousProjectionMap.keySet().sort() { a, b -> a.order <=> b.order }) {
             // recalculate start and stop for each sequence
-            Integer calculatedStart = actualStart + offset
-            Integer calculatedStop = lengthMap.get(order)
-            Integer ratio = ((calculatedStop-calculatedStart) / ( (float) actualStop-actualStart)) / (float) maxInView
-            stepSize = maxInView < (calculatedStop - calculatedStart) ? (calculatedStop- calculatedStart) / maxInView : 1
+            Integer calculatedStart = start < offset ? 0 : start + offset
+            Integer calculatedStop = end > projectionSequence.length + offset ?  lengthMap.get(order) : end
+            Integer stepSize = maxInView < (calculatedStop - calculatedStart) ? (calculatedStop- calculatedStart) / maxInView : 1
             calculateFeatureArray(featuresArray, calculatedStart, calculatedStop, stepSize, bigWigFileReader, projection, projectionSequence)
-
             offset = lengthMap.get(order)+1
             ++order
         }

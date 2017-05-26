@@ -112,7 +112,7 @@ class BigwigController {
 
 
         JSONObject returnObject = new JSONObject()
-        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + trackObject.urlTemplate)
+        Path path = FileSystems.getDefault().getPath(currentOrganism.directory + "/" + trackObject.urlTemplate)
 
         println "global path: ${path}"
 
