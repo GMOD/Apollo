@@ -148,6 +148,7 @@ public enum FeatureStringEnum {
         START,
         END,
         USE_CDS,
+        LENGTH,
         PHASE
         ;
 

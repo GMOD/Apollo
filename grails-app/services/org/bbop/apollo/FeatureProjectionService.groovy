@@ -35,6 +35,7 @@ class FeatureProjectionService {
      */
     @NotTransactional
     private JSONObject projectFeature(JSONObject inputFeature, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
+
         if (!inputFeature.has(FeatureStringEnum.LOCATION.value)) {
             return inputFeature
         }
@@ -75,7 +76,7 @@ class FeatureProjectionService {
                 }
                 projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
             } else if (projectionSequence1.name != projectionSequence2.name) {
-                locationObject.put(FeatureStringEnum.SEQUENCE.value, "[{\"name\":\"" + projectionSequence1.name + "\"},{\"name\":\"" + projectionSequence2.name + "\"}]")
+                locationObject.put(FeatureStringEnum.SEQUENCE.value, createJSONStringFromProjectionSequences([projectionSequence1, projectionSequence2]))
                 // TODO: not sure how to handle this case
                 assert projectionSequence1.reverse == projectionSequence2.reverse
             }
@@ -93,8 +94,22 @@ class FeatureProjectionService {
             log.debug("Neither projection is valid, so ignoring")
 //            throw new AnnotationException("Neither projection sequence seems to be valid")
         }
-
         return inputFeature
+    }
+
+    def createJSONStringFromProjectionSequences(def projectionSequences) {
+        JSONArray returnArray = new JSONArray()
+        projectionSequences.each {
+            JSONObject projectionSequenceJsonObject = new JSONObject()
+            projectionSequenceJsonObject.put(FeatureStringEnum.ID.value, it.id)
+            projectionSequenceJsonObject.put(FeatureStringEnum.NAME.value, it.name)
+            projectionSequenceJsonObject.put(FeatureStringEnum.LENGTH.value, it.unprojectedLength)
+            projectionSequenceJsonObject.put(FeatureStringEnum.START.value, it.start)
+            projectionSequenceJsonObject.put(FeatureStringEnum.END.value, it.end)
+            projectionSequenceJsonObject.put(FeatureStringEnum.REVERSE.value, it.reverse)
+            returnArray.add(projectionSequenceJsonObject)
+        }
+        return returnArray.toString()
     }
 
     private JSONArray projectFeaturesArray(JSONArray inputFeaturesArray, MultiSequenceProjection projection, Boolean unProject, Integer offset) {

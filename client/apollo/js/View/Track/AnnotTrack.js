@@ -4105,8 +4105,9 @@ define([
                                 var feature = response.features[i];
                                 var cvterm = feature.type;
                                 var residues = feature.residues;
+                                var header = feature.header;
                                 var loc = feature.location;
-                                textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
+                                textAreaContent += header + "\n";
                                 var lineLength = 70;
                                 for (var j = 0; j < residues.length; j += lineLength) {
                                     textAreaContent += residues.substr(j, lineLength) + "\n";
