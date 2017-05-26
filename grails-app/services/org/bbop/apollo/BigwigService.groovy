@@ -70,9 +70,7 @@ class BigwigService {
             offset = lengthMap.get(order) + 1
             ++order
         }
-//        }
         return featuresArray
-
     }
 
     def calculateFeatureArray(JSONArray featuresArray, int actualStart, int actualStop, int stepSize, BigWigFileReader bigWigFileReader, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
@@ -86,7 +84,7 @@ class BigwigService {
             edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
             Integer value = innerContig.mean()
 
-            globalFeature.put("score", value >= 1 ?: 1)
+            globalFeature.put("score", value >= 1 ? value : 1)
             featuresArray.add(globalFeature)
         }
     }

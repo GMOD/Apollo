@@ -240,7 +240,7 @@ class JbrowseController {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            def refererLocObject = JSON.parse(refererLoc)
+//            def refererLocObject = JSON.parse(refererLoc)
 //            def sequenceList = refererLocObject.sequenceList
 
             // for each sequence we have: name (typically sequence), location start, location end,
