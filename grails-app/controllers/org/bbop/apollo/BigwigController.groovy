@@ -17,8 +17,8 @@ class BigwigController {
     def sequenceService
     def projectionService
     def assemblageService
-    def trackService
     def bigwigService
+    def trackService
 
     /**
      *{"features": [
@@ -40,15 +40,16 @@ class BigwigController {
      */
     JSONObject features(String sequenceName, Integer start, Integer end) {
 
-        JSONObject returnObject = new JSONObject()
+        JSONObject data = permissionService.handleInput(request, params)
+        println "data as ${data as JSON}"
+        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+        if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
+            println "cache found !"
+            render returnObject as JSON
+        }
         JSONArray featuresArray = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
-
-        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
-
-        String referer = request.getHeader("Referer")
-        String refererLoc = trackService.extractLocation(referer)
-
 
         BigWigFileReader bigWigFileReader
         Path path
@@ -58,13 +59,14 @@ class BigwigController {
             // TODO: should cache these if open
             bigWigFileReader = new BigWigFileReader(path)
 
-            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+            MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
 
             if (projection) {
                 bigwigService.processProjection(featuresArray, projection, bigWigFileReader, start, end)
             } else {
                 bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
+            trackService.cacheBigWig(returnObject,organism,sequenceName,start,end,params.urlTemplate)
             println "end array ${featuresArray.size()}"
         } catch (e) {
             println "baddness ${e} -> ${path}"
@@ -91,12 +93,28 @@ class BigwigController {
         render new JSONObject() as JSON
     }
 
-    JSONObject global() {
-        println "params ${params}"
+
+    JSONObject global(String trackName) {
+        println "global params ${params}"
+        JSONObject data = permissionService.handleInput(request, params)
+        println "LGOBAL: data as ${data as JSON}"
+        Organism currentOrganism = preferenceService.getOrganismFromInput(data)
+
+        if(!currentOrganism){
+            String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+            currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        }
+        println "current organism ${currentOrganism}"
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism,trackName)
+        println "track object 2: ${trackObject as JSON}"
+
+
 
         JSONObject returnObject = new JSONObject()
-        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
-        // TODO: should cache these if open
+        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + trackObject.urlTemplate)
+
+        println "global path: ${path}"
+
         BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
         returnObject.put("scoreMin", bigWigFileReader.min())
         returnObject.put("scoreMax", bigWigFileReader.max())
@@ -120,11 +138,14 @@ class BigwigController {
 
     // TODO: abstract or put in service
     private String getJBrowseDirectoryForSession() {
+        JSONObject data = permissionService.handleInput(request, params)
+        println "data as ${data as JSON}"
         if (!permissionService.currentUser) {
             return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
         }
+        Organism currentOrganism = preferenceService.getOrganismFromInput(data)
 
-        String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
+        String organismJBrowseDirectory = currentOrganism?.directory
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
