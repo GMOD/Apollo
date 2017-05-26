@@ -43,6 +43,7 @@ class BigwigController {
         JSONObject data = permissionService.handleInput(request, params)
         println "data as ${data as JSON}"
         Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+        println "organism found ${organism.commonName}"
         JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
         if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
             println "cache found !"
@@ -54,7 +55,7 @@ class BigwigController {
         BigWigFileReader bigWigFileReader
         Path path
         try {
-            File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
+            File file = new File(organism.directory + "/" + params.urlTemplate)
             path = FileSystems.getDefault().getPath(file.absolutePath)
             // TODO: should cache these if open
             bigWigFileReader = new BigWigFileReader(path)

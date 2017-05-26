@@ -155,19 +155,21 @@ class JbrowseController {
      * @return
      */
     private String getJBrowseDirectoryForSession(String clientToken) {
-        log.debug "current user? ${permissionService.currentUser}"
+        println "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
             return getDirectoryFromSession(clientToken)
         }
 
-        // TODO: remove?
+//         TODO: remove?
         String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+        println "getting this token ${thisToken} vs setting the client token ${clientToken}"
         request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
 
-        log.debug "getting organism for client token ${clientToken}"
+        println "getting organism for client token ${clientToken}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        log.debug "got organism ${currentOrganism} for client token ${clientToken}"
+        println "got organism ${currentOrganism?.commonName} for client token ${clientToken}"
         String organismJBrowseDirectory = currentOrganism.directory
+        println "directory is now ${organismJBrowseDirectory}"
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
@@ -178,7 +180,7 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    Assemblage assemblage = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
+                    def assemblageList = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
                     JSONArray sequenceArray = new JSONArray()
                     if (userOrganismPreference == null) {
                         List<Sequence> sequences = organism?.sequences
@@ -190,7 +192,7 @@ class JbrowseController {
                         new UserOrganismPreference(
                                 user: user
                                 , organism: organism
-                                , assemblage: assemblage
+                                , assemblage: assemblageList.first()
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
@@ -302,8 +304,12 @@ class JbrowseController {
  * Handles data directory serving for jbrowse
  */
     def data() {
+        def p = params
+        if(p.path == "trackData.json"){
+            println "path ${p.path}"
+        }
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
-        String dataDirectory = getJBrowseDirectoryForSession(params.get(clientToken).toString())
+        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
