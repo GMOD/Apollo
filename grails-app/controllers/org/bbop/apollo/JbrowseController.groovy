@@ -34,7 +34,6 @@ class JbrowseController {
     def sequenceCacheService
     def assemblageService
     def configWrapperService
-    def grailsLinkGenerator
 
 
 
@@ -714,7 +713,7 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
-        trackObject = rewriteTracks(trackObject)
+        trackObject = trackService.rewriteTracks(trackObject)
 
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
@@ -787,26 +786,6 @@ class JbrowseController {
 
         response.outputStream << trackObject.toString()
         response.outputStream.close()
-    }
-
-
-    JSONObject rewriteTrack(JSONObject obj) {
-        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-        }
-        return obj
-    }
-
-    JSONObject rewriteTracks(JSONObject jsonObject) {
-        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-        for(JSONObject obj in tracksArray){
-            obj = rewriteTrack(obj)
-        }
-        return jsonObject
     }
 
     def annotInclude() {

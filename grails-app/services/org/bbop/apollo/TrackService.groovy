@@ -16,6 +16,7 @@ class TrackService {
     def projectionService
     def preferenceService
     def trackMapperService
+    def grailsLinkGenerator
 
     private Map<String, JSONObject> organismMap = [:]
 
@@ -1195,5 +1196,32 @@ class TrackService {
             }
         }
         return null
+    }
+
+    JSONObject rewriteTrack(JSONObject obj) {
+        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+        }
+        else
+        if(obj.type == "JBrowse/View/Track/Alignments" || obj.type == "WebApollo/View/Track/DraggableAlignments"){
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bam/${obj.key}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+        }
+        return obj
+    }
+
+    JSONObject rewriteTracks(JSONObject jsonObject) {
+        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+        for(JSONObject obj in tracksArray){
+            obj = rewriteTrack(obj)
+        }
+        return jsonObject
     }
 }
