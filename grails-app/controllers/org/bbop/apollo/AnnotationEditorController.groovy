@@ -903,8 +903,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return
         }
         JSONObject featureContainer = createJSONFeatureContainer()
-        JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
-        featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(sequenceObject)
+        JSONArray featuresArray = sequenceService.getSequenceForFeatures(inputObject)
+        featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).addAll(featuresArray)
         render featureContainer
     }
 
