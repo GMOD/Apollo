@@ -211,6 +211,7 @@ return declare( [JBPlugin, HelpMixin],
         }
 
         this.addSearchBox();
+        this.addNavBox();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -746,6 +747,39 @@ return declare( [JBPlugin, HelpMixin],
         this.updateLabels();
     },
 
+    addNavBox: function() {
+        var thisB = this;
+        var browser = thisB.browser;
+
+        browser.afterMilestone('initView', function () {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-nav-box',
+                'class': "separate-nav-box"
+            }, navbox);
+            var refSeqString  = browser.view.ref.name;
+            refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf(":"));
+            var refSeqObject = JSON.parse(refSeqString);
+
+            // just grab the first one for now
+            var sequenceObj = refSeqObject.sequenceList[0]
+            // sequenceObj.
+
+            var navLabel = new dijitButton(
+                {
+                    id: "apollo-navigation",
+                    name: "apollo-navigation",
+                    style: {width: "200px"},
+                    maxLength: 400,
+                    searchAttr: "navigation",
+                    title: sequenceObj.name,
+                    label: sequenceObj.name + ' ' + sequenceObj.reverse,
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            navbox.appendChild(navLabel.domNode);
+        });
+    },
 
     addSearchBox: function(){
         var thisB = this ;
