@@ -4806,64 +4806,67 @@ define([
                     index++;
 
 
-                    // START COLLAPSE SECTION
-                    contextMenuItems["fold_feature"] = index++;
-                    var collapseFeaturesMenuItem = new dijitMenuItem({
-                        label: "Fold Feature",
-                        onClick: function (event) {
-                            thisB.foldSelectedTranscript();
-                        }
-                    });
-                    annot_context_menu.addChild(collapseFeaturesMenuItem);
+                    // START FOLDING SECTION
+                    var doFolding = false ;
+                    if(doFolding){
+                        contextMenuItems["fold_feature"] = index++;
+                        var collapseFeaturesMenuItem = new dijitMenuItem({
+                            label: "Fold Feature",
+                            onClick: function (event) {
+                                thisB.foldSelectedTranscript();
+                            }
+                        });
+                        annot_context_menu.addChild(collapseFeaturesMenuItem);
 
-                    contextMenuItems["fold_between_exons"] = index++;
-                    var collapseBetweenExonsMenuItem = new dijitMenuItem({
-                        label: "Fold Between Exons",
-                        onClick: function (event) {
-                            thisB.foldBetweenSelectedExons();
-                        }
-                    });
-                    annot_context_menu.addChild(collapseBetweenExonsMenuItem);
+                        contextMenuItems["fold_between_exons"] = index++;
+                        var collapseBetweenExonsMenuItem = new dijitMenuItem({
+                            label: "Fold Between Exons",
+                            onClick: function (event) {
+                                thisB.foldBetweenSelectedExons();
+                            }
+                        });
+                        annot_context_menu.addChild(collapseBetweenExonsMenuItem);
 
-                    contextMenuItems["fold_exons_left"] = index++;
-                    var foldExonsLeftMenuItem = new dijitMenuItem({
-                        label: "Fold Exons Left",
-                        onClick: function (event) {
-                            thisB.foldExonLeft();
-                        }
-                    });
-                    annot_context_menu.addChild(foldExonsLeftMenuItem);
+                        contextMenuItems["fold_exons_left"] = index++;
+                        var foldExonsLeftMenuItem = new dijitMenuItem({
+                            label: "Fold Exons Left",
+                            onClick: function (event) {
+                                thisB.foldExonLeft();
+                            }
+                        });
+                        annot_context_menu.addChild(foldExonsLeftMenuItem);
 
-                    contextMenuItems["fold_exons_right"] = index++;
-                    var foldExonsRightMenuItem = new dijitMenuItem({
-                        label: "Fold Exons Right",
-                        onClick: function (event) {
-                            thisB.foldExonRight();
-                        }
-                    });
-                    annot_context_menu.addChild(foldExonsRightMenuItem);
+                        contextMenuItems["fold_exons_right"] = index++;
+                        var foldExonsRightMenuItem = new dijitMenuItem({
+                            label: "Fold Exons Right",
+                            onClick: function (event) {
+                                thisB.foldExonRight();
+                            }
+                        });
+                        annot_context_menu.addChild(foldExonsRightMenuItem);
 
-                    contextMenuItems["remove_folds"] = index++;
-                    var removeFoldingMenuItem = new dijitMenuItem({
-                        label: "Remove Folds",
-                        onClick: function (event) {
-                            thisB.removeSelectedFolds();
-                        }
-                    });
-                    annot_context_menu.addChild(removeFoldingMenuItem);
+                        contextMenuItems["remove_folds"] = index++;
+                        var removeFoldingMenuItem = new dijitMenuItem({
+                            label: "Remove Folds",
+                            onClick: function (event) {
+                                thisB.removeSelectedFolds();
+                            }
+                        });
+                        annot_context_menu.addChild(removeFoldingMenuItem);
 
-                    contextMenuItems["view_only_features"] = index++;
-                    var viewOnlyFeaturesMenuItem = new dijitMenuItem({
-                        label: "View Only Features",
-                        onClick: function (event) {
-                            thisB.projectSelectedFeatures();
-                        }
-                    });
-                    annot_context_menu.addChild(viewOnlyFeaturesMenuItem);
+                        contextMenuItems["view_only_features"] = index++;
+                        var viewOnlyFeaturesMenuItem = new dijitMenuItem({
+                            label: "View Only Features",
+                            onClick: function (event) {
+                                thisB.projectSelectedFeatures();
+                            }
+                        });
+                        annot_context_menu.addChild(viewOnlyFeaturesMenuItem);
 
-                    annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
-                    // END COLLAPSE SECTION
+                        annot_context_menu.addChild(new dijit.MenuSeparator());
+                        index++;
+                    }
+                    // END FOLDING SECTION
 
 
                     annot_context_menu.addChild(new dijit.MenuItem({

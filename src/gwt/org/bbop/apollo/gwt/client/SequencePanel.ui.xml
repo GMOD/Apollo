@@ -73,10 +73,10 @@
         <gwt:north size="210">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:TextBox placeholder="Search" width="150px" ui:field="nameSearchBox"/>
+                    <b:Column size="MD_6" styleName="{style.widgetPanel}">
+                        <b:TextBox placeholder="Search" width="250px" ui:field="nameSearchBox"/>
                     </b:Column>
-                    <b:Column size="MD_2" styleName="{style.widgetPanel}">
+                    <b:Column size="MD_2" styleName="{style.widgetPanel}" visible="false">
                         <!--<b:ButtonGroup>-->
                             <b:Button type="PRIMARY" ui:field="assemblageButton" icon="BOOKMARK" size="EXTRA_SMALL" title="Add new assemblage" text="+" enabled="false" addStyleNames="bookmark-buttons right-space"/>
                             <b:Button type="PRIMARY" icon="EYE" text="+" title="Add to view" size="EXTRA_SMALL" ui:field="addToView" enabled="false" addStyleNames="bookmark-buttons"/>
