@@ -39,7 +39,6 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.mortbay.util.ajax.JSON;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +51,8 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-    private static final int DEFAULT_TAB_COUNT = 8;
+//    private static final int DEFAULT_TAB_COUNT = 8;
+    private static final int DEFAULT_TAB_COUNT = 7; // removed the assemblage tab
 
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
@@ -92,8 +92,8 @@ public class MainPanel extends Composite {
     static TrackPanel trackPanel;
     @UiField
     static SequencePanel sequencePanel;
-    @UiField
-    static AssemblagePanel assemblagePanel;
+//    @UiField
+//    static AssemblagePanel assemblagePanel;
     @UiField
     static OrganismPanel organismPanel;
     @UiField
@@ -889,9 +889,9 @@ public class MainPanel extends Composite {
                 sequencePanel.reload(true);
                 break;
             case 3:
-                assemblagePanel.reload();
-                break;
-            case 4:
+//                assemblagePanel.reload();
+//                break;
+//            case 4:
                 organismPanel.reload();
                 break;
             case 5:
@@ -1223,7 +1223,7 @@ public class MainPanel extends Composite {
         return sequencePanel;
     }
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo assemblageInfo) {
-        assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
+//        assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
     }
     public static TrackPanel getTrackPanel() { return trackPanel ; }
 
