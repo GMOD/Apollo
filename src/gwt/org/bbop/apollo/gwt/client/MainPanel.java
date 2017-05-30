@@ -39,6 +39,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.mortbay.util.ajax.JSON;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -651,7 +652,6 @@ public class MainPanel extends Composite {
     public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
 
         AssemblageInfo assemblageInfo;
-        Window.alert("updating genomic view with "+selectedSequence);
         if (selectedSequence.startsWith("{")) {
             assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
         } else {
@@ -1064,9 +1064,10 @@ public class MainPanel extends Composite {
         final Long start = (long) navEvent.get("start").isNumber().doubleValue();
         final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
+        sequenceNameString = sequenceNameString.substring(0,sequenceNameString.lastIndexOf(":"));
+        JSONArray sequenceListArray = JSONParser.parseLenient(sequenceNameString).isObject().get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
 
-        if (!sequenceNameString.equals(currentAssemblage.getDescription())) {
-//            setCurrentSequence(sequenceNameString, start, end, false, true);
+        if (!sequenceListArray.toString().equals(currentAssemblage.getSequenceList().toString())) {
             setCurrentSequence(sequenceNameString, start, end, false, false);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
