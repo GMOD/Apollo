@@ -58,7 +58,7 @@ public class AssemblageSequence extends JSONObject {
     }
 
     public Long getStart() {
-        return (long) get(FeatureStringEnum.START.getValue()).isNumber().doubleValue();
+        return containsKey(FeatureStringEnum.START.getValue()) ? (long) get(FeatureStringEnum.START.getValue()).isNumber().doubleValue() : null;
     }
 
     public void setStart(Long start) {
@@ -66,7 +66,7 @@ public class AssemblageSequence extends JSONObject {
     }
 
     public Long getEnd() {
-        return (long) get(FeatureStringEnum.END.getValue()).isNumber().doubleValue();
+        return containsKey(FeatureStringEnum.END.getValue()) ? (long) get(FeatureStringEnum.END.getValue()).isNumber().doubleValue() : null;
     }
 
     public void setEnd(Long end) {

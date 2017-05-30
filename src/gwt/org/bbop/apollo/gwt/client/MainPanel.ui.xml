@@ -79,6 +79,7 @@
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
                         <gwt:HTML ui:field="currentSequenceLabel" visible="true" styleName="{style.position-label}"/>
+                        <!--<b:ButtonGroup ui:field="currentSequenceLabel" visible="true" styleName="{style.position-label}"/>-->
                         <b:Panel styleName="pull-right">
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
@@ -142,10 +143,10 @@
                             <gwt:header>Ref Sequence</gwt:header>
                             <apollo:SequencePanel ui:field="sequencePanel"/>
                         </gwt:tab>
-                        <gwt:tab>
-                            <gwt:header>Assemblage</gwt:header>
-                            <apollo:AssemblagePanel ui:field="assemblagePanel"/>
-                        </gwt:tab>
+                        <!--<gwt:tab>-->
+                            <!--<gwt:header>Assemblage</gwt:header>-->
+                            <!--<apollo:AssemblagePanel ui:field="assemblagePanel"/>-->
+                        <!--</gwt:tab>-->
                         <gwt:tab>
                             <gwt:header>Organism</gwt:header>
                             <apollo:OrganismPanel ui:field="organismPanel"/>

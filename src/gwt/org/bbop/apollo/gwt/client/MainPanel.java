@@ -51,7 +51,8 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-    private static final int DEFAULT_TAB_COUNT = 8;
+//    private static final int DEFAULT_TAB_COUNT = 8;
+    private static final int DEFAULT_TAB_COUNT = 7; // removed the assemblage tab
 
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
@@ -91,8 +92,8 @@ public class MainPanel extends Composite {
     static TrackPanel trackPanel;
     @UiField
     static SequencePanel sequencePanel;
-    @UiField
-    static AssemblagePanel assemblagePanel;
+//    @UiField
+//    static AssemblagePanel assemblagePanel;
     @UiField
     static OrganismPanel organismPanel;
     @UiField
@@ -333,8 +334,11 @@ public class MainPanel extends Composite {
     }
 
     private static void setLabelForCurrentAssemblage() {
-        SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(AssemblageInfoService.buildDescriptionWidget(currentAssemblage,assemblagePanel.getUsedSequences()).getElement().getInnerHTML());
-        currentSequenceLabel.setHTML(labelHtml);
+        ButtonGroup buttonGroup = AssemblageInfoService.buildLocationWidget(currentAssemblage);
+        if(buttonGroup!=null){
+            SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(buttonGroup.toString());
+            currentSequenceLabel.setHTML(labelHtml);
+        }
     }
 
     private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end, final boolean updateViewer, final boolean blocking) {
@@ -648,7 +652,6 @@ public class MainPanel extends Composite {
     public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
 
         AssemblageInfo assemblageInfo;
-        Window.alert("updating genomic view with "+selectedSequence);
         if (selectedSequence.startsWith("{")) {
             assemblageInfo = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(JSONParser.parseStrict(selectedSequence).isObject());
         } else {
@@ -886,18 +889,18 @@ public class MainPanel extends Composite {
                 sequencePanel.reload(true);
                 break;
             case 3:
-                assemblagePanel.reload();
-                break;
-            case 4:
+//                assemblagePanel.reload();
+//                break;
+//            case 4:
                 organismPanel.reload();
                 break;
-            case 5:
+            case 4:
                 userPanel.reload();
                 break;
-            case 6:
+            case 5:
                 userGroupPanel.reload();
                 break;
-            case 7:
+            case 6:
                 preferencePanel.reload();
                 break;
             default:
@@ -1010,12 +1013,22 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
+    public static void doReverseComplement(){
+        Boolean isReverse = currentAssemblage.getSequenceList().getSequence(0).getReverse();
+        for(int i = 0 ; i < currentAssemblage.getSequenceList().size() ; i++){
+            AssemblageSequence assemblageSequence = currentAssemblage.getSequenceList().getSequence(i);
+            assemblageSequence.setReverse(!isReverse);
+            currentStartBp = assemblageSequence.getEnd() - currentStartBp;
+            currentEndBp = assemblageSequence.getEnd() - currentEndBp ;
+            currentAssemblage.getSequenceList().set(i,assemblageSequence);
+        }
+        MainPanel.updateGenomicViewerForAssemblage(currentAssemblage);
+        setLabelForCurrentAssemblage();
+    }
+
     @UiHandler("currentSequenceLabel")
     public void currentSequenceLabelClick(ClickEvent event) {
-        detailTabs.selectTab(TabPanelIndex.ASSEMBLAGE.getIndex());
-        Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), TabPanelIndex.ASSEMBLAGE.getIndex());
-        reloadTabPerIndex(TabPanelIndex.ASSEMBLAGE.getIndex());
-        assemblagePanel.setAssemablageInfo(currentAssemblage);
+        doReverseComplement();
     }
 
     public static void reloadAnnotator() {
@@ -1053,9 +1066,10 @@ public class MainPanel extends Composite {
         final Long start = (long) navEvent.get("start").isNumber().doubleValue();
         final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
+        sequenceNameString = sequenceNameString.substring(0,sequenceNameString.lastIndexOf(":"));
+        JSONArray sequenceListArray = JSONParser.parseLenient(sequenceNameString).isObject().get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
 
-        if (!sequenceNameString.equals(currentAssemblage.getDescription())) {
-//            setCurrentSequence(sequenceNameString, start, end, false, true);
+        if (!sequenceListArray.toString().equals(currentAssemblage.getSequenceList().toString())) {
             setCurrentSequence(sequenceNameString, start, end, false, false);
             Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
                 @Override
@@ -1155,17 +1169,18 @@ public class MainPanel extends Composite {
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentAssemblage = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentAssemblageAsJson());
+        $wnd.doReverseComplement = $entry(@org.bbop.apollo.gwt.client.MainPanel::doReverseComplement());
     }-*/;
 
     public enum TabPanelIndex {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
-        ASSEMBLAGE(3),
-        ORGANISM(4),
-        USERS(5),
-        GROUPS(6),
-        PREFERENCES(7),;
+//        ASSEMBLAGE(3),
+        ORGANISM(3),
+        USERS(4),
+        GROUPS(5),
+        PREFERENCES(6),;
 
         private int index;
 
@@ -1210,7 +1225,7 @@ public class MainPanel extends Composite {
         return sequencePanel;
     }
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo assemblageInfo) {
-        assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
+//        assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
     }
     public static TrackPanel getTrackPanel() { return trackPanel ; }
 
@@ -1227,11 +1242,6 @@ public class MainPanel extends Composite {
         updateGenomicViewerForAssemblage(assemblageInfo);
     }
 
-
-//    public static SequenceInfo getCurrentSequence() {
-//        return currentSequence;
-//    }
-//
     AssemblageInfo setCurrentAssemblageAndEnds(AssemblageInfo newAssemblage) {
         currentAssemblage = newAssemblage;
         currentStartBp = currentAssemblage.getStartBp()!=null ? currentAssemblage.getStartBp() : 0 ;

@@ -264,7 +264,8 @@ class PreferenceService {
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
-        if (userOrganismPreference.assemblage.name != sequenceName ) {
+        println "assemblage ${userOrganismPreference.assemblage}"
+        if (userOrganismPreference?.assemblage?.name != sequenceName ) {
 //            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
             Assemblage assemblage = Assemblage.findByNameAndOrganism(sequenceName,userOrganismPreference.organism)
             userOrganismPreference.assemblage = assemblage

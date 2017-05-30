@@ -11,6 +11,7 @@ import org.bbop.apollo.gwt.shared.ColorGenerator;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
 import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.constants.Pull;
 
 /**
  * Created by nathandunn on 9/20/16.
@@ -28,9 +29,9 @@ public class AssemblageSequenceWidget extends VerticalPanel{
         String sequenceName = assemblageSequence.getName();
         labelButton.setText(sequenceName);
         HorizontalPanel headingPanel = new HorizontalPanel();
-        leftIcon.addStyleName("pull-left");
+        leftIcon.setPull(Pull.LEFT);
         labelButton.add(leftIcon);
-        rightIcon.addStyleName("pull-right");
+        rightIcon.setPull(Pull.RIGHT);
         labelButton.add(rightIcon);
         headingPanel.add(labelButton);
         headingPanel.addStyleName("assemblage-detail-heading");
