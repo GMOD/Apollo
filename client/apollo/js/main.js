@@ -773,7 +773,7 @@ return declare( [JBPlugin, HelpMixin],
                     maxLength: 400,
                     searchAttr: "navigation",
                     title: sequenceObj.name,
-                    label: sequenceObj.name + ' ' + sequenceObj.reverse,
+                    label: sequenceObj.name + ' ' + sequenceObj.reverse
                 },
                 dojo.create('input', {}, searchbox)
             );
