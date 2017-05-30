@@ -773,7 +773,10 @@ return declare( [JBPlugin, HelpMixin],
                     maxLength: 400,
                     searchAttr: "navigation",
                     title: sequenceObj.name,
-                    label: (sequenceObj.reverse ? '&larr;': '') + sequenceObj.name +   (!sequenceObj.reverse ? '&rarr;': '')
+                    label: (sequenceObj.reverse ? '&larr;': '') + sequenceObj.name +   (!sequenceObj.reverse ? '&rarr;': ''),
+                    onClick: function()  {
+                        window.parent.doReverseComplement();
+                    }
                 },
                 dojo.create('input', {}, searchbox)
             );

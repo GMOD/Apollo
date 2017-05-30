@@ -1013,8 +1013,7 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
-    @UiHandler("currentSequenceLabel")
-    public void currentSequenceLabelClick(ClickEvent event) {
+    public static void doReverseComplement(){
         Boolean isReverse = currentAssemblage.getSequenceList().getSequence(0).getReverse();
         for(int i = 0 ; i < currentAssemblage.getSequenceList().size() ; i++){
             AssemblageSequence assemblageSequence = currentAssemblage.getSequenceList().getSequence(i);
@@ -1023,6 +1022,11 @@ public class MainPanel extends Composite {
         }
         MainPanel.updateGenomicViewerForAssemblage(currentAssemblage);
         setLabelForCurrentAssemblage();
+    }
+
+    @UiHandler("currentSequenceLabel")
+    public void currentSequenceLabelClick(ClickEvent event) {
+        doReverseComplement();
     }
 
     public static void reloadAnnotator() {
@@ -1162,6 +1166,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentAssemblage = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentAssemblageAsJson());
+        $wnd.doReverseComplement = $entry(@org.bbop.apollo.gwt.client.MainPanel::doReverseComplement());
     }-*/;
 
     public enum TabPanelIndex {
@@ -1234,11 +1239,6 @@ public class MainPanel extends Composite {
         updateGenomicViewerForAssemblage(assemblageInfo);
     }
 
-
-//    public static SequenceInfo getCurrentSequence() {
-//        return currentSequence;
-//    }
-//
     AssemblageInfo setCurrentAssemblageAndEnds(AssemblageInfo newAssemblage) {
         currentAssemblage = newAssemblage;
         currentStartBp = currentAssemblage.getStartBp()!=null ? currentAssemblage.getStartBp() : 0 ;
