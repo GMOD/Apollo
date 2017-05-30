@@ -333,8 +333,11 @@ public class MainPanel extends Composite {
     }
 
     private static void setLabelForCurrentAssemblage() {
-        SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(AssemblageInfoService.buildDescriptionWidget(currentAssemblage,assemblagePanel.getUsedSequences()).getElement().getInnerHTML());
-        currentSequenceLabel.setHTML(labelHtml);
+        ButtonGroup buttonGroup = AssemblageInfoService.buildLocationWidget(currentAssemblage);
+        if(buttonGroup!=null){
+            SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(buttonGroup.toString());
+            currentSequenceLabel.setHTML(labelHtml);
+        }
     }
 
     private static void setCurrentSequence(String sequenceNameString, final Long start, final Long end, final boolean updateViewer, final boolean blocking) {
@@ -1012,10 +1015,14 @@ public class MainPanel extends Composite {
 
     @UiHandler("currentSequenceLabel")
     public void currentSequenceLabelClick(ClickEvent event) {
-        detailTabs.selectTab(TabPanelIndex.ASSEMBLAGE.getIndex());
-        Annotator.setPreference(FeatureStringEnum.CURRENT_TAB.getValue(), TabPanelIndex.ASSEMBLAGE.getIndex());
-        reloadTabPerIndex(TabPanelIndex.ASSEMBLAGE.getIndex());
-        assemblagePanel.setAssemablageInfo(currentAssemblage);
+        Boolean isReverse = currentAssemblage.getSequenceList().getSequence(0).getReverse();
+        for(int i = 0 ; i < currentAssemblage.getSequenceList().size() ; i++){
+            AssemblageSequence assemblageSequence = currentAssemblage.getSequenceList().getSequence(i);
+            assemblageSequence.setReverse(!isReverse);
+            currentAssemblage.getSequenceList().set(i,assemblageSequence);
+        }
+        MainPanel.updateGenomicViewerForAssemblage(currentAssemblage);
+        setLabelForCurrentAssemblage();
     }
 
     public static void reloadAnnotator() {
