@@ -894,13 +894,13 @@ public class MainPanel extends Composite {
 //            case 4:
                 organismPanel.reload();
                 break;
-            case 5:
+            case 4:
                 userPanel.reload();
                 break;
-            case 6:
+            case 5:
                 userGroupPanel.reload();
                 break;
-            case 7:
+            case 6:
                 preferencePanel.reload();
                 break;
             default:
@@ -1176,11 +1176,11 @@ public class MainPanel extends Composite {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
-        ASSEMBLAGE(3),
-        ORGANISM(4),
-        USERS(5),
-        GROUPS(6),
-        PREFERENCES(7),;
+//        ASSEMBLAGE(3),
+        ORGANISM(3),
+        USERS(4),
+        GROUPS(5),
+        PREFERENCES(6),;
 
         private int index;
 
