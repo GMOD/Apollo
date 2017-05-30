@@ -1018,6 +1018,8 @@ public class MainPanel extends Composite {
         for(int i = 0 ; i < currentAssemblage.getSequenceList().size() ; i++){
             AssemblageSequence assemblageSequence = currentAssemblage.getSequenceList().getSequence(i);
             assemblageSequence.setReverse(!isReverse);
+            currentStartBp = assemblageSequence.getEnd() - currentStartBp;
+            currentEndBp = assemblageSequence.getEnd() - currentEndBp ;
             currentAssemblage.getSequenceList().set(i,assemblageSequence);
         }
         MainPanel.updateGenomicViewerForAssemblage(currentAssemblage);
