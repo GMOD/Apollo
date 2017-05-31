@@ -189,7 +189,7 @@ public class MainPanel extends Composite {
                         start -= newLength * GENE_VIEW_BUFFER;
                         end += newLength * GENE_VIEW_BUFFER;
                         start = start < 0 ? 0 : start;
-                        updateGenomicViewerForAssemblage(annotationInfo.getSequence(), start, end);
+                        updateGenomicViewerForAssemblage(annotationInfo.getSequence().getName(), start, end);
                         break;
                 }
             }
@@ -574,12 +574,9 @@ public class MainPanel extends Composite {
             if(maxRegion < 0 || currentAssemblage.getEnd() < maxRegion){
                 maxRegion = currentAssemblage.getEnd() ;
             }
-//            minRegion = currentAssemblage.getStart() != null ? currentAssemblage.getStart() : -1;
-//            maxRegion = currentAssemblage.getEnd() != null ? currentAssemblage.getEnd() : -1;
         }
         currentStartBp = minRegion;
         currentEndBp = maxRegion;
-//        trackListString += URL.encodeQueryString(AssemblageInfoConverter.convertAssemblageInfoToJSONObject(currentAssemblage).toString().replaceAll(", ",",").replaceAll("\\\\\\\\\\\\","\\\\\\\\"));
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),currentAssemblage.getSequenceList());
         trackListString += URL.encodeQueryString(jsonObject.toString().replaceAll(", ",","));

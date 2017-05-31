@@ -69,7 +69,7 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
-        sequenceField.setText(internalAnnotationInfo.getSequence());
+        sequenceField.setText(internalAnnotationInfo.getSequence().getName());
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = Long.toString(internalAnnotationInfo.getMin() + 1);

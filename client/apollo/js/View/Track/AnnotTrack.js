@@ -98,6 +98,8 @@ define([
         var contextMenuItems;
 
         var context_path = "..";
+        // START FOLDING SECTION
+        var doFolding = false ;
 
         var AnnotTrack = declare(DraggableFeatureTrack, {
             constructor: function (args) {
@@ -4806,8 +4808,6 @@ define([
                     index++;
 
 
-                    // START FOLDING SECTION
-                    var doFolding = false ;
                     if(doFolding){
                         contextMenuItems["fold_feature"] = index++;
                         var collapseFeaturesMenuItem = new dijitMenuItem({
@@ -5383,12 +5383,15 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
-                this.updateFoldSelectedMenuItem();
-                this.updateFoldBetweenExonsMenuItem();
-                this.updateFoldExonLeftMenuItem();
-                this.updateFoldExonRightMenuItem();
-                this.updateUnfoldSelectedMenuItem();
-                this.updateCreateViewFromFeaturesMenuItem();
+
+                if(doFolding){
+                    this.updateFoldSelectedMenuItem();
+                    this.updateFoldBetweenExonsMenuItem();
+                    this.updateFoldExonLeftMenuItem();
+                    this.updateFoldExonRightMenuItem();
+                    this.updateUnfoldSelectedMenuItem();
+                    this.updateCreateViewFromFeaturesMenuItem();
+                }
             },
 
             closeMenu: function () {

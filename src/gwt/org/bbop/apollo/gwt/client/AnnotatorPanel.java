@@ -38,10 +38,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
-import org.bbop.apollo.gwt.client.dto.UserInfo;
-import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
@@ -414,16 +411,18 @@ public class AnnotatorPanel extends Composite {
         Long max = selectedAnnotationInfo.getMax() + ProjectionDefaults.DEFAULT_PADDING;
         min = min < 0 ? 0L : min;
 
-        String sequenceName = selectedAnnotationInfo.getSequence();
+        SequenceInfo sequenceInfo = selectedAnnotationInfo.getSequence();
 
 
         AssemblageInfo assemblageInfo = new AssemblageInfo();
         assemblageInfo.setStart(min);
         assemblageInfo.setEnd(max);
-        assemblageInfo.setName(sequenceName);
+        assemblageInfo.setName(sequenceInfo.getName());
 
         AssemblageSequence assemblageSequence = new AssemblageSequence();
-        assemblageSequence.setName(sequenceName);
+        assemblageSequence.setName(sequenceInfo.getName());
+        assemblageSequence.setStart(sequenceInfo.getStart());
+        assemblageSequence.setEnd(sequenceInfo.getEnd());
         AssemblageSequenceList assemblageSequenceList = new AssemblageSequenceList();
         assemblageSequenceList.addSequence(assemblageSequence);
         assemblageInfo.setSequenceList(assemblageSequenceList);
@@ -441,7 +440,7 @@ public class AnnotatorPanel extends Composite {
         assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
 
         SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
-        sequenceObject.setName(annotationInfo.getSequence());
+        sequenceObject.setName(annotationInfo.getSequence().getName());
         sequenceObject.setStart(annotationInfo.getMin());
         sequenceObject.setEnd(annotationInfo.getMax());
 
@@ -654,7 +653,7 @@ public class AnnotatorPanel extends Composite {
         sequenceColumn = new TextColumn<AnnotationInfo>() {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getSequence();
+                return annotationInfo.getSequence().getName();
             }
         };
         sequenceColumn.setSortable(true);

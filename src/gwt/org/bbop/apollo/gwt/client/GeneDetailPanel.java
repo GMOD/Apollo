@@ -106,7 +106,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         descriptionField.setText(internalAnnotationInfo.getDescription());
-        sequenceField.setText(internalAnnotationInfo.getSequence());
+        sequenceField.setText(internalAnnotationInfo.getSequence().getName());
         userField.setText(internalAnnotationInfo.getOwner());
 
         if (internalAnnotationInfo.getMin() != null) {
