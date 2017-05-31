@@ -21,6 +21,7 @@ class FeatureEventService {
     def featureService
     def requestHandlingService
     def assemblageService
+    def featureProjectionService
 
     /**
      *
@@ -430,7 +431,8 @@ class FeatureEventService {
         // if the current index is GREATER, then find the future indexes and set appropriately
         if (newIndex > currentIndex) {
             List<List<FeatureEvent>> futureFeatureEvents = findFutureFeatureEvents(currentFeatureEvent)
-            currentFeatureEventArray  = futureFeatureEvents.get(newIndex-currentIndex-1) // subtract one for the index offset
+            currentFeatureEventArray = futureFeatureEvents.get(newIndex - currentIndex - 1)
+            // subtract one for the index offset
             currentFeatureEventArray.each {
                 it.current = true
                 it.save()
@@ -444,10 +446,9 @@ class FeatureEventService {
                 it.current = true
                 it.save()
             }
-        }
-        else{
+        } else {
             log.warn("Setting history to same place ${currentIndex} -> ${newIndex}")
-            return findCurrentFeatureEvent(uniqueName,featureEventMap)
+            return findCurrentFeatureEvent(uniqueName, featureEventMap)
         }
 
         currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
@@ -462,7 +463,7 @@ class FeatureEventService {
         return findCurrentFeatureEvent(uniqueName, featureEventMap)
     }
 
-    def setHistoryState(JSONObject inputObject, int count) {
+    def setHistoryState(JSONObject inputObject, int count, Assemblage requestAssemblage) {
 
         String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
         log.debug "undo count ${count}"
@@ -554,7 +555,11 @@ class FeatureEventService {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,assemblage))
+                JSONObject featuresJson = featureService.convertFeatureToJSON(transcript, false, assemblage)
+                def transcriptJSONList = []
+                transcriptJSONList += featuresJson
+                def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, projectedJsonTranscript)
             }
             if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
@@ -618,7 +623,7 @@ class FeatureEventService {
      * @param confirm
      * @return
      */
-    def redo(JSONObject inputObject, int countForward) {
+    def redo(JSONObject inputObject, int countForward, Assemblage requestAssemblage) {
         log.info "redoing ${countForward}"
         if (countForward == 0) {
             log.warn "Redo to the same state"
@@ -629,7 +634,7 @@ class FeatureEventService {
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
-        setHistoryState(inputObject, count)
+        setHistoryState(inputObject, count, requestAssemblage)
     }
 
     /**
@@ -654,7 +659,7 @@ class FeatureEventService {
         }
         FeatureEvent currentFeatureEvent = currentFeatureEventList.iterator().next()
         def history = getHistory(uniqueName)
-        Integer deepestIndex = history.size()-1
+        Integer deepestIndex = history.size() - 1
         def previousEvents = findPreviousFeatureEvents(currentFeatureEvent)
         def futureEvents = findFutureFeatureEvents(currentFeatureEvent)
         def offset = deepestIndex - futureEvents.size() - previousEvents.size()
@@ -678,7 +683,7 @@ class FeatureEventService {
         return Math.max(p1Id, p2Id)
     }
 
-    def undo(JSONObject inputObject, int countBackwards) {
+    def undo(JSONObject inputObject, int countBackwards, Assemblage requestAssemblage) {
         log.info "undoing ${countBackwards}"
         if (countBackwards == 0) {
             log.warn "Undo to the same state"
@@ -689,7 +694,7 @@ class FeatureEventService {
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
         log.debug "${count} = ${currentIndex}-${countBackwards}"
-        setHistoryState(inputObject, count)
+        setHistoryState(inputObject, count, requestAssemblage)
     }
 
     /**
@@ -773,7 +778,7 @@ class FeatureEventService {
 
     def buildMap(FeatureEvent featureEvent, TreeMap<Integer, Set<FeatureEvent>> unindexedMap, int index, Boolean includePrevious, Boolean includeFuture) {
 
-        if(!featureEvent) return
+        if (!featureEvent) return
 
         def featureEventSet = unindexedMap.get(index)
         if (!featureEventSet) {
@@ -811,7 +816,7 @@ class FeatureEventService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
 
             List<FeatureEvent> currentFeatureEventList = findCurrentFeatureEvent(uniqueName)
-            def thisFeatureEvent = currentFeatureEventList.find(){ it.uniqueName == uniqueName}
+            def thisFeatureEvent = currentFeatureEventList.find() { it.uniqueName == uniqueName }
             thisFeatureEvent = thisFeatureEvent ?: currentFeatureEventList.first()
             def futureEvents = findFutureFeatureEvents(thisFeatureEvent)
             def previousEvents = findPreviousFeatureEvents(thisFeatureEvent)
@@ -828,7 +833,7 @@ class FeatureEventService {
             for (int j = 0; j < transactionList.size(); ++j) {
                 // not sure if this is correct, or if I should just add both?
                 List<FeatureEvent> transactionSet = transactionList[j]
-                FeatureEvent transaction = transactionSet.find(){it.uniqueName==uniqueName}
+                FeatureEvent transaction = transactionSet.find() { it.uniqueName == uniqueName }
                 transaction = transaction ?: transactionSet.first()
                 // prefer a predecessor that is not "ADD_TRANSCRIPT"?
 

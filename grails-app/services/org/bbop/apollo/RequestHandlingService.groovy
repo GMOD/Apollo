@@ -571,8 +571,6 @@ class RequestHandlingService {
 
         features = featureProjectionService.projectTrack(features, assemblage, true)
 
-        println "adding exon! ${features}"
-
         String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
         Transcript transcript = Transcript.findByUniqueName(uniqueName)
         JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript,false,assemblage)
@@ -2007,9 +2005,7 @@ class RequestHandlingService {
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         // TODO: project fmin only
-        println "making intron ${featuresArray as JSON}"
         featuresArray = featureProjectionService.projectTrack(featuresArray, assemblage, true)
-        println "converted -> ${featuresArray}"
 
         JSONObject jsonExon = featuresArray.getJSONObject(0)
         Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
@@ -2305,14 +2301,14 @@ class RequestHandlingService {
     @Timed
     def undo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Assemblage requestAssemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
-            featureEventService.undo(jsonFeature, count)
+            featureEventService.undo(jsonFeature, count,requestAssemblage)
         }
         return new JSONObject()
     }
@@ -2320,14 +2316,14 @@ class RequestHandlingService {
     @Timed
     def redo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Assemblage requestAssemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
-            featureEventService.redo(jsonFeature, count)
+            featureEventService.redo(jsonFeature, count,requestAssemblage)
         }
         return new JSONObject()
     }
