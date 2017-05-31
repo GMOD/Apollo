@@ -1169,7 +1169,7 @@ class RequestHandlingService {
         try {
             if(assemblage){
                 // TODO: also send to any overlapping sequences as well?
-//            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
+                println "returnString ${returnString}"
                 brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + assemblage.organismId + "/" + assemblage.id, returnString
 //            println "sending: /topic/AnnotationNotification/" + assemblage.organismId + "/" + assemblage.id
 
