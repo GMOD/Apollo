@@ -564,7 +564,7 @@ class FeatureEventService {
             if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
                         features: updateFeatureContainer
-                        , assemblage: assemblage
+                        , assemblage: requestAssemblage
                         , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
