@@ -17,15 +17,20 @@
     <!--<inherits name='com.google.gwt.user.theme.standard.Standard'/>-->
     <!--<inherits name='com.google.gwt.user.theme.chrome.Chrome'/>  -->
     <!--<inherits name='com.google.gwt.user.theme.dark.Dark'/>      -->
+    <!--<inherits name="org.gwtbootstrap3.GwtBootstrap3NoTheme"/>-->
+
 
 
     <inherits name="com.google.gwt.http.HTTP"/>
     <inherits name="com.google.gwt.json.JSON"/>
+
     <inherits name="org.gwtbootstrap3.GwtBootstrap3"/>
     <inherits name="org.gwtbootstrap3.extras.bootbox.Bootbox"/>
     <inherits name="org.gwtbootstrap3.extras.select.Select"/>
     <inherits name="org.gwtbootstrap3.extras.toggleswitch.ToggleSwitch"/>
 
+
+    <inherits name="com.allen_sauer.gwt.dnd.gwt-dnd"/>
 
 
     <!-- Specify the app entry point class.                         -->

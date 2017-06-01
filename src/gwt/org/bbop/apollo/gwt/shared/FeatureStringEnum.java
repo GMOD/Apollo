@@ -1,11 +1,12 @@
 package org.bbop.apollo.gwt.shared;
 
 /**
- * Created by ndunn on 4/2/15.
+ * Created by Nathan Dunn on 4/2/15.
  */
 public enum FeatureStringEnum {
         ID,
         FEATURES,
+        FOLDING,
         SUPPRESS_HISTORY,
         SUPPRESS_EVENTS,
         FEATURE_PROPERTY,
@@ -19,6 +20,7 @@ public enum FeatureStringEnum {
         PARENT_TYPE,
         PROPERTIES,
         TIMEACCESSION,
+        COLLAPSED,
         DEFAULT,
         TIMELASTMODIFIED,
         RESIDUES,
@@ -39,6 +41,8 @@ public enum FeatureStringEnum {
         CURRENT,
         CURRENT_TAB,
         COMMENT,
+        CURRENT_ORGANISM("currentOrganism"),
+        CURRENT_ASSEMBLAGE("currentAssemblage"),
         OLD_COMMENTS,
         NEW_COMMENTS,
         TAG_VALUE_DELIMITER("="),
@@ -59,14 +63,20 @@ public enum FeatureStringEnum {
         FMAX,
         IS_FMIN_PARTIAL,
         IS_FMAX_PARTIAL,
+        FMIN_DATA,
+        FMAX_DATA,
         STRAND,
         NAME,
+        INTERVALS,
+        NCLIST,
         GENE_NAME,
         VALUE,
         REMOTE_USER("REMOTE_USER"),
         CV,
         SEQUENCE,
+        SEQUENCE_LIST("sequenceList"),
         TRACK,
+        TRACKS,
         DB,
         DBXREFS,
         CLIENT_TOKEN("clientToken"),
@@ -131,8 +141,15 @@ public enum FeatureStringEnum {
         HISTORY,
         DOCK_OPEN("dockOpen"),
         DOCK_WIDTH("dockWidth"),
+        USE_NAME,
+        REVERSE_COMPLEMENT,
+        REVERSE,
+        FEATURE,
+        START,
+        END,
         USE_CDS,
-        USE_NAME
+        LENGTH,
+        PHASE
         ;
 
 

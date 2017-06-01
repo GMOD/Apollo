@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.ClickableTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
-import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.builder.shared.DivBuilder;
@@ -13,6 +13,10 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.*;
@@ -31,20 +35,27 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
+import org.bbop.apollo.gwt.client.dto.assemblage.SequenceFeatureInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
+import org.bbop.apollo.gwt.shared.projection.ProjectionDefaults;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Label;
@@ -58,7 +69,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by ndunn on 12/17/14.
+ * Created by Nathan Dunn on 12/17/14.
  */
 public class AnnotatorPanel extends Composite {
 
@@ -81,8 +92,10 @@ public class AnnotatorPanel extends Composite {
     private final String EXPAND_ICON_UNICODE = "\u25C0";
 
     @UiField
+    static
     TextBox nameSearchBox;
     @UiField(provided = true)
+    static
     org.gwtbootstrap3.client.ui.SuggestBox sequenceList;
 
     private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
@@ -111,7 +124,15 @@ public class AnnotatorPanel extends Composite {
     @UiField
     Container northPanelContainer;
     @UiField
+    static Button addNewAssemblage;
+    @UiField
+    static Button addToView;
+    @UiField
+    static Button viewAnnotation;
+    @UiField
     static Button gotoAnnotation;
+    @UiField
+    Button showAllSequences;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -204,6 +225,7 @@ public class AnnotatorPanel extends Composite {
                             returnValue = JSONParser.parseStrict(response.getText());
                         } catch (Exception e) {
                             Bootbox.alert(e.getMessage());
+                            return;
                         }
                         JSONValue localRequestObject = returnValue.isObject().get(FeatureStringEnum.REQUEST_INDEX.getValue());
                         if (localRequestObject != null) {
@@ -369,6 +391,115 @@ public class AnnotatorPanel extends Composite {
 
     }
 
+    @UiHandler("addToView")
+    void addToView(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(selectedAnnotationInfo);
+        AssemblageInfo currentAssemblage = MainPanel.getInstance().getCurrentAssemblage();
+        currentAssemblage = currentAssemblage.addAssemblageToEnd(assemblageInfo);
+        AssemblageRestService.addAssemblageAndView(currentAssemblage);
+    }
+
+    @UiHandler("viewAnnotation")
+    void viewAnnotation(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(selectedAnnotationInfo);
+        expandAssemblage(assemblageInfo, 2d);
+        AssemblageRestService.addAssemblageAndView(assemblageInfo);
+    }
+
+    @UiHandler("gotoAnnotation")
+    void gotoAnnotation(ClickEvent clickEvent) {
+
+//        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage();
+        Long min = selectedAnnotationInfo.getMin() - ProjectionDefaults.DEFAULT_PADDING;
+        Long max = selectedAnnotationInfo.getMax() + ProjectionDefaults.DEFAULT_PADDING;
+        min = min < 0 ? 0L : min;
+
+        String sequenceName = selectedAnnotationInfo.getSequence();
+
+
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        assemblageInfo.setStart(min);
+        assemblageInfo.setEnd(max);
+        assemblageInfo.setName(sequenceName);
+
+        AssemblageSequence assemblageSequence = new AssemblageSequence();
+        assemblageSequence.setName(sequenceName);
+        AssemblageSequenceList assemblageSequenceList = new AssemblageSequenceList();
+        assemblageSequenceList.addSequence(assemblageSequence);
+        assemblageInfo.setSequenceList(assemblageSequenceList);
+
+
+
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false,false);
+    }
+
+    static AssemblageInfo collectAssemblageFromSelectedFeature(AnnotationInfo annotationInfo) {
+
+        AssemblageInfo assemblageInfo = new AssemblageInfo();
+        AssemblageSequenceList sequenceArray = new AssemblageSequenceList();
+
+        assemblageInfo.setPadding(ProjectionDefaults.DEFAULT_PADDING);
+
+        SequenceFeatureInfo sequenceObject = new SequenceFeatureInfo();
+        sequenceObject.setName(annotationInfo.getSequence());
+        sequenceObject.setStart(annotationInfo.getMin());
+        sequenceObject.setEnd(annotationInfo.getMax());
+
+        SequenceFeatureInfo featuresObject = new SequenceFeatureInfo();
+        featuresObject.setName(annotationInfo.getName());
+
+        sequenceObject.setFeature(featuresObject);
+        sequenceArray.set(sequenceArray.size(), sequenceObject);
+
+        assemblageInfo.setSequenceList(sequenceArray);
+        assemblageInfo.setStart(annotationInfo.getMin());
+        assemblageInfo.setEnd(annotationInfo.getMax());
+
+        return assemblageInfo;
+    }
+
+    void expandAssemblage(AssemblageInfo assemblageInfo, Double expansionFactor) {
+        AssemblageSequenceList assemblageSequenceList = assemblageInfo.getSequenceList();
+        AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(0);
+        Long start = assemblageSequence.getStart();
+        Long end = assemblageSequence.getEnd();
+//        Long width = end - start ;
+        // we must now double the size
+//        Double desiredWidth = width * expansionFactor ;
+//        Long desiredStart = start - (long) (desiredWidth / 2.0) ;
+//        Long desiredEnd = end + (long) (desiredWidth / 2.0) ;
+        Long buffer = 200L;
+        Long desiredStart = start - (long) (buffer);
+        Long desiredEnd = end + (long) (buffer);
+        start = desiredStart < 0 ? 0 : desiredStart;
+        end = desiredEnd;  // can we maximize this?
+        assemblageSequence.setStart(start);
+        assemblageSequence.setEnd(end);
+        assemblageSequenceList.set(0, assemblageSequence);
+        assemblageInfo.setSequenceList(assemblageSequenceList);
+    }
+
+    @UiHandler("addNewAssemblage")
+    void addNewAssemblage(ClickEvent clickEvent) {
+        AssemblageInfo assemblageInfo = collectAssemblageFromSelectedFeature(selectedAnnotationInfo);
+        expandAssemblage(assemblageInfo, 2d);
+
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                new InfoDialog("Added Assemblage", "Added assemblage for " + selectedAnnotationInfo.getName(), true);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("Error adding assemblage: " + exception);
+            }
+        };
+
+        MainPanel.getInstance().addAssemblage(requestCallback, assemblageInfo);
+    }
+
 
     private void initializeUsers() {
         userField.clear();
@@ -417,8 +548,8 @@ public class AnnotatorPanel extends Composite {
             return ;
         }
         String type = annotationInfo.getType();
-        GWT.log("annotation type: " + type);
         hideDetailPanels();
+        GWT.log("annotation type: " + type);
         switch (type) {
             case "gene":
             case "pseudogene":
@@ -549,7 +680,7 @@ public class AnnotatorPanel extends Composite {
 
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(AnnotationInfo annotationInfo) {
+            public Long getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getLength();
             }
         };
@@ -586,9 +717,15 @@ public class AnnotatorPanel extends Composite {
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
+                    viewAnnotation.setEnabled(true);
+                    addNewAssemblage.setEnabled(true);
+                    addToView.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
                     gotoAnnotation.setEnabled(false);
+                    viewAnnotation.setEnabled(false);
+                    addNewAssemblage.setEnabled(false);
+                    addToView.setEnabled(false);
                 }
             }
         });
@@ -643,13 +780,13 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler("gotoAnnotation")
-    void gotoAnnotation(ClickEvent clickEvent) {
-        Integer min = selectedAnnotationInfo.getMin() - 50;
-        Integer max = selectedAnnotationInfo.getMax() + 50;
-        min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
-    }
+//    @UiHandler("gotoAnnotation")
+//    void gotoAnnotation(ClickEvent clickEvent) {
+//        Integer min = selectedAnnotationInfo.getMin() - 50;
+//        Integer max = selectedAnnotationInfo.getMax() + 50;
+//        min = min < 0 ? 0 : min;
+//        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+//    }
 
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
@@ -683,10 +820,15 @@ public class AnnotatorPanel extends Composite {
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
 
         // for some reason doesn't like call gotoAnnotation
-        Integer min = selectedAnnotationInfo.getMin() - 50;
-        Integer max = selectedAnnotationInfo.getMax() + 50;
-        min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage();
+
+        Long min = selectedAnnotationInfo.getMin() - ProjectionDefaults.DEFAULT_PADDING;
+        Long max = selectedAnnotationInfo.getMax() + ProjectionDefaults.DEFAULT_PADDING;
+        min = min < 0 ? 0L : min;
+        assemblageInfo.setStart(min);
+        assemblageInfo.setEnd(max);
+
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false,false);
     }
 
     // also used by javascript function
@@ -699,11 +841,17 @@ public class AnnotatorPanel extends Composite {
         else {
             exonDetailPanel.updateData(annotationInfo);
         }
+        // for some reason doesn't like call gotoAnnotation
+        AssemblageInfo assemblageInfo = MainPanel.getInstance().getCurrentAssemblage();
+
         gotoAnnotation.setEnabled(true);
-        Integer min = selectedAnnotationInfo.getMin() - 50;
-        Integer max = selectedAnnotationInfo.getMax() + 50;
-        min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+        Long min = selectedAnnotationInfo.getMin() - ProjectionDefaults.DEFAULT_PADDING;
+        Long max = selectedAnnotationInfo.getMax() + ProjectionDefaults.DEFAULT_PADDING;
+        min = min < 0 ? 0L : min;
+        assemblageInfo.setStart(min);
+        assemblageInfo.setEnd(max);
+
+        MainPanel.updateGenomicViewerForAssemblage(assemblageInfo, min, max,false,false);
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
@@ -745,7 +893,7 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 // TODO: this is ugly, but it works
                 // a custom cell rendering might work as well, but not sure
-
+                String viewString = "<a href='' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "',true);\"><i class='fa fa-eye'></i></a>";
                 String transcriptStyle = "margin-left: 10px; color: green; padding-left: 5px; padding-right: 5px; border-radius: 15px; background-color: #EEEEEE;";
                 String htmlString = "<a style='" + transcriptStyle + "' onclick=\"enableGoto(" + absRowIndex + ",'" + rowValue.getUniqueName() + "');\">" + rowValue.getName() + "</a>";
                 htmlString += "  <button type='button' class='btn btn-primary' onclick=\"displayTranscript(" + absRowIndex + ",'" + rowValue.getUniqueName() + "')\" style=\"line-height: 0; margin-bottom: 5px;\" ><i class='fa fa-arrow-circle-o-right fa-lg'></i></a>";

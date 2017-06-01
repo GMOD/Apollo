@@ -7,75 +7,153 @@
    ],
     "share_link" : 0,
     "tracks" : [
+//    {
+//      "label": "Projection Legend",
+//      "key": "Projection Legend",
+//      "type": "JBrowse/View/Track/CanvasFeatures",
+//      "storeClass": "JBrowse/Store/SeqFeature/REST",
+//      "baseUrl": "@SERVER@projectionLegend",
+//      "style": {
+//        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
+//      },
+//      "pinned": true
+//    },
+//    {
+//      "label": "Legend",
+//      "key": "Legend",
+//      "type": "WebApollo/View/Track/Projection/ProjectionLegend",
+//      "storeClass": "JBrowse/Store/SeqFeature/REST",
+//      "baseUrl": "@SERVER@projectionGrid",
+//      "style": {
+//        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
+//      },
+//      "noCache": true,
+//      "pinned": true
+//    },
+//    {
+//      "label": "ProjectionGrid",
+//      "key": "ProjectionGrid",
+//      "type": "WebApollo/View/Track/Projection/ProjectionGrid",
+//      "storeClass": "JBrowse/Store/SeqFeature",
+//      "noCache": true,
+//      "pinned": true
+//    },
+//    {
+//      "label": "ProjectionBoundary",
+//      "key": "ProjectionBoundary",
+//      "type": "WebApollo/View/Track/Projection/ProjectionBoundary",
+//      "storeClass": "JBrowse/Store/SeqFeature/REST",
+//      "baseUrl": "@SERVER@projectionGrid",
+//      "noCache": true,
+//      "pinned": true
+//    },
+//    {
+//      "label": "LegendTrack",
+//      "key": "LegendTrack",
+//      //      "type": "JBrowse/View/Track/LocationScale",
+//      //      "type": "JBrowse/View/Track/CanvasVariants",
+//      //      "type": "WebApollo/View/Track/Legend2",
+//      "type": "WebApollo/View/Track/Projection/LegendTrack",
+//      "storeClass": "JBrowse/Store/SeqFeature/REST",
+//      "baseUrl": "@SERVER@projectionGrid",
+//      "style": {
+//        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
+//      },
+//      "noCache": true,
+//      "pinned": true
+//      //          "query": {
+//      //            "organism": "tyrannosaurus"
+//      //          }
+//    },
+//    {
+//      "label": "Lolli Projection Grid",
+//      "key": "Lolli Projection Grid",
+//      //      "type": "JBrowse/View/Track/LocationScale",
+//      //      "type": "JBrowse/View/Track/CanvasVariants",
+//      "type": "JBrowse/View/Track/Projection/SVGLollipop",
+//      "storeClass": "JBrowse/Store/SeqFeature/REST",
+//      "baseUrl": "@SERVER@projectionGrid",
+//      "style": {
+//        "color": "function(feature) { var order = feature.get('order'); switch(order){ case 0: return 'green'; case 1: return 'blue';default:return 'red'};  }"
+//      },
+//      "pinned": true
+//      //          "query": {
+//      //            "organism": "tyrannosaurus"
+//      //          }
+//    },
     {
-         "autocomplete" : "none",
-         "style" : {
-            "className" : "annot",
-            "renderClassName" : "annot-render",
-            "subfeatureClasses" : {
-               "non_canonical_three_prime_splice_site" : "noncanonical-splice-site",
-               "wholeCDS" : null,
-               "exon" : "container-100pct",
-               "CDS" : "annot-CDS",
-               "non_canonical_five_prime_splice_site" : "noncanonical-splice-site",
-               "UTR" : "annot-UTR"
-            },
-            "arrowheadClass" : "annot-arrowhead",
-            "alternateClasses" : {
-               "transposable_element" : {
-                  "renderClassName" : "blue-ibeam-render annot-apollo",
-                  "className" : "blue-ibeam"
-               },
-               "pseudogene" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "light-purple-80pct"
-               },
-               "snRNA" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "brightgreen-80pct"
-               },
-               "rRNA" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "brightgreen-80pct"
-               },
-               "snoRNA" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "brightgreen-80pct"
-               },
-               "repeat_region" : {
-                  "className" : "magenta-80pct"
-               },
-               "ncRNA" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "brightgreen-80pct"
-               },
-               "miRNA" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "brightgreen-80pct"
-               },
-               "tRNA" : {
-                  "renderClassName" : "gray-center-30pct annot-apollo",
-                  "className" : "brightgreen-80pct"
-               }
-            },
-            "uniqueIdField" : "id",
-            "centerSubFeature" : {
-               "non_canonical_three_prime_splice_site" : false,
-               "non_canonical_five_prime_splice_site" : false
-            }
-         },
-         "key" : "User-created Annotations",
-         "storeClass" : "WebApollo/Store/SeqFeature/ScratchPad",
-         "maxHeight" : 600,
-         "phase" : 0,
-         "compress" : 0,
-         "label" : "Annotations",
-         "type" : "WebApollo/View/Track/AnnotTrack",
-         "subfeatures" : 1
-      }
-    ],
-   "favicon" : "./plugins/WebApollo/img/webapollo_favicon.ico",
-   "alwaysOnTracks" : "DNA,Annotations",
-   "classicMenu" : 1,
-   "formatVersion" : 1
+      "autocomplete": "none",
+      "style": {
+        "className": "annot",
+        "renderClassName": "annot-render",
+        "subfeatureClasses": {
+          "non_canonical_three_prime_splice_site": "noncanonical-splice-site",
+          "wholeCDS": null,
+          "exon": "container-100pct",
+          "CDS": "annot-CDS",
+          "non_canonical_five_prime_splice_site": "noncanonical-splice-site",
+          "UTR": "annot-UTR"
+        },
+        "arrowheadClass": "annot-arrowhead",
+        "alternateClasses": {
+          "transposable_element": {
+            "renderClassName": "blue-ibeam-render annot-apollo",
+            "className": "blue-ibeam"
+          },
+          "pseudogene": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "light-purple-80pct"
+          },
+          "snRNA": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "brightgreen-80pct"
+          },
+          "rRNA": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "brightgreen-80pct"
+          },
+          "snoRNA": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "brightgreen-80pct"
+          },
+          "repeat_region": {
+            "className": "magenta-80pct"
+          },
+          "ncRNA": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "brightgreen-80pct"
+          },
+          "miRNA": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "brightgreen-80pct"
+          },
+          "tRNA": {
+            "renderClassName": "gray-center-30pct annot-apollo",
+            "className": "brightgreen-80pct"
+          }
+        },
+        "uniqueIdField": "id",
+        "centerSubFeature": {
+          "non_canonical_three_prime_splice_site": false,
+          "non_canonical_five_prime_splice_site": false
+        }
+      },
+      "key": "User-created Annotations",
+      "storeClass": "WebApollo/Store/SeqFeature/ScratchPad",
+      "maxHeight": 600,
+      "phase": 0,
+      "compress": 0,
+      "label": "Annotations",
+      "type": "WebApollo/View/Track/AnnotTrack",
+      "subfeatures": 1
+    }
+  ],
+  "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
+  "locationBox": "searchBox",
+//  "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Annotations",
+  "alwaysOnTracks": "DNA,Annotations",
+//  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
+//  "bookmarkService": "getSeqBoundaries",
+  "classicMenu" : 1,
+  "formatVersion" : 1
 }

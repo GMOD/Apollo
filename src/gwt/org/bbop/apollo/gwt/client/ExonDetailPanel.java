@@ -10,6 +10,17 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -26,6 +37,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
@@ -41,7 +53,7 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by ndunn on 1/9/15.
+ * Created by Nathan Dunn on 1/9/15.
  */
 public class ExonDetailPanel extends Composite {
 
@@ -49,8 +61,8 @@ public class ExonDetailPanel extends Composite {
     interface ExonDetailPanelUiBinder extends UiBinder<Widget, ExonDetailPanel> {
     }
 
-    int inputFmin, inputFmax;
-    int fivePrimeValue, threePrimeValue;
+    Long inputFmin, inputFmax;
+    Long fivePrimeValue, threePrimeValue;
     private AnnotationInfo internalAnnotationInfo;
     private AnnotationInfo annotationInfoWithTopLevelFeature;
     private static ExonDetailPanelUiBinder ourUiBinder = GWT.create(ExonDetailPanelUiBinder.class);
@@ -127,7 +139,7 @@ public class ExonDetailPanel extends Composite {
 
         startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(AnnotationInfo annotationInfo) {
+            public Long getValue(AnnotationInfo annotationInfo) {
                 return getDisplayMin(annotationInfo.getMin());
             }
         };
@@ -135,7 +147,7 @@ public class ExonDetailPanel extends Composite {
 
         stopColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(AnnotationInfo annotationInfo) {
+            public Long getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getMax();
             }
         };
@@ -143,7 +155,7 @@ public class ExonDetailPanel extends Composite {
 
         lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
-            public Integer getValue(AnnotationInfo annotationInfo) {
+            public Long getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getLength();
             }
         };
@@ -167,21 +179,21 @@ public class ExonDetailPanel extends Composite {
         sortHandler.setComparator(startColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getMin() - o2.getMin();
+                return o1.getMin().intValue() - o2.getMin().intValue();
             }
         });
 
         sortHandler.setComparator(stopColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getMax() - o2.getMax();
+                return o1.getMax().intValue() - o2.getMax().intValue();
             }
         });
 
         sortHandler.setComparator(lengthColumn, new Comparator<AnnotationInfo>() {
             @Override
             public int compare(AnnotationInfo o1, AnnotationInfo o2) {
-                return o1.getLength() - o2.getLength();
+                return o1.getLength().intValue() - o2.getLength().intValue();
             }
         });
     }
@@ -294,15 +306,15 @@ public class ExonDetailPanel extends Composite {
         RestService.sendRequest(requestCallback, "annotator/setExonBoundaries/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
     }
 
-    private int getDisplayMin(int min) {
+    private long getDisplayMin(long min) {
         // increases the fmin by 1 for display since coordinates are handled as zero-based on server-side
         return min + 1;
     }
 
     private boolean collectFieldValues(int threePrimeDelta, int fivePrimeDelta) {
         try {
-            fivePrimeValue = Integer.parseInt(fivePrimeField.getText()) + fivePrimeDelta;
-            threePrimeValue = Integer.parseInt(threePrimeField.getText()) + threePrimeDelta;
+            fivePrimeValue = Long.parseLong(fivePrimeField.getText()) - 1; // intended action
+            threePrimeValue = Long.parseLong(threePrimeField.getText());
         } catch (Exception error) {
             coordinatesToPrime(this.internalAnnotationInfo.getMin(), this.internalAnnotationInfo.getMax());
             return false;
@@ -376,16 +388,16 @@ public class ExonDetailPanel extends Composite {
         return true;
     }
 
-    private void triggerUpdate(int fivePrimeValue, int threePrimeValue) {
+    private void triggerUpdate(long fivePrimeValue, long threePrimeValue) {
         final AnnotationInfo originalInfo = this.internalAnnotationInfo;
-        fivePrimeField.setText(Integer.toString(fivePrimeValue));
+        fivePrimeField.setText(Long.toString(fivePrimeValue));
         this.internalAnnotationInfo.setMin(this.inputFmin);
-        threePrimeField.setText(Integer.toString(threePrimeValue));
+        threePrimeField.setText(Long.toString(threePrimeValue));
         this.internalAnnotationInfo.setMax(this.inputFmax);
         updateFeatureLocation(originalInfo);
     }
 
-    private void primeToCoordinates(int fivePrimeFieldValue, int threePrimeFieldValue) {
+    private void primeToCoordinates(long fivePrimeFieldValue, long threePrimeFieldValue) {
         if (this.internalAnnotationInfo.getStrand() == 1) {
             this.inputFmin = fivePrimeFieldValue - 1;
             this.inputFmax = threePrimeFieldValue;
@@ -395,13 +407,13 @@ public class ExonDetailPanel extends Composite {
         }
     }
 
-    private void coordinatesToPrime(int fmin, int fmax) {
+    private void coordinatesToPrime(long fmin, long fmax) {
         if (this.internalAnnotationInfo.getStrand() == 1) {
-            this.fivePrimeField.setText(Integer.toString(fmin + 1));
-            this.threePrimeField.setText(Integer.toString(fmax));
+            this.fivePrimeField.setText(Long.toString(fmin + 1));
+            this.threePrimeField.setText(Long.toString(fmax));
         } else {
-            this.fivePrimeField.setText(Integer.toString(fmax));
-            this.threePrimeField.setText(Integer.toString(fmin + 1));
+            this.fivePrimeField.setText(Long.toString(fmax));
+            this.threePrimeField.setText(Long.toString(fmin + 1));
         }
     }
 

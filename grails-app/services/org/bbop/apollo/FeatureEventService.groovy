@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -21,6 +20,7 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
+    def assemblageService
 
     /**
      *
@@ -487,17 +487,15 @@ class FeatureEventService {
             return
         }
 
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(Feature.findByUniqueName(uniqueName))
+        log.debug "assemblage: ${assemblage}"
+
         def newUniqueNames = history[count].collect() {
             it.uniqueName
         }
 
-        Sequence sequence = Feature.findByUniqueNameInList(newUniqueNames).featureLocation.sequence
-        log.debug "sequence: ${sequence}"
 
-
-
-
-        deleteCurrentState(inputObject, newUniqueNames, sequence)
+        deleteCurrentState(inputObject, newUniqueNames, assemblage)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
@@ -556,13 +554,13 @@ class FeatureEventService {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript,false,assemblage))
             }
-            if (sequence) {
+            if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        sequence: sequence,
-                        operation: AnnotationEvent.Operation.UPDATE
+                        features: updateFeatureContainer
+                        , assemblage: assemblage
+                        , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
             }
@@ -572,14 +570,14 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Assemblage assemblage) {
         for (uniqueName in newUniqueNames) {
-            deleteCurrentState(inputObject, uniqueName, sequence)
+            deleteCurrentState(inputObject, uniqueName, assemblage)
         }
     }
 
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, Assemblage assemblage) {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
@@ -597,7 +595,7 @@ class FeatureEventService {
             log.debug "deleteCommandObject ${deleteCommandObject as JSON}"
 
             if (!deleteCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
-                deleteCommandObject.put(FeatureStringEnum.TRACK.value, sequence.name)
+                deleteCommandObject.put(FeatureStringEnum.TRACK.value, assemblage.sequenceList)
             }
             deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY, true)
             log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"
@@ -628,11 +626,6 @@ class FeatureEventService {
         }
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
-//        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
-//        assert uniqueNames.remove(uniqueName)
-//        uniqueNames.each {
-//            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
-//        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
