@@ -1,7 +1,7 @@
 package org.bbop.apollo.sequence
 
 /**
- * Created by ndunn on 2/19/15.
+ * Created by Nathan Dunn on 2/19/15.
  */
 enum Strand {
 
@@ -17,13 +17,15 @@ enum Strand {
         this.display = display
     }
 
-    static Strand getStrandForValue(int i) {
-        for(strand in values()){
-            if(strand.value==i) {
-                return strand
+    static Strand getStrandForValue(Integer i) {
+        if(i!=null){
+            for(strand in values()){
+                if(strand.value==i) {
+                    return strand
+                }
             }
         }
-        return null
+        return NONE
     }
 
     public getValue() {
@@ -32,5 +34,12 @@ enum Strand {
 
     String getDisplay() {
         return display
+    }
+
+    Strand reverse() {
+        if(value==NONE.value){
+          return NONE;
+        }
+        return value==NEGATIVE.value ? POSITIVE : NEGATIVE
     }
 }

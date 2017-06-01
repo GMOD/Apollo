@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.sequence.Strand
+
 class Feature implements Ontological{
 
     static auditable = true
@@ -117,41 +119,142 @@ class Feature implements Ontological{
 
 
 
-    /** Convenience method for retrieving the location.  Assumes that it only contains a single
-     *  location so it returns the first (and hopefully only) location from the collection of
-     *  locations.  Returns <code>null</code> if none are found.
-     *
-     * @return FeatureLocation of this object
-     */
-    public FeatureLocation getFeatureLocation() {
-        Collection<FeatureLocation> locs = getFeatureLocations();
+    FeatureLocation getFirstFeatureLocation() {
+        List<FeatureLocation> locs = getFeatureLocations().sort(){ a,b ->
+            a.rank <=> b.rank ?:  a.fmin  <=> b.fmin ?: a.length ?: b.length
+        };
         return locs ? locs.first() : null
     }
 
+    FeatureLocation getLastFeatureLocation() {
+        List<FeatureLocation> locs = getFeatureLocations().sort(){  a,b ->
+            a.rank <=> b.rank ?:  a.fmin  <=> b.fmin ?: a.length ?: b.length
+        };
+        return locs ? locs.last() : null
+    }
+
+    String getSequenceNames(){
+
+        if(!featureLocations) {
+            return "None"
+        }
+
+        String returnName = ""
+
+        featureLocations.eachWithIndex { FeatureLocation entry, int i ->
+            returnName += entry.sequence.name
+            if(i < featureLocations.size()-1){
+                returnName += "::"
+            }
+        }
+
+        return returnName
+    }
 
     /** Get the length of this feature.
      *
      * @return Length of feature
      */
-    public int getLength() {
-        return getFeatureLocation().calculateLength()
+    int getLength() {
+        getFmax()-getFmin()
+//        return getFeatureLocation().calculateLength()
     }
 
-    public Integer getFmin(){
-        featureLocation.fmin
+    /**
+     * Returns the calculated fmin in the given sequence?!? so first rank
+     * @return
+     */
+    Integer getFmin(){
+        if(!featureLocations){
+            throw new Exception("No feature locations exist for feature")
+        }
+        featureLocations.sort(){ it.rank }.first().fmin
     }
 
-    public Integer getFmax(){
-        featureLocation.fmax
+    boolean getIsFminPartial(){
+        if(!featureLocations){
+            throw new Exception("No feature locations exist for feature")
+        }
+        featureLocations.sort(){ it.rank }.first().isFminPartial
     }
 
-    public Integer getStrand(){
-        featureLocation.strand
+    boolean getIsFmaxPartial(){
+        featureLocations.sort(){ it.rank }.last().isFmaxPartial
     }
 
+    Organism getOrganism(){
+        if(!featureLocations){
+            return null
+        }
+        else{
+            return getFirstFeatureLocation().sequence.organism
+        }
+    }
+
+    /**
+     * Returns the calculated fmax if part of multiple scaffolds
+     *
+     * This is the fmax of the last featureLength, plus the some of all previous featureLoctaion sequences
+     * @return
+     */
+    Integer getFmax(){
+        Integer calculatedMax = 0
+        int maxRank = getMaxRank()
+        featureLocations.sort(){ it.rank }.each {
+            if(it.rank<maxRank){
+                calculatedMax += it.sequence.length
+            }
+            else{
+                calculatedMax += it.fmax
+            }
+        }
+        return calculatedMax
+    }
+
+    /**
+     * Rteturn the rank of the last feature location
+     * @return
+     */
+    Integer getMaxRank(){
+        featureLocations.sort(){ it.rank }.last().rank
+    }
+
+    /**
+     * This will always be 0, but good to include it
+     * @return
+     */
+    Integer getMinRank(){
+        featureLocations.sort(){ it.rank }.first().rank
+    }
+
+    /**
+     * TODO: we should validate the strands of all of the feature locations here?
+     * @return
+     */
+    Integer getStrand(){
+        featureLocations.first().strand
+    }
+
+    Boolean isNegativeStrand(){
+        for(fl in featureLocations){
+            if(fl.strand!=Strand.NEGATIVE.value){
+                return false
+            }
+        }
+        return true
+    }
+
+    Boolean isPositiveStrand(){
+        for(fl in featureLocations){
+            if(fl.strand!=Strand.POSITIVE.value){
+                return false
+            }
+        }
+        return true
+    }
 
     @Override
-    public String toString() {
+    String toString() {
         return "Feature{" +
                 "id=" + id +
                 ", symbol='" + symbol + '\'' +
@@ -163,5 +266,34 @@ class Feature implements Ontological{
                 ", dateCreated=" + dateCreated +
                 ", lastUpdated=" + lastUpdated +
                 '}';
+    }
+
+    Sequence getFirstSequence() {
+        if(featureLocations){
+            return featureLocations.sort(){ it.rank }.first().sequence
+        }
+        else{
+            return null
+        }
+    }
+
+
+    Sequence getLastSequence() {
+        if(featureLocations){
+            return featureLocations.sort(){ it.rank }.last().sequence
+        }
+        else{
+            return null
+        }
+    }
+
+    FeatureLocation getFeatureLocationForPosition(int position) {
+        int currentPosition = 0
+        for(FeatureLocation featureLocation in featureLocations.sort(){it.rank}){
+            if(position>=currentPosition && position < featureLocation.sequence.end){
+                return featureLocation
+            }
+        }
+        return null
     }
 }

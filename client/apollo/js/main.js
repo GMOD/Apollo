@@ -17,6 +17,7 @@ define([
            'dojo/query',
            'dojo/_base/window',
            'dojo/_base/array',
+           'dojo/keys',
            'dijit/registry',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -26,11 +27,16 @@ define([
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
            'dijit/form/Button',
+           'dijit/form/ComboBox',
            'JBrowse/Plugin',
+           'JBrowse/View/InfoDialog',
            'WebApollo/FeatureEdgeMatchManager',
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/Track/Projection/LegendTrack',
+           'WebApollo/View/Track/Projection/ProjectionGrid',
+           'WebApollo/View/Track/Projection/ProjectionBoundary',
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
@@ -39,7 +45,8 @@ define([
            'JBrowse/CodonTable',
            'dojo/io-query',
            'jquery/jquery',
-           'lazyload/lazyload'
+           'lazyload/lazyload',
+            'JBrowse/Util'
        ],
     function( declare,
             lang,
@@ -48,6 +55,7 @@ define([
             query,
             win,
             array,
+            keys,
             dijitRegistry,
             dijitMenu,
             dijitMenuItem,
@@ -57,11 +65,16 @@ define([
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitButton,
+            dijitComboBox,
             JBPlugin,
+            InfoDialog,
             FeatureEdgeMatchManager,
             FeatureSelectionManager,
             TrackConfigTransformer,
             AnnotTrack,
+            LegendTrack,
+            ProjectionGrid,
+            ProjectionBoundary,
             Hierarchical,
             Faceted,
             InformationEditor,
@@ -70,7 +83,9 @@ define([
             CodonTable,
             ioQuery,
             $,
-            LazyLoad ) {
+            LazyLoad,
+            Util
+    ) {
 
 return declare( [JBPlugin, HelpMixin],
 {
@@ -79,6 +94,7 @@ return declare( [JBPlugin, HelpMixin],
         console.log("loaded WebApollo plugin");
         var thisB = this;
         this.searchMenuInitialized = false;
+        this.replaceSearchBox = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -144,7 +160,7 @@ return declare( [JBPlugin, HelpMixin],
                 "title": "Apollo Help",
                 "content": this.defaultHelp()
             }
-        };
+        }
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -194,6 +210,9 @@ return declare( [JBPlugin, HelpMixin],
             this.createMenus();
         }
 
+        this.addSearchBox();
+        this.addNavBox();
+
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
@@ -215,37 +234,49 @@ return declare( [JBPlugin, HelpMixin],
             }
 
             // Initialize information editor with similar style to track selector
-                        var view = browser.view;
-                        view.oldOnResize = view.onResize;
+            var view = browser.view;
+            view.oldOnResize = view.onResize;
+             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
+               *    bug appears in Chrome, not Firefox, unsure of other browsers
+               */
+            view.onResize = function() {
+                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
+                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
+                var oldCharSize = thisB.getSequenceCharacterSize();
+                var newCharSize = thisB.getSequenceCharacterSize(true);
+                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
+                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
+                var charWidth = newCharSize.width;
+                if (charWidthChanged) {
+                        if (! browser.config.view) { browser.config.view = {}; }
+                        browser.config.view.maxPxPerBp = charWidth;
+                        view.maxPxPerBp = charWidth;
+                    }
+                if (charWidthChanged && fullZoom) {
+                        view.pxPerBp = view.maxPxPerBp;
+                        view.oldOnResize();
+                        thisB.browserZoomFix(centerBp);
+                    }
+                else  {
+                        view.oldOnResize();
+                    }
+            };
 
-                             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-                               *    bug appears in Chrome, not Firefox, unsure of other browsers
-                               */
-                                view.onResize = function() {
-                                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
-                                var oldCharSize = thisB.getSequenceCharacterSize();
-                                var newCharSize = thisB.getSequenceCharacterSize(true);
-                                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-                                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
-                                var charWidth = newCharSize.width;
-                                if (charWidthChanged) {
-                                        if (! browser.config.view) { browser.config.view = {}; }
-                                        browser.config.view.maxPxPerBp = charWidth;
-                                        view.maxPxPerBp = charWidth;
-                                    }
-                                if (charWidthChanged && fullZoom) {
-                                        view.pxPerBp = view.maxPxPerBp;
-                                        view.oldOnResize();
-                                        thisB.browserZoomFix(centerBp);
-                                    }
-                                else  {
-                                        view.oldOnResize();
-                                    }
-                            };
-            
 
         });
+
+
+        browser.afterMilestone( 'completely initialized', function() {
+            var view  = browser.view ;
+            // var projectionString = view.ref.name;
+            var projectionString = JSON.stringify(view.ref) ;
+            var projectionLength = window.parent.getProjectionLength(projectionString);
+            var ratio = view.elem.clientWidth  / projectionLength  ;
+
+            browser.view.pxPerBp = ratio ;
+            browser.view.onResize();
+        });
+
         this.monkeyPatchRegexPlugin();
 
 
@@ -714,6 +745,113 @@ return declare( [JBPlugin, HelpMixin],
                 })
         );
         this.updateLabels();
+    },
+
+    addNavBox: function() {
+        var thisB = this;
+        var browser = thisB.browser;
+
+        browser.afterMilestone('initView', function () {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-nav-box',
+                'class': "separate-nav-box"
+            }, navbox);
+            var refSeqString  = browser.view.ref.name;
+            refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf(":"));
+            var refSeqObject = JSON.parse(refSeqString);
+
+            // just grab the first one for now
+            var sequenceObj = refSeqObject.sequenceList[0]
+            // sequenceObj.
+
+            var navLabel = new dijitButton(
+                {
+                    id: "apollo-navigation",
+                    name: "apollo-navigation",
+                    style: {width: "200px"},
+                    maxLength: 400,
+                    searchAttr: "navigation",
+                    title: sequenceObj.name,
+                    label: (sequenceObj.reverse ? '&larr;': '') + sequenceObj.name +   (!sequenceObj.reverse ? '&rarr;': ''),
+                    onClick: function()  {
+                        window.parent.doReverseComplement();
+                    }
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            navbox.appendChild(navLabel.domNode);
+        });
+    },
+
+    addSearchBox: function(){
+        var thisB = this ;
+        var browser = thisB.browser ;
+
+        browser.afterMilestone( 'initView', function() {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-search-box',
+                'class': "separate-location-box"
+            }, navbox);
+
+
+
+            var locationBox = new dijitComboBox(
+                {
+                    id: "apollo-location",
+                    name: "apollo-location",
+                    style: {width: "200px"},
+                    maxLength: 400,
+                    searchAttr: "name",
+                    title: 'Enter a symbol or ID to search'
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            browser.afterMilestone('loadNames', dojo.hitch(this, function () {
+                if (browser.nameStore) {
+                    locationBox.set('store', browser.nameStore);
+                }
+            }));
+            locationBox.focusNode.spellcheck = false;
+            locationBox.set('placeholder',"search features, IDs");
+            dojo.query('div.dijitArrowButton', locationBox.domNode ).orphan();
+            dojo.connect( locationBox.focusNode, "keydown", this, function(event) {
+                if( event.keyCode == keys.ESCAPE ) {
+                    locationBox.set('value','');
+                }
+                else if (event.keyCode == keys.ENTER) {
+                    locationBox.closeDropDown(false);
+                    // thisB.navigateToAssemblage( locationBox.get('value') );
+                    browser.navigateTo( locationBox.get('value') );
+                    dojo.stopEvent(event);
+                }
+                // else {
+                //     this.goButton.set('disabled', false);
+                // }
+            });
+            dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+            (function(){
+
+                // add a moreMatches class to our hacked-in "more options" option
+                var dropDownProto = eval(locationBox.dropDownClass).prototype;
+                var oldCreateOption = dropDownProto._createOption;
+                dropDownProto._createOption = function( item ) {
+                    var option = oldCreateOption.apply( this, arguments );
+                    if( item.hitLimit )
+                        dojo.addClass( option, 'moreMatches');
+                    return option;
+                };
+
+                // prevent the "more matches" option from being clicked
+                var oldOnClick = dropDownProto.onClick;
+                dropDownProto.onClick = function( node ) {
+                    if( dojo.hasClass(node, 'moreMatches' ) )
+                        return null;
+                    return oldOnClick.apply( this, arguments );
+                };
+            }).call(this);
+        });
     }
 
 

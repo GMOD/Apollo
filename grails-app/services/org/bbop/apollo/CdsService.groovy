@@ -103,15 +103,18 @@ class CdsService {
                 , isAnalysis: cds.isIsAnalysis()
                 , isObsolete: cds.isIsObsolete()
         ).save(failOnError: true)
-        FeatureLocation featureLocation = new FeatureLocation(
-                sequence: cds.featureLocation.sequence
-                , feature: stopCodonReadThrough
-                ,fmin: cds.featureLocation.fmin
-                ,fmax: cds.featureLocation.fmax
-        ).save(failOnError: true)
 
-        stopCodonReadThrough.addToFeatureLocations(featureLocation)
-        stopCodonReadThrough.featureLocation.setStrand(cds.getStrand());
+        cds.featureLocations.each {
+            FeatureLocation featureLocation = new FeatureLocation(
+                    sequence: it.sequence
+                    ,feature: stopCodonReadThrough
+                    ,fmin: it.fmin
+                    ,fmax: it.fmax
+                    ,strand: cds.strand
+            ).save(failOnError: true)
+
+            stopCodonReadThrough.addToFeatureLocations(featureLocation)
+        }
 
         stopCodonReadThrough.save(flush: true)
 
@@ -153,7 +156,7 @@ class CdsService {
             int fmax = exon.fmax > cds.fmax ? cds.fmax : exon.fmax
             int localStart
             int localEnd
-            if (cds.getFeatureLocation().strand == Strand.NEGATIVE.value) {
+            if (cds.isNegativeStrand()) {
                 localEnd = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmin) + 1
                 localStart = featureService.convertSourceCoordinateToLocalCoordinate((Feature) exon, fmax) + 1
             } 

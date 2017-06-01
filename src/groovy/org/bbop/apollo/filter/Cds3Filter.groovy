@@ -4,7 +4,7 @@ import org.bbop.apollo.CDS
 import org.bbop.apollo.Feature
 
 /**
- * Created by ndunn on 2/3/15.
+ * Created by Nathan Dunn on 2/3/15.
  * @E is E-type
  * @T is T-type
  *

@@ -71,9 +71,9 @@ class ExonServiceIntegrationSpec extends AbstractIntegrationSpec{
         mrna.parentFeatureRelationships.size()==2
         leftExon.childFeatureRelationships.size()==1
         rightExon.childFeatureRelationships.size()==1
-        Exon.findByName("left").featureLocation.fmin==5
-        Exon.findByName("right").featureLocation.fmin==15
-        MRNA.findByName("mrna").featureLocation.fmin==2
+        Exon.findByName("left").fmin==5
+        Exon.findByName("right").fmin==15
+        MRNA.findByName("mrna").fmin==2
         assert "mrna"==exonService.getTranscript(leftExon).name
         assert "mrna"==exonService.getTranscript(rightExon).name
 

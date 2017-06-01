@@ -25,7 +25,7 @@ import com.google.gwt.json.client.JSONString;
 import java.util.List;
 
 /**
- * Created by ndunn on 1/27/15.
+ * Created by Nathan Dunn on 1/27/15.
  */
 public class ExportPanel extends Modal {
     private String type;
