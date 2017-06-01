@@ -240,21 +240,14 @@ class JbrowseController {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-//            def refererLocObject = JSON.parse(refererLoc)
-//            def sequenceList = refererLocObject.sequenceList
-
             // for each sequence we have: name (typically sequence), location start, location end,
             // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
             // we also have folding information once that is available
             JSONArray displayArray = new JSONArray()
-//            List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
             def projectionLength = projection.getLength()
             List<ProjectionSequence> projectionSequences = projection.getUnProjectedSequences(0,projectionLength-1)
 
 
-//            int offset = 0
-//            int projectedOffset = 0
-//            for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
             for(ProjectionSequence projectionSequence in projectionSequences){
                 Long projectedLength = projection.getLengthForSequence(projectionSequence)
 //                JSONObject thisSeq = sequenceList.get(i)
@@ -273,16 +266,11 @@ class JbrowseController {
                 regionObject.background = 'yellow'
                 regionObject.type = 'left-edge'
 
-//                currentPosition += regionObject.end
-
                 displayArray.add(regionObject)
-//                offset = currentPosition
-//                projectedOffset = thisSeq.end - thisSeq.start
             }
             JSONObject returnObject = new JSONObject()
             returnObject.features = displayArray
             render returnObject as JSON
-//            render([features: displayArray] as JSON)
         }
         catch (Exception e) {
             log.error e.message
@@ -507,7 +495,8 @@ class JbrowseController {
                     JSONObject refererObject
 //                    String results
 
-                    println "referenLoc [${refererLoc}]"
+//                    println "referenLoc [${refererLoc}]"
+                    Boolean mangleNames = false
 
                     if (AssemblageService.isProjectionString(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
@@ -518,6 +507,7 @@ class JbrowseController {
                         sequenceArray.add(refererObject)
                         println "adding projection object ${refererObject as JSON}"
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                        mangleNames = true
                     } else
                     if (AssemblageService.isProjectionReferer(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
@@ -527,6 +517,7 @@ class JbrowseController {
                         sequenceArray.add(refererObject)
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                         println "adding reffer object ${refererObject as JSON}"
+                        mangleNames = true
                     } else {
                         // get the sequence
                         String sequenceName = refererLoc.split(":")[0]
@@ -545,27 +536,31 @@ class JbrowseController {
                         assemblageRefSeq.name = assemblageRefSeq.toString()
                         sequenceArray.add(assemblageRefSeq)
                     }
-                    println "POST sequence array: ${sequenceArray.size()}"
 
-                    sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
+                    if(mangleNames){
+                        sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
+                    }
+                    else{
+                        sequenceArray.addAll(inputArray)
+                    }
 
                     response.outputStream << sequenceArray.toString()
                 } else {
                     // Set content size
-                    response.setContentLength((int) file.length());
+                    response.setContentLength((int) file.length())
 
                     // Open the file and output streams
-                    FileInputStream inputStream = new FileInputStream(file);
-                    OutputStream out = response.getOutputStream();
+                    FileInputStream inputStream = new FileInputStream(file)
+                    OutputStream out = response.outputStream
 
                     // Copy the contents of the file to the output stream
-                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE]
                     int count = 0;
                     while ((count = inputStream.read(buf)) >= 0) {
-                        out.write(buf, 0, count);
+                        out.write(buf, 0, count)
                     }
-                    inputStream.close();
-                    out.close();
+                    inputStream.close()
+                    out.close()
                 }
             }
             // handle the sequence text data
