@@ -5165,6 +5165,17 @@ define([
                 }
             },
 
+            _trackMenuOptions: function() {
+                var thisB = this;
+                var browser = this.browser;
+                var clabel = this.name + "-collapsed";
+                var options = this.inherited(arguments) || [];
+                // specifically removing these two options for AnnotTrack
+                options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+                options = this.webapollo.removeItemWithLabel(options, "Delete track");
+                return options;
+            },
+
             getPermission: function (callback) {
                 var thisB = this;
                 var loadCallback = callback;
