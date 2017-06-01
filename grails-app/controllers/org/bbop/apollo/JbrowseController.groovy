@@ -487,15 +487,11 @@ class JbrowseController {
             if (fileName.endsWith(".json") || params.format == "json") {
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
-
                     // ONLY ever return the refSeq we are on
                     JSONArray sequenceArray = new JSONArray()
 
 
                     JSONObject refererObject
-//                    String results
-
-//                    println "referenLoc [${refererLoc}]"
                     Boolean mangleNames = false
 
                     if (AssemblageService.isProjectionString(refererLoc)) {
@@ -505,7 +501,6 @@ class JbrowseController {
                         refererObject = new JSONObject(sequenceString)
                         refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
-                        println "adding projection object ${refererObject as JSON}"
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                         mangleNames = true
                     } else
@@ -516,7 +511,6 @@ class JbrowseController {
                         refererObject = new JSONObject(refererLoc)
                         sequenceArray.add(refererObject)
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
-                        println "adding reffer object ${refererObject as JSON}"
                         mangleNames = true
                     } else {
                         // get the sequence
@@ -525,7 +519,6 @@ class JbrowseController {
                         refererObject = new JSONObject()
                         refererObject.putAll(sequence.properties)
                         sequenceArray.add(refererObject)
-                        println "adding other object ${refererObject as JSON}"
                     }
                     // We add the data refSeq here
                     String fileText = new File(dataFileName).text
