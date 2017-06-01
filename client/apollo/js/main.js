@@ -210,8 +210,7 @@ return declare( [JBPlugin, HelpMixin],
             this.createMenus();
         }
 
-        this.addSearchBox();
-        this.addNavBox();
+        this.hideDropDown();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -458,6 +457,8 @@ return declare( [JBPlugin, HelpMixin],
                 webapollo.showAnnotatorPanel();
                 return ;
             }
+            this.addSearchBox();
+            this.addNavBox();
             this.browser.addGlobalMenuItem( 'user',
                             new dijitMenuItem(
                                             {
@@ -747,6 +748,15 @@ return declare( [JBPlugin, HelpMixin],
         this.updateLabels();
     },
 
+    hideDropDown: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var searchBox = dojo.byId('search-refseq');
+            dojo.style(searchBox, "display", "none");
+        });
+    },
+
     addNavBox: function() {
         var thisB = this;
         var browser = thisB.browser;
@@ -794,8 +804,6 @@ return declare( [JBPlugin, HelpMixin],
                 'id': 'apollo-search-box',
                 'class': "separate-location-box"
             }, navbox);
-
-
 
             var locationBox = new dijitComboBox(
                 {
