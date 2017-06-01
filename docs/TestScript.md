@@ -271,6 +271,10 @@ Confirm that clicking on the same icon returns to the previous view (and repeat)
 </p>
 
 <p>
+16.1.3)  Confirm that when navigating between scaffolds that the orientation is maintained for the prior view.
+</p>
+
+<p>
 16.2)  JBrowse-only.  Confirm that the only options available in public JBrowse mode is the search box (no drop-down and no selection for reverse complement). 
 </p>
 
