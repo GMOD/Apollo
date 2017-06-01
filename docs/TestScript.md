@@ -253,6 +253,28 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  ```groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism
 
 
+### E) Testing Coordinate Transformation
+
+16) Reverse complement
+
+16.1) Navigation
+
+<p>
+16.1.1)  Test that click the sequence button in JBrowse display the reverse complement.  
+Confirm that the all tracks are rendering the reverse complement, but the location has been altered to keep the same view.
+Confirm that the annotator panel also reflects the reversed status.
+Confirm that clicking on the same icon returns to the previous view (and repeat). 
+</p>
+
+<p>
+16.1.2)  Test that click the sequence button in the Annotator Panel display the reverse complement with the exact same behavior when clicking on the button in the JBrowse display.
+</p>
+
+<p>
+16.2)  JBrowse-only.  Confirm that the only options available in public JBrowse mode is the search box (no drop-down and no selection for reverse complement). 
+</p>
+
+16.3)  Confirm that all annotation functions in sections A and B occur the same when in reverse complement view, but flipped.
 
 
 
