@@ -6006,22 +6006,52 @@ define([
 
             sortAnnotationsByLocation: function (annots) {
                 var track = this;
-                return annots.sort(function (annot1, annot2) {
-                    var start1 = annot1.get("start");
-                    var end1 = annot1.get("end");
-                    var start2 = annot2.get("start");
-                    var end2 = annot2.get('end');
+                var refSeqName = track.refSeq.name;
+                var sequenceListObject  = this.parseSequenceList(refSeqName);
+                if (sequenceListObject[0].reverse) {
+                    // taking into account reverse orientation
+                    return annots.sort(function (annot1, annot2) {
+                        var start1 = annot1.get("start");
+                        var end1 = annot1.get("end");
+                        var start2 = annot2.get("start");
+                        var end2 = annot2.get('end');
 
-                    if (start1 != start2) {
-                        return start1 - start2;
-                    }
-                    else if (end1 != end2) {
-                        return end1 - end2;
-                    }
-                    else {
-                        return annot1.id().localeCompare(annot2.id());
-                    }
-                });
+                        if (start1 != start2) {
+                            return start1 - start2;
+                        }
+                        else if (end1 != end2) {
+                            return end1 - end2;
+                        }
+                        else {
+                            return annot1.id().localeCompare(annot2.id());
+                        }
+                    }).reverse();
+                }
+                else {
+                    return annots.sort(function (annot1, annot2) {
+                        var start1 = annot1.get("start");
+                        var end1 = annot1.get("end");
+                        var start2 = annot2.get("start");
+                        var end2 = annot2.get('end');
+
+                        if (start1 != start2) {
+                            return start1 - start2;
+                        }
+                        else if (end1 != end2) {
+                            return end1 - end2;
+                        }
+                        else {
+                            return annot1.id().localeCompare(annot2.id());
+                        }
+                    });
+                }
+            },
+
+            parseSequenceList: function(refSeqName) {
+                var refSeqNameSplit = refSeqName.split(':');
+                var sequenceListString = refSeqNameSplit.slice(0, refSeqNameSplit.length - 1).join(':');
+                var sequenceListObject = JSON.parse(sequenceListString).sequenceList;
+                return sequenceListObject;
             },
 
             confirmChangeAnnotationType: function (track, selectedFeatures, destinationType, message) {
