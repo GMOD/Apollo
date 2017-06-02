@@ -528,8 +528,8 @@ define([
                                     selection.feature.data.strand = changedFeature.location.strand;
                                 }
                                 else
-                                // if we select an exon, then let's see what happens here
-                                if (selection.feature.data.parent_type.indexOf('gene') < 0) {
+                                    // if we select an exon, then let's see what happens here
+                                if(!selection.feature.data.parent_type || selection.feature.data.parent_type.indexOf('gene')<0){
                                     // we want the uniqueId to be the parent
                                     if (selection.feature._parent._uniqueID == changedFeature.uniquename) {
                                         selection.feature._parent.strand = changedFeature.location.strand;
@@ -1040,8 +1040,8 @@ define([
             createAnnotations: function (selection_records) {
                 console.log('createAnnotations');
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
@@ -1104,7 +1104,7 @@ define([
                     featureToAdd.set("strand", strand);
                     var fmin;
                     var fmax;
-                    featureToAdd.set('subfeatures', new Array());
+                    featureToAdd.set('subfeatures', []);
                     array.forEach(subfeatures, function (subfeature) {
                         if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
                             return;
@@ -1194,8 +1194,8 @@ define([
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1207,7 +1207,7 @@ define([
                     var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
                     if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
+                        parentFeatures[parentId] = [];
                         parentFeatures[parentId].isSubfeature = is_subfeature;
                     }
                     parentFeatures[parentId].push(dragfeat);
@@ -1254,11 +1254,11 @@ define([
                             var dragfeat = featArray[k];
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
-                                var topLevel = new Object();
+                                var topLevel = {};
                                 topLevel.location = dojo.clone(afeat.location);
                                 topLevel.type = dojo.clone(afeat.type);
                                 topLevel.type.name = topLevelType;
-                                topLevel.children = new Array();
+                                topLevel.children = [];
                                 topLevel.children.push(afeat);
                                 afeat = topLevel;
                             }
@@ -1272,11 +1272,10 @@ define([
 
             createGenericOneLevelAnnotations: function (feats, type, strandless) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
-
                     var is_subfeature = !!dragfeat.parent();  // !! is shorthand
                     // for returning
                     // true if value is
@@ -1285,7 +1284,7 @@ define([
                     var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
                     if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
+                        parentFeatures[parentId] = [];
                         parentFeatures[parentId].isSubfeature = is_subfeature;
                     }
                     parentFeatures[parentId].push(dragfeat);
@@ -1299,7 +1298,7 @@ define([
                         var fmax;
                         // var featureToAdd = $.extend({}, parentFeature);
                         var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                        featureToAdd.set('subfeatures', new Array());
+                        featureToAdd.set('subfeatures', []);
                         for (var k = 0; k < featArray.length; ++k) {
                             // var dragfeat = featArray[k];
                             var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
@@ -6272,7 +6271,6 @@ define([
                             break;
                     }
                 }
-
             }
 
         });
