@@ -2375,8 +2375,15 @@ class RequestHandlingService {
                 )
                 fireAnnotationEvent(deleteAnnotationEvent)
 
+
+
                 JSONObject addFeatureContainer = createJSONFeatureContainer()
-                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
+                JSONArray featuresArray = new JSONArray()
+                featuresArray.put(newFeatureJsonObject)
+                
+                def returnTranscriptList = featureProjectionService.projectTrack(featuresArray,assemblage,false)
+                addFeatureContainer.put(FeatureStringEnum.FEATURES.value,returnTranscriptList)
+
                 AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                         features: addFeatureContainer,
                         assemblage: assemblage,
