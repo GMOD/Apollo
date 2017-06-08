@@ -235,7 +235,6 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 *    currently, for features with lazy-loaded children, ignores children 
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  { 
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type); 
@@ -280,9 +279,15 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     afeature.type.name = typename;
     }
 
+    // if (useName && name) {
+    //     afeature.name = name;
+    // }
+
+    var id = jfeature.get('id');
     var name = jfeature.get('name');
-    if (useName && name) {
-        afeature.name = name;
+    if (useName) {
+        // using 'id' attribute in the absence of 'name' attribute
+        name !== undefined ? afeature.name = name : afeature.name = id;
     }
     
     /*

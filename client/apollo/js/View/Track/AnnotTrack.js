@@ -491,7 +491,7 @@ define([
                                 }
                                 else
                                     // if we select an exon, then let's see what happens here
-                                if(selection.feature.data.parent_type.indexOf('gene')<0){
+                                if(!selection.feature.data.parent_type || selection.feature.data.parent_type.indexOf('gene')<0){
                                     // we want the uniqueId to be the parent
                                     if(selection.feature._parent._uniqueID==changedFeature.uniquename){
                                         selection.feature._parent.strand = changedFeature.location.strand ;
@@ -5887,7 +5887,6 @@ define([
                             break;
                     }
                 }
-
             }
 
         });
