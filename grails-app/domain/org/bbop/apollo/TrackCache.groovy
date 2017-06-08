@@ -5,6 +5,7 @@ class TrackCache {
     String trackName
     String sequenceName
     String organismName
+    String type
 
 
     Long fmin
@@ -18,6 +19,7 @@ class TrackCache {
         trackName nullable: false, blank: false
         sequenceName nullable: false, blank: false
         organismName nullable: false, blank: false
+        type nullable: true, blank: false
 
         fmin nullable: true
         fmax nullable: true

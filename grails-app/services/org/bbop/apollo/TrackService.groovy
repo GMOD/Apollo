@@ -153,8 +153,10 @@ class TrackService {
     JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
         JSONArray returnArray = new JSONArray()
 
-        for (JSONArray jsonArray in fullArray) {
-            returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+        for (def jsonArray in fullArray) {
+            if (jsonArray instanceof JSONArray) {
+                returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+            }
         }
 
         return returnArray
@@ -341,26 +343,25 @@ class TrackService {
         return jsonObject.toString()
     }
 
-    JSONArray checkCache(String organismString, String trackName, String sequence, String featureName, Map paramMap) {
+    String checkCache(String organismString, String trackName, String sequence, String featureName, String type, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName,mapString)?.response
-        return response != null ? JSON.parse(response) as JSONArray : null
+        return TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndTypeAndParamMap(organismString, trackName, sequence, featureName, type, mapString)?.response
     }
 
-    JSONArray checkCache(String organismString, String trackName, String sequence, Long fmin, Long fmax, Map paramMap) {
+    String checkCache(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndParamMap(organismString, trackName, sequence, fmin, fmax, mapString)?.response
-        return response != null ? JSON.parse(response) as JSONArray : null
+        return TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndTypeAndParamMap(organismString, trackName, sequence, fmin, fmax, type, mapString)?.response
     }
 
     @Transactional
-    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, String featureName, Map paramMap) {
+    def cacheRequest(String responseString, String organismString, String trackName, String sequenceName, String featureName, String type, Map paramMap) {
         TrackCache trackCache = new TrackCache(
-                response: jsonArray.toString()
+                response: responseString
                 , organismName: organismString
                 , trackName: trackName
                 , sequenceName: sequenceName
                 , featureName: featureName
+                , type: type
         )
         if (paramMap) {
             trackCache.paramMap = (paramMap as JSON).toString()
@@ -369,14 +370,15 @@ class TrackService {
     }
 
     @Transactional
-    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, Map paramMap) {
+    def cacheRequest(String responseString, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, String type, Map paramMap) {
         TrackCache trackCache = new TrackCache(
-                response: jsonArray.toString()
+                response: responseString
                 , organismName: organismString
                 , trackName: trackName
                 , sequenceName: sequenceName
                 , fmin: fmin
                 , fmax: fmax
+                , type: type
         )
         if (paramMap) {
             trackCache.paramMap = (paramMap as JSON).toString()
