@@ -343,7 +343,7 @@ class TrackService {
 
     JSONArray checkCache(String organismString, String trackName, String sequence, String featureName, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName,mapString)?.response
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName, mapString)?.response
         return response != null ? JSON.parse(response) as JSONArray : null
     }
 
