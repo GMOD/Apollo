@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.converters.XML
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
@@ -23,6 +24,7 @@ class TrackController {
     def permissionService
     def trackService
     def grailsApplication
+    def svgService
 
     /**
      * Just a convenience method
@@ -62,16 +64,17 @@ class TrackController {
     }
 
 
-    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.json?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
             , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
-    def featuresByName(String organismString, String trackName, String sequence, String featureName) {
+    def featuresByName(String organismString, String trackName, String sequence, String featureName,String type) {
         if (!checkPermission(organismString)) return
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
@@ -106,10 +109,18 @@ class TrackController {
         }
         trackService.cacheRequest(returnArray, organismString, trackName, sequence, featureName, paramMap)
 
-        render returnArray as JSON
+        if(type=="json"){
+            render returnArray as JSON
+        }
+        else
+        if(type=="svg"){
+            render svgService.renderSVGFromJSONArray(returnArray)
+        }
+
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.json?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+
+    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.<type>?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
@@ -119,9 +130,10 @@ class TrackController {
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
-    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
+    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax,String type) {
         if (!checkPermission(organismString)) return
 
         String name = params.name ? params.name : ""
@@ -166,10 +178,15 @@ class TrackController {
 
         if(onlySelected){
             trackService.cacheRequest(returnArray, organismString, trackName, sequence, fmin, fmax, paramMap)
-            render returnArray as JSON
         } else {
             trackService.cacheRequest(renderedArray, organismString, trackName, sequence, fmin, fmax, paramMap)
-            render renderedArray as JSON
+        }
+        if(type=="json"){
+            render returnArray as JSON
+        }
+        else
+        if(type=="svg"){
+            render svgService.renderSVGFromJSONArray(returnArray)
         }
     }
 
