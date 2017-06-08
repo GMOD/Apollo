@@ -30,7 +30,11 @@ class SvgService {
 
         // Create an instance of the SVG Generator.
         SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-        svgGenerator.setSVGCanvasSize(new Dimension(500,500))
+        int maxIsoForms = getMaxIsoForms(jsonArray)
+        log.debug "max isoformas: ${maxIsoForms}"
+        int canvasHeight = maxIsoForms*GLOBAL_HEIGHT
+        log.debug "canvas height: ${canvasHeight}"
+        svgGenerator.setSVGCanvasSize(new Dimension(500,canvasHeight))
 
         generateFeatures(svgGenerator, jsonArray)
 
@@ -39,6 +43,14 @@ class SvgService {
         stringWriter.close()
         log.debug "should be returning ${stringWriter.toString()}"
         return stringWriter.toString()
+    }
+
+    int getMaxIsoForms(JSONArray jsonArray) {
+        int maxIsoForms = 1
+        for(def childArray in jsonArray){
+            maxIsoForms = childArray?.children?.size() > maxIsoForms ? childArray?.children?.size() : maxIsoForms
+        }
+        return maxIsoForms
     }
 
     def generateFeatures(SVGGraphics2D svgGraphics2D, JSONArray jsonArray) {
@@ -50,7 +62,7 @@ class SvgService {
         )
 
         // Renders in the X-axis, multiple feature roots
-        println "# of feature regions: ${jsonArray?.size()}"
+        log.debug "# of feature regions: ${jsonArray?.size()}"
         for (JSONObject jsonObject in jsonArray) {
             generateFeature(svgGraphics2D, jsonObject, renderObject)
         }
@@ -61,7 +73,6 @@ class SvgService {
         int globalWidth = renderObject.globalWidth
         int internalFmin = GLOBAL_WIDTH * ((jsonObject.fmin - renderObject.globalFmin) / globalWidth) ?: 1
         int internalFmax = GLOBAL_WIDTH * ((jsonObject.fmax - renderObject.globalFmin) / globalWidth)-1
-        println "fmin / fmax ${internalFmin}-${internalFmax}"
         int height = GLOBAL_HEIGHT / 2.0
 
         // this will go away once we start working with introns
@@ -71,7 +82,7 @@ class SvgService {
 
         int stepHeight = 0
         // render multiple isofrms
-        println "# of isoforms: ${jsonObject.children?.size()}"
+        log.debug "# of isoforms: ${jsonObject.children?.size()}"
         for(JSONArray children in jsonObject.children){
             // Renders in the Y-axis
             renderChildren(svgGraphics2D,children,renderObject,stepHeight)
