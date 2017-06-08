@@ -81,10 +81,17 @@ class TrackController {
         paramMap.put("name", featureName)
         paramMap.put("onlySelected", true)
         if (!ignoreCache) {
-            JSONArray responseArray = trackService.checkCache(organismString, trackName, sequence, featureName, paramMap)
-            if (responseArray != null) {
-                render responseArray as JSON
-                return
+            String responseString = trackService.checkCache(organismString, trackName, sequence, featureName, type, paramMap)
+            if (responseString) {
+                if (type == "json") {
+                    render JSON.parse(responseString)  as JSON
+                    return
+                }
+                else
+                if (type == "svg") {
+                    render responseString
+                    return
+                }
             }
         }
 
@@ -107,12 +114,14 @@ class TrackController {
             }
         }
 
-        trackService.cacheRequest(returnArray, organismString, trackName, sequence, featureName, paramMap)
 
         if (type == "json") {
+            trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
             render returnArray as JSON
         } else if (type == "svg") {
-            render svgService.renderSVGFromJSONArray(returnArray)
+            String xmlString = svgService.renderSVGFromJSONArray(returnArray)
+            trackService.cacheRequest(xmlString, organismString, trackName, sequence, featureName, type, paramMap)
+            render xmlString
         }
 
     }
@@ -138,15 +147,23 @@ class TrackController {
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
+        paramMap.put("type", type)
         if (name) {
             paramMap.put("name", name)
             paramMap.put("onlySelected", onlySelected)
         }
         if (!ignoreCache) {
-            JSONArray responseArray = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, paramMap)
-            if (responseArray != null) {
-                render responseArray as JSON
-                return
+            String responseString = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, type, paramMap)
+            if (responseString) {
+                if (type == "json") {
+                    render JSON.parse(responseString) as JSON
+                    return
+                }
+                else
+                if (type == "svg") {
+                    render responseString
+                    return
+                }
             }
         }
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
@@ -178,12 +195,13 @@ class TrackController {
             renderedArray = returnArray
         }
 
-        trackService.cacheRequest(renderedArray, organismString, trackName, sequence, fmin, fmax, paramMap)
-
         if (type == "json") {
+            trackService.cacheRequest(renderedArray.toString(), organismString, trackName, sequence, fmin, fmax, type, paramMap)
             render renderedArray as JSON
         } else if (type == "svg") {
-            render svgService.renderSVGFromJSONArray(renderedArray)
+            String xmlString = svgService.renderSVGFromJSONArray(returnArray)
+            trackService.cacheRequest(xmlString, organismString, trackName, sequence, fmin, fmax, type, paramMap)
+            render xmlString
         }
     }
 
@@ -194,17 +212,17 @@ class TrackController {
         render renderdObject as JSON
     }
 
-    /**
-     *
-     * @param trackName
-     * @param organism
-     * @param sequence
-     * @param fmin
-     * @param fmax
-     * @return
-     */
-    // TODO: this is just for debuggin
-    // track < organism ID or name > / <track name > /  < sequence name > / min / max
+/**
+ *
+ * @param trackName
+ * @param organism
+ * @param sequence
+ * @param fmin
+ * @param fmax
+ * @return
+ */
+// TODO: this is just for debuggin
+// track < organism ID or name > / <track name > /  < sequence name > / min / max
     def nclist(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
         if (!checkPermission(organismString)) return
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
@@ -223,4 +241,5 @@ class TrackController {
         }
 
     }
+
 }
