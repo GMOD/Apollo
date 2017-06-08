@@ -48,6 +48,8 @@ class SvgService {
                globalFmin:jsonArray.first().fmin,
                globalFmax:jsonArray.first().fmax,
         )
+
+        // Renders in the X-axis, multiple feature roots
         for (JSONObject jsonObject in jsonArray) {
             generateFeature(svgGraphics2D, jsonObject, renderObject)
         }
@@ -66,12 +68,13 @@ class SvgService {
         svgGraphics2D.drawLine(internalFmin, height, internalFmax, height)
 
         int stepHeight = 0
+        // render multiple isofrms
         for(JSONArray children in jsonObject.children){
+            // Renders in the Y-axis
             renderChildren(svgGraphics2D,children,renderObject,stepHeight)
             stepHeight += GLOBAL_HEIGHT
         }
 
-        drawStrand(svgGraphics2D,jsonObject,renderObject)
     }
 
     def drawStrand(SVGGraphics2D svgGraphics2D, JSONObject jsonObject,RenderObject renderObject) {
@@ -117,6 +120,7 @@ class SvgService {
             }
             return a.fmin <=> b.fmin
         }){
+            drawStrand(svgGraphics2D,childObject,renderObject)
             String type = childObject.type
             Integer phase = childObject.phase  // if a CDS
             int internalFmin = GLOBAL_WIDTH * ((childObject.fmin - renderObject.globalFmin) / globalWidth) ?: 1
