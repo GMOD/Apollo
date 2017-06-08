@@ -318,7 +318,7 @@ def refreshBowerRepo(String directory){
 }
 
 def cloneRepoBower(String url,String directory,String branch){
-    String finalUrl = url + "#${branch}"
+    String finalUrl = url + (branch ? "#${branch}" : "")
     finalUrl = finalUrl.replaceAll("tags/","")
     if(finalUrl.startsWith(githubURL)){
         finalUrl = finalUrl.substring(githubURL.length())
