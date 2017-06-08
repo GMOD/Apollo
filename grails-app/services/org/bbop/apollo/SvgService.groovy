@@ -9,6 +9,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.w3c.dom.DOMImplementation
 import org.w3c.dom.Document
+import org.w3c.dom.Element
 
 import java.awt.*
 
@@ -16,27 +17,20 @@ import java.awt.*
 class SvgService {
 
     final Integer GLOBAL_HEIGHT = 30
-    final Integer GLOBAL_WIDTH = 500
-    final Integer HORIZONTAL_PADDING= 50
-    final Integer TOP_PADDING = 10
-    final Integer LEFT_PADDING = 10
-
-    void paint(Graphics2D g2d) {
-        g2d.setPaint(Color.red);
-        g2d.fill(new Rectangle(10, 10, 100, 100));
-    }
+    final Integer GLOBAL_WIDTH = 400
 
     def renderSVGFromJSONArray(JSONArray jsonArray) {
         DOMImplementation domImpl =
-                GenericDOMImplementation.getDOMImplementation();
+                GenericDOMImplementation.getDOMImplementation()
 
         // Create an instance of org.w3c.dom.Document.
         String svgNS = "http://www.w3.org/2000/svg";
         Document document = domImpl.createDocument(svgNS, "svg", null);
 
+
         // Create an instance of the SVG Generator.
         SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
-        svgGenerator.setClip(0,0,GLOBAL_WIDTH,GLOBAL_HEIGHT)
+        svgGenerator.setSVGCanvasSize(new Dimension(500,500))
 
         generateFeatures(svgGenerator, jsonArray)
 
@@ -62,12 +56,12 @@ class SvgService {
     def generateFeature(SVGGraphics2D svgGraphics2D, JSONObject jsonObject, RenderObject renderObject) {
         // assume type is mRNA for type
         int globalWidth = renderObject.globalWidth
-        int internalFmin = GLOBAL_WIDTH * ((jsonObject.fmin - renderObject.globalFmin) / globalWidth)
-        int internalFmax = GLOBAL_WIDTH * ((jsonObject.fmax - renderObject.globalFmin) / globalWidth)
+        int internalFmin = GLOBAL_WIDTH * ((jsonObject.fmin - renderObject.globalFmin) / globalWidth) ?: 1
+        int internalFmax = GLOBAL_WIDTH * ((jsonObject.fmax - renderObject.globalFmin) / globalWidth)-1
         int height = GLOBAL_HEIGHT / 2.0
 
         // this will go away once we start working with introns
-        svgGraphics2D.setStroke(new BasicStroke(2.0))
+        svgGraphics2D.setStroke(new BasicStroke(2))
         svgGraphics2D.setPaint(Color.black)
         svgGraphics2D.drawLine(internalFmin, height, internalFmax, height)
 
@@ -83,16 +77,16 @@ class SvgService {
     def drawStrand(SVGGraphics2D svgGraphics2D, JSONObject jsonObject,RenderObject renderObject) {
         svgGraphics2D.setColor(Color.BLACK)
         int globalWidth = renderObject.globalWidth
-        int internalFmin = GLOBAL_WIDTH * ((jsonObject.fmin - renderObject.globalFmin) / globalWidth)
+//        int internalFmin = GLOBAL_WIDTH * ((jsonObject.fmin - renderObject.globalFmin) / globalWidth)
         int internalFmax = GLOBAL_WIDTH * ((jsonObject.fmax - renderObject.globalFmin) / globalWidth)
         int height = GLOBAL_HEIGHT / 2.0
         // draw an arrow to do with strand now
         if(jsonObject.strand==-1){
             println "doing negative strand ${jsonObject.strand}"
             Polygon2D shape = new Polygon2D()
-            shape.addPoint(0,height)
-            shape.addPoint(10,(int) GLOBAL_HEIGHT * 3 / 4)
-            shape.addPoint(10,(int) 0 + (GLOBAL_HEIGHT / 4) )
+            shape.addPoint(2,height)
+            shape.addPoint(12,(int) GLOBAL_HEIGHT * 3 / 4)
+            shape.addPoint(12,(int) 0 + (GLOBAL_HEIGHT / 4) )
             svgGraphics2D.draw(shape)
             svgGraphics2D.fill(shape)
         }
@@ -101,9 +95,9 @@ class SvgService {
             println "doing positive strand ${jsonObject.strand}"
             Polygon2D shape = new Polygon2D()
             // TODO: not sure why those numbers work, why we need substract 200?
-            shape.addPoint(internalFmax-200,height)
-            shape.addPoint(internalFmax-210,(int) GLOBAL_HEIGHT * 3 / 4)
-            shape.addPoint(internalFmax-210,(int) 0 + (GLOBAL_HEIGHT / 4) )
+            shape.addPoint(internalFmax,height)
+            shape.addPoint(internalFmax-10,(int) GLOBAL_HEIGHT * 3 / 4)
+            shape.addPoint(internalFmax-10,(int) 0 + (GLOBAL_HEIGHT / 4) )
             svgGraphics2D.draw(shape)
             svgGraphics2D.fill(shape)
         }
@@ -127,7 +121,7 @@ class SvgService {
         }){
             String type = childObject.type
             Integer phase = childObject.phase  // if a CDS
-            int internalFmin = GLOBAL_WIDTH * ((childObject.fmin - renderObject.globalFmin) / globalWidth)
+            int internalFmin = GLOBAL_WIDTH * ((childObject.fmin - renderObject.globalFmin) / globalWidth) ?: 1
             int internalFmax = GLOBAL_WIDTH * ((childObject.fmax - renderObject.globalFmin) / globalWidth)
             int height = GLOBAL_HEIGHT / 2.0
 //            svgGraphics2D.drawRect(internalFmin,stepHeight,(internalFmax-internalFmin),GLOBAL_HEIGHT)
