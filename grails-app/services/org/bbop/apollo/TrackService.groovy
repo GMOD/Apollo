@@ -153,8 +153,10 @@ class TrackService {
     JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
         JSONArray returnArray = new JSONArray()
 
-        for (JSONArray jsonArray in fullArray) {
-            returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+        for (def jsonArray in fullArray) {
+            if(jsonArray instanceof JSONArray){
+                returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+            }
         }
 
         return returnArray

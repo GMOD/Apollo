@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.converters.XML
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
@@ -74,7 +73,7 @@ class TrackController {
             , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
-    def featuresByName(String organismString, String trackName, String sequence, String featureName,String type) {
+    def featuresByName(String organismString, String trackName, String sequence, String featureName, String type) {
         if (!checkPermission(organismString)) return
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
@@ -107,13 +106,12 @@ class TrackController {
                 returnArray.add(returnObject)
             }
         }
+
         trackService.cacheRequest(returnArray, organismString, trackName, sequence, featureName, paramMap)
 
-        if(type=="json"){
+        if (type == "json") {
             render returnArray as JSON
-        }
-        else
-        if(type=="svg"){
+        } else if (type == "svg") {
             render svgService.renderSVGFromJSONArray(returnArray)
         }
 
@@ -133,7 +131,7 @@ class TrackController {
             , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
-    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax,String type) {
+    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
         if (!checkPermission(organismString)) return
 
         String name = params.name ? params.name : ""
@@ -169,24 +167,23 @@ class TrackController {
             if (name) {
                 if (returnObject?.name == name) {
                     returnObject.selected = true
-                    if(onlySelected) {
+                    if (onlySelected) {
                         returnArray.add(returnObject)
                     }
                 }
             }
         }
 
-        if(onlySelected){
-            trackService.cacheRequest(returnArray, organismString, trackName, sequence, fmin, fmax, paramMap)
-        } else {
-            trackService.cacheRequest(renderedArray, organismString, trackName, sequence, fmin, fmax, paramMap)
+        if (onlySelected) {
+            renderedArray = returnArray
         }
-        if(type=="json"){
-            render returnArray as JSON
-        }
-        else
-        if(type=="svg"){
-            render svgService.renderSVGFromJSONArray(returnArray)
+
+        trackService.cacheRequest(renderedArray, organismString, trackName, sequence, fmin, fmax, paramMap)
+
+        if (type == "json") {
+            render renderedArray as JSON
+        } else if (type == "svg") {
+            render svgService.renderSVGFromJSONArray(renderedArray)
         }
     }
 

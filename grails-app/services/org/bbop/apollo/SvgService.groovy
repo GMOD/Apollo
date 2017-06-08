@@ -37,7 +37,7 @@ class SvgService {
         StringWriter stringWriter = new StringWriter()
         svgGenerator.stream(stringWriter, true, false)
         stringWriter.close()
-        println "should be returning ${stringWriter.toString()}"
+        log.debug "should be returning ${stringWriter.toString()}"
         return stringWriter.toString()
     }
 
@@ -82,7 +82,6 @@ class SvgService {
         int height = GLOBAL_HEIGHT / 2.0
         // draw an arrow to do with strand now
         if(jsonObject.strand==-1){
-            println "doing negative strand ${jsonObject.strand}"
             Polygon2D shape = new Polygon2D()
             shape.addPoint(2,height)
             shape.addPoint(12,(int) GLOBAL_HEIGHT * 3 / 4)
@@ -92,7 +91,6 @@ class SvgService {
         }
         else
         if(jsonObject.strand==1){
-            println "doing positive strand ${jsonObject.strand}"
             Polygon2D shape = new Polygon2D()
             // TODO: not sure why those numbers work, why we need substract 200?
             shape.addPoint(internalFmax,height)
@@ -125,7 +123,6 @@ class SvgService {
             int internalFmax = GLOBAL_WIDTH * ((childObject.fmax - renderObject.globalFmin) / globalWidth)
             int height = GLOBAL_HEIGHT / 2.0
 //            svgGraphics2D.drawRect(internalFmin,stepHeight,(internalFmax-internalFmin),GLOBAL_HEIGHT)
-            println "type: ${type}"
             if(type=="CDS"){
                 Polygon2D shape = new Polygon2D()
                 shape.addPoint(internalFmin,stepHeight+10)
