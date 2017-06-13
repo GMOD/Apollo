@@ -26,9 +26,13 @@ Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configu
      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
      sudo apt-get install nodejs 
      
-Note that npm (installed with nodejs) must be version 2 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
+NOTE: npm (installed with nodejs) must be version 2 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
 
     sudo npm install -g bower 
+    
+NOTE: you must link nodejs to to node if your system installs it as a ```nodejs``` binary instead of a node one.  E.g., 
+
+    sudo ln -s /usr/bin/nodejs /usr/bin/node
      
 Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat8 is preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
      

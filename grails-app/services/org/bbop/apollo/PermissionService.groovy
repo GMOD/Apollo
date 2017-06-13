@@ -449,6 +449,10 @@ class PermissionService {
             log.error("User ${jsonObject.username} does not exist in the database.")
             return false
         }
+        if (jsonObject.error_message) {
+            log.error("Error with user permissions ${user.username}:  ${jsonObject.error_message}")
+            return false
+        }
 
         // if the rank required is less than administrator than ask if they are an administrator
         if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank ) {
