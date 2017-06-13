@@ -48,6 +48,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def preferenceService
     def sequenceSearchService
     def featureEventService
+    def brokerMessagingTemplate
 
 
     def index() {
@@ -1162,6 +1163,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
             log.error("Error for user ${principal?.name} when exexecting ${inputString}"+ ae?.message)
+//            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
+            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + principal?.name, ae?.message
             return sendError(ae, principal.name)
         }
 

@@ -412,12 +412,29 @@ define([
                 });
                 console.log('connection established');
             },
+            // TODO: need a better function and to not have it be double-encoded
+            isJSON: function(str) {
+                if(!str) return false ;
+                try{
+                    j = JSON.parse(JSON.parse(str));
+                    return true
+                }
+                catch(e){
+                    return false
+                }
+            },
             annotationNotification: function (message) {
                 var track = this;
                 var changeData;
 
                 try {
-                    changeData = JSON.parse(JSON.parse(message.body));
+                    if(this.isJSON(message.body)){
+                        changeData = JSON.parse(JSON.parse(message.body));
+                    }
+                    else{
+                        // we assume its an error message
+                        alert('Error: '+ message.body);
+                    }
 
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
