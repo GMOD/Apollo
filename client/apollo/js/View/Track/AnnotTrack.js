@@ -416,7 +416,7 @@ define([
             isJSON: function(str) {
                 if(!str) return false ;
                 try{
-                    j = JSON.parse(JSON.parse(str));
+                    JSON.parse(JSON.parse(str));
                     return true
                 }
                 catch(e){
