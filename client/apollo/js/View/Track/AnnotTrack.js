@@ -432,8 +432,10 @@ define([
                         changeData = JSON.parse(JSON.parse(message.body));
                     }
                     else{
-                        // we assume its an error message
-                        alert('Error: '+ message.body);
+                        changeData = {} ;
+                        changeData.operation = 'ERROR';
+                        changeData.username = track.username ;
+                        changeData.error_message = message.body ;
                     }
 
                     if (track.verbose_server_notification) {
