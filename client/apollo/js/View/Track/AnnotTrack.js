@@ -491,7 +491,7 @@ define([
                                 }
                                 else
                                     // if we select an exon, then let's see what happens here
-                                if(selection.feature.data.parent_type.indexOf('gene')<0){
+                                if(!selection.feature.data.parent_type || selection.feature.data.parent_type.indexOf('gene')<0){
                                     // we want the uniqueId to be the parent
                                     if(selection.feature._parent._uniqueID==changedFeature.uniquename){
                                         selection.feature._parent.strand = changedFeature.location.strand ;
@@ -4938,6 +4938,17 @@ define([
                 }
             },
 
+            _trackMenuOptions: function() {
+                var thisB = this;
+                var browser = this.browser;
+                var clabel = this.name + "-collapsed";
+                var options = this.inherited(arguments) || [];
+                // specifically removing these two options for AnnotTrack
+                options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+                options = this.webapollo.removeItemWithLabel(options, "Delete track");
+                return options;
+            },
+
             getPermission: function (callback) {
                 var thisB = this;
                 var loadCallback = callback;
@@ -5883,7 +5894,6 @@ define([
                             break;
                     }
                 }
-
             }
 
         });

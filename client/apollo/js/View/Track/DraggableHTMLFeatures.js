@@ -1308,8 +1308,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var browser = this.browser;
         var clabel = this.name + "-collapsed";
         var options = this.inherited(arguments) || [];
-        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-        options = this.webapollo.removeItemWithLabel(options, "Delete track");
 
         options.push({
             label: "Collapsed view",
