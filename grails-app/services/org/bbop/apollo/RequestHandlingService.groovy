@@ -35,7 +35,6 @@ class RequestHandlingService {
     def nonCanonicalSplitSiteService
     def configWrapperService
     def nameService
-    def overlapperService
     def permissionService
     def preferenceService
     def featurePropertyService
