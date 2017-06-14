@@ -82,11 +82,17 @@ class SequenceService {
         List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.withCriteria {
             createAlias('featureLocations', 'fl', JoinType.INNER_JOIN)
             createAlias('fl.sequence', 's', JoinType.INNER_JOIN)
-            and{
-                ge("fl.fmin",fmin)
-                le("fl.fmin",fmax)
-                ge("fl.fmax",fmin)
-                le("fl.fmax",fmax)
+            and {
+                or {
+                    and {
+                        ge("fl.fmin", fmin)
+                        le("fl.fmin", fmax)
+                    }
+                    and {
+                        ge("fl.fmax", fmin)
+                        le("fl.fmax", fmax)
+                    }
+                }
                 eq("s.id",sequence.id)
             }
         }.unique()
