@@ -84,10 +84,13 @@ class SequenceService {
             createAlias('fl.sequence', 's', JoinType.INNER_JOIN)
             and{
                 ge("fl.fmin",fmin)
+                le("fl.fmin",fmax)
+                ge("fl.fmax",fmin)
                 le("fl.fmax",fmax)
                 eq("s.id",sequence.id)
             }
         }.unique()
+        log.debug "sequence alterations found ${sequenceAlterationList.size()}"
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
