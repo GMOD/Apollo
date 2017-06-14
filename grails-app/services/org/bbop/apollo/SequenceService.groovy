@@ -87,7 +87,7 @@ class SequenceService {
                 le("fl.fmax",fmax)
                 eq("s.id",sequence.id)
             }
-        }
+        }.unique()
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
