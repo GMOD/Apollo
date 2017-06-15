@@ -1143,7 +1143,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                             foundMethod = true
                             log.debug "found the method ${operationName}"
                             Feature.withNewSession {
-                                returnString = method.invoke(requestHandlingService, rootElement)
+                                try {
+                                    returnString = method.invoke(requestHandlingService, rootElement)
+                                } catch (Exception ae2) {
+                                    log.error("Error for user ${principal?.name} when exexecting ${inputString}"+ ae2?.message)
+                                    return sendError(ae2, principal.name)
+                                }
                             }
                             return returnString
                         }
@@ -1163,15 +1168,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         } catch (AnnotationException ae) {
             // TODO: should be returning nothing, but then broadcasting specifically to this user
             log.error("Error for user ${principal?.name} when exexecting ${inputString}"+ ae?.message)
-//            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
-            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/user/" + principal?.name, ae?.message
             return sendError(ae, principal.name)
         }
 
     }
 
 // TODO: handle errors without broadcasting
-    protected def sendError(AnnotationException exception, String username) {
+    protected def sendError(Exception exception, String username) {
         log.debug "exception ${exception}"
         log.debug "exception message ${exception.message}"
         log.debug "username ${username}"
@@ -1180,6 +1183,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         errorObject.put(REST_OPERATION, FeatureStringEnum.ERROR.name())
         errorObject.put(FeatureStringEnum.ERROR_MESSAGE.value, exception.message)
         errorObject.put(FeatureStringEnum.USERNAME.value, username)
+
+        brokerMessagingTemplate.convertAndSend("/topic/AnnotationNotification/user/" + username, exception?.message)
 
         return errorObject.toString()
     }
