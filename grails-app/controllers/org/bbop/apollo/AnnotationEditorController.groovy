@@ -1146,11 +1146,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                                 try {
                                     returnString = method.invoke(requestHandlingService, rootElement)
                                 } catch (e) {
-                                    log.error("CAUGHT ERROR: " + e)
+                                    log.error("CAUGHT ERROR through websocket call: " + e)
                                     if(e instanceof InvocationTargetException || !e.message){
-                                        log.error("THROWING PARENT ERROR: " + e.getCause())
-//                                        return sendError(e.getCause(), principal?.name)
-                                        throw e.getCause()
+                                        log.error("THROWING PARENT ERROR instead through reflection: " + e.getCause())
+                                        return sendError(e.getCause(), principal?.name)
+                                    }
+                                    else{
+                                        return sendError(e, principal?.name)
                                     }
                                 }
                             }
@@ -1178,7 +1180,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 // TODO: handle errors without broadcasting
-    protected def sendError(Exception exception, String username) {
+    protected def sendError(Throwable exception, String username) {
         log.error "exception ${exception}"
         log.error "exception message ${exception.message}"
         log.error "username ${username}"
@@ -1191,7 +1193,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         def destination = "/topic/AnnotationNotification/user/" + username
         println "destination: ${destination}"
         println "message: ${exception?.message}"
-        brokerMessagingTemplate.convertAndSendToUser(username, destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
+        brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
 
         return errorObject.toString()
     }
