@@ -1114,8 +1114,14 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        log.debug "Input String: annotation editor service ${inputString}"
+        println "Input String: annotation editor service ${inputString}"
+        if(inputString.contains("\\\"")){
+            println "cleaning string"
+            inputString = inputString.replaceAll("\\\"","\"")
+            println "cleaned: ${inputString}"
+        }
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
+        println "keys printed: "+rootElement.keySet().join("::")
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
