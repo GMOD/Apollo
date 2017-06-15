@@ -48,6 +48,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def preferenceService
     def sequenceSearchService
     def featureEventService
+    def annotationEditorService
     def brokerMessagingTemplate
 
 
@@ -1100,8 +1101,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
             }
 
-
-
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeature);
         }
 
@@ -1114,14 +1113,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        println "Input String: annotation editor service ${inputString}"
-        if(inputString.contains("\\\"")){
-            println "cleaning string"
-            inputString = inputString.replaceAll("\\\"","\"")
-            println "cleaned: ${inputString}"
-        }
+        inputString = annotationEditorService.cleanJSONString(inputString)
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
-        println "keys printed: "+rootElement.keySet().join("::")
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
         String operation = ((JSONObject) rootElement).get(REST_OPERATION)
