@@ -91,6 +91,10 @@ grails.project.dependency.resolution = {
 //        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 //        test "org.gebish:geb-spock:$gebVersion"
         //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
+//        compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.8.1'
+//        compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.8'
+//        compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.8'
+
 
         // for coveralls
         build 'org.apache.httpcomponents:httpcore:4.3.2'
@@ -113,7 +117,9 @@ grails.project.dependency.resolution = {
 
 
         compile ':asset-pipeline:2.1.5'
-        compile ":spring-websocket:1.2.0"
+        compile ":spring-websocket:1.3.1"
+
+
         compile (":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
         }
