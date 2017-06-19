@@ -113,7 +113,7 @@ grails.project.dependency.resolution = {
 
 
         compile ':asset-pipeline:2.1.5'
-        compile ":spring-websocket:1.2.0"
+        compile ":spring-websocket:1.3.1"
         compile (":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
         }
