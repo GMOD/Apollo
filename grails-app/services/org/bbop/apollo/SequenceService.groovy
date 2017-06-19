@@ -14,6 +14,8 @@ import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import groovy.json.JsonSlurper
+import org.hibernate.criterion.CriteriaSpecification
+import org.hibernate.sql.JoinType
 
 import java.util.zip.CRC32
 
@@ -143,7 +145,24 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence seq where seq.id = :seqId and fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax",[seqId:sequence.id, fmin: fmin, fmax: fmax])
+        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.withCriteria {
+            createAlias('featureLocations', 'fl', JoinType.INNER_JOIN)
+            createAlias('fl.sequence', 's', JoinType.INNER_JOIN)
+            and {
+                or {
+                    and {
+                        ge("fl.fmin", fmin)
+                        le("fl.fmin", fmax)
+                    }
+                    and {
+                        ge("fl.fmax", fmin)
+                        le("fl.fmax", fmax)
+                    }
+                }
+                eq("s.id",sequence.id)
+            }
+        }.unique()
+        log.debug "sequence alterations found ${sequenceAlterationList.size()}"
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
         for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin

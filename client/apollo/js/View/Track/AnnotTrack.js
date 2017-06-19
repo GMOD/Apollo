@@ -450,12 +450,35 @@ define([
                 });
                 console.log('connection established');
             },
+            // TODO: need a better function and to not have it be double-encoded
+            isJSON: function(str) {
+                if(!str) return false ;
+                try{
+                    JSON.parse(str);
+                    return true
+                }
+                catch(e){
+                    return false
+                }
+            },
             annotationNotification: function (message) {
                 var track = this;
                 var changeData;
 
                 try {
-                    changeData = JSON.parse(JSON.parse(message.body));
+                    if (track.verbose_server_notification) {
+                        console.log(message.body);
+                    }
+
+                    if(this.isJSON(message.body)){
+                        changeData = JSON.parse(message.body);
+                    }
+                    else{
+                        changeData = {} ;
+                        changeData.operation = 'ERROR';
+                        changeData.username = track.username ;
+                        changeData.error_message = message.body ;
+                    }
 
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
@@ -481,7 +504,6 @@ define([
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
                         var myDialog = new dijit.Dialog({
                             title: "Error Performing Operation",
-                            // content: "test content",
                             content: changeData.error_message,
                             style: "width: 300px"
                         }).show();
@@ -1143,7 +1165,7 @@ define([
                         "operation": "add_transcript",
                         "clientToken": target_track.getClientToken()
                     };
-                    target_track.executeUpdateOperation(JSON.stringify(postData));
+                    target_track.executeUpdateOperation(postData);
                 };
 
                 console.log('process: ' + strand);
