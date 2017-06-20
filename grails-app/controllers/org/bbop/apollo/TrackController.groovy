@@ -23,6 +23,7 @@ class TrackController {
     def permissionService
     def trackService
     def grailsApplication
+    def svgService
 
     /**
      * Just a convenience method
@@ -62,16 +63,17 @@ class TrackController {
     }
 
 
-    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.json?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
             , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
-    def featuresByName(String organismString, String trackName, String sequence, String featureName) {
+    def featuresByName(String organismString, String trackName, String sequence, String featureName, String type) {
         if (!checkPermission(organismString)) return
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
@@ -79,10 +81,17 @@ class TrackController {
         paramMap.put("name", featureName)
         paramMap.put("onlySelected", true)
         if (!ignoreCache) {
-            JSONArray responseArray = trackService.checkCache(organismString, trackName, sequence, featureName, paramMap)
-            if (responseArray != null) {
-                render responseArray as JSON
-                return
+            String responseString = trackService.checkCache(organismString, trackName, sequence, featureName, type, paramMap)
+            if (responseString) {
+                if (type == "json") {
+                    render JSON.parse(responseString)  as JSON
+                    return
+                }
+                else
+                if (type == "svg") {
+                    render responseString
+                    return
+                }
             }
         }
 
@@ -104,12 +113,21 @@ class TrackController {
                 returnArray.add(returnObject)
             }
         }
-        trackService.cacheRequest(returnArray, organismString, trackName, sequence, featureName, paramMap)
 
-        render returnArray as JSON
+
+        if (type == "json") {
+            trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
+            render returnArray as JSON
+        } else if (type == "svg") {
+            String xmlString = svgService.renderSVGFromJSONArray(returnArray)
+            trackService.cacheRequest(xmlString, organismString, trackName, sequence, featureName, type, paramMap)
+            render xmlString
+        }
+
     }
 
-    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.json?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+
+    @RestApiMethod(description = "Get track data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.<type>?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Track name(required)")
@@ -119,24 +137,33 @@ class TrackController {
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
-    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
+    def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
         if (!checkPermission(organismString)) return
 
         String name = params.name ? params.name : ""
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
+        paramMap.put("type", type)
         if (name) {
             paramMap.put("name", name)
             paramMap.put("onlySelected", onlySelected)
         }
         if (!ignoreCache) {
-            JSONArray responseArray = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, paramMap)
-            if (responseArray != null) {
-                render responseArray as JSON
-                return
+            String responseString = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, type, paramMap)
+            if (responseString) {
+                if (type == "json") {
+                    render JSON.parse(responseString) as JSON
+                    return
+                }
+                else
+                if (type == "svg") {
+                    render responseString
+                    return
+                }
             }
         }
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
@@ -157,19 +184,24 @@ class TrackController {
             if (name) {
                 if (returnObject?.name == name) {
                     returnObject.selected = true
-                    if(onlySelected) {
+                    if (onlySelected) {
                         returnArray.add(returnObject)
                     }
                 }
             }
         }
 
-        if(onlySelected){
-            trackService.cacheRequest(returnArray, organismString, trackName, sequence, fmin, fmax, paramMap)
-            render returnArray as JSON
-        } else {
-            trackService.cacheRequest(renderedArray, organismString, trackName, sequence, fmin, fmax, paramMap)
+        if (onlySelected) {
+            renderedArray = returnArray
+        }
+
+        if (type == "json") {
+            trackService.cacheRequest(renderedArray.toString(), organismString, trackName, sequence, fmin, fmax, type, paramMap)
             render renderedArray as JSON
+        } else if (type == "svg") {
+            String xmlString = svgService.renderSVGFromJSONArray(returnArray)
+            trackService.cacheRequest(xmlString, organismString, trackName, sequence, fmin, fmax, type, paramMap)
+            render xmlString
         }
     }
 
@@ -180,17 +212,17 @@ class TrackController {
         render renderdObject as JSON
     }
 
-    /**
-     *
-     * @param trackName
-     * @param organism
-     * @param sequence
-     * @param fmin
-     * @param fmax
-     * @return
-     */
-    // TODO: this is just for debuggin
-    // track < organism ID or name > / <track name > /  < sequence name > / min / max
+/**
+ *
+ * @param trackName
+ * @param organism
+ * @param sequence
+ * @param fmin
+ * @param fmax
+ * @return
+ */
+// TODO: this is just for debuggin
+// track < organism ID or name > / <track name > /  < sequence name > / min / max
     def nclist(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
         if (!checkPermission(organismString)) return
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
@@ -209,4 +241,5 @@ class TrackController {
         }
 
     }
+
 }

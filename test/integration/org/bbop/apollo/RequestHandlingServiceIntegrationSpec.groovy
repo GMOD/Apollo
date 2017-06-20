@@ -13,12 +13,9 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
     def featureService
     def featureRelationshipService
     def transcriptService
-    def exonService
     def cdsService
     def sequenceService
     def gff3HandlerService
-    def projectionService
-    def organismService
 
 
     void "add transcript with UTR"() {
