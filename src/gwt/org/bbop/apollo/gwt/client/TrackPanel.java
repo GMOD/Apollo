@@ -42,7 +42,7 @@ import java.util.*;
 
 
 /**
- * Created by ndunn on 12/16/14.
+ * Created by Nathan Dunn on 12/16/14.
  */
 public class TrackPanel extends Composite {
 

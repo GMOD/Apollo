@@ -8,7 +8,7 @@ import java.util.List;
  * Relateive ranks are for allowing bulk accesses.   For that WRITE access will have additional permissions (including export).
  * We will likely be adding additional permissions, as well.
  *
- * Created by ndunn on 3/31/15.
+ * Created by Nathan Dunn on 3/31/15.
  */
 public enum PermissionEnum implements Comparable<PermissionEnum>{
 

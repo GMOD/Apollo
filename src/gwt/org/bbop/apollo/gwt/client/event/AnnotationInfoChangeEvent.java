@@ -4,7 +4,7 @@ import com.google.gwt.event.shared.GwtEvent;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 
 /**
- * Created by ndunn on 2/2/15.
+ * Created by Nathan Dunn on 2/2/15.
  */
 public class AnnotationInfoChangeEvent extends GwtEvent<AnnotationInfoChangeEventHandler>{
 

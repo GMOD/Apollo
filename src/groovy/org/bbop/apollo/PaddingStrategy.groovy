@@ -1,7 +1,7 @@
 package org.bbop.apollo
 
 /**
- * Created by ndunn on 5/9/15.
+ * Created by Nathan Dunn on 5/9/15.
  */
 interface PaddingStrategy {
 

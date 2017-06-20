@@ -59,8 +59,8 @@ class FeatureSpec extends Specification {
         assert feature1.featureLocations.size() == feature2.featureLocations.size()
         assert feature1.featureLocations.size() == 1
        
-        FeatureLocation featureLocation1 = feature1.featureLocation
-        FeatureLocation featureLocation2 = feature2.featureLocation
+        FeatureLocation featureLocation1 = feature1.firstFeatureLocation
+        FeatureLocation featureLocation2 = feature2.firstFeatureLocation
 
         assert featureLocation1.fmin == featureLocation2.fmin
         assert featureLocation1.sequence == featureLocation2.sequence
@@ -85,8 +85,8 @@ class FeatureSpec extends Specification {
         assert feature1.featureLocations.size() == feature2.featureLocations.size()
         assert feature1.featureLocations.size() == 1
 
-        FeatureLocation featureLocation1 = feature1.featureLocation
-        FeatureLocation featureLocation2 = feature2.featureLocation
+        FeatureLocation featureLocation1 = feature1.firstFeatureLocation
+        FeatureLocation featureLocation2 = feature2.firstFeatureLocation
 
         assert featureLocation1.fmin == featureLocation2.fmin
         assert featureLocation1.sequence == featureLocation2.sequence

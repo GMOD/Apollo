@@ -17,7 +17,7 @@ import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
- * Created by ndunn on 3/17/15.
+ * Created by Nathan Dunn on 3/17/15.
  */
 //  TODO: this needs to be moved into UIBinder into its own class
 public class RegisterDialog extends DialogBox {

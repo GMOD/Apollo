@@ -7,6 +7,7 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -25,6 +26,7 @@ class PermissionService {
 
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
+    def assemblageService
 
     boolean isUserAdmin(User user) {
         if (user != null) {
@@ -245,15 +247,52 @@ class PermissionService {
         return []
     }
 
-    public static String getSequenceNameFromInput(JSONObject inputObject) {
-        String trackName = null
-        if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
-            trackName = inputObject.sequence
+    /**
+     * Have to handle the cases when it is a simple "sequence' or "track" or contains multiple sequences.
+     *{"projection":"None", "padding":50, "referenceTrack":"Official Gene Set v3.2", "sequences":[{"name":"Group5.7"},{"name":"Group9.2"}]}:1..53600 (53.6 Kb)
+     *
+     * @param inputObject
+     * @return
+     */
+    @NotTransactional
+    public Map<String, Integer> getSequenceNameFromInput(JSONObject inputObject) {
+        Map<String, Integer> sequenceMap = new HashMap<>()
+        int counter = 0
+        if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
+            inputObject.sequenceList.each { it ->
+                if (!sequenceMap.containsKey(it.name)) {
+                    sequenceMap.put(it.name, counter)
+                    ++counter
+                }
+            }
+        } else if (inputObject.has(FeatureStringEnum.TRACK.value)) {
+            if (AssemblageService.isProjectionString(inputObject.track.toString())) {
+//                JSONObject sequenceObject = inputObject.track
+                def track = inputObject.track
+                if (track instanceof String && track.startsWith("{")) {
+                    track = JSON.parse(inputObject.track) as JSONObject
+                } else if (track instanceof String && track.startsWith("[")) {
+                    track = new JSONObject()
+                    track.sequenceList = JSON.parse(inputObject.track as String) as JSONArray
+                } else if (track.sequenceList instanceof String) {
+                    track = (JSONObject) track
+                    track.sequenceList = JSON.parse(track.sequenceList) as JSONArray
+                }
+                track.sequenceList.each { it ->
+                    sequenceMap.put(it.name, counter)
+                    ++counter
+                }
+            } else if (inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
+                JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
+                sequenceObject.sequenceList.each { it ->
+                    sequenceMap.put(it.name, counter)
+                    ++counter
+                }
+            } else {
+                sequenceMap.put(inputObject.track, counter)
+            }
         }
-        if (inputObject.has(FeatureStringEnum.TRACK.value)) {
-            trackName = inputObject.track
-        }
-        return trackName
+        return sequenceMap
     }
 
     // get current user from session or input object
@@ -304,30 +343,35 @@ class PermissionService {
      * @param requiredPermissionEnum
      * @return
      */
-    Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
+    Assemblage checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
-        String sequenceName = getSequenceNameFromInput(inputObject)
+
+        Map<String, Integer> sequenceStrings = getSequenceNameFromInput(inputObject)
+        String sequenceName = null
+        if (sequenceStrings) {
+            sequenceName = sequenceStrings.keySet().first()
+        }
+
 
         User user = getCurrentUser(inputObject)
-        organism = getOrganismFromInput(inputObject)
+        organism = preferenceService.getOrganismFromInput(inputObject)
 
         if (!organism) {
             organism = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
         }
 
-        Sequence sequence
+//        Sequence sequence = null
+        Assemblage assemblage = null
         if (!sequenceName) {
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
-        } else {
-            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-            if(!sequence){
-                throw new AnnotationException("No sequence found for name '${sequenceName}' and organism '${organism?.commonName}'")
-            }
+//            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
+            assemblage = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.assemblage
         }
-
-        if (!sequence && organism) {
-            sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
-        }
+//        else {
+//            sequence = Sequence.findByNameAndOrganism(trackName, organism)
+//        }
+//        if (!sequence && organism) {
+//            sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
+//        }
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
@@ -339,7 +383,60 @@ class PermissionService {
             log.debug "permission display ${requiredPermissionEnum.display}"
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
-        return sequence
+
+//        if (orderedSequences) {
+        if (inputObject.track instanceof String) {
+            if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
+                JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
+                List<String> sequenceList = []
+                for (int i = 0; i < sequenceListArray.size(); i++) {
+                    sequenceList << sequenceListArray.getJSONObject(i).name
+                }
+                if (sequenceList) {
+                    def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
+                    assemblage = assemblageService.generateAssemblageForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                }
+                println "assemblage sequence list ${assemblage} vs ${sequenceList} and ${inputObject as JSON}"
+            }
+            if (inputObject.track.startsWith("[")) {
+                JSONArray sequenceListArray = (JSON.parse(inputObject.track) as JSONArray)
+                List<String> sequenceList = []
+                for (int i = 0; i < sequenceListArray.size(); i++) {
+                    sequenceList << sequenceListArray.getJSONObject(i).name
+                }
+                if (sequenceList) {
+                    def sequenceObjects = Sequence.findAllByNameInList(sequenceList)
+                    assemblage = assemblageService.generateAssemblageForSequence(sequenceObjects.toArray(new Sequence[sequenceObjects.size()]))
+                }
+                println "assemblage sequence list ${assemblage} vs ${sequenceList} and ${inputObject as JSON}"
+            } else {
+                Sequence sequence = Sequence.findByName(inputObject.track)
+                if (sequence) {
+                    assemblage = assemblageService.generateAssemblageForSequence(sequence)
+                }
+                println "has a sequence: ${sequence} for ${inputObject.track}"
+            }
+            if (!assemblage) {
+                log.error("Invalid sequence name: " + inputObject.track)
+            }
+        } else if (inputObject.track instanceof JSONObject) {
+            println "NO Track assemblage ${assemblage} and ${inputObject.track as JSON}"
+            if (!inputObject.containsValue(FeatureStringEnum.ORGANISM.value)) {
+                inputObject.put(FeatureStringEnum.ORGANISM.value, organism.id)
+            }
+            copyRequestValues(inputObject, inputObject.track)
+            assemblage = assemblageService.convertJsonToAssemblage(inputObject.getJSONObject(FeatureStringEnum.TRACK.value))
+        }
+        String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        if (assemblage) {
+            preferenceService.setCurrentAssemblage(user, assemblage, clientToken)
+            if (user) {
+                user.addToAssemblages(assemblage)
+            }
+        }
+        return assemblage
+//        }
+//        return null
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
@@ -374,7 +471,6 @@ class PermissionService {
             return false
         }
         return false
-
     }
 
     PermissionEnum checkPermissions(JSONObject jsonObject, Organism organism, PermissionEnum requiredPermissionEnum) {
@@ -538,7 +634,7 @@ class PermissionService {
             if (auth.active) {
                 log.info "Authenticating with ${auth.className}"
                 def authenticationService
-                if("remoteUserAuthenticatorService" == auth.className ){
+                if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
                     if (auth?.params?.containsKey("default_group")) {
                         authenticationService.setDefaultGroup(auth.params.get("default_group"))
@@ -547,8 +643,7 @@ class PermissionService {
                 else
                 if("usernamePasswordAuthenticatorService" == auth.className ){
                     authenticationService = usernamePasswordAuthenticatorService
-                }
-                else{
+                } else {
                     log.error("No authentication service for ${auth.className}")
                     // better to return false if mis-configured
                     return false
@@ -564,8 +659,7 @@ class PermissionService {
                         log.info "Authenticated user ${authToken.username} using ${auth.name}"
                         return true
                     }
-                }
-                else{
+                } else {
                     if (authenticationService.authenticate(request)) {
                         log.info "Authenticated user ${auth.name}"
                         return true

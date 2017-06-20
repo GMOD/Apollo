@@ -17,4 +17,6 @@ psql $DBARG -c  "delete from feature_location";
 psql $DBARG -c  "delete from feature";
 psql $DBARG -c  "delete from feature_event";
 psql $DBARG -c  "delete from preference";
+psql $DBARG -c  "delete from grails_user_assemblage";
+psql $DBARG -c  "delete from assemblage";
 
