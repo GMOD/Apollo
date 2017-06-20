@@ -1,8 +1,13 @@
 package org.bbop.apollo
 
+import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiImplicitParam
+import com.wordnik.swagger.annotations.ApiImplicitParams
+import com.wordnik.swagger.annotations.ApiOperation
+import com.wordnik.swagger.annotations.ApiResponse
+import com.wordnik.swagger.annotations.ApiResponses
 import grails.converters.JSON
 import groovy.json.JsonBuilder
-import io.swagger.annotations.*
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
