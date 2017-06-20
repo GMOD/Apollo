@@ -1,6 +1,8 @@
 package org.bbop.apollo
 
 import com.google.common.base.Splitter
+import com.wordnik.swagger.annotations.Api
+import com.wordnik.swagger.annotations.ApiOperation
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -17,9 +19,16 @@ import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.http.HttpStatus
 
+import javax.ws.rs.Path
 import java.util.zip.GZIPOutputStream
 
-@RestApi(name = "IO Services", description = "Methods for bulk importing and exporting sequence data")
+//@RestApi(name = "IO Services", description = "Methods for bulk importing and exporting sequence data")
+@Api(
+        value = "/ioService",
+        description = "Methods for bulk importing and exporting sequence data",
+        produces = 'application/json',
+        consumes = 'application/json,application/x-www-form-urlencoded'
+)
 class IOServiceController extends AbstractApolloController {
 
     def sequenceService
@@ -44,6 +53,12 @@ class IOServiceController extends AbstractApolloController {
         JSONObject postObject = findPost()
         def mappedAction = underscoreToCamelCase(operation)
         forward action: "${mappedAction}", params: params
+    }
+
+    @Path("/testGet")
+    @ApiOperation(value = "Returns test value as JSON")
+    def testGet(){
+        render "returned" as JSON
     }
 
     @RestApiMethod(description = "Write out genomic data.  An example script is used in the https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy"

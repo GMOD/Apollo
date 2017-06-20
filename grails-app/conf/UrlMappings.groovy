@@ -53,7 +53,6 @@ class UrlMappings {
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
 
 
-
         "/${clientToken}/AnnotationEditorService"(controller:"annotationEditor",action: "handleOperation",params:params)
         "/Login"(controller:"login",action: "handleOperation",params:params)
         "/${clientToken}/Login"(controller:"login",action: "handleOperation",params:params)
@@ -71,9 +70,12 @@ class UrlMappings {
         "/IOService/download"(controller:"IOService",action: "download", params:params)
         "/${clientToken}/IOService/download"(controller:"IOService",action: "download", params:params)
 
-        "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
-        "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
-        "/${clientToken}/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
+//        "/jbrowse/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
+//        "/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
+//        "/${clientToken}/jbrowse/web_services/api"(controller:"webServices",action: "index", params:params)
+
+
+
 
         // if all else fails
         // TODO: pass all of these into the same function and remap from there

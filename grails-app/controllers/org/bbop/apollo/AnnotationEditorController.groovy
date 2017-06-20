@@ -46,8 +46,12 @@ import static grails.async.Promises.task
 //@RestApi(name = "Annotation Services", description = "Methods for running the annotation engine")
 ////    description="Add non-coding genomic feature"
 //    @Produces( MediaType.APPLICATION_JSON  )
-@Api(value = "/annotationEditor", description = "Methods for running the annotation engine")
-@Produces(MediaType.APPLICATION_JSON)
+@Api(
+        value = "/annotationEditor",
+        description = "Methods for running the annotation engine",
+        produces = 'application/json',
+        consumes = 'application/json,application/x-www-form-urlencoded'
+)
 class AnnotationEditorController extends AbstractApolloController implements AnnotationListener {
 
 
@@ -146,8 +150,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
-    @RestApiMethod(description = "Returns a translation table as JSON", path = "/annotationEditor/getTranslationTable", verb = RestApiVerb.POST)
-    @RestApiParams(params = [])
+//    @RestApiMethod(description = "Returns a translation table as JSON", path = "/annotationEditor/getTranslationTable", verb = RestApiVerb.POST)
+//    @RestApiParams(params = [])
+//    @Override
+    @Path("/getTranslationTable")
+    @ApiOperation(value = "Returns a translation table as JSON . . . ")
     def getTranslationTable() {
         log.debug "getTranslationTable"
         JSONObject returnObject = permissionService.handleInput(request, params)
@@ -160,28 +167,28 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render returnObject
     }
 
-    @POST
-    @Path("/addFeature")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(
-            value = "Add non-coding genomic feature",
-            notes = "Notes about this",
-            response = JSONObject.class
-    )
-    @ApiImplicitParams([
-            @ApiImplicitParam(name = "username", dataType = "email", paramType = "query", required = true),
-            @ApiImplicitParam(name = "password", dataType = "password", paramType = "query", required = true),
-            @ApiImplicitParam(name = "organism", dataType = "string", paramType = "query", required = false, value = "Organism ID or common name"),
-            @ApiImplicitParam(name = "sequence", dataType = "string", paramType = "query", required = false, value = "Sequence name"),
-            @ApiImplicitParam(name = "suppressHistory", dataType = "boolean", paramType = "query", required = true, value = "Suppress the history of this operation"),
-            @ApiImplicitParam(name = "suppressEvents", dataType = "boolean", paramType = "query", required = true, value = "Suppress instant update of the user interface"),
-            @ApiImplicitParam(name = "features", dataType = "JSONArray", paramType = "query", required = true, value = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
-    ]
-    )
-    @ApiResponses([
-            @ApiResponse(code = 500, message = "There was a problem adding features"),
-            @ApiResponse(code = 200, message = "OK", response = JSONObject.class)
-    ])
+//    @POST
+//    @Path("/addFeature")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    @ApiOperation(
+//            value = "Add non-coding genomic feature",
+//            notes = "Notes about this",
+//            response = JSONObject
+//    )
+//    @ApiImplicitParams([
+//            @ApiImplicitParam(name = "username", dataType = "email", paramType = "query", required = true),
+//            @ApiImplicitParam(name = "password", dataType = "password", paramType = "query", required = true),
+//            @ApiImplicitParam(name = "organism", dataType = "string", paramType = "query", required = false, value = "Organism ID or common name"),
+//            @ApiImplicitParam(name = "sequence", dataType = "string", paramType = "query", required = false, value = "Sequence name"),
+//            @ApiImplicitParam(name = "suppressHistory", dataType = "boolean", paramType = "query", required = true, value = "Suppress the history of this operation"),
+//            @ApiImplicitParam(name = "suppressEvents", dataType = "boolean", paramType = "query", required = true, value = "Suppress instant update of the user interface"),
+//            @ApiImplicitParam(name = "features", dataType = "JSONArray", paramType = "query", required = true, value = "JSONArray of JSON feature objects described by https://github.com/GMOD/Apollo/blob/master/grails-app/domain/org/bbop/apollo/Feature.groovy")
+//    ]
+//    )
+//    @ApiResponses([
+//            @ApiResponse(code = 500, message = "There was a problem adding features"),
+//            @ApiResponse(code = 200, message = "OK", response = JSONObject)
+//    ])
     def addFeature() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
