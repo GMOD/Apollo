@@ -5,6 +5,10 @@
 // if (System.properties["${appName}.config.location"]) {
 //    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
 // }
+org.grails.jaxrs.url.mappings = ['/api','/swagger.*']
+org.grails.jaxrs.provider.init.parameters = [
+        'com.sun.jersey.config.property.packages':
+                'io.swagger.sample.resource;io.swagger.sample.model;io.swagger.jaxrs.listing;io.swagger.jaxrs.json']
 
 extraSrcDirs = "$basedir/src/gwt/org.bbop.apollo.gwt.shared"
 eventCompileStart = {

@@ -101,9 +101,14 @@ grails.project.dependency.resolution = {
 //        compile "org.grails:quartz:1.0.2"
 
         // swagger includes
+        compile group: 'javax.ws.rs', name: 'javax.ws.rs-api', version: '2.0.1'
+//        compile group: 'javax.ws.rs', name: 'javax.ws.rs', version: '2.0'
         compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.15'
         compile group: 'io.swagger', name: 'swagger-core', version: '1.5.15'
         compile group: 'io.swagger', name: 'swagger-jaxrs', version: '1.5.15'
+//        compile group: 'io.github.robwin', name: 'swagger2markup', version: '0.9.2'
+//        compile group: 'io.swagger', name: 'swagger-ui', version: '3.0.14'
+//        compile 'org.webjars:swagger-ui:2.1.0'
 
     }
 
