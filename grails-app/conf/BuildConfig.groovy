@@ -60,7 +60,8 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         //mavenRepo "http://repository.jboss.com/maven2/"
-        //mavenRepo "http://maven.crbs.ucsd.edu/nexus/content/repositories/NIF-snapshot/"
+        //mavenRepo "http://maven.crbs.ucsd.edu/nexus/conxrs
+        // ]tent/repositories/NIF-snapshot/"
         //mavenRepo "http://www.biojava.org/download/maven/"
     }
 
@@ -98,6 +99,11 @@ grails.project.dependency.resolution = {
         build 'org.apache.httpcomponents:httpmime:4.3.3'
 
 //        compile "org.grails:quartz:1.0.2"
+
+        // swagger includes
+        compile group: 'io.swagger', name: 'swagger-annotations', version: '1.5.15'
+        compile group: 'io.swagger', name: 'swagger-core', version: '1.5.15'
+        compile group: 'io.swagger', name: 'swagger-jaxrs', version: '1.5.15'
 
     }
 
