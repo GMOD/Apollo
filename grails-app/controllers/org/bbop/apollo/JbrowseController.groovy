@@ -10,6 +10,8 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionChunk
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
+import org.bbop.apollo.sequence.SequenceTranslationHandler
+
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -563,7 +565,7 @@ class JbrowseController {
 
                 MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
                 if(projection && projection.getLastSequence().reverse){
-                    response.outputStream << file.text.reverse()
+                    response.outputStream << SequenceTranslationHandler.reverseComplementSequence(file.text)
                     response.outputStream.close()
                 }
                 else{
