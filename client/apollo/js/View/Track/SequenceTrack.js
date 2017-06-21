@@ -1106,9 +1106,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                         "clientToken": track.annotTrack.getClientToken()
                     };
                     track.annotTrack.executeUpdateOperation(postData);
-
-
-                    track.annotTrack.executeUpdateOperation(postData);
                     track.annotTrack.closeDialog();
                 }
             }
