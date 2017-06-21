@@ -47,7 +47,7 @@ public class UserRestService {
                     j = JSONParser.parseStrict(response.getText());
                 } catch (Exception e) {
                     GWT.log("Error parsing login response: "+e);
-                    Window.alert("Error parsing login response, reloading");
+//                    Window.alert("Error parsing login response, reloading");
                     Window.Location.reload();
                     return ;
                 }
