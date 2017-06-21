@@ -63,6 +63,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def annotationEditorService
     def brokerMessagingTemplate
     def assemblageService
+    def featureProjectionService
 
 
     def index() {
@@ -486,7 +487,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getSequenceAlterations() {
         JSONObject returnObject = permissionService.handleInput(request, params)
         Assemblage assemblage = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
@@ -494,9 +494,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequence) and f.class in :sequenceTypes"
                 , [sequence: sequences, sequenceTypes: requestHandlingService.viewableAlterations])
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true,assemblage));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true, assemblage));
         }
 
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(jsonFeatures, assemblage, false)
         render returnObject
     }
 
