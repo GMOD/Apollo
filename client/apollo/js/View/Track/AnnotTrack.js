@@ -416,7 +416,7 @@ define([
             isJSON: function(str) {
                 if(!str) return false ;
                 try{
-                    JSON.parse(JSON.parse(str));
+                    JSON.parse(str);
                     return true
                 }
                 catch(e){
@@ -428,8 +428,12 @@ define([
                 var changeData;
 
                 try {
+                    if (track.verbose_server_notification) {
+                        console.log(message.body);
+                    }
+
                     if(this.isJSON(message.body)){
-                        changeData = JSON.parse(JSON.parse(message.body));
+                        changeData = JSON.parse(message.body);
                     }
                     else{
                         changeData = {} ;
@@ -462,7 +466,6 @@ define([
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
                         var myDialog = new dijit.Dialog({
                             title: "Error Performing Operation",
-                            // content: "test content",
                             content: changeData.error_message,
                             style: "width: 300px"
                         }).show();
@@ -5860,7 +5863,7 @@ define([
             },
 
             executeUpdateOperation: function (postData, loadCallback) {
-                if(postData.search('clientToken')<0){
+                if(!postData.hasOwnProperty('clientToken')){
                     var postObject = JSON.parse(postData);
                     postObject.clientToken = this.getClientToken();
                     postData = JSON.stringify(postObject);
