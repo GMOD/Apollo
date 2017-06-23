@@ -72,6 +72,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     // Map the operation specified in the URL to a controller
     def handleOperation(String track, String operation) {
+        println "[DEVEL] handleOperation"
+        println "${params.toString()}"
         JSONObject postObject = findPost()
         operation = postObject.get(REST_OPERATION)
         def mappedAction = underscoreToCamelCase(operation)
@@ -1128,9 +1130,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
         log.debug "Input String: annotation editor service ${inputString}"
-        inputString = annotationEditorService.cleanJSONString(inputString)
-        inputString = fixTrackString(inputString)
-        log.debug "fixed string ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
