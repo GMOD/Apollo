@@ -6425,9 +6425,7 @@ define([
 
             executeUpdateOperation: function (postData, loadCallback) {
                 if(!postData.hasOwnProperty('clientToken')){
-                    var postObject = JSON.parse(postData);
-                    postObject.clientToken = this.getClientToken();
-                    postData = JSON.stringify(postObject);
+                    postData.clientToken = this.getClientToken();
                 }
                 console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
