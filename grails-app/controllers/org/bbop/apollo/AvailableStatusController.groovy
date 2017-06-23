@@ -24,7 +24,7 @@ class AvailableStatusController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.isAdmin()){
+        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
             forward action: "notAuthorized", controller: "annotator"
             return
         }

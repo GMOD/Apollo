@@ -1100,7 +1100,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     }
                     var features = [feature];
                     var postData = {
-                        "track": JSON.parse(track.getUniqueTrack()),
+                        "track": track.annotTrack.getUniqueTrackName(),
                         "features": features,
                         "operation": "add_sequence_alteration",
                         "clientToken": track.annotTrack.getClientToken()
