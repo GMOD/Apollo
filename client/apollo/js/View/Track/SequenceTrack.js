@@ -823,7 +823,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }
 
         var postData = {
-            track: track.getUniqueTrack(),
+            track: track.annotTrack.getUniqueTrackName(),
             features: features,
             operation: "delete_sequence_alteration",
             clientToken: track.annotTrack.getClientToken()
@@ -1101,7 +1101,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     }
                     var features = [feature];
                     var postData = {
-                        track: track.getUniqueTrack(),
+                        track: track.annotTrack.getUniqueTrackName(),
                         features: features,
                         operation: "add_sequence_alteration",
                         clientToken: track.annotTrack.getClientToken()
@@ -1117,12 +1117,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         });
 
         return content;
-    },
-
-    getUniqueTrack:function(){
-        var trackName = this.annotTrack.getUniqueTrackName();
-        trackName = trackName.substr(0,trackName.lastIndexOf(':'));
-        return trackName;
     },
 
     handleError: function(response) {
