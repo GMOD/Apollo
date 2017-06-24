@@ -28,16 +28,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
 
-import static grails.async.Promises.*
-import grails.converters.JSON
-import org.bbop.apollo.event.AnnotationEvent
-import org.bbop.apollo.event.AnnotationListener
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import groovy.json.JsonBuilder
-import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.SendTo
+import static grails.async.Promises.task
 
 /**
  * From the WA1 AnnotationEditorService class.
@@ -60,9 +51,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def preferenceService
     def sequenceSearchService
     def featureEventService
-    def annotationEditorService
     def brokerMessagingTemplate
     def assemblageService
+    def featureProjectionService
 
 
     def index() {
@@ -486,7 +477,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getSequenceAlterations() {
         JSONObject returnObject = permissionService.handleInput(request, params)
         Assemblage assemblage = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
@@ -494,9 +484,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequence) and f.class in :sequenceTypes"
                 , [sequence: sequences, sequenceTypes: requestHandlingService.viewableAlterations])
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true,assemblage));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true, assemblage));
         }
 
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(jsonFeatures, assemblage, false)
         render returnObject
     }
 
@@ -1126,9 +1118,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
         log.debug "Input String: annotation editor service ${inputString}"
-        inputString = annotationEditorService.cleanJSONString(inputString)
-        inputString = fixTrackString(inputString)
-        log.debug "fixed string ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
@@ -1161,11 +1150,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                                     returnString = method.invoke(requestHandlingService, rootElement)
                                 } catch (e) {
                                     log.error("CAUGHT ERROR through websocket call: " + e)
-                                    if(e instanceof InvocationTargetException || !e.message){
+                                    if (e instanceof InvocationTargetException || !e.message) {
                                         log.error("THROWING PARENT ERROR instead through reflection: " + e.getCause())
                                         return sendError(e.getCause(), principal?.name)
-                                    }
-                                    else{
+                                    } else {
                                         return sendError(e, principal?.name)
                                     }
                                 }
@@ -1205,8 +1193,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         errorObject.put(FeatureStringEnum.USERNAME.value, username)
 
         def destination = "/topic/AnnotationNotification/user/" + username
-        println "destination: ${destination}"
-        println "message: ${exception?.message}"
         brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
 
         return errorObject.toString()
