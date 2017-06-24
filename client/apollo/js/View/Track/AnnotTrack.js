@@ -6240,7 +6240,7 @@ define([
             },
 
             executeUpdateOperation: function (postData, loadCallback) {
-                if (postData.search('clientToken') < 0) {
+                if(!postData.hasOwnProperty('clientToken')){
                     var postObject = JSON.parse(postData);
                     postObject.clientToken = this.getClientToken();
                     postData = JSON.stringify(postObject);
