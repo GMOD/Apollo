@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-
+import org.bbop.apollo.gwt.shared.PermissionEnum
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -13,7 +13,7 @@ class FeatureTypeController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.isAdmin()){
+        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
             forward action: "notAuthorized" ,controller: "annotator"
             return
         }

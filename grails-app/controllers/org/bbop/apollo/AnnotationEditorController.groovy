@@ -28,16 +28,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.Principal
 
-import static grails.async.Promises.*
-import grails.converters.JSON
-import org.bbop.apollo.event.AnnotationEvent
-import org.bbop.apollo.event.AnnotationListener
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import groovy.json.JsonBuilder
-import org.springframework.messaging.handler.annotation.MessageMapping
-import org.springframework.messaging.handler.annotation.SendTo
+import static grails.async.Promises.task
 
 /**
  * From the WA1 AnnotationEditorService class.
@@ -60,7 +51,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def preferenceService
     def sequenceSearchService
     def featureEventService
-    def annotationEditorService
     def brokerMessagingTemplate
     def assemblageService
     def featureProjectionService
@@ -1128,9 +1118,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
         log.debug "Input String: annotation editor service ${inputString}"
-        inputString = annotationEditorService.cleanJSONString(inputString)
-        inputString = fixTrackString(inputString)
-        log.debug "fixed string ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
@@ -1163,11 +1150,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                                     returnString = method.invoke(requestHandlingService, rootElement)
                                 } catch (e) {
                                     log.error("CAUGHT ERROR through websocket call: " + e)
-                                    if(e instanceof InvocationTargetException || !e.message){
+                                    if (e instanceof InvocationTargetException || !e.message) {
                                         log.error("THROWING PARENT ERROR instead through reflection: " + e.getCause())
                                         return sendError(e.getCause(), principal?.name)
-                                    }
-                                    else{
+                                    } else {
                                         return sendError(e, principal?.name)
                                     }
                                 }
@@ -1207,8 +1193,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         errorObject.put(FeatureStringEnum.USERNAME.value, username)
 
         def destination = "/topic/AnnotationNotification/user/" + username
-        println "destination: ${destination}"
-        println "message: ${exception?.message}"
         brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
 
         return errorObject.toString()

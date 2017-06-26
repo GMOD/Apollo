@@ -1702,6 +1702,7 @@ class RequestHandlingService {
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature,false,assemblage))
+        featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1710,7 +1711,6 @@ class RequestHandlingService {
         )
 
         fireAnnotationEvent(annotationEvent)
-
         return featureContainer
     }
 
@@ -2294,6 +2294,7 @@ class RequestHandlingService {
         Feature topFeature = featureService.getTopLevelFeature(transcript)
         topFeature.save()
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topFeature,false,assemblage))
+        featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
