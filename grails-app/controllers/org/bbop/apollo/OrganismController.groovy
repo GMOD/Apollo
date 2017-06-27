@@ -15,7 +15,8 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 
-import java.util.zip.ZipFile
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
@@ -114,6 +115,108 @@ class OrganismController {
         }
     }
 
+    @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganism", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
+            , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
+            , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
+            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
+            , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
+            , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "a name used for the organism")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
+            , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "organism metadata")
+    ])
+    @Transactional
+    def addOrganismWithSequence() {
+        JSONObject organismJson = permissionService.handleInput(request, params)
+        String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        try {
+            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
+                if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
+                    throw new Exception('empty fields detected')
+                }
+
+                log.debug "Adding ${organismJson.publicMode}"
+                Organism organism = new Organism(
+                        commonName: organismJson.commonName
+                        , directory: organismJson.directory
+                        , blatdb: organismJson.blatdb
+                        , species: organismJson.species
+                        , genus: organismJson.genus
+                        , metadata: organismJson.metadata
+                        , publicMode: organismJson.publicMode
+                ).save(failOnError: true, flush: true, insert: true)
+                log.debug "organism ${organism as JSON}"
+
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
+
+                // send file using:
+//            curl \
+                //  -F "userid=1" \
+                //  -F "filecomment=This is an image file" \
+                //  -F "sequenceData=@/home/user1/Desktop/jbrowse/sample/seq.zip" \
+                //  localhost:8080/apollo
+                byte[] buffer = new byte[1024];
+
+                try {
+                    File file = request.getFile("sequenceData)")
+                    File folder = new File(organism.directory);
+                    if(!folder.exists()){
+                        folder.mkdir();
+                    }
+                    ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
+                    ZipEntry ze = zis.getNextEntry();
+
+                    while(ze!=null){
+
+                        String fileName = ze.getName();
+                        File newFile = new File(organism.directory + File.separator + fileName)
+
+                        System.out.println("file unzip : "+ newFile.getAbsoluteFile())
+
+                        //create all non exists folders
+                        //else you will hit FileNotFoundException for compressed folder
+                        new File(newFile.getParent()).mkdirs()
+
+                        FileOutputStream fos = new FileOutputStream(newFile)
+
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len)
+                        }
+
+                        fos.close()
+                        ze = zis.getNextEntry()
+                    }
+                    zis.closeEntry()
+                    zis.close()
+
+                    System.out.println("Done exporting file  . . . . loading ref seqs")
+                    sequenceService.loadRefSeqs(organism)
+                    System.out.println("Done loading ref seqs")
+                    if (checkOrganism(organism)) {
+                        organism.save(failOnError: true, flush: true, insert: true)
+                    }
+                } catch (e) {
+                    log.error(e)
+                }
+
+                render findAllOrganisms()
+            } else {
+                def error = [error: 'not authorized to add organism']
+                render error as JSON
+                log.error(error.error)
+            }
+        } catch (e) {
+            def error = [error: 'problem saving organism: ' + e]
+            render error as JSON
+            e.printStackTrace()
+            log.error(error.error)
+        }
+    }
+
     @RestApiMethod(description = "Adds a track to an existing organism returning a JSON array of all organisms", path = "/organism/addTrackToOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -136,7 +239,7 @@ class OrganismController {
                 log.debug "Adding track to organism ${organismJson as JSON}"
                 String organismDirectory = organism.directory
                 File trackListFile = new File(organismDirectory + "/trackList.json")
-                File tracksDirectory = new File(organismDirectory + "/tracks/"+organismJson.key)
+                File tracksDirectory = new File(organismDirectory + "/tracks/" + organismJson.key)
                 // find errors like directory, can't write, etc.
 
                 JSONObject transcriptListEntry = new JSONObject()
@@ -161,331 +264,341 @@ class OrganismController {
 //                tracksDirectory.write()
 
                 organism.save(flush: true, insert: false, failOnError: true)
-        } else {
-            throw new Exception('Organism not found')
-        }
+            } else {
+                throw new Exception('Organism not found')
+            }
 //            render findAllOrganisms()
-        render new JSONObject() as JSON
-    }
+            render new JSONObject() as JSON
+        }
 
-    catch ( e ) {
-        def error = [error: 'problem saving organism: ' + e]
-        render error as JSON
-        log.error(error.error)
-    }
-}
-
-@RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganism", verb = RestApiVerb.POST)
-@RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
-        , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
-        , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
-        , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
-        , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
-        , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "a name used for the organism")
-        , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-        , @RestApiParam(name = "sequenceData", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-])
-@Transactional
-def addOrganism() {
-    JSONObject organismJson = permissionService.handleInput(request, params)
-    String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-    try {
-        if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
-            if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
-                throw new Exception('empty fields detected')
-            }
-
-            log.debug "Adding ${organismJson.publicMode}"
-            Organism organism = new Organism(
-                    commonName: organismJson.commonName
-                    , directory: organismJson.directory
-                    , blatdb: organismJson.blatdb
-                    , species: organismJson.species
-                    , genus: organismJson.genus
-                    , metadata: organismJson.metadata
-                    , publicMode: organismJson.publicMode
-            )
-            log.debug "organism ${organism as JSON}"
-
-            if (checkOrganism(organism)) {
-                organism.save(failOnError: true, flush: true, insert: true)
-            }
-            preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
-            sequenceService.loadRefSeqs(organism)
-            render findAllOrganisms()
-        } else {
-            def error = [error: 'not authorized to add organism']
+        catch (e) {
+            def error = [error: 'problem saving organism: ' + e]
             render error as JSON
             log.error(error.error)
         }
-    } catch (e) {
-        def error = [error: 'problem saving organism: ' + e]
-        render error as JSON
-        e.printStackTrace()
-        log.error(error.error)
-    }
-}
-
-@RestApiMethod(description = "Finds sequences for a given organism and returns a JSON object including the username, organism and a JSONArray of sequences", path = "/organism/getSequencesForOrganism", verb = RestApiVerb.POST)
-@RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Common name or ID for the organism")
-])
-def getSequencesForOrganism() {
-    JSONObject organismJson = permissionService.handleInput(request, params)
-    if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
-        render(['error': 'Empty fields in request JSON'] as JSON)
-        return
     }
 
-    List<Sequence> sequenceList
-
-    Organism organism = Organism.findByCommonName(organismJson.organism)
-    if (!organism) {
-        organism = Organism.findById(organismJson.organism)
-    }
-    if (!organism) {
-        def error = ['error': 'Organism not found ' + organismJson.organism]
-        render error as JSON
-        log.error(error.error)
-        return
-    }
-
-
-    if (permissionService.findHighestOrganismPermissionForUser(organism, permissionService.getCurrentUser(organismJson)).rank >= PermissionEnum.EXPORT.rank) {
-        def c = Sequence.createCriteria()
-        sequenceList = c.list {
-            eq('organism', organism)
-        }
-        log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
-    } else {
-        def error = ['error': 'Username ' + organismJson.username + ' does not have export permissions for organism ' + organismJson.organism]
-        render error as JSON
-        log.error(error.error)
-        return
-    }
-
-    render([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList] as JSON)
-}
-
-private boolean checkOrganism(Organism organism) {
-    File directory = new File(organism.directory)
-    File trackListFile = new File(organism.getTrackList())
-    File refSeqFile = new File(organism.getRefseqFile())
-
-    if (!directory.exists() || !directory.isDirectory()) {
-        organism.valid = false
-        throw new Exception("Invalid directory specified: " + directory.absolutePath)
-    } else if (!trackListFile.exists()) {
-        organism.valid = false
-        throw new Exception("Track file does not exists: " + trackListFile.absolutePath)
-    } else if (!refSeqFile.exists()) {
-        organism.valid = false
-        throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
-    } else {
-        organism.valid = true
-    }
-    return organism.valid
-}
-
-
-@RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/updateOrganismInfo", verb = RestApiVerb.POST)
-@RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
-        , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
-        , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
-        , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
-        , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
-        , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
-        , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "a common name used for the organism")
-        , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-])
-@Transactional
-def updateOrganismInfo() {
-    log.debug "updating organism info ${params}"
-    try {
+    @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganism", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
+            , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
+            , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
+            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
+            , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
+            , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "a name used for the organism")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
+    ])
+    @Transactional
+    def addOrganism() {
         JSONObject organismJson = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
-        Organism organism = Organism.findById(organismJson.id)
-        if (organism) {
-            log.debug "Updating organism info ${organismJson as JSON}"
-            organism.commonName = organismJson.name
-            organism.blatdb = organismJson.blatdb
-            organism.species = organismJson.species
-            organism.genus = organismJson.genus
-            organism.metadata = organismJson.metadata
-            organism.directory = organismJson.directory
-            organism.publicMode = organismJson.publicMode
+        String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        try {
+            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
+                if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
+                    throw new Exception('empty fields detected')
+                }
 
-            if (checkOrganism(organism)) {
-                organism.save(flush: true, insert: false, failOnError: true)
+                log.debug "Adding ${organismJson.publicMode}"
+                Organism organism = new Organism(
+                        commonName: organismJson.commonName
+                        , directory: organismJson.directory
+                        , blatdb: organismJson.blatdb
+                        , species: organismJson.species
+                        , genus: organismJson.genus
+                        , metadata: organismJson.metadata
+                        , publicMode: organismJson.publicMode
+                )
+                log.debug "organism ${organism as JSON}"
+
+                if (checkOrganism(organism)) {
+                    organism.save(failOnError: true, flush: true, insert: true)
+                }
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
+
+                // send file using:
+//            curl \
+                //  -F "userid=1" \
+                //  -F "filecomment=This is an image file" \
+                //  -F "sequenceData=@/home/user1/Desktop/jbrowse/sample/seq.zip" \
+                //  localhost:8080/apollo
+                if (request.getFile("sequenceData)")) {
+
+                }
+
+                sequenceService.loadRefSeqs(organism)
+                render findAllOrganisms()
             } else {
-                throw new Exception("Bad organism directory: " + organism.directory)
+                def error = [error: 'not authorized to add organism']
+                render error as JSON
+                log.error(error.error)
             }
-        } else {
-            throw new Exception('organism not found')
-        }
-//            render findAllOrganisms()
-        render new JSONObject() as JSON
-    }
-    catch (e) {
-        def error = [error: 'problem saving organism: ' + e]
-        render error as JSON
-        log.error(error.error)
-    }
-}
-
-@RestApiMethod(description = "Update organism metadata", path = "/organism/updateOrganismMetadata", verb = RestApiVerb.POST)
-@RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
-        , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-])
-@Transactional
-def updateOrganismMetadata() {
-    log.debug "updating organism metadata ${params}"
-    try {
-        JSONObject organismJson = permissionService.handleInput(request, params)
-        permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
-        Organism organism = Organism.findById(organismJson.id)
-        if (organism) {
-            log.debug "Updating organism metadata ${organismJson as JSON}"
-            organism.metadata = organismJson.metadata
-            organism.save(flush: true, insert: false, failOnError: true)
-        } else {
-            throw new Exception('Organism not found')
-        }
-//            render findAllOrganisms()
-        render new JSONObject() as JSON
-    }
-    catch (e) {
-        def error = [error: 'problem saving organism: ' + e]
-        render error as JSON
-        log.error(error.error)
-    }
-}
-
-@RestApiMethod(description = "Returns a JSON array of all organisms, or optionally, gets information about a specific organism", path = "/organism/findAllOrganisms", verb = RestApiVerb.POST)
-@RestApiParams(params = [
-        @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-        , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY)
-])
-def findAllOrganisms() {
-    try {
-//            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
-        JSONObject organismJson = permissionService.handleInput(request, params)
-        List<Organism> organismList = []
-
-        if (organismJson.organism) {
-            log.debug "finding info for specific organism"
-            Organism organism = Organism.findByCommonName(organismJson.organism)
-            if (!organism) organism = Organism.findById(organismJson.organism)
-            if (!organism) render([error: "Organism not found"] as JSON)
-            List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, permissionService.getCurrentUser(organismJson))
-            if (permissionService.findHighestEnum(permissionEnumList)?.rank > PermissionEnum.NONE.rank) {
-                organismList.add(organism)
-            }
-        } else {
-            log.debug "finding all info"
-            if (permissionService.isAdmin()) {
-                organismList = Organism.all
-            } else {
-                organismList = permissionService.getOrganismsForCurrentUser(organismJson)
-            }
-        }
-
-        if (!organismList) {
-            def error = [error: 'Not authorized for any organisms']
+        } catch (e) {
+            def error = [error: 'problem saving organism: ' + e]
             render error as JSON
+            e.printStackTrace()
+            log.error(error.error)
+        }
+    }
+
+    @RestApiMethod(description = "Finds sequences for a given organism and returns a JSON object including the username, organism and a JSONArray of sequences", path = "/organism/getSequencesForOrganism", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Common name or ID for the organism")
+    ])
+    def getSequencesForOrganism() {
+        JSONObject organismJson = permissionService.handleInput(request, params)
+        if (organismJson.username == "" || organismJson.organism == "" || organismJson.password == "") {
+            render(['error': 'Empty fields in request JSON'] as JSON)
             return
         }
 
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true, [max: 1, sort: "lastUpdated", order: "desc"])
-        Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+        List<Sequence> sequenceList
 
-        JSONArray jsonArray = new JSONArray()
-        for (Organism organism in organismList) {
-
-            def c = Feature.createCriteria()
-
-            def list = c.list {
-                featureLocations {
-                    sequence {
-                        eq('organism', organism)
-                    }
-                }
-                'in'('class', requestHandlingService.viewableAnnotationList)
-            }
-            log.debug "${list}"
-            Integer annotationCount = list.size()
-            Integer sequenceCount = Sequence.countByOrganism(organism)
-
-            JSONObject jsonObject = [
-                    id             : organism.id,
-                    commonName     : organism.commonName,
-                    blatdb         : organism.blatdb,
-                    directory      : organism.directory,
-                    annotationCount: annotationCount,
-                    sequences      : sequenceCount,
-                    genus          : organism.genus,
-                    species        : organism.species,
-                    valid          : organism.valid,
-                    publicMode     : organism.publicMode,
-                    metadata       : organism.metadata,
-                    currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
-            ] as JSONObject
-            jsonArray.add(jsonObject)
+        Organism organism = Organism.findByCommonName(organismJson.organism)
+        if (!organism) {
+            organism = Organism.findById(organismJson.organism)
         }
-        render jsonArray as JSON
+        if (!organism) {
+            def error = ['error': 'Organism not found ' + organismJson.organism]
+            render error as JSON
+            log.error(error.error)
+            return
+        }
+
+
+        if (permissionService.findHighestOrganismPermissionForUser(organism, permissionService.getCurrentUser(organismJson)).rank >= PermissionEnum.EXPORT.rank) {
+            def c = Sequence.createCriteria()
+            sequenceList = c.list {
+                eq('organism', organism)
+            }
+            log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
+        } else {
+            def error = ['error': 'Username ' + organismJson.username + ' does not have export permissions for organism ' + organismJson.organism]
+            render error as JSON
+            log.error(error.error)
+            return
+        }
+
+        render([username: organismJson.username, organism: organismJson.organism, sequences: sequenceList] as JSON)
     }
-    catch (Exception e) {
-        e.printStackTrace()
-        def error = [error: e.message]
-        render error as JSON
+
+    private boolean checkOrganism(Organism organism) {
+        File directory = new File(organism.directory)
+        File trackListFile = new File(organism.getTrackList())
+        File refSeqFile = new File(organism.getRefseqFile())
+
+        if (!directory.exists() || !directory.isDirectory()) {
+            organism.valid = false
+            throw new Exception("Invalid directory specified: " + directory.absolutePath)
+        } else if (!trackListFile.exists()) {
+            organism.valid = false
+            throw new Exception("Track file does not exists: " + trackListFile.absolutePath)
+        } else if (!refSeqFile.exists()) {
+            organism.valid = false
+            throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
+        } else {
+            organism.valid = true
+        }
+        return organism.valid
     }
-}
+
+
+    @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/updateOrganismInfo", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
+            , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
+            , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
+            , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
+            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
+            , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "a common name used for the organism")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
+    ])
+    @Transactional
+    def updateOrganismInfo() {
+        log.debug "updating organism info ${params}"
+        try {
+            JSONObject organismJson = permissionService.handleInput(request, params)
+            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+            Organism organism = Organism.findById(organismJson.id)
+            if (organism) {
+                log.debug "Updating organism info ${organismJson as JSON}"
+                organism.commonName = organismJson.name
+                organism.blatdb = organismJson.blatdb
+                organism.species = organismJson.species
+                organism.genus = organismJson.genus
+                organism.metadata = organismJson.metadata
+                organism.directory = organismJson.directory
+                organism.publicMode = organismJson.publicMode
+
+                if (checkOrganism(organism)) {
+                    organism.save(flush: true, insert: false, failOnError: true)
+                } else {
+                    throw new Exception("Bad organism directory: " + organism.directory)
+                }
+            } else {
+                throw new Exception('organism not found')
+            }
+//            render findAllOrganisms()
+            render new JSONObject() as JSON
+        }
+        catch (e) {
+            def error = [error: 'problem saving organism: ' + e]
+            render error as JSON
+            log.error(error.error)
+        }
+    }
+
+    @RestApiMethod(description = "Update organism metadata", path = "/organism/updateOrganismMetadata", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
+    ])
+    @Transactional
+    def updateOrganismMetadata() {
+        log.debug "updating organism metadata ${params}"
+        try {
+            JSONObject organismJson = permissionService.handleInput(request, params)
+            permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
+            Organism organism = Organism.findById(organismJson.id)
+            if (organism) {
+                log.debug "Updating organism metadata ${organismJson as JSON}"
+                organism.metadata = organismJson.metadata
+                organism.save(flush: true, insert: false, failOnError: true)
+            } else {
+                throw new Exception('Organism not found')
+            }
+//            render findAllOrganisms()
+            render new JSONObject() as JSON
+        }
+        catch (e) {
+            def error = [error: 'problem saving organism: ' + e]
+            render error as JSON
+            log.error(error.error)
+        }
+    }
+
+    @RestApiMethod(description = "Returns a JSON array of all organisms, or optionally, gets information about a specific organism", path = "/organism/findAllOrganisms", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY)
+    ])
+    def findAllOrganisms() {
+        try {
+//            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
+            JSONObject organismJson = permissionService.handleInput(request, params)
+            List<Organism> organismList = []
+
+            if (organismJson.organism) {
+                log.debug "finding info for specific organism"
+                Organism organism = Organism.findByCommonName(organismJson.organism)
+                if (!organism) organism = Organism.findById(organismJson.organism)
+                if (!organism) render([error: "Organism not found"] as JSON)
+                List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, permissionService.getCurrentUser(organismJson))
+                if (permissionService.findHighestEnum(permissionEnumList)?.rank > PermissionEnum.NONE.rank) {
+                    organismList.add(organism)
+                }
+            } else {
+                log.debug "finding all info"
+                if (permissionService.isAdmin()) {
+                    organismList = Organism.all
+                } else {
+                    organismList = permissionService.getOrganismsForCurrentUser(organismJson)
+                }
+            }
+
+            if (!organismList) {
+                def error = [error: 'Not authorized for any organisms']
+                render error as JSON
+                return
+            }
+
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganism(permissionService.getCurrentUser(organismJson), true, [max: 1, sort: "lastUpdated", order: "desc"])
+            Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
+
+            JSONArray jsonArray = new JSONArray()
+            for (Organism organism in organismList) {
+
+                def c = Feature.createCriteria()
+
+                def list = c.list {
+                    featureLocations {
+                        sequence {
+                            eq('organism', organism)
+                        }
+                    }
+                    'in'('class', requestHandlingService.viewableAnnotationList)
+                }
+                log.debug "${list}"
+                Integer annotationCount = list.size()
+                Integer sequenceCount = Sequence.countByOrganism(organism)
+
+                JSONObject jsonObject = [
+                        id             : organism.id,
+                        commonName     : organism.commonName,
+                        blatdb         : organism.blatdb,
+                        directory      : organism.directory,
+                        annotationCount: annotationCount,
+                        sequences      : sequenceCount,
+                        genus          : organism.genus,
+                        species        : organism.species,
+                        valid          : organism.valid,
+                        publicMode     : organism.publicMode,
+                        metadata       : organism.metadata,
+                        currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
+                ] as JSONObject
+                jsonArray.add(jsonObject)
+            }
+            render jsonArray as JSON
+        }
+        catch (Exception e) {
+            e.printStackTrace()
+            def error = [error: e.message]
+            render error as JSON
+        }
+    }
 
 /**
  * Permissions handled upstream
  * @return
  */
-def report() {
-    Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
-        @Override
-        int compare(Organism o1, Organism o2) {
-            return o1.commonName <=> o2.commonName
+    def report() {
+        Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
+            @Override
+            int compare(Organism o1, Organism o2) {
+                return o1.commonName <=> o2.commonName
+            }
+        })
+
+        // global version
+        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
+
+
+        Organism.listOrderByCommonName().each { organism ->
+            OrganismSummary thisOrganismSummaryInstance = reportService.generateOrganismSummary(organism)
+            organismSummaryListInstance.put(organism, thisOrganismSummaryInstance)
         }
-    })
-
-    // global version
-    OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
 
 
-    Organism.listOrderByCommonName().each { organism ->
-        OrganismSummary thisOrganismSummaryInstance = reportService.generateOrganismSummary(organism)
-        organismSummaryListInstance.put(organism, thisOrganismSummaryInstance)
+        respond organismSummaryInstance, model: [organismSummaries: organismSummaryListInstance]
     }
 
-
-    respond organismSummaryInstance, model: [organismSummaries: organismSummaryListInstance]
-}
-
-protected void notFound() {
-    request.withFormat {
-        form multipartForm {
-            flash.message = message(code: 'default.not.found.message', args: [message(code: 'organism.label', default: 'Organism'), params.id])
-            redirect action: "index", method: "GET"
+    protected void notFound() {
+        request.withFormat {
+            form multipartForm {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'organism.label', default: 'Organism'), params.id])
+                redirect action: "index", method: "GET"
+            }
+            '*' { render status: NOT_FOUND }
         }
-        '*' { render status: NOT_FOUND }
     }
-}
 
 }
