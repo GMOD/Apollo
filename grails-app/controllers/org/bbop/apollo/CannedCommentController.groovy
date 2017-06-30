@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum

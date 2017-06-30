@@ -51,7 +51,18 @@
 					
 				</li>
 				</g:if>
-			
+
+				<g:if test="${cannedCommentInstance?.organisms}">
+					<li class="fieldcontain">
+						<span id="organisms-label" class="property-label"><g:message code="cannedComment.organisms.label" default="Feature Types" /></span>
+
+						<g:each in="${cannedCommentInstance.organisms}" var="f">
+							<span class="property-value" aria-labelledby="organisms-label"><g:link controller="organism" action="show" id="${f.id}">${f?.name}</g:link></span>
+						</g:each>
+
+					</li>
+				</g:if>
+
 			</ol>
 			<g:form url="[resource:cannedCommentInstance, action:'delete']" method="DELETE">
 				<fieldset class="buttons">
