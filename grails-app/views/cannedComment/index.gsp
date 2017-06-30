@@ -46,7 +46,7 @@
 						</td>
 						<td>
 							<g:each in="${cannedCommentInstance.organisms}" var="organism">
-								${organism.type}:${organism.name}
+								${organism.commonName}
 							</g:each>
 						</td>
 

@@ -35,13 +35,13 @@
 
 <div class="fieldcontain ${hasErrors(bean: cannedCommentInstance, field: 'organisms', 'error')} ">
 	<label for="organisms">
-		<g:message code="cannedComment.organisms.label" default="Feature Types" />
+		<g:message code="cannedComment.organisms.label" default="Organisms" />
 
 	</label>
-	<g:select name="organisms" from="${org.bbop.apollo.FeatureType.list()}"
+	<g:select name="organisms" from="${org.bbop.apollo.Organism.list()}"
 			  multiple="multiple"
 			  optionKey="id" size="10"
-			  optionValue="display"
+			  optionValue="commonName"
 			  value="${cannedCommentInstance?.organisms*.id}" class="many-to-many"/>
 
 </div>
