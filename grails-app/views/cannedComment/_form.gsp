@@ -42,6 +42,6 @@
 			  multiple="multiple"
 			  optionKey="id" size="10"
 			  optionValue="commonName"
-			  value="${cannedCommentInstance?.organisms*.id}" class="many-to-many"/>
+			  value="${organismFilters.organism.id}" class="many-to-many"/>
 
 </div>

@@ -1096,10 +1096,18 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty"))
 
-                cannedCommentList.findAll(){
-                    it.organisms ? sequence.organism in it.organisms : true
-                }.comment.each {
-                   cannedComments.put(it)
+                // if there are organism filters for these canned comments for this organism, then apply them
+                List<CannedCommentOrganismFilter> cannedCommentOrganismFilters = CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedCommentList)
+                if (cannedCommentOrganismFilters) {
+                    CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(sequence.organism, cannedCommentList).each {
+                        cannedComments.put(it.cannedComment.comment)
+                    }
+                }
+                // otherwise ignore them
+                else {
+                    cannedCommentList.each {
+                        cannedComments.put(it.comment)
+                    }
                 }
             }
 
@@ -1148,11 +1156,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                                     returnString = method.invoke(requestHandlingService, rootElement)
                                 } catch (e) {
                                     log.error("CAUGHT ERROR through websocket call: " + e)
-                                    if(e instanceof InvocationTargetException || !e.message){
+                                    if (e instanceof InvocationTargetException || !e.message) {
                                         log.error("THROWING PARENT ERROR instead through reflection: " + e.getCause())
                                         return sendError(e.getCause(), principal?.name)
-                                    }
-                                    else{
+                                    } else {
                                         return sendError(e, principal?.name)
                                     }
                                 }

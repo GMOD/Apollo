@@ -11,7 +11,6 @@ class CannedComment {
     String metadata
 
     static hasMany = [
-            featureTypes: FeatureType,
-            organisms: Organism
+            featureTypes: FeatureType
     ]
 }
