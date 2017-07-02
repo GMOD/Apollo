@@ -31,7 +31,14 @@ class CannedCommentController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond CannedComment.list(params), model: [cannedCommentInstanceCount: CannedComment.count()]
+        def cannedComments = CannedComment.list(params)
+        def organismFilterMap = [:]
+        CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedComments).each() {
+            List filterList = organismFilterMap.containsKey(it.cannedComment) ? organismFilterMap.get(it.cannedComment) : []
+            filterList.add(it)
+            organismFilterMap[it.cannedComment] = filterList
+        }
+        respond cannedComments, model: [cannedCommentInstanceCount: CannedComment.count(), organismFilters: organismFilterMap]
     }
 
     def show(CannedComment cannedCommentInstance) {
@@ -54,10 +61,19 @@ class CannedCommentController {
             return
         }
 
+        println "pre-save ${params}"
+
         cannedCommentInstance.save()
 
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
         params?.organisms.each {
+            println "it ${it}"
             Organism organism = Organism.findById(it)
+            println "organism ${organism}"
             new CannedCommentOrganismFilter(
                     organism: organism,
                     cannedComment: cannedCommentInstance
@@ -90,12 +106,13 @@ class CannedCommentController {
             respond cannedCommentInstance.errors, view: 'edit'
             return
         }
+        println "pre-save update ${params}"
 
         cannedCommentInstance.save()
 
         CannedCommentOrganismFilter.deleteAll(CannedCommentOrganismFilter.findAllByCannedComment(cannedCommentInstance))
 
-        if(params.organisms instanceof String){
+        if (params.organisms instanceof String) {
             params.organisms = [params.organisms]
         }
 

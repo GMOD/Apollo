@@ -40,13 +40,13 @@
 						<td><g:link action="show" id="${cannedCommentInstance.id}">${fieldValue(bean: cannedCommentInstance, field: "comment")}</g:link></td>
 
 						<td>
-							<g:each in="${cannedCommentInstance.featureTypes}" var="featureType">
+							<g:each in="${cannedCommentInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">
 								${featureType.type}:${featureType.name}
 							</g:each>
 						</td>
 						<td>
-							<g:each in="${organismFilters}" var="organism">
-								${organism.organism.commonName}
+							<g:each in="${organismFilters.get(cannedCommentInstance)}" var="filter">
+								<g:link controller="organism" id="${filter.organism.id}">${filter.organism.commonName}</g:link>
 							</g:each>
 						</td>
 

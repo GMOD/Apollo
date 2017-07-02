@@ -1,12 +1,10 @@
 package org.bbop.apollo
 
-class CannedCommentOrganismFilter {
+class CannedCommentOrganismFilter extends OrganismFilter {
 
-    Organism organism
     CannedComment cannedComment
 
     static constraints = {
-        organism nullable: false
         cannedComment nullable: false
     }
 }
