@@ -2397,7 +2397,8 @@ define([
                             initSymbol(feature);
                             initDescription(feature);
                             initDates(feature);
-                            initStatus(feature, config);
+                            // initStatus(feature, config);
+                            initStatus(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -2488,9 +2489,9 @@ define([
                     }
                 };
 
-                var initStatus = function (feature, config) {
+                var initStatus = function (feature) {
                     var maxLength = 0;
-                    var status = config.status;
+                    var status = feature.available_statuses;
                     if (status) {
                         for (var i = 0; i < status.length; ++i) {
                             if (status[i].length > maxLength) {

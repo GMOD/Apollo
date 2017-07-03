@@ -510,13 +510,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject annotationInfoEditorConfig = new JSONObject();
         annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
 
-        if (AvailableStatus.count) {
-            JSONArray statusArray = new JSONArray()
-            annotationInfoEditorConfig.put(FeatureStringEnum.STATUS.value, statusArray);
-            AvailableStatus.all.each { status ->
-                statusArray.add(status.value)
-            }
-        }
         annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, configWrapperService.hasDbxrefs());
         annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, configWrapperService.hasAttributes());
         annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, configWrapperService.hasPubmedIds());
@@ -1027,7 +1020,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
 
-            if (AvailableStatus.count > 0 && feature.status) {
+            if (AvailableStatus.count > 0) {
                 if(feature.status){
                     newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
                 }
@@ -1035,8 +1028,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 newFeature.put(FeatureStringEnum.AVAILABLE_STATUSES.value,availableStatuses)
 
                 List<AvailableStatus> availableStatusList = new ArrayList<>()
-                JSONArray availableStatuss = new JSONArray();
-                newFeature.put(FeatureStringEnum.CANNED_KEYS.value, availableStatuss);
                 if (featureTypeList) {
                     availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
                 }
@@ -1046,13 +1037,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 List<AvailableStatusOrganismFilter> availableStatusOrganismFilters = AvailableStatusOrganismFilter.findAllByAvailableStatusInList(availableStatusList)
                 if (availableStatusOrganismFilters) {
                     AvailableStatusOrganismFilter.findAllByOrganismAndAvailableStatusInList(sequence.organism, availableStatusList).each {
-                        availableStatuss.put(it.availableStatus.value)
+                        availableStatuses.put(it.availableStatus.value)
                     }
                 }
 //                // otherwise ignore them
                 else {
                     availableStatusList.each {
-                        availableStatuss.put(it.value)
+                        availableStatuses.put(it.value)
                     }
                 }
 
