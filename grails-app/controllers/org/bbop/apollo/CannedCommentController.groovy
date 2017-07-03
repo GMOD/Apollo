@@ -65,7 +65,6 @@ class CannedCommentController {
 
         cannedCommentInstance.save()
 
-
         if (params.organisms instanceof String) {
             params.organisms = [params.organisms]
         }

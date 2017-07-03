@@ -9,4 +9,8 @@ class AvailableStatus {
 
 //    String label
     String value
+
+    static hasMany = [
+            featureTypes: FeatureType
+    ]
 }
