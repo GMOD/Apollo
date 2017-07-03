@@ -61,7 +61,6 @@ class CannedCommentController {
             return
         }
 
-        println "pre-save ${params}"
 
         cannedCommentInstance.save()
 
@@ -70,9 +69,7 @@ class CannedCommentController {
         }
 
         params?.organisms.each {
-            println "it ${it}"
             Organism organism = Organism.findById(it)
-            println "organism ${organism}"
             new CannedCommentOrganismFilter(
                     organism: organism,
                     cannedComment: cannedCommentInstance
@@ -116,9 +113,7 @@ class CannedCommentController {
         }
 
         params?.organisms.each {
-            println "it2: ${it}"
             Organism organism = Organism.findById(it)
-            println "organism ${organism}"
             new CannedCommentOrganismFilter(
                     organism: organism,
                     cannedComment: cannedCommentInstance
