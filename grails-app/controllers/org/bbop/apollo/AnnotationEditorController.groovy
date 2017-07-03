@@ -1024,9 +1024,41 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
             }
 
+
+            List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
+
             if (AvailableStatus.count > 0 && feature.status) {
-                newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
+                if(feature.status){
+                    newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
+                }
+                JSONArray availableStatuses = new JSONArray()
+                newFeature.put(FeatureStringEnum.AVAILABLE_STATUSES.value,availableStatuses)
+
+                List<AvailableStatus> availableStatusList = new ArrayList<>()
+                JSONArray availableStatuss = new JSONArray();
+                newFeature.put(FeatureStringEnum.CANNED_KEYS.value, availableStatuss);
+                if (featureTypeList) {
+                    availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
+                }
+                availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc where cc.featureTypes is empty"))
+
+//                // if there are organism filters for these canned comments for this organism, then apply them
+                List<AvailableStatusOrganismFilter> availableStatusOrganismFilters = AvailableStatusOrganismFilter.findAllByAvailableStatusInList(availableStatusList)
+                if (availableStatusOrganismFilters) {
+                    AvailableStatusOrganismFilter.findAllByOrganismAndAvailableStatusInList(sequence.organism, availableStatusList).each {
+                        availableStatuss.put(it.availableStatus.value)
+                    }
+                }
+//                // otherwise ignore them
+                else {
+                    availableStatusList.each {
+                        availableStatuss.put(it.value)
+                    }
+                }
+
             }
+
+
             // TODO: add the rest of the attributes
             if (configWrapperService.hasAttributes()) {
                 JSONArray properties = new JSONArray();
@@ -1038,7 +1070,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     properties.put(jsonProperty);
                 }
 
-                List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
 
 
                 List<CannedKey> cannedKeyList = new ArrayList<>()
@@ -1048,11 +1079,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
                 }
                 cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc where cc.featureTypes is empty"))
-//                if (cannedKeyList != null) {
-//                    for (String comment : cannedKeyList) {
-//                        cannedKeys.put(comment);
-//                    }
-//                }
+
 //                // if there are organism filters for these canned comments for this organism, then apply them
                 List<CannedKeyOrganismFilter> cannedKeyOrganismFilters = CannedKeyOrganismFilter.findAllByCannedKeyInList(cannedKeyList)
                 if (cannedKeyOrganismFilters) {
@@ -1110,7 +1137,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 JSONArray cannedComments = new JSONArray();
                 newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
 
-                List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
                 List<CannedComment> cannedCommentList = new ArrayList<>()
                 if (featureTypeList) {
                     cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
