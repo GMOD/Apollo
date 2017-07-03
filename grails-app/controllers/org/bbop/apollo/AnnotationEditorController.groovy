@@ -1033,11 +1033,15 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
                 availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc where cc.featureTypes is empty"))
 
-//                // if there are organism filters for these canned comments for this organism, then apply them
+//                // if there are organism filters for these statuses for this organism, then apply them
                 List<AvailableStatusOrganismFilter> availableStatusOrganismFilters = AvailableStatusOrganismFilter.findAllByAvailableStatusInList(availableStatusList)
                 if (availableStatusOrganismFilters) {
                     AvailableStatusOrganismFilter.findAllByOrganismAndAvailableStatusInList(sequence.organism, availableStatusList).each {
                         availableStatuses.put(it.availableStatus.value)
+                        availableStatusList.remove(it.availableStatus)
+                    }
+                    availableStatusList.each {
+                        availableStatuses.put(it.value)
                     }
                 }
 //                // otherwise ignore them
