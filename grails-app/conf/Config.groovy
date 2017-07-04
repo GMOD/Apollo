@@ -210,6 +210,9 @@ apollo {
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
 
+    // used for uploading
+    root_jbrowse_directory = "/opt/apollo/"
+
     // settings for Chado export
     // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database
     // Note: Enabling this feature can be memory intensive

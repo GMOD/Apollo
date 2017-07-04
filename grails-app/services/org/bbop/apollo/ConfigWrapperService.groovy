@@ -69,6 +69,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.export_subfeature_attrs
     }
 
+    def getRootJBrowseDirectory() {
+        return grailsApplication.config.apollo.root_jbrowse_directory
+    }
+
     def hasChadoDataSource() {
         if (grailsApplication.config.dataSource_chado) {
             return true

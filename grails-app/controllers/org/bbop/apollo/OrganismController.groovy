@@ -32,6 +32,7 @@ class OrganismController {
     def preferenceService
     def organismService
     def reportService
+    def configWrapperService
 
 
     @RestApiMethod(description = "Remove an organism", path = "/organism/deleteOrganism", verb = RestApiVerb.POST)
@@ -138,11 +139,13 @@ class OrganismController {
                     throw new Exception('empty fields detected')
                 }
 
+                def directory = organismJson.directory ?: configWrapperService.rootJBrowseDirectory
+
                 log.debug "Adding ${organismJson.publicMode}"
                 Organism organism = new Organism(
                         commonName: organismJson.commonName
-                        , directory: organismJson.directory
-                        , blatdb: organismJson.blatdb
+                        , directory: directory
+                        , blatdb: organismJson.blatdb ?: ""
                         , species: organismJson.species
                         , genus: organismJson.genus
                         , metadata: organismJson.metadata
