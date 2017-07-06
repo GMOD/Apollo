@@ -83,6 +83,14 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
   apollo-config.groovy.
 - [Instructions and a script for launching docker with apollo and PostgreSQL](https://github.com/GMOD/docker-apollo).
 
+
+#### Apollo in Galaxy
+Apollo can always be used externally from Galaxy, but there are a few integrations available as well.
+
+- [Using Docker compose](https://github.com/GMOD/docker-compose-galaxy-annotation).
+- [From the Test Toolshed](https://testtoolshed.g2.bx.psu.edu/view/eric-rasche/apollo/df7a90763b3c).
+- [Using the Galaxy Genome Annotation Toolsuite](https://github.com/galaxy-genome-annotation/docker-galaxy-genome-annotation).
+
 ### Database schema
 
 After you startup the application, the database schema (tables, etc.) is automatically setup. You don't have to
