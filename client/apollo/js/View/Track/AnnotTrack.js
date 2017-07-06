@@ -5450,7 +5450,9 @@ define([
             },
 
             getUniqueTrackName: function () {
-                return this.refSeq.name;
+                var trackName = this.refSeq.name;
+                trackName = trackName.substr(0, trackName.lastIndexOf(':'));
+                return JSON.parse(trackName);
             },
 
             openDialog: function (title, data, width, height) {
