@@ -1,7 +1,6 @@
 # Setup guide
 
 
-
 The quick-start guide showed how to quickly launch a temporary instance of Apollo, but deploying the application to
 production normally involves some extra steps.
 
