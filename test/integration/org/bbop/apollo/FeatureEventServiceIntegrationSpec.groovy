@@ -1166,7 +1166,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we undo transcript A"
         String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
-        undoString = undoString.replaceAll("@TRANSCRIPT_NAME@", transcript1UniqueName)
+        undoString = undoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
         then: "we should have the original transcript"
@@ -1179,6 +1179,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
 
         when: "when we redo transcript"
+        redoString = redoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should have one of everything again"
@@ -1235,7 +1236,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we undo transcript A"
         String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
-        undoString = undoString.replaceAll("@TRANSCRIPT_NAME@", transcript1UniqueName)
+        undoString = undoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
         then: "we should have the original transcript"
@@ -1248,6 +1249,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
 
         when: "when we redo transcript"
+        redoString = redoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should have one of everything again"
