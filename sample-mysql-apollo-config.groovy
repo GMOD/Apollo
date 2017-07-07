@@ -86,17 +86,17 @@ environments {
 //        HideTrackLabels{
 //            included = true
 //        }
-////        MyVariantInfo {
-////            git = 'https://github.com/GMOD/myvariantviewer'
-////            branch = 'master'
-////            alwaysRecheck = "true"
-////            alwaysPull = "true"
-////        }
-////        SashimiPlot {
-////            git = 'https://github.com/cmdcolin/sashimiplot'
-////            branch = 'master'
-////            alwaysPull = "true"
-////        }
+//        MyVariantInfo {
+//            git = 'https://github.com/GMOD/myvariantviewer'
+//            branch = 'master'
+//            alwaysRecheck = "true"
+//            alwaysPull = "true"
+//        }
+//        SashimiPlot {
+//            git = 'https://github.com/cmdcolin/sashimiplot'
+//            branch = 'master'
+//            alwaysPull = "true"
+//        }
 //    }
 //}
 

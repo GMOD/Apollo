@@ -97,6 +97,5 @@ jbrowse {
         HideTrackLabels{
             included = System.getenv("WEBAPOLLO_JBROWSE_PLUGIN_HIDELABELS").equals("true")
         }
-        // TODO
     }
 }
