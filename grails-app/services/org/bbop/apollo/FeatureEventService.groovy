@@ -514,9 +514,13 @@ class FeatureEventService {
                 addCommandObject.put(FeatureStringEnum.FEATURES.value, featuresToAddArray)
 
                 // we have to explicitly set the track (if we have features ... which we should)
-                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
+                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
+//                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
 //                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
-                    addCommandObject.put(FeatureStringEnum.TRACK.value,requestAssemblage.sequenceList)
+                    JSONArray sequenceArray = JSON.parse(requestAssemblage.sequenceList) as JSONArray
+                    JSONObject jsonObject = new JSONObject()
+                    jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray)
+                    addCommandObject.put(FeatureStringEnum.TRACK.value, jsonObject)
                 }
 
                 addCommandObject = permissionService.copyRequestValues(inputObject, addCommandObject)
