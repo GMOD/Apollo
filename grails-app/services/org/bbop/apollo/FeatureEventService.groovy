@@ -515,7 +515,8 @@ class FeatureEventService {
 
                 // we have to explicitly set the track (if we have features ... which we should)
                 if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
-                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
+//                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
+                    addCommandObject.put(FeatureStringEnum.TRACK.value,requestAssemblage.sequenceList)
                 }
 
                 addCommandObject = permissionService.copyRequestValues(inputObject, addCommandObject)
