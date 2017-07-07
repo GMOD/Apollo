@@ -1114,7 +1114,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we confirm that we have a merge AB"
-        def allFeatures = Feature.all
         assert Gene.count == 1
         assert MRNA.count == 1
         assert Exon.count == 5
@@ -1124,7 +1123,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
 
-    @IgnoreRest
     void "we can undo and redo a transcript in forward"() {
 
         given: "transcript data"
@@ -1134,7 +1132,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String redoString = "{ ${testCredentials}  \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242}]},\"features\":[{\"uniquename\":\"@TRANSCRIPT_UNIQUE_NAME@\"}],\"operation\":\"redo\",\"count\":1}"
 
         when: "we insert a transcript"
-        JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
         int firstFeatureLocation = MRNA.first().firstFeatureLocation.fmin
         int lastFeatureLocation = MRNA.first().lastFeatureLocation.fmax
 
