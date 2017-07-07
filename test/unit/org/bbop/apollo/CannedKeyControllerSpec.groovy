@@ -6,7 +6,7 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(CannedKeyController)
-@Mock(CannedKey)
+@Mock([CannedKey,CannedKeyOrganismFilter])
 class CannedKeyControllerSpec extends Specification {
 
     def populateValidParams(params) {
