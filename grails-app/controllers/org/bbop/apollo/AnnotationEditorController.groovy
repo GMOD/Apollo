@@ -510,13 +510,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject annotationInfoEditorConfig = new JSONObject();
         annotationInfoEditorConfigs.put(annotationInfoEditorConfig);
 
-        if (AvailableStatus.count) {
-            JSONArray statusArray = new JSONArray()
-            annotationInfoEditorConfig.put(FeatureStringEnum.STATUS.value, statusArray);
-            AvailableStatus.all.each { status ->
-                statusArray.add(status.value)
-            }
-        }
         annotationInfoEditorConfig.put(FeatureStringEnum.HASDBXREFS.value, configWrapperService.hasDbxrefs());
         annotationInfoEditorConfig.put(FeatureStringEnum.HASATTRIBUTES.value, configWrapperService.hasAttributes());
         annotationInfoEditorConfig.put(FeatureStringEnum.HASPUBMEDIDS.value, configWrapperService.hasPubmedIds());
@@ -1024,9 +1017,43 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
             }
 
-            if (AvailableStatus.count > 0 && feature.status) {
-                newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
+
+            List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
+
+            if (AvailableStatus.count > 0) {
+                if(feature.status){
+                    newFeature.put(FeatureStringEnum.STATUS.value, feature.status.value)
+                }
+                JSONArray availableStatuses = new JSONArray()
+                newFeature.put(FeatureStringEnum.AVAILABLE_STATUSES.value,availableStatuses)
+
+                List<AvailableStatus> availableStatusList = new ArrayList<>()
+                if (featureTypeList) {
+                    availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
+                }
+                availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc where cc.featureTypes is empty"))
+
+//                // if there are organism filters for these statuses for this organism, then apply them
+                List<AvailableStatusOrganismFilter> availableStatusOrganismFilters = AvailableStatusOrganismFilter.findAllByAvailableStatusInList(availableStatusList)
+                if (availableStatusOrganismFilters) {
+                    AvailableStatusOrganismFilter.findAllByOrganismAndAvailableStatusInList(sequence.organism, availableStatusList).each {
+                        availableStatuses.put(it.availableStatus.value)
+                        availableStatusList.remove(it.availableStatus)
+                    }
+                    availableStatusList.each {
+                        availableStatuses.put(it.value)
+                    }
+                }
+//                // otherwise ignore them
+                else {
+                    availableStatusList.each {
+                        availableStatuses.put(it.value)
+                    }
+                }
+
             }
+
+
             // TODO: add the rest of the attributes
             if (configWrapperService.hasAttributes()) {
                 JSONArray properties = new JSONArray();
@@ -1038,36 +1065,52 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     properties.put(jsonProperty);
                 }
 
-                List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
 
 
-                List<String> cannedKeyStrings = new ArrayList<>()
+                List<CannedKey> cannedKeyList = new ArrayList<>()
                 JSONArray cannedKeys = new JSONArray();
                 newFeature.put(FeatureStringEnum.CANNED_KEYS.value, cannedKeys);
                 if (featureTypeList) {
-                    cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
+                    cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
                 }
-                cannedKeyStrings.addAll(CannedKey.executeQuery("select cc from CannedKey cc where cc.featureTypes is empty").label)
-                if (cannedKeyStrings != null) {
-                    for (String comment : cannedKeyStrings) {
-                        cannedKeys.put(comment);
+                cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc where cc.featureTypes is empty"))
+
+//                // if there are organism filters for these canned comments for this organism, then apply them
+                List<CannedKeyOrganismFilter> cannedKeyOrganismFilters = CannedKeyOrganismFilter.findAllByCannedKeyInList(cannedKeyList)
+                if (cannedKeyOrganismFilters) {
+                    CannedKeyOrganismFilter.findAllByOrganismAndCannedKeyInList(sequence.organism, cannedKeyList).each {
+                        cannedKeys.put(it.cannedKey.label)
+                    }
+                }
+//                // otherwise ignore them
+                else {
+                    cannedKeyList.each {
+                        cannedKeys.put(it.label)
                     }
                 }
 
                 // handle canned Values
-                List<String> cannedValueStrings = new ArrayList<>()
+                List<CannedValue> cannedValueList = new ArrayList<>()
                 JSONArray cannedValues = new JSONArray();
                 newFeature.put(FeatureStringEnum.CANNED_VALUES.value, cannedValues);
                 if (featureTypeList) {
-                    cannedValueStrings.addAll(CannedValue.executeQuery("select cc from CannedValue cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).label)
+                    cannedValueList.addAll(CannedValue.executeQuery("select cc from CannedValue cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
                 }
-                cannedValueStrings.addAll(CannedValue.executeQuery("select cc from CannedValue cc where cc.featureTypes is empty").label)
-                if (cannedValueStrings != null) {
-                    for (String comment : cannedValueStrings) {
-                        cannedValues.put(comment);
+                cannedValueList.addAll(CannedValue.executeQuery("select cc from CannedValue cc where cc.featureTypes is empty"))
+
+//                // if there are organism filters for these canned comments for this organism, then apply them
+                List<CannedValueOrganismFilter> cannedValueOrganismFilters = CannedValueOrganismFilter.findAllByCannedValueInList(cannedValueList)
+                if (cannedValueOrganismFilters) {
+                    CannedValueOrganismFilter.findAllByOrganismAndCannedValueInList(sequence.organism, cannedValueList).each {
+                        cannedValues.put(it.cannedValue.label)
                     }
                 }
-
+//                // otherwise ignore them
+                else {
+                    cannedValueList.each {
+                        cannedValues.put(it.label)
+                    }
+                }
             }
             if (configWrapperService.hasDbxrefs() || configWrapperService.hasPubmedIds() || configWrapperService.hasGoIds()) {
                 JSONArray dbxrefs = new JSONArray();
@@ -1089,15 +1132,23 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 JSONArray cannedComments = new JSONArray();
                 newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
 
-                List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(feature.ontologyId)
-                List<String> cannedCommentStrings = new ArrayList<>()
+                List<CannedComment> cannedCommentList = new ArrayList<>()
                 if (featureTypeList) {
-                    cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]).comment)
+                    cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
                 }
-                cannedCommentStrings.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty").comment)
-                if (cannedCommentStrings != null) {
-                    for (String comment : cannedCommentStrings) {
-                        cannedComments.put(comment);
+                cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty"))
+
+                // if there are organism filters for these canned comments for this organism, then apply them
+                List<CannedCommentOrganismFilter> cannedCommentOrganismFilters = CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedCommentList)
+                if (cannedCommentOrganismFilters) {
+                    CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(sequence.organism, cannedCommentList).each {
+                        cannedComments.put(it.cannedComment.comment)
+                    }
+                }
+                // otherwise ignore them
+                else {
+                    cannedCommentList.each {
+                        cannedComments.put(it.comment)
                     }
                 }
             }
@@ -1147,11 +1198,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                                     returnString = method.invoke(requestHandlingService, rootElement)
                                 } catch (e) {
                                     log.error("CAUGHT ERROR through websocket call: " + e)
-                                    if(e instanceof InvocationTargetException || !e.message){
+                                    if (e instanceof InvocationTargetException || !e.message) {
                                         log.error("THROWING PARENT ERROR instead through reflection: " + e.getCause())
                                         return sendError(e.getCause(), principal?.name)
-                                    }
-                                    else{
+                                    } else {
                                         return sendError(e, principal?.name)
                                     }
                                 }

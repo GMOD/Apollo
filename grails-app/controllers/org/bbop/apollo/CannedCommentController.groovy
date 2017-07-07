@@ -1,9 +1,8 @@
 package org.bbop.apollo
 
-
 import grails.converters.JSON
-import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApi
@@ -12,6 +11,8 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
+
+import static org.springframework.http.HttpStatus.*
 
 @RestApi(name = "Canned Comments Services", description = "Methods for managing canned comments")
 @Transactional(readOnly = true)
@@ -22,7 +23,7 @@ class CannedCommentController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
+        if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             forward action: "notAuthorized", controller: "annotator"
             return
         }
@@ -30,11 +31,18 @@ class CannedCommentController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond CannedComment.list(params), model:[cannedCommentInstanceCount: CannedComment.count()]
+        def cannedComments = CannedComment.list(params)
+        def organismFilterMap = [:]
+        CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedComments).each() {
+            List filterList = organismFilterMap.containsKey(it.cannedComment) ? organismFilterMap.get(it.cannedComment) : []
+            filterList.add(it)
+            organismFilterMap[it.cannedComment] = filterList
+        }
+        respond cannedComments, model: [cannedCommentInstanceCount: CannedComment.count(), organismFilters: organismFilterMap]
     }
 
     def show(CannedComment cannedCommentInstance) {
-        respond cannedCommentInstance
+        respond cannedCommentInstance, model: [organismFilters: CannedCommentOrganismFilter.findAllByCannedComment(cannedCommentInstance)]
     }
 
     def create() {
@@ -49,11 +57,26 @@ class CannedCommentController {
         }
 
         if (cannedCommentInstance.hasErrors()) {
-            respond cannedCommentInstance.errors, view:'create'
+            respond cannedCommentInstance.errors, view: 'create'
             return
         }
 
-        cannedCommentInstance.save flush:true
+
+        cannedCommentInstance.save()
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            Organism organism = Organism.findById(it)
+            new CannedCommentOrganismFilter(
+                    organism: organism,
+                    cannedComment: cannedCommentInstance
+            ).save()
+        }
+
+        cannedCommentInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
@@ -65,7 +88,7 @@ class CannedCommentController {
     }
 
     def edit(CannedComment cannedCommentInstance) {
-        respond cannedCommentInstance
+        respond cannedCommentInstance, model: [organismFilters: CannedCommentOrganismFilter.findAllByCannedComment(cannedCommentInstance)]
     }
 
     @Transactional
@@ -76,18 +99,35 @@ class CannedCommentController {
         }
 
         if (cannedCommentInstance.hasErrors()) {
-            respond cannedCommentInstance.errors, view:'edit'
+            respond cannedCommentInstance.errors, view: 'edit'
             return
         }
+        println "pre-save update ${params}"
 
-        cannedCommentInstance.save flush:true
+        cannedCommentInstance.save()
+
+        CannedCommentOrganismFilter.deleteAll(CannedCommentOrganismFilter.findAllByCannedComment(cannedCommentInstance))
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            Organism organism = Organism.findById(it)
+            new CannedCommentOrganismFilter(
+                    organism: organism,
+                    cannedComment: cannedCommentInstance
+            ).save()
+        }
+
+        cannedCommentInstance.save(flush: true)
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.updated.message', args: [message(code: 'CannedComment.label', default: 'CannedComment'), cannedCommentInstance.id])
                 redirect cannedCommentInstance
             }
-            '*'{ respond cannedCommentInstance, [status: OK] }
+            '*' { respond cannedCommentInstance, [status: OK] }
         }
     }
 
@@ -99,14 +139,14 @@ class CannedCommentController {
             return
         }
 
-        cannedCommentInstance.delete flush:true
+        cannedCommentInstance.delete flush: true
 
         request.withFormat {
             form multipartForm {
                 flash.message = message(code: 'default.deleted.message', args: [message(code: 'CannedComment.label', default: 'CannedComment'), cannedCommentInstance.id])
-                redirect action:"index", method:"GET"
+                redirect action: "index", method: "GET"
             }
-            '*'{ render status: NO_CONTENT }
+            '*' { render status: NO_CONTENT }
         }
     }
 
@@ -116,7 +156,7 @@ class CannedCommentController {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: 'cannedComment.label', default: 'CannedComment'), params.id])
                 redirect action: "index", method: "GET"
             }
-            '*'{ render status: NOT_FOUND }
+            '*' { render status: NOT_FOUND }
         }
     }
 
@@ -280,8 +320,7 @@ class CannedCommentController {
 
                 log.info "Success showing comment: ${commentJson}"
                 render comment as JSON
-            }
-            else {
+            } else {
                 def comments = CannedComment.all
 
                 log.info "Success showing all canned comments"

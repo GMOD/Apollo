@@ -30,11 +30,19 @@ class CannedKeyController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond CannedKey.list(params), model:[cannedKeyInstanceCount: CannedKey.count()]
+
+        def cannedKeys = CannedKey.list(params)
+        def organismFilterMap = [:]
+        CannedKeyOrganismFilter.findAllByCannedKeyInList(cannedKeys).each() {
+            List filterList = organismFilterMap.containsKey(it.cannedKey) ? organismFilterMap.get(it.cannedKey) : []
+            filterList.add(it)
+            organismFilterMap[it.cannedKey] = filterList
+        }
+        respond cannedKeys, model: [cannedKeyInstanceCount: CannedKey.count(), organismFilters: organismFilterMap]
     }
 
     def show(CannedKey cannedKeyInstance) {
-        respond cannedKeyInstance
+        respond cannedKeyInstance, model: [organismFilters: CannedKeyOrganismFilter.findAllByCannedKey(cannedKeyInstance)]
     }
 
     def create() {
@@ -54,7 +62,23 @@ class CannedKeyController {
             return
         }
 
-        cannedKeyInstance.save flush:true
+        cannedKeyInstance.save()
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            println "it ${it}"
+            Organism organism = Organism.findById(it)
+            println "organism ${organism}"
+            new CannedKeyOrganismFilter(
+                    organism: organism,
+                    cannedKey: cannedKeyInstance
+            ).save()
+        }
+
+        cannedKeyInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
@@ -79,6 +103,24 @@ class CannedKeyController {
         if (cannedKeyInstance.hasErrors()) {
             respond cannedKeyInstance.errors, view:'edit'
             return
+        }
+
+        cannedKeyInstance.save()
+
+        CannedKeyOrganismFilter.deleteAll(CannedKeyOrganismFilter.findAllByCannedKey(cannedKeyInstance))
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            println "it2: ${it}"
+            Organism organism = Organism.findById(it)
+            println "organism ${organism}"
+            new CannedKeyOrganismFilter(
+                    organism: organism,
+                    cannedKey: cannedKeyInstance
+            ).save()
         }
 
         cannedKeyInstance.save flush:true

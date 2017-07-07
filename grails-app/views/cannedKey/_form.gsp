@@ -30,13 +30,16 @@
 
 </div>
 
-%{--<div class="fieldcontain ${hasErrors(bean: cannedKeyInstance, field: 'values', 'error')} ">--}%
-    %{--<label for="values">--}%
-        %{--<g:message code="cannedKey.values.label" default="Values"/>--}%
+<div class="fieldcontain ${hasErrors(bean: cannedKeyInstance, field: 'organisms', 'error')} ">
+    <label for="organisms">
+        <g:message code="cannedKey.organisms.label" default="Organisms" />
 
-    %{--</label>--}%
-    %{--<g:select name="values" from="${org.bbop.apollo.CannedValue.list()}" multiple="multiple" optionKey="id" size="5" optionValue="label"--}%
-              %{--value="${cannedKeyInstance?.values*.id}" class="many-to-many"/>--}%
+    </label>
+    <g:select name="organisms" from="${org.bbop.apollo.Organism.list()}"
+              multiple="multiple"
+              optionKey="id" size="10"
+              optionValue="commonName"
+              value="${organismFilters?.organism?.id}" class="many-to-many"/>
 
-%{--</div>--}%
+</div>
 

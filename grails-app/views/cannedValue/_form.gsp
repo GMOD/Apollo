@@ -29,3 +29,15 @@
 
 </div>
 
+<div class="fieldcontain ${hasErrors(bean: cannedValueInstance, field: 'organisms', 'error')} ">
+	<label for="organisms">
+		<g:message code="cannedValue.organisms.label" default="Organisms" />
+
+	</label>
+	<g:select name="organisms" from="${org.bbop.apollo.Organism.list()}"
+			  multiple="multiple"
+			  optionKey="id" size="10"
+			  optionValue="commonName"
+			  value="${organismFilters?.organism?.id}" class="many-to-many"/>
+
+</div>
