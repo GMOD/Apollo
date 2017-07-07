@@ -63,6 +63,16 @@
             </li>
         </g:if>
 
+        <g:if test="${organismFilters}">
+            <li class="fieldcontain">
+                <span id="organisms-label" class="property-label"><g:message code="cannedValue.organisms.label" default="Organisms" /></span>
+
+                <g:each in="${organismFilters}" var="f">
+                    <span class="property-value" aria-labelledby="organisms-label"><g:link controller="organism" action="show" id="${f.id}">${f?.organism.commonName}</g:link></span>
+                </g:each>
+            </li>
+        </g:if>
+
     </ol>
     <g:form url="[resource: cannedValueInstance, action: 'delete']" method="DELETE">
         <fieldset class="buttons">
