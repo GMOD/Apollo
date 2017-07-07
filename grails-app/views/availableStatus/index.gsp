@@ -25,7 +25,9 @@
 					<tr>
 					
 						<g:sortableColumn property="value" title="${message(code: 'availableStatus.value.label', default: 'Value')}" />
-					
+						<th>Feature Types</th>
+						<th>Organisms</th>
+
 					</tr>
 				</thead>
 				<tbody>
@@ -33,7 +35,17 @@
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
 						<td><g:link action="show" id="${availableStatusInstance.id}">${fieldValue(bean: availableStatusInstance, field: "value")}</g:link></td>
-					
+
+						<td>
+							<g:each in="${availableStatusInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">
+								${featureType.type}:${featureType.name}
+							</g:each>
+						</td>
+						<td>
+							<g:each in="${organismFilters.get(availableStatusInstance)}" var="filter">
+								<g:link controller="organism" id="${filter.organism.id}">${filter.organism.commonName}</g:link>
+							</g:each>
+						</td>
 					</tr>
 				</g:each>
 				</tbody>
