@@ -1258,7 +1258,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert firstFeatureLocation != MRNA.first().firstFeatureLocation.fmin
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
 
-
     }
 
 
@@ -1325,8 +1324,77 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert MRNA.count == 1
         assert Gene.count == 1
         assert Feature.count == 4
-        assert firstFeatureLocation != MRNA.first().firstFeatureLocation.fmin
+        assert firstFeatureLocation == MRNA.first().firstFeatureLocation.fmin
+        assert lastFeatureLocation != MRNA.first().lastFeatureLocation.fmax
+
+
+    }
+
+    void "we can add forward and delete in reverse and then undo and redo a transcript in reverse complement"() {
+
+        given: "transcript data"
+        String addTranscriptString = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242}]},\"features\":[{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40736-RA\",\"children\":[{\"location\":{\"fmin\":938708,\"fmax\":938770,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":939570,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":938708,\"fmax\":939601,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+        String deleteExonString = "{ ${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true}]},\"features\":[{\"uniquename\":\"@EXON_UNIQUE_NAME@\"}],\"operation\":\"delete_feature\"}"
+        String undoString = "{ ${testCredentials}  \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true}]},\"features\":[{\"uniquename\":\"@TRANSCRIPT_UNIQUE_NAME@\"}],\"operation\":\"undo\",\"count\":1}"
+        String redoString = "{ ${testCredentials}  \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true}]},\"features\":[{\"uniquename\":\"@TRANSCRIPT_UNIQUE_NAME@\"}],\"operation\":\"redo\",\"count\":1}"
+
+        when: "we insert a transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        int firstFeatureLocation = MRNA.first().firstFeatureLocation.fmin
+        int lastFeatureLocation = MRNA.first().lastFeatureLocation.fmax
+
+        then: "we have a transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert Feature.count == 5
+        assert firstFeatureLocation == MRNA.first().firstFeatureLocation.fmin
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
+
+        when: "we delete an exon"
+        String lastExonUniqueName = Exon.all.sort() { a, b ->
+            a.firstFeatureLocation.fmin <=> b.firstFeatureLocation.fmin
+        }.last().uniqueName
+        deleteExonString = deleteExonString.replaceAll("@EXON_UNIQUE_NAME@", lastExonUniqueName)
+        println "delete exon string: ${deleteExonString}"
+        requestHandlingService.deleteFeature(JSON.parse(deleteExonString) as JSONObject)
+
+        then: "we should have one of everything now"
+        assert Exon.count == 1
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert Feature.count == 4
+        assert firstFeatureLocation == MRNA.first().firstFeatureLocation.fmin
+        assert lastFeatureLocation != MRNA.first().lastFeatureLocation.fmax
+
+        when: "when we undo transcript A"
+        String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
+        undoString = undoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+
+        then: "we should have the original transcript"
+        assert Exon.count == 2
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert firstFeatureLocation == MRNA.first().firstFeatureLocation.fmin
+        assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
+        assert Feature.count == 5
+
+        when: "when we redo transcript"
+        redoString = redoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
+        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
+
+        then: "we should have one of everything again"
+        assert Exon.count == 1
+        assert CDS.count == 1
+        assert MRNA.count == 1
+        assert Gene.count == 1
+        assert Feature.count == 4
+        assert firstFeatureLocation == MRNA.first().firstFeatureLocation.fmin
+        assert lastFeatureLocation != MRNA.first().lastFeatureLocation.fmax
 
 
     }
