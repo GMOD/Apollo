@@ -1311,9 +1311,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 1
         assert MRNA.count == 1
         assert Gene.count == 1
-        assert Feature.count == 5
         assert firstFeatureLocation == MRNA.first().firstFeatureLocation.fmin
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
+        assert Feature.count == 5
 
         when: "when we redo transcript"
         redoString = redoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)

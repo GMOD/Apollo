@@ -537,11 +537,17 @@ class FeatureEventService {
                     }
                     log.debug "original command object = ${originalCommandObject as JSON}"
                     log.debug "final command object = ${addCommandObject as JSON}"
+
+                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value,projectedFeature)
                     requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
                     addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
+
+                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value,projectedFeature)
                     requestHandlingService.addFeature(addCommandObject)
                 }
 
@@ -563,8 +569,8 @@ class FeatureEventService {
                 JSONObject featuresJson = featureService.convertFeatureToJSON(transcript, false, assemblage)
                 def transcriptJSONList = []
                 transcriptJSONList += featuresJson
-                def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
-                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, projectedJsonTranscript)
+//                def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptJSONList)
             }
             if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
