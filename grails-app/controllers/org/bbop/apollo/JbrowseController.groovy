@@ -386,6 +386,24 @@ class JbrowseController {
                 String bigWigPath = params.path
                 println "bigwig path ${bigWigPath}"
             }
+            else if (fileName.endsWith(".vcf.gz")) {
+                String vcfFilePath = params.path
+                // we project the data from VCF here
+                // TODO: Caching
+//                SequenceCache cache = SequenceCache.findByKey(dataFileName)
+//                if (cache) {
+//                    if (cache.value == String.valueOf(HttpServletResponse.SC_NOT_FOUND)) {
+//                        response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+//                    }
+//                    else {
+//                        sequenceCacheService.generateCacheTags(response, cache, dataFileName, cache.value.bytes.length)
+//                        response.outStream << cache.value
+//                    }
+//                    return
+//                }
+
+                String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
+            }
 
         }
 
@@ -793,6 +811,16 @@ class JbrowseController {
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
             obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+        }
+        else if (obj.type == "JBrowse/View/Track/HTMLVariants" ||
+                obj.type == "JBrowse/View/Track/CanvasVariants" ||
+                obj.type == "WebApollo/View/Track/DraggableHTMLVariants") {
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            // Switching to REST store
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }
