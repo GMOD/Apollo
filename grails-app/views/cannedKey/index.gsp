@@ -25,7 +25,9 @@
 					<tr>
 					
 						<g:sortableColumn property="label" title="${message(code: 'cannedKey.label.label', default: 'Label')}" />
-					
+						<th>Feature Types</th>
+						<th>Organisms</th>
+
 						<g:sortableColumn property="metadata" title="${message(code: 'cannedKey.metadata.label', default: 'Metadata')}" />
 					
 					</tr>
@@ -35,7 +37,18 @@
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
 						<td><g:link action="show" id="${cannedKeyInstance.id}">${fieldValue(bean: cannedKeyInstance, field: "label")}</g:link></td>
-					
+
+						<td>
+							<g:each in="${cannedKeyInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">
+								${featureType.type}:${featureType.name}
+							</g:each>
+						</td>
+						<td>
+							<g:each in="${organismFilters.get(cannedKeyInstance)}" var="filter">
+								<g:link controller="organism" id="${filter.organism.id}">${filter.organism.commonName}</g:link>
+							</g:each>
+						</td>
+
 						<td>${fieldValue(bean: cannedKeyInstance, field: "metadata")}</td>
 					
 					</tr>

@@ -28,6 +28,7 @@
 
 						%{--<g:sortableColumn property="metadata" title="${message(code: 'cannedComment.featureTypes.label', default: 'Feature Types')}" />--}%
 						<th>Feature Types</th>
+						<th>Organisms</th>
 						<g:sortableColumn property="metadata" title="${message(code: 'cannedComment.metadata.label', default: 'Metadata')}" />
 					
 					</tr>
@@ -39,11 +40,16 @@
 						<td><g:link action="show" id="${cannedCommentInstance.id}">${fieldValue(bean: cannedCommentInstance, field: "comment")}</g:link></td>
 
 						<td>
-							<g:each in="${cannedCommentInstance.featureTypes}" var="featureType">
+							<g:each in="${cannedCommentInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">
 								${featureType.type}:${featureType.name}
 							</g:each>
 						</td>
-					
+						<td>
+							<g:each in="${organismFilters.get(cannedCommentInstance)}" var="filter">
+								<g:link controller="organism" id="${filter.organism.id}">${filter.organism.commonName}</g:link>
+							</g:each>
+						</td>
+
 						<td>${fieldValue(bean: cannedCommentInstance, field: "metadata")}</td>
 					
 					</tr>

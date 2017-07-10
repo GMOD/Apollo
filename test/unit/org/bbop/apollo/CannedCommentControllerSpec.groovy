@@ -6,12 +6,12 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(CannedCommentController)
-@Mock(CannedComment)
+@Mock([CannedComment,CannedCommentOrganismFilter])
 class CannedCommentControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
-        params["comment"] = 'somethign genetically interesting'
+        params["comment"] = 'something genetically interesting'
     }
 
     void "Test the index action returns the correct model"() {
