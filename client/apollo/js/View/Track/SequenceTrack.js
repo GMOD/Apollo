@@ -485,7 +485,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                                     // frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
                                     var transStart = blockStart + 1 - i;
                                     var frame = (transStart % 3 + 3) % 3;
-                                    console.log(i + " " + transStart + " "+ frame + " START residue" + extendedStartResidues);
                                     var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
                                     $(transProtein).addClass("cds-frame" + frame);
                                     framedivs[frame] = transProtein;

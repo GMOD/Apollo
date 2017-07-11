@@ -561,6 +561,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
             // CHANGED to call renderExonSegments even if no wholeCDS --
             //     non wholeCDS means undefined cdsMin, which will trigger creation of UTR div for entire exon
+            console.log('strand: '+strand + ' reverse: '+reverse + ' subtype: '+subtype);
             if (subtype === "exon") {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
                 priorCdsLength = this.renderExonSegments(subfeat, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse);
             }
@@ -634,14 +635,23 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // whole exon is translated
         else if (cdsMin <= subStart && cdsMax >= subEnd) {
             var overhang = priorCdsLength % 3;  // number of bases overhanging from previous CDS
-            var relFrame = (3 - (priorCdsLength % 3)) % 3;
-            var absFrame, cdsFrame, initFrame;
+            var absFrame, cdsFrame, initFrame, relFrame;
             if (reverse)  {
-                initFrame = (cdsMax - 1) % 3;
-                absFrame = (subEnd - 1) % 3;
-                cdsFrame = (3 + absFrame - relFrame) % 3;
+                relFrame = (3 - (priorCdsLength % 3)) % 3;
+                initFrame = (cdsMax - 1 ) % 3;
+                absFrame = (subEnd ) % 3;
+                cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
+                console.log("A priorCDSLength["+priorCdsLength+"]");
+                console.log("A relFrame["+relFrame+"]");
+                console.log("A initFrame["+initFrame+"]");
+                console.log("A absFrame["+absFrame+"]");
+                console.log("A cdsMax["+cdsMax+"]");
+                console.log("A subEnd["+subEnd+"]");
+
+                console.log("A cdsFrame["+cdsFrame+"]");
             }
             else  {
+                relFrame = (3 - (priorCdsLength % 3)) % 3;
                 initFrame = cdsMin % 3;
                 absFrame = (subStart % 3);
                 cdsFrame = (absFrame + relFrame) % 3;
@@ -673,13 +683,18 @@ var draggableTrack = declare( HTMLFeatureTrack,
             var cdsSegEnd = Math.min(cdsMax, subEnd);
             var overhang = priorCdsLength % 3;  // number of bases overhanging
             var absFrame, cdsFrame, initFrame;
+            console.log("prior cds length: " + priorCdsLength + " reverse? "+reverse);
             if (priorCdsLength > 0)  {
                 var relFrame = (3 - (priorCdsLength % 3)) % 3;
                 if (reverse)  {
-                    //      cdsFrame = ((subEnd-1) + ((3 - (priorCdsLength % 3)) % 3)) % 3; }
                     initFrame = (cdsMax - 1) % 3;
                     absFrame = (subEnd - 1) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
+                    console.log("initFrame["+initFrame+"]");
+                    console.log("absFrame["+absFrame+"]");
+                    console.log("cdsMax["+cdsMax+"]");
+
+                    console.log("cdsFrame["+cdsFrame+"]");
                 }
                 else  {
                     // cdsFrame = (subStart + ((3 - (priorCdsLength % 3)) % 3)) % 3;
@@ -694,6 +709,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
                     cdsFrame = (cdsMax-1) % 3; // console.log("rendering reverse frame");
+                    console.log("NO cdsLength cdsMax["+cdsMax+"]");
+                    console.log("NO cdsLength cdsFrame["+cdsFrame+"]");
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
