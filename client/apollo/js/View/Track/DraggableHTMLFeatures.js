@@ -708,7 +708,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
-                    cdsFrame = (cdsMax-1) % 3; // console.log("rendering reverse frame");
+                    cdsFrame = (cdsMax) % 3; // console.log("rendering reverse frame");
                     console.log("NO cdsLength cdsMax["+cdsMax+"]");
                     console.log("NO cdsLength cdsFrame["+cdsFrame+"]");
                 }
