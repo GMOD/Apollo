@@ -31,7 +31,7 @@ define( [
         SimpleFeature,
         SeqOnto ) {
 
-var debugFrame = false;
+var debugFrame = true ;
 
 var draggableTrack = declare( HTMLFeatureTrack,
 
@@ -634,12 +634,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // whole exon is translated
         else if (cdsMin <= subStart && cdsMax >= subEnd) {
             var overhang = priorCdsLength % 3;  // number of bases overhanging from previous CDS
+            var absFrame, cdsFrame, initFrame
             var relFrame = (3 - (priorCdsLength % 3)) % 3;
-            var absFrame, cdsFrame, initFrame;
             if (reverse)  {
-                initFrame = (cdsMax - 1) % 3;
-                absFrame = (subEnd - 1) % 3;
-                cdsFrame = (3 + absFrame - relFrame) % 3;
+                initFrame = (cdsMax  ) % 3;
+                absFrame = (subEnd ) % 3;
+                cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
             }
             else  {
                 initFrame = cdsMin % 3;
@@ -676,9 +676,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (priorCdsLength > 0)  {
                 var relFrame = (3 - (priorCdsLength % 3)) % 3;
                 if (reverse)  {
-                    //      cdsFrame = ((subEnd-1) + ((3 - (priorCdsLength % 3)) % 3)) % 3; }
-                    initFrame = (cdsMax - 1) % 3;
-                    absFrame = (subEnd - 1) % 3;
+                    initFrame = (cdsMax) % 3;
+                    absFrame = (subEnd ) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
                 }
                 else  {
@@ -693,7 +692,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
-                    cdsFrame = (cdsMax-1) % 3; // console.log("rendering reverse frame");
+                    cdsFrame = (cdsMax) % 3;
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
