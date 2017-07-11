@@ -517,7 +517,7 @@ class FeatureEventService {
                 if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
 //                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
 //                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
-                    JSONArray sequenceArray = JSON.parse(requestAssemblage.sequenceList) as JSONArray
+                    JSONArray sequenceArray = JSON.parse(assemblage.sequenceList) as JSONArray
                     JSONObject jsonObject = new JSONObject()
                     jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray)
                     addCommandObject.put(FeatureStringEnum.TRACK.value, jsonObject)
@@ -535,19 +535,19 @@ class FeatureEventService {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
                     }
-                    log.debug "original command object = ${originalCommandObject as JSON}"
-                    log.debug "final command object = ${addCommandObject as JSON}"
-
-                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
-                    addCommandObject.put(FeatureStringEnum.FEATURES.value,projectedFeature)
+                    println "transcript original command object = ${originalCommandObject as JSON}"
+                    println "transcript add command object = ${addCommandObject as JSON}"
+//                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
+//                    addCommandObject.put(FeatureStringEnum.FEATURES.value,projectedFeature)
                     requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
-                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
-
-                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
-                    addCommandObject.put(FeatureStringEnum.FEATURES.value,projectedFeature)
+                    println "feature original command object = ${originalCommandObject as JSON}"
+                    println "feature add command object = ${addCommandObject as JSON}"
+//                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
+//                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
+                    addCommandObject.put(FeatureStringEnum.FEATURES.value,addCommandObject)
                     requestHandlingService.addFeature(addCommandObject)
                 }
 
