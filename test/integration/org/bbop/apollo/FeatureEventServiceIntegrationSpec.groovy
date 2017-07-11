@@ -1192,6 +1192,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
+    @IgnoreRest
     void "we can undo and redo a transcript in reverse complement"() {
 
         given: "transcript data"
@@ -1221,6 +1222,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         deleteExonString = deleteExonString.replaceAll("@EXON_UNIQUE_NAME@", lastExonUniqueName)
         println "delete exon string: ${deleteExonString}"
         requestHandlingService.deleteFeature(JSON.parse(deleteExonString) as JSONObject)
+        int redoFirstFeatureLocation = MRNA.first().firstFeatureLocation.fmin
 
         then: "we should have one of everything now"
         assert Exon.count == 1
@@ -1228,7 +1230,8 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert MRNA.count == 1
         assert Gene.count == 1
         assert Feature.count == 4
-        assert firstFeatureLocation != MRNA.first().firstFeatureLocation.fmin
+        assert firstFeatureLocation < redoFirstFeatureLocation
+        assert redoFirstFeatureLocation ==  MRNA.first().firstFeatureLocation.fmin
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
 
         when: "when we undo transcript A"
@@ -1247,6 +1250,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we redo transcript"
         redoString = redoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
+        def featureEvents = FeatureEvent.all
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should have one of everything again"
@@ -1255,8 +1259,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert MRNA.count == 1
         assert Gene.count == 1
         assert Feature.count == 4
-        assert firstFeatureLocation != MRNA.first().firstFeatureLocation.fmin
+        assert redoFirstFeatureLocation ==  MRNA.first().firstFeatureLocation.fmin
         assert lastFeatureLocation == MRNA.first().lastFeatureLocation.fmax
+        assert firstFeatureLocation < MRNA.first().firstFeatureLocation.fmin
 
     }
 

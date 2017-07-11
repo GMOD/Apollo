@@ -457,6 +457,8 @@ class ProjectionService {
  */
     @NotTransactional
     JSONObject evaluateReverseLocation(ProjectionSequence projectionSequence, JSONObject locationObject) {
+
+        // if the sequence is "reverse"
         if (projectionSequence.reverse) {
             if (locationObject.containsKey(FeatureStringEnum.STRAND.value)) {
                 Strand strand = Strand.getStrandForValue(locationObject.strand)
@@ -466,6 +468,16 @@ class ProjectionService {
             Integer temp = locationObject.fmin ?: null
             locationObject.fmin = locationObject.fmax
             locationObject.fmax = temp
+//
+//            if(locationObject.getString(FeatureStringEnum.SEQUENCE.value).startsWith("[")){
+//                JSONArray sequenceArray = JSON.parse(locationObject.getString(FeatureStringEnum.SEQUENCE.value)) as JSONArray
+//                for(JSONObject sequenceObject in sequenceArray){
+//                    // we set it to true if not there, otherwise we set it to false
+////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
+//                    sequenceObject.reverse = false
+//                }
+//                locationObject.put(FeatureStringEnum.SEQUENCE.value,sequenceArray.toString())
+//            }
         }
         return locationObject
     }
