@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -46,7 +47,7 @@ class FeatureProjectionService {
         Integer fmin = locationObject.has(FeatureStringEnum.FMIN.value) ? locationObject.getInt(FeatureStringEnum.FMIN.value) : null
         Integer fmax = locationObject.has(FeatureStringEnum.FMAX.value) ? locationObject.getInt(FeatureStringEnum.FMAX.value) : null
         ProjectionSequence projectionSequence1 = unProject ? projection.getUnProjectedSequence(fmin) : projection.getProjectionSequence(fmin + offset)
-        ProjectionSequence projectionSequence2 = unProject ? projection.getUnProjectedSequence(fmax) : projection.getProjectionSequence(fmax + offset)
+//        ProjectionSequence projectionSequence2 = unProject ? projection.getUnProjectedSequence(fmax) : projection.getProjectionSequence(fmax + offset)
 
         if (unProject) {
             // TODO: add reverse offset?
@@ -67,33 +68,48 @@ class FeatureProjectionService {
         if (fmax) {
             locationObject.put(FeatureStringEnum.FMAX.value, fmax)
         }
-        // if we don't have a sequence .. need to assign one
-        if (projectionSequence1 && projectionSequence2) {
-            // case 1, projectionSequence1 exists and is equals to projectionSequence2
-            if (projectionSequence1.name == projectionSequence2.name) {
-                if (!locationObject.sequence) {
-                    locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
-                }
-                projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
-            } else if (projectionSequence1.name != projectionSequence2.name) {
-                locationObject.put(FeatureStringEnum.SEQUENCE.value, createJSONStringFromProjectionSequences([projectionSequence1, projectionSequence2]))
-                // TODO: not sure how to handle this case
-                assert projectionSequence1.reverse == projectionSequence2.reverse
-            }
-        } else if (projectionSequence1) {
-            if (!locationObject.sequence) {
-                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
-            }
-            projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
-        } else if (projectionSequence2) {
-            if (!locationObject.sequence) {
-                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence2.name)
-            }
-            projectionService.evaluateReverseLocation(projectionSequence2, locationObject)
-        } else {
-            log.debug("Neither projection is valid, so ignoring")
-//            throw new AnnotationException("Neither projection sequence seems to be valid")
-        }
+
+        projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
+
+//        if(unProject){
+//            if(locationObject.containsKey(FeatureStringEnum.SEQUENCE.value) && locationObject.getString(FeatureStringEnum.SEQUENCE.value).startsWith("[")){
+//                JSONArray sequenceArray = JSON.parse(locationObject.getString(FeatureStringEnum.SEQUENCE.value)) as JSONArray
+//                for(JSONObject sequenceObject in sequenceArray){
+//                    // we set it to true if not there, otherwise we set it to false
+////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
+//                    sequenceObject.reverse = false
+//                }
+//                locationObject.put(FeatureStringEnum.SEQUENCE.value,sequenceArray.toString())
+//            }
+//        }
+
+//        // if we don't have a sequence .. need to assign one
+//        if (projectionSequence1 && projectionSequence2) {
+//            // case 1, projectionSequence1 exists and is equals to projectionSequence2
+//            if (projectionSequence1.name == projectionSequence2.name) {
+//                if (!locationObject.sequence) {
+//                    locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
+//                }
+//                projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
+//            } else if (projectionSequence1.name != projectionSequence2.name) {
+//                locationObject.put(FeatureStringEnum.SEQUENCE.value, createJSONStringFromProjectionSequences([projectionSequence1, projectionSequence2]))
+//                // TODO: not sure how to handle this case
+//                assert projectionSequence1.reverse == projectionSequence2.reverse
+//            }
+//        } else if (projectionSequence1) {
+//            if (!locationObject.sequence) {
+//                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence1.name)
+//            }
+//            projectionService.evaluateReverseLocation(projectionSequence1, locationObject)
+//        } else if (projectionSequence2) {
+//            if (!locationObject.sequence) {
+//                locationObject.put(FeatureStringEnum.SEQUENCE.value, projectionSequence2.name)
+//            }
+//            projectionService.evaluateReverseLocation(projectionSequence2, locationObject)
+//        } else {
+//            log.debug("Neither projection is valid, so ignoring")
+////            throw new AnnotationException("Neither projection sequence seems to be valid")
+//        }
         return inputFeature
     }
 

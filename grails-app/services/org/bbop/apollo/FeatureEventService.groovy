@@ -213,6 +213,30 @@ class FeatureEventService {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
+        for (JSONObject sequenceObject in newFeatureArray) {
+            // we set it to true if not there, otherwise we set it to false
+//                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
+            if(sequenceObject.containsKey(FeatureStringEnum.REVERSE.value)){
+                sequenceObject.reverse = false
+            }
+            if(sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)){
+                JSONObject location = sequenceObject.location
+                if(location.containsKey(FeatureStringEnum.REVERSE.value)){
+                    location.reverse = false
+                }
+                if(location.containsKey(FeatureStringEnum.SEQUENCE.value)){
+                    String locationSequenceString = location.sequence
+                    if(locationSequenceString.startsWith("[")){
+                        JSONArray sequenceArray = JSON.parse(location.sequence) as JSONArray
+                        for(JSONObject so in sequenceArray){
+                            so.reverse = false
+                        }
+                        location.sequence = sequenceArray.toString()
+                    }
+                }
+            }
+        }
+
 
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName, featureEventMap)
         FeatureEvent lastFeatureEvent = null

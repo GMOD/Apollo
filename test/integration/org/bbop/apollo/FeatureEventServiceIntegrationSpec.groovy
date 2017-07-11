@@ -1192,7 +1192,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-//    @IgnoreRest
     void "we can undo and redo a transcript in reverse complement"() {
 
         given: "transcript data"
@@ -1238,6 +1237,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         String transcript1UniqueName = MRNA.findByName("GB40736-RA-00001").uniqueName
         undoString = undoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
         def featureEvents = FeatureEvent.all
+        println "history: ${featureEvents.newFeaturesJsonArray}"
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
         then: "we should have the original transcript"
@@ -1251,6 +1251,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we redo transcript"
         redoString = redoString.replaceAll("@TRANSCRIPT_UNIQUE_NAME@", transcript1UniqueName)
+        featureEvents = FeatureEvent.all
         requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 
         then: "we should have one of everything again"

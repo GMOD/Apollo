@@ -246,10 +246,10 @@ class FeatureService {
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
         def sequences = assemblageService.getSequencesFromAssemblage(assemblage)
-        int calculatedFmin = assemblageService.getMinForFullScaffold(min,assemblage)
-        int calculatedFmax = assemblageService.getMaxForFullScaffold(max,assemblage)
+        int calculatedFmin = assemblageService.getMinForFullScaffold(min, assemblage)
+        int calculatedFmax = assemblageService.getMaxForFullScaffold(max, assemblage)
 
-        List<ProjectionSequence> projectionSequenceList = projection.getUnProjectedSequences(min,max)
+        List<ProjectionSequence> projectionSequenceList = projection.getUnProjectedSequences(min, max)
         // TODO: project these individually
 
         // similar to FPS::setFeatureLocationsForProjection
@@ -310,7 +310,7 @@ class FeatureService {
                     calculatedMax = projectionSequence.unprojectedLength
                 }
             }
-            sequenceAlterationList.addAll(getOverlappingSequenceAlterations(sequence,calculatedMin,calculatedMax))
+            sequenceAlterationList.addAll(getOverlappingSequenceAlterations(sequence, calculatedMin, calculatedMax))
         }
 
         return sequenceAlterationList
@@ -396,7 +396,7 @@ class FeatureService {
             }
 
             if (!useCDS || cds == null) {
-                calculateCDS(transcript, readThroughStopCodon,assemblage)
+                calculateCDS(transcript, readThroughStopCodon, assemblage)
             } else {
                 // if there are any sequence alterations that overlaps this transcript then
                 // recalculate the CDS to account for these changes
@@ -451,11 +451,10 @@ class FeatureService {
                         jsonTranscript.remove(FeatureStringEnum.NAME.value)
                         tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, assemblage);
                         jsonTranscript.put(FeatureStringEnum.NAME.value, originalName)
-                        updateNewGsolFeatureAttributes(tmpTranscript,assemblage)
-                    }
-                    else {
+                        updateNewGsolFeatureAttributes(tmpTranscript, assemblage)
+                    } else {
                         tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, assemblage);
-                        updateNewGsolFeatureAttributes(tmpTranscript,assemblage)
+                        updateNewGsolFeatureAttributes(tmpTranscript, assemblage)
                     }
 
                     if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
@@ -471,9 +470,8 @@ class FeatureService {
                     }
 
                     if (!useCDS || cds == null) {
-                        calculateCDS(tmpTranscript, readThroughStopCodon,assemblage)
-                    }
-                    else {
+                        calculateCDS(tmpTranscript, readThroughStopCodon, assemblage)
+                    } else {
                         // if there are any sequence alterations that overlaps this transcript then
                         // recalculate the CDS to account for these changes
                         def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
@@ -607,9 +605,8 @@ class FeatureService {
             }
 
             if (!useCDS || cds == null) {
-                calculateCDS(transcript, readThroughStopCodon,assemblage)
-            }
-            else {
+                calculateCDS(transcript, readThroughStopCodon, assemblage)
+            } else {
                 // if there are any sequence alterations that overlaps this transcript then
                 // recalculate the CDS to account for these changes
                 def sequenceAlterations = getSequenceAlterationsForFeature(transcript)
@@ -1438,8 +1435,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
             if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                 gsolFeature.setName(jsonFeature.getString(FeatureStringEnum.NAME.value));
-            }
-            else {
+            } else {
                 // since name attribute cannot be null, using the feature's own uniqueName
                 gsolFeature.name = gsolFeature.uniqueName
             }
@@ -1930,32 +1926,32 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     @Transactional
-    void populatePartialDataForFeature(Feature feature){
+    void populatePartialDataForFeature(Feature feature) {
         populatePartialFminDataForFeature(feature)
         populatePartialFmaxDataForFeature(feature)
     }
 
     @Transactional
-    void populatePartialFminDataForFeature(Feature feature){
-        def featureLocations = FeatureLocation.findAllByFeatureAndIsFminPartial(feature,true)
-        for(FeatureLocation featureLocation in featureLocations){
-            if(featureLocation?.previousFeatureLocation?.sequence){
+    void populatePartialFminDataForFeature(Feature feature) {
+        def featureLocations = FeatureLocation.findAllByFeatureAndIsFminPartial(feature, true)
+        for (FeatureLocation featureLocation in featureLocations) {
+            if (featureLocation?.previousFeatureLocation?.sequence) {
                 String sequenceString = (featureLocation.previousFeatureLocation.sequence as JSON).toString()
                 featureLocation.fminData = sequenceString
             }
-            featureLocation.save(insert:false)
+            featureLocation.save(insert: false)
         }
     }
 
     @Transactional
-    void populatePartialFmaxDataForFeature(Feature feature){
-        def featureLocations = FeatureLocation.findAllByFeatureAndIsFmaxPartial(feature,true)
-        for(FeatureLocation featureLocation in featureLocations){
-            if(featureLocation?.nextFeatureLocation?.sequence){
+    void populatePartialFmaxDataForFeature(Feature feature) {
+        def featureLocations = FeatureLocation.findAllByFeatureAndIsFmaxPartial(feature, true)
+        for (FeatureLocation featureLocation in featureLocations) {
+            if (featureLocation?.nextFeatureLocation?.sequence) {
                 String sequenceString = (featureLocation.nextFeatureLocation.sequence as JSON).toString()
                 featureLocation.fmaxData = sequenceString
             }
-            featureLocation.save(insert:false)
+            featureLocation.save(insert: false)
         }
     }
 
@@ -1997,7 +1993,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     int convertSourceCoordinateToLocalCoordinateForTranscript(Transcript transcript, int sourceCoordinate) {
-        List<Exon> exons = transcriptService.getSortedExons(transcript,true)
+        List<Exon> exons = transcriptService.getSortedExons(transcript, true)
         int localCoordinate = -1
         int currentCoordinate = 0
         for (Exon exon : exons) {
@@ -2021,8 +2017,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (feature instanceof Transcript) {
             exons = transcriptService.getSortedExons(feature, true)
             cds = transcriptService.getCDS(feature)
-        }
-        else if (feature instanceof CDS) {
+        } else if (feature instanceof CDS) {
             Transcript transcript = transcriptService.getTranscript(feature)
             exons = transcriptService.getSortedExons(transcript, true)
             cds = feature
@@ -2211,7 +2206,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
 
-        return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial,fminData,fmaxData)
+        return generateFeatureLocationToJSON(assemblage.sequenceList, feature.strand, calculatedFmin, calculatedFmax, fminPartial, fmaxPartial, fminData, fmaxData)
     }
 
     String generateOwnerString(Feature feature) {
@@ -2405,7 +2400,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     @Timed
-    JSONObject generateFeatureLocationToJSON(String sequenceString, Integer strand, Integer fmin, Integer fmax, Boolean fminPartial = false, Boolean fmaxPartial = false,String fminData = null,String fmaxData = null ) throws JSONException {
+    JSONObject generateFeatureLocationToJSON(String sequenceString, Integer strand, Integer fmin, Integer fmax, Boolean fminPartial = false, Boolean fmaxPartial = false, String fminData = null, String fmaxData = null) throws JSONException {
         JSONObject jsonFeatureLocation = new JSONObject();
         jsonFeatureLocation.put(FeatureStringEnum.FMIN.value, fmin)
         jsonFeatureLocation.put(FeatureStringEnum.FMAX.value, fmax)
@@ -2418,6 +2413,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
         }
         jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, strand);
+//
+//        if (sequenceString.startsWith("[")) {
+//            JSONArray sequenceArray = JSON.parse(sequenceString) as JSONArray
+//            for (JSONObject sequenceObject in sequenceArray) {
+//                // we set it to true if not there, otherwise we set it to false
+////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
+//                sequenceObject.reverse = false
+//            }
+//            sequenceString = sequenceArray.toString()
+//        }
+
         jsonFeatureLocation.put(FeatureStringEnum.SEQUENCE.value, sequenceString);
         return jsonFeatureLocation
     }
@@ -2749,8 +2755,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         def exonList = []
         if (feature instanceof Transcript) {
             exonList = transcriptService.getSortedExons(feature, true)
-        }
-        else if (feature instanceof CDS) {
+        } else if (feature instanceof CDS) {
             Transcript transcript = transcriptService.getTranscript(feature)
             exonList = transcriptService.getSortedExons(transcript, true)
         }
@@ -2929,7 +2934,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
         } else {
-            List<Exon> exonList = feature instanceof CDS ? transcriptService.getSortedExons(transcriptService.getTranscript(feature),true) : transcriptService.getSortedExons( (Transcript) feature, true)
+            List<Exon> exonList = feature instanceof CDS ? transcriptService.getSortedExons(transcriptService.getTranscript(feature), true) : transcriptService.getSortedExons((Transcript) feature, true)
             for (Exon exon : exonList) {
                 int exonFmin = exon.fmin
                 int exonFmax = exon.fmax
@@ -3054,7 +3059,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 coordinateInContext = convertSourceCoordinateToLocalCoordinateForCDS(feature, alteration.fmin)
             } else if (feature instanceof Transcript) {
                 // if feature is Transcript then calling convertSourceCoordinateToLocalCoordinateForTranscript
-                coordinateInContext = convertSourceCoordinateToLocalCoordinateForTranscript( (Transcript) feature, alteration.fmin)
+                coordinateInContext = convertSourceCoordinateToLocalCoordinateForTranscript((Transcript) feature, alteration.fmin)
             } else {
                 // calling convertSourceCoordinateToLocalCoordinate
                 coordinateInContext = convertSourceCoordinateToLocalCoordinate(feature, alteration.fmin)
@@ -3355,18 +3360,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 if (jsonGene.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonGene.getString(FeatureStringEnum.NAME.value)
                     log.debug "jsonGene already has 'name': ${geneName}"
-                }
-                else if (jsonFeature.has(FeatureStringEnum.PARENT_NAME.value)) {
+                } else if (jsonFeature.has(FeatureStringEnum.PARENT_NAME.value)) {
                     String principalName = jsonFeature.getString(FeatureStringEnum.PARENT_NAME.value)
                     geneName = nameService.makeUniqueGeneName(assemblage.organism, principalName, false)
                     log.debug "jsonFeature has 'parent_name' attribute; using ${principalName} to generate ${geneName}"
-                }
-                else
-                if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
+                } else if (jsonFeature.has(FeatureStringEnum.NAME.value)) {
                     geneName = jsonFeature.getString(FeatureStringEnum.NAME.value)
                     log.debug "jsonGene already has 'name': ${geneName}"
-                }
-                else {
+                } else {
                     geneName = nameService.makeUniqueGeneName(assemblage.organism, assemblage.name, false)
                     log.debug "Making a new unique gene name: ${geneName}"
                 }
