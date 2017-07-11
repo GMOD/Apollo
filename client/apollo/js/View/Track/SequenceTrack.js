@@ -478,11 +478,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
                             var framedivs = [];
                                 for (var i=0; i<3; i++) {
-                                    // var tstart = blockStart + i;
-                                    // var frame = tstart % 3;
-                                    // var frame = (track.refSeq.length - blockEnd + i) % 3;
-                                    // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
-                                    // frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
                                     var transStart = blockStart + 1 - i;
                                     var frame = (transStart % 3 + 3) % 3;
                                     var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);

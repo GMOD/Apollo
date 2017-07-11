@@ -561,7 +561,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
             // CHANGED to call renderExonSegments even if no wholeCDS --
             //     non wholeCDS means undefined cdsMin, which will trigger creation of UTR div for entire exon
-            console.log('strand: '+strand + ' reverse: '+reverse + ' subtype: '+subtype);
             if (subtype === "exon") {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
                 priorCdsLength = this.renderExonSegments(subfeat, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse);
             }
@@ -635,15 +634,14 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // whole exon is translated
         else if (cdsMin <= subStart && cdsMax >= subEnd) {
             var overhang = priorCdsLength % 3;  // number of bases overhanging from previous CDS
-            var absFrame, cdsFrame, initFrame, relFrame;
+            var absFrame, cdsFrame, initFrame
+            var relFrame = (3 - (priorCdsLength % 3)) % 3;
             if (reverse)  {
-                relFrame = (3 - (priorCdsLength % 3)) % 3;
                 initFrame = (cdsMax - 1 ) % 3;
                 absFrame = (subEnd ) % 3;
                 cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
             }
             else  {
-                relFrame = (3 - (priorCdsLength % 3)) % 3;
                 initFrame = cdsMin % 3;
                 absFrame = (subStart % 3);
                 cdsFrame = (absFrame + relFrame) % 3;
@@ -694,7 +692,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
-                    cdsFrame = (cdsMax) % 3; // console.log("rendering reverse frame");
+                    cdsFrame = (cdsMax) % 3;
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
