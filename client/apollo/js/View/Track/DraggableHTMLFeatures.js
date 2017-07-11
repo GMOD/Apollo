@@ -31,7 +31,7 @@ define( [
         SimpleFeature,
         SeqOnto ) {
 
-var debugFrame = true ;
+var debugFrame = false ;
 
 var draggableTrack = declare( HTMLFeatureTrack,
 
