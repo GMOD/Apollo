@@ -641,14 +641,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 initFrame = (cdsMax - 1 ) % 3;
                 absFrame = (subEnd ) % 3;
                 cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
-                console.log("A priorCDSLength["+priorCdsLength+"]");
-                console.log("A relFrame["+relFrame+"]");
-                console.log("A initFrame["+initFrame+"]");
-                console.log("A absFrame["+absFrame+"]");
-                console.log("A cdsMax["+cdsMax+"]");
-                console.log("A subEnd["+subEnd+"]");
-
-                console.log("A cdsFrame["+cdsFrame+"]");
             }
             else  {
                 relFrame = (3 - (priorCdsLength % 3)) % 3;
@@ -683,18 +675,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
             var cdsSegEnd = Math.min(cdsMax, subEnd);
             var overhang = priorCdsLength % 3;  // number of bases overhanging
             var absFrame, cdsFrame, initFrame;
-            console.log("prior cds length: " + priorCdsLength + " reverse? "+reverse);
             if (priorCdsLength > 0)  {
                 var relFrame = (3 - (priorCdsLength % 3)) % 3;
                 if (reverse)  {
                     initFrame = (cdsMax - 1) % 3;
                     absFrame = (subEnd - 1) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
-                    console.log("initFrame["+initFrame+"]");
-                    console.log("absFrame["+absFrame+"]");
-                    console.log("cdsMax["+cdsMax+"]");
-
-                    console.log("cdsFrame["+cdsFrame+"]");
                 }
                 else  {
                     // cdsFrame = (subStart + ((3 - (priorCdsLength % 3)) % 3)) % 3;
@@ -709,8 +695,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
                     cdsFrame = (cdsMax) % 3; // console.log("rendering reverse frame");
-                    console.log("NO cdsLength cdsMax["+cdsMax+"]");
-                    console.log("NO cdsLength cdsFrame["+cdsFrame+"]");
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
