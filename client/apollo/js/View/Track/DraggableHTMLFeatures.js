@@ -31,7 +31,7 @@ define( [
         SimpleFeature,
         SeqOnto ) {
 
-var debugFrame = false;
+var debugFrame = true ;
 
 var draggableTrack = declare( HTMLFeatureTrack,
 
@@ -637,7 +637,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             var absFrame, cdsFrame, initFrame
             var relFrame = (3 - (priorCdsLength % 3)) % 3;
             if (reverse)  {
-                initFrame = (cdsMax - 1 ) % 3;
+                initFrame = (cdsMax  ) % 3;
                 absFrame = (subEnd ) % 3;
                 cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
             }
@@ -676,8 +676,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (priorCdsLength > 0)  {
                 var relFrame = (3 - (priorCdsLength % 3)) % 3;
                 if (reverse)  {
-                    initFrame = (cdsMax - 1) % 3;
-                    absFrame = (subEnd - 1) % 3;
+                    initFrame = (cdsMax) % 3;
+                    absFrame = (subEnd ) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
                 }
                 else  {
