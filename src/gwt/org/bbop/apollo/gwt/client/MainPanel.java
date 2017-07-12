@@ -1010,6 +1010,26 @@ public class MainPanel extends Composite {
         UserRestService.logout();
     }
 
+    public static void setCurrentSequence(String newSequence){
+        GWT.log("setting current sequence: "+newSequence);
+        Window.alert("setting current sequence: "+newSequence);
+
+//        setting current sequence: {"sequenceList":[{"name":"Group1.10","start":0,"end":1405242,"reverse":false}]}:164566..168677:164565..168676
+
+        // get sequence part
+        String sequenceString = newSequence.substring(0,newSequence.lastIndexOf("}"));
+        String locationString = newSequence.substring(newSequence.lastIndexOf(":"),newSequence.length());
+
+        String[] locationStrings = locationString.split("\\.\\.");
+        currentStartBp = Long.parseLong(locationStrings[0]);
+        currentEndBp = Long.parseLong(locationStrings[1]);
+
+        AssemblageSequenceList newAssemblageSequenceList = (AssemblageSequenceList) JSONParser.parseLenient(sequenceString).isObject().get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
+
+        currentAssemblage.setSequenceList(newAssemblageSequenceList);
+
+    }
+
     public static void doReverseComplement(){
         Boolean isReverse = currentAssemblage.getSequenceList().getSequence(0).getReverse();
         for(int i = 0 ; i < currentAssemblage.getSequenceList().size() ; i++){
@@ -1167,6 +1187,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentAssemblage = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentAssemblageAsJson());
         $wnd.doReverseComplement = $entry(@org.bbop.apollo.gwt.client.MainPanel::doReverseComplement());
+        $wnd.setCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::setCurrentSequence(Ljava/lang/String;));
     }-*/;
 
     public enum TabPanelIndex {

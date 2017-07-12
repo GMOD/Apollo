@@ -794,6 +794,10 @@ return declare( [JBPlugin, HelpMixin],
         });
     },
 
+    getApollo: function () {
+        return window.parent;
+    },
+
     addSearchBox: function(){
         var thisB = this ;
         var browser = thisB.browser ;
@@ -831,7 +835,11 @@ return declare( [JBPlugin, HelpMixin],
                 else if (event.keyCode == keys.ENTER) {
                     locationBox.closeDropDown(false);
                     // thisB.navigateToAssemblage( locationBox.get('value') );
-                    browser.navigateTo( locationBox.get('value') );
+                    var locationString = locationBox.get('value');
+                    browser.navigateTo( locationString );
+                    var nextViewString = browser.view.visibleRegionLocString();
+                    thisB.getApollo().setCurrentSequence(nextViewString);
+
                     dojo.stopEvent(event);
                 }
                 // else {

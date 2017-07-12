@@ -273,7 +273,12 @@ public class ProjectionService {
         MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
         Coordinate reverseCoordinate = multiSequenceProjection.unProjectCoordinate((long) fmin, (long) fmax);
         ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence((long) fmin);
-        return projectionSequence.getReverse() ? (fmax - fmin != reverseCoordinate.getMin() - reverseCoordinate.getMax()) : (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
+//        if(projectionSequence!=null){
+            return projectionSequence.getReverse() ? (fmax - fmin != reverseCoordinate.getMin() - reverseCoordinate.getMax()) : (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
+//        }
+//        else{
+//            return false ;
+//        }
     }
 
     private static void projectFeatures(String features, String refSeqString) {
