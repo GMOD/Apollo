@@ -578,7 +578,7 @@ class FeatureEventService {
                 } else {
                     log.debug "feature original command object = ${originalCommandObject as JSON}"
                     log.debug "feature add command object = ${addCommandObject as JSON}"
-                    addCommandObject.put(FeatureStringEnum.FEATURES.value,addCommandObject)
+                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
                     requestHandlingService.addFeature(addCommandObject)
                 }
 
