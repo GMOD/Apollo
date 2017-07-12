@@ -68,8 +68,6 @@ class FeatureProjectionService {
         if (fmax) {
             locationObject.put(FeatureStringEnum.FMAX.value, fmax)
         }
-
-
         // if we don't have a sequence .. need to assign one
         if (projectionSequence1 && projectionSequence2) {
             // case 1, projectionSequence1 exists and is equals to projectionSequence2
