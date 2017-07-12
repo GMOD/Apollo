@@ -1192,6 +1192,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
+    @IgnoreRest
     void "we can undo and redo a transcript in reverse complement"() {
 
         given: "transcript data"
