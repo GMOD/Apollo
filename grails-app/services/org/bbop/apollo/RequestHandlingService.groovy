@@ -542,7 +542,6 @@ class RequestHandlingService {
             order("name","asc")
         }
 
-
         JSONArray jsonFeatures = new JSONArray()
         features.each { Feature feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false,assemblage)
@@ -1260,6 +1259,9 @@ class RequestHandlingService {
             }
         }
 
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(updateFeatureContainer.get(FeatureStringEnum.FEATURES.value), assemblage, false)
+
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer
                 , assemblage: assemblage
@@ -1286,9 +1288,8 @@ class RequestHandlingService {
 
 
         Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-
-        // TODO: add projection here
-//        features = featureProjectionService.projectTrack(features , assemblage, true)
+        // unproject incoming JSON features to original coordinate system
+        featureProjectionService.projectTrack(features, assemblage, true)
 
         User activeUser = permissionService.getCurrentUser(inputObject)
 
@@ -1346,9 +1347,12 @@ class RequestHandlingService {
                 }
             }
 
-            // TODO: revert projection
             addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true,assemblage));
         }
+
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
+        featureProjectionService.projectTrack(updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                 features: addFeatureContainer
@@ -1698,6 +1702,7 @@ class RequestHandlingService {
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature,false,assemblage))
+        featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1706,7 +1711,6 @@ class RequestHandlingService {
         )
 
         fireAnnotationEvent(annotationEvent)
-
         return featureContainer
     }
 
@@ -2290,6 +2294,7 @@ class RequestHandlingService {
         Feature topFeature = featureService.getTopLevelFeature(transcript)
         topFeature.save()
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topFeature,false,assemblage))
+        featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -2375,8 +2380,15 @@ class RequestHandlingService {
                 )
                 fireAnnotationEvent(deleteAnnotationEvent)
 
+
+
                 JSONObject addFeatureContainer = createJSONFeatureContainer()
-                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
+                JSONArray featuresArray = new JSONArray()
+                featuresArray.put(newFeatureJsonObject)
+                
+                def returnTranscriptList = featureProjectionService.projectTrack(featuresArray,assemblage,false)
+                addFeatureContainer.put(FeatureStringEnum.FEATURES.value,returnTranscriptList)
+
                 AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                         features: addFeatureContainer,
                         assemblage: assemblage,

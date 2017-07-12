@@ -67,16 +67,18 @@ abstract class AbstractApolloController {
         Integer lastIndex = key.indexOf("\"",firstIndex)
         if(firstIndex>0 && lastIndex>0){
 //                    :-1..-1"
-            def replaceString
 //                    if(key.contains("\"{")){
 //                        replaceString = key.substring(firstIndex+1,lastIndex)
 //                    }
 //                    else{
-            replaceString = key.substring(firstIndex+1,lastIndex+1)
+            def replaceString = key.substring(firstIndex+1,lastIndex+1)
 //                    }
             key = key.replaceAll(replaceString,"")
             key = key.replaceAll("\"\\{\"","{\"")
         }
+        println "clean 1: ${key}"
+        key = key.replaceAll("\"\\{\"","{\"")
+        println "clean 2: $key"
         return key
     }
 

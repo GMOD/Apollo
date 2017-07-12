@@ -6,7 +6,7 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(AvailableStatusController)
-@Mock(AvailableStatus)
+@Mock([AvailableStatus,AvailableStatusOrganismFilter])
 class AvailableStatusControllerSpec extends Specification {
 
     def populateValidParams(params) {

@@ -22,7 +22,7 @@ class CannedValueController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.isAdmin()){
+        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
             forward action: "notAuthorized", controller: "annotator"
             return
         }
@@ -30,11 +30,18 @@ class CannedValueController {
 
     def index(Integer max) {
         params.max = Math.min(max ?: 10, 100)
-        respond CannedValue.list(params), model:[cannedValueInstanceCount: CannedValue.count()]
+        def cannedValues = CannedValue.list(params)
+        def organismFilterMap = [:]
+        CannedValueOrganismFilter.findAllByCannedValueInList(cannedValues).each() {
+            List filterList = organismFilterMap.containsValue(it.cannedValue) ? organismFilterMap.get(it.cannedValue) : []
+            filterList.add(it)
+            organismFilterMap[it.cannedValue] = filterList
+        }
+        respond cannedValues, model: [cannedValueInstanceCount: CannedValue.count(), organismFilters: organismFilterMap]
     }
 
     def show(CannedValue cannedValueInstance) {
-        respond cannedValueInstance
+        respond cannedValueInstance, model: [organismFilters: CannedValueOrganismFilter.findAllByCannedValue(cannedValueInstance)]
     }
 
     def create() {
@@ -53,7 +60,23 @@ class CannedValueController {
             return
         }
 
-        cannedValueInstance.save flush:true
+        cannedValueInstance.save()
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            println "it ${it}"
+            Organism organism = Organism.findById(it)
+            println "organism ${organism}"
+            new CannedValueOrganismFilter(
+                    organism: organism,
+                    cannedValue: cannedValueInstance
+            ).save()
+        }
+
+        cannedValueInstance.save flush: true
 
         request.withFormat {
             form multipartForm {
@@ -78,6 +101,24 @@ class CannedValueController {
         if (cannedValueInstance.hasErrors()) {
             respond cannedValueInstance.errors, view:'edit'
             return
+        }
+
+        cannedValueInstance.save()
+
+        CannedValueOrganismFilter.deleteAll(CannedValueOrganismFilter.findAllByCannedValue(cannedValueInstance))
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            println "it2: ${it}"
+            Organism organism = Organism.findById(it)
+            println "organism ${organism}"
+            new CannedValueOrganismFilter(
+                    organism: organism,
+                    cannedValue: cannedValueInstance
+            ).save()
         }
 
         cannedValueInstance.save flush:true

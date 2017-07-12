@@ -71,6 +71,11 @@ grails.project.dependency.resolution = {
         compile 'commons-codec:commons-codec:1.2'
         compile 'commons-collections:commons-collections:3.2.1'
 
+        // svg generation
+        compile group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.9'
+        compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.7'
+
+
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
         //compile 'asm:asm:3.1'
@@ -118,7 +123,7 @@ grails.project.dependency.resolution = {
 
 
         compile ':asset-pipeline:2.1.5'
-        compile ":spring-websocket:1.2.0"
+        compile ":spring-websocket:1.3.1"
         compile (":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
         }

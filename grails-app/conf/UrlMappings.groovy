@@ -18,9 +18,9 @@ class UrlMappings {
         "/track/nclist/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "nclist")
 
 //        "/trackForName/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "jsonName")
-        "/track/${organismString}/${trackName}/${sequence}/${featureName}.json"(controller: "track", action: "featuresByName",[params:params])
-        "/track/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "featuresByLocation",[params:params])
-        "/track/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "featuresByLocation",[params:params])
+        "/track/${organismString}/${trackName}/${sequence}/${featureName}.${type}"(controller: "track", action: "featuresByName",[params:params])
+        "/track/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.${type}"(controller: "track", action: "featuresByLocation",[params:params])
+        "/track/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}.${type}"(controller: "track", action: "featuresByLocation",[params:params])
         "/track/cache/clear/${organismName}/${trackName}"(controller: "track", action: "clearTrackCache")
         "/track/cache/clear/${organismName}"(controller: "track", action: "clearOrganismCache")
 

@@ -450,12 +450,35 @@ define([
                 });
                 console.log('connection established');
             },
+            // TODO: need a better function and to not have it be double-encoded
+            isJSON: function(str) {
+                if(!str) return false ;
+                try{
+                    JSON.parse(str);
+                    return true
+                }
+                catch(e){
+                    return false
+                }
+            },
             annotationNotification: function (message) {
                 var track = this;
                 var changeData;
 
                 try {
-                    changeData = JSON.parse(JSON.parse(message.body));
+                    if (track.verbose_server_notification) {
+                        console.log(message.body);
+                    }
+
+                    if(this.isJSON(message.body)){
+                        changeData = JSON.parse(message.body);
+                    }
+                    else{
+                        changeData = {} ;
+                        changeData.operation = 'ERROR';
+                        changeData.username = track.username ;
+                        changeData.error_message = message.body ;
+                    }
 
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
@@ -481,7 +504,6 @@ define([
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
                         var myDialog = new dijit.Dialog({
                             title: "Error Performing Operation",
-                            // content: "test content",
                             content: changeData.error_message,
                             style: "width: 300px"
                         }).show();
@@ -528,8 +550,8 @@ define([
                                     selection.feature.data.strand = changedFeature.location.strand;
                                 }
                                 else
-                                // if we select an exon, then let's see what happens here
-                                if (selection.feature.data.parent_type.indexOf('gene') < 0) {
+                                    // if we select an exon, then let's see what happens here
+                                if(!selection.feature.data.parent_type || selection.feature.data.parent_type.indexOf('gene')<0){
                                     // we want the uniqueId to be the parent
                                     if (selection.feature._parent._uniqueID == changedFeature.uniquename) {
                                         selection.feature._parent.strand = changedFeature.location.strand;
@@ -843,7 +865,7 @@ define([
                                     "operation": operation,
                                     "clientToken": track.getClientToken()
                                 };
-                                track.executeUpdateOperation(JSON.stringify(postData));
+                                track.executeUpdateOperation(postData);
                                 track.changed();
                             }
                         });
@@ -934,7 +956,7 @@ define([
                     return;
                 }
 
-                var featuresString = "";
+                var features = [{uniquename: annot.id()}];
                 for (var i = 0; i < subfeats.length; ++i) {
                     var subfeat = subfeats[i];
                     // if (subfeat[target_track.subFields["type"]] !=
@@ -942,13 +964,19 @@ define([
                     var source_track = subfeat.track;
                     if (subfeat.get('type') != "wholeCDS") {
                         var jsonFeature = JSONUtils.createApolloFeature(subfeats[i], "exon");
-                        featuresString += ", " + JSON.stringify(jsonFeature);
+                        features.push(jsonFeature);
                     }
                 }
                 // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
                 // target_track.subfields);
                 // parent.uniquename = annot[target_track.fields["name"]];
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon","clientToken":"' + target_track.getClientToken() + '" }';
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: features,
+                    operation: "add_exon",
+                    clientToken: target_track.getClientToken()
+                };
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1040,8 +1068,8 @@ define([
             createAnnotations: function (selection_records) {
                 console.log('createAnnotations');
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
@@ -1104,7 +1132,7 @@ define([
                     featureToAdd.set("strand", strand);
                     var fmin;
                     var fmax;
-                    featureToAdd.set('subfeatures', new Array());
+                    featureToAdd.set('subfeatures', []);
                     array.forEach(subfeatures, function (subfeature) {
                         if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
                             return;
@@ -1138,12 +1166,12 @@ define([
                     featuresToAdd.push(afeat);
 
                     var postData = {
-                        "track": target_track.getUniqueTrackName(),
-                        "features": featuresToAdd,
-                        "operation": "add_transcript",
-                        "clientToken": target_track.getClientToken()
+                        track: target_track.getUniqueTrackName(),
+                        features: featuresToAdd,
+                        operation: "add_transcript",
+                        clientToken: target_track.getClientToken()
                     };
-                    target_track.executeUpdateOperation(JSON.stringify(postData));
+                    target_track.executeUpdateOperation(postData);
                 };
 
                 console.log('process: ' + strand);
@@ -1194,8 +1222,8 @@ define([
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1207,7 +1235,7 @@ define([
                     var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
                     if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
+                        parentFeatures[parentId] = [];
                         parentFeatures[parentId].isSubfeature = is_subfeature;
                     }
                     parentFeatures[parentId].push(dragfeat);
@@ -1254,11 +1282,11 @@ define([
                             var dragfeat = featArray[k];
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
-                                var topLevel = new Object();
+                                var topLevel = {};
                                 topLevel.location = dojo.clone(afeat.location);
                                 topLevel.type = dojo.clone(afeat.type);
                                 topLevel.type.name = topLevelType;
-                                topLevel.children = new Array();
+                                topLevel.children = [];
                                 topLevel.children.push(afeat);
                                 afeat = topLevel;
                             }
@@ -1266,17 +1294,22 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature", "clientToken":"' + target_track.getClientToken() + '"}';
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: featuresToAdd,
+                    operation: "add_feature",
+                    clientToken: target_track.getClientToken()
+                };
                 target_track.executeUpdateOperation(postData);
             },
 
             createGenericOneLevelAnnotations: function (feats, type, strandless) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
-
                     var is_subfeature = !!dragfeat.parent();  // !! is shorthand
                     // for returning
                     // true if value is
@@ -1285,7 +1318,7 @@ define([
                     var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
                     if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
+                        parentFeatures[parentId] = [];
                         parentFeatures[parentId].isSubfeature = is_subfeature;
                     }
                     parentFeatures[parentId].push(dragfeat);
@@ -1299,7 +1332,7 @@ define([
                         var fmax;
                         // var featureToAdd = $.extend({}, parentFeature);
                         var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                        featureToAdd.set('subfeatures', new Array());
+                        featureToAdd.set('subfeatures', []);
                         for (var k = 0; k < featArray.length; ++k) {
                             // var dragfeat = featArray[k];
                             var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
@@ -1353,7 +1386,13 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" , "clientToken":"' + target_track.getClientToken() + '"}';
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: featuresToAdd,
+                    operation: "add_feature",
+                    clientToken: target_track.getClientToken()
+                };
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1416,7 +1455,13 @@ define([
                     var feature = featuresToAdd[i];
                     if (this.isProteinCoding(feature)) {
                         var feats = [JSONUtils.createApolloFeature(feature, "mRNA")];
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" , "clientToken":"' + track.getClientToken() + '"}';
+                        var postData = {
+                            track: track.getUniqueTrackName(),
+                            features: feats,
+                            operation: "add_transcript",
+                            clientToken: track.getClientToken()
+                        };
+
                         track.executeUpdateOperation(postData);
                     }
                     else if (feature.afeature.parent_id) {
@@ -1570,7 +1615,7 @@ define([
 
             deleteAnnotations: function (records) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 var uniqueNames = [];
                 var parents = {};
                 var toBeDeleted = [];
@@ -1618,13 +1663,9 @@ define([
                     }
                 }
                 for (var i = 0; i < toBeDeleted.length; ++i) {
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + toBeDeleted[i] + '" } ';
+                    features.push({"uniquename": toBeDeleted[i]});
                     uniqueNames.push(toBeDeleted[i]);
                 }
-                features += ']';
                 if (uniqueNames.length == 0) {
                     return;
                 }
@@ -1632,7 +1673,13 @@ define([
                     console.log("annotations to delete:");
                     console.log(features);
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" , "clientToken":"' + track.getClientToken() + '"}';
+
+                var postData = {
+                    track: trackName,
+                    features: features,
+                    operation: "delete_feature",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1644,14 +1691,15 @@ define([
                     denyLabel: 'Cancel'
                 }).show(function (confirmed) {
                     if (confirmed) {
-                        var postData = {};
-                        postData.track = track.getUniqueTrackName();
-                        postData.operation = "delete_feature";
+                        var postData = {
+                            track: track.getUniqueTrackName(),
+                            operation: "delete_feature"
+                        };
                         postData.features = [];
                         for (var i = 0; i < selectedFeatures.length; i++) {
                             postData.features[i] = {uniquename: selectedFeatures[i].getUniqueName()};
                         }
-                        track.executeUpdateOperation(JSON.stringify(postData));
+                        track.executeUpdateOperation(postData);
                     }
                 });
             },
@@ -1673,7 +1721,6 @@ define([
                 var sortedAnnots = track.sortAnnotationsByLocation(annots);
                 var leftAnnot = sortedAnnots[0];
                 var rightAnnot = sortedAnnots[sortedAnnots.length - 1];
-                var trackName = this.getUniqueTrackName();
 
                 /*
                  * for (var i in annots) { var annot = annots[i]; // just checking to
@@ -1686,21 +1733,29 @@ define([
                  * rightAnnot = annot; } } }
                  */
 
-                var features;
+                var features = [];
                 var operation;
                 // merge exons
                 if (leftAnnot.parent() && rightAnnot.parent() && leftAnnot.parent() == rightAnnot.parent()) {
-                    features = '"features": [ { "uniquename": "' + leftAnnot.id() + '" }, { "uniquename": "' + rightAnnot.id() + '" } ]';
+                    features.push({uniquename: leftAnnot.id()});
+                    features.push({uniquename: rightAnnot.id()});
                     operation = "merge_exons";
                 }
                 // merge transcripts
                 else {
                     var leftTranscriptId = leftAnnot.parent() ? leftAnnot.parent().id() : leftAnnot.id();
                     var rightTranscriptId = rightAnnot.parent() ? rightAnnot.parent().id() : rightAnnot.id();
-                    features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
+                    features.push({uniquename: leftTranscriptId});
+                    features.push({uniquename: rightTranscriptId});
                     operation = "merge_transcripts";
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+
+                var postData = {
+                    track: this.getUniqueTrackName(),
+                    features: features,
+                    operation: operation,
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1720,7 +1775,6 @@ define([
                 var sortedAnnots = track.sortAnnotationsByLocation(annots);
                 var leftAnnot = sortedAnnots[0];
                 var rightAnnot = sortedAnnots[sortedAnnots.length - 1];
-                var trackName = track.getUniqueTrackName();
 
                 /*
                  * for (var i in annots) { var annot = annots[i]; // just checking to
@@ -1732,23 +1786,30 @@ define([
                  * annot[track.fields["end"]] > rightAnnot[track.fields["end"]]) {
                  * rightAnnot = annot; } } }
                  */
-                var features;
+                var features = [];
                 var operation;
                 // split exon
                 if (leftAnnot == rightAnnot) {
                     var coordinate = this.getGenomeCoord(event);
-                    features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + coordinate + ', "fmin": ' + (coordinate + 1) + ' } } ]';
+                    features.push({uniquename: leftAnnot.id(), location: {fmax: coordinate, fmin: coordinate + 1}});
                     operation = "split_exon";
                 }
                 // split transcript
                 else if (leftAnnot.parent() == rightAnnot.parent()) {
-                    features = '"features": [ { "uniquename": "' + leftAnnot.id() + '" }, { "uniquename": "' + rightAnnot.id() + '" } ]';
+                    features.push({uniquename: leftAnnot.id()});
+                    features.push({uniquename: rightAnnot.id()});
                     operation = "split_transcript";
                 }
                 else {
                     return;
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: operation,
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1765,10 +1826,13 @@ define([
                 var track = this;
                 var annot = records[0].feature;
                 var coordinate = this.getGenomeCoord(event);
-                var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
-                var operation = "make_intron";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                var features = [{uniquename: annot.id(), location: {fmin: coordinate}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "make_intron",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1792,10 +1856,20 @@ define([
 
                 var setStart = annot.parent() ? !annot.parent().get("manuallySetTranslationStart") : !annot.get("manuallySetTranslationStart");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
-                var features = '"features": [ { "uniquename": "' + uid + '"' + (setStart ? ', "location": { "fmin": ' + coordinate + ' }' : '') + ' } ]';
-                var operation = "set_translation_start";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                var features = [];
+                if (setStart) {
+                    features.push({uniquename: uid, location: {fmin: coordinate}});
+                }
+                else {
+                    features.push({uniquename: uid});
+                }
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_translation_start",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1819,10 +1893,20 @@ define([
 
                 var setEnd = annot.parent() ? !annot.parent().get("manuallySetTranslationEnd") : !annot.get("manuallySetTranslationEnd");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
-                var features = '"features": [ { "uniquename": "' + uid + '"' + (setEnd ? ', "location": { "fmax": ' + coordinate + ' }' : '') + ' } ]';
-                var operation = "set_translation_end";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                var features = [];
+                if (setEnd) {
+                    features.push({uniquename: uid, location: {fmax: coordinate}});
+                }
+                else {
+                    features.push({uniquename: uid});
+                }
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_translation_end",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1846,22 +1930,19 @@ define([
                         uniqueNames[uniqueName] = 1;
                     }
                 }
-                var features = '"features": [';
+                var features = [];
                 var i = 0;
                 for (var uniqueName in uniqueNames) {
-                    var trackdiv = track.div;
-                    var trackName = track.getUniqueTrackName();
-
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    features.push({uniquename: uniqueName});
                     ++i;
                 }
-                features += ']';
-                var operation = "flip_strand";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "flip_strand",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1873,7 +1954,8 @@ define([
 
             setLongestORFForSelectedFeatures: function (selection) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
+
                 for (var i in selection) {
                     var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
                     var atrack = selection[i].track;
@@ -1883,17 +1965,16 @@ define([
                     if (atrack === track) {
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
-
-                        if (i > 0) {
-                            features += ',';
-                        }
-                        features += ' { "uniquename": "' + uniqueName + '" } ';
+                        features.push({uniquename: uniqueName});
                     }
                 }
-                features += ']';
-                var operation = "set_longest_orf";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_longest_orf",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1905,7 +1986,7 @@ define([
 
             setReadthroughStopCodonForSelectedFeatures: function (selection) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 for (var i in selection) {
                     var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
                     var atrack = selection[i].track;
@@ -1915,17 +1996,16 @@ define([
                     if (atrack === track) {
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
-
-                        if (i > 0) {
-                            features += ',';
-                        }
-                        features += ' { "uniquename": "' + uniqueName + '", "readthrough_stop_codon": ' + !annot.data.readThroughStopCodon + '} ';
+                        features.push({uniquename: uniqueName, readthrough_stop_codon: !annot.data.readThroughStopCodon});
                     }
                 }
-                features += ']';
-                var operation = "set_readthrough_stop_codon";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_readthrough_stop_codon",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1951,10 +2031,14 @@ define([
                     fmin = evidence.get("start");
                     fmax = annot.get("end");
                 }
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
-                var operation = "set_exon_boundaries";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+
+                var features = [{uniquename: uniqueName, location: {fmin: fmin, fmax: fmax}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_exon_boundaries",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1980,10 +2064,14 @@ define([
                     fmin = annot.get("start");
                     fmax = evidence.get("end");
                 }
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
-                var operation = "set_exon_boundaries";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+
+                var features = [{uniquename: uniqueName, location: {fmin: fmin, fmax: fmax}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_exon_boundaries",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -2009,10 +2097,14 @@ define([
                     fmin = evidence.get("start");
                     fmax = evidence.get("end");
                 }
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
-                var operation = "set_exon_boundaries";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+
+                var features = [{uniquename: uniqueName, location: {fmin: fmin, fmax: fmax}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_exon_boundaries",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -2026,10 +2118,14 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_downstream_donor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_downstream_donor",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -2043,10 +2139,14 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_upstream_donor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_upstream_donor",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -2060,10 +2160,14 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_downstream_acceptor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_downstream_acceptor",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -2077,10 +2181,15 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_upstream_acceptor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_upstream_acceptor",
+                    clientToken: track.getClientToken()
+                };
+
                 track.executeUpdateOperation(postData);
             },
 
@@ -2094,10 +2203,15 @@ define([
                 var track = this;
                 var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: operation,
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -2124,11 +2238,14 @@ define([
                 var uniqueName = selectedFeature.afeature.type.name === "exon" ? selectedFeature.afeature.parent_id : selectedFeature.getUniqueName();
 
                 if (selectedTrack == track) {
-                    var trackdiv = track.div;
-                    var trackName = track.getUniqueTrackName();
                     var features = [{uniquename: uniqueName, type: type}];
-                    var postData = {track: trackName, features: features, operation: "change_annotation_type"};
-                    track.executeUpdateOperation(JSON.stringify(postData));
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "change_annotation_type",
+                        clientToken: track.getClientToken()
+                    };
+                    track.executeUpdateOperation(postData);
                 }
             },
 
@@ -2212,8 +2329,7 @@ define([
                 if (track.annotationInfoEditorConfigs) {
                     return;
                 }
-                var operation = "get_annotation_info_editor_configuration";
-                var postData = {"track": trackName, "operation": operation, "clientToken": track.getClientToken()};
+                var postData = {track: trackName, operation: "get_annotation_info_editor_configuration", clientToken: track.getClientToken()};
                 xhr.post(context_path + "/AnnotationEditorService", {
                     sync: true,
                     data: JSON.stringify(postData),
@@ -2295,7 +2411,7 @@ define([
                     innerHTML: "Status"
                 }, statusDiv);
                 var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
-                var statusRadios = new Object();
+                var statusRadios = [];
 
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var dbxrefsLabel = dojo.create("div", {
@@ -2509,19 +2625,15 @@ define([
                 };
 
                 function init() {
-                    var postData = JSON.stringify({
-                        features: [
-                            {
-                                uniquename: uniqueName
-                            }
-                        ],
+                    var postData = {
+                        features: [{uniquename: uniqueName}],
                         operation: "get_annotation_info_editor_data",
                         track: trackName,
                         clientToken: track.getClientToken()
-                    });
+                    };
                     dojo.xhrPost({
                         sync: true,
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -2533,7 +2645,8 @@ define([
                             initSymbol(feature);
                             initDescription(feature);
                             initDates(feature);
-                            initStatus(feature, config);
+                            // initStatus(feature, config);
+                            initStatus(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -2624,9 +2737,9 @@ define([
                     }
                 };
 
-                var initStatus = function (feature, config) {
+                var initStatus = function (feature) {
                     var maxLength = 0;
-                    var status = config.status;
+                    var status = feature.available_statuses;
                     if (status) {
                         for (var i = 0; i < status.length; ++i) {
                             if (status[i].length > maxLength) {
@@ -2636,7 +2749,7 @@ define([
                         for (var i = 0; i < status.length; ++i) {
                             var statusRadioDiv = dojo.create("span", {
                                 'class': "annotation_info_editor_radio",
-                                style: "width:" + (maxLength * 0.75) + "em;"
+                                style: "width:" + (maxLength * 0.75) + "em; display: inline;"
                             }, statusFlags);
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
@@ -3234,43 +3347,63 @@ define([
 
                 var updateName = function (name) {
                     name = escapeString(name);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
-                    var operation = "set_name";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, name: name}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_name",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var updateSymbol = function (symbol) {
                     symbol = escapeString(symbol);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
-                    var operation = "set_symbol";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, symbol: symbol}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_symbol",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var updateDescription = function (description) {
                     description = escapeString(description);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
-                    var operation = "set_description";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, description: description}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_description",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
-                var deleteStatus = function () {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
-                    var operation = "delete_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                var deleteStatus = function (status) {
+                    var features = [{uniquename: uniqueName, status: status}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_status",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var updateStatus = function (status) {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
-                    var operation = "set_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, status: status}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_status",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3278,9 +3411,13 @@ define([
                 var addDbxref = function (db, accession) {
                     db = escapeString(db);
                     accession = escapeString(accession);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
-                    var operation = "add_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: [{db: db, accession: accession}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "add_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3290,9 +3427,13 @@ define([
                         dbxrefs[i].accession = escapeString(dbxrefs[i].accession);
                         dbxrefs[i].db = escapeString(dbxrefs[i].db);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(dbxrefs) + ' } ]';
-                    var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: dbxrefs}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3302,9 +3443,13 @@ define([
                     oldAccession = escapeString(oldAccession);
                     newDb = escapeString(newDb);
                     newAccession = escapeString(newAccession);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
-                    var operation = "update_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, old_dbxrefs: [{db: oldDb, accession: oldAccession}], new_dbxrefs: [{db: newDb, accession: newAccession}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "update_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3312,9 +3457,13 @@ define([
                 var addAttribute = function (tag, value) {
                     tag = escapeString(tag);
                     value = escapeString(value);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
-                    var operation = "add_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, non_reserved_properties: [{tag: tag, value: value}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "add_non_reserved_properties",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3324,9 +3473,13 @@ define([
                         attributes[i].tag = escapeString(attributes[i].tag);
                         attributes[i].value = escapeString(attributes[i].value);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
-                    var operation = "delete_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, non_reserved_properties: attributes}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_reserved_properties",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3336,9 +3489,13 @@ define([
                     oldValue = escapeString(oldValue);
                     newTag = escapeString(newTag);
                     newValue = escapeString(newValue);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
-                    var operation = "update_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, old_non_reserved_properties: [{tag: oldTag, value: oldValue}], new_non_reserved_properties: [{tag: newTag, value: newValue}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "update_non_reserved_properties",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3353,9 +3510,13 @@ define([
                     if (record) {
                         // if (eutils.validateId("pubmed", pubmedId)) {
                         if (confirmPubmedEntry(record)) {
-                            var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + pubmedId + '" } ] } ]';
-                            var operation = "add_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                            var features = [{uniquename: uniqueName, dbxrefs: [{db: pubmedIdDb, accession: pubmedId}]}];
+                            var postData = {
+                                track: trackName,
+                                features: features,
+                                operation: "add_non_primary_dbxrefs",
+                                clientToken: track.getClientToken()
+                            };
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3370,9 +3531,13 @@ define([
                 };
 
                 var deletePubmedIds = function (pubmedIds) {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(pubmedIds) + ' } ]';
-                    var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: pubmedIds}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3383,9 +3548,13 @@ define([
                     // if (eutils.validateId("pubmed", newPubmedId)) {
                     if (record) {
                         if (confirmPubmedEntry(record)) {
-                            var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + oldPubmedId + '" } ], "new_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + newPubmedId + '" } ] } ]';
-                            var operation = "update_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                            var features = [{uniquename: uniqueName, old_dbxrefs: [{db: pubmedIdDb, accession: oldPubmedId}], new_dbxrefs: [{db: pubmedIdDb, accession: newPubmedId}]}];
+                            var postData = {
+                                track: trackName,
+                                features: features,
+                                operation: "update_non_primary_dbxrefs",
+                                clientToken: track.getClientToken()
+                            };
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3408,9 +3577,13 @@ define([
                     // if (match = validateGoId(goId)) {
                     if (valid) {
                         var goAccession = goId.substr(goIdDb.length + 1);
-                        var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + goAccession + '" } ] } ]';
-                        var operation = "add_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                        var features = [{uniquename: uniqueName, dbxrefs: [{db: goIdDb, accession: goAccession}]}];
+                        var postData = {
+                            track: trackName,
+                            features: features,
+                            operation: "add_non_primary_dbxrefs",
+                            clientToken: track.getClientToken()
+                        };
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3422,9 +3595,13 @@ define([
                 };
 
                 var deleteGoIds = function (goIds) {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(goIds) + ' } ]';
-                    var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: goIds}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3435,9 +3612,13 @@ define([
                     if (valid) {
                         var oldGoAccession = oldGoId.substr(goIdDb.length + 1);
                         var newGoAccession = newGoId.substr(goIdDb.length + 1);
-                        var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + oldGoAccession + '" } ], "new_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + newGoAccession + '" } ] } ]';
-                        var operation = "update_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                        var features = [{uniquename: uniqueName, old_dbxrefs: [{db: goIdDb, accession: oldGoAccession}], new_dbxrefs: [{db: goIdDb, accession: newGoAccession}]}];
+                        var postData = {
+                            track: trackName,
+                            features: features,
+                            operation: "update_non_primary_dbxrefs",
+                            clientToken: track.getClientToken()
+                        };
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3451,9 +3632,13 @@ define([
 
                 var addComment = function (comment) {
                     comment = escapeString(comment);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
-                    var operation = "add_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, comments: [comment]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "add_comments",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3462,9 +3647,13 @@ define([
                     for (var i = 0; i < comments.length; ++i) {
                         comments[i] = escapeString(comments[i]);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": ' + JSON.stringify(comments) + ' } ]';
-                    var operation = "delete_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, comments: comments}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_comments",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3475,19 +3664,27 @@ define([
                     }
                     oldComment = escapeString(oldComment);
                     newComment = escapeString(newComment);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
-                    var operation = "update_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName, old_comments: [oldComment], new_comments: [newComment]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "update_comments",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var getCannedComments = function () {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                    var operation = "get_canned_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }';
+                    var features = [{uniquename: uniqueName}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "get_canned_comments",
+                        clientToken: track.getClientToken()
+                    };
                     dojo.xhrPost({
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         sync: true,
@@ -3537,22 +3734,32 @@ define([
 
             undoFeaturesByUniqueName: function (uniqueNames, count) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 for (var i = 0; i < uniqueNames.length; ++i) {
                     var uniqueName = uniqueNames[i];
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    features.push({uniquename: uniqueName});
                 }
-                features += ']';
-                var operation = "undo";
-                var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"' + (count ? ', "count": ' + count : '') + '}';
+
+                var postData = {
+                    track: this.getUniqueTrackName(),
+                    features: features,
+                    operation: "undo",
+                    clientToken: track.getClientToken()
+                };
+                if (count) {
+                    postData.count = count;
+                }
+
                 this.executeUpdateOperation(postData, function (response) {
                     if (response && response.confirm) {
                         if (track.handleConfirm(response.confirm)) {
-                            postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '", "confirm": true }';
+                            postData = {
+                                track: this.getUniqueTrackName(),
+                                features: features,
+                                operation: "undo",
+                                clientToken: track.getClientToken(),
+                                confirm: true
+                            };
                             track.executeUpdateOperation(postData);
                         }
                     }
@@ -3585,18 +3792,21 @@ define([
             },
 
             redoFeaturesByUniqueName: function (uniqueNames, count) {
-                var features = '"features": [';
+                var features = [];
                 for (var i = 0; i < uniqueNames.length; ++i) {
                     var uniqueName = uniqueNames[i];
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    features.push({uniquename: uniqueName});
                 }
-                features += ']';
-                var operation = "redo";
-                var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + ' , "clientToken":"' + this.getClientToken() + '"}';
+
+                var postData = {
+                    track: this.getUniqueTrackName(),
+                    features: features,
+                    operation: "redo",
+                    clientToken: this.getClientToken()
+                };
+                if (count) {
+                    postData.count = count;
+                }
                 this.executeUpdateOperation(postData);
             },
 
@@ -3821,7 +4031,7 @@ define([
                 };
 
                 var fetchHistory = function () {
-                    var features = '"features": [';
+                    var features = [];
                     for (var i in selected) {
                         var record = selected[i];
                         var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
@@ -3831,18 +4041,19 @@ define([
                         if (record.track === track) {
                             var trackdiv = track.div;
                             var trackName = track.getUniqueTrackName();
-
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features.push({uniquename: uniqueName});
                         }
                     }
-                    features += ']';
-                    var operation = "get_history_for_features";
-                    var trackName = track.getUniqueTrackName();
+
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "get_history_for_features",
+                        clientToken: track.getClientToken()
+                    };
+
                     dojo.xhrPost({
-                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }',
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3877,7 +4088,7 @@ define([
 
             getInformationForSelectedAnnotations: function (records) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 var seqtrack = track.getSequenceTrack();
                 for (var i in records) {
                     var record = records[i];
@@ -3889,21 +4100,19 @@ define([
                     // this annotation track
                     // (or from sequence annotation track);
                     if (seltrack === track || (seqtrack && (seltrack === seqtrack))) {
-                        var trackdiv = track.div;
-                        var trackName = track.getUniqueTrackName();
-
-                        if (i > 0) {
-                            features += ',';
-                        }
-                        features += ' { "uniquename": "' + uniqueName + '" } ';
+                        features.push({uniquename: uniqueName});
                     }
                 }
-                features += ']';
-                var operation = "get_information";
-                var trackName = track.getUniqueTrackName();
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "get_information",
+                    clientToken: track.getClientToken()
+                };
                 var information = "";
                 dojo.xhrPost({
-                    postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '" }',
+                    postData: JSON.stringify(postData),
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5000 * 1000, // Time in milliseconds
@@ -3956,7 +4165,7 @@ define([
                 var textArea = dojo.create("textarea", {className: "gff3_area", readonly: true}, content);
 
                 var fetchGff3 = function () {
-                    var features = '"features": [';
+                    var features = [];
                     for (var i = 0; i < records.length; ++i) {
                         var record = records[i];
                         var annot = record.feature;
@@ -3967,20 +4176,19 @@ define([
                         if (seltrack === track) {
                             var trackdiv = track.div;
                             var trackName = track.getUniqueTrackName();
-
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features.push({uniquename: uniqueName});
                         }
                     }
-                    features += ']';
-                    var operation = "get_gff3";
-                    var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"';
-                    postData += ' }';
+
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "get_gff3",
+                        clientToken: track.getClientToken()
+                    };
+
                     dojo.xhrPost({
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "text",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -4067,7 +4275,7 @@ define([
                 }, genomicWithFlankButtonDiv);
 
                 var fetchSequence = function (type) {
-                    var features = '"features": [';
+                    var features = [];
                     for (var i = 0; i < records.length; ++i) {
                         var record = records[i];
                         var annot = record.feature;
@@ -4076,28 +4284,26 @@ define([
                         // just checking to ensure that all features in selection are
                         // from this track
                         if (seltrack === track) {
-                            var trackdiv = track.div;
-                            var trackName = track.getUniqueTrackName();
-
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features.push({uniquename: uniqueName});
                         }
                     }
-                    features += ']';
-                    var operation = "get_sequence";
-                    var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "clientToken":"' + track.getClientToken() + '"';
+
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "get_sequence",
+                        clientToken: track.getClientToken()
+                    };
+
                     var flank = 0;
                     if (type == "genomic_with_flank") {
                         flank = dojo.attr(genomicWithFlankField, "value");
-                        postData += ', "flank": ' + flank;
+                        postData.flank = flank;
                         type = "genomic";
                     }
-                    postData += ', "type": "' + type + '" }';
+                    postData.type = type;
                     dojo.xhrPost({
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -5085,7 +5291,7 @@ define([
                 var track = this;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
+                    postData : JSON.stringify({track: track.getUniqueTrackName(), operation: "get_data_adapters"}),
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
@@ -5165,13 +5371,24 @@ define([
                 }
             },
 
+            _trackMenuOptions: function() {
+                var thisB = this;
+                var browser = this.browser;
+                var clabel = this.name + "-collapsed";
+                var options = this.inherited(arguments) || [];
+                // specifically removing these two options for AnnotTrack
+                options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+                options = this.webapollo.removeItemWithLabel(options, "Delete track");
+                return options;
+            },
+
             getPermission: function (callback) {
                 var thisB = this;
                 var loadCallback = callback;
                 var success = true;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" ,"clientToken":' + thisB.getClientToken() + '}',
+                    postData: JSON.stringify({track: thisB.getUniqueTrackName(), operation: "get_user_permission", clientToken: thisB.getClientToken()}),
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
@@ -5234,7 +5451,9 @@ define([
             },
 
             getUniqueTrackName: function () {
-                return this.refSeq.name;
+                var trackName = this.refSeq.name;
+                trackName = trackName.substr(0, trackName.lastIndexOf(':'));
+                return JSON.parse(trackName);
             },
 
             openDialog: function (title, data, width, height) {
@@ -6006,22 +6225,52 @@ define([
 
             sortAnnotationsByLocation: function (annots) {
                 var track = this;
-                return annots.sort(function (annot1, annot2) {
-                    var start1 = annot1.get("start");
-                    var end1 = annot1.get("end");
-                    var start2 = annot2.get("start");
-                    var end2 = annot2.get('end');
+                var refSeqName = track.refSeq.name;
+                var sequenceListObject  = this.parseSequenceList(refSeqName);
+                if (sequenceListObject[0].reverse) {
+                    // taking into account reverse orientation
+                    return annots.sort(function (annot1, annot2) {
+                        var start1 = annot1.get("start");
+                        var end1 = annot1.get("end");
+                        var start2 = annot2.get("start");
+                        var end2 = annot2.get('end');
 
-                    if (start1 != start2) {
-                        return start1 - start2;
-                    }
-                    else if (end1 != end2) {
-                        return end1 - end2;
-                    }
-                    else {
-                        return annot1.id().localeCompare(annot2.id());
-                    }
-                });
+                        if (start1 != start2) {
+                            return start1 - start2;
+                        }
+                        else if (end1 != end2) {
+                            return end1 - end2;
+                        }
+                        else {
+                            return annot1.id().localeCompare(annot2.id());
+                        }
+                    }).reverse();
+                }
+                else {
+                    return annots.sort(function (annot1, annot2) {
+                        var start1 = annot1.get("start");
+                        var end1 = annot1.get("end");
+                        var start2 = annot2.get("start");
+                        var end2 = annot2.get('end');
+
+                        if (start1 != start2) {
+                            return start1 - start2;
+                        }
+                        else if (end1 != end2) {
+                            return end1 - end2;
+                        }
+                        else {
+                            return annot1.id().localeCompare(annot2.id());
+                        }
+                    });
+                }
+            },
+
+            parseSequenceList: function(refSeqName) {
+                var refSeqNameSplit = refSeqName.split(':');
+                var sequenceListString = refSeqNameSplit.slice(0, refSeqNameSplit.length - 1).join(':');
+                var sequenceListObject = JSON.parse(sequenceListString).sequenceList;
+                return sequenceListObject;
             },
 
             confirmChangeAnnotationType: function (track, selectedFeatures, destinationType, message) {
@@ -6178,10 +6427,8 @@ define([
             },
 
             executeUpdateOperation: function (postData, loadCallback) {
-                if (postData.search('clientToken') < 0) {
-                    var postObject = JSON.parse(postData);
-                    postObject.clientToken = this.getClientToken();
-                    postData = JSON.stringify(postObject);
+                if(!postData.hasOwnProperty('clientToken')){
+                    postData.clientToken = this.getClientToken();
                 }
                 console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
@@ -6231,7 +6478,6 @@ define([
                             break;
                     }
                 }
-
             }
 
         });
