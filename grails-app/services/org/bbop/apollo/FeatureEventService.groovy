@@ -213,14 +213,14 @@ class FeatureEventService {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
-//        for (JSONObject sequenceObject in newFeatureArray) {
-//            // we set it to true if not there, otherwise we set it to false
-////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
-//            if(sequenceObject.containsKey(FeatureStringEnum.REVERSE.value)){
-//                sequenceObject.reverse = false
-//            }
-//            unProjectSequenceLocation(sequenceObject)
-//        }
+        for (JSONObject sequenceObject in newFeatureArray) {
+////            // we set it to true if not there, otherwise we set it to false
+//////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
+            if(sequenceObject.containsKey(FeatureStringEnum.REVERSE.value)){
+                sequenceObject.reverse = false
+            }
+            unProjectSequenceLocation(sequenceObject)
+        }
 
 
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName, featureEventMap)

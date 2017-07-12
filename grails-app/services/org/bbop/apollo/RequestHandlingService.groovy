@@ -1974,10 +1974,10 @@ class RequestHandlingService {
                 }
 
                 JSONObject newJsonObject = featureService.convertFeatureToJSON(feature,false,assemblage)
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
-
-                JSONArray updateArray = featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
-                updateArray = featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),assemblage,false)
+                JSONArray featureContainerFeatures = new JSONArray()
+                featureContainerFeatures.add(new JSONObject(newJsonObject.toString()))
+                JSONArray updateArray = new JSONArray(featureContainerFeatures)
+                updateArray = featureProjectionService.projectTrack(updateArray,assemblage,false)
                 featureContainer.put(FeatureStringEnum.FEATURES.value,updateArray)
 
 
