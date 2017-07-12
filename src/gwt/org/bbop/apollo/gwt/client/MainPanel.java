@@ -1017,14 +1017,18 @@ public class MainPanel extends Composite {
 //        setting current sequence: {"sequenceList":[{"name":"Group1.10","start":0,"end":1405242,"reverse":false}]}:164566..168677:164565..168676
 
         // get sequence part
-        String sequenceString = newSequence.substring(0,newSequence.lastIndexOf("}"));
-        String locationString = newSequence.substring(newSequence.lastIndexOf(":"),newSequence.length());
+        String sequenceString = newSequence.substring(0,newSequence.lastIndexOf("}")+1);
+        String locationString = newSequence.substring(newSequence.lastIndexOf(":")+1,newSequence.length());
 
         String[] locationStrings = locationString.split("\\.\\.");
         currentStartBp = Long.parseLong(locationStrings[0]);
         currentEndBp = Long.parseLong(locationStrings[1]);
 
-        AssemblageSequenceList newAssemblageSequenceList = (AssemblageSequenceList) JSONParser.parseLenient(sequenceString).isObject().get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
+        Window.alert("parsing: "+sequenceString);
+        GWT.log("parsing: "+sequenceString);
+        JSONObject sequenceListObject = JSONParser.parseLenient(sequenceString).isObject();
+        AssemblageSequenceList newAssemblageSequenceList = new AssemblageSequenceList(sequenceListObject.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray());
+        Window.alert(newAssemblageSequenceList.toString());
 
         currentAssemblage.setSequenceList(newAssemblageSequenceList);
 

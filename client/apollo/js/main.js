@@ -839,6 +839,8 @@ return declare( [JBPlugin, HelpMixin],
                     browser.navigateTo( locationString );
                     var nextViewString = browser.view.visibleRegionLocString();
                     thisB.getApollo().setCurrentSequence(nextViewString);
+                    document.getElementById('apollo-navigation').label ='asdfasdf';
+                    document.getElementById('apollo-navigation').title ='oof';
 
                     dojo.stopEvent(event);
                 }
