@@ -2413,17 +2413,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeatureLocation.put(FeatureStringEnum.IS_FMAX_PARTIAL.value, true);
         }
         jsonFeatureLocation.put(FeatureStringEnum.STRAND.value, strand);
-//
-//        if (sequenceString.startsWith("[")) {
-//            JSONArray sequenceArray = JSON.parse(sequenceString) as JSONArray
-//            for (JSONObject sequenceObject in sequenceArray) {
-//                // we set it to true if not there, otherwise we set it to false
-////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
-//                sequenceObject.reverse = false
-//            }
-//            sequenceString = sequenceArray.toString()
-//        }
-
         jsonFeatureLocation.put(FeatureStringEnum.SEQUENCE.value, sequenceString);
         return jsonFeatureLocation
     }
@@ -2450,7 +2439,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     @Transactional
-    Boolean deleteFeature(Feature feature, HashMap<String, List<Feature>> modifiedFeaturesUniqueNames = new ArrayList<>()) {
+    Boolean deleteFeature(Feature feature, Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<>()) {
 
         if (feature instanceof Exon) {
             Exon exon = (Exon) feature;

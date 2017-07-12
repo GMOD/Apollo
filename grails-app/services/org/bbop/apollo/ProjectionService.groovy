@@ -457,8 +457,6 @@ class ProjectionService {
  */
     @NotTransactional
     JSONObject evaluateReverseLocation(ProjectionSequence projectionSequence, JSONObject locationObject) {
-
-        // if the sequence is "reverse"
         if (projectionSequence.reverse) {
             if (locationObject.containsKey(FeatureStringEnum.STRAND.value)) {
                 Strand strand = Strand.getStrandForValue(locationObject.strand)
@@ -468,7 +466,6 @@ class ProjectionService {
             Integer temp = locationObject.fmin ?: null
             locationObject.fmin = locationObject.fmax
             locationObject.fmax = temp
-//
         }
         return locationObject
     }

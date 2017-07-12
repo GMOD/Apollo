@@ -570,18 +570,14 @@ class FeatureEventService {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
                     }
-                    println "transcript original command object = ${originalCommandObject as JSON}"
-                    println "transcript add command object = ${addCommandObject as JSON}"
-//                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
-//                    addCommandObject.put(FeatureStringEnum.FEATURES.value,projectedFeature)
+                    log.debug "transcript original command object = ${originalCommandObject as JSON}"
+                    log.debug "transcript add command object = ${addCommandObject as JSON}"
                     requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
 
                 } else {
-                    println "feature original command object = ${originalCommandObject as JSON}"
-                    println "feature add command object = ${addCommandObject as JSON}"
-//                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
-//                    def projectedFeature = featureProjectionService.projectTrack(featuresToAddArray,requestAssemblage,true)
+                    log.debug "feature original command object = ${originalCommandObject as JSON}"
+                    log.debug "feature add command object = ${addCommandObject as JSON}"
                     addCommandObject.put(FeatureStringEnum.FEATURES.value,addCommandObject)
                     requestHandlingService.addFeature(addCommandObject)
                 }
