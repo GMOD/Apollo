@@ -477,24 +477,21 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             var extendedReverseComp = track.reverseComplement(extendedStartResidues);
                             if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
                             var framedivs = [];
-                            for (var i=0; i<3; i++) {
-                                var tstart = blockStart + i;
-                                // var frame = tstart % 3;
-                                var frame = (track.refSeq.length - blockEnd + i) % 3;
-                                // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
-                                frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
-                                var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                $(transProtein).addClass("cds-frame" + frame);
-                                framedivs[frame] = transProtein;
+                                for (var i=0; i<3; i++) {
+                                    var transStart = blockStart + 1 - i;
+                                    var frame = (transStart % 3 + 3) % 3;
+                                    var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
+                                    $(transProtein).addClass("cds-frame" + frame);
+                                    framedivs[frame] = transProtein;
+                                }
+                                // for (var i=2; i>=0; i--) {
+                                for (var i=0; i<3; i++) {
+                                    var transProtein = framedivs[i];
+                                    seqNode.appendChild(transProtein);
+                                    $(transProtein).bind("mousedown", track.residuesMouseDown);
+                                    blockHeight += proteinHeight;
+                                }
                             }
-                            // for (var i=2; i>=0; i--) {
-                            for (var i=0; i<3; i++) {
-                                var transProtein = framedivs[i];
-                                seqNode.appendChild(transProtein);
-                                $(transProtein).bind("mousedown", track.residuesMouseDown);
-                                blockHeight += proteinHeight;
-                            }
-                        }
                         track.inherited("fillBlock", fillArgs);
                         blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
                         track.heightUpdate(blockHeight, blockIndex);
