@@ -600,8 +600,8 @@ class FeatureEventService {
                 JSONObject featuresJson = featureService.convertFeatureToJSON(transcript, false, assemblage)
                 def transcriptJSONList = []
                 transcriptJSONList += featuresJson
-//                def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
-                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, transcriptJSONList)
+                def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value,projectedJsonTranscript)
             }
             if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
