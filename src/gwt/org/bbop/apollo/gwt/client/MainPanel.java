@@ -1011,9 +1011,6 @@ public class MainPanel extends Composite {
     }
 
     public static void setCurrentSequence(String newSequence){
-        GWT.log("setting current sequence: "+newSequence);
-        Window.alert("setting current sequence: "+newSequence);
-
 //        setting current sequence: {"sequenceList":[{"name":"Group1.10","start":0,"end":1405242,"reverse":false}]}:164566..168677:164565..168676
 
         // get sequence part
@@ -1024,14 +1021,12 @@ public class MainPanel extends Composite {
         currentStartBp = Long.parseLong(locationStrings[0]);
         currentEndBp = Long.parseLong(locationStrings[1]);
 
-        Window.alert("parsing: "+sequenceString);
-        GWT.log("parsing: "+sequenceString);
         JSONObject sequenceListObject = JSONParser.parseLenient(sequenceString).isObject();
         AssemblageSequenceList newAssemblageSequenceList = new AssemblageSequenceList(sequenceListObject.get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray());
-        Window.alert(newAssemblageSequenceList.toString());
 
         currentAssemblage.setSequenceList(newAssemblageSequenceList);
 
+        setLabelForCurrentAssemblage();
     }
 
     public static void doReverseComplement(){

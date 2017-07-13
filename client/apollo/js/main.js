@@ -425,7 +425,6 @@ return declare( [JBPlugin, HelpMixin],
         var hrefTokens = hrefString.split("\/");
         var organism ;
         for(var h in hrefTokens){
-            // alert(hrefTokens[h]);
             if(hrefTokens[h]=="jbrowse"){
                 organism = hrefTokens[h-1] ;
             }
@@ -836,7 +835,6 @@ return declare( [JBPlugin, HelpMixin],
                     locationBox.closeDropDown(false);
                     var locationString = locationBox.get('value');
                     browser.navigateTo( locationString );
-                    // window.parent.setCurrentSequence(browser.view.visibleRegionLocString());
                     dojo.stopEvent(event);
                 }
                 // else {
@@ -844,13 +842,13 @@ return declare( [JBPlugin, HelpMixin],
                 // }
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                window.parent.setCurrentSequence(currRegion.ref);
+                thisB.getApollo().setCurrentSequence(currRegion.ref);
                 var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
                 var sequenceObject = JSON.parse(sequenceString).sequenceList[0]
                 var name = sequenceObject.name;
                 this.navLabel.set('title',name);
                 this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
-                // this.navLabel.set('label',sequenceObject.sequenceList[0].name);
+                thisB.getApollo().handleNavigationEvent(JSON.stringify(currRegion));
             }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
             (function(){
