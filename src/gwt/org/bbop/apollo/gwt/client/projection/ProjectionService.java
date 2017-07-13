@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.json.client.*;
-import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocationInfo;
 import org.bbop.apollo.gwt.client.assemblage.FeatureLocations;
 import org.bbop.apollo.gwt.client.dto.assemblage.*;
@@ -41,7 +40,7 @@ public class ProjectionService {
 
         List<ProjectionSequence> projectionSequenceList = new ArrayList<>();
         List<Coordinate> coordinates = new ArrayList<>();
-        for (int i = 0; assemblageSequenceList !=null && i < assemblageSequenceList.size(); i++) {
+        for (int i = 0; assemblageSequenceList != null && i < assemblageSequenceList.size(); i++) {
             AssemblageSequence assemblageSequence = assemblageSequenceList.getSequence(i);
 
             ProjectionSequence projectionSequence = generateProjectSequenceFromAssemblageSequence(assemblageSequence);
@@ -169,8 +168,8 @@ public class ProjectionService {
         MultiSequenceProjection projection = getProjectionForString(referenceString);
         List<ProjectionSequence> projectionSequences = projection.getProjectedSequences();
         JSONArray jsonArray = new JSONArray();
-        for(ProjectionSequence projectionSequence : projectionSequences){
-            jsonArray.set(jsonArray.size(),new JSONString(projectionSequence.name));
+        for (ProjectionSequence projectionSequence : projectionSequences) {
+            jsonArray.set(jsonArray.size(), new JSONString(projectionSequence.name));
         }
         return jsonArray.toString();
     }
@@ -267,18 +266,23 @@ public class ProjectionService {
         return multiSequenceProjection.getLength();
     }
 
+    /**
+     * TODO: this is unused right now, but we don't want to remove hooks yet.
+     * @param fminString
+     * @param fmaxString
+     * @param referenceSequenceString
+     * @return
+     */
     public static boolean regionContainsFolds(String fminString, String fmaxString, String referenceSequenceString) {
+        if(true){
+            return false ;
+        }
         Integer fmin = Integer.parseInt(fminString);
         Integer fmax = Integer.parseInt(fmaxString);
         MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);
         Coordinate reverseCoordinate = multiSequenceProjection.unProjectCoordinate((long) fmin, (long) fmax);
         ProjectionSequence projectionSequence = multiSequenceProjection.getProjectionSequence((long) fmin);
-//        if(projectionSequence!=null){
-            return projectionSequence.getReverse() ? (fmax - fmin != reverseCoordinate.getMin() - reverseCoordinate.getMax()) : (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
-//        }
-//        else{
-//            return false ;
-//        }
+        return projectionSequence.getReverse() ? (fmax - fmin != reverseCoordinate.getMin() - reverseCoordinate.getMax()) : (fmax - fmin != reverseCoordinate.getMax() - reverseCoordinate.getMin());
     }
 
     private static void projectFeatures(String features, String refSeqString) {
