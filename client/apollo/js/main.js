@@ -849,6 +849,10 @@ return declare( [JBPlugin, HelpMixin],
                 this.navLabel.set('title',name);
                 this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
                 thisB.getApollo().handleNavigationEvent(JSON.stringify(currRegion));
+
+                var locationVal = Util.assembleLocStringWithLength( currRegion );
+                locationVal = name + locationVal.substr(locationVal.lastIndexOf(":"));
+                locationBox.set('value',locationVal,false);
             }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
             (function(){
