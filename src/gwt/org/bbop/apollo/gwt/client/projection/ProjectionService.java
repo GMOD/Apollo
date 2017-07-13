@@ -274,9 +274,6 @@ public class ProjectionService {
      * @return
      */
     public static boolean regionContainsFolds(String fminString, String fmaxString, String referenceSequenceString) {
-        if(true){
-            return false ;
-        }
         Integer fmin = Integer.parseInt(fminString);
         Integer fmax = Integer.parseInt(fmaxString);
         MultiSequenceProjection multiSequenceProjection = getProjectionForString(referenceSequenceString);

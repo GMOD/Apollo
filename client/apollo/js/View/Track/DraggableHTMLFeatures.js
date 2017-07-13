@@ -149,8 +149,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         query(divQuery).forEach(function(featureNode, index, arr){
 
             // scan and insert introns, where applicable
-            thisB.insertFolds(featureNode);
-            thisB.insertEdges(featureNode);
+            // TODO: add back when we do folding
+            // thisB.insertFolds(featureNode);
+            // thisB.insertEdges(featureNode);
         });
 
     },
