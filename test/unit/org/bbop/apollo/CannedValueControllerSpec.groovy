@@ -6,7 +6,7 @@ import grails.test.mixin.*
 import spock.lang.*
 
 @TestFor(CannedValueController)
-@Mock(CannedValue)
+@Mock([CannedValue,CannedValueOrganismFilter])
 class CannedValueControllerSpec extends Specification {
 
     def populateValidParams(params) {

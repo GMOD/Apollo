@@ -55,6 +55,7 @@ class OrganismController {
                 }
                 if (organism) {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
+                    OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
                     organism.delete()
                 }
                 log.info "Success deleting organism: ${organismJson.id}"
