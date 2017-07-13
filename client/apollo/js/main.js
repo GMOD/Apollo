@@ -775,7 +775,7 @@ return declare( [JBPlugin, HelpMixin],
             var sequenceObj = refSeqObject.sequenceList[0]
             // sequenceObj.
 
-            var navLabel = new dijitButton(
+            this.navLabel = new dijitButton(
                 {
                     id: "apollo-navigation",
                     name: "apollo-navigation",
@@ -790,7 +790,7 @@ return declare( [JBPlugin, HelpMixin],
                 },
                 dojo.create('input', {}, searchbox)
             );
-            navbox.appendChild(navLabel.domNode);
+            navbox.appendChild(this.navLabel.domNode);
         });
     },
 
@@ -834,20 +834,24 @@ return declare( [JBPlugin, HelpMixin],
                 }
                 else if (event.keyCode == keys.ENTER) {
                     locationBox.closeDropDown(false);
-                    // thisB.navigateToAssemblage( locationBox.get('value') );
                     var locationString = locationBox.get('value');
                     browser.navigateTo( locationString );
-                    var nextViewString = browser.view.visibleRegionLocString();
-                    thisB.getApollo().setCurrentSequence(nextViewString);
-                    document.getElementById('apollo-navigation').label ='asdfasdf';
-                    document.getElementById('apollo-navigation').title ='oof';
-
+                    // window.parent.setCurrentSequence(browser.view.visibleRegionLocString());
                     dojo.stopEvent(event);
                 }
                 // else {
                 //     this.goButton.set('disabled', false);
                 // }
             });
+            browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                window.parent.setCurrentSequence(currRegion.ref);
+                var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                var sequenceObject = JSON.parse(sequenceString).sequenceList[0]
+                var name = sequenceObject.name;
+                this.navLabel.set('title',name);
+                this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                // this.navLabel.set('label',sequenceObject.sequenceList[0].name);
+            }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
             (function(){
 
