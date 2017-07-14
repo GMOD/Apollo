@@ -21,6 +21,12 @@ public class AssemblageSequenceList extends JSONArray {
         }
     }
 
+    public AssemblageSequenceList(JSONArray array) {
+        for(int i = 0 ; i < array.size() ; i++){
+            addSequence(new AssemblageSequence(array.get(i).isObject()));
+        }
+    }
+
     public AssemblageSequence getSequence(int i) {
         return new AssemblageSequence(get(i).isObject());
     }

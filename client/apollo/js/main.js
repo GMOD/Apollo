@@ -113,6 +113,7 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
+        browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?true:browser.cookie("colorCdsByFrame"));
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
@@ -425,7 +426,6 @@ return declare( [JBPlugin, HelpMixin],
         var hrefTokens = hrefString.split("\/");
         var organism ;
         for(var h in hrefTokens){
-            // alert(hrefTokens[h]);
             if(hrefTokens[h]=="jbrowse"){
                 organism = hrefTokens[h-1] ;
             }
@@ -775,7 +775,7 @@ return declare( [JBPlugin, HelpMixin],
             var sequenceObj = refSeqObject.sequenceList[0]
             // sequenceObj.
 
-            var navLabel = new dijitButton(
+            this.navLabel = new dijitButton(
                 {
                     id: "apollo-navigation",
                     name: "apollo-navigation",
@@ -790,8 +790,12 @@ return declare( [JBPlugin, HelpMixin],
                 },
                 dojo.create('input', {}, searchbox)
             );
-            navbox.appendChild(navLabel.domNode);
+            navbox.appendChild(this.navLabel.domNode);
         });
+    },
+
+    getApollo: function () {
+        return window.parent;
     },
 
     addSearchBox: function(){
@@ -830,14 +834,27 @@ return declare( [JBPlugin, HelpMixin],
                 }
                 else if (event.keyCode == keys.ENTER) {
                     locationBox.closeDropDown(false);
-                    // thisB.navigateToAssemblage( locationBox.get('value') );
-                    browser.navigateTo( locationBox.get('value') );
+                    var locationString = locationBox.get('value');
+                    browser.navigateTo( locationString );
                     dojo.stopEvent(event);
                 }
                 // else {
                 //     this.goButton.set('disabled', false);
                 // }
             });
+            browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                thisB.getApollo().setCurrentSequence(currRegion.ref);
+                var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                var sequenceObject = JSON.parse(sequenceString).sequenceList[0]
+                var name = sequenceObject.name;
+                this.navLabel.set('title',name);
+                this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                // thisB.getApollo().handleNavigationEvent(sequenceString);
+
+                var locationVal = Util.assembleLocStringWithLength( currRegion );
+                locationVal = name + locationVal.substr(locationVal.lastIndexOf(":"));
+                locationBox.set('value',locationVal,false);
+            }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
             (function(){
 
