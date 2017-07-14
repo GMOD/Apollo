@@ -826,14 +826,14 @@ return declare( [JBPlugin, HelpMixin],
                             // set location
                             var currentViewURL = browser.makeCurrentViewURL();
                             console.log(currentViewURL);
-                            var length = browser.view.ref.length ;
-                            var endBp = length - browser.view.minVisible();
-                            var startBp = length - browser.view.maxVisible();
-                            console.log('initial location: '+browser.view.minVisible() + ' '+browser.view.maxVisible() + ' length: '+length );
-                            console.log('final location: '+startBp + ' '+endBp);
-                            var locString = JSON.stringify(refSeqObject)+":"+startBp+".."+endBp;
+                            // var length = browser.view.ref.length ;
+                            // var endBp = length - browser.view.minVisible();
+                            // var startBp = length - browser.view.maxVisible();
+                            // console.log('initial location: '+browser.view.minVisible() + ' '+browser.view.maxVisible() + ' length: '+length );
+                            // console.log('final location: '+startBp + ' '+endBp);
+                            var locString = JSON.stringify(refSeqObject)+":"+browser.view.minVisible()+".."+browser.view.maxVisible();
                             // var locString = refSeqObject+":"+startBp+".."+endBp;
-                            console.log('final location string: '+startBp + ' '+endBp);
+                            // console.log('final location string: '+startBp + ' '+endBp);
 
                             var newUrl = "".concat(
                                 window.location.protocol,
@@ -919,10 +919,10 @@ return declare( [JBPlugin, HelpMixin],
                 // }
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                var sequenceObject ;
+                var sequenceObject ,sequenceString ;
                 if(thisB.runningApollo()){
                     thisB.getApollo().setCurrentSequence(currRegion.ref);
-                    var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                    sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
                     sequenceObject = JSON.parse(sequenceString).sequenceList[0];
                     var name = sequenceObject.name;
                     this.navLabel.set('title',name);
@@ -932,7 +932,14 @@ return declare( [JBPlugin, HelpMixin],
                     locationBox.set('value',locationVal,false);
                 }
                 else{
-                    locationBox.set('value',Util.assembleLocStringWithLength( currRegion ),false);
+                    var locationBoxString = Util.assembleLocStringWithLength( currRegion );
+                    if(currRegion.ref.startsWith("{")){
+                        sequenceString = locationBoxString.substring(0,locationBoxString.lastIndexOf("}")+1);
+                        sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                        locationBoxString = sequenceObject.name + locationBoxString.substr(locationBoxString.lastIndexOf(":"));
+                    }
+                    locationBox.set('value', locationBoxString,false);
+
                 }
             }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
