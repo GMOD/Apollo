@@ -8,13 +8,9 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -23,14 +19,15 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.dto.assemblage.*;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfo;
 import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
-import org.bbop.apollo.gwt.client.event.*;
-import org.bbop.apollo.gwt.client.rest.AssemblageRestService;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.bbop.apollo.gwt.client.rest.RestService;
-import org.bbop.apollo.gwt.client.rest.SequenceRestService;
-import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequence;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageSequenceList;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.rest.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
@@ -51,8 +48,9 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-//    private static final int DEFAULT_TAB_COUNT = 8;
+    //    private static final int DEFAULT_TAB_COUNT = 8;
     private static final int DEFAULT_TAB_COUNT = 7; // removed the assemblage tab
+
 
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }
@@ -66,7 +64,7 @@ public class MainPanel extends Composite {
     private static AssemblageInfo currentAssemblage;
     private static Long currentStartBp; // list of organisms for user
     private static Long currentEndBp; // list of organisms for user
-    private static Map<String,List<String>> currentQueryParams ; // list of organisms for user
+    private static Map<String, List<String>> currentQueryParams; // list of organisms for user
     static boolean useNativeTracklist; // list native tracks
     private static List<OrganismInfo> organismInfoList = new ArrayList<>(); // list of organisms for user
     private static final String trackListViewString = "&tracklist=";
@@ -92,7 +90,7 @@ public class MainPanel extends Composite {
     static TrackPanel trackPanel;
     @UiField
     static SequencePanel sequencePanel;
-//    @UiField
+    //    @UiField
 //    static AssemblagePanel assemblagePanel;
     @UiField
     static OrganismPanel organismPanel;
@@ -195,15 +193,6 @@ public class MainPanel extends Composite {
             }
         });
 
-//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                Window.alert(organismChangeEvent.getAssociatedType().toString());
-//                Window.alert(organismChangeEvent.getAction().toString());
-//            }
-//        });
-
-
         try {
             String dockOpen = Annotator.getPreference(FeatureStringEnum.DOCK_OPEN.getValue());
             if (dockOpen != null) {
@@ -231,10 +220,10 @@ public class MainPanel extends Composite {
         setUserNameForCurrentUser();
 
         String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
-        if(tabPreferenceString!=null){
+        if (tabPreferenceString != null) {
             try {
                 int selectedTab = Integer.parseInt(tabPreferenceString);
-                if(selectedTab<detailTabs.getWidgetCount()){
+                if (selectedTab < detailTabs.getWidgetCount()) {
                     detailTabs.selectTab(selectedTab);
                     if (selectedTab == TabPanelIndex.TRACKS.index) {
                         trackPanel.reloadIfEmpty();
@@ -276,19 +265,19 @@ public class MainPanel extends Composite {
                         Frame frame = new Frame(url);
                         frame.setWidth("100%");
                         frame.setHeight("100%");
-                        detailTabs.add(frame,title);
+                        detailTabs.add(frame, title);
 
                     } else {
                         Bootbox.alert("Unsure how to process " + jsonObject.toString());
                     }
                 }
                 String tabPreferenceString = Annotator.getPreference(FeatureStringEnum.CURRENT_TAB.getValue());
-                if(tabPreferenceString!=null){
-                    int selectedTab = 0 ;
+                if (tabPreferenceString != null) {
+                    int selectedTab = 0;
                     try {
                         selectedTab = Integer.parseInt(tabPreferenceString);
-                        if(selectedTab >= detailTabs.getWidgetCount()){
-                            selectedTab = 0 ;
+                        if (selectedTab >= detailTabs.getWidgetCount()) {
+                            selectedTab = 0;
                         }
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
@@ -305,8 +294,8 @@ public class MainPanel extends Composite {
     }
 
     private void removeExtraTabs() {
-        for(int i = 0 ; i < detailTabs.getWidgetCount()-DEFAULT_TAB_COUNT ; i++){
-            detailTabs.remove(i+DEFAULT_TAB_COUNT);
+        for (int i = 0; i < detailTabs.getWidgetCount() - DEFAULT_TAB_COUNT; i++) {
+            detailTabs.remove(i + DEFAULT_TAB_COUNT);
         }
     }
 
@@ -335,7 +324,7 @@ public class MainPanel extends Composite {
 
     private static void setLabelForCurrentAssemblage() {
         ButtonGroup buttonGroup = AssemblageInfoService.buildLocationWidget(currentAssemblage);
-        if(buttonGroup!=null){
+        if (buttonGroup != null) {
             SafeHtml labelHtml = SafeHtmlUtils.fromTrustedString(buttonGroup.toString());
             currentSequenceLabel.setHTML(labelHtml);
         }
@@ -354,24 +343,22 @@ public class MainPanel extends Composite {
                 handlingNavEvent = false;
                 JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
                 currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(sequenceInfoJson);
-                if(start==null){
-                    currentStartBp = currentAssemblage.getStartBp()!=null ? currentAssemblage.getStartBp() : 0 ;
+                if (start == null) {
+                    currentStartBp = currentAssemblage.getStartBp() != null ? currentAssemblage.getStartBp() : 0;
+                } else {
+                    currentStartBp = start;
                 }
-                else{
-                    currentStartBp = start ;
-                }
-                if(end==null){
-                    currentEndBp = currentAssemblage.getEndBp()!=null ? currentAssemblage.getEndBp() : currentAssemblage.getLength() ;
-                }
-                else{
-                    currentEndBp = end ;
+                if (end == null) {
+                    currentEndBp = currentAssemblage.getEndBp() != null ? currentAssemblage.getEndBp() : currentAssemblage.getLength();
+                } else {
+                    currentEndBp = end;
                 }
                 setLabelForCurrentAssemblage();
 
-                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(),currentOrganism.getName()));
+                Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentAssemblage.getName(), currentOrganism.getName()));
 
                 if (updateViewer) {
-                    updateGenomicViewerForAssemblage(currentAssemblage,currentStartBp,currentEndBp,false,false);
+                    updateGenomicViewerForAssemblage(currentAssemblage, currentStartBp, currentEndBp, false, false);
                 }
                 if (blocking) {
                     loadingDialog.hide();
@@ -514,7 +501,7 @@ public class MainPanel extends Composite {
     }
 
     public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion) {
-        updateGenomicViewerForAssemblage(selectedSequence, minRegion, maxRegion, false,false);
+        updateGenomicViewerForAssemblage(selectedSequence, minRegion, maxRegion, false, false);
     }
 
     /**
@@ -531,7 +518,7 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(returnValue);
-                updateGenomicViewer(true,true);
+                updateGenomicViewer(true, true);
 
             }
 
@@ -550,7 +537,7 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
+    public static void updateGenomicViewerForAssemblage(AssemblageInfo assemblageInfo, Long minRegion, Long maxRegion, Boolean forceReload, Boolean forceUrl) {
 
         if (!forceReload && currentAssemblage != null && currentAssemblage.getDescription().equals(assemblageInfo.getDescription()) && currentStartBp != null && currentEndBp != null && minRegion > 0 && maxRegion > 0 && frame.getUrl().startsWith("http")) {
             long oldLength = maxRegion - minRegion;
@@ -562,24 +549,23 @@ public class MainPanel extends Composite {
         }
 
 
-
         String trackListString = Annotator.getRootUrl() + Annotator.getClientToken() + "/jbrowse/index.html?loc=";
         currentAssemblage = assemblageInfo;
-        if(currentAssemblage.getStart()!=null
-                && currentAssemblage.getEnd()!=null
-                ){
-            if(currentAssemblage.getStart()>minRegion){
+        if (currentAssemblage.getStart() != null
+                && currentAssemblage.getEnd() != null
+                ) {
+            if (currentAssemblage.getStart() > minRegion) {
                 minRegion = currentAssemblage.getStart();
             }
-            if(maxRegion < 0 || currentAssemblage.getEnd() < maxRegion){
-                maxRegion = currentAssemblage.getEnd() ;
+            if (maxRegion < 0 || currentAssemblage.getEnd() < maxRegion) {
+                maxRegion = currentAssemblage.getEnd();
             }
         }
         currentStartBp = minRegion;
         currentEndBp = maxRegion;
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(),currentAssemblage.getSequenceList());
-        trackListString += URL.encodeQueryString(jsonObject.toString().replaceAll(", ",","));
+        jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.getValue(), currentAssemblage.getSequenceList());
+        trackListString += URL.encodeQueryString(jsonObject.toString().replaceAll(", ", ","));
         trackListString += URL.encodeQueryString(":") + minRegion + ".." + maxRegion;
 
         trackListString += getCurrentQueryParamsAsString();
@@ -620,13 +606,11 @@ public class MainPanel extends Composite {
 
         trackListString += "&locationBox=none";
         // TODO: this should work correclty
-//        Window.alert("the track list link '"+trackListString+"'");
-        if(false && !forceUrl && getInnerDiv()!=null){
+        if (false && !forceUrl && getInnerDiv() != null) {
             JSONObject commandObject = new JSONObject();
-            commandObject.put("url", new JSONString(currentAssemblage.getName()+":"+currentStartBp+".."+currentEndBp));
-            MainPanel.getInstance().postMessage( "navigateToLocation",commandObject);
-        }
-        else{
+            commandObject.put("url", new JSONString(currentAssemblage.getName() + ":" + currentStartBp + ".." + currentEndBp));
+            MainPanel.getInstance().postMessage("navigateToLocation", commandObject);
+        } else {
             frame.setUrl(trackListString);
         }
 
@@ -646,7 +630,7 @@ public class MainPanel extends Composite {
      * @param minRegion
      * @param maxRegion
      */
-    public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload,Boolean forceUrl) {
+    public static void updateGenomicViewerForAssemblage(String selectedSequence, Long minRegion, Long maxRegion, Boolean forceReload, Boolean forceUrl) {
 
         AssemblageInfo assemblageInfo;
         if (selectedSequence.startsWith("{")) {
@@ -659,7 +643,7 @@ public class MainPanel extends Composite {
             assemblageSequenceList.addSequence(assemblageSequence);
             assemblageInfo.setSequenceList(assemblageSequenceList);
         }
-        updateGenomicViewerForAssemblage(assemblageInfo,minRegion,maxRegion,forceReload,forceUrl);
+        updateGenomicViewerForAssemblage(assemblageInfo, minRegion, maxRegion, forceReload, forceUrl);
     }
 
     void postMessage(String message, JSONObject object) {
@@ -706,15 +690,15 @@ public class MainPanel extends Composite {
     }
 
 
-    public static void updateGenomicViewer(boolean forceReload,boolean forceUrl) {
-        if(currentAssemblage==null) {
+    public static void updateGenomicViewer(boolean forceReload, boolean forceUrl) {
+        if (currentAssemblage == null) {
             GWT.log("Current sequence not set");
             return;
         }
         if (currentStartBp != null && currentEndBp != null) {
-            updateGenomicViewerForAssemblage(currentAssemblage, currentStartBp, currentEndBp, forceReload,forceUrl);
+            updateGenomicViewerForAssemblage(currentAssemblage, currentStartBp, currentEndBp, forceReload, forceUrl);
         } else {
-            updateGenomicViewerForAssemblage(currentAssemblage, currentAssemblage.getStart(), currentAssemblage.getEnd(), forceReload,forceUrl);
+            updateGenomicViewerForAssemblage(currentAssemblage, currentAssemblage.getStart(), currentAssemblage.getEnd(), forceReload, forceUrl);
         }
     }
 
@@ -1029,16 +1013,16 @@ public class MainPanel extends Composite {
         setLabelForCurrentAssemblage();
     }
 
-    public static void doReverseComplement(){
+    public static void doReverseComplement() {
+        // TODO: do this inline without going to the server (just saving the preference)
         Boolean isReverse = currentAssemblage.getSequenceList().getSequence(0).getReverse();
-        for(int i = 0 ; i < currentAssemblage.getSequenceList().size() ; i++){
+        for (int i = 0; i < currentAssemblage.getSequenceList().size(); i++) {
             AssemblageSequence assemblageSequence = currentAssemblage.getSequenceList().getSequence(i);
+            // we only set this flag and the server does the rest
             assemblageSequence.setReverse(!isReverse);
-            currentStartBp = assemblageSequence.getEnd() - currentStartBp;
-            currentEndBp = assemblageSequence.getEnd() - currentEndBp ;
-            currentAssemblage.getSequenceList().set(i,assemblageSequence);
+            currentAssemblage.getSequenceList().set(i, assemblageSequence);
         }
-        MainPanel.updateGenomicViewerForAssemblage(currentAssemblage);
+        updateGenomicViewerForAssemblage(currentAssemblage);
         setLabelForCurrentAssemblage();
     }
 
@@ -1082,7 +1066,7 @@ public class MainPanel extends Composite {
         final Long start = (long) navEvent.get("start").isNumber().doubleValue();
         final Long end = (long) navEvent.get("end").isNumber().doubleValue();
         String sequenceNameString = navEvent.get("ref").isString().stringValue();
-        sequenceNameString = sequenceNameString.substring(0,sequenceNameString.lastIndexOf(":"));
+        sequenceNameString = sequenceNameString.substring(0, sequenceNameString.lastIndexOf(":"));
         JSONArray sequenceListArray = JSONParser.parseLenient(sequenceNameString).isObject().get(FeatureStringEnum.SEQUENCE_LIST.getValue()).isArray();
 
         if (!sequenceListArray.toString().equals(currentAssemblage.getSequenceList().toString())) {
@@ -1193,7 +1177,7 @@ public class MainPanel extends Composite {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
-//        ASSEMBLAGE(3),
+        //        ASSEMBLAGE(3),
         ORGANISM(3),
         USERS(4),
         GROUPS(5),
@@ -1241,10 +1225,14 @@ public class MainPanel extends Composite {
     public static SequencePanel getSequencePanel() {
         return sequencePanel;
     }
+
     public void addAssemblage(RequestCallback requestCallback, AssemblageInfo assemblageInfo) {
 //        assemblagePanel.addAssemblage(requestCallback, assemblageInfo);
     }
-    public static TrackPanel getTrackPanel() { return trackPanel ; }
+
+    public static TrackPanel getTrackPanel() {
+        return trackPanel;
+    }
 
     public AssemblageInfo getCurrentAssemblage() {
         return currentAssemblage;
@@ -1261,8 +1249,8 @@ public class MainPanel extends Composite {
 
     AssemblageInfo setCurrentAssemblageAndEnds(AssemblageInfo newAssemblage) {
         currentAssemblage = newAssemblage;
-        currentStartBp = currentAssemblage.getStartBp()!=null ? currentAssemblage.getStartBp() : 0 ;
-        currentEndBp = currentAssemblage.getEndBp()!=null ? currentAssemblage.getEndBp() : currentAssemblage.getLength() ;
+        currentStartBp = currentAssemblage.getStartBp() != null ? currentAssemblage.getStartBp() : 0;
+        currentEndBp = currentAssemblage.getEndBp() != null ? currentAssemblage.getEndBp() : currentAssemblage.getLength();
         currentAssemblage.setStartBp(currentStartBp);
         currentAssemblage.setEndBp(currentEndBp);
         return currentAssemblage;

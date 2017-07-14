@@ -68,14 +68,13 @@ class AnnotatorService {
                     // find the first assemblage with a matching organism
                     def assemblages = assemblageService.getAssemblagesForUserAndOrganism(currentUser,currentOrganism)
                     Assemblage assemblage = assemblages.size()>0 ? assemblages.first() : null
-//                    Assemblage assemblage = Assemblage.findByOrganism(currentOrganism,currentUserOrganismPreference.user)
                     if (!assemblage) {
                         // just need the first random one
                         Sequence sequence = Sequence.findByOrganism(currentOrganism)
                         assemblage = assemblageService.generateAssemblageForSequence(sequence)
                     }
                     currentUserOrganismPreference.assemblage = assemblage
-                    currentUserOrganismPreference.save(flush: true)
+                    currentUserOrganismPreference.save()
                 }
                 appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(currentUserOrganismPreference.assemblage))
 
