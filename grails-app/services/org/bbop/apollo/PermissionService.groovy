@@ -260,7 +260,7 @@ class PermissionService {
      * @return
      */
     @NotTransactional
-    public Map<String, Integer> getSequenceNameFromInput(JSONObject inputObject) {
+    Map<String, Integer> getSequenceNameFromInput(JSONObject inputObject) {
         Map<String, Integer> sequenceMap = new HashMap<>()
         int counter = 0
         if (inputObject.has(FeatureStringEnum.SEQUENCE_LIST.value)) {
@@ -284,13 +284,13 @@ class PermissionService {
                     track.sequenceList = JSON.parse(track.sequenceList) as JSONArray
                 }
                 track.sequenceList.each { it ->
-                    sequenceMap.put(it.name, counter)
+                    sequenceMap.put(it, counter)
                     ++counter
                 }
             } else if (inputObject.track.contains(FeatureStringEnum.SEQUENCE_LIST.value)) {
                 JSONObject sequenceObject = JSON.parse(inputObject.track) as JSONObject
                 sequenceObject.sequenceList.each { it ->
-                    sequenceMap.put(it.name, counter)
+                    sequenceMap.put(it, counter)
                     ++counter
                 }
             } else {
