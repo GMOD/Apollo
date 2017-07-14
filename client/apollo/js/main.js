@@ -845,7 +845,7 @@ return declare( [JBPlugin, HelpMixin],
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                 thisB.getApollo().setCurrentSequence(currRegion.ref);
                 var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
-                var sequenceObject = JSON.parse(sequenceString).sequenceList[0]
+                var sequenceObject = JSON.parse(sequenceString).sequenceList[0];
                 var name = sequenceObject.name;
                 this.navLabel.set('title',name);
                 this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
