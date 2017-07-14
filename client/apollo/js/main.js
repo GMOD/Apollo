@@ -269,8 +269,14 @@ return declare( [JBPlugin, HelpMixin],
         browser.afterMilestone( 'completely initialized', function() {
             var view  = browser.view ;
             // var projectionString = view.ref.name;
-            var projectionString = JSON.stringify(view.ref) ;
-            var projectionLength = window.parent.getProjectionLength(projectionString);
+            var projectionLength ;
+            if(thisB.runningApollo()){
+                var projectionString = JSON.stringify(view.ref) ;
+                projectionLength = thisB.getApollo().getProjectionLength(projectionString);
+            }
+            else{
+                projectionLength = view.ref.length ;
+            }
             var ratio = view.elem.clientWidth  / projectionLength  ;
 
             browser.view.pxPerBp = ratio ;
@@ -281,6 +287,11 @@ return declare( [JBPlugin, HelpMixin],
 
 
     },
+
+    runningApollo: function () {
+        return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0');
+    },
+
     updateLabels: function() {
         if(!this._showLabels) {
             query('.track-label').style('visibility','hidden');
@@ -457,8 +468,6 @@ return declare( [JBPlugin, HelpMixin],
                 webapollo.showAnnotatorPanel();
                 return ;
             }
-            this.addSearchBox();
-            this.addNavBox();
             this.browser.addGlobalMenuItem( 'user',
                             new dijitMenuItem(
                                             {
@@ -485,6 +494,8 @@ return declare( [JBPlugin, HelpMixin],
                                     }
                             });
         }
+        this.addSearchBox();
+        this.addNavBox();
 
         // get all toplinks and hide the one that says 'Full-screen view'
         $('.topLink').each(function(index){
@@ -767,13 +778,19 @@ return declare( [JBPlugin, HelpMixin],
                 'id': 'apollo-nav-box',
                 'class': "separate-nav-box"
             }, navbox);
+            var sequenceObj , refSeqObject ;
             var refSeqString  = browser.view.ref.name;
-            refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf(":"));
-            var refSeqObject = JSON.parse(refSeqString);
+            if(refSeqString.startsWith("{")){
+                refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf(":"));
+                refSeqObject = JSON.parse(refSeqString);
+                // just grab the first one for now
+                sequenceObj = refSeqObject.sequenceList[0]
+            }
+            else{
+                sequenceObj = {};
+                sequenceObj.name = refSeqString;
+            }
 
-            // just grab the first one for now
-            var sequenceObj = refSeqObject.sequenceList[0]
-            // sequenceObj.
 
             this.navLabel = new dijitButton(
                 {
@@ -813,7 +830,7 @@ return declare( [JBPlugin, HelpMixin],
                 {
                     id: "apollo-location",
                     name: "apollo-location",
-                    style: {width: "200px"},
+                    style: {width: "300px"},
                     maxLength: 400,
                     searchAttr: "name",
                     title: 'Enter a symbol or ID to search'

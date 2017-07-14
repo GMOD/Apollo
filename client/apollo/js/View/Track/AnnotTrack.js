@@ -5452,8 +5452,14 @@ define([
 
             getUniqueTrackName: function () {
                 var trackName = this.refSeq.name;
-                trackName = trackName.substr(0, trackName.lastIndexOf(':'));
-                return JSON.parse(trackName);
+                if(trackName.startsWith("{")){
+                    trackName = trackName.substr(0, trackName.lastIndexOf(':'));
+                    return JSON.parse(trackName);
+                }
+                else{
+                    var returnObject = {};
+
+                }
             },
 
             openDialog: function (title, data, width, height) {
