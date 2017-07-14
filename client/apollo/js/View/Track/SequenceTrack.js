@@ -478,13 +478,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
                             var framedivs = [];
                             var offset = ( 2 - (track.refSeq.length  % 3)  )  ;
-                            // console.log(offset)
                             for (var i=2; i>=0; i--) {
                                 var transStart = blockStart + 1 - i;
                                 var frame = (transStart % 3 + 3) % 3;
                                 frame = (frame + offset )% 3;
                                 var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                $(transProtein).addClass("cds-frame" + frame);
+                                $(transProtein).addClass("neg-cds-frame" + frame);
                                 framedivs[frame] = transProtein;
                             }
                             for (var i=2; i>=0; i--) {
