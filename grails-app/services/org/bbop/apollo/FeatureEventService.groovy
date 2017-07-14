@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -499,14 +498,14 @@ class FeatureEventService {
         return findCurrentFeatureEvent(uniqueName, featureEventMap)
     }
 
-    List<String> getMrnaTerms(){
+    List<String> getMrnaTerms() {
         def returnList = []
         returnList.add(MRNA.cvTerm)
         returnList.add(MRNA.alternateCvTerm)
         return returnList
     }
 
-    List<String> getTranscriptTerms(){
+    List<String> getTranscriptTerms() {
         def returnList = []
         returnList.addAll(getMrnaTerms())
         returnList.add(Transcript.cvTerm)
@@ -527,7 +526,7 @@ class FeatureEventService {
     }
 
 
-    List<String> getTopLevelTerms(){
+    List<String> getTopLevelTerms() {
         def returnList = []
         returnList.addAll(getTranscriptTerms())
         returnList.add(RepeatRegion.cvTerm)
@@ -537,7 +536,7 @@ class FeatureEventService {
         return returnList.unique()
     }
 
-    private boolean isJsonType(JSONObject jsonObject,List<String> types) {
+    private boolean isJsonType(JSONObject jsonObject, List<String> types) {
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
         return types.contains(typeString)
@@ -608,11 +607,10 @@ class FeatureEventService {
                 addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
 
-                if (isJsonType(jsonFeature,transcriptTerms)) {
+                if (isJsonType(jsonFeature, mrnaTerms)) {
                     // set the original gene name
-                    println "is a transcript term "
-//                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, isJsonType(jsonFeature,topLevelTerms))
                     addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
+
                     for (int k = 0; k < featuresToAddArray.size(); k++) {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
@@ -620,24 +618,15 @@ class FeatureEventService {
                     log.debug "transcript original command object = ${originalCommandObject as JSON}"
                     log.debug "transcript add command object = ${addCommandObject as JSON}"
                     requestHandlingService.addTranscript(addCommandObject)
-                    if (isJsonType(jsonFeature,mrnaTerms)) {
-//                        println "is a an mrna term "
-                        transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
-                    }
-                    else{
-                        featuresToUpdate.add(jsonFeature.getString("uniquename"))
-                    }
-                }
-                else {
-                    println "is is a feature term "
+                    transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
+                } else {
                     log.debug "feature original command object = ${originalCommandObject as JSON}"
                     log.debug "feature add command object = ${addCommandObject as JSON}"
-//                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, isJsonType(jsonFeature,topLevelTerms))
                     addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
                     requestHandlingService.addFeature(addCommandObject)
-                    if(isJsonType(jsonFeature,topLevelTerms)){
-                        featuresToUpdate.add(jsonFeature.getString("uniquename"))
-                    }
+                }
+                if (isJsonType(jsonFeature, topLevelTerms)) {
+                    featuresToUpdate.add(jsonFeature.getString("uniquename"))
                 }
 
             }
