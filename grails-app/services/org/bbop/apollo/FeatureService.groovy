@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -1597,15 +1598,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return cvTerm
     }
 
-    boolean isJsonTranscript(JSONObject jsonObject) {
-        JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
-        String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
-        if (typeString == MRNA.cvTerm || typeString == MRNA.alternateCvTerm) {
-            return true
-        } else {
-            return false
-        }
-    }
 
     // TODO: (perform on client side, slightly ugly)
     Feature generateFeatureForType(String ontologyId) {

@@ -56,6 +56,7 @@ class RequestHandlingService {
             Pseudogene.class.name
     ]
 
+
     public static final List<String> viewableAnnotationTranscriptList = [
             Transcript.class.name,
             MRNA.class.name,

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -216,7 +217,7 @@ class FeatureEventService {
         for (JSONObject sequenceObject in newFeatureArray) {
 ////            // we set it to true if not there, otherwise we set it to false
 //////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
-            if(sequenceObject.containsKey(FeatureStringEnum.REVERSE.value)){
+            if (sequenceObject.containsKey(FeatureStringEnum.REVERSE.value)) {
                 sequenceObject.reverse = false
             }
             unProjectSequenceLocation(sequenceObject)
@@ -262,24 +263,24 @@ class FeatureEventService {
     def unProjectSequenceLocation(JSONObject sequenceObject) {
 
 
-        if(sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)){
+        if (sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)) {
             JSONObject location = sequenceObject.location
-            if(location.containsKey(FeatureStringEnum.REVERSE.value)){
+            if (location.containsKey(FeatureStringEnum.REVERSE.value)) {
                 location.reverse = false
             }
-            if(location.containsKey(FeatureStringEnum.SEQUENCE.value)){
+            if (location.containsKey(FeatureStringEnum.SEQUENCE.value)) {
                 String locationSequenceString = location.sequence
-                if(locationSequenceString.startsWith("[")){
+                if (locationSequenceString.startsWith("[")) {
                     JSONArray sequenceArray = JSON.parse(location.sequence) as JSONArray
-                    for(JSONObject so in sequenceArray){
+                    for (JSONObject so in sequenceArray) {
                         so.reverse = false
                     }
                     location.sequence = sequenceArray.toString()
                 }
             }
         }
-        if(sequenceObject.containsKey(FeatureStringEnum.CHILDREN.value)){
-            for(JSONObject innerSequenceObject in sequenceObject.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
+        if (sequenceObject.containsKey(FeatureStringEnum.CHILDREN.value)) {
+            for (JSONObject innerSequenceObject in sequenceObject.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
                 unProjectSequenceLocation(innerSequenceObject)
             }
         }
@@ -498,6 +499,50 @@ class FeatureEventService {
         return findCurrentFeatureEvent(uniqueName, featureEventMap)
     }
 
+    List<String> getMrnaTerms(){
+        def returnList = []
+        returnList.add(MRNA.cvTerm)
+        returnList.add(MRNA.alternateCvTerm)
+        return returnList
+    }
+
+    List<String> getTranscriptTerms(){
+        def returnList = []
+        returnList.addAll(getMrnaTerms())
+        returnList.add(Transcript.cvTerm)
+        returnList.add(Transcript.alternateCvTerm)
+        returnList.add(TRNA.cvTerm)
+        returnList.add(TRNA.alternateCvTerm)
+        returnList.add(SnRNA.cvTerm)
+        returnList.add(SnRNA.alternateCvTerm)
+        returnList.add(SnoRNA.cvTerm)
+        returnList.add(SnoRNA.alternateCvTerm)
+        returnList.add(NcRNA.cvTerm)
+        returnList.add(NcRNA.alternateCvTerm)
+        returnList.add(RRNA.cvTerm)
+        returnList.add(RRNA.alternateCvTerm)
+        returnList.add(MiRNA.cvTerm)
+        returnList.add(MiRNA.alternateCvTerm)
+        return returnList.unique()
+    }
+
+
+    List<String> getTopLevelTerms(){
+        def returnList = []
+        returnList.addAll(getTranscriptTerms())
+        returnList.add(RepeatRegion.cvTerm)
+        returnList.add(RepeatRegion.alternateCvTerm)
+        returnList.add(TransposableElement.cvTerm)
+        returnList.add(TransposableElement.alternateCvTerm)
+        return returnList.unique()
+    }
+
+    private boolean isJsonType(JSONObject jsonObject,List<String> types) {
+        JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
+        String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
+        return types.contains(typeString)
+    }
+
     def setHistoryState(JSONObject inputObject, int count, Assemblage requestAssemblage) {
 
         String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
@@ -536,6 +581,8 @@ class FeatureEventService {
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
         def transcriptsToCheckForIsoformOverlap = []
+        def featuresToUpdate = new HashSet()
+
         featureEventArray.each { featureEvent ->
             JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
             JSONObject originalCommandObject = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
@@ -550,11 +597,9 @@ class FeatureEventService {
 
                 // we have to explicitly set the track (if we have features ... which we should)
                 if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
-//                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
-//                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
                     JSONArray sequenceArray = JSON.parse(assemblage.sequenceList) as JSONArray
                     JSONObject jsonObject = new JSONObject()
-                    jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value,sequenceArray)
+                    jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray)
                     addCommandObject.put(FeatureStringEnum.TRACK.value, jsonObject)
                 }
 
@@ -563,8 +608,10 @@ class FeatureEventService {
                 addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
 
-                if (featureService.isJsonTranscript(jsonFeature)) {
+                if (isJsonType(jsonFeature,transcriptTerms)) {
                     // set the original gene name
+                    println "is a transcript term "
+//                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, isJsonType(jsonFeature,topLevelTerms))
                     addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
                     for (int k = 0; k < featuresToAddArray.size(); k++) {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
@@ -573,35 +620,45 @@ class FeatureEventService {
                     log.debug "transcript original command object = ${originalCommandObject as JSON}"
                     log.debug "transcript add command object = ${addCommandObject as JSON}"
                     requestHandlingService.addTranscript(addCommandObject)
-                    transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
-
-                } else {
+                    if (isJsonType(jsonFeature,mrnaTerms)) {
+//                        println "is a an mrna term "
+                        transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
+                    }
+                    else{
+                        featuresToUpdate.add(jsonFeature.getString("uniquename"))
+                    }
+                }
+                else {
+                    println "is is a feature term "
                     log.debug "feature original command object = ${originalCommandObject as JSON}"
                     log.debug "feature add command object = ${addCommandObject as JSON}"
-                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
+//                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, isJsonType(jsonFeature,topLevelTerms))
+                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
                     requestHandlingService.addFeature(addCommandObject)
+                    if(isJsonType(jsonFeature,topLevelTerms)){
+                        featuresToUpdate.add(jsonFeature.getString("uniquename"))
+                    }
                 }
 
             }
         }
 
         // after all the transcripts from the feature event has been added, applying isoform overlap rule
-        Set transcriptsToUpdate = new HashSet()
         transcriptsToCheckForIsoformOverlap.each {
-            transcriptsToUpdate.add(it)
-            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
+            featuresToUpdate.add(it)
+            featuresToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
         }
 
         // firing update annotation event
-        if (transcriptsToUpdate.size() > 0) {
+        if (featuresToUpdate) {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
-            transcriptsToUpdate.each {
-                Transcript transcript = Transcript.findByUniqueName(it)
-                JSONObject featuresJson = featureService.convertFeatureToJSON(transcript, false, assemblage)
+            featuresToUpdate.each {
+                Feature feature = Feature.findByUniqueName(it)
+                JSONObject featuresJson = featureService.convertFeatureToJSON(feature, false, assemblage)
                 def transcriptJSONList = []
                 transcriptJSONList += featuresJson
                 def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
-                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value,projectedJsonTranscript)
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, projectedJsonTranscript)
             }
             if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
