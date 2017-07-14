@@ -167,9 +167,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
     loadTranslationTable: function() {
         var track = this;
-        var query={
-            "track": track.annotTrack.getUniqueTrackName(),
-            "operation": "get_translation_table"
+        var query = {
+            track: track.annotTrack.getUniqueTrackName(),
+            operation: "get_translation_table"
         };
         return xhr.post(track.context_path + "/AnnotationEditorService", {
             data: JSON.stringify(query),
@@ -215,12 +215,11 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
      */
     loadSequenceAlterations: function() {
         var track = this;
-
-        var query={
-            "track": track.annotTrack.getUniqueTrackName(),
-            "operation": "get_sequence_alterations",
-            "organism": track.webapollo.organism,
-            "clientToken": track.getAnnotTrack().getClientToken()
+        var query = {
+            track: track.annotTrack.getUniqueTrackName(),
+            operation: "get_sequence_alterations",
+            organism: track.webapollo.organism,
+            clientToken: track.getAnnotTrack().getClientToken()
         };
 
         return dojo.xhrPost( {
@@ -814,16 +813,18 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
     requestDeletion: function(selected)  {
         var track = this;
-        var features = "[ ";
+        var features = [];
         for (var i = 0; i < selected.length; ++i) {
-                var annot = selected[i].feature;
-                if (i > 0) {
-                    features += ", ";
-                }
-                features += '{ "uniquename": "' + annot.id() + '" }';
+            var annot = selected[i].feature;
+            features.push({uniquename: annot.id()});
         }
-        features += "]";
-        var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "delete_sequence_alteration" }';
+
+        var postData = {
+            track: track.annotTrack.getUniqueTrackName(),
+            features: features,
+            operation: "delete_sequence_alteration",
+            clientToken: track.annotTrack.getClientToken()
+        }
         track.annotTrack.executeUpdateOperation(postData);
     },
 
@@ -1019,6 +1020,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var buttonDiv = dojo.create("div", { className: "sequence_alteration_button_div" }, content);
         var addButton = dojo.create("button", { innerHTML: "Add", className: "sequence_alteration_button" }, buttonDiv);
 
+
         var addSequenceAlteration = function() {
             var ok = true;
             var inputField;
@@ -1096,12 +1098,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     }
                     var features = [feature];
                     var postData = {
-                        "track": track.annotTrack.getUniqueTrackName(),
-                        "features": features,
-                        "operation": "add_sequence_alteration",
-                        "clientToken": track.annotTrack.getClientToken()
+                        track: track.annotTrack.getUniqueTrackName(),
+                        features: features,
+                        operation: "add_sequence_alteration",
+                        clientToken: track.annotTrack.getClientToken()
                     };
-                    track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
+                    track.annotTrack.executeUpdateOperation(postData);
                     track.annotTrack.closeDialog();
                 }
             }

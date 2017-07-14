@@ -124,7 +124,7 @@
                                 <select:MultipleSelect width="100%" title="Membership" maxOptions="5" selectedTextFormat="COUNT"
                                                        countSelectedTextFormat="2"
                                                        ui:field="availableUsers"
-                                                       liveSearch="true">
+                                               liveSearch="true">
                                 </select:MultipleSelect>
                                 <!--<select:Select width="100%" title="Membership" multiple="true"-->
                                                <!--selectedTextFormat="count > 2" visibleSize="5" ui:field="availableUsers"-->

@@ -98,6 +98,8 @@ define([
         var contextMenuItems;
 
         var context_path = "..";
+        // START FOLDING SECTION
+        var doFolding = false ;
 
         var AnnotTrack = declare(DraggableFeatureTrack, {
             constructor: function (args) {
@@ -263,19 +265,19 @@ define([
 
             },
 
-            generateRandomNumber: function(length){
+            generateRandomNumber: function (length) {
                 var string = '';
-                while(string.length<length){
-                    string += Math.floor(Math.random()*1000);
+                while (string.length < length) {
+                    string += Math.floor(Math.random() * 1000);
                 }
-                return string ;
+                return string;
             },
 
             getClientToken: function () {
                 if (this.runningApollo()) {
                     return this.getApollo().getClientToken();
                 }
-                else{
+                else {
                     var returnItem = window.sessionStorage.getItem("clientToken");
                     if (!returnItem) {
                         var randomNumber = this.generateRandomNumber(20);
@@ -292,7 +294,7 @@ define([
                 stomp_url = stomp_url.substr(0, index) + '/stomp/';
                 var numberIndex = stomp_url.search('/[0-9]+/');
                 var stompIndex = stomp_url.search('/stomp/');
-                stomp_url = stomp_url.substr(0,numberIndex) + stomp_url.substr(stompIndex);
+                stomp_url = stomp_url.substr(0, numberIndex) + stomp_url.substr(stompIndex);
 
                 this.listener = new SockJS(stomp_url);
                 this.client = Stomp.over(this.listener);
@@ -308,16 +310,46 @@ define([
 
                 console.log('Registering Apollo listeners.');
 
-                browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                    apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
-                }));
+                // browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                //     apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
+                // }));
 
-                var navigateToLocation = function(urlObject) {
-                    if(urlObject.exact){
+                var navigateToLocation = function (urlObject) {
+                    if (urlObject.exact) {
                         browser.callLocation(urlObject.url);
                     }
-                    else{
-                        var location = Util.parseLocString( urlObject.url);
+                    else {
+                        var refCount = 0;
+                        for (var r in browser.allRefs) {
+                            refCount = refCount + 1;
+                            var ref = browser.allRefs[r];
+                            if (ref.sequenceList) {
+                                var sequenceListString = JSON.stringify(ref.sequenceList);
+                                console.log('has sequence list: ' + sequenceListString);
+                            }
+                            var name = ref.name;
+                            console.log("existing name: " + name);
+                            console.log("for ref: " + JSON.stringify(ref));
+                        }
+                        console.log('# of refseq: ' + refCount);
+                        var url = urlObject.url;
+                        console.log("parsing: " + url);
+
+                        // ref:start..end
+                        // TODO: parse correctly
+                        var ref = url.substr(0, url.lastIndexOf(":"));
+                        console.log(ref);
+                        var locString = url.substr(url.lastIndexOf(":") + 1, url.length);
+                        console.log(locString);
+                        var locs = locString.split("\.\.");
+                        console.log(locs);
+                        var location = {
+                            ref: ref,
+                            start: locs[0],
+                            end: locs[1]
+                        };
+                        // var location = Util.parseLocString( urlObject.url);
+                        console.log(location);
                         browser.showRegion(location);
                     }
                 };
@@ -339,12 +371,14 @@ define([
                     }
 
                     // if for some reason this method is called in the wrong place, we catch the error
-                    if(apolloMainPanel){
-                        apolloMainPanel.loadTracks(JSON.stringify(filteredTrackList));
+                    try {
+                        if (apolloMainPanel) {
+                            apolloMainPanel.loadTracks(JSON.stringify(filteredTrackList));
+                        }
+                    } catch (e) {
+                        console.log("window.parent invalid, ignoring");
                     }
                 };
-
-
 
                 var handleTrackVisibility = function (trackInfo) {
                     var command = trackInfo.command;
@@ -375,39 +409,43 @@ define([
                     handleTrackVisibility({command: "list"});
                 });
 
-                function handleMessage(event){
+                function handleMessage(event) {
                     var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
-                    var hostUrl = window.location.protocol +"//" + window.location.hostname ;
+                    var hostUrl = window.location.protocol + "//" + window.location.hostname;
 
                     // if non-80 or non-specified
-                    if(window.location.port && window.location.port!= "" && window.location.port != "80"){
+                    if (window.location.port && window.location.port != "" && window.location.port != "80") {
                         hostUrl = hostUrl + ":" + window.location.port;
                     }
-                    if (origin !== hostUrl){
-                        console.error("Bad Host Origin: "+origin );
+                    if (origin !== hostUrl) {
+                        console.error("Bad Host Origin: " + origin);
                         return;
                     }
 
-                    if(event.data.description === "navigateToLocation"){
+                    if (event.data.description === "navigateToLocation") {
                         navigateToLocation(event.data);
                     }
-                    else
-                    if(event.data.description === "handleTrackVisibility"){
+                    else if (event.data.description === "handleTrackVisibility") {
                         handleTrackVisibility(event.data);
                     }
-                    else{
-                        console.log("Unknown command: "+event.data.description);
+                    else {
+                        console.log("Unknown command: " + event.data.description);
                     }
                 }
-                window.addEventListener("message",handleMessage,true);
+
+                window.addEventListener("message", handleMessage, true);
 
 
                 client.connect({}, function () {
                     // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
                     var organism = JSON.parse(apolloMainPanel.getCurrentOrganism());
-                    var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                    //var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                    var assemblage = JSON.parse(apolloMainPanel.getCurrentAssemblage());
                     var user = JSON.parse(apolloMainPanel.getCurrentUser());
-                    client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                    assemblage.sequenceList.forEach(function (obj) {
+                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + obj.name, dojo.hitch(track, 'annotationNotification'));
+                    });
+                    //client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
                     client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
                 });
                 console.log('connection established');
@@ -448,10 +486,10 @@ define([
                     }
 
                     if (changeData.operation == "logout" && changeData.username == track.username) {
-                        if(track.getClientToken()!=changeData.clientToken){
+                        if (track.getClientToken() != changeData.clientToken) {
                             track.logout();
                         }
-                        else{
+                        else {
                             alert("You have been logged out or your session has expired");
                             if (this.getApollo()) {
                                 parent.location.reload();
@@ -501,32 +539,31 @@ define([
                         // changes are not propagated to the selection, so we are doing that here and the re-adding
                         // see: https://github.com/GMOD/Apollo/issues/645
                         var selections = track.selectionManager.getSelection();
-                        for(var sin in selections){
+                        for (var sin in selections) {
                             // track.selectionRemoved(selections[sin],track.selectionManager);
                             var selection = selections[sin];
                             var uniqueId = selection.feature._uniqueID;
-                            for(var featureIndex in changeData.features){
+                            for (var featureIndex in changeData.features) {
                                 var changedFeature = changeData.features[featureIndex];
                                 // if they are both transcripts
-                                if(changedFeature.uniquename===uniqueId){
+                                if (changedFeature.uniquename === uniqueId) {
                                     selection.feature.data.strand = changedFeature.location.strand;
                                 }
                                 else
                                     // if we select an exon, then let's see what happens here
                                 if(!selection.feature.data.parent_type || selection.feature.data.parent_type.indexOf('gene')<0){
                                     // we want the uniqueId to be the parent
-                                    if(selection.feature._parent._uniqueID==changedFeature.uniquename){
-                                        selection.feature._parent.strand = changedFeature.location.strand ;
-                                        selection.feature._parent.data.strand = changedFeature.location.strand ;
-                                        selection.feature.data.strand = changedFeature.location.strand ;
+                                    if (selection.feature._parent._uniqueID == changedFeature.uniquename) {
+                                        selection.feature._parent.strand = changedFeature.location.strand;
+                                        selection.feature._parent.data.strand = changedFeature.location.strand;
+                                        selection.feature.data.strand = changedFeature.location.strand;
                                     }
                                 }
                             }
-                            track.selectionAdded(selection,track.selectionManager);
+                            track.selectionAdded(selection, track.selectionManager);
                         }
 
                         if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
-
 
 
                     }
@@ -610,46 +647,48 @@ define([
                         }
                     }
                 }
+
+
                 var featDiv = DraggableFeatureTrack.prototype.renderFeature.call(this, feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd, rclass, clsName);
 
                 if (featDiv && featDiv != null && !history) {
                     annot_context_menu.bindDomNode(featDiv);
                     $(featDiv).droppable({
-                            accept: ".selected-feature",   // only accept draggables that
-                            // are selected feature divs
-                            tolerance: "pointer",
-                            hoverClass: "annot-drop-hover",
-                            over: function (event, ui) {
-                                track.annot_under_mouse = event.target;
-                            },
-                            out: function (event, ui) {
-                                track.annot_under_mouse = null;
-                            },
-                            drop: function (event, ui) {
-                                // ideally in the drop() on annot div is where would handle
-                                // adding feature(s) to annot,
-                                // but JQueryUI droppable doesn't actually call drop unless
-                                // draggable helper div is actually
-                                // over the droppable -- even if tolerance is set to pointer
-                                // tolerance=pointer will trigger hover styling when over
-                                // droppable,
-                                // as well as call to over method (and out when leave
-                                // droppable)
-                                // BUT location of pointer still does not influence actual
-                                // dropping and drop() call
-                                // therefore getting around this by handling hover styling
-                                // here based on pointer over annot,
-                                // but drop-to-add part is handled by whole-track droppable,
-                                // and uses annot_under_mouse
-                                // tracking variable to determine if drop was actually on
-                                // top of an annot instead of
-                                // track whitespace
-                                if (track.verbose_drop) {
-                                    console.log("dropped feature on annot:");
-                                    console.log(featDiv);
-                                }
+                        accept: ".selected-feature",   // only accept draggables that
+                        // are selected feature divs
+                        tolerance: "pointer",
+                        hoverClass: "annot-drop-hover",
+                        over: function (event, ui) {
+                            track.annot_under_mouse = event.target;
+                        },
+                        out: function (event, ui) {
+                            track.annot_under_mouse = null;
+                        },
+                        drop: function (event, ui) {
+                            // ideally in the drop() on annot div is where would handle
+                            // adding feature(s) to annot,
+                            // but JQueryUI droppable doesn't actually call drop unless
+                            // draggable helper div is actually
+                            // over the droppable -- even if tolerance is set to pointer
+                            // tolerance=pointer will trigger hover styling when over
+                            // droppable,
+                            // as well as call to over method (and out when leave
+                            // droppable)
+                            // BUT location of pointer still does not influence actual
+                            // dropping and drop() call
+                            // therefore getting around this by handling hover styling
+                            // here based on pointer over annot,
+                            // but drop-to-add part is handled by whole-track droppable,
+                            // and uses annot_under_mouse
+                            // tracking variable to determine if drop was actually on
+                            // top of an annot instead of
+                            // track whitespace
+                            if (track.verbose_drop) {
+                                console.log("dropped feature on annot:");
+                                console.log(featDiv);
                             }
-                        })
+                        }
+                    })
                         .click(function (event) {
                             if (event.altKey) {
                                 track.getAnnotationInfoEditor();
@@ -823,9 +862,10 @@ define([
                                             }
                                         }
                                     ],
-                                    "operation": operation
+                                    "operation": operation,
+                                    "clientToken": track.getClientToken()
                                 };
-                                track.executeUpdateOperation(JSON.stringify(postData));
+                                track.executeUpdateOperation(postData);
                                 track.changed();
                             }
                         });
@@ -916,7 +956,7 @@ define([
                     return;
                 }
 
-                var featuresString = "";
+                var features = [{uniquename: annot.id()}];
                 for (var i = 0; i < subfeats.length; ++i) {
                     var subfeat = subfeats[i];
                     // if (subfeat[target_track.subFields["type"]] !=
@@ -924,13 +964,19 @@ define([
                     var source_track = subfeat.track;
                     if (subfeat.get('type') != "wholeCDS") {
                         var jsonFeature = JSONUtils.createApolloFeature(subfeats[i], "exon");
-                        featuresString += ", " + JSON.stringify(jsonFeature);
+                        features.push(jsonFeature);
                     }
                 }
                 // var parent = JSONUtils.createApolloFeature(annot, target_track.fields,
                 // target_track.subfields);
                 // parent.uniquename = annot[target_track.fields["name"]];
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": [ {"uniquename": "' + annot.id() + '"}' + featuresString + '], "operation": "add_exon" }';
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: features,
+                    operation: "add_exon",
+                    clientToken: target_track.getClientToken()
+                };
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1022,8 +1068,8 @@ define([
             createAnnotations: function (selection_records) {
                 console.log('createAnnotations');
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
@@ -1086,7 +1132,7 @@ define([
                     featureToAdd.set("strand", strand);
                     var fmin;
                     var fmax;
-                    featureToAdd.set('subfeatures', new Array());
+                    featureToAdd.set('subfeatures', []);
                     array.forEach(subfeatures, function (subfeature) {
                         if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
                             return;
@@ -1120,11 +1166,12 @@ define([
                     featuresToAdd.push(afeat);
 
                     var postData = {
-                        "track": target_track.getUniqueTrackName(),
-                        "features": featuresToAdd,
-                        "operation": "add_transcript"
+                        track: target_track.getUniqueTrackName(),
+                        features: featuresToAdd,
+                        operation: "add_transcript",
+                        clientToken: target_track.getClientToken()
                     };
-                    target_track.executeUpdateOperation(JSON.stringify(postData));
+                    target_track.executeUpdateOperation(postData);
                 };
 
                 console.log('process: ' + strand);
@@ -1175,8 +1222,8 @@ define([
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
@@ -1188,7 +1235,7 @@ define([
                     var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
                     if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
+                        parentFeatures[parentId] = [];
                         parentFeatures[parentId].isSubfeature = is_subfeature;
                     }
                     parentFeatures[parentId].push(dragfeat);
@@ -1235,11 +1282,11 @@ define([
                             var dragfeat = featArray[k];
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
-                                var topLevel = new Object();
+                                var topLevel = {};
                                 topLevel.location = dojo.clone(afeat.location);
                                 topLevel.type = dojo.clone(afeat.type);
                                 topLevel.type.name = topLevelType;
-                                topLevel.children = new Array();
+                                topLevel.children = [];
                                 topLevel.children.push(afeat);
                                 afeat = topLevel;
                             }
@@ -1247,17 +1294,22 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: featuresToAdd,
+                    operation: "add_feature",
+                    clientToken: target_track.getClientToken()
+                };
                 target_track.executeUpdateOperation(postData);
             },
 
             createGenericOneLevelAnnotations: function (feats, type, strandless) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
-
                     var is_subfeature = !!dragfeat.parent();  // !! is shorthand
                     // for returning
                     // true if value is
@@ -1266,7 +1318,7 @@ define([
                     var parentId = is_subfeature ? dragfeat.parent().id() : dragfeat.id();
 
                     if (parentFeatures[parentId] === undefined) {
-                        parentFeatures[parentId] = new Array();
+                        parentFeatures[parentId] = [];
                         parentFeatures[parentId].isSubfeature = is_subfeature;
                     }
                     parentFeatures[parentId].push(dragfeat);
@@ -1280,7 +1332,7 @@ define([
                         var fmax;
                         // var featureToAdd = $.extend({}, parentFeature);
                         var featureToAdd = JSONUtils.makeSimpleFeature(parentFeature);
-                        featureToAdd.set('subfeatures', new Array());
+                        featureToAdd.set('subfeatures', []);
                         for (var k = 0; k < featArray.length; ++k) {
                             // var dragfeat = featArray[k];
                             var dragfeat = JSONUtils.makeSimpleFeature(featArray[k]);
@@ -1334,7 +1386,13 @@ define([
                         }
                     }
                 }
-                var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
+
+                var postData = {
+                    track: target_track.getUniqueTrackName(),
+                    features: featuresToAdd,
+                    operation: "add_feature",
+                    clientToken: target_track.getClientToken()
+                };
                 target_track.executeUpdateOperation(postData);
             },
 
@@ -1397,7 +1455,13 @@ define([
                     var feature = featuresToAdd[i];
                     if (this.isProteinCoding(feature)) {
                         var feats = [JSONUtils.createApolloFeature(feature, "mRNA")];
-                        var postData = '{ "track": "' + track.getUniqueTrackName() + '", "features": ' + JSON.stringify(feats) + ', "operation": "add_transcript" }';
+                        var postData = {
+                            track: track.getUniqueTrackName(),
+                            features: feats,
+                            operation: "add_transcript",
+                            clientToken: track.getClientToken()
+                        };
+
                         track.executeUpdateOperation(postData);
                     }
                     else if (feature.afeature.parent_id) {
@@ -1425,17 +1489,133 @@ define([
                 this.deleteAnnotations(selected);
             },
 
-            getApollo: function(){
+            getApollo: function () {
                 return window.parent;
             },
 
-            runningApollo: function(){
-                return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+            runningApollo: function () {
+                return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0');
+            },
+
+            createArrayOfUniqueNamesFromSelection: function () {
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+
+                var array = [];
+                for (var s in selected) {
+                    var selfeature = selected[s].feature;
+                    var uniqueName = selfeature.getUniqueName();
+                    array.push({
+                        'uniquename': uniqueName
+                    });
+                }
+                return array;
+            },
+
+            projectSelectedFeatures: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().projectFeatures(JSON.stringify(array), this.refSeq.name);
+            },
+
+            // fold selected transcript and
+            foldSelectedTranscript: function () {
+                // we'll assume that each type is a transcript
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().foldSelectedTranscript(JSON.stringify(array), this.refSeq.name);
+            },
+
+            foldBetweenSelectedExons: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().foldBetweenExons(JSON.stringify(array), this.refSeq.name);
+            },
+
+            getExonIndex: function (exon) {
+                var parent = exon.feature._parent;
+                var children = parent.afeature.children;
+                for (var c in children) {
+                    console.log(children[c] + ' vs '+ exon);
+                    console.log(children[c].uniquename + ' vs '+ exon.feature._uniqueID);
+                    if (children[c].uniquename == exon.feature._uniqueID) {
+                        return c;
+                    }
+                }
+                return null;
+            },
+
+            getRightExon: function (rightExon) {
+                var parent = rightExon.feature._parent;
+                if(!parent) return null ;
+                var children = parent.afeature.children;
+
+                var index = this.getExonIndex(rightExon);
+                var leftExon;
+                for (var c in children) {
+                    if (c < index && children[c].type.name == 'exon') {
+                        leftExon = children[c];
+                    }
+                    if (children[c].uniquename == rightExon.uniquename) {
+                        return leftExon ;
+                    }
+                }
+                return leftExon;
+            },
+
+            getLeftExon: function (leftExon) {
+                var parent = leftExon.feature._parent;
+                if(!parent) return null ;
+                var children = parent.afeature.children;
+
+                var index = this.getExonIndex(leftExon);
+                for (var c in children) {
+                    if (c > index && children[c].type.name == 'exon') {
+                        return children[c];
+                    }
+                }
+                return null;
+            },
+
+            foldExonLeft: function () {
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    alert('can only select one');
+                    return;
+                }
+                this.selectionManager.clearSelection();
+                var rightExon = selected[0];
+                var leftExon = this.getLeftExon(rightExon);
+                var array = [
+                    {'uniquename': leftExon.uniquename},
+                    {'uniquename': rightExon.feature._uniqueID}
+                ];
+
+                this.getApollo().foldBetweenExons(JSON.stringify(array), this.refSeq.name);
+            },
+
+            foldExonRight: function () {
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    alert('can only select one');
+                    return;
+                }
+                this.selectionManager.clearSelection();
+                var leftExon = selected[0];
+                var rightExon = this.getRightExon(leftExon);
+                var array = [
+                    {'uniquename': leftExon.feature._uniqueID},
+                    {'uniquename': rightExon.uniquename}
+                ];
+
+                this.getApollo().foldBetweenExons(JSON.stringify(array), this.refSeq.name);
+            },
+
+            removeSelectedFolds: function () {
+                var array = this.createArrayOfUniqueNamesFromSelection();
+                this.getApollo().removeFolds(JSON.stringify(array), this.refSeq.name);
             },
 
             deleteAnnotations: function (records) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 var uniqueNames = [];
                 var parents = {};
                 var toBeDeleted = [];
@@ -1483,13 +1663,9 @@ define([
                     }
                 }
                 for (var i = 0; i < toBeDeleted.length; ++i) {
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + toBeDeleted[i] + '" } ';
+                    features.push({"uniquename": toBeDeleted[i]});
                     uniqueNames.push(toBeDeleted[i]);
                 }
-                features += ']';
                 if (uniqueNames.length == 0) {
                     return;
                 }
@@ -1497,7 +1673,13 @@ define([
                     console.log("annotations to delete:");
                     console.log(features);
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "delete_feature" }';
+
+                var postData = {
+                    track: trackName,
+                    features: features,
+                    operation: "delete_feature",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1509,17 +1691,19 @@ define([
                     denyLabel: 'Cancel'
                 }).show(function (confirmed) {
                     if (confirmed) {
-                        var postData = {};
-                        postData.track = track.getUniqueTrackName();
-                        postData.operation = "delete_feature";
+                        var postData = {
+                            track: track.getUniqueTrackName(),
+                            operation: "delete_feature"
+                        };
                         postData.features = [];
                         for (var i = 0; i < selectedFeatures.length; i++) {
                             postData.features[i] = {uniquename: selectedFeatures[i].getUniqueName()};
                         }
-                        track.executeUpdateOperation(JSON.stringify(postData));
+                        track.executeUpdateOperation(postData);
                     }
                 });
             },
+
 
             mergeSelectedFeatures: function () {
                 var selected = this.selectionManager.getSelection();
@@ -1537,7 +1721,6 @@ define([
                 var sortedAnnots = track.sortAnnotationsByLocation(annots);
                 var leftAnnot = sortedAnnots[0];
                 var rightAnnot = sortedAnnots[sortedAnnots.length - 1];
-                var trackName = this.getUniqueTrackName();
 
                 /*
                  * for (var i in annots) { var annot = annots[i]; // just checking to
@@ -1550,21 +1733,29 @@ define([
                  * rightAnnot = annot; } } }
                  */
 
-                var features;
+                var features = [];
                 var operation;
                 // merge exons
                 if (leftAnnot.parent() && rightAnnot.parent() && leftAnnot.parent() == rightAnnot.parent()) {
-                    features = '"features": [ { "uniquename": "' + leftAnnot.id() + '" }, { "uniquename": "' + rightAnnot.id() + '" } ]';
+                    features.push({uniquename: leftAnnot.id()});
+                    features.push({uniquename: rightAnnot.id()});
                     operation = "merge_exons";
                 }
                 // merge transcripts
                 else {
                     var leftTranscriptId = leftAnnot.parent() ? leftAnnot.parent().id() : leftAnnot.id();
                     var rightTranscriptId = rightAnnot.parent() ? rightAnnot.parent().id() : rightAnnot.id();
-                    features = '"features": [ { "uniquename": "' + leftTranscriptId + '" }, { "uniquename": "' + rightTranscriptId + '" } ]';
+                    features.push({uniquename: leftTranscriptId});
+                    features.push({uniquename: rightTranscriptId});
                     operation = "merge_transcripts";
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+
+                var postData = {
+                    track: this.getUniqueTrackName(),
+                    features: features,
+                    operation: operation,
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1584,7 +1775,6 @@ define([
                 var sortedAnnots = track.sortAnnotationsByLocation(annots);
                 var leftAnnot = sortedAnnots[0];
                 var rightAnnot = sortedAnnots[sortedAnnots.length - 1];
-                var trackName = track.getUniqueTrackName();
 
                 /*
                  * for (var i in annots) { var annot = annots[i]; // just checking to
@@ -1596,23 +1786,30 @@ define([
                  * annot[track.fields["end"]] > rightAnnot[track.fields["end"]]) {
                  * rightAnnot = annot; } } }
                  */
-                var features;
+                var features = [];
                 var operation;
                 // split exon
                 if (leftAnnot == rightAnnot) {
                     var coordinate = this.getGenomeCoord(event);
-                    features = '"features": [ { "uniquename": "' + leftAnnot.id() + '", "location": { "fmax": ' + coordinate + ', "fmin": ' + (coordinate + 1) + ' } } ]';
+                    features.push({uniquename: leftAnnot.id(), location: {fmax: coordinate, fmin: coordinate + 1}});
                     operation = "split_exon";
                 }
                 // split transcript
                 else if (leftAnnot.parent() == rightAnnot.parent()) {
-                    features = '"features": [ { "uniquename": "' + leftAnnot.id() + '" }, { "uniquename": "' + rightAnnot.id() + '" } ]';
+                    features.push({uniquename: leftAnnot.id()});
+                    features.push({uniquename: rightAnnot.id()});
                     operation = "split_transcript";
                 }
                 else {
                     return;
                 }
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: operation,
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1629,10 +1826,13 @@ define([
                 var track = this;
                 var annot = records[0].feature;
                 var coordinate = this.getGenomeCoord(event);
-                var features = '"features": [ { "uniquename": "' + annot.id() + '", "location": { "fmin": ' + coordinate + ' } } ]';
-                var operation = "make_intron";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var features = [{uniquename: annot.id(), location: {fmin: coordinate}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "make_intron",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1656,10 +1856,20 @@ define([
 
                 var setStart = annot.parent() ? !annot.parent().get("manuallySetTranslationStart") : !annot.get("manuallySetTranslationStart");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
-                var features = '"features": [ { "uniquename": "' + uid + '"' + (setStart ? ', "location": { "fmin": ' + coordinate + ' }' : '') + ' } ]';
-                var operation = "set_translation_start";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var features = [];
+                if (setStart) {
+                    features.push({uniquename: uid, location: {fmin: coordinate}});
+                }
+                else {
+                    features.push({uniquename: uid});
+                }
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_translation_start",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1683,10 +1893,20 @@ define([
 
                 var setEnd = annot.parent() ? !annot.parent().get("manuallySetTranslationEnd") : !annot.get("manuallySetTranslationEnd");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
-                var features = '"features": [ { "uniquename": "' + uid + '"' + (setEnd ? ', "location": { "fmax": ' + coordinate + ' }' : '') + ' } ]';
-                var operation = "set_translation_end";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var features = [];
+                if (setEnd) {
+                    features.push({uniquename: uid, location: {fmax: coordinate}});
+                }
+                else {
+                    features.push({uniquename: uid});
+                }
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_translation_end",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1710,22 +1930,19 @@ define([
                         uniqueNames[uniqueName] = 1;
                     }
                 }
-                var features = '"features": [';
+                var features = [];
                 var i = 0;
                 for (var uniqueName in uniqueNames) {
-                    var trackdiv = track.div;
-                    var trackName = track.getUniqueTrackName();
-
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    features.push({uniquename: uniqueName});
                     ++i;
                 }
-                features += ']';
-                var operation = "flip_strand";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "flip_strand",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1737,7 +1954,8 @@ define([
 
             setLongestORFForSelectedFeatures: function (selection) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
+
                 for (var i in selection) {
                     var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
                     var atrack = selection[i].track;
@@ -1747,17 +1965,16 @@ define([
                     if (atrack === track) {
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
-
-                        if (i > 0) {
-                            features += ',';
-                        }
-                        features += ' { "uniquename": "' + uniqueName + '" } ';
+                        features.push({uniquename: uniqueName});
                     }
                 }
-                features += ']';
-                var operation = "set_longest_orf";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_longest_orf",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1769,7 +1986,7 @@ define([
 
             setReadthroughStopCodonForSelectedFeatures: function (selection) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 for (var i in selection) {
                     var annot = AnnotTrack.getTopLevelAnnotation(selection[i].feature);
                     var atrack = selection[i].track;
@@ -1779,17 +1996,16 @@ define([
                     if (atrack === track) {
                         var trackdiv = track.div;
                         var trackName = track.getUniqueTrackName();
-
-                        if (i > 0) {
-                            features += ',';
-                        }
-                        features += ' { "uniquename": "' + uniqueName + '", "readthrough_stop_codon": ' + !annot.data.readThroughStopCodon + '} ';
+                        features.push({uniquename: uniqueName, readthrough_stop_codon: !annot.data.readThroughStopCodon});
                     }
                 }
-                features += ']';
-                var operation = "set_readthrough_stop_codon";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_readthrough_stop_codon",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1815,10 +2031,14 @@ define([
                     fmin = evidence.get("start");
                     fmax = annot.get("end");
                 }
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
-                var operation = "set_exon_boundaries";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+
+                var features = [{uniquename: uniqueName, location: {fmin: fmin, fmax: fmax}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_exon_boundaries",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1844,10 +2064,14 @@ define([
                     fmin = annot.get("start");
                     fmax = evidence.get("end");
                 }
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
-                var operation = "set_exon_boundaries";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+
+                var features = [{uniquename: uniqueName, location: {fmin: fmin, fmax: fmax}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_exon_boundaries",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1873,10 +2097,14 @@ define([
                     fmin = evidence.get("start");
                     fmax = evidence.get("end");
                 }
-                var features = '"features": [ { "uniquename": "' + uniqueName + '", "location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ' } } ]';
-                var operation = "set_exon_boundaries";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+
+                var features = [{uniquename: uniqueName, location: {fmin: fmin, fmax: fmax}}];
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_exon_boundaries",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1890,10 +2118,14 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_downstream_donor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_downstream_donor",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1907,10 +2139,14 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_upstream_donor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_upstream_donor",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1924,10 +2160,14 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_downstream_acceptor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_downstream_acceptor",
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1941,10 +2181,15 @@ define([
                 var track = this;
                 var annot = selectedAnnots[0].feature;
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                var operation = "set_to_upstream_acceptor";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "set_to_upstream_acceptor",
+                    clientToken: track.getClientToken()
+                };
+
                 track.executeUpdateOperation(postData);
             },
 
@@ -1958,10 +2203,15 @@ define([
                 var track = this;
                 var annot = AnnotTrack.getTopLevelAnnotation(selectedAnnots[0].feature);
                 var uniqueName = annot.id();
-                var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
                 var operation = annot.get("locked") ? "unlock_feature" : "lock_feature";
-                var trackName = track.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"}';
+                var features = [{uniquename: uniqueName}];
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: operation,
+                    clientToken: track.getClientToken()
+                };
                 track.executeUpdateOperation(postData);
             },
 
@@ -1970,7 +2220,7 @@ define([
                 this.getAnnotationInfoEditorForSelectedFeatures(selected);
             },
 
-            changeAnnotationType: function(type) {
+            changeAnnotationType: function (type) {
                 var selected = this.selectionManager.getSelection();
                 if (selected[0].feature.afeature.type.name === type) {
                     this.alertAnnotationType(selected[0], type);
@@ -1981,22 +2231,25 @@ define([
                 }
             },
 
-            changeAnnotations: function(record, type) {
+            changeAnnotations: function (record, type) {
                 var track = this;
                 var selectedFeature = record.feature;
                 var selectedTrack = record.track;
                 var uniqueName = selectedFeature.afeature.type.name === "exon" ? selectedFeature.afeature.parent_id : selectedFeature.getUniqueName();
 
                 if (selectedTrack == track) {
-                    var trackdiv = track.div;
-                    var trackName = track.getUniqueTrackName();
-                    var features = [{ uniquename: uniqueName, type: type }];
-                    var postData = { track: trackName, features: features, operation: "change_annotation_type" };
-                    track.executeUpdateOperation(JSON.stringify(postData));
+                    var features = [{uniquename: uniqueName, type: type}];
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "change_annotation_type",
+                        clientToken: track.getClientToken()
+                    };
+                    track.executeUpdateOperation(postData);
                 }
             },
 
-            alertAnnotationType: function(selectedFeature, type) {
+            alertAnnotationType: function (selectedFeature, type) {
                 var message = "Feature " + selectedFeature.feature.afeature.name + " is already of type " + type;
                 var confirm = new ConfirmDialog({
                     title: 'Change annotation type',
@@ -2076,8 +2329,7 @@ define([
                 if (track.annotationInfoEditorConfigs) {
                     return;
                 }
-                var operation = "get_annotation_info_editor_configuration";
-                var postData = {"track": trackName, "operation": operation};
+                var postData = {track: trackName, operation: "get_annotation_info_editor_configuration", clientToken: track.getClientToken()};
                 xhr.post(context_path + "/AnnotationEditorService", {
                     sync: true,
                     data: JSON.stringify(postData),
@@ -2373,19 +2625,15 @@ define([
                 };
 
                 function init() {
-                    var postData = JSON.stringify({
-                        features: [
-                            {
-                                uniquename: uniqueName
-                            }
-                        ],
+                    var postData = {
+                        features: [{uniquename: uniqueName}],
                         operation: "get_annotation_info_editor_data",
                         track: trackName,
                         clientToken: track.getClientToken()
-                    });
+                    };
                     dojo.xhrPost({
                         sync: true,
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3099,43 +3347,63 @@ define([
 
                 var updateName = function (name) {
                     name = escapeString(name);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
-                    var operation = "set_name";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, name: name}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_name",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var updateSymbol = function (symbol) {
                     symbol = escapeString(symbol);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
-                    var operation = "set_symbol";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, symbol: symbol}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_symbol",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var updateDescription = function (description) {
                     description = escapeString(description);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
-                    var operation = "set_description";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, description: description}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_description",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
-                var deleteStatus = function () {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
-                    var operation = "delete_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                var deleteStatus = function (status) {
+                    var features = [{uniquename: uniqueName, status: status}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_status",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var updateStatus = function (status) {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
-                    var operation = "set_status";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, status: status}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_status",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3143,9 +3411,13 @@ define([
                 var addDbxref = function (db, accession) {
                     db = escapeString(db);
                     accession = escapeString(accession);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
-                    var operation = "add_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: [{db: db, accession: accession}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "add_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3155,9 +3427,13 @@ define([
                         dbxrefs[i].accession = escapeString(dbxrefs[i].accession);
                         dbxrefs[i].db = escapeString(dbxrefs[i].db);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(dbxrefs) + ' } ]';
-                    var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: dbxrefs}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3167,9 +3443,13 @@ define([
                     oldAccession = escapeString(oldAccession);
                     newDb = escapeString(newDb);
                     newAccession = escapeString(newAccession);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
-                    var operation = "update_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, old_dbxrefs: [{db: oldDb, accession: oldAccession}], new_dbxrefs: [{db: newDb, accession: newAccession}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "update_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3177,9 +3457,13 @@ define([
                 var addAttribute = function (tag, value) {
                     tag = escapeString(tag);
                     value = escapeString(value);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
-                    var operation = "add_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, non_reserved_properties: [{tag: tag, value: value}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "add_non_reserved_properties",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3189,9 +3473,13 @@ define([
                         attributes[i].tag = escapeString(attributes[i].tag);
                         attributes[i].value = escapeString(attributes[i].value);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
-                    var operation = "delete_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, non_reserved_properties: attributes}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_reserved_properties",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3201,9 +3489,13 @@ define([
                     oldValue = escapeString(oldValue);
                     newTag = escapeString(newTag);
                     newValue = escapeString(newValue);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
-                    var operation = "update_non_reserved_properties";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, old_non_reserved_properties: [{tag: oldTag, value: oldValue}], new_non_reserved_properties: [{tag: newTag, value: newValue}]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "update_non_reserved_properties",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3218,9 +3510,13 @@ define([
                     if (record) {
                         // if (eutils.validateId("pubmed", pubmedId)) {
                         if (confirmPubmedEntry(record)) {
-                            var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + pubmedId + '" } ] } ]';
-                            var operation = "add_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            var features = [{uniquename: uniqueName, dbxrefs: [{db: pubmedIdDb, accession: pubmedId}]}];
+                            var postData = {
+                                track: trackName,
+                                features: features,
+                                operation: "add_non_primary_dbxrefs",
+                                clientToken: track.getClientToken()
+                            };
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3235,9 +3531,13 @@ define([
                 };
 
                 var deletePubmedIds = function (pubmedIds) {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(pubmedIds) + ' } ]';
-                    var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: pubmedIds}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3248,9 +3548,13 @@ define([
                     // if (eutils.validateId("pubmed", newPubmedId)) {
                     if (record) {
                         if (confirmPubmedEntry(record)) {
-                            var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + oldPubmedId + '" } ], "new_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + newPubmedId + '" } ] } ]';
-                            var operation = "update_non_primary_dbxrefs";
-                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            var features = [{uniquename: uniqueName, old_dbxrefs: [{db: pubmedIdDb, accession: oldPubmedId}], new_dbxrefs: [{db: pubmedIdDb, accession: newPubmedId}]}];
+                            var postData = {
+                                track: trackName,
+                                features: features,
+                                operation: "update_non_primary_dbxrefs",
+                                clientToken: track.getClientToken()
+                            };
                             track.executeUpdateOperation(postData);
                             updateTimeLastUpdated();
                         }
@@ -3273,9 +3577,13 @@ define([
                     // if (match = validateGoId(goId)) {
                     if (valid) {
                         var goAccession = goId.substr(goIdDb.length + 1);
-                        var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + goAccession + '" } ] } ]';
-                        var operation = "add_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var features = [{uniquename: uniqueName, dbxrefs: [{db: goIdDb, accession: goAccession}]}];
+                        var postData = {
+                            track: trackName,
+                            features: features,
+                            operation: "add_non_primary_dbxrefs",
+                            clientToken: track.getClientToken()
+                        };
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3287,9 +3595,13 @@ define([
                 };
 
                 var deleteGoIds = function (goIds) {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(goIds) + ' } ]';
-                    var operation = "delete_non_primary_dbxrefs";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, dbxrefs: goIds}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_non_primary_dbxrefs",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3300,9 +3612,13 @@ define([
                     if (valid) {
                         var oldGoAccession = oldGoId.substr(goIdDb.length + 1);
                         var newGoAccession = newGoId.substr(goIdDb.length + 1);
-                        var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + oldGoAccession + '" } ], "new_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + newGoAccession + '" } ] } ]';
-                        var operation = "update_non_primary_dbxrefs";
-                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        var features = [{uniquename: uniqueName, old_dbxrefs: [{db: goIdDb, accession: oldGoAccession}], new_dbxrefs: [{db: goIdDb, accession: newGoAccession}]}];
+                        var postData = {
+                            track: trackName,
+                            features: features,
+                            operation: "update_non_primary_dbxrefs",
+                            clientToken: track.getClientToken()
+                        };
                         track.executeUpdateOperation(postData);
                         updateTimeLastUpdated();
                     }
@@ -3316,9 +3632,13 @@ define([
 
                 var addComment = function (comment) {
                     comment = escapeString(comment);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
-                    var operation = "add_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, comments: [comment]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "add_comments",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3327,9 +3647,13 @@ define([
                     for (var i = 0; i < comments.length; ++i) {
                         comments[i] = escapeString(comments[i]);
                     }
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": ' + JSON.stringify(comments) + ' } ]';
-                    var operation = "delete_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, comments: comments}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "delete_comments",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
@@ -3340,19 +3664,27 @@ define([
                     }
                     oldComment = escapeString(oldComment);
                     newComment = escapeString(newComment);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
-                    var operation = "update_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName, old_comments: [oldComment], new_comments: [newComment]}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "update_comments",
+                        clientToken: track.getClientToken()
+                    };
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
                 };
 
                 var getCannedComments = function () {
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
-                    var operation = "get_canned_comments";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    var features = [{uniquename: uniqueName}];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "get_canned_comments",
+                        clientToken: track.getClientToken()
+                    };
                     dojo.xhrPost({
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         sync: true,
@@ -3402,22 +3734,32 @@ define([
 
             undoFeaturesByUniqueName: function (uniqueNames, count) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 for (var i = 0; i < uniqueNames.length; ++i) {
                     var uniqueName = uniqueNames[i];
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    features.push({uniquename: uniqueName});
                 }
-                features += ']';
-                var operation = "undo";
-                var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+
+                var postData = {
+                    track: this.getUniqueTrackName(),
+                    features: features,
+                    operation: "undo",
+                    clientToken: track.getClientToken()
+                };
+                if (count) {
+                    postData.count = count;
+                }
+
                 this.executeUpdateOperation(postData, function (response) {
                     if (response && response.confirm) {
                         if (track.handleConfirm(response.confirm)) {
-                            postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '", "confirm": true }';
+                            postData = {
+                                track: this.getUniqueTrackName(),
+                                features: features,
+                                operation: "undo",
+                                clientToken: track.getClientToken(),
+                                confirm: true
+                            };
                             track.executeUpdateOperation(postData);
                         }
                     }
@@ -3450,18 +3792,21 @@ define([
             },
 
             redoFeaturesByUniqueName: function (uniqueNames, count) {
-                var features = '"features": [';
+                var features = [];
                 for (var i = 0; i < uniqueNames.length; ++i) {
                     var uniqueName = uniqueNames[i];
-                    if (i > 0) {
-                        features += ',';
-                    }
-                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    features.push({uniquename: uniqueName});
                 }
-                features += ']';
-                var operation = "redo";
-                var trackName = this.getUniqueTrackName();
-                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"' + (count ? ', "count": ' + count : '') + '}';
+
+                var postData = {
+                    track: this.getUniqueTrackName(),
+                    features: features,
+                    operation: "redo",
+                    clientToken: this.getClientToken()
+                };
+                if (count) {
+                    postData.count = count;
+                }
                 this.executeUpdateOperation(postData);
             },
 
@@ -3509,7 +3854,7 @@ define([
                     displayHistory();
                 };
 
-                var cleanUpHistoryTable = function() {
+                var cleanUpHistoryTable = function () {
                     while (historyRows.hasChildNodes()) {
                         historyRows.removeChild(historyRows.lastChild);
                     }
@@ -3536,7 +3881,7 @@ define([
 
                     // if feature-render annot-render ,
                     // remove and add: gray-center-10pct
-                    if(div.className.indexOf("feature-render")>=0 &&  div.className.indexOf("annot-render")>=0 ){
+                    if (div.className.indexOf("feature-render") >= 0 && div.className.indexOf("annot-render") >= 0) {
                         div.className = "gray-center-10pct";
                     }
 // annot_context_menu.unBindDomNode(div);
@@ -3686,7 +4031,7 @@ define([
                 };
 
                 var fetchHistory = function () {
-                    var features = '"features": [';
+                    var features = [];
                     for (var i in selected) {
                         var record = selected[i];
                         var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
@@ -3696,18 +4041,19 @@ define([
                         if (record.track === track) {
                             var trackdiv = track.div;
                             var trackName = track.getUniqueTrackName();
-
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features.push({uniquename: uniqueName});
                         }
                     }
-                    features += ']';
-                    var operation = "get_history_for_features";
-                    var trackName = track.getUniqueTrackName();
+
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "get_history_for_features",
+                        clientToken: track.getClientToken()
+                    };
+
                     dojo.xhrPost({
-                        postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3733,8 +4079,6 @@ define([
                 this.openDialog("History", content);
                 AnnotTrack.popupDialog.resize();
                 AnnotTrack.popupDialog._position();
-// this.popupDialog.hide();
-// this.openDialog("History", content);
             },
 
             getAnnotationInformation: function () {
@@ -3744,7 +4088,7 @@ define([
 
             getInformationForSelectedAnnotations: function (records) {
                 var track = this;
-                var features = '"features": [';
+                var features = [];
                 var seqtrack = track.getSequenceTrack();
                 for (var i in records) {
                     var record = records[i];
@@ -3756,21 +4100,19 @@ define([
                     // this annotation track
                     // (or from sequence annotation track);
                     if (seltrack === track || (seqtrack && (seltrack === seqtrack))) {
-                        var trackdiv = track.div;
-                        var trackName = track.getUniqueTrackName();
-
-                        if (i > 0) {
-                            features += ',';
-                        }
-                        features += ' { "uniquename": "' + uniqueName + '" } ';
+                        features.push({uniquename: uniqueName});
                     }
                 }
-                features += ']';
-                var operation = "get_information";
-                var trackName = track.getUniqueTrackName();
+
+                var postData = {
+                    track: track.getUniqueTrackName(),
+                    features: features,
+                    operation: "get_information",
+                    clientToken: track.getClientToken()
+                };
                 var information = "";
                 dojo.xhrPost({
-                    postData: '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }',
+                    postData: JSON.stringify(postData),
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5000 * 1000, // Time in milliseconds
@@ -3810,6 +4152,12 @@ define([
                 this.getGff3ForSelectedFeatures(selected);
             },
 
+            showInAnnotatorPanel: function () {
+                var selected = this.selectionManager.getSelection();
+                var selectedFeature = selected[0].feature.afeature;
+                this.getApollo().showInAnnotatorPanel(selectedFeature.name, selected[0].feature.afeature.sequence);
+            },
+
             getGff3ForSelectedFeatures: function (records) {
                 var track = this;
 
@@ -3817,7 +4165,7 @@ define([
                 var textArea = dojo.create("textarea", {className: "gff3_area", readonly: true}, content);
 
                 var fetchGff3 = function () {
-                    var features = '"features": [';
+                    var features = [];
                     for (var i = 0; i < records.length; ++i) {
                         var record = records[i];
                         var annot = record.feature;
@@ -3828,20 +4176,19 @@ define([
                         if (seltrack === track) {
                             var trackdiv = track.div;
                             var trackName = track.getUniqueTrackName();
-
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features.push({uniquename: uniqueName});
                         }
                     }
-                    features += ']';
-                    var operation = "get_gff3";
-                    var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
-                    postData += ' }';
+
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "get_gff3",
+                        clientToken: track.getClientToken()
+                    };
+
                     dojo.xhrPost({
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "text",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3928,7 +4275,7 @@ define([
                 }, genomicWithFlankButtonDiv);
 
                 var fetchSequence = function (type) {
-                    var features = '"features": [';
+                    var features = [];
                     for (var i = 0; i < records.length; ++i) {
                         var record = records[i];
                         var annot = record.feature;
@@ -3937,28 +4284,26 @@ define([
                         // just checking to ensure that all features in selection are
                         // from this track
                         if (seltrack === track) {
-                            var trackdiv = track.div;
-                            var trackName = track.getUniqueTrackName();
-
-                            if (i > 0) {
-                                features += ',';
-                            }
-                            features += ' { "uniquename": "' + uniqueName + '" } ';
+                            features.push({uniquename: uniqueName});
                         }
                     }
-                    features += ']';
-                    var operation = "get_sequence";
-                    var trackName = track.getUniqueTrackName();
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '"';
+
+                    var postData = {
+                        track: track.getUniqueTrackName(),
+                        features: features,
+                        operation: "get_sequence",
+                        clientToken: track.getClientToken()
+                    };
+
                     var flank = 0;
                     if (type == "genomic_with_flank") {
                         flank = dojo.attr(genomicWithFlankField, "value");
-                        postData += ', "flank": ' + flank;
+                        postData.flank = flank;
                         type = "genomic";
                     }
-                    postData += ', "type": "' + type + '" }';
+                    postData.type = type;
                     dojo.xhrPost({
-                        postData: postData,
+                        postData: JSON.stringify(postData),
                         url: context_path + "/AnnotationEditorService",
                         handleAs: "json",
                         timeout: 5000 * 1000, // Time in milliseconds
@@ -3968,8 +4313,9 @@ define([
                                 var feature = response.features[i];
                                 var cvterm = feature.type;
                                 var residues = feature.residues;
+                                var header = feature.header;
                                 var loc = feature.location;
-                                textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
+                                textAreaContent += header + "\n";
                                 var lineLength = 70;
                                 for (var j = 0; j < residues.length; j += lineLength) {
                                     textAreaContent += residues.substr(j, lineLength) + "\n";
@@ -4053,7 +4399,6 @@ define([
                         track.gview.browser.config.highlightSearchedRegions = true;
                         track.gview.browser.showRegionWithHighlight(locobj);
                         track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-                        // AnnotTrack.popupDialog.hide();
                     }
                     else {
                         // var url = window.location.toString().replace(/loc=.+/, "loc=" +
@@ -4063,7 +4408,6 @@ define([
                         track.gview.browser.config.highlightSearchedRegions = true;
                         track.gview.browser.showRegionWithHighlight(locobj);
                         track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
-                        // AnnotTrack.popupDialog.hide();
                     }
                 });
                 search.setErrorCallback(function (response) {
@@ -4083,18 +4427,18 @@ define([
                 var waitingDiv = dojo.create("div", {innerHTML: "<img class='waiting_image' src='plugins/WebApollo/img/loading.gif' />"}, content);
                 var responseDiv = dojo.create("div", {className: "export_response"}, content);
 
-                if(key=="highlighted region" && highlight==null){
+                if (key == "highlighted region" && highlight == null) {
                     alert('You must highlight a region of the genome to export it.');
-                    return ;
+                    return;
                 }
 
-                if(highlight){
-                    options += "&region="+highlight ;
+                if (highlight) {
+                    options += "&region=" + highlight;
                 }
                 var url = context_path + "/IOService?operation=write&adapter=" + adapter + "&sequences=" + track.getUniqueTrackName() + "&" + options;
 
                 dojo.xhrGet({
-                    url: url ,
+                    url: url,
                     handleAs: "json",
                     load: function (response, ioArgs) {
                         dojo.create("a", {
@@ -4375,17 +4719,17 @@ define([
                 });
             },
 
-            showAnnotatorPanel: function(){
+            showAnnotatorPanel: function () {
                 // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
                 // to
                 // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
                 var hrefString = window.location.href;
                 var hrefTokens = hrefString.split("\/");
-                var organism ;
-                for(var h in hrefTokens){
+                var organism;
+                for (var h in hrefTokens) {
                     // alert(hrefTokens[h]);
-                    if(hrefTokens[h]=="jbrowse"){
-                        organism = hrefTokens[h-1] ;
+                    if (hrefTokens[h] == "jbrowse") {
+                        organism = hrefTokens[h - 1];
                     }
                 }
 
@@ -4394,10 +4738,10 @@ define([
                 var jbrowseString = "/jbrowse/index.html?";
                 var jbrowseIndex = hrefString.indexOf(jbrowseString);
                 var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
-                params = params.replace("tracklist=1","tracklist=0");
-                var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
-                if(params.indexOf("&clientToken=")<0){
-                    finalString += "&clientToken="+this.getClientToken();
+                params = params.replace("tracklist=1", "tracklist=0");
+                var finalString = "../../annotator/loadLink?" + params + "&organism=" + organism;
+                if (params.indexOf("&clientToken=") < 0) {
+                    finalString += "&clientToken=" + this.getClientToken();
                 }
                 window.location.href = finalString;
             },
@@ -4461,8 +4805,8 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (this.getApollo()){
-                                          this.getApollo().location.reload();
+                                        if (this.getApollo()) {
+                                            this.getApollo().location.reload();
                                         }
                                         else {
                                             window.location.reload();
@@ -4542,6 +4886,14 @@ define([
                         }
                     }
                 }));
+
+                annot_context_menu.addChild(new dijit.MenuItem({
+                    label: "Show in Annotator Panel",
+                    onClick: function (event) {
+                        thisB.showInAnnotatorPanel();
+                    }
+                }));
+
                 contextMenuItems["zoom_to_base_level"] = index++;
                 if (!(permission & Permission.WRITE)) {
                     annot_context_menu.addChild(new dijit.MenuSeparator());
@@ -4565,58 +4917,58 @@ define([
                     }));
 
                     var changeAnnotationMenu = new dijitMenu();
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "gene",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("mRNA");
                         }
 
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "pseudogene",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("transcript");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "rRNA",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("rRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "snRNA",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("snRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "snoRNA",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("snoRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "tRNA",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("tRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "ncRNA",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("ncRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "miRNA",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             thisB.changeAnnotationType("miRNA");
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "repeat_region",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
@@ -4629,9 +4981,9 @@ define([
                             }
                         }
                     }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                    changeAnnotationMenu.addChild(new dijitMenuItem({
                         label: "transposable_element",
-                        onClick: function(event) {
+                        onClick: function (event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
@@ -4647,17 +4999,82 @@ define([
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
-                    var changeAnnotationMenuItem = new dijitPopupMenuItem( {
+                    var changeAnnotationMenuItem = new dijitPopupMenuItem({
                         label: "Change annotation type",
                         popup: changeAnnotationMenu
                     });
                     annot_context_menu.addChild(changeAnnotationMenuItem);
-                    dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function() {
+                    dojo.connect(changeAnnotationMenu, "onOpen", dojo.hitch(this, function () {
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
+                    index++; // manually connecting this, so not here
+
                     contextMenuItems["annotation_info_editor"] = index++;
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
+
+
+                    if(doFolding){
+                        contextMenuItems["fold_feature"] = index++;
+                        var collapseFeaturesMenuItem = new dijitMenuItem({
+                            label: "Fold Feature",
+                            onClick: function (event) {
+                                thisB.foldSelectedTranscript();
+                            }
+                        });
+                        annot_context_menu.addChild(collapseFeaturesMenuItem);
+
+                        contextMenuItems["fold_between_exons"] = index++;
+                        var collapseBetweenExonsMenuItem = new dijitMenuItem({
+                            label: "Fold Between Exons",
+                            onClick: function (event) {
+                                thisB.foldBetweenSelectedExons();
+                            }
+                        });
+                        annot_context_menu.addChild(collapseBetweenExonsMenuItem);
+
+                        contextMenuItems["fold_exons_left"] = index++;
+                        var foldExonsLeftMenuItem = new dijitMenuItem({
+                            label: "Fold Exons Left",
+                            onClick: function (event) {
+                                thisB.foldExonLeft();
+                            }
+                        });
+                        annot_context_menu.addChild(foldExonsLeftMenuItem);
+
+                        contextMenuItems["fold_exons_right"] = index++;
+                        var foldExonsRightMenuItem = new dijitMenuItem({
+                            label: "Fold Exons Right",
+                            onClick: function (event) {
+                                thisB.foldExonRight();
+                            }
+                        });
+                        annot_context_menu.addChild(foldExonsRightMenuItem);
+
+                        contextMenuItems["remove_folds"] = index++;
+                        var removeFoldingMenuItem = new dijitMenuItem({
+                            label: "Remove Folds",
+                            onClick: function (event) {
+                                thisB.removeSelectedFolds();
+                            }
+                        });
+                        annot_context_menu.addChild(removeFoldingMenuItem);
+
+                        contextMenuItems["view_only_features"] = index++;
+                        var viewOnlyFeaturesMenuItem = new dijitMenuItem({
+                            label: "View Only Features",
+                            onClick: function (event) {
+                                thisB.projectSelectedFeatures();
+                            }
+                        });
+                        annot_context_menu.addChild(viewOnlyFeaturesMenuItem);
+
+                        annot_context_menu.addChild(new dijit.MenuSeparator());
+                        index++;
+                    }
+                    // END FOLDING SECTION
+
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
@@ -4874,7 +5291,7 @@ define([
                 var track = this;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + track.getUniqueTrackName() + '", "operation": "get_data_adapters" }',
+                    postData : JSON.stringify({track: track.getUniqueTrackName(), operation: "get_data_adapters"}),
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
@@ -4971,7 +5388,7 @@ define([
                 var success = true;
                 dojo.xhrPost({
                     sync: true,
-                    postData: '{ "track": "' + thisB.getUniqueTrackName() + '", "operation": "get_user_permission" ,"clientToken":' + thisB.getClientToken() + '}',
+                    postData: JSON.stringify({track: thisB.getUniqueTrackName(), operation: "get_user_permission", clientToken: thisB.getClientToken()}),
                     url: context_path + "/AnnotationEditorService",
                     handleAs: "json",
                     timeout: 5 * 1000, // Time in milliseconds
@@ -5034,7 +5451,9 @@ define([
             },
 
             getUniqueTrackName: function () {
-                return this.refSeq.name;
+                var trackName = this.refSeq.name;
+                trackName = trackName.substr(0, trackName.lastIndexOf(':'));
+                return JSON.parse(trackName);
             },
 
             openDialog: function (title, data, width, height) {
@@ -5048,6 +5467,118 @@ define([
                 AnnotTrack.popupDialog.hide();
             },
 
+            // determine if a feature is folded
+            // if they are ALL folded return folded
+            isFolded: function (selected) {
+                // for each selection, if a fold falls within projeciton region, then it is folded
+                if (selected.length == 0) return false;
+
+                for (var s in selected) {
+                    var feature = selected[s].feature.afeature;
+                    var fmin = feature.location.fmin;
+                    var fmax = feature.location.fmax;
+
+                    var regionFolded = this.getApollo().regionContainsFolds(fmin, fmax, this.refSeq.name);
+                    if (regionFolded === false) {
+                        return false;
+                    }
+
+                    // var start = selection.feature[0].fmin ;
+                    // var end = selection.feature[0].fmax ;
+                    // var regionFolded = window.parent.foldedInRegion(start,end,this.refSeq);
+                    // if(!regionFolded){
+                    //     return false ;
+                    // }
+                }
+                return true;
+            },
+
+            isFoldable: function (selectedType) {
+                return selectedType === "miRNA"
+                    || selectedType == "snRNA"
+                    || selectedType === "snoRNA"
+                    || selectedType === "rRNA"
+                    || selectedType === "tRNA"
+                    || selectedType === "ncRNA"
+                    || selectedType === "transcript"
+                    || selectedType === "mRNA";
+            },
+
+            // folds an entire transcript only
+            // if features are all transcript types (contains child exons) and is not folded
+            updateFoldSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_feature");
+
+                var disabled = true;
+                if (selected.length == 1) {
+                    var type1 = selected[0].feature.afeature.type.name;
+                    if (this.isFoldable(type1) && !this.isFolded(selected)) {
+                        menuItem.set("disabled", false);
+                        return;
+                    }
+
+                }
+                menuItem.set("disabled", true);
+
+            },
+
+            updateFoldExonLeftMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_exons_left");
+                if (selected.length == 1) {
+                    var type1 = selected[0].feature.afeature.type.name;
+                    var leftExon = this.getLeftExon(selected[0])
+                    if (type1 === "exon" && leftExon) {
+                        menuItem.set("disabled", false);
+                        return;
+                    }
+                    menuItem.set("disabled", true);
+                }
+                menuItem.set("disabled", true);
+
+            },
+
+            updateFoldExonRightMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_exons_right");
+                if (selected.length == 1) {
+                    var type1 = selected[0].feature.afeature.type.name;
+                    var rightExon = this.getRightExon(selected[0])
+                    if (type1 === "exon" && rightExon) {
+                        menuItem.set("disabled", false);
+                        return;
+                    }
+                }
+                menuItem.set("disabled", true);
+            },
+
+            updateFoldBetweenExonsMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("fold_between_exons");
+                if (selected.length == 2) {
+                    var type1 = selected[0].feature.afeature.type.name;
+                    var type2 = selected[1].feature.afeature.type.name;
+                    if (type1 === type2 && type1 === "exon") {
+                        menuItem.set("disabled", false);
+                        return;
+                    }
+                }
+                menuItem.set("disabled", true);
+
+            },
+
+            updateUnfoldSelectedMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("remove_folds");
+                menuItem.set("disabled", !this.isFolded(selected));
+            },
+
+            updateCreateViewFromFeaturesMenuItem: function () {
+                var selected = this.selectionManager.getSelection();
+                var menuItem = this.getMenuItem("view_only_features");
+                menuItem.set("disabled", selected.length == 0);
+            },
             updateMenu: function () {
                 this.updateDeleteMenuItem();
                 this.updateSetTranslationStartMenuItem();
@@ -5071,13 +5602,22 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+
+                if(doFolding){
+                    this.updateFoldSelectedMenuItem();
+                    this.updateFoldBetweenExonsMenuItem();
+                    this.updateFoldExonLeftMenuItem();
+                    this.updateFoldExonRightMenuItem();
+                    this.updateUnfoldSelectedMenuItem();
+                    this.updateCreateViewFromFeaturesMenuItem();
+                }
             },
 
-            closeMenu: function() {
+            closeMenu: function () {
                 dijit.popup.close(this.annot_context_menu);
             },
 
-            updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
+            updateChangeAnnotationTypeMenu: function (changeAnnotationMenu) {
                 var selected = this.selectionManager.getSelection();
                 var selectedType = selected[0].feature.afeature.type.name === "exon" ?
                     selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
@@ -5685,22 +6225,52 @@ define([
 
             sortAnnotationsByLocation: function (annots) {
                 var track = this;
-                return annots.sort(function (annot1, annot2) {
-                    var start1 = annot1.get("start");
-                    var end1 = annot1.get("end");
-                    var start2 = annot2.get("start");
-                    var end2 = annot2.get('end');
+                var refSeqName = track.refSeq.name;
+                var sequenceListObject  = this.parseSequenceList(refSeqName);
+                if (sequenceListObject[0].reverse) {
+                    // taking into account reverse orientation
+                    return annots.sort(function (annot1, annot2) {
+                        var start1 = annot1.get("start");
+                        var end1 = annot1.get("end");
+                        var start2 = annot2.get("start");
+                        var end2 = annot2.get('end');
 
-                    if (start1 != start2) {
-                        return start1 - start2;
-                    }
-                    else if (end1 != end2) {
-                        return end1 - end2;
-                    }
-                    else {
-                        return annot1.id().localeCompare(annot2.id());
-                    }
-                });
+                        if (start1 != start2) {
+                            return start1 - start2;
+                        }
+                        else if (end1 != end2) {
+                            return end1 - end2;
+                        }
+                        else {
+                            return annot1.id().localeCompare(annot2.id());
+                        }
+                    }).reverse();
+                }
+                else {
+                    return annots.sort(function (annot1, annot2) {
+                        var start1 = annot1.get("start");
+                        var end1 = annot1.get("end");
+                        var start2 = annot2.get("start");
+                        var end2 = annot2.get('end');
+
+                        if (start1 != start2) {
+                            return start1 - start2;
+                        }
+                        else if (end1 != end2) {
+                            return end1 - end2;
+                        }
+                        else {
+                            return annot1.id().localeCompare(annot2.id());
+                        }
+                    });
+                }
+            },
+
+            parseSequenceList: function(refSeqName) {
+                var refSeqNameSplit = refSeqName.split(':');
+                var sequenceListString = refSeqNameSplit.slice(0, refSeqNameSplit.length - 1).join(':');
+                var sequenceListObject = JSON.parse(sequenceListString).sequenceList;
+                return sequenceListObject;
             },
 
             confirmChangeAnnotationType: function (track, selectedFeatures, destinationType, message) {
@@ -5858,9 +6428,7 @@ define([
 
             executeUpdateOperation: function (postData, loadCallback) {
                 if(!postData.hasOwnProperty('clientToken')){
-                    var postObject = JSON.parse(postData);
-                    postObject.clientToken = this.getClientToken();
-                    postData = JSON.stringify(postObject);
+                    postData.clientToken = this.getClientToken();
                 }
                 console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));

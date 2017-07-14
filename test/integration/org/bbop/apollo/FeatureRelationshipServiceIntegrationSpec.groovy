@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+
 class FeatureRelationshipServiceIntegrationSpec extends AbstractIntegrationSpec{
     
     def featureRelationshipService

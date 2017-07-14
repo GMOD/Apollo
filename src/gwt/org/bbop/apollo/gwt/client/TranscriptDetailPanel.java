@@ -3,11 +3,6 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -15,6 +10,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -24,7 +20,7 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
- * Created by ndunn on 1/9/15.
+ * Created by Nathan Dunn on 1/9/15.
  */
 public class TranscriptDetailPanel extends Composite {
 
@@ -73,10 +69,10 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
-        sequenceField.setText(internalAnnotationInfo.getSequence());
+        sequenceField.setText(internalAnnotationInfo.getSequence().getName());
 
         if (internalAnnotationInfo.getMin() != null) {
-            String locationText = Integer.toString(internalAnnotationInfo.getMin() + 1);
+            String locationText = Long.toString(internalAnnotationInfo.getMin() + 1);
             locationText += " - ";
             locationText += internalAnnotationInfo.getMax().toString();
             locationText += " strand(";

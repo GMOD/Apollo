@@ -7,14 +7,14 @@ public class GFF3Entry {
     private String seqId;
     private String source;
     private String type;
-    private int start;
-    private int end;
+    private long start;
+    private long end;
     private String score;
     private String strand;
     private String phase;
     private Map<String, String> attributes;
 
-    public GFF3Entry(String seqId, String source, String type, int start, int end, String score, String strand, String phase) {
+    public GFF3Entry(String seqId, String source, String type, long start, long end, String score, String strand, String phase) {
         this.seqId = seqId;
         this.source = source;
         this.type = type;
@@ -50,19 +50,19 @@ public class GFF3Entry {
         this.type = type;
     }
 
-    public int getStart() {
+    public long getStart() {
         return start;
     }
 
-    public void setStart(int start) {
+    public void setStart(long start) {
         this.start = start;
     }
 
-    public int getEnd() {
+    public long getEnd() {
         return end;
     }
 
-    public void setEnd(int end) {
+    public void setEnd(long end) {
         this.end = end;
     }
 

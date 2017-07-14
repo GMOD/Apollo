@@ -6,7 +6,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 class CdsServiceIntegrationSpec extends AbstractIntegrationSpec{
-    
+
     def sequenceService
     def requestHandlingService
     def transcriptService

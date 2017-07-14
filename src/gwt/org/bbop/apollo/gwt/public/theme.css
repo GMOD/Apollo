@@ -21,3 +21,138 @@
     /*background-color: black;*/
     /*color: yellowgreen;*/
 }
+/*.demo-FlowPanelExample-draggable {*/
+
+/*}*/
+
+/*.demo-FlowPanelExample-label {*/
+
+/*}*/
+.assemblage-FlowPanel-draggable {
+
+}
+
+.assemblage-FlowPanel-label {
+
+}
+
+.bookmark-buttons {
+    margin-top: 5px;
+    margin-left: 3px;
+}
+
+.right-space {
+    margin-right: 10px;
+}
+
+/*.assemblage-detail-vertical-spacer{*/
+.assemblage-detail-root-absolute .assemblage-collapse-state{
+    background-color: green;
+    border-radius: 5px;
+}
+
+/*.assemblage-detail-vertical-spacer{*/
+.assemblage-detail-root-absolute .assemblage-expand-state{
+  background-color: orange;
+  border-radius: 5px;
+}
+
+/*}*/
+/**
+https://github.com/fredsa/gwt-dnd/blob/master/DragDrop/war/DragDropDemo.css
+*/
+.assemblage-detail-root-absolute .assemblage-detail-widget,
+.assemblage-detail-root-absolute .assemblage-detail-heading,
+.assemblage-detail-root-absolute .assemblage-detail-spacer{
+    padding: 0.1em;
+    margin: 0.1em;
+    width: 120px;
+}
+
+.assemblage-detail-root-absolute .assemblage-detail-widget {
+    border: 1px solid lightgrey;
+}
+
+.assemblage-detail-root-absolute {
+    /*border: 1px solid crimson;*/
+}
+
+.assemblage-detail-root-absolute .assemblage-detail-heading {
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    /*background-color: #87B3FF; !* bright blue *!*/
+    /*background-color: none;*/
+    /*border: 2px solid yellow;*/
+}
+
+/*.assemblage-detail-container {*/
+   /*!*border: 2px solid crimson;*!*/
+/*}*/
+
+/*.assemblage-detail-container table:hover{*/
+    /*!*border: 2px solid crimson;*!*/
+/*}*/
+
+/*.assemblage-detail-composite table:hover{*/
+    /*!*background-color: #0a36e9;*!*/
+/*}*/
+
+/*.assemblage-detail-composite tr:hover{*/
+    /*!*background-color: powderblue;*!*/
+/*}*/
+
+.assemblage-detail-root-absolute tr:hover{
+    background-color: transparent;
+}
+
+.assemblage-detail-root-absolute td:hover{
+    /*background-color: #0a36e9;*/
+    background-color: transparent;
+}
+
+
+.assemblage-detail-root-absolute  .assemblage-detail-composite {
+    padding: 1px;
+}
+
+.assemblage-detail-composite td{
+    padding-left: 0 !important;
+    margin-left: 0 !important;
+    border: 0 !important;
+}
+
+.assemblage-detail-composite table{
+    border: 3px ;
+}
+
+
+/*.assemblage-detail-root-absolute  .assemblage-detail-composite {*/
+    /*padding: 1px;*/
+    /*!*border: 2px dashed green;*!*/
+    /*!*padding-left: 0 !important;*!*/
+    /*!*margin-left: 0 !important;;*!*/
+/*}*/
+
+
+.assemblage-detail-widget {
+    border-radius: 10%;
+    background-color: lightcyan;
+    font-size: smaller;
+}
+
+.rotate-icon-45{
+    transform: rotate(45deg);
+    padding-right: 5px;
+    /*border: solid 1px darkgray;*/
+}
+/*.dragdrop-dropTarget{*/
+
+/*}*/
+
+/*.dragdrop-draggable{*/
+
+/*}*/
+
+/*.dragdrop-handle{*/
+
+/*}*/

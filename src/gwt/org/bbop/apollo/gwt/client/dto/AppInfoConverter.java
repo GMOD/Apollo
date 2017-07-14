@@ -1,12 +1,10 @@
 package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
-
-import java.util.List;
+import org.bbop.apollo.gwt.client.dto.assemblage.AssemblageInfoConverter;
 
 /**
- * Created by ndunn on 3/31/15.
+ * Created by Nathan Dunn on 3/31/15.
  */
 public class AppInfoConverter {
 
@@ -17,15 +15,15 @@ public class AppInfoConverter {
             appStateInfo.setCurrentOrganism(OrganismInfoConverter.convertFromJson(object.isObject().get("currentOrganism").isObject()));
         }
 
-        if(object.get("currentSequence")!=null ){
-            appStateInfo.setCurrentSequence(SequenceInfoConverter.convertFromJson(object.isObject().get("currentSequence").isObject()));
+        if(object.get("currentAssemblage")!=null ){
+            appStateInfo.setCurrentAssemblage(AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(object.isObject().get("currentAssemblage").isObject()));
         }
         appStateInfo.setOrganismList(OrganismInfoConverter.convertFromJsonArray(object.get("organismList").isArray()));
         if(object.containsKey("currentStartBp")){
-            appStateInfo.setCurrentStartBp((int) object.get("currentStartBp").isNumber().doubleValue());
+            appStateInfo.setCurrentStartBp((long) object.get("currentStartBp").isNumber().doubleValue());
         }
         if(object.containsKey("currentEndBp")) {
-            appStateInfo.setCurrentEndBp((int) object.get("currentEndBp").isNumber().doubleValue());
+            appStateInfo.setCurrentEndBp((long) object.get("currentEndBp").isNumber().doubleValue());
         }
 
         return appStateInfo ;

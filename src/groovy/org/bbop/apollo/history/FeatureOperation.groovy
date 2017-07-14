@@ -1,7 +1,7 @@
 package org.bbop.apollo.history
 
 /**
- * Created by ndunn on 4/7/15.
+ * Created by Nathan Dunn on 4/7/15.
  */
 enum FeatureOperation {
 
