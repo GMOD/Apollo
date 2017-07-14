@@ -212,6 +212,7 @@ return declare( [JBPlugin, HelpMixin],
         }
 
         this.hideDropDown();
+        this.hideOldSearch();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -768,6 +769,15 @@ return declare( [JBPlugin, HelpMixin],
         });
     },
 
+    hideOldSearch: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var searchBox = dojo.byId('search-box');
+            dojo.style(searchBox, "display", "none");
+        });
+    },
+
     addNavBox: function() {
         var thisB = this;
         var browser = thisB.browser;
@@ -860,17 +870,21 @@ return declare( [JBPlugin, HelpMixin],
                 // }
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                thisB.getApollo().setCurrentSequence(currRegion.ref);
-                var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
-                var sequenceObject = JSON.parse(sequenceString).sequenceList[0];
-                var name = sequenceObject.name;
-                this.navLabel.set('title',name);
-                this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
-                // thisB.getApollo().handleNavigationEvent(sequenceString);
-
-                var locationVal = Util.assembleLocStringWithLength( currRegion );
-                locationVal = name + locationVal.substr(locationVal.lastIndexOf(":"));
-                locationBox.set('value',locationVal,false);
+                var sequenceObject ;
+                if(thisB.runningApollo()){
+                    thisB.getApollo().setCurrentSequence(currRegion.ref);
+                    var sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                    sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                    var name = sequenceObject.name;
+                    this.navLabel.set('title',name);
+                    this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                    var locationVal = Util.assembleLocStringWithLength( currRegion );
+                    locationVal = name + locationVal.substr(locationVal.lastIndexOf(":"));
+                    locationBox.set('value',locationVal,false);
+                }
+                else{
+                    locationBox.set('value',Util.assembleLocStringWithLength( currRegion ),false);
+                }
             }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
             (function(){
