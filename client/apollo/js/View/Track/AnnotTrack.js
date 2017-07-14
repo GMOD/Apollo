@@ -310,9 +310,9 @@ define([
 
                 console.log('Registering Apollo listeners.');
 
-                browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                    apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
-                }));
+                // browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                //     apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
+                // }));
 
                 var navigateToLocation = function (urlObject) {
                     if (urlObject.exact) {
