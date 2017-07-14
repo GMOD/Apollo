@@ -820,20 +820,19 @@ return declare( [JBPlugin, HelpMixin],
                             // get the refseq name on this and create
                             // name should already be set
                             sequenceObj = browser.view.ref;
+
+                            // if it is set as JSON, just really want the individual name for now
+                            if(sequenceObj.name.startsWith("{")){
+                                // get the real name out
+                                sequenceObj.name = sequenceObj.sequenceList[0].name;
+                            }
+
+
                             sequenceObj.reverse = sequenceObj.reverse ? !sequenceObj.reverse : true ;
                             refSeqObject = {};
                             refSeqObject.sequenceList = [sequenceObj];
                             // set location
-                            var currentViewURL = browser.makeCurrentViewURL();
-                            console.log(currentViewURL);
-                            // var length = browser.view.ref.length ;
-                            // var endBp = length - browser.view.minVisible();
-                            // var startBp = length - browser.view.maxVisible();
-                            // console.log('initial location: '+browser.view.minVisible() + ' '+browser.view.maxVisible() + ' length: '+length );
-                            // console.log('final location: '+startBp + ' '+endBp);
                             var locString = JSON.stringify(refSeqObject)+":"+browser.view.minVisible()+".."+browser.view.maxVisible();
-                            // var locString = refSeqObject+":"+startBp+".."+endBp;
-                            // console.log('final location string: '+startBp + ' '+endBp);
 
                             var newUrl = "".concat(
                                 window.location.protocol,
@@ -856,11 +855,7 @@ return declare( [JBPlugin, HelpMixin],
                                 )
                             );
 
-                            console.log(newUrl);
-
-                            // http://localhost:8080/apollo/21/jbrowse/index.html?loc=Group11.18%3A3509116…3557828&tracks=DNA%2CAnnotations%2COfficial%20Gene%20Set%20v3.2&highlight=
                             window.location.href = newUrl;
-                            // browser.setLocation( sequenceObj, )
                         }
                     }
                 },
@@ -914,9 +909,6 @@ return declare( [JBPlugin, HelpMixin],
                     browser.navigateTo( locationString );
                     dojo.stopEvent(event);
                 }
-                // else {
-                //     this.goButton.set('disabled', false);
-                // }
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                 var sequenceObject ,sequenceString ;
