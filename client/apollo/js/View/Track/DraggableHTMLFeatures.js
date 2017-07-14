@@ -640,6 +640,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 initFrame = (cdsMax  ) % 3;
                 absFrame = (subEnd ) % 3;
                 cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
+                var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
+                cdsFrame = (cdsFrame + offset )% 3;
             }
             else  {
                 initFrame = cdsMin % 3;
@@ -679,6 +681,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     initFrame = (cdsMax) % 3;
                     absFrame = (subEnd ) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
+                    var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
+                    cdsFrame = (cdsFrame + offset )% 3;
                 }
                 else  {
                     // cdsFrame = (subStart + ((3 - (priorCdsLength % 3)) % 3)) % 3;
@@ -693,6 +697,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
                     cdsFrame = (cdsMax) % 3;
+                    var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
+                    cdsFrame = (cdsFrame + offset )% 3;
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
