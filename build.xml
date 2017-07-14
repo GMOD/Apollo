@@ -11,8 +11,7 @@
         <pathelement location="lib/gwt"/>
         <pathelement location="${gwt.sdk}/gwt-user.jar"/>
         <pathelement location="${gwt.sdk}/gwt-dev.jar"/>
-        <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA.jar"/>
-        <pathelement location="${gwt.sdk}/validation-api-1.0.0.GA-sources.jar"/>
+        <pathelement location="${gwt.sdk}/validation-api-1.1.0.Final.jar"/>
         <fileset dir="lib/gwt" includes="**/*.jar"/>
         <!-- Add any additional non-server libs (such as JUnit) here -->
     </path>
