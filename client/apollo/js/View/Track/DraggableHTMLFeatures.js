@@ -571,6 +571,19 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
    },
 
+    handleReverseStrandOffset: function(inputFrame){
+        var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
+        inputFrame = (inputFrame + offset )% 3;
+        if(inputFrame==2){
+            inputFrame=0
+        }
+        else
+        if(inputFrame==2){
+            inputFrame=2
+        }
+        return inputFrame ;
+    },
+
    /**
     *  TODO: still need to factor in truncation based on displayStart and displayEnd???
 
@@ -599,9 +612,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {  // subfeatureClases defaults set in this._defaultConfig
             if (!UTRclass) {
-                UTRclass = this.config.style.subfeatureClasses["UTR"];  
+                UTRclass = this.config.style.subfeatureClasses["UTR"];
             }
-            CDSclass = this.config.style.subfeatureClasses["CDS"];  
+            CDSclass = this.config.style.subfeatureClasses["CDS"];
         }
 
         //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
@@ -640,15 +653,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 initFrame = (cdsMax  ) % 3;
                 absFrame = (subEnd ) % 3;
                 cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
-                var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
-                cdsFrame = (cdsFrame + offset )% 3;
-                if(cdsFrame==2){
-                    cdsFrame=0
-                }
-                else
-                if(cdsFrame==2){
-                    cdsFrame=2
-                }
+                cdsFrame = this.handleReverseStrandOffset(cdsFrame);
             }
             else  {
                 initFrame = cdsMin % 3;
@@ -688,15 +693,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     initFrame = (cdsMax) % 3;
                     absFrame = (subEnd ) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
-                    var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
-                    cdsFrame = (cdsFrame + offset )% 3;
-                    if(cdsFrame==2){
-                        cdsFrame=0
-                    }
-                    else
-                    if(cdsFrame==2){
-                        cdsFrame=2
-                    }
+                    cdsFrame = this.handleReverseStrandOffset(cdsFrame);
                 }
                 else  {
                     // cdsFrame = (subStart + ((3 - (priorCdsLength % 3)) % 3)) % 3;
@@ -711,15 +708,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
                     cdsFrame = (cdsMax) % 3;
-                    var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
-                    cdsFrame = (cdsFrame + offset )% 3;
-                    if(cdsFrame==2){
-                        cdsFrame=0
-                    }
-                    else
-                    if(cdsFrame==2){
-                        cdsFrame=2
-                    }
+                    cdsFrame = this.handleReverseStrandOffset(cdsFrame);
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
