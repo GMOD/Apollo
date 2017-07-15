@@ -642,6 +642,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
                 var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
                 cdsFrame = (cdsFrame + offset )% 3;
+                if(cdsFrame==2){
+                    cdsFrame=0
+                }
+                else
+                if(cdsFrame==2){
+                    cdsFrame=2
+                }
             }
             else  {
                 initFrame = cdsMin % 3;
@@ -683,6 +690,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     cdsFrame = (3 + absFrame - relFrame) % 3;
                     var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
                     cdsFrame = (cdsFrame + offset )% 3;
+                    if(cdsFrame==2){
+                        cdsFrame=0
+                    }
+                    else
+                    if(cdsFrame==2){
+                        cdsFrame=2
+                    }
                 }
                 else  {
                     // cdsFrame = (subStart + ((3 - (priorCdsLength % 3)) % 3)) % 3;
@@ -699,6 +713,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
                     cdsFrame = (cdsMax) % 3;
                     var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
                     cdsFrame = (cdsFrame + offset )% 3;
+                    if(cdsFrame==2){
+                        cdsFrame=0
+                    }
+                    else
+                    if(cdsFrame==2){
+                        cdsFrame=2
+                    }
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
