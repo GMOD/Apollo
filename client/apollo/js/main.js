@@ -18,6 +18,8 @@ define([
            'dojo/_base/window',
            'dojo/_base/array',
            'dojo/keys',
+           'dojo/on',
+           'dojo/Evented',
            'dijit/registry',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -56,6 +58,8 @@ define([
             win,
             array,
             keys,
+            on,
+            Evented,
             dijitRegistry,
             dijitMenu,
             dijitMenuItem,
@@ -87,7 +91,7 @@ define([
             Util
     ) {
 
-return declare( [JBPlugin, HelpMixin],
+return declare( [JBPlugin, HelpMixin,Evented],
 {
 
     constructor: function( args ) {
@@ -288,6 +292,9 @@ return declare( [JBPlugin, HelpMixin],
 
 
     },
+
+
+
 
     runningApollo: function () {
         return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0');
@@ -931,10 +938,13 @@ return declare( [JBPlugin, HelpMixin],
                         locationBoxString = sequenceObject.name + locationBoxString.substr(locationBoxString.lastIndexOf(":"));
                     }
                     locationBox.set('value', locationBoxString,false);
-
                 }
             }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+
+            on(window, 'resize', function() { console.log('resize!')});
+            on.emit(window, 'resize', {bubbles: true,cancelable: true});
+
             (function(){
 
                 // add a moreMatches class to our hacked-in "more options" option
