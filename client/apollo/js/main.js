@@ -798,7 +798,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
             var sequenceObj , refSeqObject ;
             var refSeqString  = browser.view.ref.name;
             if(refSeqString.startsWith("{")){
-                refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf(":"));
+                refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf("}")+1);
                 refSeqObject = JSON.parse(refSeqString);
                 // just grab the first one for now
                 sequenceObj = refSeqObject.sequenceList[0]
