@@ -1759,6 +1759,15 @@ class RequestHandlingService {
                 feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
                 uniqueName = feature.uniqueName
             }
+
+            if(configWrapperService.onlyOwnersEdit){
+                def currentUser = permissionService.getCurrentUser(inputObject)
+                def isAdmin = permissionService.isUserAdmin(currentUser)
+                if(!isAdmin && !(currentUser in feature.owners)){
+                    println "going to throw error"
+                    throw new AnnotationException("Only feature owner or admin may delete or reverse")
+                }
+            }
             // TODO: can not do this as it will aggressively delete history
             // that other objects might need
 //            if (!suppressHistory) {
