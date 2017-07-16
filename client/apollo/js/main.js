@@ -931,12 +931,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
                     locationBox.set('value',locationVal,false);
                 }
                 else{
-                    var locationBoxString = Util.assembleLocStringWithLength( currRegion );
-                    if(currRegion.ref.startsWith("{")){
-                        sequenceString = locationBoxString.substring(0,locationBoxString.lastIndexOf("}")+1);
-                        sequenceObject = JSON.parse(sequenceString).sequenceList[0];
-                        locationBoxString = sequenceObject.name + locationBoxString.substr(locationBoxString.lastIndexOf(":"));
-                    }
+                    var locationBoxString = Util.assembleProjectedString(currRegion);
                     locationBox.set('value', locationBoxString,false);
                 }
             }));
