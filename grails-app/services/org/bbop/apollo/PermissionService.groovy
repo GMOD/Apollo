@@ -365,18 +365,10 @@ class PermissionService {
             organism = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
         }
 
-//        Sequence sequence = null
         Assemblage assemblage = null
         if (!sequenceName) {
-//            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
             assemblage = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.assemblage
         }
-//        else {
-//            sequence = Sequence.findByNameAndOrganism(trackName, organism)
-//        }
-//        if (!sequence && organism) {
-//            sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
-//        }
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
         PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
@@ -389,7 +381,6 @@ class PermissionService {
             throw new AnnotationException("You have insufficient permissions [${highestValue.display} < ${requiredPermissionEnum.display}] to perform this operation")
         }
 
-//        if (orderedSequences) {
         if (inputObject.track instanceof String) {
             if (inputObject.track.startsWith("{") || inputObject.track.startsWith("[")) {
                 JSONArray sequenceListArray = inputObject.track.startsWith("{") ? (JSON.parse(inputObject.track) as JSONObject).sequenceList : (JSON.parse(inputObject.track) as JSONArray)
@@ -440,8 +431,6 @@ class PermissionService {
             }
         }
         return assemblage
-//        }
-//        return null
     }
 
     Boolean checkPermissions(PermissionEnum requiredPermissionEnum) {
@@ -480,7 +469,6 @@ class PermissionService {
 
     PermissionEnum checkPermissions(JSONObject jsonObject, Organism organism, PermissionEnum requiredPermissionEnum) {
 
-        //def session = RequestContextHolder.currentRequestAttributes().getSession()
         String username = jsonObject.getString(FeatureStringEnum.USERNAME.value)
 
 

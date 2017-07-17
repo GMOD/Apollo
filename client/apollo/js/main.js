@@ -831,7 +831,6 @@ return declare( [JBPlugin, HelpMixin,Evented],
                             // if it is set as JSON, just really want the individual name for now
                             if(sequenceObj.name.startsWith("{")){
                                 // get the real name out
-                                // sequenceObj.name = sequenceObj.sequenceList[0].name;
                                 var sequenceString = sequenceObj.name.substr(0,sequenceObj.name.lastIndexOf("}")+1);
                                 sequenceObj = JSON.parse(sequenceString).sequenceList[0];
                             }
