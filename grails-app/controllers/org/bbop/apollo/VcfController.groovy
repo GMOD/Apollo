@@ -26,6 +26,11 @@ class VcfController {
         }
         JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism,trackName)
         JSONObject returnObject = new JSONObject()
+        returnObject.put("featureDensity", 0.2);
+
+
+
+
         // TODO
         render returnObject as JSON
     }
