@@ -584,9 +584,15 @@ class TrackService {
                     // TODO: TrackIndex doesn't return the proper value when a coordinateArray has a subList
                     //if (trackIndex.hasSubList() && coordinateArray.get(trackIndex.sublistColumn)) {
                     if (coordinateArray.size() == 12) {
+                        log.warn "Processing sublist class for size == 12 ${coordinateArray as JSON}"
                         // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
-                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).getJSONArray("Sublist"), sequenceDTO)
-                        coordinateArray.getJSONObject(11).put("Sublist", sanitizedSubListArray)
+                        if(coordinateArray.get(11) instanceof JSONObject){
+                            JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).getJSONArray("Sublist"), sequenceDTO)
+                            coordinateArray.getJSONObject(11).put("Sublist", sanitizedSubListArray)
+                        }
+                        else{
+                            log.warn "Coordinate at 11 is not a JSONObject ${coordinateArray as JSON}"
+                        }
                     }
                 }
             }
