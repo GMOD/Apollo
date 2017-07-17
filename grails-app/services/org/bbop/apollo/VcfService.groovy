@@ -64,7 +64,7 @@ class VcfService {
             log.info "projection sequence name ${projectionSequence.name}"
             lengthMap.put(projectionSequence.order, projection.sequenceDiscontinuousProjectionMap.get(projectionSequence).length)
             // changing zero-based start to one-based start while querying VCF
-            println "querying VCF with projectionSequence.name: ${projectionSequence.name} ${start + 1}-${end} (note the adjusted start)"
+            log.info "querying VCF with projectionSequence.name: ${projectionSequence.name} ${start + 1}-${end} (note the adjusted start)"
             def queryResults = vcfFileReader.query(projectionSequence.name, start + 1, end)
             while(queryResults.hasNext()) {
                 vcfEntries.add(queryResults.next())
@@ -87,12 +87,12 @@ class VcfService {
     def processSequence(JSONArray featuresArray, String sequenceName, VCFFileReader vcfFileReader, int start, int end) {
         // TODO: In what scenario will this method be called
         if (start < 0 && end > 0) {
-            println "start < 0 and end > 0; adjusting start to 0"
+            log.info "start < 0 and end > 0; adjusting start to 0"
             start = 0
         }
         else if (start < 0 && end < 0) {
             // nothing to do since the requested region has negative coordinates
-            println "both start and end are < 0; returning empty featuresArray"
+            log.info "both start and end are < 0; returning empty featuresArray"
             return featuresArray
         }
 
