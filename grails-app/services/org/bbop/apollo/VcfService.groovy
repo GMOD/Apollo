@@ -1,22 +1,21 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import grails.web.JSONBuilder
-import groovy.json.JsonBuilder
-import htsjdk.samtools.util.Interval
 import htsjdk.variant.variantcontext.Genotype
 import htsjdk.variant.variantcontext.GenotypesContext
 import htsjdk.variant.variantcontext.VariantContextUtils
 import htsjdk.variant.vcf.VCFCompoundHeaderLine
+import htsjdk.variant.vcf.VCFConstants
 import htsjdk.variant.vcf.VCFFileReader
 import htsjdk.variant.variantcontext.VariantContext
-import grails.converters.JSON
 import htsjdk.variant.vcf.VCFHeader
+import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import java.text.DecimalFormat
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 @Transactional
 class VcfService {
@@ -26,6 +25,15 @@ class VcfService {
 
     public static final String ALTERNATIVE_ALLELE_METADATA = "VCF ALT field, list of alternate non-reference alleles called on at least one of the samples"
 
+    /**
+     *
+     * @param featuresArray
+     * @param projection
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @return
+     */
     def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end) {
         Map<Integer, Integer> lengthMap = new TreeMap<>()
         // Note: incoming coordinates are zero-based
@@ -67,6 +75,15 @@ class VcfService {
         return featuresArray
     }
 
+    /**
+     *
+     * @param featuresArray
+     * @param sequenceName
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @return
+     */
     def processSequence(JSONArray featuresArray, String sequenceName, VCFFileReader vcfFileReader, int start, int end) {
         // TODO: In what scenario will this method be called
         if (start < 0 && end > 0) {
@@ -89,6 +106,15 @@ class VcfService {
         return featuresArray
     }
 
+    /**
+     * Populate features array with JSON feature representation of variants
+     * @param featuresArray
+     * @param vcfHeader
+     * @param vcfEntries
+     * @param projection
+     * @param projectionSequence
+     * @return
+     */
     def calculateFeaturesArray(JSONArray featuresArray, VCFHeader vcfHeader, def vcfEntries, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
         for (VariantContext vc : vcfEntries) {
             JSONObject jsonFeature = new JSONObject()
@@ -101,6 +127,14 @@ class VcfService {
         return featuresArray
     }
 
+    /**
+     * Populate features array with JSON feature representation of variants
+     * @param featuresArray
+     * @param vcfHeader
+     * @param vcfEntries
+     * @param sequenceName
+     * @return
+     */
     def calculateFeaturesArray(JSONArray featuresArray, VCFHeader vcfHeader, def vcfEntries, String sequenceName) {
         for (VariantContext vc : vcfEntries) {
             JSONObject jsonFeature = new JSONObject()
@@ -111,6 +145,12 @@ class VcfService {
         return featuresArray
     }
 
+    /**
+     * Create a JSON feature representation of a variant
+     * @param vcfHeader
+     * @param variantContext
+     * @return
+     */
     def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext) {
         JSONObject jsonFeature = new JSONObject()
         JSONObject location = new JSONObject()
@@ -127,40 +167,40 @@ class VcfService {
         // TODO: use enums or VCFConstants
         // alternative alleles
         JSONObject alternativeAllelesMetaObject = new JSONObject()
-        alternativeAllelesMetaObject.put("description", ALTERNATIVE_ALLELE_METADATA)
+        alternativeAllelesMetaObject.put(FeatureStringEnum.DESCRIPTION.value, ALTERNATIVE_ALLELE_METADATA)
         JSONObject alternativeAllelesObject = new JSONObject()
-        alternativeAllelesObject.put("values", alternativeAllelesString)
-        alternativeAllelesObject.put("meta", alternativeAllelesMetaObject)
-        jsonFeature.put("alternative_alleles", alternativeAllelesObject)
+        alternativeAllelesObject.put(FeatureStringEnum.VALUES.value, alternativeAllelesString)
+        alternativeAllelesObject.put(FeatureStringEnum.META.value, alternativeAllelesMetaObject)
+        jsonFeature.put(FeatureStringEnum.ALTERNATIVE_ALLELES.value, alternativeAllelesObject)
         String descriptionString = "${type} ${referenceAlleleString} -> ${alternativeAllelesString}"
 
         // changing one-based start to zero-based start
         Long start = variantContext.getStart()
         Long end = variantContext.getEnd()
-        location.put("fmin", start - 1)
-        location.put("fmax", end)
-        location.put("sequence", variantContext.getContig())
-        jsonFeature.put("start", variantContext.getStart() - 1)
-        jsonFeature.put("end", variantContext.getEnd())
-        jsonFeature.put("type", type)
+        location.put(FeatureStringEnum.FMIN.value, start - 1)
+        location.put(FeatureStringEnum.FMAX.value, end)
+        location.put(FeatureStringEnum.SEQUENCE.value, variantContext.getContig())
+        jsonFeature.put(FeatureStringEnum.START.value, variantContext.getStart() - 1)
+        jsonFeature.put(FeatureStringEnum.END.value, variantContext.getEnd())
+        jsonFeature.put(FeatureStringEnum.TYPE.value, type)
 
-        jsonFeature.put("location", location)
+        jsonFeature.put(FeatureStringEnum.LOCATION.value, location)
         if (variantContext.getID() != ".") {
             jsonFeature.put("uniqueID", variantContext.getID())
-            jsonFeature.put("name", variantContext.getID())
+            jsonFeature.put(FeatureStringEnum.NAME.value, variantContext.getID())
         }
         else {
             jsonFeature.put("uniqueID", "${descriptionString} at position ${start}")
         }
 
         // reference allele
-        jsonFeature.put("reference_allele", referenceAlleleString)
+        jsonFeature.put(FeatureStringEnum.REFERENCE_ALLELE.value, referenceAlleleString)
 
         // description
-        jsonFeature.put("description", descriptionString)
+        jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, descriptionString)
 
         // score
-        jsonFeature.put("score", new DecimalFormat("##.###").format(variantContext.getPhredScaledQual()))
+        jsonFeature.put(FeatureStringEnum.SCORE.value, new DecimalFormat("##.###").format(variantContext.getPhredScaledQual()))
 
         // attributes
         def variantAttributes = variantContext.getCommonInfo().getAttributes()
@@ -168,21 +208,13 @@ class VcfService {
             JSONObject attributeObject = new JSONObject()
             JSONArray valuesArray = new JSONArray()
             valuesArray.add(variantAttributes.get(attributeKey))
-            attributeObject.put("values", valuesArray)
+            attributeObject.put(FeatureStringEnum.VALUES.value, valuesArray)
 
             // metadata for attributes
             VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, attributeKey)
             if (metaData) {
-                JSONObject attributeMetaObject = new JSONObject()
-                attributeMetaObject.put("id", new JSONArray())
-                attributeMetaObject.put("type", new JSONArray())
-                attributeMetaObject.put("number", new JSONArray())
-                attributeMetaObject.put("description", new JSONArray())
-                attributeMetaObject.getJSONArray("id").add(metaData.getID())
-                attributeMetaObject.getJSONArray("type").add(metaData.getCountType())
-                attributeMetaObject.getJSONArray("number").add(metaData.getCount(variantContext))
-                attributeMetaObject.getJSONArray("description").add(metaData.getDescription())
-                attributeObject.put("meta", attributeMetaObject)
+                JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
+                attributeObject.put(FeatureStringEnum.META.value, attributeMetaObject)
             }
             jsonFeature.put(attributeKey, attributeObject)
         }
@@ -198,68 +230,78 @@ class VcfService {
                 log.debug "processing format field: ${key}"
                 if (genotype.hasAnyAttribute(key)) {
                     JSONObject formatPropertiesJsonObject = new JSONObject()
-                    if (key == "GT") {
+                    if (key == VCFConstants.GENOTYPE_KEY) {
                         def alleles = genotype.getAlleles()
                         def alleleAsIndices = variantContext.getAlleleIndices(alleles)
-                        String delimiter = genotype.isPhased() ? "|" : "/"
+                        String delimiter = genotype.isPhased() ? VCFConstants.PHASED : VCFConstants.UNPHASED
                         String genotypeAsIndices = alleleAsIndices.join(delimiter)
 
                         JSONArray valuesArray = new JSONArray()
                         valuesArray.add(genotypeAsIndices)
-                        formatPropertiesJsonObject.put("values", valuesArray)
+                        formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
                         VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
                         if (metaData) {
-                            JSONObject attributeMetaObject = new JSONObject()
-                            attributeMetaObject.put("id", new JSONArray())
-                            attributeMetaObject.put("type", new JSONArray())
-                            attributeMetaObject.put("number", new JSONArray())
-                            attributeMetaObject.put("description", new JSONArray())
-                            attributeMetaObject.getJSONArray("id").add(metaData.getID())
-                            attributeMetaObject.getJSONArray("type").add(metaData.getCountType())
-                            attributeMetaObject.getJSONArray("number").add(metaData.getCount(variantContext))
-                            attributeMetaObject.getJSONArray("description").add(metaData.getDescription())
-                            formatPropertiesJsonObject.put("meta", attributeMetaObject)
+                            JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
+                            formatPropertiesJsonObject.put(FeatureStringEnum.META.value, attributeMetaObject)
                         }
                     }
                     else {
                         def keyValues = genotype.getAnyAttribute(key)
                         JSONArray valuesArray = new JSONArray()
                         valuesArray.add(keyValues)
-                        formatPropertiesJsonObject.put("values", valuesArray)
+                        formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
                         VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
                         if (metaData) {
-                            JSONObject attributeMetaObject = new JSONObject()
-                            attributeMetaObject.put("id", new JSONArray())
-                            attributeMetaObject.put("type", new JSONArray())
-                            attributeMetaObject.put("number", new JSONArray())
-                            attributeMetaObject.put("description", new JSONArray())
-                            attributeMetaObject.getJSONArray("id").add(metaData.getID())
-                            attributeMetaObject.getJSONArray("type").add(metaData.getCountType())
-                            attributeMetaObject.getJSONArray("number").add(metaData.getCount(variantContext))
-                            attributeMetaObject.getJSONArray("description").add(metaData.getDescription())
-                            formatPropertiesJsonObject.put("meta", attributeMetaObject)
+                            JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
+                            formatPropertiesJsonObject.put(FeatureStringEnum.META.value, attributeMetaObject)
                         }
                     }
                     formatJsonObject.put(key, formatPropertiesJsonObject)
                 }
                 genotypesJsonObject.put(genotype.sampleName, formatJsonObject)
             }
-            jsonFeature.put("genotypes", genotypesJsonObject)
+            jsonFeature.put(FeatureStringEnum.GENOTYPES.value, genotypesJsonObject)
         }
 
         // filter
         if (variantContext.filtered) {
-            jsonFeature.put("filter", variantContext.getFilters().join(","))
+            jsonFeature.put(FeatureStringEnum.FILTER.value, variantContext.getFilters().join(","))
         }
 
         return jsonFeature
     }
 
+    /**
+     * project the JSON feature onto a given multi sequence projection
+     * @param jsonFeature
+     * @param projection
+     * @param unProject
+     * @param offset
+     * @return
+     */
     def projectJSONFeature(JSONObject jsonFeature, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
         // Note: jsonFeature must have 'location' object for FPS:projectFeature to work
         featureProjectionService.projectFeature(jsonFeature, projection, unProject, offset)
-        jsonFeature.remove("location")
+        jsonFeature.remove(FeatureStringEnum.LOCATION.value)
         return jsonFeature
+    }
+
+    /**
+     * Generate meta JSON object for a given property
+     * @param metaData
+     * @return
+     */
+    def generateMetaObjectForProperty(VCFCompoundHeaderLine metaData, VariantContext variantContext) {
+        JSONObject metaObject = new JSONObject()
+        metaObject.put(FeatureStringEnum.ID.value, new JSONArray())
+        metaObject.put(FeatureStringEnum.TYPE.value, new JSONArray())
+        metaObject.put(FeatureStringEnum.NUMBER.value, new JSONArray())
+        metaObject.put(FeatureStringEnum.DESCRIPTION.value, new JSONArray())
+        metaObject.getJSONArray(FeatureStringEnum.ID.value).add(metaData.getID())
+        metaObject.getJSONArray(FeatureStringEnum.TYPE.value).add(metaData.getCountType())
+        metaObject.getJSONArray(FeatureStringEnum.NUMBER.value).add(metaData.getCount(variantContext))
+        metaObject.getJSONArray(FeatureStringEnum.DESCRIPTION.value).add(metaData.getDescription())
+        return metaObject
     }
 
 }
