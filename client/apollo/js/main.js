@@ -831,15 +831,28 @@ return declare( [JBPlugin, HelpMixin,Evented],
                             // if it is set as JSON, just really want the individual name for now
                             if(sequenceObj.name.startsWith("{")){
                                 // get the real name out
-                                sequenceObj.name = sequenceObj.sequenceList[0].name;
+                                // sequenceObj.name = sequenceObj.sequenceList[0].name;
+                                var sequenceString = sequenceObj.name.substr(0,sequenceObj.name.lastIndexOf("}")+1);
+                                sequenceObj = JSON.parse(sequenceString).sequenceList[0];
                             }
 
 
-                            sequenceObj.reverse = sequenceObj.reverse ? !sequenceObj.reverse : true ;
+                            var startBp = browser.view.minVisible();
+                            var endBp = browser.view.maxVisible();
+                            if(sequenceObj.reverse != null){
+                                sequenceObj.reverse = !sequenceObj.reverse ;
+                                if(sequenceObj.reverse==false){
+                                    startBp = sequenceObj.length - browser.view.maxVisible();
+                                    endBp = sequenceObj.length - browser.view.minVisible();
+                                }
+                            }
+                            else{
+                                sequenceObj.reverse = true ;
+                            }
                             refSeqObject = {};
                             refSeqObject.sequenceList = [sequenceObj];
                             // set location
-                            var locString = JSON.stringify(refSeqObject)+":"+browser.view.minVisible()+".."+browser.view.maxVisible();
+                            var locString = JSON.stringify(refSeqObject)+":"+startBp+".."+endBp;
 
                             var newUrl = "".concat(
                                 window.location.protocol,
