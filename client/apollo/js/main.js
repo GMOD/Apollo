@@ -918,21 +918,35 @@ return declare( [JBPlugin, HelpMixin,Evented],
                 }
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                var sequenceObject ,sequenceString ;
+                var sequenceObject ,sequenceString;
                 if(thisB.runningApollo()){
                     thisB.getApollo().setCurrentSequence(currRegion.ref);
                     sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
                     sequenceObject = JSON.parse(sequenceString).sequenceList[0];
-                    var name = sequenceObject.name;
-                    this.navLabel.set('title',name);
+                    this.navLabel.set('title',sequenceObject.name);
                     this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
                     var locationVal = Util.assembleLocStringWithLength( currRegion );
                     locationVal = name + locationVal.substr(locationVal.lastIndexOf(":"));
                     locationBox.set('value',locationVal,false);
                 }
                 else{
+                    if(currRegion.ref.startsWith("{")){
+                        sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                        sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                    }
+                    else{
+                       sequenceObject = {};
+                       sequenceObject.name = currRegion.ref;
+                       sequenceObject.reverse = false ;
+                    }
+                    if(this.navLabel){
+                        this.navLabel.set('title',sequenceObject.name);
+                        this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                    }
                     var locationBoxString = Util.assembleProjectedString(currRegion);
                     locationBox.set('value', locationBoxString,false);
+                    // this.navLabel.set('title',name);
+                    // this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
                 }
             }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
