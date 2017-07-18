@@ -27,7 +27,7 @@ apollo {
   translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
   is_partial_translation_allowed = false // unused so far
   get_translation_code = 1
-  only_owners_edit = false
+  only_owners_delete = false
   sequence_search_tools = [
     blat_nuc: [
       search_exe: "/usr/local/bin/blat",
@@ -556,4 +556,4 @@ If you don't want any reporting set:
 
 Restricts deletion and reverting to original editor or admin user by setting:
 
-    apollo.only_owners_edit = true
+    apollo.only_owners_delete = true

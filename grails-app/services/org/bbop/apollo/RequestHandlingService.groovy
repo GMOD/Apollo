@@ -1621,13 +1621,7 @@ class RequestHandlingService {
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i)
             Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
-            if(configWrapperService.onlyOwnersEdit){
-                def currentUser = permissionService.getCurrentUser(inputObject)
-                def isAdmin = permissionService.isUserAdmin(currentUser)
-                if(!isAdmin && !(currentUser in exon.owners)){
-                    throw new AnnotationException("Only feature owner or admin may delete or reverse")
-                }
-            }
+            checkOwnersDelete(exon,inputObject)
 
             exonService.deleteExon(transcript, exon);
         }
@@ -1767,14 +1761,7 @@ class RequestHandlingService {
                 uniqueName = feature.uniqueName
             }
 
-            if(configWrapperService.onlyOwnersEdit){
-                def currentUser = permissionService.getCurrentUser(inputObject)
-                def isAdmin = permissionService.isUserAdmin(currentUser)
-                def owners = findOwners(feature)
-                if(!isAdmin && !(currentUser in owners)){
-                    throw new AnnotationException("Only feature owner or admin may delete or reverse")
-                }
-            }
+            checkOwnersDelete(feature,inputObject)
 
             log.debug "feature found to delete ${feature?.name}"
             if (feature) {
@@ -1941,6 +1928,17 @@ class RequestHandlingService {
         }
 
         return createJSONFeatureContainer()
+    }
+
+    def checkOwnersDelete(Feature feature, JSONObject inputObject) {
+        if(configWrapperService.onlyOwnersDelete){
+            def currentUser = permissionService.getCurrentUser(inputObject)
+            def isAdmin = permissionService.isUserAdmin(currentUser)
+            def owners = findOwners(feature)
+            if(!isAdmin && !(currentUser in owners)){
+                throw new AnnotationException("Only feature owner or admin may delete annotation or revert the annotation to an earlier state")
+            }
+        }
     }
 
     private findOwners(Feature feature) {

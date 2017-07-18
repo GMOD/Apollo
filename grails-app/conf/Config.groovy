@@ -216,7 +216,7 @@ apollo {
     chado_export_fasta_for_sequence = false
     // set chado_export_fasta_for_cds if you want the CDS FASTA to be exported into the database
     chado_export_fasta_for_cds = false
-    only_owners_edit = false
+    only_owners_delete = false
 
     // this is the default
     // other translation codes are of the form ncbi_KEY_translation_table.txt
