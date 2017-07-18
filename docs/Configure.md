@@ -27,7 +27,6 @@ apollo {
   translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
   is_partial_translation_allowed = false // unused so far
   get_translation_code = 1
-  get_translation_code = 1
   only_owners_edit = false
   sequence_search_tools = [
     blat_nuc: [
