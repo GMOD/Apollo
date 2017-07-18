@@ -1621,6 +1621,13 @@ class RequestHandlingService {
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i)
             Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
+            if(configWrapperService.onlyOwnersEdit){
+                def currentUser = permissionService.getCurrentUser(inputObject)
+                def isAdmin = permissionService.isUserAdmin(currentUser)
+                if(!isAdmin && !(currentUser in exon.owners)){
+                    throw new AnnotationException("Only feature owner or admin may delete or reverse")
+                }
+            }
 
             exonService.deleteExon(transcript, exon);
         }
@@ -1763,16 +1770,11 @@ class RequestHandlingService {
             if(configWrapperService.onlyOwnersEdit){
                 def currentUser = permissionService.getCurrentUser(inputObject)
                 def isAdmin = permissionService.isUserAdmin(currentUser)
-                if(!isAdmin && !(currentUser in feature.owners)){
-                    println "going to throw error"
+                def owners = findOwners(feature)
+                if(!isAdmin && !(currentUser in owners)){
                     throw new AnnotationException("Only feature owner or admin may delete or reverse")
                 }
             }
-            // TODO: can not do this as it will aggressively delete history
-            // that other objects might need
-//            if (!suppressHistory) {
-//                featureEventService.deleteHistory(uniqueName)
-//            }
 
             log.debug "feature found to delete ${feature?.name}"
             if (feature) {
@@ -1939,6 +1941,14 @@ class RequestHandlingService {
         }
 
         return createJSONFeatureContainer()
+    }
+
+    private findOwners(Feature feature) {
+        if(!feature) return null
+        if(feature.owners){
+            return feature.owners
+        }
+        return findOwners(featureRelationshipService.getParentForFeature(feature))
     }
 
     @Timed
