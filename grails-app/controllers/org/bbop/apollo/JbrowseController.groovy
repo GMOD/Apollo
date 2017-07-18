@@ -711,10 +711,13 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
-        trackObject = rewriteTracks(trackObject)
-
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println "CURRENT ORGANISM: ${currentOrganism}"
+
+        trackObject = rewriteTracks(trackObject,currentOrganism)
+
+
         if (currentOrganism != null) {
             trackObject.put("dataset_id", currentOrganism.id)
         } else {
@@ -789,20 +792,23 @@ class JbrowseController {
 
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
+        println "init obj ${obj}"
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }
+        println "final obj ${obj}"
         return obj
     }
 
     @NotTransactional
-    private JSONObject rewriteTracks(JSONObject jsonObject) {
+    private JSONObject rewriteTracks(JSONObject jsonObject,Organism organism) {
         JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
         for(JSONObject obj in tracksArray){
+            obj.put(FeatureStringEnum.ORGANISM_ID.value,organism.id)
             obj = rewriteTrack(obj)
         }
         return jsonObject

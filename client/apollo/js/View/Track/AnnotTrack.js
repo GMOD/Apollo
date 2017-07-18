@@ -337,9 +337,9 @@ define([
 
                         // ref:start..end
                         // TODO: parse correctly
-                        var ref = url.substr(0, url.lastIndexOf(":"));
+                        var ref = url.substr(0, url.lastIndexOf("}")+1);
                         console.log(ref);
-                        var locString = url.substr(url.lastIndexOf(":") + 1, url.length);
+                        var locString = url.substr(url.lastIndexOf("}") + 1, url.length);
                         console.log(locString);
                         var locs = locString.split("\.\.");
                         console.log(locs);
@@ -5452,8 +5452,13 @@ define([
 
             getUniqueTrackName: function () {
                 var trackName = this.refSeq.name;
-                trackName = trackName.substr(0, trackName.lastIndexOf(':'));
-                return JSON.parse(trackName);
+                if(trackName.startsWith("{")){
+                    trackName = trackName.substr(0, trackName.lastIndexOf('}')+1);
+                    return JSON.parse(trackName);
+                }
+                else{
+                    return {};
+                }
             },
 
             openDialog: function (title, data, width, height) {

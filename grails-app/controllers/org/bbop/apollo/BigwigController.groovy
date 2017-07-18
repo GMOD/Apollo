@@ -38,11 +38,13 @@ class BigwigController {
      * @param end The request view end
      * @return
      */
-    JSONObject features(String sequenceName, Integer start, Integer end) {
+    JSONObject features(String sequenceName,Long organismId, Integer start, Integer end) {
 
         JSONObject data = permissionService.handleInput(request, params)
         println "data as ${data as JSON}"
-        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+//        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+        println "finding organism by ID ${organismId}"
+        Organism organism = Organism.findById(organismId)
         println "organism found ${organism.commonName}"
         JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
         if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){

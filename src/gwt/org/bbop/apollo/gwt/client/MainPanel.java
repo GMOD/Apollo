@@ -518,8 +518,16 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 currentAssemblage = AssemblageInfoConverter.convertJSONObjectToAssemblageInfo(returnValue);
-                updateGenomicViewer(true, true);
 
+                if(!currentAssemblage.getSequenceList().getSequence(0).getReverse()){
+                    long tempStart = currentAssemblage.getLength() - currentEndBp;
+                    long tempEnd = currentAssemblage.getLength() - currentStartBp;
+
+                    currentStartBp = tempStart  < tempEnd ? tempStart : tempStart ;
+                    currentEndBp = tempEnd > tempStart ? tempEnd : tempStart ;
+                }
+
+                updateGenomicViewer(true, true);
             }
 
             @Override
@@ -998,6 +1006,7 @@ public class MainPanel extends Composite {
 //        setting current sequence: {"sequenceList":[{"name":"Group1.10","start":0,"end":1405242,"reverse":false}]}:164566..168677:164565..168676
 
         // get sequence part
+        GWT.log("setting current sequence: "+newSequence);
         String sequenceString = newSequence.substring(0,newSequence.lastIndexOf("}")+1);
         String locationString = newSequence.substring(newSequence.lastIndexOf(":")+1,newSequence.length());
 
