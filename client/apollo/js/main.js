@@ -904,7 +904,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
                     id: "apollo-location",
                     name: "apollo-location",
                     style: {width: "300px"},
-                    maxLength: 400,
+                    maxLength: 300,
                     searchAttr: "name",
                     title: 'Enter a symbol or ID to search'
                 },
