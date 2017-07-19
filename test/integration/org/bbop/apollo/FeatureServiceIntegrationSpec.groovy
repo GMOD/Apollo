@@ -209,6 +209,8 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         then: "we should see the transcript"
         assert MRNA.all.size() == 1
+        assert NonCanonicalFivePrimeSpliceSite.all.size() == 0
+        assert NonCanonicalThreePrimeSpliceSite.all.size() == 0
         Gene parentGene = Gene.all.get(0)
 
         when: "we add transcript fragment 1"
@@ -316,5 +318,22 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert transcriptFragment3Cds.fmax == 583554
         assert transcriptFragment3Cds.isFminPartial
         assert !transcriptFragment3Cds.isFmaxPartial
+    }
+
+    void "When adding a transcript in the reverse sequence (on the reverse strand) and transcript fragment, all the fragments should be isoforms of the main transcript and have their CDS set as expected"() {
+
+        given: "1 transcript and 3 transcript fragments"
+        String addTranscript1String = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true,\"organism\":\"Honeybee\",\"location\":[{\"fmin\":0,\"fmax\":1405242}]}]},\"features\":[{\"location\":{\"fmin\":821637,\"fmax\":827749,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40819-RA\",\"children\":[{\"location\":{\"fmin\":827599,\"fmax\":827749,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":822565,\"fmax\":822736,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":821637,\"fmax\":822055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":821962,\"fmax\":827749,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+
+        when: "we add the complete transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+        def allFeatures = Feature.all
+
+        then: "we should see the transcript"
+        assert MRNA.all.size() == 1
+        assert NonCanonicalFivePrimeSpliceSite.all.size() == 0
+        assert NonCanonicalThreePrimeSpliceSite.all.size() == 0
+        Gene parentGene = Gene.all.get(0)
+
     }
 }

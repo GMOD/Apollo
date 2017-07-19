@@ -157,7 +157,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.2.2) Repeat for pseudogenes and non-coding RNAs.
 
-13.1.2.3) Repeat for Repeat Region and Transposable Element. 
+13.1.2.3) Reveal the _Details_ for Repeat Region and Transposable Element to display metadate for each annotation.  
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
@@ -167,11 +167,11 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.2) Search for a track using the search box.
 
-13.2.3) Check that clicking on the show native tracks icons properly toggles the native tracks.
+13.2.3) Check that clicking on the show JBrowse tracks selector icons properly toggles the JBrowse tracks.
 
-13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the native track view and the main panel toggle icon.
+13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the JBrowse track view and the main panel toggle icon.
 
-13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the native track view and switches the track panel toggle as well.
+13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the JBrowse track view and switches the track panel toggle as well.
 
 13.2.3.3) Confirm that reload in either case saves the prior preference.
 

@@ -149,11 +149,12 @@
     }
   ],
   "favicon": "./plugins/WebApollo/img/webapollo_favicon.ico",
-  "locationBox": "searchBox",
+//  "locationBox": "searchBox",
 //  "alwaysOnTracks": "DNA,ProjectionGrid,ProjectionBoundary,Annotations",
   "alwaysOnTracks": "DNA,Annotations",
 //  "bookmarkService": "http://localhost:8080/apollo/jbrowse/getSeqBoundaries",
 //  "bookmarkService": "getSeqBoundaries",
   "classicMenu" : 1,
+  "locationBox": "none",
   "formatVersion" : 1
 }

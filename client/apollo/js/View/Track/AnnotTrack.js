@@ -310,9 +310,9 @@ define([
 
                 console.log('Registering Apollo listeners.');
 
-                browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                    apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
-                }));
+                // browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                //     apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
+                // }));
 
                 var navigateToLocation = function (urlObject) {
                     if (urlObject.exact) {
@@ -337,9 +337,9 @@ define([
 
                         // ref:start..end
                         // TODO: parse correctly
-                        var ref = url.substr(0, url.lastIndexOf(":"));
+                        var ref = url.substr(0, url.lastIndexOf("}")+1);
                         console.log(ref);
-                        var locString = url.substr(url.lastIndexOf(":") + 1, url.length);
+                        var locString = url.substr(url.lastIndexOf("}") + 1, url.length);
                         console.log(locString);
                         var locs = locString.split("\.\.");
                         console.log(locs);
@@ -2411,7 +2411,7 @@ define([
                     innerHTML: "Status"
                 }, statusDiv);
                 var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
-                var statusRadios = new Object();
+                var statusRadios = [];
 
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var dbxrefsLabel = dojo.create("div", {
@@ -2645,7 +2645,8 @@ define([
                             initSymbol(feature);
                             initDescription(feature);
                             initDates(feature);
-                            initStatus(feature, config);
+                            // initStatus(feature, config);
+                            initStatus(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -2736,9 +2737,9 @@ define([
                     }
                 };
 
-                var initStatus = function (feature, config) {
+                var initStatus = function (feature) {
                     var maxLength = 0;
-                    var status = config.status;
+                    var status = feature.available_statuses;
                     if (status) {
                         for (var i = 0; i < status.length; ++i) {
                             if (status[i].length > maxLength) {
@@ -2748,7 +2749,7 @@ define([
                         for (var i = 0; i < status.length; ++i) {
                             var statusRadioDiv = dojo.create("span", {
                                 'class': "annotation_info_editor_radio",
-                                style: "width:" + (maxLength * 0.75) + "em;"
+                                style: "width:" + (maxLength * 0.75) + "em; display: inline;"
                             }, statusFlags);
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
@@ -5451,8 +5452,13 @@ define([
 
             getUniqueTrackName: function () {
                 var trackName = this.refSeq.name;
-                trackName = trackName.substr(0, trackName.lastIndexOf(':'));
-                return JSON.parse(trackName);
+                if(trackName.startsWith("{")){
+                    trackName = trackName.substr(0, trackName.lastIndexOf('}')+1);
+                    return JSON.parse(trackName);
+                }
+                else{
+                    return {};
+                }
             },
 
             openDialog: function (title, data, width, height) {
