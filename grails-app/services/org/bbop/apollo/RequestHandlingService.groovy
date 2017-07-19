@@ -1936,7 +1936,7 @@ class RequestHandlingService {
             def isAdmin = permissionService.isUserAdmin(currentUser)
             def owners = findOwners(feature)
             if(!isAdmin && !(currentUser in owners)){
-                throw new AnnotationException("Only feature owner or admin may delete annotation or revert the annotation to an earlier state")
+                throw new AnnotationException("Only feature owner or admin may delete, change type, or revert annotation to an earlier state")
             }
         }
     }
@@ -2275,6 +2275,7 @@ class RequestHandlingService {
             String type = features.get(i).type
             String uniqueName = features.get(i).uniquename
             Feature feature = Feature.findByUniqueName(uniqueName)
+            checkOwnersDelete(feature,inputObject)
             FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
             JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
