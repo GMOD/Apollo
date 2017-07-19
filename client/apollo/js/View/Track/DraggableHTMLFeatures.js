@@ -578,7 +578,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             inputFrame=0
         }
         else
-        if(inputFrame==2){
+        if(inputFrame==0){
             inputFrame=2
         }
         return inputFrame ;
