@@ -40,7 +40,6 @@ apollo {
       search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
       name: "Blat protein",
       params: ""
-      tmp_dir: "/opt/apollo/tmp" //optional param, uses system tmp dir by default
     ]
   ]    
       
@@ -48,7 +47,8 @@ apollo {
 
   splice_donor_sites = [ "GT" ]
   splice_acceptor_sites = [ "AG"]
-  gff3.source= "." bootstrap = false
+  gff3.source= "." 
+  bootstrap = false
 
   info_editor = {
     feature_types = "default"
