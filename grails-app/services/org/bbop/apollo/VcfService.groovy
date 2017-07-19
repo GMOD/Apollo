@@ -24,6 +24,11 @@ class VcfService {
     def featureProjectionService
 
     public static final String ALTERNATIVE_ALLELE_METADATA = "VCF ALT field, list of alternate non-reference alleles called on at least one of the samples"
+    public static final String SNV = "SNV"
+    public static final String INVERSION = "inversion"
+    public static final String SUBSTITUTION = "substitution"
+    public static final String INSERTION = "insertion"
+    public static final String DELETION = "deletion"
 
     /**
      *
@@ -39,13 +44,6 @@ class VcfService {
         // Note: incoming coordinates are zero-based
         log.info "incoming start: ${start} end: ${end}"
 
-        if (start < 0 && end > 0) {
-            log.info "start < 0 and end > 0; adjusting start to 0"
-            start = 0
-        }
-
-        log.info "start (adjusted): ${start} end: ${end}"
-
         // unprojecting input coordinates
         start = projection.unProjectValue((long) start)
         end = projection.unProjectValue((long) end)
@@ -55,6 +53,13 @@ class VcfService {
             // nothing to do since the requested region has negative coordinates
             log.info "both start and end are < 0; returning empty features array"
             return featuresArray
+        }
+
+        if (start > end) {
+            // in a reverse projection, unprojected start will always be greater than unprojected end
+            int temp = start
+            start = end
+            end = temp
         }
 
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
@@ -118,7 +123,7 @@ class VcfService {
     def calculateFeaturesArray(JSONArray featuresArray, VCFHeader vcfHeader, def vcfEntries, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
         for (VariantContext vc : vcfEntries) {
             JSONObject jsonFeature = new JSONObject()
-            jsonFeature = createJSONFeature(vcfHeader, vc)
+            jsonFeature = createJSONFeature(vcfHeader, vc, projectionSequence.name)
             projectJSONFeature(jsonFeature, projection, false, 0)
             log.debug "jsonFeature: ${jsonFeature.toString()}"
             featuresArray.add(jsonFeature)
@@ -138,7 +143,7 @@ class VcfService {
     def calculateFeaturesArray(JSONArray featuresArray, VCFHeader vcfHeader, def vcfEntries, String sequenceName) {
         for (VariantContext vc : vcfEntries) {
             JSONObject jsonFeature = new JSONObject()
-            jsonFeature = createJSONFeature(vcfHeader, vc)
+            jsonFeature = createJSONFeature(vcfHeader, vc, sequenceName)
             featuresArray.add(jsonFeature)
         }
 
@@ -151,11 +156,10 @@ class VcfService {
      * @param variantContext
      * @return
      */
-    def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext) {
+    def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext, String sequenceName) {
         JSONObject jsonFeature = new JSONObject()
         JSONObject location = new JSONObject()
-
-        String type = variantContext.getType().name()
+        String type = classifyType(variantContext)
         String referenceAlleleString = variantContext.getReference().baseString
         String alternativeAllelesString = variantContext.getAlternateAlleles().baseString.join(',')
 
@@ -164,7 +168,6 @@ class VcfService {
             availableFormatFields.add(it.properties.get("ID"))
         }
 
-        // TODO: use enums or VCFConstants
         // alternative alleles
         JSONObject alternativeAllelesMetaObject = new JSONObject()
         alternativeAllelesMetaObject.put(FeatureStringEnum.DESCRIPTION.value, ALTERNATIVE_ALLELE_METADATA)
@@ -179,7 +182,7 @@ class VcfService {
         Long end = variantContext.getEnd()
         location.put(FeatureStringEnum.FMIN.value, start - 1)
         location.put(FeatureStringEnum.FMAX.value, end)
-        location.put(FeatureStringEnum.SEQUENCE.value, variantContext.getContig())
+        location.put(FeatureStringEnum.SEQUENCE.value, sequenceName)
         jsonFeature.put(FeatureStringEnum.START.value, variantContext.getStart() - 1)
         jsonFeature.put(FeatureStringEnum.END.value, variantContext.getEnd())
         jsonFeature.put(FeatureStringEnum.TYPE.value, type)
@@ -200,7 +203,9 @@ class VcfService {
         jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, descriptionString)
 
         // score
-        jsonFeature.put(FeatureStringEnum.SCORE.value, new DecimalFormat("##.###").format(variantContext.getPhredScaledQual()))
+        if (variantContext.getPhredScaledQual() > 0) {
+            jsonFeature.put(FeatureStringEnum.SCORE.value, new DecimalFormat("##.###").format(variantContext.getPhredScaledQual()))
+        }
 
         // attributes
         def variantAttributes = variantContext.getCommonInfo().getAttributes()
@@ -282,6 +287,8 @@ class VcfService {
     def projectJSONFeature(JSONObject jsonFeature, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
         // Note: jsonFeature must have 'location' object for FPS:projectFeature to work
         featureProjectionService.projectFeature(jsonFeature, projection, unProject, offset)
+        jsonFeature.start = jsonFeature.location.fmin
+        jsonFeature.end = jsonFeature.location.fmax
         jsonFeature.remove(FeatureStringEnum.LOCATION.value)
         return jsonFeature
     }
@@ -302,6 +309,55 @@ class VcfService {
         metaObject.getJSONArray(FeatureStringEnum.NUMBER.value).add(metaData.getCount(variantContext))
         metaObject.getJSONArray(FeatureStringEnum.DESCRIPTION.value).add(metaData.getDescription())
         return metaObject
+    }
+
+    /**
+     * Classify variant type for compatibility with JBrowse
+     * @param variantContext
+     * @return
+     */
+    def classifyType(VariantContext variantContext) {
+        String type = variantContext.getType().name()
+        String referenceAlleleString = variantContext.getReference().baseString
+        def alternateAlleles = variantContext.getAlternateAlleles()
+        int minAlternateAlleleLength = 0
+        int maxAlternateAlleleLength = 0
+
+        alternateAlleles.baseString.each {
+            if (minAlternateAlleleLength == 0 && maxAlternateAlleleLength == 0) {
+                minAlternateAlleleLength = it.length()
+                maxAlternateAlleleLength = it.length()
+            }
+            else {
+                if (minAlternateAlleleLength > it.length()) {
+                    minAlternateAlleleLength = it.length()
+                }
+                if (maxAlternateAlleleLength < it.length()) {
+                    maxAlternateAlleleLength = it.length()
+                }
+            }
+
+        }
+
+        if (referenceAlleleString.length() == minAlternateAlleleLength && referenceAlleleString.length() == maxAlternateAlleleLength) {
+            type = SNV
+        }
+        else if (referenceAlleleString.length() == minAlternateAlleleLength && referenceAlleleString.length() == maxAlternateAlleleLength) {
+            if (alternateAlleles.size() == 1 && referenceAlleleString.split('').reverse(true).join('') == alternateAlleles[0].baseString) {
+                type = INVERSION
+            }
+            else {
+                type = SUBSTITUTION
+            }
+        }
+        if (referenceAlleleString.length() <= minAlternateAlleleLength && referenceAlleleString.length() < maxAlternateAlleleLength) {
+            type = INSERTION
+        }
+        if (referenceAlleleString.length() > minAlternateAlleleLength && referenceAlleleString.length() >= maxAlternateAlleleLength) {
+            type = DELETION
+        }
+
+        return type
     }
 
 }
