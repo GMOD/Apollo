@@ -203,6 +203,7 @@ class PreferenceService {
         }
         userOrganismPreference.startbp = startBp
         userOrganismPreference.endbp = endBp
+        userOrganismPreference.currentOrganism = true
         setSessionPreference(clientToken, userOrganismPreference)
 
         SequenceLocationDTO sequenceLocationDTO = new SequenceLocationDTO(
