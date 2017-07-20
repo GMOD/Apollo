@@ -142,6 +142,10 @@ class PreferenceService {
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.clientToken = :clientToken",
                 [prefId: userOrganismPreference.id, user: user, clientToken: clientToken])
+        UserOrganismPreference.executeUpdate(
+                "update UserOrganismPreference  pref set pref.currentOrganism = false " +
+                        "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence ",
+                [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence])
     }
 
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
@@ -202,20 +206,20 @@ class PreferenceService {
 
     def evaluateSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
         if (currentlySavingLocation.contains(sequenceLocationDTO.clientToken)) {
-            log.debug "is currently saving these client token, so not trying to save"
+            println "is currently saving these client token, so not trying to save"
             return
         }
 
         try {
             currentlySavingLocation.add(sequenceLocationDTO.clientToken)
             Date now = new Date()
-            log.debug "trying to save it ${sequenceLocationDTO.clientToken}"
+            println "trying to save it ${sequenceLocationDTO.clientToken}"
             def timeDiff = (now.getTime() - date.getTime()) / 1000
             if (timeDiff > PREFERENCE_SAVE_DELAY_SECONDS) {
-                log.debug "saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
+                println "saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
                 setCurrentSequenceLocationInDB(sequenceLocationDTO)
             } else {
-                log.debug "not saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
+                println "not saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
             }
         } catch (e) {
             log.error "Problem saving ${e}"
@@ -227,10 +231,12 @@ class PreferenceService {
 
     def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
         Date date = saveSequenceLocationMap.get(sequenceLocationDTO)
+        println "date: ${date}"
         if (!date) {
-            log.debug "no last save found so saving ${sequenceLocationDTO.clientToken} location to the database"
+            println "no last save found so saving ${sequenceLocationDTO.clientToken} location to the database"
             setCurrentSequenceLocationInDB(sequenceLocationDTO)
         } else {
+            println "evaludate save : ${date}"
             evaluateSave(date, sequenceLocationDTO)
         }
         saveSequenceLocationMap.put(sequenceLocationDTO, new Date())
