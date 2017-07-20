@@ -425,6 +425,7 @@ class AnnotatorController {
      */
     @Transactional
     def getAppState() {
+        preferenceService.evaluateSaves(true)
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
@@ -493,6 +494,9 @@ class AnnotatorController {
     }
 
     def ping() {
+        println "evaluating ssaves: ping"
+        preferenceService.evaluateSaves()
+        println "DONE evaluating ssaves: ping"
         if (permissionService.checkPermissions(PermissionEnum.READ)) {
             log.debug("permissions checked and alive")
             render new JSONObject() as JSON

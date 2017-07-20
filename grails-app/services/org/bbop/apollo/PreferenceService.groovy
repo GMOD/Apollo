@@ -142,10 +142,14 @@ class PreferenceService {
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.clientToken = :clientToken",
                 [prefId: userOrganismPreference.id, user: user, clientToken: clientToken])
+
+        Date now = new Date()
+        Date newDate = new Date(now.getTime() - 8 * 1000 * 60 * 60)
+        // no current organisms if they are 8 hours hold
         UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
-                        "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence ",
-                [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence])
+                        "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence and pref.lastUpdated < :lastUpdated ",
+                [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence, lastUpdated: newDate])
     }
 
     def setCurrentSequence(User user, Sequence sequence, String clientToken) {
@@ -203,13 +207,22 @@ class PreferenceService {
         return userOrganismPreference
     }
 
-
-    def evaluateSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
-        if (currentlySavingLocation.contains(sequenceLocationDTO.clientToken)) {
-            println "is currently saving these client token, so not trying to save"
+    private  Date lastSaveEvaluation = new Date()
+    def evaluateSaves(boolean forceSaves = false ) {
+        long timeDiff = (new Date()).getTime() - lastSaveEvaluation.getTime()
+        if( !forceSaves && timeDiff / 1000.0 < PREFERENCE_SAVE_DELAY_SECONDS ){
+            println "not yet: ${timeDiff}"
             return
         }
+        println "saving this! : ${timeDiff}"
+        lastSaveEvaluation = new Date()
+        saveSequenceLocationMap.each {
+            evaluateSave(it.value, it.key)
+        }
 
+    }
+
+    def evaluateSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
         try {
             currentlySavingLocation.add(sequenceLocationDTO.clientToken)
             Date now = new Date()
@@ -226,7 +239,15 @@ class PreferenceService {
         } finally {
             currentlySavingLocation.remove(sequenceLocationDTO.clientToken)
         }
+    }
 
+    def scheduleDbSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
+        // these should replace, though
+        if (!currentlySavingLocation.contains(sequenceLocationDTO.clientToken)) {
+            // saves with the latest one now
+            currentlySavingLocation.add(sequenceLocationDTO.clientToken)
+        }
+        saveSequenceLocationMap.put(sequenceLocationDTO, new Date())
     }
 
     def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
@@ -237,17 +258,16 @@ class PreferenceService {
             setCurrentSequenceLocationInDB(sequenceLocationDTO)
         } else {
             println "evaludate save : ${date}"
-            evaluateSave(date, sequenceLocationDTO)
+            scheduleDbSave(date, sequenceLocationDTO)
         }
         saveSequenceLocationMap.put(sequenceLocationDTO, new Date())
         saveOutstandingLocationPreferences(sequenceLocationDTO.clientToken)
     }
 
     def saveOutstandingLocationPreferences(String ignoreToken = "") {
-        log.debug "trying to save outstanding ${saveSequenceLocationMap.size()}"
         saveSequenceLocationMap.each {
             if (it.key.clientToken != ignoreToken) {
-                evaluateSave(it.value, it.key)
+                scheduleDbSave(it.value, it.key)
             }
         }
     }
