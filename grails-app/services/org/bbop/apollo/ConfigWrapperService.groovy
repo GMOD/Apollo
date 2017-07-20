@@ -120,6 +120,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.extraTabs
     }
 
+    boolean getOnlyOwnersDelete(){
+        return grailsApplication.config.apollo.only_owners_delete
+    }
+
     String getBaseLink(){
         grailsLinkGenerator.serverBaseURL + ':' + (System.properties['server.port']?:'8080') + grailsLinkGenerator.contextPath
     }

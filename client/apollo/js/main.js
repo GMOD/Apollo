@@ -117,7 +117,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
-        browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?true:browser.cookie("colorCdsByFrame"));
+        browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?!browser.config.overrideColorCdsByFrameTrue:browser.cookie("colorCdsByFrame"));
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
