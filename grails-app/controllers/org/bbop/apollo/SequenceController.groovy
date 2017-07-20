@@ -52,6 +52,7 @@ class SequenceController {
     def setCurrentSequenceForNameAndOrganism(Organism organism) {
         JSONObject inputObject = permissionService.handleInput(request,params)
         Sequence sequence = Sequence.findByNameAndOrganism(inputObject.sequenceName,organism)
+        println "found a sequence ${sequence}"
         setCurrentSequence(sequence)
     }
 
@@ -64,14 +65,17 @@ class SequenceController {
      * @param sequenceName
      * @return
      */
+
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         JSONObject inputObject = permissionService.handleInput(request,params)
+        println "setting the current sequence here: ${inputObject}"
         String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+        println "set current sequence and found: ${userOrganismPreference} start /stop ${userOrganismPreference?.startbp} / ${userOrganismPreference?.endbp}"
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -85,7 +89,6 @@ class SequenceController {
         sequenceObject.put("length", sequenceInstance.length)
         sequenceObject.put("start", sequenceInstance.start)
         sequenceObject.put("end", sequenceInstance.end)
-        UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(currentUser,sequenceInstance.name,token)
         sequenceObject.startBp = userOrganismPreference.startbp
         sequenceObject.endBp = userOrganismPreference.endbp
 

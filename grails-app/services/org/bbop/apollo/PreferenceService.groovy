@@ -18,6 +18,7 @@ class PreferenceService {
     private Map<SequenceLocationDTO, Date> saveSequenceLocationMap = [:]
     // set of client locations
     private Set<String> currentlySavingLocation = new HashSet<>()
+    private  Date lastSaveEvaluation = new Date()
 
 
     Organism getSessionOrganism(String clientToken) {
@@ -105,15 +106,15 @@ class PreferenceService {
     }
 
 
-    def setCurrentOrganism(User user, Organism organism, String clientToken) {
+    UserOrganismPreference setCurrentOrganism(User user, Organism organism, String clientToken) {
         UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
         userOrganismPreference.organism = organism
         setSessionPreference(clientToken, userOrganismPreference)
 //        storePreferenceInDB(userOrganismPreference)
-        setCurrentOrganismInDB(user, organism, clientToken)
+        return setCurrentOrganismInDB(user, organism, clientToken)
     }
 
-    def setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
+    UserOrganismPreference setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(user, organism, clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
@@ -133,12 +134,14 @@ class PreferenceService {
             userOrganismPreference.currentOrganism = true;
             userOrganismPreference.save(flush: true, insert: false)
         }
-        setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
+        int affected = setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
+        println "others set to false: ${affected}"
+        return userOrganismPreference
     }
 
     protected static
     def setOtherCurrentOrganismsFalseInDB(UserOrganismPreference userOrganismPreference, User user, String clientToken) {
-        UserOrganismPreference.executeUpdate(
+        int affected = UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.clientToken = :clientToken",
                 [prefId: userOrganismPreference.id, user: user, clientToken: clientToken])
@@ -146,21 +149,26 @@ class PreferenceService {
         Date now = new Date()
         Date newDate = new Date(now.getTime() - 8 * 1000 * 60 * 60)
         // no current organisms if they are 8 hours hold
-        UserOrganismPreference.executeUpdate(
+        affected += UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence and pref.lastUpdated < :lastUpdated ",
                 [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence, lastUpdated: newDate])
+        return affected
     }
 
-    def setCurrentSequence(User user, Sequence sequence, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
-        userOrganismPreference.sequence = sequence
+    UserOrganismPreference setCurrentSequence(User user, Sequence sequence, String clientToken) {
+        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, sequence.name, clientToken)  ?: null
+        println "found an organism for name ${userOrganismPreference} . . start /end ${userOrganismPreference?.startbp} - ${userOrganismPreference?.endbp} "
+        if(!userOrganismPreference){
+            userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
+            userOrganismPreference.sequence = sequence
+        }
         setSessionPreference(clientToken, userOrganismPreference)
 //        storePreferenceInDB(userOrganismPreference)
-        setCurrentSequenceInDB(user, sequence, clientToken)
+        return setCurrentSequenceInDB(user, sequence, clientToken)
     }
 
-    def setCurrentSequenceInDB(User user, Sequence sequence, String clientToken) {
+    UserOrganismPreference setCurrentSequenceInDB(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
@@ -184,6 +192,7 @@ class PreferenceService {
             userOrganismPreference.save(flush: true, insert: false)
         }
         setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
+        return userOrganismPreference
     }
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
@@ -207,8 +216,8 @@ class PreferenceService {
         return userOrganismPreference
     }
 
-    private  Date lastSaveEvaluation = new Date()
     def evaluateSaves(boolean forceSaves = false ) {
+        println "evaluating saves: ${forceSaves}"
         long timeDiff = (new Date()).getTime() - lastSaveEvaluation.getTime()
         if( !forceSaves && timeDiff / 1000.0 < PREFERENCE_SAVE_DELAY_SECONDS ){
             println "not yet: ${timeDiff}"
@@ -247,7 +256,7 @@ class PreferenceService {
             // saves with the latest one now
             currentlySavingLocation.add(sequenceLocationDTO.clientToken)
         }
-        saveSequenceLocationMap.put(sequenceLocationDTO, new Date())
+        saveSequenceLocationMap.put(sequenceLocationDTO, date)
     }
 
     def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
@@ -274,6 +283,7 @@ class PreferenceService {
 
 
     UserOrganismPreference setCurrentSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
+        println "saving location in DB"
         saveSequenceLocationMap.remove(saveSequenceLocationMap)
         User currentUser = permissionService.currentUser
         String sequenceName = sequenceLocationDTO.sequenceName
@@ -341,6 +351,7 @@ class PreferenceService {
 
     UserOrganismPreference getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
         UserOrganismPreference preference = getSessionPreference(clientToken)
+        println "found in-memory preference: ${preference}"
         return preference ?: getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken)
     }
 
