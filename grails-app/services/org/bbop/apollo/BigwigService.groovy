@@ -38,7 +38,7 @@ class BigwigService {
             Integer endStep = i + stepSize
             globalFeature.put(FeatureStringEnum.END.value, endStep)
 
-            if (i < values.length && values[i] < max && values[i] > min) {
+            if (i < values.length && values[i] <= max && values[i] >= min) {
                 globalFeature.put(FeatureStringEnum.SCORE.value, values[i])
                 featuresArray.add(globalFeature)
             }
@@ -82,7 +82,8 @@ class BigwigService {
             globalFeature.put(FeatureStringEnum.END.value, endStep + projectionSequence.projectedOffset)
             Integer projectedIncrement = projection.unProjectValue(i)
 
-            if (projectedIncrement < values.length && values[projectedIncrement] < max && values[projectedIncrement] > min) {
+            // filter out NaN or unexpected values values
+            if (projectedIncrement < values.length && values[projectedIncrement] <= max && values[projectedIncrement] >= min) {
                 globalFeature.put(FeatureStringEnum.SCORE.value, values[projectedIncrement])
                 featuresArray.add(globalFeature)
             }

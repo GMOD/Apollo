@@ -6,7 +6,6 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import spock.lang.Ignore
-import spock.lang.IgnoreRest
 
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -18,7 +17,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     String bigwigForagerFile = "test/integration/resources/sequences/honeybee-bigwig/forager-small.bw"
     String bigwigVolvoxSineFile = "test/integration/resources/sequences/volvox-bigwig/volvox_sine.bw"
-    String bigwigVolvoxMicroarrayFile = "test/integration/resources/sequences/volvox-bigwig/volvox_microarray.bw"
 
     def setup() {
         setupDefaultUserOrg()
@@ -82,14 +80,14 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processSequence(featuresArray, sequenceStrings.first(), bigWigFileReader, -25001, 0)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 232
+        assert featuresArray.size() == 275
 
         when: "we get the projected track data "
         featuresArray = new JSONArray()
         bigwigService.processSequence(featuresArray, sequenceStrings.first(), bigWigFileReader, 49999, 75000)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 190
+        assert featuresArray.size() == 226
     }
 
     /**
@@ -117,8 +115,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 49999, 100000)
 
         then: "we expect to get sane results"
-//        assert featuresArray.size() == 1004
-        assert featuresArray.size() == 99
+        assert featuresArray.size() == 364
     }
 
     private String createReferLoc(ArrayList<String> sequenceStrings, int padding, String projectionType) {
@@ -157,14 +154,14 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 0, 49999)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 129
+        assert featuresArray.size() == 155
 
         when: "now on the outside of the next one"
         featuresArray = new JSONArray()
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 49999, 100000)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 0
+        assert featuresArray.size() == 219
     }
 
     /**
@@ -324,7 +321,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we expect to get sane results"
     }
 
-//    @IgnoreRest
     void "test volvox sine"() {
         given: "input volvox sine"
         def sineWaveUnProjected = new JSONArray()
@@ -342,8 +338,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         path = FileSystems.getDefault().getPath(file.absolutePath)
         BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
         sineWaveUnProjected = bigwigService.processSequence(sineWaveUnProjected, sequenceName, bigWigFileReader, start, end)
-//        println sineWaveUnProjected as JSON
-
 
         then: "we get expected results"
         assert sineWaveUnProjected.length() > 0
@@ -364,7 +358,6 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigWigFileReader = new BigWigFileReader(path)
         sineWaveProjected = bigwigService.processProjection(sineWaveProjected, projection, bigWigFileReader, start, end)
         int last = sineWaveProjected.size()-1
-//        println sineWaveProjected as JSON
 
         then: "we should see identical results as before"
         assert sineWaveProjected.length() == sineWaveUnProjected.length()
@@ -382,31 +375,13 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we read the volvox within a reverse projection"
         projectionSequence.reverse = true
-        projection.addProjectionSequences([projectionSequence])
-        projection.addInterval(start, end, projectionSequence)
 
         sineWaveProjectedReversed = bigwigService.processProjection(sineWaveProjectedReversed, projection, bigWigFileReader, start, end)
         last = sineWaveProjectedReversed.size()-1
-//        println sineWaveProjected as JSON
+        println sineWaveProjectedReversed as JSON
 
         then: "we should see identical results as before"
         assert sineWaveProjected.length() == sineWaveProjectedReversed.length()
-        assert sineWaveProjected[0].start == sineWaveUnProjected[0].start
-        assert sineWaveProjected[0].end == sineWaveUnProjected[0].end
-//        assert sineWaveProjected[0].score != sineWaveUnProjected[0].score
-        assert sineWaveProjected[last].start == sineWaveUnProjected[last].start
-        assert sineWaveProjected[last].end == sineWaveUnProjected[last].end
-//        assert sineWaveProjected[last].score != sineWaveUnProjected[last].score
-//        assert sineWaveProjected[last].score != sineWaveUnProjected[last].score
-//        assert sineWaveProjected[0].start == sineWaveUnProjected[0].start
-//        assert sineWaveProjected[0].end == sineWaveUnProjected[0].end
-//        assert sineWaveProjected[0].score == sineWaveUnProjected[0].score
-//        assert sineWaveProjected[1].start == sineWaveUnProjected[1].start
-//        assert sineWaveProjected[1].end == sineWaveUnProjected[1].end
-//        assert sineWaveProjected[1].score == sineWaveUnProjected[1].score
-
-//        assert sineWaveProjected == sineWaveUnProjected
-
 
     }
 }

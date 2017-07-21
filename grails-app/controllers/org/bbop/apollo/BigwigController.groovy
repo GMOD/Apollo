@@ -42,7 +42,8 @@ class BigwigController {
 
         JSONObject data = permissionService.handleInput(request, params)
         Organism organism = Organism.findById(organismId)
-        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+//        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+        JSONObject returnObject = new JSONObject()
         if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
             render returnObject as JSON
         }
@@ -65,7 +66,7 @@ class BigwigController {
                 bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
             trackService.cacheBigWig(returnObject,organism,sequenceName,start,end,params.urlTemplate)
-            println "end array ${featuresArray.size()}"
+            log.debug "end bigwith featrues array size ${featuresArray.size()}"
         } catch (e) {
             log.error  "Error retrieving bigwig features ${e} -> ${path}"
         }
