@@ -27,6 +27,7 @@ apollo {
   translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
   is_partial_translation_allowed = false // unused so far
   get_translation_code = 1
+  only_owners_delete = false
   sequence_search_tools = [
     blat_nuc: [
       search_exe: "/usr/local/bin/blat",
@@ -39,7 +40,6 @@ apollo {
       search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
       name: "Blat protein",
       params: ""
-      tmp_dir: "/opt/apollo/tmp" //optional param, uses system tmp dir by default
     ]
   ]    
       
@@ -47,7 +47,8 @@ apollo {
 
   splice_donor_sites = [ "GT" ]
   splice_acceptor_sites = [ "AG"]
-  gff3.source= "." bootstrap = false
+  gff3.source= "." 
+  bootstrap = false
 
   info_editor = {
     feature_types = "default"
@@ -551,3 +552,8 @@ If you don't want any reporting set:
     google_analytics = []
 
 
+### Only owners can edit
+
+Restricts deletion and reverting to original editor or admin user by setting:
+
+    apollo.only_owners_delete = true

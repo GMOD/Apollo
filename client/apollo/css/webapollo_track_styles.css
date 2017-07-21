@@ -544,6 +544,18 @@ div.annot-sequence  {
     background-color: #8080FF;
 }
 
+.colorCds .neg-cds-frame0 {
+    background-color: #8080FF;
+}
+
+.colorCds .neg-cds-frame1 {
+    background-color: #80FF80;
+}
+
+.colorCds .neg-cds-frame2 {
+    background-color: #FF8080;
+}
+
 /**
 *   appearance of resizing box when dragging annotation edges
 *   if case browser doesn't support transparency via "rgba", fall back on solid background?

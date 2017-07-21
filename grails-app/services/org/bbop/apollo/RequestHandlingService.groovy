@@ -1686,8 +1686,9 @@ class RequestHandlingService {
         Transcript transcript = Transcript.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.UNIQUENAME.value));
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i)
-            Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
-            exonService.deleteExon(transcript, exon)
+            Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
+            checkOwnersDelete(exon,inputObject)
+            exonService.deleteExon(transcript, exon);
         }
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
         if (transcriptsToUpdate.size() > 0) {
@@ -1831,11 +1832,8 @@ class RequestHandlingService {
                 feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
                 uniqueName = feature.uniqueName
             }
-            // TODO: can not do this as it will aggressively delete history
-            // that other objects might need
-//            if (!suppressHistory) {
-//                featureEventService.deleteHistory(uniqueName)
-//            }
+
+            checkOwnersDelete(feature,inputObject)
 
             log.debug "feature found to delete ${feature?.name}"
             if (feature) {
@@ -2001,6 +1999,25 @@ class RequestHandlingService {
         }
 
         return createJSONFeatureContainer()
+    }
+
+    def checkOwnersDelete(Feature feature, JSONObject inputObject) {
+        if(configWrapperService.onlyOwnersDelete){
+            def currentUser = permissionService.getCurrentUser(inputObject)
+            def isAdmin = permissionService.isUserAdmin(currentUser)
+            def owners = findOwners(feature)
+            if(!isAdmin && !(currentUser in owners)){
+                throw new AnnotationException("Only feature owner or admin may delete, change type, or revert annotation to an earlier state")
+            }
+        }
+    }
+
+    private findOwners(Feature feature) {
+        if(!feature) return null
+        if(feature.owners){
+            return feature.owners
+        }
+        return findOwners(featureRelationshipService.getParentForFeature(feature))
     }
 
     @Timed
@@ -2346,6 +2363,7 @@ class RequestHandlingService {
             String type = features.get(i).type
             String uniqueName = features.get(i).uniquename
             Feature feature = Feature.findByUniqueName(uniqueName)
+            checkOwnersDelete(feature,inputObject)
             FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
             JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature,false,assemblage)
             JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
@@ -2381,7 +2399,7 @@ class RequestHandlingService {
                 JSONObject addFeatureContainer = createJSONFeatureContainer()
                 JSONArray featuresArray = new JSONArray()
                 featuresArray.put(newFeatureJsonObject)
-                
+
                 def returnTranscriptList = featureProjectionService.projectTrack(featuresArray,assemblage,false)
                 addFeatureContainer.put(FeatureStringEnum.FEATURES.value,returnTranscriptList)
 
