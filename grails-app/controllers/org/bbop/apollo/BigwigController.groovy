@@ -46,7 +46,9 @@ class BigwigController {
         println "finding organism by ID ${organismId}"
         Organism organism = Organism.findById(organismId)
         println "organism found ${organism.commonName}"
-        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+        // TODO: enable cache
+//        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+        JSONObject returnObject =  new JSONObject()
         if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
             println "cache found !"
             render returnObject as JSON
