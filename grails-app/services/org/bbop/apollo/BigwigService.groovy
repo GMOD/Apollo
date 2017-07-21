@@ -98,10 +98,11 @@ class BigwigService {
             globalFeature.put("end", endStep + projectionSequence.projectedOffset)
 //            Integer originalStart = projection.unProjectValue(i)
 //            Integer originalEnd = projection.unProjectValue(endStep)
+            Integer projectedIncrement = projection.unProjectValue(i)
 
-            if (i < values.length && values[i] < max && values[i] > min) {
+            if (projectedIncrement < values.length && values[projectedIncrement] < max && values[projectedIncrement] > min) {
                 // TODO: this should be th mean value
-                globalFeature.put("score", values[i])
+                globalFeature.put("score", values[projectedIncrement])
                 featuresArray.add(globalFeature)
             }
         }
