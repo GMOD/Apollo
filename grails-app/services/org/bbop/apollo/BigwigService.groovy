@@ -68,25 +68,18 @@ class BigwigService {
     }
 
     def calculateFeatureArray(JSONArray featuresArray, int actualStart, int actualStop, int stepSize, BigWigFileReader bigWigFileReader, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
-        Integer chrStart = bigWigFileReader.getChrStart(projectionSequence.name)
-        Integer chrStop = bigWigFileReader.getChrStop(projectionSequence.name)
-        double min = bigWigFileReader.min()
-        double max = bigWigFileReader.max()
-        Interval interval = new Interval(projectionSequence.name, chrStart,chrStop)
-        edu.unc.genomics.Contig innerContig = bigWigFileReader.query(interval)
-        float[] values = innerContig.values
         for (Integer i = actualStart; i < actualStop; i += stepSize) {
             JSONObject globalFeature = new JSONObject()
-            globalFeature.put(FeatureStringEnum.START.value, i + projectionSequence.projectedOffset)
             Integer endStep = i + stepSize
+            globalFeature.put(FeatureStringEnum.START.value, i + projectionSequence.projectedOffset)
             globalFeature.put(FeatureStringEnum.END.value, endStep + projectionSequence.projectedOffset)
-            Integer projectedIncrement = projection.unProjectValue(i)
+            Integer originalStart = projection.unProjectValue(i)
+            Integer originalEnd = projection.unProjectValue(endStep)
+            edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
+            Integer value = innerContig.min()
 
-            // filter out NaN or unexpected values values
-            if (projectedIncrement < values.length && values[projectedIncrement] <= max && values[projectedIncrement] >= min) {
-                globalFeature.put(FeatureStringEnum.SCORE.value, values[projectedIncrement])
-                featuresArray.add(globalFeature)
-            }
+            globalFeature.put("score", value >= 1 ? value : 1)
+            featuresArray.add(globalFeature)
         }
         return featuresArray
     }
