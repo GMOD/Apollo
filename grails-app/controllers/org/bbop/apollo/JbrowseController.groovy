@@ -217,10 +217,10 @@ class JbrowseController {
     }
 
     def getSeqBoundaries() {
-        JSONObject inputObject = permissionService.handleInput(request, params)
+        JSONObject inputObject = permissionService.handleInput(params)
         String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
-            String dataDirectory = getJBrowseDirectoryForSession(clientToken)
+            String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
             String dataFileName = dataDirectory + "/seq/refSeqs.json"
             String referer = request.getHeader("Referer")
             String refererLoc = trackService.extractLocation(referer)
@@ -300,7 +300,7 @@ class JbrowseController {
             println "path ${p.path}"
         }
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
-        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
+        String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -709,12 +709,11 @@ class JbrowseController {
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
         log.debug "track list client token: ${clientToken}"
-        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
+        String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
         log.debug "got data directory of . . . ? ${dataDirectory}"
 
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath)
-
 
         def mimeType = "application/json";
         response.setContentType(mimeType);
@@ -810,7 +809,7 @@ class JbrowseController {
 
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
-        println "init obj ${obj}"
+        log.info "rewrite track with jsonObject: ${obj.toString()}"
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -824,7 +823,7 @@ class JbrowseController {
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             // Switching to REST store
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}"
+            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }

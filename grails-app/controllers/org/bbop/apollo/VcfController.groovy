@@ -17,20 +17,14 @@ class VcfController {
 
     def index() { }
 
-    JSONObject global(String trackName) {
+    JSONObject global(String trackName, Long organismId) {
+        log.info "trackName: ${trackName}"
+        log.info "organismId: ${organismId}"
         JSONObject data = permissionService.handleInput(request, params)
-        Organism currentOrganism = preferenceService.getOrganismFromInput(data)
-        if (!currentOrganism){
-            String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
-            currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        }
-        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism,trackName)
+        Organism organism = Organism.findById(organismId)
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(organism,trackName)
         JSONObject returnObject = new JSONObject()
         returnObject.put("featureDensity", 0.2);
-
-
-
-
         // TODO
         render returnObject as JSON
     }
@@ -46,13 +40,15 @@ class VcfController {
         render new JSONObject() as JSON
     }
 
-    def features(String sequenceName, int start, int end) {
+    def features(String sequenceName, Long organismId, int start, int end) {
+        Long timeStart = System.currentTimeMillis()
         log.info "VcfController::features called with ${sequenceName}:${start} - ${end}"
-        JSONObject data = permissionService.handleInput(request, params)
+        Organism organism = Organism.findById(organismId)
+
         JSONObject returnObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
-        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+
 
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
@@ -72,8 +68,9 @@ class VcfController {
         } catch (FileNotFoundException e) {
             println e.toString()
         }
-
-        log.info "returning with: ${returnObject.toString()}"
+        Long timeEnd = System.currentTimeMillis()
+        log.debug "Time taken to generate data for request to VcfController::features: ${timeEnd - timeStart} ms"
+        //log.info "returning with: ${returnObject.toString()}"
         render returnObject as JSON
 
     }

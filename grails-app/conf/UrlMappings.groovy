@@ -136,10 +136,10 @@ class UrlMappings {
 //        "/${clientToken}/bigwig/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName)
 
         // VCF
-        "/vcf/${trackName}/stats/global/"(controller: "vcf", action: "global")
-        "/vcf/${trackName}/stats/region"(controller: "vcf", action: "region")
-        "/vcf/${trackName}/stats/regionFeatureDensities"(controller: "vcf", action: "regionFeatureDensities")
-        "/vcf/${trackName}/features/${sequenceName}"(controller: "vcf", action: "features", params: params, sequenceName: sequenceName)
+        "/vcf/${trackName}/${organismId}/stats/global/"(controller: "vcf", action: "global", trackName: trackName, organismId: organismId)
+        "/vcf/${trackName}/${organismId}/stats/region"(controller: "vcf", action: "region", trackName: trackName, organismId: organismId)
+        "/vcf/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "vcf", action: "regionFeatureDensities")
+        "/vcf/${trackName}/${organismId}/features/${sequenceName}"(controller: "vcf", action: "features", params: params, sequenceName: sequenceName, organismId: organismId)
 
         "/sequence/stats/global"(controller: "sequence",action: "statsGlobal",params:params)
         "/sequence/stats/region"(controller: "sequence",action: "statsRegion",params:params)
