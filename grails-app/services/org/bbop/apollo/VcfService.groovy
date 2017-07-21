@@ -24,6 +24,7 @@ class VcfService {
     def featureProjectionService
 
     public static final String ALTERNATIVE_ALLELE_METADATA = "VCF ALT field, list of alternate non-reference alleles called on at least one of the samples"
+    public static final String ALTERNATIVE_ALLELE_MISSING = "ALT_MISSING"
     public static final String SNV = "SNV"
     public static final String INVERSION = "inversion"
     public static final String SUBSTITUTION = "substitution"
@@ -44,16 +45,30 @@ class VcfService {
         // Note: incoming coordinates are zero-based
         log.info "incoming start: ${start} end: ${end}"
 
+        if (start < 0 && end < 0) {
+            // nothing to do since the requested region has negative coordinates
+            log.info "start and end is < 0; returning empty features array"
+            return featuresArray
+        }
+        else if (start > 0 && end < 0) {
+            // that means the request is to fetch something near the end of the sequence
+            // and the requested end is outside the sequence boundary.
+            // Thus, adjust end to max length of the current sequence
+            end = projection.length
+            log.info "setting end to projection length: ${end}"
+        }
+        else if (start < 0 && end > 0) {
+            // that means the request is to fetch something start the start of the sequence
+            // and the requested start is outside the sequence boundary.
+            // Thus, adjust start to 0
+            log.info "setting start to 0"
+            start = 0
+        }
+
         // unprojecting input coordinates
         start = projection.unProjectValue((long) start)
         end = projection.unProjectValue((long) end)
         log.info "unprojected start: ${start} end: ${end}"
-
-        if (start < 0 && end < 0) {
-            // nothing to do since the requested region has negative coordinates
-            log.info "both start and end are < 0; returning empty features array"
-            return featuresArray
-        }
 
         if (start > end) {
             // in a reverse projection, unprojected start will always be greater than unprojected end
@@ -103,7 +118,7 @@ class VcfService {
 
         def vcfEntries = []
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
-        def queryResults = vcfFileReader.query(projectionSequence.name, start + 1, end)
+        def queryResults = vcfFileReader.query(sequenceName, start + 1, end)
         while(queryResults.hasNext()) {
             vcfEntries.add(queryResults.next())
         }
@@ -123,8 +138,14 @@ class VcfService {
     def calculateFeaturesArray(JSONArray featuresArray, VCFHeader vcfHeader, def vcfEntries, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
         for (VariantContext vc : vcfEntries) {
             JSONObject jsonFeature = new JSONObject()
+            Long timeStart = System.currentTimeMillis()
             jsonFeature = createJSONFeature(vcfHeader, vc, projectionSequence.name)
+            Long timeEnd = System.currentTimeMillis()
+            log.debug "Time taken to create JSON feature: ${(timeEnd - timeStart)} ms"
+            timeStart = System.currentTimeMillis()
             projectJSONFeature(jsonFeature, projection, false, 0)
+            timeEnd = System.currentTimeMillis()
+            log.debug "Time taken to project JSON feature: ${(timeEnd - timeStart)} ms"
             log.debug "jsonFeature: ${jsonFeature.toString()}"
             featuresArray.add(jsonFeature)
         }
@@ -158,10 +179,10 @@ class VcfService {
      */
     def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext, String sequenceName) {
         JSONObject jsonFeature = new JSONObject()
-        JSONObject location = new JSONObject()
         String type = classifyType(variantContext)
         String referenceAlleleString = variantContext.getReference().baseString
         String alternativeAllelesString = variantContext.getAlternateAlleles().baseString.join(',')
+        if (alternativeAllelesString.isEmpty()) alternativeAllelesString = ALTERNATIVE_ALLELE_MISSING
 
         def availableFormatFields = []
         vcfHeader.getFormatHeaderLines().each {
@@ -180,14 +201,11 @@ class VcfService {
         // changing one-based start to zero-based start
         Long start = variantContext.getStart()
         Long end = variantContext.getEnd()
-        location.put(FeatureStringEnum.FMIN.value, start - 1)
-        location.put(FeatureStringEnum.FMAX.value, end)
-        location.put(FeatureStringEnum.SEQUENCE.value, sequenceName)
+        jsonFeature.put("seq_id", sequenceName)
         jsonFeature.put(FeatureStringEnum.START.value, variantContext.getStart() - 1)
         jsonFeature.put(FeatureStringEnum.END.value, variantContext.getEnd())
         jsonFeature.put(FeatureStringEnum.TYPE.value, type)
 
-        jsonFeature.put(FeatureStringEnum.LOCATION.value, location)
         if (variantContext.getID() != ".") {
             jsonFeature.put("uniqueID", variantContext.getID())
             jsonFeature.put(FeatureStringEnum.NAME.value, variantContext.getID())
@@ -232,7 +250,7 @@ class VcfService {
             Genotype genotype = genotypes.get(i)
             JSONObject formatJsonObject = new JSONObject()
             for (String key : availableFormatFields) {
-                log.debug "processing format field: ${key}"
+                //log.debug "processing format field: ${key}"
                 if (genotype.hasAnyAttribute(key)) {
                     JSONObject formatPropertiesJsonObject = new JSONObject()
                     if (key == VCFConstants.GENOTYPE_KEY) {
@@ -270,6 +288,7 @@ class VcfService {
 
         // filter
         if (variantContext.filtered) {
+            // TODO: send values as an array
             jsonFeature.put(FeatureStringEnum.FILTER.value, variantContext.getFilters().join(","))
         }
 
@@ -286,6 +305,11 @@ class VcfService {
      */
     def projectJSONFeature(JSONObject jsonFeature, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
         // Note: jsonFeature must have 'location' object for FPS:projectFeature to work
+        JSONObject location = new JSONObject()
+        location.put(FeatureStringEnum.FMIN.value, jsonFeature.start)
+        location.put(FeatureStringEnum.FMAX.value, jsonFeature.end)
+        location.put(FeatureStringEnum.SEQUENCE.value, jsonFeature.get("seq_id"))
+        jsonFeature.put(FeatureStringEnum.LOCATION.value, location)
         featureProjectionService.projectFeature(jsonFeature, projection, unProject, offset)
         jsonFeature.start = jsonFeature.location.fmin
         jsonFeature.end = jsonFeature.location.fmax
