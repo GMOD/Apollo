@@ -115,7 +115,7 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 49999, 100000)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 364
+        assert featuresArray.size() == 167
     }
 
     private String createReferLoc(ArrayList<String> sequenceStrings, int padding, String projectionType) {
@@ -154,14 +154,14 @@ class BigwigServiceIntegrationSpec extends AbstractIntegrationSpec {
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 0, 49999)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 155
+        assert featuresArray.size() == 200
 
         when: "now on the outside of the next one"
         featuresArray = new JSONArray()
         bigwigService.processProjection(featuresArray, projection, bigWigFileReader, 49999, 100000)
 
         then: "we expect to get sane results"
-        assert featuresArray.size() == 219
+        assert featuresArray.size() == 3
     }
 
     /**

@@ -68,6 +68,17 @@ class BigwigService {
     }
 
     def calculateFeatureArray(JSONArray featuresArray, int actualStart, int actualStop, int stepSize, BigWigFileReader bigWigFileReader, MultiSequenceProjection projection, ProjectionSequence projectionSequence) {
+
+        String sequenceName = projection.getProjectedSequences().first().name
+        Integer chrStart = bigWigFileReader.getChrStart(sequenceName)
+        Integer chrStop = bigWigFileReader.getChrStop(sequenceName)
+//        Interval interval = new Interval(sequenceName, chrStart, chrStop)
+        edu.unc.genomics.Contig outerContig = bigWigFileReader.query(projectionSequence.name, chrStart, chrStop)
+        double min = outerContig.min()
+        double max = outerContig.max()
+//        edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
+//        float[] values = contig.values
+
         for (Integer i = actualStart; i < actualStop; i += stepSize) {
             JSONObject globalFeature = new JSONObject()
             Integer endStep = i + stepSize
@@ -76,11 +87,18 @@ class BigwigService {
             Integer originalStart = projection.unProjectValue(i)
             Integer originalEnd = projection.unProjectValue(endStep)
             edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
-            Integer value = innerContig.min()
 
-            globalFeature.put("score", value >= 1 ? value : 1)
-            featuresArray.add(globalFeature)
+
+            double value = innerContig.mean()
+
+            if (value <= max && value >= min) {
+                globalFeature.put(FeatureStringEnum.SCORE.value, value)
+                featuresArray.add(globalFeature)
+            }
         }
-        return featuresArray
-    }
+
+
+    return featuresArray
+}
+
 }
