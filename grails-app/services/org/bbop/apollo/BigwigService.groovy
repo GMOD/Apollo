@@ -72,12 +72,9 @@ class BigwigService {
         String sequenceName = projection.getProjectedSequences().first().name
         Integer chrStart = bigWigFileReader.getChrStart(sequenceName)
         Integer chrStop = bigWigFileReader.getChrStop(sequenceName)
-//        Interval interval = new Interval(sequenceName, chrStart, chrStop)
         edu.unc.genomics.Contig outerContig = bigWigFileReader.query(projectionSequence.name, chrStart, chrStop)
         double min = outerContig.min()
         double max = outerContig.max()
-//        edu.unc.genomics.Contig contig = bigWigFileReader.query(interval)
-//        float[] values = contig.values
 
         for (Integer i = actualStart; i < actualStop; i += stepSize) {
             JSONObject globalFeature = new JSONObject()
@@ -86,12 +83,10 @@ class BigwigService {
             globalFeature.put(FeatureStringEnum.END.value, endStep + projectionSequence.projectedOffset)
             Integer originalStart = projection.unProjectValue(i)
             Integer originalEnd = projection.unProjectValue(endStep)
+
             edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
-
-
-            double value = innerContig.mean()
-
-            if (value <= max && value >= min) {
+            Double value = innerContig?.mean()
+            if (value!=null && value <= max && value >= min) {
                 globalFeature.put(FeatureStringEnum.SCORE.value, value)
                 featuresArray.add(globalFeature)
             }
