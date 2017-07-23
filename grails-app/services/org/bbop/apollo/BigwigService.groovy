@@ -49,7 +49,7 @@ class BigwigService {
     @NotTransactional
     def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BigWigFileReader bigWigFileReader, int start, int end) {
         Integer actualStart = start
-        Integer actualStop = end
+        Integer actualStop = end-1
         int maxInView = 500
 
         int stepSize = maxInView < (actualStop - actualStart) ? (actualStop - actualStart) / maxInView : 1
