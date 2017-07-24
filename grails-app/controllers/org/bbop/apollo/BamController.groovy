@@ -1,8 +1,9 @@
 package org.bbop.apollo
 
-import edu.unc.genomics.io.BAMFileReader
-import edu.unc.genomics.io.BigWigFileReader
 import grails.converters.JSON
+import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.SamReader
+import htsjdk.samtools.SamReaderFactory
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -45,26 +46,26 @@ class BamController {
         JSONArray featuresArray = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
 
-        Organism currentOrganism = preferenceService.currentOrganismForCurrentUser
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser()
 
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
 
 
-        BAMFileReader bamFileReader
+
         Path path
         try {
             File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
-            path = FileSystems.getDefault().getPath(file.absolutePath)
+//            path = FileSystems.getDefault().getPath(file.absolutePath)
             // TODO: should cache these if open
-            bamFileReader = new BAMFileReader(path)
+            final SamReader reader = SamReaderFactory.makeDefault().open(file);
 
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
             if (projection) {
-                bamService.processProjection(featuresArray, projection, bamFileReader, start, end)
+                bamService.processProjection(featuresArray, projection, reader, start, end)
             } else {
-                bamService.processSequence(featuresArray, sequenceName, bamFileReader, start, end)
+                bamService.processSequence(featuresArray, sequenceName, reader, start, end)
             }
             println "end array ${featuresArray.size()}"
         } catch (e) {
@@ -96,14 +97,17 @@ class BamController {
         println "params ${params}"
 
         JSONObject returnObject = new JSONObject()
-        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
+        File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
+//        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
         // TODO: should cache these if open
-        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
-        returnObject.put("scoreMin", bigWigFileReader.min())
-        returnObject.put("scoreMax", bigWigFileReader.max())
-        returnObject.put("scoreMean", bigWigFileReader.mean())
-        returnObject.put("scoreStdDev", bigWigFileReader.stdev())
-        returnObject.put("featureCount", bigWigFileReader.numBases())
+        final SamReader reader = SamReaderFactory.makeDefault().open(file)
+//        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
+        double mean = reader?.size() > 0 ? reader.sum()/ (double) reader.size() : 0
+        returnObject.put("scoreMin", reader.min())
+        returnObject.put("scoreMax", reader.max())
+        returnObject.put("scoreMean", mean)
+//        returnObject.put("scoreStdDev", reader.stdev())
+        returnObject.put("featureCount", reader.size())
         returnObject.put("featureDensity", 1)
 //        {
 //

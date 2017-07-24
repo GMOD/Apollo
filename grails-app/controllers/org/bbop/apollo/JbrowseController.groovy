@@ -37,6 +37,7 @@ class JbrowseController {
     def sequenceCacheService
     def assemblageService
     def configWrapperService
+    def grailsLinkGenerator
 
 
 
@@ -796,6 +797,13 @@ class JbrowseController {
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
             obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+        }
+        if(obj.type == "JBrowse/View/Track/DraggableAlignments"){
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bam/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }
