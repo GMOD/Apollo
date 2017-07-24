@@ -713,7 +713,6 @@ class JbrowseController {
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        println "CURRENT ORGANISM: ${currentOrganism}"
 
         trackObject = rewriteTracks(trackObject,currentOrganism)
 
@@ -740,7 +739,6 @@ class JbrowseController {
 
         if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-//            organismObject.put("name", Organism.findById(id).commonName)
             organismObject.put("name", currentOrganism.commonName)
             organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
@@ -792,7 +790,7 @@ class JbrowseController {
 
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
-        println "init obj ${obj}"
+        log.debug "Rewriting track ${obj as JSON}"
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -800,6 +798,7 @@ class JbrowseController {
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }
+        else
         if(obj.type == "JBrowse/View/Track/DraggableAlignments"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -808,6 +807,7 @@ class JbrowseController {
             obj.query.urlTemplate = urlTemplate
         }
         println "final obj ${obj}"
+        log.debug "Rewrote track ${obj as JSON}"
         return obj
     }
 

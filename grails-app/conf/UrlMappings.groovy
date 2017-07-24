@@ -125,14 +125,14 @@ class UrlMappings {
             fileType = "gff"
         }
         // add other types
-        "/bigwig/${trackName}/stats/global/"(controller: "bigwig",action: "global")
-        "/bigwig/${trackName}/stats/region"(controller: "bigwig",action: "region")
-        "/bigwig/${trackName}/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
+        "/bigwig/${trackName}/${organismId}/stats/global/"(controller: "bigwig",action: "global")
+        "/bigwig/${trackName}/${organismId}/stats/region"(controller: "bigwig",action: "region")
+        "/bigwig/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
         "/bigwig/${trackName}/${organismId}/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName,organismId: organismId)
 
-        "/bam/${trackName}/stats/global/"(controller: "bam",action: "global")
-        "/bam/${trackName}/stats/region"(controller: "bam",action: "region")
-        "/bam/${trackName}/stats/regionFeatureDensities"(controller: "bam",action: "regionFeatureDensities")
+        "/bam/${trackName}/${organismId}/stats/global/"(controller: "bam",action: "global")
+        "/bam/${trackName}/${organismId}/stats/region"(controller: "bam",action: "region")
+        "/bam/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "bam",action: "regionFeatureDensities")
         "/bam/${trackName}/${organismId}/features/${sequenceName}"(controller: "bam",action: "features",params:params,sequenceName:sequenceName,organismId: organismId)
 
 //        "/${clientToken}/bigwig/stats/global"(controller: "bigwig",action: "global")
