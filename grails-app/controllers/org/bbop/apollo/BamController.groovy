@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.SamInputResource
 import htsjdk.samtools.SamReader
 import htsjdk.samtools.SamReaderFactory
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -40,46 +41,44 @@ class BamController {
      * @param end The request view end
      * @return
      */
-    JSONObject features(String sequenceName, Integer start, Integer end) {
+    JSONObject features(String sequenceName,Long organismId, Integer start, Integer end) {
 
         JSONObject returnObject = new JSONObject()
         JSONArray featuresArray = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
 
-        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser()
+        Organism organism = Organism.findById(organismId)
 
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
 
-
-
-        Path path
+        File file
         try {
-            File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
-//            path = FileSystems.getDefault().getPath(file.absolutePath)
-            // TODO: should cache these if open
-            final SamReader reader = SamReaderFactory.makeDefault().open(file);
+            file = new File(organism.directory + "/" + params.urlTemplate)
+            final SamReader samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(file))
 
-            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
+            MultiSequenceProjection projection = projectionService.getProjection(refererLoc, organism)
 
             if (projection) {
-                bamService.processProjection(featuresArray, projection, reader, start, end)
+                println "is projectin ${projection}"
+                bamService.processProjection(featuresArray, projection, samReader, start, end)
             } else {
-                bamService.processSequence(featuresArray, sequenceName, reader, start, end)
+                println "NO projectin ${refererLoc}"
+                bamService.processSequence(featuresArray, sequenceName, samReader, start, end)
             }
             println "end array ${featuresArray.size()}"
         } catch (e) {
-            println "baddness ${e} -> ${path}"
+            println "baddness ${e} -> ${file}"
         }
 
         render returnObject as JSON
     }
 
-    JSONObject region(String refSeqName, Integer start, Integer end) {
+    JSONObject region(String refSeqName,Long organismId, Integer start, Integer end) {
         render new JSONObject() as JSON
     }
 
-    JSONObject regionFeatureDensities(String refSeqName, Integer start, Integer end, Integer basesPerBin) {
+    JSONObject regionFeatureDensities(String refSeqName,Long organismId,  Integer start, Integer end, Integer basesPerBin) {
 //        {
 //            "bins":  [ 51, 50, 58, 63, 57, 57, 65, 66, 63, 61,
 //                       56, 49, 50, 47, 39, 38, 54, 41, 50, 71,
@@ -93,22 +92,28 @@ class BamController {
         render new JSONObject() as JSON
     }
 
-    JSONObject global() {
+    JSONObject global(String trackName, Long organismId) {
+        JSONObject data = permissionService.handleInput(request, params)
+        Organism currentOrganism = Organism.findById(organismId)
+        if(!currentOrganism){
+            String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+            currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        }
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
         println "params ${params}"
 
         JSONObject returnObject = new JSONObject()
-        File file = new File(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
-//        Path path = FileSystems.getDefault().getPath(getJBrowseDirectoryForSession() + "/" + params.urlTemplate)
-        // TODO: should cache these if open
+        File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
         final SamReader reader = SamReaderFactory.makeDefault().open(file)
-//        BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
-        double mean = reader?.size() > 0 ? reader.sum()/ (double) reader.size() : 0
-        returnObject.put("scoreMin", reader.min())
-        returnObject.put("scoreMax", reader.max())
-        returnObject.put("scoreMean", mean)
-//        returnObject.put("scoreStdDev", reader.stdev())
-        returnObject.put("featureCount", reader.size())
-        returnObject.put("featureDensity", 1)
+//        reader.getFileHeader().
+//        reader.query(0,)
+//        double mean = reader?.size() > 0 ? reader.sum()/ (double) reader.size() : 0
+//        returnObject.put("scoreMin", reader.min())
+//        returnObject.put("scoreMax", reader.max())
+//        returnObject.put("scoreMean", mean)
+////        returnObject.put("scoreStdDev", reader.stdev())
+//        returnObject.put("featureCount", reader.size())
+//        returnObject.put("featureDensity", 1)
 //        {
 //
 //            "featureDensity": 0.02,
@@ -123,47 +128,4 @@ class BamController {
         render returnObject as JSON
     }
 
-    // TODO: abstract or put in service
-    private String getJBrowseDirectoryForSession() {
-        if (!permissionService.currentUser) {
-            return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
-        }
-
-        String organismJBrowseDirectory = preferenceService.currentOrganismForCurrentUser.directory
-        if (!organismJBrowseDirectory) {
-            for (Organism organism in Organism.all) {
-                // load if not
-                if (!organism.sequences) {
-                    sequenceService.loadRefSeqs(organism)
-                }
-
-                if (organism.sequences) {
-                    User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-                    Sequence sequence = organism?.sequences?.first()
-                    if (userOrganismPreference == null) {
-                        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
-                        userOrganismPreference = new UserOrganismPreference(
-                                user: user
-                                , organism: organism
-                                , assemblage: assemblage
-                                , currentOrganism: true
-                        ).save(insert: true, flush: true)
-                    } else {
-//                        userOrganismPreference.assemblage = bo
-                        userOrganismPreference.currentOrganism = true
-                        userOrganismPreference.save()
-                    }
-
-                    organismJBrowseDirectory = organism.directory
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
-                    session.setAttribute(FeatureStringEnum.ORGANISM.value, sequence.organism.commonName)
-                    return organismJBrowseDirectory
-                }
-            }
-        }
-        return organismJBrowseDirectory
-    }
 }

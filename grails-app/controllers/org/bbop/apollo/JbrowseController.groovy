@@ -790,7 +790,7 @@ class JbrowseController {
 
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
-        log.debug "Rewriting track ${obj as JSON}"
+        println "Rewriting track ${obj as JSON}"
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -799,7 +799,9 @@ class JbrowseController {
             obj.query.urlTemplate = urlTemplate
         }
         else
-        if(obj.type == "JBrowse/View/Track/DraggableAlignments"){
+        if(obj.storeClass == "JBrowse/Store/SeqFeature/BAM"){
+            println "REWRITIGN BAM"
+//            if(obj.type == "JBrowse/View/Track/DraggableAlignments"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
             obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bam/${obj.key}/${obj.organismId}"
@@ -807,7 +809,7 @@ class JbrowseController {
             obj.query.urlTemplate = urlTemplate
         }
         println "final obj ${obj}"
-        log.debug "Rewrote track ${obj as JSON}"
+        println "Rewrote track ${obj as JSON}"
         return obj
     }
 
