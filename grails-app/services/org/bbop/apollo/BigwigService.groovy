@@ -85,7 +85,7 @@ class BigwigService {
             Integer originalEnd = projection.unProjectValue(endStep)
 
             edu.unc.genomics.Contig innerContig = bigWigFileReader.query(projectionSequence.name, originalStart, originalEnd)
-            Double value = innerContig?.mean()
+            Double value = innerContig?.min()
             if (value!=null && value <= max && value >= min) {
                 globalFeature.put(FeatureStringEnum.SCORE.value, value)
                 featuresArray.add(globalFeature)
