@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
@@ -9,6 +10,8 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionChunk
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
+import org.bbop.apollo.sequence.SequenceTranslationHandler
+
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -154,19 +157,21 @@ class JbrowseController {
      * @return
      */
     private String getJBrowseDirectoryForSession(String clientToken) {
-        log.debug "current user? ${permissionService.currentUser}"
+        println "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
             return getDirectoryFromSession(clientToken)
         }
 
-        // TODO: remove?
+//         TODO: remove?
         String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+        println "getting this token ${thisToken} vs setting the client token ${clientToken}"
         request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
 
-        log.debug "getting organism for client token ${clientToken}"
+        println "getting organism for client token ${clientToken}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        log.debug "got organism ${currentOrganism} for client token ${clientToken}"
+        println "got organism ${currentOrganism?.commonName} for client token ${clientToken}"
         String organismJBrowseDirectory = currentOrganism.directory
+        println "directory is now ${organismJBrowseDirectory}"
         if (!organismJBrowseDirectory) {
             for (Organism organism in Organism.all) {
                 // load if not
@@ -177,7 +182,7 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    Assemblage assemblage = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
+                    def assemblageList = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
                     JSONArray sequenceArray = new JSONArray()
                     if (userOrganismPreference == null) {
                         List<Sequence> sequences = organism?.sequences
@@ -189,7 +194,7 @@ class JbrowseController {
                         new UserOrganismPreference(
                                 user: user
                                 , organism: organism
-                                , assemblage: assemblage
+                                , assemblage: assemblageList.first()
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
@@ -236,21 +241,14 @@ class JbrowseController {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 return;
             }
-            def refererLocObject = JSON.parse(refererLoc)
-//            def sequenceList = refererLocObject.sequenceList
-
             // for each sequence we have: name (typically sequence), location start, location end,
             // original start (0 if full scaffold), original end (length if full scaffold) left text (nullable), right text (nullable)
             // we also have folding information once that is available
             JSONArray displayArray = new JSONArray()
-//            List<ProjectionSequence> projectionSequences = multiSequenceProjection.getUnProjectedSequences(start, end)
             def projectionLength = projection.getLength()
             List<ProjectionSequence> projectionSequences = projection.getUnProjectedSequences(0,projectionLength-1)
 
 
-//            int offset = 0
-//            int projectedOffset = 0
-//            for (int i = 0; sequenceList && i < sequenceList.size(); i++) {
             for(ProjectionSequence projectionSequence in projectionSequences){
                 Long projectedLength = projection.getLengthForSequence(projectionSequence)
 //                JSONObject thisSeq = sequenceList.get(i)
@@ -269,16 +267,11 @@ class JbrowseController {
                 regionObject.background = 'yellow'
                 regionObject.type = 'left-edge'
 
-//                currentPosition += regionObject.end
-
                 displayArray.add(regionObject)
-//                offset = currentPosition
-//                projectedOffset = thisSeq.end - thisSeq.start
             }
             JSONObject returnObject = new JSONObject()
             returnObject.features = displayArray
             render returnObject as JSON
-//            render([features: displayArray] as JSON)
         }
         catch (Exception e) {
             log.error e.message
@@ -286,7 +279,7 @@ class JbrowseController {
         }
     }
 
-    def generateRefSeqLabel(JSONObject refSeqObject) {
+    private def generateRefSeqLabel(JSONObject refSeqObject) {
         String returnLabel = ""
         if (refSeqObject.feature) {
             returnLabel += refSeqObject.feature.name + " ("
@@ -301,8 +294,12 @@ class JbrowseController {
  * Handles data directory serving for jbrowse
  */
     def data() {
+        def p = params
+        if(p.path == "trackData.json"){
+            println "path ${p.path}"
+        }
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
-        String dataDirectory = getJBrowseDirectoryForSession(params.get(clientToken).toString())
+        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -491,15 +488,12 @@ class JbrowseController {
             if (fileName.endsWith(".json") || params.format == "json") {
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
-
                     // ONLY ever return the refSeq we are on
                     JSONArray sequenceArray = new JSONArray()
 
 
                     JSONObject refererObject
-//                    String results
-
-                    println "referenLoc [${refererLoc}]"
+                    Boolean mangleNames = false
 
                     if (AssemblageService.isProjectionString(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
@@ -508,8 +502,8 @@ class JbrowseController {
                         refererObject = new JSONObject(sequenceString)
                         refererObject.seqChunkSize = 20000
                         sequenceArray.add(refererObject)
-                        println "adding projection object ${refererObject as JSON}"
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
+                        mangleNames = true
                     } else
                     if (AssemblageService.isProjectionReferer(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
@@ -518,7 +512,7 @@ class JbrowseController {
                         refererObject = new JSONObject(refererLoc)
                         sequenceArray.add(refererObject)
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
-                        println "adding reffer object ${refererObject as JSON}"
+                        mangleNames = true
                     } else {
                         // get the sequence
                         String sequenceName = refererLoc.split(":")[0]
@@ -526,7 +520,6 @@ class JbrowseController {
                         refererObject = new JSONObject()
                         refererObject.putAll(sequence.properties)
                         sequenceArray.add(refererObject)
-                        println "adding other object ${refererObject as JSON}"
                     }
                     // We add the data refSeq here
                     String fileText = new File(dataFileName).text
@@ -537,27 +530,31 @@ class JbrowseController {
                         assemblageRefSeq.name = assemblageRefSeq.toString()
                         sequenceArray.add(assemblageRefSeq)
                     }
-                    println "POST sequence array: ${sequenceArray.size()}"
 
-                    sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
+                    if(mangleNames){
+                        sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
+                    }
+                    else{
+                        sequenceArray.addAll(inputArray)
+                    }
 
                     response.outputStream << sequenceArray.toString()
                 } else {
                     // Set content size
-                    response.setContentLength((int) file.length());
+                    response.setContentLength((int) file.length())
 
                     // Open the file and output streams
-                    FileInputStream inputStream = new FileInputStream(file);
-                    OutputStream out = response.getOutputStream();
+                    FileInputStream inputStream = new FileInputStream(file)
+                    OutputStream out = response.outputStream
 
                     // Copy the contents of the file to the output stream
-                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
+                    byte[] buf = new byte[DEFAULT_BUFFER_SIZE]
                     int count = 0;
                     while ((count = inputStream.read(buf)) >= 0) {
-                        out.write(buf, 0, count);
+                        out.write(buf, 0, count)
                     }
-                    inputStream.close();
-                    out.close();
+                    inputStream.close()
+                    out.close()
                 }
             }
             // handle the sequence text data
@@ -567,7 +564,7 @@ class JbrowseController {
 
                 MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
                 if(projection && projection.getLastSequence().reverse){
-                    response.outputStream << file.text.reverse()
+                    response.outputStream << SequenceTranslationHandler.reverseComplementSequence(file.text)
                     response.outputStream.close()
                 }
                 else{
@@ -713,10 +710,13 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
-        trackObject = trackService.rewriteTracks(trackObject)
-
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println "CURRENT ORGANISM: ${currentOrganism}"
+
+        trackObject = rewriteTracks(trackObject,currentOrganism)
+
+
         if (currentOrganism != null) {
             trackObject.put("dataset_id", currentOrganism.id)
         } else {
@@ -786,6 +786,31 @@ class JbrowseController {
 
         response.outputStream << trackObject.toString()
         response.outputStream.close()
+    }
+
+
+    @NotTransactional
+    private JSONObject rewriteTrack(JSONObject obj) {
+        println "init obj ${obj}"
+        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+        }
+        println "final obj ${obj}"
+        return obj
+    }
+
+    @NotTransactional
+    private JSONObject rewriteTracks(JSONObject jsonObject,Organism organism) {
+        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+        for(JSONObject obj in tracksArray){
+            obj.put(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+            obj = rewriteTrack(obj)
+        }
+        return jsonObject
     }
 
     def annotInclude() {

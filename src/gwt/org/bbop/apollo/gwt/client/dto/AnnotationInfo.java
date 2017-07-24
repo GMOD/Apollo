@@ -18,7 +18,7 @@ public class AnnotationInfo {
     private String description;
     private Integer strand;
     private List<String> noteList = new ArrayList<>();
-    private String sequence;
+    private SequenceInfo sequence;
     private Integer phase;
     private String owner;
     private String date;
@@ -133,12 +133,12 @@ public class AnnotationInfo {
         this.noteList = noteList;
     }
 
-    public void setSequence(String sequence) {
-        this.sequence = sequence;
+    public SequenceInfo getSequence() {
+        return sequence;
     }
 
-    public String getSequence() {
-        return sequence;
+    public void setSequence(SequenceInfo sequence) {
+        this.sequence = sequence;
     }
 
     public Integer getPhase() {

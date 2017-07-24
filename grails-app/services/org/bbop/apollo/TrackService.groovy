@@ -27,7 +27,7 @@ class TrackService {
 
         File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            println "file does not exist ${trackDataFilePath}"
+            log.error "File does not exist when getting track data ${trackDataFilePath}"
             return null
         }
         return JSON.parse(file.text) as JSONObject
@@ -58,7 +58,7 @@ class TrackService {
 
         // 1 - extract the appropriate region for fmin / fmax
         JSONArray filteredList = filterList(nclistArray, fmin, fmax)
-        println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
+        log.debug "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
 
         // if the first featured array has a chunk, then we need to evaluate the chunks instead
         if (filteredList) {
@@ -95,7 +95,7 @@ class TrackService {
 
         File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            println "file does not exist ${trackDataFilePath}"
+            log.error "File does not exist when getting chunk data ${trackDataFilePath}"
             return null
         }
         return JSON.parse(file.text) as JSONArray
@@ -157,8 +157,10 @@ class TrackService {
     JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
         JSONArray returnArray = new JSONArray()
 
-        for (JSONArray jsonArray in fullArray) {
-            returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+        for (def jsonArray in fullArray) {
+            if (jsonArray instanceof JSONArray) {
+                returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+            }
         }
 
         return returnArray
@@ -344,16 +346,14 @@ class TrackService {
         return jsonObject.toString()
     }
 
-    JSONArray checkCache(String organismString, String trackName, String sequence, String featureName, Map paramMap) {
+    String checkCache(String organismString, String trackName, String sequence, String featureName, String type, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndParamMap(organismString, trackName, sequence, featureName, mapString)?.response
-        return response != null ? JSON.parse(response) as JSONArray : null
+        return TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFeatureNameAndTypeAndParamMap(organismString, trackName, sequence, featureName, type, mapString)?.response
     }
 
-    JSONArray checkCache(String organismString, String trackName, String sequence, Long fmin, Long fmax, Map paramMap) {
+    String checkCache(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndParamMap(organismString, trackName, sequence, fmin, fmax, mapString)?.response
-        return response != null ? JSON.parse(response) as JSONArray : null
+        return TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndTypeAndParamMap(organismString, trackName, sequence, fmin, fmax, type, mapString)?.response
     }
 
 
@@ -363,7 +363,7 @@ class TrackService {
     }
 
     @Transactional
-    JSONObject cacheBigWig(JSONObject storeObject ,Organism organism, String sequenceName, int fmin, int fmax, String templateUrl) {
+    JSONObject cacheBigWig(JSONObject storeObject, Organism organism, String sequenceName, int fmin, int fmax, String templateUrl) {
         TrackCache trackCache = new TrackCache(
                 response: storeObject.toString()
                 , organismName: organism.commonName
@@ -376,13 +376,14 @@ class TrackService {
     }
 
     @Transactional
-    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, String featureName, Map paramMap) {
+    def cacheRequest(String responseString, String organismString, String trackName, String sequenceName, String featureName, String type, Map paramMap) {
         TrackCache trackCache = new TrackCache(
-                response: jsonArray.toString()
+                response: responseString
                 , organismName: organismString
                 , trackName: trackName
                 , sequenceName: sequenceName
                 , featureName: featureName
+                , type: type
         )
         if (paramMap) {
             trackCache.paramMap = (paramMap as JSON).toString()
@@ -391,14 +392,15 @@ class TrackService {
     }
 
     @Transactional
-    def cacheRequest(JSONArray jsonArray, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, Map paramMap) {
+    def cacheRequest(String responseString, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, String type, Map paramMap) {
         TrackCache trackCache = new TrackCache(
-                response: jsonArray.toString()
+                response: responseString
                 , organismName: organismString
                 , trackName: trackName
                 , sequenceName: sequenceName
                 , fmin: fmin
                 , fmax: fmax
+                , type: type
         )
         if (paramMap) {
             trackCache.paramMap = (paramMap as JSON).toString()
@@ -452,7 +454,7 @@ class TrackService {
     }
 
     JSONArray loadChunkData(String path, String refererLoc, Organism currentOrganism, Integer offset, String trackName) {
-        println "loading chunk data with offset ${offset}"
+        log.debug "loading chunk data with offset ${offset}"
         File file = new File(path)
         String inputText = file.text
         JSONArray coordinateJsonArray = new JSONArray(inputText)
@@ -464,7 +466,7 @@ class TrackService {
 
         if (projection && projection.containsSequence(sequenceName, currentOrganism.commonName)) {
             ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName, currentOrganism.commonName)
-            println "found a projection ${projection.size()}"
+            log.debug "found a projection ${projection.size()}"
             for (int i = 0; i < coordinateJsonArray.size(); i++) {
                 JSONArray coordinate = coordinateJsonArray.getJSONArray(i)
                 projectJsonArray(projection, coordinate, offset, projectionSequence, trackName)
@@ -498,7 +500,7 @@ class TrackService {
         ProjectionSequence projectionSequence = projection.getProjectionSequence(sequenceName, currentOrganism.commonName)
 
         if (projection && projectionSequence) {
-            println "found a projection ${projection.size()}"
+            log.debug "found a projection ${projection.size()}"
             JSONObject intervalsJsonArray = trackDataJsonObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
 
             // get track for service
@@ -581,11 +583,13 @@ class TrackService {
                         }
                     }
                     // TODO: TrackIndex doesn't return the proper value when a coordinateArray has a subList
-                    //if (trackIndex.hasSubList() && coordinateArray.get(trackIndex.sublistColumn)) {
-                    if (coordinateArray.size() == 12) {
-                        // coordinateArray has subList and has the same form as that of the coordinateJsonArray which enables recursion
-                        JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(11).getJSONArray("Sublist"), sequenceDTO)
-                        coordinateArray.getJSONObject(11).put("Sublist", sanitizedSubListArray)
+                    if (trackIndex.hasSubList() && coordinateArray.get(trackIndex.sublistColumn)) {
+
+                        int subListColumn = trackIndex.sublistColumn
+                        if (coordinateArray.get(subListColumn) instanceof JSONObject) {
+                            JSONArray sanitizedSubListArray = sanitizeCoordinateArray(coordinateArray.getJSONObject(subListColumn).getJSONArray("Sublist"), sequenceDTO)
+                            coordinateArray.getJSONObject(subListColumn).put("Sublist", sanitizedSubListArray)
+                        }
                     }
                 }
             }
@@ -779,7 +783,6 @@ class TrackService {
                 if (ncListEntryA.getInt(0) == ncListEntryB.getInt(0)) {
                     int classIndex = ncListEntryA.getInt(0)
                     TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, classIndex)
-//                    println "trackIndex ${trackIndex as JSON} trackNAme ${trackName} and class index ${classIndex} and organism ${organismName}"
                     if (trackIndex.id && ncListEntryA.getString(trackIndex.id) == ncListEntryB.getString(trackIndex.id)) {
                         return true
                     }
@@ -1023,9 +1026,6 @@ class TrackService {
             if (trackObject) {
                 JSONObject intervalsObject = trackObject.getJSONObject(FeatureStringEnum.INTERVALS.value)
                 JSONArray ncListArray = intervalsObject.getJSONArray(FeatureStringEnum.NCLIST.value)
-                if (ncListArray && ncListArray[0].size() == 4) {
-                    println "nclist array ${ncListArray}"
-                }
                 SequenceDTO sequenceDTO = new SequenceDTO(
                         organismCommonName: currentOrganism.commonName
                         , trackName: trackName
@@ -1141,7 +1141,6 @@ class TrackService {
 
         Integer chunkIndex = getChunkIndex(fileName)
         ProjectionChunk projectionChunk = multiSequenceProjection.projectionChunkList.findProjectChunkForIndex(chunkIndex)
-        println "chunk index: ${chunkIndex}"
         String sequenceString = projectionChunk.sequence
         Integer sequenceOffset = projectionChunk.sequenceOffset
         // calculate offset for chunk and replace the filename
@@ -1173,9 +1172,7 @@ class TrackService {
 
     @NotTransactional
     def putOrganismTrack(Organism currentOrganism, JSONObject trackObject) {
-//        println "putting organism ${currentOrganism.commonName} and putting in ${trackObject.toString().length()}"
         organismMap.put(currentOrganism.commonName, trackObject)
-        println "org map ${organismMap.size()}"
     }
 
     @NotTransactional
@@ -1186,11 +1183,9 @@ class TrackService {
     @NotTransactional
     JSONObject getTrackObjectForOrganismAndTrack(Organism organism, String trackName) {
         JSONObject trackObject = getTrackObjectForOrganism(organism)
-        println "org ${organism} for ${trackName}"
-        println "foudn object ${trackObject?.tracks?.size()} as ${organism?.commonName}"
         if (trackObject) {
-            for(JSONObject obj in trackObject.getJSONArray(FeatureStringEnum.TRACKS.value)){
-                if(obj.key == trackName){
+            for (JSONObject obj in trackObject.getJSONArray(FeatureStringEnum.TRACKS.value)) {
+                if (obj.key == trackName) {
                     return obj
                 }
             }

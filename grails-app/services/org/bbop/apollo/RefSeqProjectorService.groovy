@@ -10,6 +10,7 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 @Transactional(readOnly = true)
 class RefSeqProjectorService {
@@ -198,7 +199,7 @@ class RefSeqProjectorService {
 //                startIndex += projectionSequence.start
 //                endIndex += projectionSequence.start
 
-                stringList << sequenceService.getRawResiduesFromSequence(sequence, startIndex , endIndex ).reverse()
+                stringList << SequenceTranslationHandler.reverseComplementSequence(sequenceService.getRawResiduesFromSequence(sequence, startIndex , endIndex))
             } else {
                 Integer startOffset = unprojectedStart - projectedStart
                 if (index == 0) {

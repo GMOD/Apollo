@@ -24,19 +24,28 @@ class AvailableStatusController {
     def permissionService
 
     def beforeInterceptor = {
-        if(!permissionService.isAdmin()){
+        if(!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)){
             forward action: "notAuthorized", controller: "annotator"
             return
         }
     }
 
     def index(Integer max) {
+//        params.max = Math.min(max ?: 10, 100)
+//        respond AvailableStatus.list(params), model:[availableStatusInstanceCount: AvailableStatus.count()]
         params.max = Math.min(max ?: 10, 100)
-        respond AvailableStatus.list(params), model:[availableStatusInstanceCount: AvailableStatus.count()]
+        def availableStatuss = AvailableStatus.list(params)
+        def organismFilterMap = [:]
+        AvailableStatusOrganismFilter.findAllByAvailableStatusInList(availableStatuss).each() {
+            List filterList = organismFilterMap.containsKey(it.availableStatus) ? organismFilterMap.get(it.availableStatus) : []
+            filterList.add(it)
+            organismFilterMap[it.availableStatus] = filterList
+        }
+        respond availableStatuss, model: [availableStatusInstanceCount: AvailableStatus.count(), organismFilters: organismFilterMap]
     }
 
     def show(AvailableStatus availableStatusInstance) {
-        respond availableStatusInstance
+        respond availableStatusInstance, model: [organismFilters: AvailableStatusOrganismFilter.findAllByAvailableStatus(availableStatusInstance)]
     }
 
     def create() {
@@ -55,6 +64,21 @@ class AvailableStatusController {
             return
         }
 
+
+        availableStatusInstance.save()
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            Organism organism = Organism.findById(it)
+            new AvailableStatusOrganismFilter(
+                    organism: organism,
+                    availableStatus: availableStatusInstance
+            ).save()
+        }
+
         availableStatusInstance.save flush:true
 
         request.withFormat {
@@ -67,7 +91,7 @@ class AvailableStatusController {
     }
 
     def edit(AvailableStatus availableStatusInstance) {
-        respond availableStatusInstance
+        respond availableStatusInstance, model: [organismFilters: AvailableStatusOrganismFilter.findAllByAvailableStatus(availableStatusInstance)]
     }
 
     @Transactional
@@ -80,6 +104,22 @@ class AvailableStatusController {
         if (availableStatusInstance.hasErrors()) {
             respond availableStatusInstance.errors, view:'edit'
             return
+        }
+
+        availableStatusInstance.save()
+
+        AvailableStatusOrganismFilter.deleteAll(AvailableStatusOrganismFilter.findAllByAvailableStatus(availableStatusInstance))
+
+        if (params.organisms instanceof String) {
+            params.organisms = [params.organisms]
+        }
+
+        params?.organisms.each {
+            Organism organism = Organism.findById(it)
+            new AvailableStatusOrganismFilter(
+                    organism: organism,
+                    availableStatus: availableStatusInstance
+            ).save()
         }
 
         availableStatusInstance.save flush:true

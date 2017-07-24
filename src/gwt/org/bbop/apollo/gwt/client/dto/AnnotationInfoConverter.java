@@ -3,10 +3,9 @@ package org.bbop.apollo.gwt.client.dto;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.*;
+import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,15 @@ public class AnnotationInfoConverter {
         annotationInfo.setMax((long) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
-        annotationInfo.setSequence(object.get("sequence").isString().stringValue());
+        String sequenceString = object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.SEQUENCE.getValue()).isString().stringValue() ;
+        JSONArray sequenceArray = JSONParser.parseLenient(sequenceString).isArray();
+        JSONObject locationObject = sequenceArray.get(0).isObject();
+//        String sequenceName = object.get("sequence").isString().stringValue();
+        SequenceInfo sequenceInfo = new SequenceInfo();
+        sequenceInfo.setName(locationObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
+        sequenceInfo.setStart((long) locationObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
+        sequenceInfo.setEnd((long) locationObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
+        annotationInfo.setSequence(sequenceInfo);
         if (object.get("owner") != null) {
             annotationInfo.setOwner(object.get("owner").isString().stringValue());
         }

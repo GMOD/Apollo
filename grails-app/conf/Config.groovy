@@ -216,6 +216,7 @@ apollo {
     chado_export_fasta_for_sequence = false
     // set chado_export_fasta_for_cds if you want the CDS FASTA to be exported into the database
     chado_export_fasta_for_cds = false
+    only_owners_delete = false
 
     // this is the default
     // other translation codes are of the form ncbi_KEY_translation_table.txt
@@ -383,8 +384,8 @@ auditLog {
 // Default JBrowse configuration
 jbrowse {
     git {
-        url = "https://github.com/gmod/jbrowse"
-        tag = "99d8e6e1e7dfe290b839d41c18f41cf92d9afc7c"
+//        url = "https://github.com/gmod/jbrowse"
+//        tag = "99d8e6e1e7dfe290b839d41c18f41cf92d9afc7c"
 //		tag = "1.12.3-release"
         url= "https://github.com/nathandunn/jbrowse"
 		branch = "projection_v2_server"

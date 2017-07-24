@@ -51,6 +51,7 @@ public enum FeatureStringEnum {
         CANNED_KEYS,
         CANNED_VALUES,
         STATUS,
+        AVAILABLE_STATUSES,
         NOTES,
         TAG,
         NON_RESERVED_PROPERTIES,
@@ -148,6 +149,7 @@ public enum FeatureStringEnum {
         START,
         END,
         USE_CDS,
+        LENGTH,
         PHASE
         ;
 

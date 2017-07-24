@@ -1,7 +1,11 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import org.bbop.apollo.sequence.Strand
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
+
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
@@ -260,5 +264,55 @@ public class FastaHandlerService {
             out.println(seq.substring(i, endIdx > seq.length() ? seq.length() : endIdx));
         }
     }
-    
+
+    /**
+     * Generate fasta sequence header for each feature in featuresArray
+     * @param featuresArray
+     * @param type
+     * @param flank
+     */
+    def generateFeatureFastaHeader(JSONArray featuresArray, String type, int flank) {
+        for (int i = 0; i < featuresArray.length(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
+            generateFeatureFastaHeader(jsonFeature, type, flank)
+        }
+    }
+
+    /**
+     * Generate fasta sequence header for feature
+     * @param jsonFeature
+     * @param type
+     * @param flank
+     * @return
+     */
+    def generateFeatureFastaHeader(JSONObject jsonFeature, String type, int flank) {
+        String fastaHeader = ">"
+        String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
+        String length = jsonFeature.get(FeatureStringEnum.RESIDUES.value).length()
+        JSONObject cvType = jsonFeature.get(FeatureStringEnum.TYPE.value)
+        JSONObject location = jsonFeature.get(FeatureStringEnum.LOCATION.value)
+        String sequenceList = location.get(FeatureStringEnum.SEQUENCE.value)
+        JSONArray sequenceListArray = JSON.parse(sequenceList)
+        String assemblage = ""
+
+        fastaHeader += "${uniqueName} (${cvType.getJSONObject(FeatureStringEnum.CV.value).get(FeatureStringEnum.NAME.value)}:${cvType.get(FeatureStringEnum.NAME.value)}) ${length} residues"
+        fastaHeader += " ["
+        for (int j = 0; j < sequenceListArray.length(); j++) {
+            JSONObject sequence = sequenceListArray.get(j)
+            assemblage += sequence.name
+            fastaHeader += "${sequence.name}:${sequence.reverse ? "REVERSE_COMPLEMENT" : "REFERENCE"}:${sequence.start + 1}-${sequence.end}"
+            if (j != sequenceListArray.length() - 1) {
+                assemblage += "-"
+                fastaHeader += " "
+            }
+        }
+        fastaHeader += "]"
+        fastaHeader += " [${assemblage}:${location.fmin + 1}-${location.fmax} ${location.strand == 1 ? "+" : "-"} strand]"
+        fastaHeader += " [${type}"
+        if (flank > 0) {
+            fastaHeader += " +/- ${flank} bases"
+        }
+        fastaHeader += "]"
+        jsonFeature.put("header", fastaHeader);
+    }
 }

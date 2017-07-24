@@ -89,7 +89,7 @@ public class RepeatRegionDetailPanel extends Composite {
         this.internalAnnotationInfo = annotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
-        sequenceField.setText(internalAnnotationInfo.getSequence());
+        sequenceField.setText(internalAnnotationInfo.getSequence().getName());
         userField.setText(internalAnnotationInfo.getOwner());
         
         if (internalAnnotationInfo.getMin() != null) {

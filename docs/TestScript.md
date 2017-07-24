@@ -157,7 +157,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.2.2) Repeat for pseudogenes and non-coding RNAs.
 
-13.1.2.3) Repeat for Repeat Region and Transposable Element. 
+13.1.2.3) Reveal the _Details_ for Repeat Region and Transposable Element to display metadate for each annotation.  
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
@@ -167,11 +167,11 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.2) Search for a track using the search box.
 
-13.2.3) Check that clicking on the show native tracks icons properly toggles the native tracks.
+13.2.3) Check that clicking on the show JBrowse tracks selector icons properly toggles the JBrowse tracks.
 
-13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the native track view and the main panel toggle icon.
+13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the JBrowse track view and the main panel toggle icon.
 
-13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the native track view and switches the track panel toggle as well.
+13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the JBrowse track view and switches the track panel toggle as well.
 
 13.2.3.3) Confirm that reload in either case saves the prior preference.
 
@@ -253,6 +253,32 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  ```groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism
 
 
+### E) Testing Coordinate Transformation
+
+16) Reverse complement
+
+16.1) Navigation
+
+<p>
+16.1.1)  Test that click the sequence button in JBrowse display the reverse complement.  
+Confirm that the all tracks are rendering the reverse complement, but the location has been altered to keep the same view.
+Confirm that the annotator panel also reflects the reversed status.
+Confirm that clicking on the same icon returns to the previous view (and repeat). 
+</p>
+
+<p>
+16.1.2)  Test that click the sequence button in the Annotator Panel display the reverse complement with the exact same behavior when clicking on the button in the JBrowse display.
+</p>
+
+<p>
+16.1.3)  Confirm that when navigating between scaffolds that the orientation is maintained for the prior view.
+</p>
+
+<p>
+16.2)  JBrowse-only.  Confirm that the only options available in public JBrowse mode is the search box (no drop-down and no selection for reverse complement). 
+</p>
+
+16.3)  Confirm that all annotation functions in sections A and B occur the same when in reverse complement view, but flipped.
 
 
 

@@ -264,7 +264,8 @@ class PreferenceService {
 
     UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
         UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
-        if (userOrganismPreference.assemblage.name != sequenceName ) {
+        println "assemblage ${userOrganismPreference.assemblage}"
+        if (userOrganismPreference?.assemblage?.name != sequenceName ) {
 //            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
             Assemblage assemblage = Assemblage.findByNameAndOrganism(sequenceName,userOrganismPreference.organism)
             userOrganismPreference.assemblage = assemblage
@@ -480,8 +481,10 @@ class PreferenceService {
 
             if (!assemblage) {
                 Sequence sequence = sequenceName ? Sequence.findByNameAndOrganism(sequenceName, organism) : null
-                sequence = sequence ?: organism.sequences.first()
-                assemblage = assemblageService.generateAssemblageForSequence(sequence)
+                sequence = sequence ?: organism.sequences?.first()
+                if(sequence){
+                    assemblage = assemblageService.generateAssemblageForSequence(sequence)
+                }
             }
 
             if (user) {
@@ -489,7 +492,7 @@ class PreferenceService {
                         user: user
                         , organism: organism
                         , currentOrganism: true
-                        , sequence:assemblage
+                        , assemblage: assemblage  // can be null
                         , clientToken: clientToken
                 )
                 if (assemblage) {

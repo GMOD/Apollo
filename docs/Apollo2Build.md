@@ -53,7 +53,7 @@ We can now perform a quick-start of the application in "development mode" with t
 ./apollo run-local
 ```
 
-The jbrowse and perl pre-requisites will be installed during this step, and if there is a success, then a temporary
+The JBrowse and perl pre-requisites will be installed during this step, and if there is a success, then a temporary
 server will be automatically launched at `http://localhost:8080/apollo`.
 
 Note: You can also supply a port number e.g. `apollo run-local 8085` if there are conflicts on port 8080.
@@ -64,6 +64,14 @@ Also note: if there are any errors at this step, check the setup.log file for er
 Also also note: the "development mode" uses an in-memory H2 database for storing data by default. The setup guide will
 show you how to configure custom database settings.
 
+### Create server documentation
+
+Using an IDE like IntelliJ, NetBeans, Eclipse etc. is highly recommended in conjunction with [Grails 2.5.X documentation](http://docs.grails.org/2.5.x/).
+Additionally, you can generate documentation using grails:
+
+    grails doc
+    
+Server documentation (for groovy) should be available at `target/docs/all-docs.html`.
 
 ## Setting up the application
 

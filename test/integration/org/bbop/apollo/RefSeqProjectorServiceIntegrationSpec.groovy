@@ -3,6 +3,7 @@ package org.bbop.apollo
 import htsjdk.samtools.util.SequenceUtil
 import spock.lang.Ignore
 import spock.lang.IgnoreRest
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 //import grails.converters.JSON
 //import org.codehaus.groovy.grails.web.json.JSONObject
@@ -308,7 +309,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should get the proper end sequence"
-        assert 0 == returnedSequence.indexOf(threePrimeSequenceEnd.reverse())
+        assert 0 == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(threePrimeSequenceEnd))
 
         when: "we reverse the sequence we should see the opposite end"
         reverse = true
@@ -316,7 +317,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the start at the other end"
-        assert returnedSequence.length() - fivePrimeSequenceStart.length() == returnedSequence.indexOf(fivePrimeSequenceStart.reverse())
+        assert returnedSequence.length() - fivePrimeSequenceStart.length() == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(fivePrimeSequenceStart))
 
     }
 
@@ -372,16 +373,15 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should get the proper 11.4 end sequence as above"
-        assert 0 == returnedSequence.indexOf(threePrimeSequenceEnd11_4.reverse())
+        assert 0 == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(threePrimeSequenceEnd11_4))
 
         when: "we reverse the sequence we should see the opposite start of 11.4 and the end of Un87"
         chunk = 3
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the start at the other end"
-//        assert length11_4-fivePrimeSequenceStart11_4.length()==returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
-        assert length11_4 - (chunk * chunkSize) - fivePrimeSequenceStart11_4.length() == returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
-        assert length11_4 - (chunk * chunkSize) == returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
+        assert length11_4 - (chunk * chunkSize) - fivePrimeSequenceStart11_4.length() == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(fivePrimeSequenceStart11_4))
+        assert length11_4 - (chunk * chunkSize) == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(threePrimeSequenceEndUn87))
         // TODO: has to match the first of one and the last of another
 
         when: "we reverse the sequence we should and go to the end, we should see the reverse start of Un87"
@@ -390,7 +390,7 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the reverse the same"
         // it is at the end of this block
-        assert length11_4 + lengthUn87 - ((chunk) * chunkSize) - fivePrimeSequenceStartUn87.length() == returnedSequence.indexOf(fivePrimeSequenceStartUn87.reverse())
+        assert length11_4 + lengthUn87 - ((chunk) * chunkSize) - fivePrimeSequenceStartUn87.length() == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(fivePrimeSequenceStartUn87))
 
         when: "we reverse only the second sequence we should see the opposite end"
         // if 11.4 is false and Un87 is true
@@ -408,14 +408,14 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should still see the appropriate the proper boundary here"
         assert chunk3Length - threePrimeSequenceEnd11_4.length() == returnedSequence.indexOf(threePrimeSequenceEnd11_4)
-        assert length11_4 - (chunk * chunkSize) == returnedSequence.indexOf(threePrimeSequenceEndUn87.reverse())
+        assert length11_4 - (chunk * chunkSize) == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(threePrimeSequenceEndUn87))
 
         when: "we look at the last chunk"
         chunk = lastChunk
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should still see the appropriate the proper boundary here"
-        assert length11_4 + lengthUn87 - ((chunk) * chunkSize) - fivePrimeSequenceStartUn87.length() == returnedSequence.indexOf(fivePrimeSequenceStartUn87.reverse())
+        assert length11_4 + lengthUn87 - ((chunk) * chunkSize) - fivePrimeSequenceStartUn87.length() == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(fivePrimeSequenceStartUn87))
 
         when: "we reverse only the first sequence we should see the opposite end"
         // if 11.4 is false and Un87 is true
@@ -425,14 +425,14 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should still see the appropriate set"
-        assert 0 == returnedSequence.indexOf(threePrimeSequenceEnd11_4.reverse())
+        assert 0 == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(threePrimeSequenceEnd11_4))
 
         when: "we look at the next chunk"
         chunk = 3
         returnedSequence = refSeqProjectorService.projectSequence(sequenceTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should still see the appropriate the proper boundary here"
-        assert length11_4 - (chunk * chunkSize) - fivePrimeSequenceStart11_4.length() == returnedSequence.indexOf(fivePrimeSequenceStart11_4.reverse())
+        assert length11_4 - (chunk * chunkSize) - fivePrimeSequenceStart11_4.length() == returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(fivePrimeSequenceStart11_4))
         assert chunk3Length == returnedSequence.indexOf(fivePrimeSequenceStartUn87)
 
         when: "we look at the last chunk"
@@ -485,8 +485,8 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(featureTemplate.replace("@REVERSE@", reverse.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "verify that it is there and has the right sequences when viewed partially in reverse"
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))>0
     }
 
     /**
@@ -577,20 +577,20 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         returnedSequence = refSeqProjectorService.projectSequence(featureGb52236And52238Template.replace("@REVERSE1@", reverse1.toString()).replace("@REVERSE2@", reverse2.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
 
         then: "we should see the correct sequences reversed"
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))>0
         assert returnedSequence.length()<20000
         assert returnedSequence.length()==totalLength
 
         // it remaines reversed, because the order is not actually reversed here but separately
-        assert returnedSequence.indexOf(gb52236_threePrime.reverse()) < returnedSequence.indexOf(gb52238_fivePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))
 
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime)) > returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))
 
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52238_fivePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))
 
         when: "we view both reverse the first only of gb52236 gb52238 11.4 forward, we should see all"
         reverse1 = true
@@ -599,14 +599,14 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the first sequence reversed"
         assert returnedSequence.length()==totalLength
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))>0
         assert returnedSequence.indexOf(gb52238_fivePrime)>0
         assert returnedSequence.indexOf(gb52238_threePrime)>0
 
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52238_fivePrime)
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime)) < returnedSequence.indexOf(gb52238_fivePrime)
 
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))
         assert returnedSequence.indexOf(gb52238_fivePrime) < returnedSequence.indexOf(gb52238_threePrime)
 
 
@@ -619,12 +619,12 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.length()==totalLength
         assert returnedSequence.indexOf(gb52236_fivePrime)>0
         assert returnedSequence.indexOf(gb52236_threePrime)>0
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))>0
 
-        assert returnedSequence.indexOf(gb52236_threePrime) < returnedSequence.indexOf(gb52238_fivePrime.reverse())
+        assert returnedSequence.indexOf(gb52236_threePrime) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))
 
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime)) > returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))
         assert returnedSequence.indexOf(gb52236_fivePrime) > returnedSequence.indexOf(gb52236_threePrime)
 
 
@@ -654,15 +654,15 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the same sequences in the forward order"
         assert returnedSequence.length()==totalLength
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))>0
 
-        assert returnedSequence.indexOf(gb52238_threePrime.reverse()) < returnedSequence.indexOf(gb52236_fivePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))
 
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime)) > returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))
 
         when: "we flip it and reverse first (GB52238 and then GB52236) and see what we get"
         reverse1 = true
@@ -671,14 +671,14 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the same sequences in the forward order"
         assert returnedSequence.length()==totalLength
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52238_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))>0
         assert returnedSequence.indexOf(gb52236_fivePrime)>0
         assert returnedSequence.indexOf(gb52236_threePrime)>0
 
-        assert returnedSequence.indexOf(gb52238_threePrime.reverse()) < returnedSequence.indexOf(gb52236_fivePrime)
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime)) < returnedSequence.indexOf(gb52236_fivePrime)
 
-        assert returnedSequence.indexOf(gb52238_fivePrime.reverse()) > returnedSequence.indexOf(gb52238_threePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime)) > returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))
         assert returnedSequence.indexOf(gb52236_fivePrime) > returnedSequence.indexOf(gb52236_threePrime)
 
 
@@ -691,13 +691,13 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert returnedSequence.length()==totalLength
         assert returnedSequence.indexOf(gb52238_fivePrime)>0
         assert returnedSequence.indexOf(gb52238_threePrime)>0
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse())>0
-        assert returnedSequence.indexOf(gb52236_threePrime.reverse())>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))>0
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))>0
 
-        assert returnedSequence.indexOf(gb52238_threePrime) < returnedSequence.indexOf(gb52236_fivePrime.reverse())
+        assert returnedSequence.indexOf(gb52238_threePrime) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))
 
         assert returnedSequence.indexOf(gb52238_fivePrime) < returnedSequence.indexOf(gb52238_threePrime)
-        assert returnedSequence.indexOf(gb52236_fivePrime.reverse()) < returnedSequence.indexOf(gb52236_threePrime.reverse())
+        assert returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime)) < returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))
 
     }
 
@@ -768,13 +768,13 @@ class RefSeqProjectorServiceIntegrationSpec extends AbstractIntegrationSpec {
         reverseUn87 = true
         chunk = 0
         returnedSequence = refSeqProjectorService.projectSequence(featureTemplate.replace("@REVERSE1@", reverse11_4.toString()).replace("@REVERSE2@", reverseUn87.toString()).replace("@CHUNK@", chunk.toString()), Organism.first())
-        index52236_fivePrime = returnedSequence.indexOf(gb52236_fivePrime.reverse())
-        index52236_threePrime = returnedSequence.indexOf(gb52236_threePrime.reverse())
-        index52238_fivePrime = returnedSequence.indexOf(gb52238_fivePrime.reverse())
-        index52238_threePrime = returnedSequence.indexOf(gb52238_threePrime.reverse())
-        index53498_fivePrime = returnedSequence.indexOf(gb53498_fivePrime.reverse())
-        index53498_threePrime = returnedSequence.indexOf(gb53498_threePrime.reverse())
-        index53496 = returnedSequence.indexOf(gb53496.reverse())
+        index52236_fivePrime = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_fivePrime))
+        index52236_threePrime = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52236_threePrime))
+        index52238_fivePrime = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_fivePrime))
+        index52238_threePrime = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb52238_threePrime))
+        index53498_fivePrime = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb53498_fivePrime))
+        index53498_threePrime = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb53498_threePrime))
+        index53496 = returnedSequence.indexOf(SequenceTranslationHandler.reverseComplementSequence(gb53496))
         totalLength = returnedSequence.length()
 
         then: "we should see them all still"

@@ -56,6 +56,7 @@ class RequestHandlingService {
             Pseudogene.class.name
     ]
 
+
     public static final List<String> viewableAnnotationTranscriptList = [
             Transcript.class.name,
             MRNA.class.name,
@@ -542,7 +543,6 @@ class RequestHandlingService {
             order("name","asc")
         }
 
-
         JSONArray jsonFeatures = new JSONArray()
         features.each { Feature feature ->
             JSONObject jsonObject = featureService.convertFeatureToJSON(feature, false,assemblage)
@@ -570,8 +570,6 @@ class RequestHandlingService {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
         features = featureProjectionService.projectTrack(features, assemblage, true)
-
-        println "adding exon! ${features}"
 
         String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value);
         Transcript transcript = Transcript.findByUniqueName(uniqueName)
@@ -1169,7 +1167,7 @@ class RequestHandlingService {
         try {
             if(assemblage){
                 // TODO: also send to any overlapping sequences as well?
-//            brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + sequence.organismId + "/" + sequence.id, returnString
+                println "returnString ${returnString}"
                 brokerMessagingTemplate.convertAndSend "/topic/AnnotationNotification/" + assemblage.organismId + "/" + assemblage.id, returnString
 //            println "sending: /topic/AnnotationNotification/" + assemblage.organismId + "/" + assemblage.id
 
@@ -1260,6 +1258,9 @@ class RequestHandlingService {
             }
         }
 
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(updateFeatureContainer.get(FeatureStringEnum.FEATURES.value), assemblage, false)
+
         AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
                 features: deleteFeatureContainer
                 , assemblage: assemblage
@@ -1286,9 +1287,8 @@ class RequestHandlingService {
 
 
         Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-
-        // TODO: add projection here
-//        features = featureProjectionService.projectTrack(features , assemblage, true)
+        // unproject incoming JSON features to original coordinate system
+        featureProjectionService.projectTrack(features, assemblage, true)
 
         User activeUser = permissionService.getCurrentUser(inputObject)
 
@@ -1346,9 +1346,12 @@ class RequestHandlingService {
                 }
             }
 
-            // TODO: revert projection
             addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true,assemblage));
         }
+
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
+        featureProjectionService.projectTrack(updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                 features: addFeatureContainer
@@ -1684,7 +1687,7 @@ class RequestHandlingService {
         for (int i = 1; i < features.length(); ++i) {
             JSONObject jsonExon = features.getJSONObject(i)
             Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value));
-
+            checkOwnersDelete(exon,inputObject)
             exonService.deleteExon(transcript, exon);
         }
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
@@ -1698,6 +1701,7 @@ class RequestHandlingService {
 
         Feature topLevelFeature = featureService.getTopLevelFeature(transcript)
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topLevelFeature,false,assemblage))
+        featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -1706,7 +1710,6 @@ class RequestHandlingService {
         )
 
         fireAnnotationEvent(annotationEvent)
-
         return featureContainer
     }
 
@@ -1829,11 +1832,8 @@ class RequestHandlingService {
                 feature = Feature.findByName(jsonFeature.getString(FeatureStringEnum.NAME.value))
                 uniqueName = feature.uniqueName
             }
-            // TODO: can not do this as it will aggressively delete history
-            // that other objects might need
-//            if (!suppressHistory) {
-//                featureEventService.deleteHistory(uniqueName)
-//            }
+
+            checkOwnersDelete(feature,inputObject)
 
             log.debug "feature found to delete ${feature?.name}"
             if (feature) {
@@ -1973,10 +1973,10 @@ class RequestHandlingService {
                 }
 
                 JSONObject newJsonObject = featureService.convertFeatureToJSON(feature,false,assemblage)
-                featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newJsonObject);
-
-                JSONArray updateArray = featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
-                updateArray = featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value),assemblage,false)
+                JSONArray featureContainerFeatures = new JSONArray()
+                featureContainerFeatures.add(new JSONObject(newJsonObject.toString()))
+                JSONArray updateArray = new JSONArray(featureContainerFeatures)
+                updateArray = featureProjectionService.projectTrack(updateArray,assemblage,false)
                 featureContainer.put(FeatureStringEnum.FEATURES.value,updateArray)
 
 
@@ -2001,15 +2001,32 @@ class RequestHandlingService {
         return createJSONFeatureContainer()
     }
 
+    def checkOwnersDelete(Feature feature, JSONObject inputObject) {
+        if(configWrapperService.onlyOwnersDelete){
+            def currentUser = permissionService.getCurrentUser(inputObject)
+            def isAdmin = permissionService.isUserAdmin(currentUser)
+            def owners = findOwners(feature)
+            if(!isAdmin && !(currentUser in owners)){
+                throw new AnnotationException("Only feature owner or admin may delete, change type, or revert annotation to an earlier state")
+            }
+        }
+    }
+
+    private findOwners(Feature feature) {
+        if(!feature) return null
+        if(feature.owners){
+            return feature.owners
+        }
+        return findOwners(featureRelationshipService.getParentForFeature(feature))
+    }
+
     @Timed
     def makeIntron(JSONObject inputObject) {
         Assemblage assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         // TODO: project fmin only
-        println "making intron ${featuresArray as JSON}"
         featuresArray = featureProjectionService.projectTrack(featuresArray, assemblage, true)
-        println "converted -> ${featuresArray}"
 
         JSONObject jsonExon = featuresArray.getJSONObject(0)
         Exon exon = Exon.findByUniqueName(jsonExon.getString(FeatureStringEnum.UNIQUENAME.value))
@@ -2290,6 +2307,7 @@ class RequestHandlingService {
         Feature topFeature = featureService.getTopLevelFeature(transcript)
         topFeature.save()
         JSONObject featureContainer = createJSONFeatureContainer(featureService.convertFeatureToJSON(topFeature,false,assemblage))
+        featureProjectionService.projectTrack(featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value), assemblage, false)
 
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
@@ -2305,14 +2323,14 @@ class RequestHandlingService {
     @Timed
     def undo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Assemblage requestAssemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
-            featureEventService.undo(jsonFeature, count)
+            featureEventService.undo(jsonFeature, count,requestAssemblage)
         }
         return new JSONObject()
     }
@@ -2320,14 +2338,14 @@ class RequestHandlingService {
     @Timed
     def redo(JSONObject inputObject) {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        Assemblage requestAssemblage = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         permissionService.getCurrentUser(inputObject)
 
         for (int i = 0; i < featuresArray.size(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
             int count = inputObject.containsKey(FeatureStringEnum.COUNT.value) ? inputObject.getInt(FeatureStringEnum.COUNT.value) : false
             jsonFeature = permissionService.copyRequestValues(inputObject, jsonFeature)
-            featureEventService.redo(jsonFeature, count)
+            featureEventService.redo(jsonFeature, count,requestAssemblage)
         }
         return new JSONObject()
     }
@@ -2345,6 +2363,7 @@ class RequestHandlingService {
             String type = features.get(i).type
             String uniqueName = features.get(i).uniquename
             Feature feature = Feature.findByUniqueName(uniqueName)
+            checkOwnersDelete(feature,inputObject)
             FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
             JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature,false,assemblage)
             JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
@@ -2375,8 +2394,15 @@ class RequestHandlingService {
                 )
                 fireAnnotationEvent(deleteAnnotationEvent)
 
+
+
                 JSONObject addFeatureContainer = createJSONFeatureContainer()
-                addFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeatureJsonObject)
+                JSONArray featuresArray = new JSONArray()
+                featuresArray.put(newFeatureJsonObject)
+
+                def returnTranscriptList = featureProjectionService.projectTrack(featuresArray,assemblage,false)
+                addFeatureContainer.put(FeatureStringEnum.FEATURES.value,returnTranscriptList)
+
                 AnnotationEvent addAnnotationEvent = new AnnotationEvent(
                         features: addFeatureContainer,
                         assemblage: assemblage,

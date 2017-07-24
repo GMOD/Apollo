@@ -18,6 +18,8 @@ define([
            'dojo/_base/window',
            'dojo/_base/array',
            'dojo/keys',
+           'dojo/on',
+           'dojo/Evented',
            'dijit/registry',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -56,6 +58,8 @@ define([
             win,
             array,
             keys,
+            on,
+            Evented,
             dijitRegistry,
             dijitMenu,
             dijitMenuItem,
@@ -87,7 +91,7 @@ define([
             Util
     ) {
 
-return declare( [JBPlugin, HelpMixin],
+return declare( [JBPlugin, HelpMixin,Evented],
 {
 
     constructor: function( args ) {
@@ -113,6 +117,7 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
+        browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?!browser.config.overrideColorCdsByFrameTrue:browser.cookie("colorCdsByFrame"));
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
@@ -210,7 +215,8 @@ return declare( [JBPlugin, HelpMixin],
             this.createMenus();
         }
 
-        this.addSearchBox();
+        this.hideDropDown();
+        this.hideOldSearch();
 
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
@@ -268,8 +274,14 @@ return declare( [JBPlugin, HelpMixin],
         browser.afterMilestone( 'completely initialized', function() {
             var view  = browser.view ;
             // var projectionString = view.ref.name;
-            var projectionString = JSON.stringify(view.ref) ;
-            var projectionLength = window.parent.getProjectionLength(projectionString);
+            var projectionLength ;
+            if(thisB.runningApollo()){
+                var projectionString = JSON.stringify(view.ref) ;
+                projectionLength = thisB.getApollo().getProjectionLength(projectionString);
+            }
+            else{
+                projectionLength = view.ref.length ;
+            }
             var ratio = view.elem.clientWidth  / projectionLength  ;
 
             browser.view.pxPerBp = ratio ;
@@ -280,6 +292,14 @@ return declare( [JBPlugin, HelpMixin],
 
 
     },
+
+
+
+
+    runningApollo: function () {
+        return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0');
+    },
+
     updateLabels: function() {
         if(!this._showLabels) {
             query('.track-label').style('visibility','hidden');
@@ -425,7 +445,6 @@ return declare( [JBPlugin, HelpMixin],
         var hrefTokens = hrefString.split("\/");
         var organism ;
         for(var h in hrefTokens){
-            // alert(hrefTokens[h]);
             if(hrefTokens[h]=="jbrowse"){
                 organism = hrefTokens[h-1] ;
             }
@@ -483,6 +502,8 @@ return declare( [JBPlugin, HelpMixin],
                                     }
                             });
         }
+        this.addSearchBox();
+        this.addNavBox();
 
         // get all toplinks and hide the one that says 'Full-screen view'
         $('.topLink').each(function(index){
@@ -746,6 +767,126 @@ return declare( [JBPlugin, HelpMixin],
         this.updateLabels();
     },
 
+    hideDropDown: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var searchBox = dojo.byId('search-refseq');
+            dojo.style(searchBox, "display", "none");
+        });
+    },
+
+    hideOldSearch: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var searchBox = dojo.byId('search-box');
+            dojo.style(searchBox, "display", "none");
+        });
+    },
+
+    addNavBox: function() {
+        var thisB = this;
+        var browser = thisB.browser;
+
+        browser.afterMilestone('initView', function () {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-nav-box',
+                'class': "separate-nav-box"
+            }, navbox);
+            var sequenceObj , refSeqObject ;
+            var refSeqString  = browser.view.ref.name;
+            if(refSeqString.startsWith("{")){
+                refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf("}")+1);
+                refSeqObject = JSON.parse(refSeqString);
+                // just grab the first one for now
+                sequenceObj = refSeqObject.sequenceList[0]
+            }
+            else{
+                sequenceObj = {};
+                sequenceObj.name = refSeqString;
+            }
+
+
+            this.navLabel = new dijitButton(
+                {
+                    id: "apollo-navigation",
+                    name: "apollo-navigation",
+                    style: {width: "200px"},
+                    maxLength: 400,
+                    searchAttr: "navigation",
+                    title: sequenceObj.name,
+                    label: (sequenceObj.reverse ? '&larr;': '') + sequenceObj.name +   (!sequenceObj.reverse ? '&rarr;': ''),
+                    onClick: function()  {
+                        if(thisB.runningApollo()){
+                            thisB.getApollo().doReverseComplement();
+                        }
+                        // public JBrowse
+                        else{
+                            // get the refseq name on this and create
+                            // name should already be set
+                            sequenceObj = browser.view.ref;
+
+                            // if it is set as JSON, just really want the individual name for now
+                            if(sequenceObj.name.startsWith("{")){
+                                // get the real name out
+                                var sequenceString = sequenceObj.name.substr(0,sequenceObj.name.lastIndexOf("}")+1);
+                                sequenceObj = JSON.parse(sequenceString).sequenceList[0];
+                            }
+
+
+                            var startBp = browser.view.minVisible();
+                            var endBp = browser.view.maxVisible();
+                            if(sequenceObj.reverse != null){
+                                sequenceObj.reverse = !sequenceObj.reverse ;
+                                if(sequenceObj.reverse==false){
+                                    startBp = sequenceObj.length - browser.view.maxVisible();
+                                    endBp = sequenceObj.length - browser.view.minVisible();
+                                }
+                            }
+                            else{
+                                sequenceObj.reverse = true ;
+                            }
+                            refSeqObject = {};
+                            refSeqObject.sequenceList = [sequenceObj];
+                            // set location
+                            var locString = JSON.stringify(refSeqObject)+":"+startBp+".."+endBp;
+
+                            var newUrl = "".concat(
+                                window.location.protocol,
+                                "//",
+                                window.location.host,
+                                window.location.pathname,
+                                "?",
+                                dojo.objectToQuery(
+                                    dojo.mixin(
+                                        dojo.mixin( {}, (browser.config.queryParams||{}) ),
+                                        dojo.mixin(
+                                            {
+                                                loc:    locString,
+                                                tracks: browser.view.visibleTrackNames().join(','),
+                                                highlight: (browser.getHighlight()||'').toString()
+                                            },
+                                            {}
+                                        )
+                                    )
+                                )
+                            );
+
+                            window.location.href = newUrl;
+                        }
+                    }
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            navbox.appendChild(this.navLabel.domNode);
+        });
+    },
+
+    getApollo: function () {
+        return window.parent;
+    },
 
     addSearchBox: function(){
         var thisB = this ;
@@ -758,14 +899,12 @@ return declare( [JBPlugin, HelpMixin],
                 'class': "separate-location-box"
             }, navbox);
 
-
-
             var locationBox = new dijitComboBox(
                 {
                     id: "apollo-location",
                     name: "apollo-location",
-                    style: {width: "200px"},
-                    maxLength: 400,
+                    style: {width: "300px"},
+                    maxLength: 300,
                     searchAttr: "name",
                     title: 'Enter a symbol or ID to search'
                 },
@@ -777,7 +916,7 @@ return declare( [JBPlugin, HelpMixin],
                 }
             }));
             locationBox.focusNode.spellcheck = false;
-            locationBox.set('placeholder',"search features, IDs");
+            locationBox.set('placeholder',"Search genomic elements, IDs");
             dojo.query('div.dijitArrowButton', locationBox.domNode ).orphan();
             dojo.connect( locationBox.focusNode, "keydown", this, function(event) {
                 if( event.keyCode == keys.ESCAPE ) {
@@ -785,15 +924,51 @@ return declare( [JBPlugin, HelpMixin],
                 }
                 else if (event.keyCode == keys.ENTER) {
                     locationBox.closeDropDown(false);
-                    // thisB.navigateToAssemblage( locationBox.get('value') );
-                    browser.navigateTo( locationBox.get('value') );
+                    var locationString = locationBox.get('value');
+                    browser.navigateTo( locationString );
                     dojo.stopEvent(event);
                 }
-                // else {
-                //     this.goButton.set('disabled', false);
-                // }
             });
+            browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                var sequenceObject ,sequenceString;
+                if(thisB.runningApollo()){
+                    var refObject = currRegion.ref.substr(0,currRegion.ref.lastIndexOf(':'))  +':'+ currRegion.start + ".."+currRegion.end ;
+                    thisB.getApollo().setCurrentSequence(refObject);
+                    sequenceString = currRegion.ref.substring(0,refObject.lastIndexOf("}")+1);
+                    sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                    if(this.navLabel){
+                        this.navLabel.set('title',sequenceObject.name);
+                        this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                    }
+                    var locationVal = Util.assembleLocStringWithLength( currRegion );
+                    locationVal = sequenceObject.name+ locationVal.substr(locationVal.lastIndexOf(":"));
+                    locationBox.set('value',locationVal,false);
+                }
+                else{
+                    if(currRegion.ref.startsWith("{")){
+                        sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                        sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                    }
+                    else{
+                       sequenceObject = {};
+                       sequenceObject.name = currRegion.ref;
+                       sequenceObject.reverse = false ;
+                    }
+                    if(this.navLabel){
+                        this.navLabel.set('title',sequenceObject.name);
+                        this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                    }
+                    var locationBoxString = Util.assembleProjectedString(currRegion);
+                    locationBox.set('value', locationBoxString,false);
+                    // this.navLabel.set('title',name);
+                    // this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                }
+            }));
             dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+
+            on(window, 'resize', function() { console.log('resize!')});
+            on.emit(window, 'resize', {bubbles: true,cancelable: true});
+
             (function(){
 
                 // add a moreMatches class to our hacked-in "more options" option
