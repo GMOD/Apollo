@@ -241,6 +241,7 @@ class OrganismController {
             , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
             , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "a common name used for the organism")
+            , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
     ])
     @Transactional
@@ -259,6 +260,7 @@ class OrganismController {
                 organism.metadata = organismJson.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode
+                organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
 
                 if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
@@ -268,7 +270,7 @@ class OrganismController {
             } else {
                 throw new Exception('organism not found')
             }
-            render new JSONObject() as JSON
+            render findAllOrganisms() as JSON
         }
         catch (e) {
             def error = [error: 'problem saving organism: ' + e]
@@ -376,6 +378,7 @@ class OrganismController {
                         species        : organism.species,
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
+                        nonDefaultTranslationTable : organism.nonDefaultTranslationTable,
                         metadata       : organism.metadata,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
                 ] as JSONObject

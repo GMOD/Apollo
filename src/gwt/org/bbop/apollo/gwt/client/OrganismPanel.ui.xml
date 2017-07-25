@@ -29,6 +29,9 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .inline-button{
+            display: inline;
+        }
 
     </ui:style>
     <gwt:DockLayoutPanel>
@@ -42,7 +45,7 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
-        <gwt:south size="300">
+        <gwt:south size="350">
             <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
@@ -84,6 +87,14 @@
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Search database</b:InputGroupAddon>
                                     <b:TextBox autoComplete="false" ui:field="blatdb" enabled="false"/>
+                                </b:InputGroup>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                                <b:InputGroup>
+                                    <b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>
+                                    <b:TextBox autoComplete="false" ui:field="nonDefaultTranslationTable" enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>

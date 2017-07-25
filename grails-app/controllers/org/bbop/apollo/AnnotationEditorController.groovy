@@ -7,6 +7,7 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -140,12 +141,25 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getTranslationTable() {
         log.debug "getTranslationTable"
         JSONObject returnObject = permissionService.handleInput(request, params)
-        TranslationTable translationTable = configWrapperService.getTranslationTable()
-        JSONObject ttable = new JSONObject();
-        for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
-            ttable.put(t.getKey(), t.getValue());
+        log.debug "return object ${returnObject as JSON}"
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        TranslationTable translationTable
+        log.debug "has organism ${organism}"
+        // use the over-wridden one
+        if(organism?.nonDefaultTranslationTable){
+            log.debug "overriding default translation table for ${organism.commonName} with ${organism.nonDefaultTranslationTable}"
+            translationTable = SequenceTranslationHandler.getTranslationTableForGeneticCode(organism.nonDefaultTranslationTable)
         }
-        returnObject.put(REST_TRANSLATION_TABLE, ttable);
+            // just use the default
+        else{
+            log.deub "using the default translation table"
+            translationTable = configWrapperService.getTranslationTable()
+        }
+        JSONObject ttable = new JSONObject()
+        for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
+            ttable.put(t.getKey(), t.getValue())
+        }
+        returnObject.put(REST_TRANSLATION_TABLE, ttable)
         render returnObject
     }
 
