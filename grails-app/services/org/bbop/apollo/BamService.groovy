@@ -67,10 +67,9 @@ class BamService {
 
         ProjectionSequence projectionSequence = projection.getProjectedSequences().first()
         String sequenceName = projectionSequence.name
-        Long sequenceLength = projectionSequence.length
 
-        int actualStart = projection.unProjectLocalValue(start)
-        int actualEnd = projection.unProjectLocalValue(end)
+        int actualStart = projection.unProjectValue(start)
+        int actualEnd = projection.unProjectValue(end)
         if(actualStart > actualEnd){
             println "flipping"
             Long tmp = actualStart
@@ -102,6 +101,15 @@ class BamService {
                 jsonObject.start = jsonObject.end
                 jsonObject.end = tmp
             }
+            jsonObject.name = samRecord.header.SAMString
+////                jsonObject.type = samRecord.get
+////                jsonObject.position = samRecord.get // just reference sequence already there?
+            jsonObject.cigar = samRecord.cigarString
+            samRecord.getAttributes().each { attribute ->
+                jsonObject[attribute.tag] = attribute.value
+            }
+            jsonObject.baseQualityString = samRecord.baseQualityString
+            jsonObject.readSequence = samRecord.readString
             featuresArray.add(jsonObject)
         }
 
