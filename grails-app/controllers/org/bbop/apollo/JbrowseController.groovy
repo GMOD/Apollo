@@ -826,6 +826,7 @@ class JbrowseController {
             obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
+            //obj.region_feature_densities = true
         }
         return obj
     }
