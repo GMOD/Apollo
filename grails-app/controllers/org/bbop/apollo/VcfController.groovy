@@ -35,9 +35,37 @@ class VcfController {
 
     }
 
-    def regionFeatureDensities() {
-        // TODO
-        render new JSONObject() as JSON
+    def regionFeatureDensities(String trackName, Long organismId, String sequenceName) {
+        Organism organism = Organism.findById(organismId)
+        Long start = params.getLong("start")
+        Long end = params.getLong("end")
+        int numBins = 25
+        int basesPerBin = params.getInt("basesPerBin")
+        JSONArray binsArray = new JSONArray()
+
+        try {
+            File file = new File(organism.directory + "/" + params.urlTemplate)
+            VCFFileReader vcfFileReader = new VCFFileReader(file)
+            MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
+            if (projection) {
+                vcfService.getFeatureDensitiesForRegion(binsArray, projection, vcfFileReader, start, end, numBins, basesPerBin)
+            }
+            else {
+                //vcfService.getFeatureDensitiesForRegion(binsArray, sequenceName, vcfFileReader, start, end)
+            }
+        } catch (FileNotFoundException e) {
+            println e.toString()
+        }
+
+        JSONObject returnObject = new JSONObject()
+        JSONObject statsJsonObject = new JSONObject()
+        statsJsonObject.put("basesPerBin", basesPerBin)
+        statsJsonObject.put("max", binsArray.max())
+        returnObject.put("bins", binsArray)
+        returnObject.put("stats", statsJsonObject)
+
+        render returnObject as JSON
+
     }
 
     def features(String sequenceName, Long organismId, int start, int end) {
