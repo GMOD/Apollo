@@ -288,8 +288,23 @@ class VcfService {
 
         // filter
         if (variantContext.filtered) {
-            // TODO: send values as an array
-            jsonFeature.put(FeatureStringEnum.FILTER.value, variantContext.getFilters().join(","))
+            JSONObject filterObject = new JSONObject()
+            JSONArray valuesArray = new JSONArray()
+            variantContext.getFilters().each {
+                valuesArray.add(it)
+            }
+            filterObject.put(FeatureStringEnum.VALUES.value, valuesArray)
+            jsonFeature.put(FeatureStringEnum.FILTER.value, filterObject)
+        }
+        else {
+            if (variantContext.getFiltersMaybeNull() != null) {
+                // PASS
+                JSONObject filterObject = new JSONObject()
+                JSONArray valuesArray = new JSONArray()
+                valuesArray.add("PASS")
+                filterObject.put(FeatureStringEnum.VALUES.value, valuesArray)
+                jsonFeature.put(FeatureStringEnum.FILTER.value, filterObject)
+            }
         }
 
         return jsonFeature
