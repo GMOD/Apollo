@@ -16,37 +16,7 @@ class BamService {
      * matching DraggableAlignments.js
      */
     @NotTransactional
-    def processSequence(JSONArray featuresArray, String sequenceName, BAMFileReader samReader, int start, int end) {
-        SAMRecordIterator samRecordIterator = bamFileReader.query(sequenceName, start, end, false)
-
-        Integer actualStart = start
-        Integer actualStop = end
-
-
-        for (SAMRecord samRecord in samRecordIterator) {
-
-            List<AlignmentBlock> alignmentBlocks = samRecord.alignmentBlocks
-            println "cigar string: ${samRecord.cigarString}"
-            Cigar cigar = samRecord.getCigar()
-            println "cigar elements size: ${cigar.cigarElements.size()}"
-            for (CigarElement cigarElement in cigar.cigarElements) {
-                println "cigar element ${cigarElement.toString()}"
-            }
-            println "alignment block size: ${alignmentBlocks.size()}"
-            for (AlignmentBlock alignmentBlock in alignmentBlocks) {
-                JSONObject feature = new JSONObject()
-                println "alignment block: ${alignmentBlock.toString()}"
-                feature.start = alignmentBlock.readStart
-                feature.end = alignmentBlock.readStart + alignmentBlock.length
-                println "feature ${feature as JSON}"
-//                featuresArray.add(feature)
-            }
-        }
-        return featuresArray
-    }
-
-    @NotTransactional
-    def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BAMFileReader samReader, int start, int end) {
+    def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BAMFileReader samReader, int start, int end,File sourceFile) {
 
         ProjectionSequence projectionSequence = projection.getProjectedSequences().first()
         String sequenceName = projectionSequence.name
@@ -68,7 +38,8 @@ class BamService {
 //        SAMRecordIterator samRecordIterator = samReader.iterator()
 
         final SAMFileHeader header = samReader.getFileHeader()
-        println "bam header ${header?.getTextHeader()}"
+//        println "bam header ${header?.getTextHeader()}"
+//        println "header properties ${header?.properties}"
 
         println "start / end ${start} / ${end}"
         println "iterator in bam service ${samRecordList.size()}"
@@ -87,8 +58,17 @@ class BamService {
                 jsonObject.end = tmp
             }
             jsonObject.name = samRecord.readName
+//            println "${jsonObject.name}"
+            if(jsonObject.name=='ctgA_19043_19563_1:0:0_1:0:0_18a0'){
+                println "SAM properties ${samRecord?.properties}"
+            }
 //            jsonObject.score = samRecord.
             jsonObject.CIGAR = samRecord.cigarString
+
+            // TODO: one of these is incorrect
+            jsonObject["Length on ref"] = samRecord.readLength
+
+            jsonObject.source = sourceFile.name
 
 
 
@@ -96,8 +76,24 @@ class BamService {
             samRecord.getAttributes().each { attribute ->
                 jsonObject[attribute.tag] = attribute.value
             }
-            jsonObject.baseQualityString = samRecord.baseQualityString
-            jsonObject.readSequence = samRecord.readString
+//            jsonObject.baseQualityString = samRecord.baseQualityString
+//            jsonObject.qual = samRecord.baseQualityString
+            jsonObject.qual = samRecord.baseQualityString
+            jsonObject.seq = samRecord.readString
+            jsonObject.score = samRecord.mappingQuality
+
+            jsonObject["seq length"] = samRecord.readString.length()
+//            jsonObject["Seq reverse complemented"] = samRecord.
+//            jsonObject.readSequence = samRecord.readString
+            jsonObject.unmapped = samRecord.readUnmappedFlag
+            jsonObject.duplicate = samRecord.duplicateReadFlag
+            jsonObject.secondary = samRecord.secondaryOrSupplementary
+//            samRecord.attributes.each {
+//                println "SAMRecord tag: ${it.tag} -> ${it.value}"
+//            }
+
+            jsonObject.remove("class")
+
             featuresArray.add(jsonObject)
         }
 

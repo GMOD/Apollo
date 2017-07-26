@@ -70,10 +70,11 @@ class BamController {
 
             if (projection) {
                 println "is projectin ${projection}"
-                bamService.processProjection(featuresArray, projection, samReader, start, end)
-            } else {
+                bamService.processProjection(featuresArray, projection, samReader, start, end,file)
+            }
+            else {
                 println "NO projectin ${refererLoc}"
-                bamService.processSequence(featuresArray, sequenceName, samReader, start, end)
+                log.error("Not sure what to do")
             }
             println "end array ${featuresArray.size()}"
         } catch (e) {
