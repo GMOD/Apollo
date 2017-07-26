@@ -152,7 +152,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
             // just use the default
         else{
-            log.deub "using the default translation table"
+            log.debug "using the default translation table"
             translationTable = configWrapperService.getTranslationTable()
         }
         JSONObject ttable = new JSONObject()
