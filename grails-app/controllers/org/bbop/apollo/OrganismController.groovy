@@ -123,6 +123,7 @@ class OrganismController {
             , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
             , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
             , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "a name used for the organism")
+            , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
     ])
     @Transactional
@@ -143,6 +144,7 @@ class OrganismController {
                         , species: organismJson.species
                         , genus: organismJson.genus
                         , metadata: organismJson.metadata
+                        , nonDefaultTranslationTable:  organismJson.nonDefaultTranslationTable ?: null
                         , publicMode: organismJson.publicMode
                 )
                 log.debug "organism ${organism as JSON}"
