@@ -46,6 +46,10 @@ class VcfService {
         (start, end) = processCoordinates(organism, projection, start, end)
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
 
+        if (start < 0 && end < 0) {
+            return featuresArray
+        }
+
         int count  = 0
         for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order}) {
             def vcfEntries = []
@@ -75,6 +79,11 @@ class VcfService {
         // Note: incoming coordinates are zero-based
         log.info "incoming start: ${start} end: ${end}"
         (start, end) = processCoordinates(organism, sequenceName, start, end)
+
+        if (start < 0 && end < 0) {
+            return featuresArray
+        }
+
         def vcfEntries = []
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
 
@@ -361,92 +370,65 @@ class VcfService {
         return type
     }
 
-//    def getFeatureDensitiesForRegion(JSONArray binsArray, MultiSequenceProjection projection, VCFFileReader vcfFileReader, Long start, Long end, int numBins, int basesPerBin) {
-//        Map<Integer, Integer> lengthMap = new TreeMap<>()
-//
-//        if (start < 0 && end < 0) {
-//            // nothing to do since the requested region has negative coordinates
-//            log.info "start and end is < 0; returning empty features array"
-//            return binsArray
-//        }
-//        else if (start > 0 && end < 0) {
-//            // that means the request is to fetch something near the end of the sequence
-//            // and the requested end is outside the sequence boundary.
-//            // Thus, adjust end to max length of the current sequence
-//            end = projection.length
-//            log.info "setting end to projection length: ${end}"
-//        }
-//        else if (start < 0 && end > 0) {
-//            // that means the request is to fetch something start the start of the sequence
-//            // and the requested start is outside the sequence boundary.
-//            // Thus, adjust start to 0
-//            log.info "setting start to 0"
-//            start = 0
-//        }
-//
-//        // unprojecting input coordinates
-//        start = projection.unProjectValue((long) start)
-//        end = projection.unProjectValue((long) end)
-//        log.info "unprojected start: ${start} end: ${end}"
-//
-//        if (start > end) {
-//            // in a reverse projection, unprojected start will always be greater than unprojected end
-//            int temp = start
-//            start = end
-//            end = temp
-//        }
-//
-//        if (start < 0) {
-//            start = 0
-//        }
-//        if (end > projection.length) {
-//            end = projection.length
-//        }
-//
-//        def vcfEntries = []
-//        def countArray = []
-//
-//        for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order}) {
-//            log.info "projection sequence name ${projectionSequence.name}"
-//            lengthMap.put(projectionSequence.order, projection.sequenceDiscontinuousProjectionMap.get(projectionSequence).length)
-//            // changing zero-based start to one-based start while querying VCF
-//            log.info "querying VCF with projectionSequence.name: ${projectionSequence.name} ${start + 1}-${end} (note the adjusted start)"
-//            def queryResults = vcfFileReader.query(projectionSequence.name, (int)start + 1, (int)end)
-//            while(queryResults.hasNext()) {
-//                vcfEntries.add(queryResults.next())
-//            }
-//        }
-//
-//        for (int i = 0; i < numBins; i++) countArray.add(0);
-//
-//        log.info "region ${start}..${end}"
-//        log.info "numBins: ${numBins}"
-//        log.info "basesPerBin: ${basesPerBin}"
-//
-//        for (int i = 0; i < vcfEntries.size(); i++) {
-//            VariantContext vc = vcfEntries.get(i)
-//            int variantStart = vc.getStart() - 1
-//            int variantEnd = vc.getEnd()
-//            int idx = Math.ceil((variantStart - start)/basesPerBin)
-//            log.info "position ${variantStart} falls in bin index: ${idx}"
-//            if (idx < 0 || idx > numBins) {
-//                log.error "bin index not valid"
-//            }
-//            else {
-//                int zbi = idx-1
-//                int c = countArray.get(zbi)
-//                c++
-//                countArray[zbi] = c
-//            }
-//        }
-//
-//        log.info "Histogram Array: ${countArray}"
-//        countArray.each {
-//            binsArray.add(it)
-//        }
-//
-//        return binsArray
-//    }
+    def getFeatureDensitiesForRegion(JSONArray binsArray, Organism organism, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end, int numBins, int basesPerBin) {
+        log.info "incoming start: ${start} end: ${end}"
+        (start,end) = processCoordinates(organism, projection, start, end)
+
+        if (start < 0 && end < 0) {
+            return binsArray
+        }
+
+        for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order}) {
+            log.debug "projection sequence name ${projectionSequence.name}"
+            log.debug"region ${start}..${end}"
+            log.debug"numBins: ${numBins}"
+            log.debug "basesPerBin: ${basesPerBin}"
+            int rangeStart = start
+            int rangeEnd = 0
+
+            for (int i = 1; i <= numBins; i++) {
+                if (rangeEnd > 0) rangeStart = rangeEnd
+                rangeEnd = rangeStart + basesPerBin
+                // this will lead to N number of queries to the VCF where N is numBins
+                def queryResults = vcfFileReader.query(projectionSequence.name, rangeStart + 1, rangeEnd)
+                binsArray.add(queryResults.size())
+                log.debug "${i} ::: rangeStart: ${rangeStart} rangeEnd: ${rangeEnd} size: ${binsArray.last()}"
+            }
+        }
+
+        log.debug "Histogram Array: ${binsArray}"
+
+        return binsArray
+    }
+
+    def getFeatureDensitiesForRegion(JSONArray binsArray, Organism organism, String sequenceName, VCFFileReader vcfFileReader, int start, int end, int numBins, int basesPerBin) {
+        log.info "incoming start: ${start} end: ${end}"
+        (start,end) = processCoordinates(organism, sequenceName, start, end)
+
+        if (start < 0 && end < 0) {
+            return binsArray
+        }
+
+        log.debug "sequence name ${sequenceName}"
+        log.debug"region ${start}..${end}"
+        log.debug"numBins: ${numBins}"
+        log.debug "basesPerBin: ${basesPerBin}"
+        int rangeStart = start
+        int rangeEnd = 0
+
+        for (int i = 1; i <= numBins; i++) {
+            if (rangeEnd > 0) rangeStart = rangeEnd
+            rangeEnd = rangeStart + basesPerBin
+            // this will lead to N number of queries to the VCF where N is numBins
+            def queryResults = vcfFileReader.query(sequenceName, rangeStart + 1, rangeEnd)
+            binsArray.add(queryResults.size())
+            log.debug "${i} ::: rangeStart: ${rangeStart} rangeEnd: ${rangeEnd} size: ${binsArray.last()}"
+        }
+
+        log.debug "Histogram Array: ${binsArray}"
+
+        return binsArray
+    }
 
     /**
      * Parse VCF header
@@ -510,6 +492,9 @@ class VcfService {
             start = end
             end = temp
         }
+
+        if (start < 0) start = 0
+        if (end > projection.length) end = projection.length
 
         return [start, end]
     }
