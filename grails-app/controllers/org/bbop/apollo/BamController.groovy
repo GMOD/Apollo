@@ -62,7 +62,9 @@ class BamController {
             file = new File(organism.directory + "/" + params.urlTemplate)
             println "BAM file to read ${file.absolutePath}"
             println "BAM file to read exists ${file.exists()}"
-            final SamReader samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(file))
+//            final SamReader samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(file))
+            File baiFile = new File(organism.directory + "/" + params.urlTemplate+".bai")
+            BAMFileReader samReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
 
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, organism)
 
@@ -95,8 +97,32 @@ class BamController {
         File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
         File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
 
-        BAMFileReader bamFileReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
         JSONObject returnObject = new JSONObject()
+        Sequence sequence = Sequence.findByOrganismAndName(currentOrganism,refSeqName)
+
+        BAMFileReader samReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
+        // # of bins: 25?
+        int numBins = 25
+        // bin size
+        int binSize = (end - start ) / numBins
+        def binArray = new Integer[numBins]
+        int currentStart = start
+        int currentEnd = currentStart + binSize
+        int min = Integer.MAX_INTEGER
+        int max = Integer.MIN_INTEGER
+        for(int i = 0 ; i < numBins ; ++i){
+            Integer entrySize = samReader.query(refSeqName,currentStart,currentEnd,false).toList().size()
+            binArray[i] = entrySize
+            max = entrySize > max ? max : entrySize
+            min = entrySize < min ? min : entrySize
+        }
+
+        returnObject.bins = new JSONArray(binArray)
+        returnObject.stats.basesPerBin = binSize
+        returnObject.stats.max = max
+        returnObject.stats.min = min
+
+
 //        BAMIndexMetaData metaData = (bamFileReader.index
 
 

@@ -807,6 +807,7 @@ class JbrowseController {
             obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bam/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
+            obj.region_stats = true
         }
         println "final obj ${obj}"
         println "Rewrote track ${obj as JSON}"
