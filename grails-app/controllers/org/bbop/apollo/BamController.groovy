@@ -2,9 +2,14 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.BAMIndex
+import htsjdk.samtools.BAMIndexMetaData
+import htsjdk.samtools.DefaultSAMRecordFactory
+import htsjdk.samtools.SAMSequenceRecord
 import htsjdk.samtools.SamInputResource
 import htsjdk.samtools.SamReader
 import htsjdk.samtools.SamReaderFactory
+import htsjdk.samtools.ValidationStringency
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -55,6 +60,8 @@ class BamController {
         File file
         try {
             file = new File(organism.directory + "/" + params.urlTemplate)
+            println "BAM file to read ${file.absolutePath}"
+            println "BAM file to read exists ${file.exists()}"
             final SamReader samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(file))
 
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, organism)
@@ -74,11 +81,25 @@ class BamController {
         render returnObject as JSON
     }
 
-    JSONObject region(String refSeqName,Long organismId, Integer start, Integer end) {
-        render new JSONObject() as JSON
-    }
-
     JSONObject regionFeatureDensities(String refSeqName,Long organismId,  Integer start, Integer end, Integer basesPerBin) {
+
+        JSONObject data = permissionService.handleInput(request, params)
+        Organism currentOrganism = Organism.findById(organismId)
+        if(!currentOrganism){
+            String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+            currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        }
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
+        println "params ${params}"
+
+        File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
+        File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
+
+        BAMFileReader bamFileReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
+        JSONObject returnObject = new JSONObject()
+//        BAMIndexMetaData metaData = (bamFileReader.index
+
+
 //        {
 //            "bins":  [ 51, 50, 58, 63, 57, 57, 65, 66, 63, 61,
 //                       56, 49, 50, 47, 39, 38, 54, 41, 50, 71,
@@ -89,10 +110,11 @@ class BamController {
 //            "max": 88
 //        }
 //        }
-        render new JSONObject() as JSON
+        render returnObject as JSON
     }
 
     JSONObject global(String trackName, Long organismId) {
+
         JSONObject data = permissionService.handleInput(request, params)
         Organism currentOrganism = Organism.findById(organismId)
         if(!currentOrganism){
@@ -102,18 +124,26 @@ class BamController {
         JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
         println "params ${params}"
 
-        JSONObject returnObject = new JSONObject()
         File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
-        final SamReader reader = SamReaderFactory.makeDefault().open(file)
-//        reader.getFileHeader().
-//        reader.query(0,)
-//        double mean = reader?.size() > 0 ? reader.sum()/ (double) reader.size() : 0
-//        returnObject.put("scoreMin", reader.min())
-//        returnObject.put("scoreMax", reader.max())
-//        returnObject.put("scoreMean", mean)
-////        returnObject.put("scoreStdDev", reader.stdev())
-//        returnObject.put("featureCount", reader.size())
-//        returnObject.put("featureDensity", 1)
+        File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
+        BAMFileReader bamFileReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
+        BAMIndexMetaData[] metaData = BAMIndexMetaData.getIndexStats(bamFileReader)
+        println "metadata length: " + metaData.length
+
+//        final SamReader reader = SamReaderFactory.makeDefault().open(file)
+        JSONObject returnObject = new JSONObject()
+
+        Long featureCount = 0
+        // obviously not
+        Long totalLength = Organism.executeQuery("select sum(s.length) from Sequence s where s.organism = :organism",[organism:currentOrganism]).first()
+        println "total length ${totalLength}"
+//        Integer scoreMin = 0
+//        Integer scoreMax = 0
+//        Integer scoreMean = 0
+//        Double scoreStdEv = 0
+        metaData.each {
+           featureCount += it.alignedRecordCount + it.unalignedRecordCount
+        }
 //        {
 //
 //            "featureDensity": 0.02,
@@ -125,7 +155,48 @@ class BamController {
 //            "scoreMean": 42,
 //            "scoreStdDev": 2.1
 //        }
+        returnObject.featureCount = featureCount
+        returnObject.featureDensity = (double) featureCount  / (double) totalLength
+        println "global BAM ${returnObject as JSON}"
+
         render returnObject as JSON
     }
+
+
+    JSONObject region(String refSeqName,Long organismId, Integer start, Integer end) {
+        JSONObject data = permissionService.handleInput(request, params)
+        Organism currentOrganism = Organism.findById(organismId)
+        if(!currentOrganism){
+            String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+            currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        }
+        Sequence sequence = Sequence.findByNameAndOrganism(refSeqName,currentOrganism)
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
+        println "params ${params}"
+
+        File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
+        File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
+
+        BAMFileReader bamFileReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
+        Long featureCount = bamFileReader.queryAlignmentStart(refSeqName,0).size()
+        JSONObject returnObject = new JSONObject()
+        returnObject.featureCount = featureCount
+        returnObject.featureDensity = (double) featureCount /  (double) sequence.length
+
+//        {
+//
+//            "featureDensity": 0.02,
+//
+//            "featureCount": 234235,
+//
+//            "scoreMin": 87,
+//            "scoreMax": 87,
+//            "scoreMean": 42,
+//            "scoreStdDev": 2.1
+//        }
+        println "region BAM ${returnObject as JSON}"
+        render returnObject as JSON
+    }
+
 
 }
