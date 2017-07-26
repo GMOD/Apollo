@@ -268,7 +268,6 @@ class OrganismController {
             } else {
                 throw new Exception('organism not found')
             }
-//            render findAllOrganisms()
             render new JSONObject() as JSON
         }
         catch (e) {
@@ -299,7 +298,6 @@ class OrganismController {
             } else {
                 throw new Exception('Organism not found')
             }
-//            render findAllOrganisms()
             render new JSONObject() as JSON
         }
         catch (e) {
@@ -313,11 +311,10 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) if valid organism id or commonName is supplied show organism if user has permission")
     ])
     def findAllOrganisms() {
         try {
-//            JSONObject organismJson = request.JSON ?: JSON.parse(params.data.toString()) as JSONObject
             JSONObject organismJson = permissionService.handleInput(request, params)
             List<Organism> organismList = []
 
@@ -325,7 +322,10 @@ class OrganismController {
                 log.debug "finding info for specific organism"
                 Organism organism = Organism.findByCommonName(organismJson.organism)
                 if (!organism) organism = Organism.findById(organismJson.organism)
-                if (!organism) render([error: "Organism not found"] as JSON)
+                if (!organism) {
+                    render([error: "Organism not found"] as JSON)
+                    return
+                }
                 List<PermissionEnum> permissionEnumList = permissionService.getOrganismPermissionsForUser(organism, permissionService.getCurrentUser(organismJson))
                 if (permissionService.findHighestEnum(permissionEnumList)?.rank > PermissionEnum.NONE.rank) {
                     organismList.add(organism)
