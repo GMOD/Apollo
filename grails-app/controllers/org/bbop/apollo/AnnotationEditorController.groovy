@@ -53,6 +53,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def sequenceSearchService
     def featureEventService
     def annotationEditorService
+    def organismService
     def brokerMessagingTemplate
 
 
@@ -143,18 +144,10 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONObject returnObject = permissionService.handleInput(request, params)
         log.debug "return object ${returnObject as JSON}"
         Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-        TranslationTable translationTable
         log.debug "has organism ${organism}"
         // use the over-wridden one
-        if(organism?.nonDefaultTranslationTable){
-            log.debug "overriding default translation table for ${organism.commonName} with ${organism.nonDefaultTranslationTable}"
-            translationTable = SequenceTranslationHandler.getTranslationTableForGeneticCode(organism.nonDefaultTranslationTable)
-        }
-            // just use the default
-        else{
-            log.debug "using the default translation table"
-            translationTable = configWrapperService.getTranslationTable()
-        }
+        TranslationTable translationTable = organismService.getTranslationTable(organism)
+
         JSONObject ttable = new JSONObject()
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue())
