@@ -822,7 +822,7 @@ class JbrowseController {
                 obj.type == "WebApollo/View/Track/DraggableHTMLVariants") {
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             // Switching to REST store
-            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
             obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate

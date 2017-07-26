@@ -471,4 +471,31 @@ class VcfService {
 //        return binsArray
 //    }
 
+    /**
+     * Parse VCF header
+     * @param header
+     * @return
+     */
+    def parseVcfFileHeader(VCFHeader header) {
+        JSONObject vcfHeaderJSONObject = new JSONObject()
+        // only parsing 'filter' from header
+        def filterMetaData = header.getFilterLines()
+        JSONObject filterObject = new JSONObject()
+
+        filterMetaData.each { filter ->
+            JSONObject object = new JSONObject()
+            JSONArray idArray = new JSONArray()
+            JSONArray descriptionArray = new JSONArray()
+            idArray.add(filter.getID())
+            descriptionArray.add(filter.getDescription())
+            object.put("id", idArray)
+            object.put("description", descriptionArray)
+            filterObject.put(filter.getID(), object)
+        }
+
+        vcfHeaderJSONObject.put("filter", filterObject)
+        log.debug "header as JSON ${vcfHeaderJSONObject.toString()}"
+        return vcfHeaderJSONObject
+    }
+
 }

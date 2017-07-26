@@ -101,6 +101,21 @@ class VcfController {
         log.debug "Time taken to generate data for request to VcfController::features: ${timeEnd - timeStart} ms"
         //log.info "returning with: ${returnObject.toString()}"
         render returnObject as JSON
-
     }
+
+    def getVcfHeader(String trackName, Long organismId, String sequenceName) {
+        Organism organism = Organism.findById(organismId)
+        JSONObject vcfHeaderJSONObject = new JSONObject()
+
+        try {
+            File file = new File(organism.directory + "/" + params.urlTemplate)
+            VCFFileReader vcfFileReader = new VCFFileReader(file)
+            vcfHeaderJSONObject = vcfService.parseVcfFileHeader(vcfFileReader.getFileHeader())
+        } catch(FileNotFoundException e) {
+            println e.toString()
+        }
+
+        render vcfHeaderJSONObject as JSON
+    }
+
 }
