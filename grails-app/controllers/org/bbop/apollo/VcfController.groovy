@@ -89,10 +89,10 @@ class VcfController {
             MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
             log.info "Found projection for sequence: ${projection}"
             if (projection) {
-                vcfService.processProjection(featuresArray, projection, vcfFileReader, start, end)
+                vcfService.processProjection(featuresArray, organism, projection, vcfFileReader, start, end)
             }
             else {
-                vcfService.processSequence(featuresArray, sequenceName, vcfFileReader, start, end)
+                vcfService.processSequence(featuresArray, organism, sequenceName, vcfFileReader, start, end)
             }
         } catch (FileNotFoundException e) {
             println e.toString()

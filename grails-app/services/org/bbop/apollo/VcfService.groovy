@@ -40,52 +40,19 @@ class VcfService {
      * @param end
      * @return
      */
-    def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end) {
-        Map<Integer, Integer> lengthMap = new TreeMap<>()
+    def processProjection(JSONArray featuresArray, Organism organism, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end) {
         // Note: incoming coordinates are zero-based
         log.info "incoming start: ${start} end: ${end}"
-
-        if (start < 0 && end < 0) {
-            // nothing to do since the requested region has negative coordinates
-            log.info "start and end is < 0; returning empty features array"
-            return featuresArray
-        }
-        else if (start > 0 && end < 0) {
-            // that means the request is to fetch something near the end of the sequence
-            // and the requested end is outside the sequence boundary.
-            // Thus, adjust end to max length of the current sequence
-            end = projection.length
-            log.info "setting end to projection length: ${end}"
-        }
-        else if (start < 0 && end > 0) {
-            // that means the request is to fetch something start the start of the sequence
-            // and the requested start is outside the sequence boundary.
-            // Thus, adjust start to 0
-            log.info "setting start to 0"
-            start = 0
-        }
-
-        // unprojecting input coordinates
-        start = projection.unProjectValue((long) start)
-        end = projection.unProjectValue((long) end)
-        log.info "unprojected start: ${start} end: ${end}"
-
-        if (start > end) {
-            // in a reverse projection, unprojected start will always be greater than unprojected end
-            int temp = start
-            start = end
-            end = temp
-        }
-
+        (start, end) = processCoordinates(organism, projection, start, end)
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
-        // get all features from VCF that fall within the given coordinate range
+
+        int count  = 0
         for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order}) {
             def vcfEntries = []
             log.info "projection sequence name ${projectionSequence.name}"
-            lengthMap.put(projectionSequence.order, projection.sequenceDiscontinuousProjectionMap.get(projectionSequence).length)
             // changing zero-based start to one-based start while querying VCF
             log.info "querying VCF with projectionSequence.name: ${projectionSequence.name} ${start + 1}-${end} (note the adjusted start)"
-            def queryResults = vcfFileReader.query(projectionSequence.name, start + 1, end)
+            def queryResults = vcfFileReader.query(projectionSequence.name, (int) start + 1, (int) end)
             while(queryResults.hasNext()) {
                 vcfEntries.add(queryResults.next())
             }
@@ -104,25 +71,20 @@ class VcfService {
      * @param end
      * @return
      */
-    def processSequence(JSONArray featuresArray, String sequenceName, VCFFileReader vcfFileReader, int start, int end) {
-        // TODO: In what scenario will this method be called
-        if (start < 0 && end > 0) {
-            log.info "start < 0 and end > 0; adjusting start to 0"
-            start = 0
-        }
-        else if (start < 0 && end < 0) {
-            // nothing to do since the requested region has negative coordinates
-            log.info "both start and end are < 0; returning empty featuresArray"
-            return featuresArray
-        }
-
+    def processSequence(JSONArray featuresArray, Organism organism, String sequenceName, VCFFileReader vcfFileReader, int start, int end) {
+        // Note: incoming coordinates are zero-based
+        log.info "incoming start: ${start} end: ${end}"
+        (start, end) = processCoordinates(organism, sequenceName, start, end)
         def vcfEntries = []
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
+
+        // changing zero-based start to one-based start while querying VCF
         def queryResults = vcfFileReader.query(sequenceName, start + 1, end)
         while(queryResults.hasNext()) {
             vcfEntries.add(queryResults.next())
         }
         calculateFeaturesArray(featuresArray, vcfHeader, vcfEntries, sequenceName)
+
         return featuresArray
     }
 
@@ -199,8 +161,8 @@ class VcfService {
         String descriptionString = "${type} ${referenceAlleleString} -> ${alternativeAllelesString}"
 
         // changing one-based start to zero-based start
-        Long start = variantContext.getStart()
-        Long end = variantContext.getEnd()
+        int start = variantContext.getStart()
+        int end = variantContext.getEnd()
         jsonFeature.put("seq_id", sequenceName)
         jsonFeature.put(FeatureStringEnum.START.value, variantContext.getStart() - 1)
         jsonFeature.put(FeatureStringEnum.END.value, variantContext.getEnd())
@@ -513,4 +475,70 @@ class VcfService {
         return vcfHeaderJSONObject
     }
 
+    /**
+     *
+     * @param organism
+     * @param projection
+     * @param start
+     * @param end
+     * @return
+     */
+    def processCoordinates(Organism organism, MultiSequenceProjection projection, int start, int end) {
+        if (start > 0 && end < 0) {
+            // that means the request is to fetch something near the end of the sequence
+            // and the requested end is outside the sequence boundary.
+            // Thus, adjust end to max length of current sequence
+            end = projection.length
+            log.info "setting end to projection length: ${end}"
+        }
+        else if (start < 0 && end > 0) {
+            // that means the request is to fetch something at the start of the sequence
+            // and the requested start is outside the sequence boundary.
+            // Thus, adjust start to 0
+            log.info "setting start to 0"
+            start = 0
+        }
+
+        // unprojecting input coordinates
+        start = projection.unProjectValue(start)
+        end = projection.unProjectValue(end)
+        log.info "unprojected start: ${start} end: ${end}"
+
+        if (start > end) {
+            // in a reverse projection, unprojected start will always be greater than unprojected end
+            int temp = start
+            start = end
+            end = temp
+        }
+
+        return [start, end]
+    }
+
+    /**
+     *
+     * @param organism
+     * @param sequenceName
+     * @param start
+     * @param end
+     * @return
+     */
+    def processCoordinates(Organism organism, String sequenceName, int start, int end) {
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+        if (start > 0 && end < 0) {
+            // that means the request is to fetch something near the end of the sequence
+            // and the requested end is outside the sequence boundary.
+            // Thus, adjust end to max length of the current sequence
+            end = sequence.length
+            log.info "setting end to sequence length: ${end}"
+        }
+        else if (start < 0 && end > 0) {
+            // that means the request is to fetch something at the start of the sequence
+            // and the requested start is outside the sequence boundary.
+            // Thus, adjust start to 0
+            log.info "setting start to 0"
+            start = 0
+        }
+
+        return [start, end]
+    }
 }
