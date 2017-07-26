@@ -33,7 +33,66 @@ class VcfService {
 
     /**
      *
+     * @param globalStatsObject
+     * @param organism
+     * @param projection
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @return
+     */
+    def getRegionStats(JSONObject globalStatsObject, Organism organism, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end) {
+        int featureCount = 0
+        int featureDensity = 0
+
+        (start, end) = processCoordinates(organism, projection, start, end)
+        if (start < 0 && end < 0) {
+            return globalStatsObject
+        }
+
+        for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a, b -> a.order <=> b.order}) {
+            int length = end - start
+            featureCount = vcfFileReader.query(projectionSequence.name, start + 1, end).size()
+            featureDensity = featureCount/length
+        }
+        globalStatsObject.put("featureCount", featureCount)
+        globalStatsObject.put("featureDensity", featureDensity)
+
+        return globalStatsObject
+    }
+
+    /**
+     *
+     * @param globalStatsObject
+     * @param organism
+     * @param sequenceName
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @return
+     */
+    def getRegionStats(JSONObject globalStatsObject, Organism organism, String sequenceName, VCFFileReader vcfFileReader, int start, int end) {
+        int featureCount = 0
+        int featureDensity = 0
+
+        (start, end) = processCoordinates(organism, sequenceName, start, end)
+        if (start < 0 && end < 0) {
+            return globalStatsObject
+        }
+
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+        featureCount = vcfFileReader.query(sequenceName, 1, sequence.length).size()
+        featureDensity = featureCount/sequence.length
+        globalStatsObject.put("featureCount", featureCount)
+        globalStatsObject.put("featureDensity", featureDensity)
+
+        return globalStatsObject
+    }
+
+    /**
+     *
      * @param featuresArray
+     * @param organism
      * @param projection
      * @param vcfFileReader
      * @param start
@@ -69,6 +128,7 @@ class VcfService {
     /**
      *
      * @param featuresArray
+     * @param organism
      * @param sequenceName
      * @param vcfFileReader
      * @param start
@@ -143,9 +203,10 @@ class VcfService {
     }
 
     /**
-     * Create a JSON feature representation of a variant
+     *
      * @param vcfHeader
      * @param variantContext
+     * @param sequenceName
      * @return
      */
     def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext, String sequenceName) {
@@ -304,8 +365,9 @@ class VcfService {
     }
 
     /**
-     * Generate meta JSON object for a given property
+     *
      * @param metaData
+     * @param variantContext
      * @return
      */
     def generateMetaObjectForProperty(VCFCompoundHeaderLine metaData, VariantContext variantContext) {
@@ -370,6 +432,18 @@ class VcfService {
         return type
     }
 
+    /**
+     *
+     * @param binsArray
+     * @param organism
+     * @param projection
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @param numBins
+     * @param basesPerBin
+     * @return
+     */
     def getFeatureDensitiesForRegion(JSONArray binsArray, Organism organism, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end, int numBins, int basesPerBin) {
         log.info "incoming start: ${start} end: ${end}"
         (start,end) = processCoordinates(organism, projection, start, end)
@@ -401,6 +475,18 @@ class VcfService {
         return binsArray
     }
 
+    /**
+     *
+     * @param binsArray
+     * @param organism
+     * @param sequenceName
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @param numBins
+     * @param basesPerBin
+     * @return
+     */
     def getFeatureDensitiesForRegion(JSONArray binsArray, Organism organism, String sequenceName, VCFFileReader vcfFileReader, int start, int end, int numBins, int basesPerBin) {
         log.info "incoming start: ${start} end: ${end}"
         (start,end) = processCoordinates(organism, sequenceName, start, end)

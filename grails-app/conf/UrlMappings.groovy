@@ -138,7 +138,7 @@ class UrlMappings {
         // VCF
         "/vcf/${trackName}/${organismId}/stats/global/"(controller: "vcf", action: "global", trackName: trackName, organismId: organismId)
         "/vcf/${trackName}/${organismId}/stats/getVcfHeader/${sequenceName}"(controller: "vcf", action: "getVcfHeader", trackName: trackName, organismId: organismId, sequenceName: sequenceName)
-        "/vcf/${trackName}/${organismId}/stats/region"(controller: "vcf", action: "region", trackName: trackName, organismId: organismId)
+        "/vcf/${trackName}/${organismId}/stats/region/${sequenceName}"(controller: "vcf", action: "region", trackName: trackName, organismId: organismId, sequenceName: sequenceName)
         "/vcf/${trackName}/${organismId}/stats/regionFeatureDensities/${sequenceName}"(controller: "vcf", action: "regionFeatureDensities", trackName: trackName, organismId: organismId, sequenceName: sequenceName, params: params)
         "/vcf/${trackName}/${organismId}/features/${sequenceName}"(controller: "vcf", action: "features", params: params, sequenceName: sequenceName, organismId: organismId)
 

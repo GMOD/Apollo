@@ -18,20 +18,35 @@ class VcfController {
     def index() { }
 
     JSONObject global(String trackName, Long organismId) {
-        log.info "trackName: ${trackName}"
-        log.info "organismId: ${organismId}"
-        JSONObject data = permissionService.handleInput(request, params)
-        Organism organism = Organism.findById(organismId)
-        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(organism,trackName)
+        // TODO
         JSONObject returnObject = new JSONObject()
         returnObject.put("featureDensity", 0.2);
-        // TODO
         render returnObject as JSON
     }
 
-    def region() {
-        // TODO
-        render new JSONObject() as JSON
+    def region(String trackName, Long organismId, String sequenceName) {
+        log.info "trackName: ${trackName}"
+        log.info "organismId: ${organismId}"
+        int start = params.getInt("start")
+        int end = params.getInt("end")
+        Organism organism = Organism.findById(organismId)
+        JSONObject returnObject = new JSONObject()
+
+        try {
+            File file = new File(organism.directory + "/" + params.urlTemplate)
+            VCFFileReader vcfFileReader = new VCFFileReader(file)
+            MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
+            if (projection) {
+                vcfService.getRegionStats(returnObject, organism, projection, vcfFileReader, start, end)
+            }
+            else {
+                vcfService.getRegionStats(returnObject, organism, sequenceName, vcfFileReader, start, end)
+            }
+        } catch(Exception e) {
+            println e.toString()
+        }
+
+        render returnObject as JSON
 
     }
 
