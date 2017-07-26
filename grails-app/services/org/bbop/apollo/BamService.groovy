@@ -86,8 +86,13 @@ class BamService {
                 jsonObject.start = jsonObject.end
                 jsonObject.end = tmp
             }
-            jsonObject.name = samRecord.header.SAMString
-            jsonObject.cigar = samRecord.cigarString
+            jsonObject.name = samRecord.readName
+//            jsonObject.score = samRecord.
+            jsonObject.CIGAR = samRecord.cigarString
+
+
+
+
             samRecord.getAttributes().each { attribute ->
                 jsonObject[attribute.tag] = attribute.value
             }
