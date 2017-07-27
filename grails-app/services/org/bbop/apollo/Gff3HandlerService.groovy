@@ -168,18 +168,6 @@ public class Gff3HandlerService {
         }
     }
 
-//    @Timed
-//    public void writeFeatures(WriteObject writeObject, Iterator<? extends Feature> iterator, String source, boolean needDirectives) throws IOException {
-//        while (iterator.hasNext()) {
-//            Feature feature = iterator.next();
-//            if (needDirectives) {
-//                writeGroupDirectives(writeObject, feature.featureLocation.sequence)
-//                needDirectives = false;
-//            }
-//            writeFeature(writeObject, feature, source);
-//            writeFeatureGroupEnd(writeObject.out);
-//        }
-//    }
 
     static private void writeGroupDirectives(WriteObject writeObject, Sequence sourceFeature) {
         if (sourceFeature.featureLocations?.size() == 0) return;

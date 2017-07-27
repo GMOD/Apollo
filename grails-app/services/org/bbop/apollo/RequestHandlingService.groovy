@@ -46,6 +46,7 @@ class RequestHandlingService {
     def assemblageService
     def featureProjectionService
     def sequenceService
+    def organismService
 
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
@@ -759,7 +760,7 @@ class RequestHandlingService {
             Integer genomicPosition = getGenomicPositionFromLocationObject(jsonCDSLocation,true)
             MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
             genomicPosition = genomicPosition - multiSequenceProjection.getProjectionSequence(genomicPosition).originalOffset
-            featureService.setTranslationEnd(transcript, genomicPosition ,false,configWrapperService.getTranslationTable(),projectionService.createMultiSequenceProjection(assemblage))
+            featureService.setTranslationEnd(transcript, genomicPosition ,false,organismService.getTranslationTable(transcript.organism))
         }
         transcript.save()
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)

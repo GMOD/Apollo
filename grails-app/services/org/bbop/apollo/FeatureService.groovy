@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -32,6 +31,7 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
+    def organismService
     def assemblageService
     def projectionService
     def preferenceService
@@ -118,13 +118,13 @@ class FeatureService {
      */
     @Timed
     @Transactional
-    public FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, MultiSequenceProjection multiSequenceProjection, ProjectionSequence projectionSequence, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
+    FeatureLocation convertJSONToFeatureLocation(JSONObject jsonLocation, MultiSequenceProjection multiSequenceProjection, ProjectionSequence projectionSequence, int defaultStrand = Strand.POSITIVE.value) throws JSONException {
 
         /**
          * fmin/ fmax have not been projected yet
          */
-        int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value);
-        int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value);
+        int fmin = jsonLocation.getInt(FeatureStringEnum.FMIN.value)
+        int fmax = jsonLocation.getInt(FeatureStringEnum.FMAX.value)
 
         List<ProjectionSequence> projectionSequenceList = multiSequenceProjection.getUnProjectedSequences(fmin, fmax)
 //        assert projectionSequenceList.size()==2
@@ -165,27 +165,27 @@ class FeatureService {
         Organism organism = preferenceService.getOrganismForToken(projectionSequence.organism)
         Sequence sequence = Sequence.findByNameAndOrganism(projectionSequence.name, organism)
 
-        FeatureLocation featureLocation = new FeatureLocation();
+        FeatureLocation featureLocation = new FeatureLocation()
         if (jsonLocation.has(FeatureStringEnum.ID.value)) {
-            featureLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value));
+            featureLocation.setId(jsonLocation.getLong(FeatureStringEnum.ID.value))
         }
         // let's revert this a bit
         fmin = fmin - projectionSequence.originalOffset
         fmax = fmax - projectionSequence.originalOffset
 
-        featureLocation.setFmin(fmin);
-        featureLocation.setFmax(fmax);
+        featureLocation.setFmin(fmin)
+        featureLocation.setFmax(fmax)
         if (jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.POSITIVE.value || jsonLocation.getInt(FeatureStringEnum.STRAND.value) == Strand.NEGATIVE.value) {
-            featureLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value));
+            featureLocation.setStrand(jsonLocation.getInt(FeatureStringEnum.STRAND.value))
         } else {
             featureLocation.setStrand(defaultStrand)
         }
         featureLocation.setSequence(sequence)
-        return featureLocation;
+        return featureLocation
     }
 
 
-    public Collection<Transcript> getOverlappingTranscripts(Transcript transcript, boolean compareStrands = true) {
+    Collection<Transcript> getOverlappingTranscripts(Transcript transcript, boolean compareStrands = true) {
         List<Transcript> transcriptList = new ArrayList<>()
         transcript.featureLocations.each {
             transcriptList.addAll(getOverlappingTranscripts(it, compareStrands))
@@ -200,7 +200,7 @@ class FeatureService {
      */
     Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
         List<Transcript> transcriptList = new ArrayList<>()
-        List<Transcript> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
+        Collection<Feature> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
 
         for (Feature eachFeature : overlappingFeaturesList) {
             Feature feature = Feature.get(eachFeature.id)
@@ -234,7 +234,7 @@ class FeatureService {
      * @param compareStrands
      * @return
      */
-    public Collection<Feature> getOverlappingFeaturesFromList(List<FeatureLocation> locationList, boolean compareStrands = true) {
+    Collection<Feature> getOverlappingFeaturesFromList(List<FeatureLocation> locationList, boolean compareStrands = true) {
         List<Feature> overlappingFeatures = []
         locationList.each { it ->
             overlappingFeatures.addAll(getOverlappingFeatures(it, compareStrands))
@@ -246,9 +246,9 @@ class FeatureService {
     def getOverlappingSequenceAlterations(Assemblage assemblage, int min, int max) {
         List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
         MultiSequenceProjection projection = projectionService.createMultiSequenceProjection(assemblage)
-        def sequences = assemblageService.getSequencesFromAssemblage(assemblage)
-        int calculatedFmin = assemblageService.getMinForFullScaffold(min, assemblage)
-        int calculatedFmax = assemblageService.getMaxForFullScaffold(max, assemblage)
+//        def sequences = assemblageService.getSequencesFromAssemblage(assemblage)
+//        int calculatedFmin = assemblageService.getMinForFullScaffold(min, assemblage)
+//        int calculatedFmax = assemblageService.getMaxForFullScaffold(max, assemblage)
 
         List<ProjectionSequence> projectionSequenceList = projection.getUnProjectedSequences(min, max)
         // TODO: project these individually
@@ -334,8 +334,8 @@ class FeatureService {
     @Transactional
     void updateNewGsolFeatureAttributes(Feature feature, Assemblage assemblage) {
 
-        feature.setIsAnalysis(false);
-        feature.setIsObsolete(false);
+        feature.setIsAnalysis(false)
+        feature.setIsObsolete(false)
         if (assemblage) {
             MultiSequenceProjection multiSequenceProjection = projectionService.createMultiSequenceProjection(assemblage)
 
@@ -352,7 +352,7 @@ class FeatureService {
         }
 
         for (FeatureRelationship fr : feature.getParentFeatureRelationships()) {
-            updateNewGsolFeatureAttributes(fr.getChildFeature(), assemblage);
+            updateNewGsolFeatureAttributes(fr.getChildFeature(), assemblage)
         }
 
     }
@@ -376,7 +376,7 @@ class FeatureService {
     @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Assemblage assemblage, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
-        Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
+        Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null
         Transcript transcript = null
         boolean readThroughStopCodon = false
 
@@ -384,12 +384,12 @@ class FeatureService {
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
             // Scenario I - if 'parent_id' attribute is given then find the gene
-            transcript = (Transcript) convertJSONToFeature(jsonTranscript, assemblage);
+            transcript = (Transcript) convertJSONToFeature(jsonTranscript, assemblage)
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
                 throw new AnnotationException("Feature cannot have negative coordinates")
             }
 
-            setOwner(transcript, owner);
+            setOwner(transcript, owner)
 
             CDS cds = transcriptService.getCDS(transcript)
             if (cds) {
@@ -812,9 +812,51 @@ class FeatureService {
  * @param transcript - Transcript to set the longest ORF to
  */
     @Transactional
-    void setLongestORF(Transcript transcript, boolean readThroughStopCodon, MultiSequenceProjection multiSequenceProjection) {
-        log.debug "setLongestORF(transcript,readThroughStopCodon) ${transcript} ${readThroughStopCodon}"
-        setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon, multiSequenceProjection);
+    void setLongestORF(Transcript transcript, MultiSequenceProjection multiSequenceProjection) {
+        log.debug "setLongestORF(transcript) ${transcript}"
+        setLongestORF(transcript, false, multiSequenceProjection);
+    }
+
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ */
+    @Transactional
+    void setTranslationStart(Transcript transcript, int translationStart, MultiSequenceProjection multiSequenceProjection) {
+        log.debug "setTranslationStart"
+        setTranslationStart(transcript, translationStart, false, multiSequenceProjection)
+    }
+
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+ */
+    @Transactional
+    void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, MultiSequenceProjection multiSequenceProjection) {
+        log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
+        setTranslationStart(transcript, translationStart, setTranslationEnd, false, multiSequenceProjection);
+    }
+
+/**
+ * Set the translation start in the transcript.  Sets the translation start in the underlying CDS feature.
+ * Instantiates the CDS object for the transcript if it doesn't already exist.
+ *
+ * @param transcript - Transcript to set the translation start in
+ * @param translationStart - Coordinate of the start of translation
+ * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
+ * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
+ */
+    @Transactional
+    void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon, MultiSequenceProjection multiSequenceProjection) {
+        log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
+        setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? organismService.getTranslationTable(transcript.organism) : null, readThroughStopCodon, multiSequenceProjection);
     }
 
     /** Convert local coordinate to source feature coordinate.
@@ -1052,7 +1094,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
         setTranslationEnd(transcript, translationEnd, setTranslationStart,
-                setTranslationStart ? configWrapperService.getTranslationTable() : null
+                setTranslationStart ? organismService.getTranslationTable(transcript.organism) : null
         );
     }
 
@@ -1066,7 +1108,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param translationTable - Translation table that defines the codon translation
  */
     @Transactional
-    void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, TranslationTable translationTable, MultiSequenceProjection multiSequenceProjection) {
+    void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart, TranslationTable translationTable) {
         CDS cds = transcriptService.getCDS(transcript);
         if (cds == null) {
             cds = transcriptService.createCDS(transcript);
@@ -1167,12 +1209,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         // event fire
 //        fireAnnotationChangeEvent(transcript, transcript.getGene(), AnnotationChangeEvent.Operation.UPDATE);
 
-    }
-
-
-    void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
-        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension)"
-        setLongestORF(transcript, translationTable, allowPartialExtension, false);
     }
 
     /** Get the residues for a feature with any alterations and frameshifts.
@@ -1297,7 +1333,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     @Timed
     @Transactional
-    void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon, MultiSequenceProjection multiSequenceProjection) {
+    void setLongestORF(Transcript transcript, boolean readThroughStopCodon, MultiSequenceProjection multiSequenceProjection) {
+        Organism organism = transcript.organism
+        TranslationTable translationTable = organismService.getTranslationTable(organism)
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
         if (!mrna) {
             return;
@@ -1597,7 +1635,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
         return cvTerm
     }
-
 
     // TODO: (perform on client side, slightly ugly)
     Feature generateFeatureForType(String ontologyId) {
