@@ -15,6 +15,9 @@ class VcfController {
     def projectionService
     def trackService
 
+    public static final String TYPE_HISTOGRAM = "histogram"
+    public static final String TYPE_FEATURES = "features"
+
     def index() { }
 
     JSONObject global(String trackName, Long organismId) {
@@ -60,24 +63,33 @@ class VcfController {
         JSONObject statsJsonObject = new JSONObject()
         JSONArray binsArray = new JSONArray()
 
-        try {
-            File file = new File(organism.directory + "/" + params.urlTemplate)
-            VCFFileReader vcfFileReader = new VCFFileReader(file)
-            MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
-            if (projection) {
-                vcfService.getFeatureDensitiesForRegion(binsArray, organism, projection, vcfFileReader, start, end, numBins, basesPerBin)
+        returnObject = trackService.getTrackDataFromCache(organism, sequenceName, start, end, params.urlTemplate, TYPE_HISTOGRAM) ?: new JSONObject()
+        if (returnObject.containsKey("bins")) {
+            log.debug "Cache found for request; returning cached histogram data for ${sequenceName}:${start}..${end} ${params.urlTemplate}"
+        }
+        else {
+            try {
+                File file = new File(organism.directory + "/" + params.urlTemplate)
+                VCFFileReader vcfFileReader = new VCFFileReader(file)
+                MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
+                if (projection) {
+                    vcfService.getFeatureDensitiesForRegion(binsArray, organism, projection, vcfFileReader, start, end, numBins, basesPerBin)
+                }
+                else {
+                    vcfService.getFeatureDensitiesForRegion(binsArray, organism, sequenceName, vcfFileReader, start, end, numBins, basesPerBin)
+                }
+            } catch (FileNotFoundException e) {
+                println e.toString()
             }
-            else {
-                vcfService.getFeatureDensitiesForRegion(binsArray, organism, sequenceName, vcfFileReader, start, end, numBins, basesPerBin)
-            }
-        } catch (FileNotFoundException e) {
-            println e.toString()
+
+            statsJsonObject.put("basesPerBin", basesPerBin)
+            statsJsonObject.put("max", binsArray.max())
+            returnObject.put("bins", binsArray)
+            returnObject.put("stats", statsJsonObject)
+            log.debug "Caching histogram data for ${sequenceName}:${start}..${end} ${params.urlTemplate}"
+            trackService.cacheTrackData(returnObject, organism, sequenceName, start, end, params.urlTemplate, TYPE_HISTOGRAM)
         }
 
-        statsJsonObject.put("basesPerBin", basesPerBin)
-        statsJsonObject.put("max", binsArray.max())
-        returnObject.put("bins", binsArray)
-        returnObject.put("stats", statsJsonObject)
         render returnObject as JSON
     }
 
@@ -87,31 +99,33 @@ class VcfController {
         Organism organism = Organism.findById(organismId)
 
         JSONObject returnObject = new JSONObject()
-        JSONArray featuresArray = new JSONArray()
-        returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
-
-
-        String referer = request.getHeader("Referer")
-        String refererLoc = trackService.extractLocation(referer)
-        log.info "trying to open file from ${organism.directory + "/" + params.urlTemplate}"
-
-        try {
-            File file = new File(organism.directory + "/" + params.urlTemplate)
-            VCFFileReader vcfFileReader = new VCFFileReader(file)
-            MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
-            log.info "Found projection for sequence: ${projection}"
-            if (projection) {
-                vcfService.processProjection(featuresArray, organism, projection, vcfFileReader, start, end)
-            }
-            else {
-                vcfService.processSequence(featuresArray, organism, sequenceName, vcfFileReader, start, end)
-            }
-        } catch (FileNotFoundException e) {
-            println e.toString()
+        returnObject = trackService.getTrackDataFromCache(organism, sequenceName, start, end, params.urlTemplate, TYPE_FEATURES) ?: new JSONObject()
+        if (returnObject.containsKey(FeatureStringEnum.FEATURES.value)) {
+            log.debug "Cache found for request; returning cached data for ${sequenceName}:${start}..${end} ${params.urlTemplate}"
         }
-        Long timeEnd = System.currentTimeMillis()
-        log.debug "Time taken to generate data for request to VcfController::features: ${timeEnd - timeStart} ms"
-        //log.info "returning with: ${returnObject.toString()}"
+        else {
+            JSONArray featuresArray = new JSONArray()
+            returnObject.put(FeatureStringEnum.FEATURES.value, featuresArray)
+            try {
+                File file = new File(organism.directory + "/" + params.urlTemplate)
+                VCFFileReader vcfFileReader = new VCFFileReader(file)
+                MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
+                log.info "Found projection for sequence: ${projection}"
+                if (projection) {
+                    vcfService.processProjection(featuresArray, organism, projection, vcfFileReader, start, end)
+                }
+                else {
+                    vcfService.processSequence(featuresArray, organism, sequenceName, vcfFileReader, start, end)
+                }
+            } catch (FileNotFoundException e) {
+                println e.toString()
+            }
+            Long timeEnd = System.currentTimeMillis()
+            log.debug "Time taken to generate data for request to VcfController::features: ${timeEnd - timeStart} ms"
+            log.debug "Caching data for ${sequenceName}:${start}..${end} ${params.urlTemplate}"
+            trackService.cacheTrackData(returnObject, organism, sequenceName, start, end, params.urlTemplate, TYPE_FEATURES)
+        }
+
         render returnObject as JSON
     }
 
