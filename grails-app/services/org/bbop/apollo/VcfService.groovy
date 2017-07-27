@@ -676,9 +676,9 @@ class VcfService {
                         }
                     }
                     else {
-                        def keyValues = genotype.getAnyAttribute(key).split(",")
                         JSONArray valuesArray = new JSONArray()
-                        valuesArray.add(keyValues)
+                        def keyValues = genotype.getAnyAttribute(key)
+                        keyValues instanceof String ? valuesArray.add(keyValues.split(",")) : valuesArray.add(keyValues)
                         formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
                         VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
                         if (metaData) {
