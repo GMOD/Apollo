@@ -34,3 +34,4 @@ docs/Makefile
 .gradle
 .slcache
 restapi.doc
+*.DS_store
