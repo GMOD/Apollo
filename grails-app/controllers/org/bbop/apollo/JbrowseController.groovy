@@ -790,7 +790,7 @@ class JbrowseController {
 
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
-        println "Rewriting track ${obj as JSON}"
+        log.debug "Rewriting track ${obj as JSON}"
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -800,7 +800,7 @@ class JbrowseController {
         }
         else
         if(obj.storeClass == "JBrowse/Store/SeqFeature/BAM"){
-            println "REWRITIGN BAM"
+            log.debug "REWRITIGN BAM"
 //            if(obj.type == "JBrowse/View/Track/DraggableAlignments"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"
@@ -809,8 +809,8 @@ class JbrowseController {
             obj.query.urlTemplate = urlTemplate
             obj.region_stats = true
         }
-        println "final obj ${obj}"
-        println "Rewrote track ${obj as JSON}"
+        log.debug "final obj ${obj}"
+        log.debug "Rewrote track ${obj as JSON}"
         return obj
     }
 

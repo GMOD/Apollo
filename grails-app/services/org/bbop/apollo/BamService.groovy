@@ -60,13 +60,17 @@ class BamService {
             jsonObject.name = samRecord.readName
 //            println "${jsonObject.name}"
             if(jsonObject.name=='ctgA_19043_19563_1:0:0_1:0:0_18a0'){
-                println "SAM properties ${samRecord?.properties}"
+                samRecord.properties.each {
+                    println "properly ${it.key} -> ${it.value}"
+                }
+                samRecord.attributes.each {
+                    println "SAMRecord tag: ${it.tag} -> ${it.value}"
+                }
             }
-//            jsonObject.score = samRecord.
             jsonObject.CIGAR = samRecord.cigarString
 
             // TODO: one of these is incorrect
-            jsonObject["Length on ref"] = samRecord.readLength
+            jsonObject.length_on_ref = samRecord.readLength
 
             jsonObject.source = sourceFile.name
 
@@ -74,23 +78,28 @@ class BamService {
 
 
             samRecord.getAttributes().each { attribute ->
-                jsonObject[attribute.tag] = attribute.value
+                switch (attribute.tag){
+                    case 'XT':
+                        jsonObject[attribute.tag] = attribute.value.toString()
+                        break
+                    default:
+                        jsonObject[attribute.tag] = attribute.value
+                }
             }
 //            jsonObject.baseQualityString = samRecord.baseQualityString
 //            jsonObject.qual = samRecord.baseQualityString
-            jsonObject.qual = samRecord.baseQualityString
+            jsonObject.qual = samRecord.baseQualities.join(" ")
             jsonObject.seq = samRecord.readString
-            jsonObject.score = samRecord.mappingQuality
 
-            jsonObject["seq length"] = samRecord.readString.length()
+            jsonObject.score = samRecord.mappingQuality
+            jsonObject.type = "match"
+
+            jsonObject.seq_length = samRecord.readString.length()
 //            jsonObject["Seq reverse complemented"] = samRecord.
 //            jsonObject.readSequence = samRecord.readString
             jsonObject.unmapped = samRecord.readUnmappedFlag
             jsonObject.duplicate = samRecord.duplicateReadFlag
-            jsonObject.secondary = samRecord.secondaryOrSupplementary
-//            samRecord.attributes.each {
-//                println "SAMRecord tag: ${it.tag} -> ${it.value}"
-//            }
+            jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
 
             jsonObject.remove("class")
 
