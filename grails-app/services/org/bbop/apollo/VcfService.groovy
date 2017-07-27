@@ -209,7 +209,7 @@ class VcfService {
      * @param sequenceName
      * @return
      */
-    def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext, String sequenceName) {
+    def createJSONFeature(VCFHeader vcfHeader, VariantContext variantContext, String sequenceName, boolean includeGenotypes = false) {
         JSONObject jsonFeature = new JSONObject()
         String type = classifyType(variantContext)
         String referenceAlleleString = variantContext.getReference().baseString
@@ -276,46 +276,15 @@ class VcfService {
 
         // genotypes
         def genotypes = variantContext.getGenotypes()
-        def genotypesJsonObject = new JSONObject()
-
-        for (int i = 0; i < genotypes.size(); i++) {
-            Genotype genotype = genotypes.get(i)
-            JSONObject formatJsonObject = new JSONObject()
-            for (String key : availableFormatFields) {
-                //log.debug "processing format field: ${key}"
-                if (genotype.hasAnyAttribute(key)) {
-                    JSONObject formatPropertiesJsonObject = new JSONObject()
-                    if (key == VCFConstants.GENOTYPE_KEY) {
-                        def alleles = genotype.getAlleles()
-                        def alleleAsIndices = variantContext.getAlleleIndices(alleles)
-                        String delimiter = genotype.isPhased() ? VCFConstants.PHASED : VCFConstants.UNPHASED
-                        String genotypeAsIndices = alleleAsIndices.join(delimiter)
-
-                        JSONArray valuesArray = new JSONArray()
-                        valuesArray.add(genotypeAsIndices)
-                        formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
-                        VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
-                        if (metaData) {
-                            JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
-                            formatPropertiesJsonObject.put(FeatureStringEnum.META.value, attributeMetaObject)
-                        }
-                    }
-                    else {
-                        def keyValues = genotype.getAnyAttribute(key)
-                        JSONArray valuesArray = new JSONArray()
-                        valuesArray.add(keyValues)
-                        formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
-                        VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
-                        if (metaData) {
-                            JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
-                            formatPropertiesJsonObject.put(FeatureStringEnum.META.value, attributeMetaObject)
-                        }
-                    }
-                    formatJsonObject.put(key, formatPropertiesJsonObject)
-                }
-                genotypesJsonObject.put(genotype.sampleName, formatJsonObject)
+        if (genotypes.size() > 0) {
+            if (includeGenotypes) {
+                JSONObject genotypeJSONObject = new JSONObject()
+                parseGenotypes(genotypeJSONObject, availableFormatFields, vcfHeader, variantContext, genotypes)
+                jsonFeature.put(FeatureStringEnum.GENOTYPES.value, genotypeJSONObject)
             }
-            jsonFeature.put(FeatureStringEnum.GENOTYPES.value, genotypesJsonObject)
+            else {
+                jsonFeature.put(FeatureStringEnum.GENOTYPES.value, true)
+            }
         }
 
         // filter
@@ -611,5 +580,116 @@ class VcfService {
         }
 
         return [start, end]
+    }
+
+    /**
+     *
+     * @param genotypeObject
+     * @param organism
+     * @param projection
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @return
+     */
+    def getGenotypes(JSONObject genotypeObject, Organism organism, MultiSequenceProjection projection, VCFFileReader vcfFileReader, int start, int end) {
+        (start, end) = processCoordinates(organism, projection, start, end)
+        VCFHeader vcfHeader = vcfFileReader.getFileHeader()
+        if (start < 0 && end < 0) {
+            return genotypeObject
+        }
+
+        for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order}) {
+            def vcfEntry = vcfFileReader.query(projectionSequence.name, start + 1, end).next()
+            getGenotypesForEntry(genotypeObject, vcfHeader, vcfEntry)
+        }
+    }
+
+    /**
+     *
+     * @param genotypeObject
+     * @param organism
+     * @param sequenceName
+     * @param vcfFileReader
+     * @param start
+     * @param end
+     * @return
+     */
+    def getGenotypes(JSONObject genotypeObject, Organism organism, String sequenceName, VCFFileReader vcfFileReader, int start, int end) {
+        (start, end) = processCoordinates(organism, sequenceName, start, end)
+        VCFHeader vcfHeader = vcfFileReader.getFileHeader()
+        if (start < 0 && end < 0) {
+            return genotypeObject
+        }
+        def vcfEntry = vcfFileReader.query(sequenceName, start + 1, end).next()
+        getGenotypesForEntry(genotypeObject, vcfHeader, vcfEntry)
+    }
+
+    /**
+     *
+     * @param genotypeObject
+     * @param vcfHeader
+     * @param variantContext
+     * @return
+     */
+    def getGenotypesForEntry(JSONObject genotypeObject, VCFHeader vcfHeader, VariantContext variantContext) {
+        def availableFormatFields = []
+        vcfHeader.getFormatHeaderLines().each {
+            availableFormatFields.add(it.properties.get("ID"))
+        }
+
+        def genotypes = variantContext.getGenotypes()
+        if (genotypes.size() > 0) {
+            parseGenotypes(genotypeObject, availableFormatFields, vcfHeader, variantContext, genotypes)
+        }
+    }
+
+    /**
+     *
+     * @param genotypeObject
+     * @param availableFormatFields
+     * @param vcfHeader
+     * @param variantContext
+     * @param genotypes
+     */
+    def parseGenotypes(JSONObject genotypeObject, def availableFormatFields, VCFHeader vcfHeader, VariantContext variantContext, def genotypes) {
+        for (int i = 0; i < genotypes.size(); i++) {
+            Genotype genotype = genotypes.get(i)
+            JSONObject formatJsonObject = new JSONObject()
+            for (String key : availableFormatFields) {
+                //log.debug "processing format field: ${key}"
+                if (genotype.hasAnyAttribute(key)) {
+                    JSONObject formatPropertiesJsonObject = new JSONObject()
+                    if (key == VCFConstants.GENOTYPE_KEY) {
+                        def alleles = genotype.getAlleles()
+                        def alleleAsIndices = variantContext.getAlleleIndices(alleles)
+                        String delimiter = genotype.isPhased() ? VCFConstants.PHASED : VCFConstants.UNPHASED
+                        String genotypeAsIndices = alleleAsIndices.join(delimiter)
+
+                        JSONArray valuesArray = new JSONArray()
+                        valuesArray.add(genotypeAsIndices)
+                        formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
+                        VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
+                        if (metaData) {
+                            JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
+                            formatPropertiesJsonObject.put(FeatureStringEnum.META.value, attributeMetaObject)
+                        }
+                    }
+                    else {
+                        def keyValues = genotype.getAnyAttribute(key).split(",")
+                        JSONArray valuesArray = new JSONArray()
+                        valuesArray.add(keyValues)
+                        formatPropertiesJsonObject.put(FeatureStringEnum.VALUES.value, valuesArray)
+                        VCFCompoundHeaderLine metaData = VariantContextUtils.getMetaDataForField(vcfHeader, key)
+                        if (metaData) {
+                            JSONObject attributeMetaObject = generateMetaObjectForProperty(metaData, variantContext)
+                            formatPropertiesJsonObject.put(FeatureStringEnum.META.value, attributeMetaObject)
+                        }
+                    }
+                    formatJsonObject.put(key, formatPropertiesJsonObject)
+                }
+                genotypeObject.put(genotype.sampleName, formatJsonObject)
+            }
+        }
     }
 }

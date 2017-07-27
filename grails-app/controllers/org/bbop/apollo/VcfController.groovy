@@ -144,4 +144,27 @@ class VcfController {
         render vcfHeaderJSONObject as JSON
     }
 
+    def getGenotypes(String trackName, Long organismId, String sequenceName, String queryId) {
+        Organism organism = Organism.findById(organismId)
+        int start = params.getInt("start")
+        int end = params.getInt("end")
+        JSONObject genotypeObject = new JSONObject()
+
+        try {
+            File file = new File(organism.directory + "/" + params.urlTemplate)
+            VCFFileReader vcfFileReader = new VCFFileReader(file)
+            MultiSequenceProjection projection = projectionService.getProjection(sequenceName, organism)
+            if (projection) {
+                vcfService.getGenotypes(genotypeObject, organism, projection, vcfFileReader, start, end)
+            }
+            else {
+                vcfService.getGenotypes(genotypeObject, organism, sequenceName, vcfFileReader, start, end)
+            }
+
+        } catch(FileNotFoundException e) {
+            println e.toString()
+        }
+
+        render genotypeObject as JSON
+    }
 }

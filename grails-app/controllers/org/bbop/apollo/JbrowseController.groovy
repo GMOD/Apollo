@@ -817,9 +817,7 @@ class JbrowseController {
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
         }
-        else if (obj.type == "JBrowse/View/Track/HTMLVariants" ||
-                obj.type == "JBrowse/View/Track/CanvasVariants" ||
-                obj.type == "WebApollo/View/Track/DraggableHTMLVariants") {
+        else if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             // Switching to REST store
             obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"

@@ -37,6 +37,24 @@ return declare( REST,
                 return header;
             }
         );
+    },
+
+    requestGenotypes: function( f ) {
+        var thisB = this;
+        var ref = this.refSeq.name;
+        var start = f.get('start');
+        var end = f.get('end');
+
+        var query = this._assembleQuery({ref: ref, start: start, end: end});
+        var url = this._makeURL('feature/getGenotypes', query);
+        return dojoRequest(url, {
+            method: 'GET',
+            handleAs: 'json'
+        }).then(
+            function(genotypes) {
+                return genotypes;
+            }
+        );
     }
 
 });
