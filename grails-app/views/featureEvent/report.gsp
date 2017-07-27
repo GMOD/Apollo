@@ -88,7 +88,7 @@
         </thead>
         <tbody>
         <g:each in="${features}" status="i" var="feature">
-            <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
+            <g:set var="sequence" value="${feature.firstFeatureLocation.sequence}"/>
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
                     <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.lastUpdated}"/>
@@ -100,8 +100,7 @@
                     </g:link>
                 </td>
                 <td>
-                %{--${feature.featureLocation.sequence.name}--}%
-                    <g:set var="sequence" value="${feature.featureLocation.sequence}"/>
+                    <g:set var="sequence" value="${feature.firstFeatureLocation.sequence}"/>
                     <g:link target="_blank" controller="annotator" action="loadLink"
                             params="[loc: sequence.name + ':' + sequence.start + '..' + sequence.end, organism: sequence.organism.id]">
                         ${sequence.name}</g:link>
@@ -112,7 +111,7 @@
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"
-                            params="[loc: feature.featureLocation.sequence.name + ':' + feature.featureLocation.fmin + '..' + feature.featureLocation.fmax, organism: feature.featureLocation.sequence.organism.id]">
+                            params="[loc: feature.firstFeatureLocation.sequence.name + ':' + feature.fmin + '..' + feature.fmax, organism: feature.organism.id]">
                         ${feature.name}
                     </g:link>
                 </td>

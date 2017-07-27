@@ -2,10 +2,14 @@ package org.bbop.apollo
 
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.TranslationTable
 
 @Transactional
 class OrganismService {
+
     def featureService
+    def configWrapperService
 
     int TRANSACTION_SIZE = 30
 
@@ -58,5 +62,19 @@ class OrganismService {
             println "Deleted ${rate} features / sec"
         }
         return featurePairs.size()
+    }
+
+
+    TranslationTable getTranslationTable(Organism organism) {
+        if(organism?.nonDefaultTranslationTable){
+            log.debug "overriding default translation table for ${organism.commonName} with ${organism.nonDefaultTranslationTable}"
+            return SequenceTranslationHandler.getTranslationTableForGeneticCode(organism.nonDefaultTranslationTable)
+        }
+        // just use the default
+        else{
+            log.debug "using the default translation table"
+            return  configWrapperService.getTranslationTable()
+        }
+
     }
 }
