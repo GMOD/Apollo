@@ -109,7 +109,6 @@ class VcfService {
             return featuresArray
         }
 
-        int count  = 0
         for (ProjectionSequence projectionSequence : projection.sequenceDiscontinuousProjectionMap.keySet().sort() {a,b -> a.order <=> b.order}) {
             def vcfEntries = []
             log.info "projection sequence name ${projectionSequence.name}"
@@ -322,13 +321,13 @@ class VcfService {
     def projectJSONFeature(JSONObject jsonFeature, MultiSequenceProjection projection, Boolean unProject, Integer offset) {
         // Note: jsonFeature must have 'location' object for FPS:projectFeature to work
         JSONObject location = new JSONObject()
-        location.put(FeatureStringEnum.FMIN.value, jsonFeature.start)
-        location.put(FeatureStringEnum.FMAX.value, jsonFeature.end)
+        location.put(FeatureStringEnum.FMIN.value, jsonFeature.get(FeatureStringEnum.START.value))
+        location.put(FeatureStringEnum.FMAX.value, jsonFeature.get(FeatureStringEnum.END.value))
         location.put(FeatureStringEnum.SEQUENCE.value, jsonFeature.get("seq_id"))
         jsonFeature.put(FeatureStringEnum.LOCATION.value, location)
         featureProjectionService.projectFeature(jsonFeature, projection, unProject, offset)
-        jsonFeature.start = jsonFeature.location.fmin
-        jsonFeature.end = jsonFeature.location.fmax
+        jsonFeature.put(FeatureStringEnum.START.value, location.get(FeatureStringEnum.FMIN.value))
+        jsonFeature.put(FeatureStringEnum.END.value, location.get(FeatureStringEnum.FMAX.value))
         jsonFeature.remove(FeatureStringEnum.LOCATION.value)
         return jsonFeature
     }
@@ -502,12 +501,12 @@ class VcfService {
             JSONArray descriptionArray = new JSONArray()
             idArray.add(filter.getID())
             descriptionArray.add(filter.getDescription())
-            object.put("id", idArray)
-            object.put("description", descriptionArray)
+            object.put(FeatureStringEnum.ID.value, idArray)
+            object.put(FeatureStringEnum.DESCRIPTION.value, descriptionArray)
             filterObject.put(filter.getID(), object)
         }
 
-        vcfHeaderJSONObject.put("filter", filterObject)
+        vcfHeaderJSONObject.put(FeatureStringEnum.FILTER.value, filterObject)
         log.debug "header as JSON ${vcfHeaderJSONObject.toString()}"
         return vcfHeaderJSONObject
     }
