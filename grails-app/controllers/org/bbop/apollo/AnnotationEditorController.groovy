@@ -7,6 +7,7 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -52,6 +53,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def sequenceSearchService
     def featureEventService
     def annotationEditorService
+    def organismService
     def brokerMessagingTemplate
 
 
@@ -140,12 +142,17 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def getTranslationTable() {
         log.debug "getTranslationTable"
         JSONObject returnObject = permissionService.handleInput(request, params)
-        TranslationTable translationTable = configWrapperService.getTranslationTable()
-        JSONObject ttable = new JSONObject();
+        log.debug "return object ${returnObject as JSON}"
+        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+        log.debug "has organism ${organism}"
+        // use the over-wridden one
+        TranslationTable translationTable = organismService.getTranslationTable(organism)
+
+        JSONObject ttable = new JSONObject()
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
-            ttable.put(t.getKey(), t.getValue());
+            ttable.put(t.getKey(), t.getValue())
         }
-        returnObject.put(REST_TRANSLATION_TABLE, ttable);
+        returnObject.put(REST_TRANSLATION_TABLE, ttable)
         render returnObject
     }
 
