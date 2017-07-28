@@ -157,7 +157,6 @@ public enum FeatureStringEnum {
         META,
         REFERENCE_ALLELE,
         ALTERNATIVE_ALLELES,
-        SCORE,
         GENOTYPES,
         FILTER
         ;
