@@ -50,6 +50,11 @@ class BamService {
 //            final SAMRecord rec = .next()
 //            println "RECORD: ${samRecord.getSAMString()}"
             JSONObject jsonObject = new JSONObject()
+
+            jsonObject.source = sourceFile.name
+
+
+
             jsonObject.start = projection.projectValue(samRecord.start)
             jsonObject.end = projection.projectValue(samRecord.end)
             if(jsonObject.start > jsonObject.end){
@@ -57,8 +62,10 @@ class BamService {
                 jsonObject.start = jsonObject.end
                 jsonObject.end = tmp
             }
+
             jsonObject.name = samRecord.readName
-//            println "${jsonObject.name}"
+
+
             if(jsonObject.name=='ctgA_19043_19563_1:0:0_1:0:0_18a0'){
                 samRecord.properties.each {
                     println "properly ${it.key} -> ${it.value}"
@@ -67,27 +74,27 @@ class BamService {
                     println "SAMRecord tag: ${it.tag} -> ${it.value}"
                 }
             }
-            jsonObject.CIGAR = samRecord.cigarString
 
-            // TODO: one of these is incorrect
+
+            jsonObject.cigar = samRecord.cigarString
             jsonObject.length_on_ref = samRecord.readLength
-
-            jsonObject.source = sourceFile.name
-
-
 
 
             samRecord.getAttributes().each { attribute ->
-                switch (attribute.tag){
-                    case 'XT':
-                        jsonObject[attribute.tag] = attribute.value.toString()
-                        break
-                    default:
-                        jsonObject[attribute.tag] = attribute.value
+                if(attribute.value instanceof Character){
+                    jsonObject[attribute.tag] = attribute.value.toString()
                 }
+                else{
+                    jsonObject[attribute.tag] = attribute.value
+                }
+//                switch (attribute.tag){
+//                    case 'XT':
+//                        jsonObject[attribute.tag] = attribute.value.toString()
+//                        break
+//                    default:
+//                        jsonObject[attribute.tag] = attribute.value
+//                }
             }
-//            jsonObject.baseQualityString = samRecord.baseQualityString
-//            jsonObject.qual = samRecord.baseQualityString
             jsonObject.qual = samRecord.baseQualities.join(" ")
             jsonObject.seq = samRecord.readString
 
@@ -95,11 +102,11 @@ class BamService {
             jsonObject.type = "match"
 
             jsonObject.seq_length = samRecord.readString.length()
-//            jsonObject["Seq reverse complemented"] = samRecord.
-//            jsonObject.readSequence = samRecord.readString
             jsonObject.unmapped = samRecord.readUnmappedFlag
             jsonObject.duplicate = samRecord.duplicateReadFlag
             jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
+            jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag // I thikn this is correct
+
 
             jsonObject.remove("class")
 
