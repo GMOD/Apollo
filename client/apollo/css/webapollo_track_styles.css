@@ -30,13 +30,13 @@
 
 .plus-bam-read {
     height: 5px;
-    background-color: lightblue;
+    background-color: #898FD8;
     z-index: 8;
 }
 
 .minus-bam-read {
     height: 5px;
-    background-color: lightcoral;
+    background-color: #EC8B8B;
     z-index: 8;
 }
 
@@ -361,14 +361,18 @@ div.annot-sequence  {
 
 .plus-cigarM {
     height: 100%;
-    background-color: navy;
+    /*background-color: #898FD8;*/
+    background-color: royalblue;
+    /*background-color: blue;*/
     z-index: 8;   /* rendered below most other subfeatures */
     min-width: 1px;
 }
 
 .minus-cigarM  {
     height: 100%;
-    background-color: darkred;
+    /*background-color: #EC8B8B;*/
+    background-color: indianred;
+    /*background-color: red;*/
     z-index: 8;   /* rendered below most other subfeatures */
     min-width: 1px;
 }
