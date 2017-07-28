@@ -23,7 +23,7 @@ class VcfController {
     JSONObject global(String trackName, Long organismId) {
         // TODO
         JSONObject returnObject = new JSONObject()
-        returnObject.put("featureDensity", 0.2);
+        returnObject.put("featureDensity", 0.01);
         render returnObject as JSON
     }
 
