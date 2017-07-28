@@ -38,15 +38,15 @@ class BamService {
 //        println "ASDFQUERY"
 //        SAMRecordIterator samRecordIterator = samReader.iterator()
 
-        final SAMFileHeader header = samReader.getFileHeader()
+//        final SAMFileHeader header = samReader.getFileHeader()
 //        println "bam header ${header?.getTextHeader()}"
 //        println "header properties ${header?.properties}"
 
-        println "start / end ${start} / ${end}"
-        println "iterator in bam service ${samRecordList.size()}"
+//        println "start / end ${start} / ${end}"
+//        println "iterator in bam service ${samRecordList.size()}"
 
 //        while(samRecordIterator.hasNext()){
-        for (SAMRecord samRecord in samRecordList) {
+        for (SAMRecord samRecord in samRecordList.sort(){ a,b-> a.start<=>b.start}) {
 //            println "TRY"
 //            final SAMRecord rec = .next()
 //            println "RECORD: ${samRecord.getSAMString()}"
@@ -69,7 +69,6 @@ class BamService {
 //            println "getting TLEN"
 //            jsonObject.multi_segment = samRecord.alignmentBlocks?.size() > 1
 
-            jsonObject.unmapped = samRecord.readUnmappedFlag
 //            jsonObject.template_length = samRecord.cigarLength
 //            for (block in samRecord.alignmentBlocks) {
 ////                jsonObject.template_length = samRecord.alignmentBlocks?.size()
@@ -114,6 +113,7 @@ class BamService {
 
             jsonObject.seq_length = samRecord.readString.length()
             jsonObject.duplicate = samRecord.duplicateReadFlag
+            jsonObject.unmapped = samRecord.readUnmappedFlag
             jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
             jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag // I thikn this is correct
             jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct

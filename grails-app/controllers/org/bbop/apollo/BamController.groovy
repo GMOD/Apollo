@@ -69,7 +69,7 @@ class BamController {
 
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, organism)
 
-            if(!projection){
+            if(projection==null){
                 // create a projection from simple sequence
                 Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
                 ProjectionSequence projectionSequence = new ProjectionSequence()
