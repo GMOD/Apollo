@@ -115,9 +115,7 @@ class VcfService {
             // changing zero-based start to one-based start while querying VCF
             log.info "querying VCF with projectionSequence.name: ${projectionSequence.name} ${start + 1}-${end} (note the adjusted start)"
             def queryResults = vcfFileReader.query(projectionSequence.name, (int) start + 1, (int) end)
-            while(queryResults.hasNext()) {
-                vcfEntries.add(queryResults.next())
-            }
+            vcfEntries.addAll(queryResults.toList())
             calculateFeaturesArray(featuresArray, vcfHeader, vcfEntries, projection, projectionSequence)
         }
 
@@ -147,10 +145,9 @@ class VcfService {
         VCFHeader vcfHeader = vcfFileReader.getFileHeader()
 
         // changing zero-based start to one-based start while querying VCF
+        log.info "querying with ${sequenceName} ${start + 1} ${end}"
         def queryResults = vcfFileReader.query(sequenceName, start + 1, end)
-        while(queryResults.hasNext()) {
-            vcfEntries.add(queryResults.next())
-        }
+        vcfEntries.addAll(queryResults.toList())
         calculateFeaturesArray(featuresArray, vcfHeader, vcfEntries, sequenceName)
 
         return featuresArray
@@ -520,25 +517,37 @@ class VcfService {
      * @return
      */
     def processCoordinates(Organism organism, MultiSequenceProjection projection, int start, int end) {
-        if (start > 0 && end < 0) {
-            // that means the request is to fetch something near the end of the sequence
-            // and the requested end is outside the sequence boundary.
-            // Thus, adjust end to max length of current sequence
-            end = projection.length
-            log.info "setting end to projection length: ${end}"
+
+        if (start > 0) {
+            if (end < 0) {
+                // that means the request is to fetch something near the end of the projection
+                // and the requested end is outside the projection boundary.
+                // Thus, adjust end to max length of current projection
+                end = projection.length
+            }
+            else {
+                // that means the request is to fetch something near the end of the projection
+                // and the requested end is outside the projection boundary.
+                // Thus, adjust end to max length of current projection
+                if (start < projection.length && end > projection.length) end = projection.length
+            }
         }
-        else if (start < 0 && end > 0) {
-            // that means the request is to fetch something at the start of the sequence
-            // and the requested start is outside the sequence boundary.
-            // Thus, adjust start to 0
-            log.info "setting start to 0"
-            start = 0
+        else if (start < 0) {
+            if (end < 0) {
+                // do nothing
+            }
+            else {
+                // that means the request is to fetch something at the start of the projection
+                // and the requested start is outside the projection boundary.
+                // Thus, adjust start to 0
+                start = 0
+            }
         }
 
         // unprojecting input coordinates
         start = projection.unProjectValue(start)
         end = projection.unProjectValue(end)
-        log.info "unprojected start: ${start} end: ${end}"
+        log.debug "unprojected start: ${start} end: ${end}"
 
         if (start > end) {
             // in a reverse projection, unprojected start will always be greater than unprojected end
@@ -546,9 +555,6 @@ class VcfService {
             start = end
             end = temp
         }
-
-        if (start < 0) start = 0
-        if (end > projection.length) end = projection.length
 
         return [start, end]
     }
@@ -563,19 +569,31 @@ class VcfService {
      */
     def processCoordinates(Organism organism, String sequenceName, int start, int end) {
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-        if (start > 0 && end < 0) {
-            // that means the request is to fetch something near the end of the sequence
-            // and the requested end is outside the sequence boundary.
-            // Thus, adjust end to max length of the current sequence
-            end = sequence.length
-            log.info "setting end to sequence length: ${end}"
+
+        if (start > 0) {
+            if (end < 0) {
+                // that means the request is to fetch something near the end of the sequence
+                // and the requested end is outside the sequence boundary.
+                // Thus, adjust end to max length of current sequence
+                end = sequence.length
+            }
+            else {
+                // that means the request is to fetch something near the end of the sequence
+                // and the requested end is outside the sequence boundary.
+                // Thus, adjust end to max length of current sequence
+                if (start < sequence.length && end > sequence.length) end = sequence.length
+            }
         }
-        else if (start < 0 && end > 0) {
-            // that means the request is to fetch something at the start of the sequence
-            // and the requested start is outside the sequence boundary.
-            // Thus, adjust start to 0
-            log.info "setting start to 0"
-            start = 0
+        else if (start < 0) {
+            if (end < 0) {
+                // do nothing
+            }
+            else {
+                // that means the request is to fetch something at the start of the sequence
+                // and the requested start is outside the sequence boundary.
+                // Thus, adjust start to 0
+                start = 0
+            }
         }
 
         return [start, end]
