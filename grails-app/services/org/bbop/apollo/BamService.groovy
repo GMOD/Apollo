@@ -106,6 +106,7 @@ class BamService {
             jsonObject.duplicate = samRecord.duplicateReadFlag
             jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
             jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag // I thikn this is correct
+            jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
 
 
             jsonObject.remove("class")
