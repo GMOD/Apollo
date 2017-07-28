@@ -64,6 +64,7 @@ class BamService {
             }
 
             jsonObject.name = samRecord.readName
+            jsonObject.qc_failed = samRecord.readFailsVendorQualityCheckFlag
 
 
             if(jsonObject.name=='ctgA_19043_19563_1:0:0_1:0:0_18a0'){
