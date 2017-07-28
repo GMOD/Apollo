@@ -1,9 +1,10 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import htsjdk.samtools.*
+import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.SAMFileHeader
+import htsjdk.samtools.SAMRecord
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -16,14 +17,14 @@ class BamService {
      * matching DraggableAlignments.js
      */
     @NotTransactional
-    def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BAMFileReader samReader, int start, int end,File sourceFile) {
+    def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BAMFileReader samReader, int start, int end, File sourceFile) {
 
         ProjectionSequence projectionSequence = projection.getProjectedSequences().first()
         String sequenceName = projectionSequence.name
 
         int actualStart = projection.unProjectValue(start)
         int actualEnd = projection.unProjectValue(end)
-        if(actualStart > actualEnd){
+        if (actualStart > actualEnd) {
             println "flipping"
             Long tmp = actualStart
             actualStart = actualEnd
@@ -33,7 +34,7 @@ class BamService {
 //        SAMRecordIterator samRecordIterator = bamFileReader.query(sequenceName, start, end, false)
 //        samReader.query()
         // TODO: pull from cache
-        def samRecordList = samReader.query(sequenceName,actualStart,actualEnd,false).toList()
+        def samRecordList = samReader.query(sequenceName, actualStart, actualEnd, false).toList()
 //        println "ASDFQUERY"
 //        SAMRecordIterator samRecordIterator = samReader.iterator()
 
@@ -45,7 +46,7 @@ class BamService {
         println "iterator in bam service ${samRecordList.size()}"
 
 //        while(samRecordIterator.hasNext()){
-        for(SAMRecord samRecord in samRecordList){
+        for (SAMRecord samRecord in samRecordList) {
 //            println "TRY"
 //            final SAMRecord rec = .next()
 //            println "RECORD: ${samRecord.getSAMString()}"
@@ -57,7 +58,7 @@ class BamService {
 
             jsonObject.start = projection.projectValue(samRecord.start)
             jsonObject.end = projection.projectValue(samRecord.end)
-            if(jsonObject.start > jsonObject.end){
+            if (jsonObject.start > jsonObject.end) {
                 Long tmp = jsonObject.start
                 jsonObject.start = jsonObject.end
                 jsonObject.end = tmp
@@ -65,9 +66,19 @@ class BamService {
 
             jsonObject.name = samRecord.readName
             jsonObject.qc_failed = samRecord.readFailsVendorQualityCheckFlag
+//            println "getting TLEN"
+//            jsonObject.multi_segment = samRecord.alignmentBlocks?.size() > 1
+
+            jsonObject.unmapped = samRecord.readUnmappedFlag
+//            jsonObject.template_length = samRecord.cigarLength
+//            for (block in samRecord.alignmentBlocks) {
+////                jsonObject.template_length = samRecord.alignmentBlocks?.size()
+//                jsonObject.template_length = samRecord.mateAlignmentStart
+//            }
+//            println "GOT TLEN"
 
 
-            if(jsonObject.name=='ctgA_19043_19563_1:0:0_1:0:0_18a0'){
+            if (jsonObject.name == 'ctgA_19043_19563_1:0:0_1:0:0_18a0') {
                 samRecord.properties.each {
                     println "properly ${it.key} -> ${it.value}"
                 }
@@ -82,10 +93,9 @@ class BamService {
 
 
             samRecord.getAttributes().each { attribute ->
-                if(attribute.value instanceof Character){
+                if (attribute.value instanceof Character) {
                     jsonObject[attribute.tag] = attribute.value.toString()
-                }
-                else{
+                } else {
                     jsonObject[attribute.tag] = attribute.value
                 }
 //                switch (attribute.tag){
@@ -103,7 +113,6 @@ class BamService {
             jsonObject.type = "match"
 
             jsonObject.seq_length = samRecord.readString.length()
-            jsonObject.unmapped = samRecord.readUnmappedFlag
             jsonObject.duplicate = samRecord.duplicateReadFlag
             jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
             jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag // I thikn this is correct

@@ -12,6 +12,7 @@ import htsjdk.samtools.SamReaderFactory
 import htsjdk.samtools.ValidationStringency
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
+import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -68,17 +69,28 @@ class BamController {
 
             MultiSequenceProjection projection = projectionService.getProjection(refererLoc, organism)
 
+            if(!projection){
+                // create a projection from simple sequence
+                Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
+                ProjectionSequence projectionSequence = new ProjectionSequence()
+                projectionSequence.name = sequence.name
+                projectionSequence.start = 0
+                projectionSequence.end = sequence.end
+                projectionSequence.order = 0
+                projectionSequence.reverse = false
+                projection = new MultiSequenceProjection()
+                projection.addProjectionSequences([projectionSequence])
+                projection.addInterval(0l,sequence.end,projectionSequence)
+            }
             if (projection) {
-                println "is projectin ${projection}"
                 bamService.processProjection(featuresArray, projection, samReader, start, end,file)
             }
             else {
-                println "NO projectin ${refererLoc}"
-                log.error("Not sure what to do")
+                log.error("Projection not found for ${refererLoc}")
             }
-            println "end array ${featuresArray.size()}"
+            log.debug "bam feature array size: ${featuresArray.size()}"
         } catch (e) {
-            println "baddness ${e} -> ${file}"
+            log.error "Error rendering bam track ${e} -> ${file}"
         }
 
         render returnObject as JSON
