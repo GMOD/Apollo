@@ -41,14 +41,10 @@ class BigwigController {
     JSONObject features(String sequenceName,Long organismId, Integer start, Integer end) {
 
         JSONObject data = permissionService.handleInput(request, params)
-        println "data as ${data as JSON}"
-//        Organism organism = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,sequenceName,data.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
-        println "finding organism by ID ${organismId}"
         Organism organism = Organism.findById(organismId)
-        println "organism found ${organism.commonName}"
         JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+//        JSONObject returnObject = new JSONObject()
         if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
-            println "cache found !"
             render returnObject as JSON
         }
         JSONArray featuresArray = new JSONArray()
@@ -70,9 +66,9 @@ class BigwigController {
                 bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
             trackService.cacheBigWig(returnObject,organism,sequenceName,start,end,params.urlTemplate)
-            println "end array ${featuresArray.size()}"
+            log.debug "end bigwith featrues array size ${featuresArray.size()}"
         } catch (e) {
-            println "baddness ${e} -> ${path}"
+            log.error  "Error retrieving bigwig features ${e} -> ${path}"
         }
 
         render returnObject as JSON
@@ -98,25 +94,17 @@ class BigwigController {
 
 
     JSONObject global(String trackName) {
-        println "global params ${params}"
         JSONObject data = permissionService.handleInput(request, params)
-        println "LGOBAL: data as ${data as JSON}"
         Organism currentOrganism = preferenceService.getOrganismFromInput(data)
 
         if(!currentOrganism){
             String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
             currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         }
-        println "current organism ${currentOrganism}"
         JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism,trackName)
-        println "track object 2: ${trackObject as JSON}"
-
-
 
         JSONObject returnObject = new JSONObject()
         Path path = FileSystems.getDefault().getPath(currentOrganism.directory + "/" + trackObject.urlTemplate)
-
-        println "global path: ${path}"
 
         BigWigFileReader bigWigFileReader = new BigWigFileReader(path)
         returnObject.put("scoreMin", bigWigFileReader.min())
@@ -125,17 +113,6 @@ class BigwigController {
         returnObject.put("scoreStdDev", bigWigFileReader.stdev())
         returnObject.put("featureCount", bigWigFileReader.numBases())
         returnObject.put("featureDensity", 1)
-//        {
-//
-//            "featureDensity": 0.02,
-//
-//            "featureCount": 234235,
-//
-//            "scoreMin": 87,
-//            "scoreMax": 87,
-//            "scoreMean": 42,
-//            "scoreStdDev": 2.1
-//        }
         render returnObject as JSON
     }
 
@@ -169,7 +146,6 @@ class BigwigController {
                                 , currentOrganism: true
                         ).save(insert: true, flush: true)
                     } else {
-//                        userOrganismPreference.assemblage = bo
                         userOrganismPreference.currentOrganism = true
                         userOrganismPreference.save()
                     }

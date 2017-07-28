@@ -59,6 +59,7 @@ public enum FeatureStringEnum {
         NEW_NON_RESERVED_PROPERTIES,
         LOCATION,
         COUNT,
+        SCORE,
         CONFIRM,
         FMIN,
         FMAX,

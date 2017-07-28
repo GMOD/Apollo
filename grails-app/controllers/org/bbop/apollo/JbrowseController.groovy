@@ -153,71 +153,8 @@ class JbrowseController {
         return directory
     }
 
-    /**
-     * @param clientToken
-     * @return
-     */
-    private String getJBrowseDirectoryForSession(String clientToken) {
-        println "current user? ${permissionService.currentUser}"
-        if (!permissionService.currentUser) {
-            return getDirectoryFromSession(clientToken)
-        }
-
-//         TODO: remove?
-        String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
-        println "getting this token ${thisToken} vs setting the client token ${clientToken}"
-        request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
-
-        println "getting organism for client token ${clientToken}"
-        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        println "got organism ${currentOrganism?.commonName} for client token ${clientToken}"
-        String organismJBrowseDirectory = currentOrganism.directory
-        println "directory is now ${organismJBrowseDirectory}"
-        if (!organismJBrowseDirectory) {
-            for (Organism organism in Organism.all) {
-                // load if not
-                if (!organism.sequences) {
-                    sequenceService.loadRefSeqs(organism)
-                }
-
-                if (organism.sequences) {
-                    User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    def assemblageList = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
-                    JSONArray sequenceArray = new JSONArray()
-                    if (userOrganismPreference == null) {
-                        List<Sequence> sequences = organism?.sequences
-                        sequences.each {
-                            JSONObject jsonObject = new JSONObject()
-                            jsonObject.name = it.name
-                            sequenceArray.add(jsonObject)
-                        }
-                        new UserOrganismPreference(
-                                user: user
-                                , organism: organism
-                                , assemblage: assemblageList.first()
-                                , currentOrganism: true
-                        ).save(insert: true, flush: true)
-                    } else {
-                        userOrganismPreference.assemblage = userOrganismPreference.assemblage
-                        userOrganismPreference.currentOrganism = true
-                        userOrganismPreference.save()
-                    }
-
-                    organismJBrowseDirectory = organism.directory
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceArray.toString())
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                    session.setAttribute(FeatureStringEnum.ORGANISM.value, organism.commonName)
-                    return organismJBrowseDirectory
-                }
-            }
-        }
-        return organismJBrowseDirectory
-    }
-
     def getSeqBoundaries() {
-        JSONObject inputObject = permissionService.handleInput(params)
+        JSONObject inputObject = permissionService.handleInput(request, params)
         String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
             String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
@@ -388,21 +325,6 @@ class JbrowseController {
             }
             else if (fileName.endsWith(".vcf.gz")) {
                 String vcfFilePath = params.path
-                // we project the data from VCF here
-                // TODO: Caching
-//                SequenceCache cache = SequenceCache.findByKey(dataFileName)
-//                if (cache) {
-//                    if (cache.value == String.valueOf(HttpServletResponse.SC_NOT_FOUND)) {
-//                        response.setStatus(HttpServletResponse.SC_NOT_FOUND)
-//                    }
-//                    else {
-//                        sequenceCacheService.generateCacheTags(response, cache, dataFileName, cache.value.bytes.length)
-//                        response.outStream << cache.value
-//                    }
-//                    return
-//                }
-
-                String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
             }
 
         }
@@ -730,7 +652,6 @@ class JbrowseController {
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        println "CURRENT ORGANISM: ${currentOrganism}"
 
         trackObject = rewriteTracks(trackObject,currentOrganism)
 
@@ -757,7 +678,6 @@ class JbrowseController {
 
         if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-//            organismObject.put("name", Organism.findById(id).commonName)
             organismObject.put("name", currentOrganism.commonName)
             organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
@@ -809,7 +729,7 @@ class JbrowseController {
 
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
-        log.info "rewrite track with jsonObject: ${obj.toString()}"
+        log.debug "Rewriting track ${obj as JSON}"
         if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             obj.storeClass = "JBrowse/Store/SeqFeature/REST"

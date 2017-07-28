@@ -125,9 +125,9 @@ class UrlMappings {
             fileType = "gff"
         }
         // add other types
-        "/bigwig/${trackName}/stats/global/"(controller: "bigwig",action: "global")
-        "/bigwig/${trackName}/stats/region"(controller: "bigwig",action: "region")
-        "/bigwig/${trackName}/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
+        "/bigwig/${trackName}/${organismId}/stats/global/"(controller: "bigwig",action: "global")
+        "/bigwig/${trackName}/${organismId}/stats/region"(controller: "bigwig",action: "region")
+        "/bigwig/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
         "/bigwig/${trackName}/${organismId}/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName,organismId: organismId)
 
 //        "/${clientToken}/bigwig/stats/global"(controller: "bigwig",action: "global")
