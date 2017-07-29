@@ -88,7 +88,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert firstVariantObject.start == 239046
         assert firstVariantObject.end == 239047
         assert firstVariantObject.type == "SNV"
-        assert firstVariantObject.description == "SNV C -> G"
+        assert firstVariantObject.description == "SNV C &rarr; G"
         assert firstVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -97,7 +97,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert lastVariantObject.start == 500124
         assert lastVariantObject.end == 500125
         assert lastVariantObject.type == "SNV"
-        assert lastVariantObject.description == "SNV A -> G"
+        assert lastVariantObject.description == "SNV A &rarr; G"
         assert lastVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -147,7 +147,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert firstVariantObject.start == 10455
         assert firstVariantObject.end == 10456
         assert firstVariantObject.type == "SNV"
-        assert firstVariantObject.description == "SNV T -> G"
+        assert firstVariantObject.description == "SNV T &rarr; G"
         assert firstVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -156,7 +156,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert lastVariantObject.start == 12225
         assert lastVariantObject.end == 12226
         assert lastVariantObject.type == "SNV"
-        assert lastVariantObject.description == "SNV A -> G"
+        assert lastVariantObject.description == "SNV A &rarr; G"
         assert lastVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -206,7 +206,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert firstVariantObject.start == 1143356
         assert firstVariantObject.end == 1143357
         assert firstVariantObject.type == "SNV"
-        assert firstVariantObject.description == "SNV C -> G"
+        assert firstVariantObject.description == "SNV C &rarr; G"
         assert firstVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -215,7 +215,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert lastVariantObject.start == 882278
         assert lastVariantObject.end == 882279
         assert lastVariantObject.type == "SNV"
-        assert lastVariantObject.description == "SNV A -> G"
+        assert lastVariantObject.description == "SNV A &rarr; G"
         assert lastVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -257,7 +257,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert firstVariantObject.end == 3000
         assert firstVariantObject.type == "SNV"
         assert firstVariantObject.name == "rs17883296"
-        assert firstVariantObject.description == "SNV G -> T"
+        assert firstVariantObject.description == "SNV G &rarr; T"
         assert firstVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert firstVariantObject.containsKey(FeatureStringEnum.SCORE.value)
@@ -267,7 +267,7 @@ class VcfServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert lastVariantObject.end == 4074
         assert lastVariantObject.type == "SNV"
         assert lastVariantObject.name == "rs17884260"
-        assert lastVariantObject.description == "SNV T -> G"
+        assert lastVariantObject.description == "SNV T &rarr; G"
         assert lastVariantObject.containsKey(FeatureStringEnum.REFERENCE_ALLELE.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.ALTERNATIVE_ALLELES.value)
         assert lastVariantObject.containsKey(FeatureStringEnum.SCORE.value)
