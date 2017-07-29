@@ -151,7 +151,14 @@ public enum FeatureStringEnum {
         END,
         USE_CDS,
         LENGTH,
-        PHASE
+        PHASE,
+        NUMBER,
+        VALUES,
+        META,
+        REFERENCE_ALLELE,
+        ALTERNATIVE_ALLELES,
+        GENOTYPES,
+        FILTER
         ;
 
 

@@ -153,74 +153,11 @@ class JbrowseController {
         return directory
     }
 
-    /**
-     * @param clientToken
-     * @return
-     */
-    private String getJBrowseDirectoryForSession(String clientToken) {
-        println "current user? ${permissionService.currentUser}"
-        if (!permissionService.currentUser) {
-            return getDirectoryFromSession(clientToken)
-        }
-
-//         TODO: remove?
-        String thisToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
-        println "getting this token ${thisToken} vs setting the client token ${clientToken}"
-        request.session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
-
-        println "getting organism for client token ${clientToken}"
-        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        println "got organism ${currentOrganism?.commonName} for client token ${clientToken}"
-        String organismJBrowseDirectory = currentOrganism.directory
-        println "directory is now ${organismJBrowseDirectory}"
-        if (!organismJBrowseDirectory) {
-            for (Organism organism in Organism.all) {
-                // load if not
-                if (!organism.sequences) {
-                    sequenceService.loadRefSeqs(organism)
-                }
-
-                if (organism.sequences) {
-                    User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    def assemblageList = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
-                    JSONArray sequenceArray = new JSONArray()
-                    if (userOrganismPreference == null) {
-                        List<Sequence> sequences = organism?.sequences
-                        sequences.each {
-                            JSONObject jsonObject = new JSONObject()
-                            jsonObject.name = it.name
-                            sequenceArray.add(jsonObject)
-                        }
-                        new UserOrganismPreference(
-                                user: user
-                                , organism: organism
-                                , assemblage: assemblageList.first()
-                                , currentOrganism: true
-                        ).save(insert: true, flush: true)
-                    } else {
-                        userOrganismPreference.assemblage = userOrganismPreference.assemblage
-                        userOrganismPreference.currentOrganism = true
-                        userOrganismPreference.save()
-                    }
-
-                    organismJBrowseDirectory = organism.directory
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceArray.toString())
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                    session.setAttribute(FeatureStringEnum.ORGANISM.value, organism.commonName)
-                    return organismJBrowseDirectory
-                }
-            }
-        }
-        return organismJBrowseDirectory
-    }
-
     def getSeqBoundaries() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
-            String dataDirectory = getJBrowseDirectoryForSession(clientToken)
+            String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
             String dataFileName = dataDirectory + "/seq/refSeqs.json"
             String referer = request.getHeader("Referer")
             String refererLoc = trackService.extractLocation(referer)
@@ -300,7 +237,7 @@ class JbrowseController {
             println "path ${p.path}"
         }
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
-        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
+        String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
         log.debug "data directory: ${dataDirectory}"
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -385,6 +322,9 @@ class JbrowseController {
             else if (fileName.endsWith(".bw") ) {
                 String bigWigPath = params.path
                 println "bigwig path ${bigWigPath}"
+            }
+            else if (fileName.endsWith(".vcf.gz")) {
+                String vcfFilePath = params.path
             }
 
         }
@@ -691,12 +631,11 @@ class JbrowseController {
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
         log.debug "track list client token: ${clientToken}"
-        String dataDirectory = getJBrowseDirectoryForSession(clientToken)
+        String dataDirectory = trackService.getJBrowseDirectoryForSession(request.session, clientToken)
         log.debug "got data directory of . . . ? ${dataDirectory}"
 
         String absoluteFilePath = dataDirectory + "/trackList.json"
         File file = new File(absoluteFilePath)
-
 
         def mimeType = "application/json";
         response.setContentType(mimeType);
@@ -797,6 +736,15 @@ class JbrowseController {
             obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
             obj.query = obj.query ?: new JSONObject()
             obj.query.urlTemplate = urlTemplate
+        }
+        else if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            // Switching to REST store
+            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
+            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+            //obj.region_feature_densities = true
         }
         else
         if(obj.storeClass == "JBrowse/Store/SeqFeature/BAM"){

@@ -9,6 +9,7 @@ import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import javax.servlet.http.HttpSession
 
 @Transactional
 class TrackService {
@@ -17,6 +18,9 @@ class TrackService {
     def preferenceService
     def trackMapperService
     def grailsLinkGenerator
+    def permissionService
+    def sequenceService
+    def assemblageService
 
     private Map<String, JSONObject> organismMap = [:]
 
@@ -360,6 +364,25 @@ class TrackService {
     JSONObject getBigWigFromCache(Organism organism, String sequenceName, int fmin, int fmax, String templateUrl) {
         String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmax(organism.commonName, templateUrl, sequenceName, fmin, fmax)?.response
         return response != null ? JSON.parse(response) as JSONObject : null
+    }
+
+    JSONObject getTrackDataFromCache(Organism organism, String sequenceName, int fmin, int fmax, String templateUrl, String type) {
+        String response = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndType(organism.commonName, templateUrl, sequenceName, fmin, fmax, type)?.response
+        return response != null ? JSON.parse(response) as JSONObject : null
+    }
+
+    @Transactional
+    def cacheTrackData(JSONObject storeObject, Organism organism, String sequenceName, int fmin, int fmax, String urlTemplate, String type) {
+        TrackCache trackCache = new TrackCache(
+                response: storeObject.toString(),
+                organismName: organism.commonName,
+                trackName: urlTemplate,
+                sequenceName: sequenceName,
+                fmin: fmin,
+                fmax: fmax,
+                type: type
+        ).save()
+        return trackCache
     }
 
     @Transactional
@@ -1193,30 +1216,82 @@ class TrackService {
         return null
     }
 
-    JSONObject rewriteTrack(JSONObject obj) {
-        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
+    private String getDirectoryFromSession(HttpSession session, String clientToken) {
+        String directory = session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
+        if (!directory) {
+            Organism organism = preferenceService.getOrganismForToken(clientToken)
+            if (organism) {
+                session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+                session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+                session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
+                return organism.directory
+            }
         }
-        else
-        if(obj.type == "JBrowse/View/Track/Alignments" || obj.type == "WebApollo/View/Track/DraggableAlignments"){
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bam/${obj.key}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-        }
-        return obj
+        return directory
     }
 
-    JSONObject rewriteTracks(JSONObject jsonObject) {
-        JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-        for(JSONObject obj in tracksArray){
-            obj = rewriteTrack(obj)
+    /**
+     * @param clientToken
+     * @return
+     */
+    String getJBrowseDirectoryForSession(HttpSession session, String clientToken) {
+        println "current user? ${permissionService.currentUser}"
+        if (!permissionService.currentUser) {
+            return getDirectoryFromSession(session, clientToken)
         }
-        return jsonObject
+
+//         TODO: remove?
+        String thisToken = session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
+        println "getting this token ${thisToken} vs setting the client token ${clientToken}"
+        session.setAttribute(FeatureStringEnum.CLIENT_TOKEN.value, clientToken)
+
+        println "getting organism for client token ${clientToken}"
+        Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println "got organism ${currentOrganism?.commonName} for client token ${clientToken}"
+        String organismJBrowseDirectory = currentOrganism.directory
+        println "directory is now ${organismJBrowseDirectory}"
+        if (!organismJBrowseDirectory) {
+            for (Organism organism in Organism.all) {
+                // load if not
+                if (!organism.sequences) {
+                    sequenceService.loadRefSeqs(organism)
+                }
+
+                if (organism.sequences) {
+                    User user = permissionService.currentUser
+                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
+                    def assemblageList = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
+                    JSONArray sequenceArray = new JSONArray()
+                    if (userOrganismPreference == null) {
+                        List<Sequence> sequences = organism?.sequences
+                        sequences.each {
+                            JSONObject jsonObject = new JSONObject()
+                            jsonObject.name = it.name
+                            sequenceArray.add(jsonObject)
+                        }
+                        new UserOrganismPreference(
+                                user: user
+                                , organism: organism
+                                , assemblage: assemblageList.first()
+                                , currentOrganism: true
+                        ).save(insert: true, flush: true)
+                    } else {
+                        userOrganismPreference.assemblage = userOrganismPreference.assemblage
+                        userOrganismPreference.currentOrganism = true
+                        userOrganismPreference.save()
+                    }
+
+                    organismJBrowseDirectory = organism.directory
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
+                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequenceArray.toString())
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM.value, organism.commonName)
+                    return organismJBrowseDirectory
+                }
+            }
+        }
+        return organismJBrowseDirectory
     }
+
 }

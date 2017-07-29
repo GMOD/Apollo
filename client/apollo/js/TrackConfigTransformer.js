@@ -38,6 +38,13 @@ constructor: function( args )  {
 
     this.transformers["JBrowse/View/Track/Alignments2"] = this.transformers["JBrowse/View/Track/Alignments"];
 
+    this.transformers["JBrowse/View/Track/HTMLVariants"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/WebApolloHTMLVariants";
+    };
+
+    this.transformers["JBrowse/View/Track/CanvasVariants"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/WebApolloCanvasVariants";
+    }
 },
 
 transform: function(trackConfig) {
