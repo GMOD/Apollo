@@ -3430,6 +3430,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             CDS cds = transcriptService.getCDS(transcript)
             if (cds != null) {
                 featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                if (cds.parentFeatureRelationships) featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
                 cds.delete()
             }
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage)
@@ -3463,6 +3464,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 CDS cds = transcriptService.getCDS(transcript)
                 if (cds != null) {
                     featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                    if (cds.parentFeatureRelationships) featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
                     cds.delete()
                 }
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript, assemblage)

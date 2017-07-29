@@ -504,6 +504,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
         }
         this.addSearchBox();
         this.addNavBox();
+        this.removeFileMenu();
 
         // get all toplinks and hide the one that says 'Full-screen view'
         $('.topLink').each(function(index){
@@ -781,7 +782,21 @@ return declare( [JBPlugin, HelpMixin,Evented],
         var browser = thisB.browser;
         browser.afterMilestone('initView', function () {
             var searchBox = dojo.byId('search-box');
-            dojo.style(searchBox, "display", "none");
+            if(searchBox){
+                dojo.destroy(searchBox);
+            }
+        });
+    },
+
+    removeFileMenu: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var fileButton = dojo.byId('dropdownbutton_file');
+            if(fileButton){
+                dojo.destroy(fileButton);
+            }
+            // dojo.destroy(searchBox, "display", "none");
         });
     },
 
@@ -813,7 +828,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
                 {
                     id: "apollo-navigation",
                     name: "apollo-navigation",
-                    style: {width: "200px"},
+                    style: {marginLeft: "20px"},
                     maxLength: 400,
                     searchAttr: "navigation",
                     title: sequenceObj.name,
