@@ -224,7 +224,7 @@ class VcfService {
         alternativeAllelesObject.put(FeatureStringEnum.VALUES.value, alternativeAllelesString)
         alternativeAllelesObject.put(FeatureStringEnum.META.value, alternativeAllelesMetaObject)
         jsonFeature.put(FeatureStringEnum.ALTERNATIVE_ALLELES.value, alternativeAllelesObject)
-        String descriptionString = "${type} ${referenceAlleleString} -> ${alternativeAllelesString}"
+        String descriptionString = "${type} ${referenceAlleleString} &rarr; ${alternativeAllelesString}"
 
         // changing one-based start to zero-based start
         int start = variantContext.getStart()
