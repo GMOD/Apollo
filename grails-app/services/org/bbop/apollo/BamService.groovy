@@ -128,9 +128,9 @@ class BamService {
             // should turn elements into array, but
             // e.g., 100M should be [100,M]
             List<CigarElement> ops = []
+            def min = start
+            def max
             for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
-                def min = start
-                def max
 //                ops.add(cigarElement)
                 switch (cigarElement.operator){
                     case CigarOperator.M:
@@ -158,11 +158,12 @@ class BamService {
                     subFeature.cigar_op = samRecord.cigarString
                     subfeatsArray.add(subFeature)
                 }
+                min = max
             }
 
             // get the
 
-            jsonObject.subfeats = subfeatsArray
+            jsonObject.subfeatures = subfeatsArray
 
 
             featuresArray.add(jsonObject)
