@@ -3,7 +3,8 @@ package org.bbop.apollo
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import htsjdk.samtools.BAMFileReader
-import htsjdk.samtools.SAMFileHeader
+import htsjdk.samtools.CigarElement
+import htsjdk.samtools.CigarOperator
 import htsjdk.samtools.SAMRecord
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
@@ -46,7 +47,7 @@ class BamService {
 //        println "iterator in bam service ${samRecordList.size()}"
 
 //        while(samRecordIterator.hasNext()){
-        for (SAMRecord samRecord in samRecordList.sort(){ a,b-> a.start<=>b.start}) {
+        for (SAMRecord samRecord in samRecordList.sort() { a, b -> a.start <=> b.start }) {
 //            println "TRY"
 //            final SAMRecord rec = .next()
 //            println "RECORD: ${samRecord.getSAMString()}"
@@ -87,7 +88,6 @@ class BamService {
             }
 
 
-            jsonObject.cigar = samRecord.cigarString
             jsonObject.length_on_ref = samRecord.readLength
 
 
@@ -120,6 +120,50 @@ class BamService {
 
 
             jsonObject.remove("class")
+
+
+            jsonObject.cigar = samRecord.cigarString
+
+            JSONArray subfeatsArray = new JSONArray()
+            // should turn elements into array, but
+            // e.g., 100M should be [100,M]
+            List<CigarElement> ops = []
+            for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
+                def min = start
+                def max
+//                ops.add(cigarElement)
+                switch (cigarElement.operator){
+                    case CigarOperator.M:
+                    case CigarOperator.D:
+                    case CigarOperator.N:
+                    case CigarOperator.EQ:
+                    case CigarOperator.X:
+                        max = min + cigarElement.length
+                        break
+                    case CigarOperator.I:
+                        max = min
+                        break
+                    case CigarOperator.P:
+                    case CigarOperator.H:
+                    case CigarOperator.S:
+                        break
+                }
+
+                if(cigarElement.operator!=CigarOperator.N){
+                    JSONObject subFeature = new JSONObject()
+                    subFeature.type = cigarElement.operator.toString()
+                    subFeature.start = min
+                    subFeature.end = max
+                    subFeature.strand = jsonObject.strand
+                    subFeature.cigar_op = samRecord.cigarString
+                    subfeatsArray.add(subFeature)
+                }
+            }
+
+            // get the
+
+            jsonObject.subfeats = subfeatsArray
+
 
             featuresArray.add(jsonObject)
         }
