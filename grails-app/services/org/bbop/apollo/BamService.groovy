@@ -138,13 +138,12 @@ class BamService {
 //////                subFeature.cigar_op = samRecord.cigarString
 ////                subfeatsArray.add(subFeature)
 ////            }
-//            jsonObject.mismatches = calculateMisMatches(samRecord.cigar)
-            Integer min = start
+            jsonObject.mismatches = calculateMismatches(samRecord.cigar)
+            Integer min = jsonObject.start
             Integer max = null
-            println "cigar string ${samRecord.cigarString}"
+//            println "cigar string ${samRecord.cigarString}"
             for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
-                println "OP: '${cigarElement.operator.toString()}'"
-
+//                println "OP: '${cigarElement.operator.toString()}'"
                 // parse matches for subfeatures
                 switch (cigarElement.operator) {
                     case CigarOperator.M:
@@ -190,7 +189,7 @@ class BamService {
 
     }
 
-    def calculateMisMatches(Cigar cigarElements) {
+    def calculateMismatches(Cigar cigarElements) {
 
         JSONArray mismatches = new JSONArray()
         int currentOffset = 0
@@ -229,7 +228,34 @@ class BamService {
                             ,length: cigarElement.length
                     ))
                     break
+                case CigarOperator.H:
+                    mismatches.add(new JSONObject(
+                            start: currentOffset
+                            ,type: "hardclip"
+                            ,base: 'H'+cigarElement.length
+                            ,length: 1
+                    ))
+                    break
+                case CigarOperator.S:
+                    mismatches.add(new JSONObject(
+                            start: currentOffset
+                            ,type: "softclip"
+                            ,base: 'S'+cigarElement.length
+                            ,cliplen: cigarElement.length
+                            ,length: 1
+                    ))
+                    break
             }
+
+            switch (cigarElement.operator){
+                case CigarOperator.I:
+                case CigarOperator.S:
+                case CigarOperator.H:
+                    break
+                default:
+                    currentOffset += cigarElement.length
+            }
+
         }
 
         return mismatches
