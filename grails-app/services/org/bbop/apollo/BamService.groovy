@@ -58,12 +58,14 @@ class BamService {
 
 
 
+            jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
             jsonObject.start = projection.projectValue(samRecord.start)
             jsonObject.end = projection.projectValue(samRecord.end)
             if (jsonObject.start > jsonObject.end) {
                 Long tmp = jsonObject.start
                 jsonObject.start = jsonObject.end
                 jsonObject.end = tmp
+                jsonObject.strand = -jsonObject.strand
             }
 
             jsonObject.name = samRecord.readName
@@ -117,7 +119,6 @@ class BamService {
             jsonObject.unmapped = samRecord.readUnmappedFlag
             jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
             jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag // I thikn this is correct
-            jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
 
 
             jsonObject.remove("class")
