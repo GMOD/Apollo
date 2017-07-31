@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.Cigar
 import htsjdk.samtools.CigarElement
 import htsjdk.samtools.CigarOperator
 import htsjdk.samtools.SAMRecord
@@ -123,16 +124,29 @@ class BamService {
 
 
             jsonObject.cigar = samRecord.cigarString
-
+//
             JSONArray subfeatsArray = new JSONArray()
-            // should turn elements into array, but
-            // e.g., 100M should be [100,M]
-            List<CigarElement> ops = []
-            def min = start
-            def max
+//            // should turn elements into array, but
+//            // e.g., 100M should be [100,M]
+////            for(AlignmentBlock alignmentBlock in samRecord.alignmentBlocks){
+//////                alignmentBlock.
+////                JSONObject subFeature = new JSONObject()
+//////                subFeature.type = cigarElement.operator.toString()
+////                subFeature.start = alignmentBlock.readStart
+////                subFeature.end = alignmentBlock.readStart + alignmentBlock.length
+////                subFeature.strand = jsonObject.strand
+//////                subFeature.cigar_op = samRecord.cigarString
+////                subfeatsArray.add(subFeature)
+////            }
+//            jsonObject.mismatches = calculateMisMatches(samRecord.cigar)
+            Integer min = start
+            Integer max = null
+            println "cigar string ${samRecord.cigarString}"
             for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
-//                ops.add(cigarElement)
-                switch (cigarElement.operator){
+                println "OP: '${cigarElement.operator.toString()}'"
+
+                // parse matches for subfeatures
+                switch (cigarElement.operator) {
                     case CigarOperator.M:
                     case CigarOperator.D:
                     case CigarOperator.N:
@@ -149,16 +163,19 @@ class BamService {
                         break
                 }
 
-                if(cigarElement.operator!=CigarOperator.N){
-                    JSONObject subFeature = new JSONObject()
-                    subFeature.type = cigarElement.operator.toString()
-                    subFeature.start = min
-                    subFeature.end = max
-                    subFeature.strand = jsonObject.strand
-                    subFeature.cigar_op = samRecord.cigarString
-                    subfeatsArray.add(subFeature)
+                if (max) {
+                    if (cigarElement.operator != CigarOperator.N) {
+                        JSONObject subFeature = new JSONObject()
+                        subFeature.type = cigarElement.operator.toString()
+                        subFeature.start = min
+                        subFeature.end = max
+                        subFeature.strand = jsonObject.strand
+                        subFeature.cigar_op = samRecord.cigarString
+                        subfeatsArray.add(subFeature)
+                    }
+                    min = max
                 }
-                min = max
+
             }
 
             // get the
@@ -173,4 +190,48 @@ class BamService {
 
     }
 
+    def calculateMisMatches(Cigar cigarElements) {
+
+        JSONArray mismatches = new JSONArray()
+        int currentOffset = 0
+
+        for (CigarElement cigarElement in cigarElements) {
+            switch (cigarElement.operator){
+                case CigarOperator.I:
+                    mismatches.add(new JSONObject(
+                            start: currentOffset
+                            ,type: "insertion"
+                            ,base: String.valueOf(cigarElement.length)
+                            ,length: 1
+                    ))
+                    break
+                case CigarOperator.D:
+                    mismatches.add(new JSONObject(
+                            start: currentOffset
+                            ,type: "deletion"
+                            ,base: '*'
+                            ,length: cigarElement.length
+                    ))
+                    break
+                case CigarOperator.N:
+                    mismatches.add(new JSONObject(
+                            start: currentOffset
+                            ,type: "skip"
+                            ,base: 'N'
+                            ,length: cigarElement.length
+                    ))
+                    break
+                case CigarOperator.X:
+                    mismatches.add(new JSONObject(
+                            start: currentOffset
+                            ,type: "mismatch"
+                            ,base: 'N'
+                            ,length: cigarElement.length
+                    ))
+                    break
+            }
+        }
+
+        return mismatches
+    }
 }
