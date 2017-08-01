@@ -143,6 +143,11 @@ class BamService {
 //        https://github.com/vsbuffalo/devnotes/wiki/The-MD-Tag-in-BAM-Files
 //        https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Store/SeqFeature/_MismatchesMixin.js
 
+
+        // relevant pattern matching: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L785
+        // relevant code process: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L819
+        
+
         // if the mdString
 //        mdString.findAll(/(\d+|\^[a-z]+|[a-z])/).each { token ->
 //
