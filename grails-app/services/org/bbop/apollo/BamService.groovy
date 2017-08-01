@@ -1,8 +1,12 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import htsjdk.samtools.*
+import htsjdk.samtools.BAMFileReader
+import htsjdk.samtools.CigarElement
+import htsjdk.samtools.CigarOperator
+import htsjdk.samtools.SAMRecord
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -103,10 +107,13 @@ class BamService {
 //                }
             }
 
-//
-            jsonObject.subfeatures = calculateMatches(projection,samRecord)
-            jsonObject.mismatches = calculateMismatches(samRecord)
+            jsonObject.subfeatures = calculateMatches(projection, samRecord)
 
+            // TODO: add projection
+            jsonObject.mismatches = calculateMismatches(samRecord)
+            if (jsonObject.MD) {
+                handleMdMismatch(jsonObject,samRecord)
+            }
 
             featuresArray.add(jsonObject)
         }
@@ -115,7 +122,41 @@ class BamService {
 
     }
 
-    def calculateMatches(MultiSequenceProjection projection,SAMRecord samRecord) {
+    def handleMdMismatch(JSONObject featureObject,SAMRecord samRecord) {
+
+        JSONArray filteredMismatches = new JSONArray()
+        featureObject.mismatches.each {
+           if(  ! (it.type=='deletion' || it.type=='mismatch') ){
+               filteredMismatches.add(it)
+           }
+        }
+        return handleMdMismatch(featureObject,filteredMismatches,samRecord)
+    }
+
+    def handleMdMismatch(JSONObject featureObject,JSONArray mismatches,SAMRecord samRecord) {
+        println "handling mismatch ${mismatches as JSON}"
+        println "handling feature mismatch ${featureObject as JSON}"
+        def mismatchRecords = new JSONArray();
+        String mdString = featureObject.MD
+        // match token as either
+
+//        https://github.com/vsbuffalo/devnotes/wiki/The-MD-Tag-in-BAM-Files
+//        https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Store/SeqFeature/_MismatchesMixin.js
+
+        // if the mdString
+//        mdString.findAll(/(\d+|\^[a-z]+|[a-z])/).each { token ->
+//
+//        }
+//        JSONObject jsonObject = new JSONObject(
+//                start: 0,
+//                base: '',
+//                length: 0,
+//                type: 'mismatch'
+//        )
+        return mismatches
+    }
+
+    def calculateMatches(MultiSequenceProjection projection, SAMRecord samRecord) {
         // TODO: put in a separate method
         JSONArray subfeatsArray = new JSONArray()
         if (!samRecord.cigar) {
