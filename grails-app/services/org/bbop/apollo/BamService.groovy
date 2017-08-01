@@ -52,7 +52,7 @@ class BamService {
             jsonObject.multi_segment_template = samRecord.readPairedFlag
 
 
-            if(!jsonObject.unmapped){
+            if (!jsonObject.unmapped) {
                 jsonObject.start = projection.projectValue(samRecord.start)
                 jsonObject.end = projection.projectValue(samRecord.end)
                 jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
@@ -73,7 +73,7 @@ class BamService {
                 }
 
             }
-            if(jsonObject.multi_segment_template){
+            if (jsonObject.multi_segment_template) {
                 jsonObject.multi_segment_all_correctly_aligned = samRecord.properPairFlag
                 jsonObject.multi_segment_next_segment_unmapped = samRecord.mateUnmappedFlag
                 jsonObject.multi_segment_next_segment_reversed = samRecord.mateNegativeStrandFlag
@@ -103,63 +103,9 @@ class BamService {
 //                }
             }
 
-
 //
-            JSONArray subfeatsArray = new JSONArray()
-            jsonObject.mismatches = calculateMismatches(samRecord.cigar)
-            Integer min = samRecord.start
-            Integer max = null
-//            println "cigar string ${samRecord.cigarString}"
-            for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
-//                println "OP: '${cigarElement.operator.toString()}'"
-                // parse matches for subfeatures
-                switch (cigarElement.operator) {
-                    case CigarOperator.M:
-                    case CigarOperator.D:
-                    case CigarOperator.N:
-                    case CigarOperator.EQ:
-                    case CigarOperator.X:
-                        max = min + cigarElement.length
-                        break
-                    case CigarOperator.I:
-                        max = min
-                        break
-                    case CigarOperator.P:
-                    case CigarOperator.H:
-                    case CigarOperator.S:
-                        break
-                }
-
-                if (max) {
-                    if (cigarElement.operator != CigarOperator.N) {
-                        JSONObject subFeature = new JSONObject()
-                        subFeature.type = cigarElement.operator.toString()
-                        subFeature.start = min
-                        subFeature.end = max
-                        subFeature.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
-
-
-                        subFeature.start = projection.projectValue(subFeature.start)
-                        subFeature.end = projection.projectValue(subFeature.end)
-                        if (subFeature.start > subFeature.end) {
-                            Long tmp = subFeature.start
-                            subFeature.start = subFeature.end
-                            subFeature.end = tmp
-                            subFeature.strand = -subFeature.strand
-                        }
-
-
-                        subFeature.cigar_op = samRecord.cigarString
-                        subfeatsArray.add(subFeature)
-                    }
-                    min = max
-                }
-
-            }
-
-            // get the
-
-            jsonObject.subfeatures = subfeatsArray
+            jsonObject.subfeatures = calculateMatches(projection,samRecord)
+            jsonObject.mismatches = calculateMismatches(samRecord)
 
 
             featuresArray.add(jsonObject)
@@ -169,65 +115,125 @@ class BamService {
 
     }
 
-    def calculateMismatches(Cigar cigarElements) {
+    def calculateMatches(MultiSequenceProjection projection,SAMRecord samRecord) {
+        // TODO: put in a separate method
+        JSONArray subfeatsArray = new JSONArray()
+        if (!samRecord.cigar) {
+            return subfeatsArray
+        }
 
+        Integer min = samRecord.start
+        Integer max = null
+//            println "cigar string ${samRecord.cigarString}"
+        for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
+//                println "OP: '${cigarElement.operator.toString()}'"
+            // parse matches for subfeatures
+            switch (cigarElement.operator) {
+                case CigarOperator.M:
+                case CigarOperator.D:
+                case CigarOperator.N:
+                case CigarOperator.EQ:
+                case CigarOperator.X:
+                    max = min + cigarElement.length
+                    break
+                case CigarOperator.I:
+                    max = min
+                    break
+                case CigarOperator.P:
+                case CigarOperator.H:
+                case CigarOperator.S:
+                    break
+            }
+
+            if (max) {
+                if (cigarElement.operator != CigarOperator.N) {
+                    JSONObject subFeature = new JSONObject()
+                    subFeature.type = cigarElement.operator.toString()
+                    subFeature.start = min
+                    subFeature.end = max
+                    subFeature.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
+
+
+                    subFeature.start = projection.projectValue(subFeature.start)
+                    subFeature.end = projection.projectValue(subFeature.end)
+                    if (subFeature.start > subFeature.end) {
+                        Long tmp = subFeature.start
+                        subFeature.start = subFeature.end
+                        subFeature.end = tmp
+                        subFeature.strand = -subFeature.strand
+                    }
+
+
+                    subFeature.cigar_op = samRecord.cigarString
+                    subfeatsArray.add(subFeature)
+                }
+                min = max
+            }
+
+        }
+        return subfeatsArray
+    }
+
+    def calculateMismatches(SAMRecord samRecord) {
+
+        def cigarElements = samRecord.cigar.cigarElements
         JSONArray mismatches = new JSONArray()
         int currentOffset = 0
 
         for (CigarElement cigarElement in cigarElements) {
-            switch (cigarElement.operator){
+            switch (cigarElement.operator) {
                 case CigarOperator.I:
                     mismatches.add(new JSONObject(
                             start: currentOffset
-                            ,type: "insertion"
-                            ,base: String.valueOf(cigarElement.length)
-                            ,length: 1
+                            , type: "insertion"
+                            , base: String.valueOf(cigarElement.length)
+                            , length: 1
                     ))
                     break
                 case CigarOperator.D:
                     mismatches.add(new JSONObject(
                             start: currentOffset
-                            ,type: "deletion"
-                            ,base: '*'
-                            ,length: cigarElement.length
+                            , type: "deletion"
+                            , base: '*'
+                            , length: cigarElement.length
                     ))
                     break
                 case CigarOperator.N:
                     mismatches.add(new JSONObject(
                             start: currentOffset
-                            ,type: "skip"
-                            ,base: 'N'
-                            ,length: cigarElement.length
+                            , type: "skip"
+                            , base: 'N'
+                            , length: cigarElement.length
                     ))
                     break
                 case CigarOperator.X:
                     mismatches.add(new JSONObject(
                             start: currentOffset
-                            ,type: "mismatch"
-                            ,base: 'N'
-                            ,length: cigarElement.length
+                            , type: "mismatch"
+                            , base: 'N'
+                            , length: cigarElement.length
                     ))
                     break
                 case CigarOperator.H:
                     mismatches.add(new JSONObject(
                             start: currentOffset
-                            ,type: "hardclip"
-                            ,base: 'H'+cigarElement.length
-                            ,length: 1
+                            , type: "hardclip"
+                            , base: 'H' + cigarElement.length
+                            , length: 1
                     ))
                     break
                 case CigarOperator.S:
                     mismatches.add(new JSONObject(
                             start: currentOffset
-                            ,type: "softclip"
-                            ,base: 'S'+cigarElement.length
-                            ,cliplen: cigarElement.length
-                            ,length: 1
+                            , type: "softclip"
+                            , base: 'S' + cigarElement.length
+                            , cliplen: cigarElement.length
+                            , length: 1
                     ))
                     break
             }
 
-            switch (cigarElement.operator){
+            switch (cigarElement.operator) {
                 case CigarOperator.I:
                 case CigarOperator.S:
                 case CigarOperator.H:
