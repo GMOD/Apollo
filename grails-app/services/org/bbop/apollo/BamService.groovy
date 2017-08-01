@@ -2,11 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import htsjdk.samtools.BAMFileReader
-import htsjdk.samtools.Cigar
-import htsjdk.samtools.CigarElement
-import htsjdk.samtools.CigarOperator
-import htsjdk.samtools.SAMRecord
+import htsjdk.samtools.*
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -36,21 +32,61 @@ class BamService {
         for (SAMRecord samRecord in samRecordList.sort() { a, b -> a.start <=> b.start }) {
             JSONObject jsonObject = new JSONObject()
 
-            jsonObject.source = sourceFile.name
-
-            jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
-            jsonObject.start = projection.projectValue(samRecord.start)
-            jsonObject.end = projection.projectValue(samRecord.end)
-            if (jsonObject.start > jsonObject.end) {
-                Long tmp = jsonObject.start
-                jsonObject.start = jsonObject.end
-                jsonObject.end = tmp
-                jsonObject.strand = -jsonObject.strand
-            }
+            // flag mappings:
+            // FROM:
+            // https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Store/SeqFeature/BAM/LazyFeature.js#L399-L412
+            // TO:
+            // https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/SAMFlag.java#L34-L45
 
             jsonObject.name = samRecord.readName
+            jsonObject.seq = samRecord.readString
+            jsonObject.seq_length = samRecord.readString.length()
+            jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag
+            jsonObject.secondary_alignment = samRecord.notPrimaryAlignmentFlag
+            jsonObject.supplementary_alignment = samRecord.supplementaryAlignmentFlag
             jsonObject.qc_failed = samRecord.readFailsVendorQualityCheckFlag
-            jsonObject.length_on_ref = samRecord.readLength
+            jsonObject.duplicate = samRecord.duplicateReadFlag
+
+
+            jsonObject.unmapped = samRecord.readUnmappedFlag
+            jsonObject.multi_segment_template = samRecord.readPairedFlag
+
+
+            if(!jsonObject.unmapped){
+                jsonObject.start = projection.projectValue(samRecord.start)
+                jsonObject.end = projection.projectValue(samRecord.end)
+                jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
+                jsonObject.score = samRecord.mappingQuality
+                jsonObject.qual = samRecord.baseQualities.join(" ")
+
+//                jsonObject.mq= samRecord.cigarString // ?
+                jsonObject.cigar = samRecord.cigarString
+                jsonObject.length_on_ref = samRecord.readLength
+
+                jsonObject.type = "match"
+
+                if (jsonObject.start > jsonObject.end) {
+                    Long tmp = jsonObject.start
+                    jsonObject.start = jsonObject.end
+                    jsonObject.end = tmp
+                    jsonObject.strand = -jsonObject.strand
+                }
+
+            }
+            if(jsonObject.multi_segment_template){
+                jsonObject.multi_segment_all_correctly_aligned = samRecord.properPairFlag
+                jsonObject.multi_segment_next_segment_unmapped = samRecord.mateUnmappedFlag
+                jsonObject.multi_segment_next_segment_reversed = samRecord.mateNegativeStrandFlag
+                jsonObject.multi_segment_first = samRecord.firstOfPairFlag
+                jsonObject.multi_segment_last = samRecord.secondOfPairFlag
+
+                // uses next_ref_id
+//                jsonObject.next_segment_position= samRecord.secondOfPairFlag
+            }
+
+            // reverse strand moved to negative strand
+            jsonObject.remove("class")
+
 
             samRecord.getAttributes().each { attribute ->
                 if (attribute.value instanceof Character) {
@@ -66,23 +102,8 @@ class BamService {
 //                        jsonObject[attribute.tag] = attribute.value
 //                }
             }
-            jsonObject.qual = samRecord.baseQualities.join(" ")
-            jsonObject.seq = samRecord.readString
-
-            jsonObject.score = samRecord.mappingQuality
-            jsonObject.type = "match"
-
-            jsonObject.seq_length = samRecord.readString.length()
-            jsonObject.duplicate = samRecord.duplicateReadFlag
-            jsonObject.unmapped = samRecord.readUnmappedFlag
-            jsonObject.secondary_alignment = samRecord.secondaryOrSupplementary
-            jsonObject.seq_reverse_complemented = samRecord.readNegativeStrandFlag // I thikn this is correct
 
 
-            jsonObject.remove("class")
-
-
-            jsonObject.cigar = samRecord.cigarString
 //
             JSONArray subfeatsArray = new JSONArray()
             jsonObject.mismatches = calculateMismatches(samRecord.cigar)
