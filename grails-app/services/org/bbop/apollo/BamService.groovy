@@ -27,36 +27,16 @@ class BamService {
         int actualStart = projection.unProjectValue(start)
         int actualEnd = projection.unProjectValue(end)
         if (actualStart > actualEnd) {
-            println "flipping"
             Long tmp = actualStart
             actualStart = actualEnd
             actualEnd = tmp
         }
 
-//        SAMRecordIterator samRecordIterator = bamFileReader.query(sequenceName, start, end, false)
-//        samReader.query()
-        // TODO: pull from cache
         def samRecordList = samReader.query(sequenceName, actualStart, actualEnd, false).toList()
-//        println "ASDFQUERY"
-//        SAMRecordIterator samRecordIterator = samReader.iterator()
-
-//        final SAMFileHeader header = samReader.getFileHeader()
-//        println "bam header ${header?.getTextHeader()}"
-//        println "header properties ${header?.properties}"
-
-//        println "start / end ${start} / ${end}"
-//        println "iterator in bam service ${samRecordList.size()}"
-
-//        while(samRecordIterator.hasNext()){
         for (SAMRecord samRecord in samRecordList.sort() { a, b -> a.start <=> b.start }) {
-//            println "TRY"
-//            final SAMRecord rec = .next()
-//            println "RECORD: ${samRecord.getSAMString()}"
             JSONObject jsonObject = new JSONObject()
 
             jsonObject.source = sourceFile.name
-
-
 
             jsonObject.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
             jsonObject.start = projection.projectValue(samRecord.start)
@@ -70,29 +50,7 @@ class BamService {
 
             jsonObject.name = samRecord.readName
             jsonObject.qc_failed = samRecord.readFailsVendorQualityCheckFlag
-//            println "getting TLEN"
-//            jsonObject.multi_segment = samRecord.alignmentBlocks?.size() > 1
-
-//            jsonObject.template_length = samRecord.cigarLength
-//            for (block in samRecord.alignmentBlocks) {
-////                jsonObject.template_length = samRecord.alignmentBlocks?.size()
-//                jsonObject.template_length = samRecord.mateAlignmentStart
-//            }
-//            println "GOT TLEN"
-
-
-            if (jsonObject.name == 'ctgA_19043_19563_1:0:0_1:0:0_18a0') {
-                samRecord.properties.each {
-                    println "properly ${it.key} -> ${it.value}"
-                }
-                samRecord.attributes.each {
-                    println "SAMRecord tag: ${it.tag} -> ${it.value}"
-                }
-            }
-
-
             jsonObject.length_on_ref = samRecord.readLength
-
 
             samRecord.getAttributes().each { attribute ->
                 if (attribute.value instanceof Character) {
@@ -127,20 +85,8 @@ class BamService {
             jsonObject.cigar = samRecord.cigarString
 //
             JSONArray subfeatsArray = new JSONArray()
-//            // should turn elements into array, but
-//            // e.g., 100M should be [100,M]
-////            for(AlignmentBlock alignmentBlock in samRecord.alignmentBlocks){
-//////                alignmentBlock.
-////                JSONObject subFeature = new JSONObject()
-//////                subFeature.type = cigarElement.operator.toString()
-////                subFeature.start = alignmentBlock.readStart
-////                subFeature.end = alignmentBlock.readStart + alignmentBlock.length
-////                subFeature.strand = jsonObject.strand
-//////                subFeature.cigar_op = samRecord.cigarString
-////                subfeatsArray.add(subFeature)
-////            }
             jsonObject.mismatches = calculateMismatches(samRecord.cigar)
-            Integer min = jsonObject.start
+            Integer min = samRecord.start
             Integer max = null
 //            println "cigar string ${samRecord.cigarString}"
             for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
@@ -169,7 +115,19 @@ class BamService {
                         subFeature.type = cigarElement.operator.toString()
                         subFeature.start = min
                         subFeature.end = max
-                        subFeature.strand = jsonObject.strand
+                        subFeature.strand = samRecord.readNegativeStrandFlag ? -1 : 1 // I thikn this is correct
+
+
+                        subFeature.start = projection.projectValue(subFeature.start)
+                        subFeature.end = projection.projectValue(subFeature.end)
+                        if (subFeature.start > subFeature.end) {
+                            Long tmp = subFeature.start
+                            subFeature.start = subFeature.end
+                            subFeature.end = tmp
+                            subFeature.strand = -subFeature.strand
+                        }
+
+
                         subFeature.cigar_op = samRecord.cigarString
                         subfeatsArray.add(subFeature)
                     }
