@@ -48,6 +48,7 @@ class AnnotatorService {
                         species        : organism.species,
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
+                        nonDefaultTranslationTable : organism.nonDefaultTranslationTable,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false,
                         editable       : organismBooleanMap.get(organism) ?: false
 

@@ -22,11 +22,22 @@
     background-color: rgb(173, 92, 194);
 }
 
-.mRNA, 
-.plus-mRNA, 
-.minus-mRNA  {
-    height: 14px;
-    background-color: transparent;
+.bam-read{
+    height: 5px;
+    background-color: #AACDDC;
+    z-index: 8;
+}
+
+.plus-bam-read {
+    height: 5px;
+    background-color: #898FD8;
+    z-index: 8;
+}
+
+.minus-bam-read {
+    height: 5px;
+    background-color: #EC8B8B;
+    z-index: 8;
 }
 
 
@@ -340,26 +351,31 @@ div.annot-sequence  {
     top: 10%;
 }
 
-/* defaults for rendering aligned read from BAM files */
-.bam-read, 
-.plus-bam-read, 
-.minus-bam-read {
-    height: 5px; 
-    background-color: #AACDDC;
-    z-index: 8;
-}
-
 /* CIGAR string "M" subfeature, indicating "alignment match" (can be a sequence match or mismatch) of aligned sequence relative to viewed sequence */
-.cigarM, 
-.plus-cigarM, 
-.minus-cigarM  {
+.cigarM {
     height: 100%; 
     background-color: #1B8A99;
     z-index: 8;   /* rendered below most other subfeatures */
     min-width: 1px;
 }
 
+.plus-cigarM {
+    height: 100%;
+    /*background-color: #898FD8;*/
+    background-color: royalblue;
+    /*background-color: blue;*/
+    z-index: 8;   /* rendered below most other subfeatures */
+    min-width: 1px;
+}
 
+.minus-cigarM  {
+    height: 100%;
+    /*background-color: #EC8B8B;*/
+    background-color: indianred;
+    /*background-color: red;*/
+    z-index: 8;   /* rendered below most other subfeatures */
+    min-width: 1px;
+}
 
 /* CIGAR string "=" (or "E") subfeature, indicating exact sequence match of aligned sequence relative to viewed sequence */
 .cigarEQ, 

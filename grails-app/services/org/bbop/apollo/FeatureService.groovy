@@ -29,6 +29,7 @@ class FeatureService {
     def sequenceService
     def permissionService
     def overlapperService
+    def organismService
     def sessionFactory
 
     public static final def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
@@ -574,12 +575,6 @@ class FeatureService {
  * @param transcript - Transcript to set the longest ORF to
  */
     @Transactional
-    void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
-        log.debug "setLongestORF(transcript,readThroughStopCodon) ${transcript} ${readThroughStopCodon}"
-        setLongestORF(transcript, configWrapperService.getTranslationTable(), false, readThroughStopCodon);
-    }
-
-    @Transactional
     void setLongestORF(Transcript transcript) {
         log.debug "setLongestORF(transcript) ${transcript}"
         setLongestORF(transcript, false);
@@ -624,7 +619,7 @@ class FeatureService {
     @Transactional
     void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
         log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
-        setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? configWrapperService.getTranslationTable() : null, readThroughStopCodon);
+        setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? organismService.getTranslationTable(transcript.featureLocation.sequence.organism) : null, readThroughStopCodon);
     }
 
     /** Convert local coordinate to source feature coordinate.
@@ -849,7 +844,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
         setTranslationEnd(transcript, translationEnd, setTranslationStart,
-                setTranslationStart ? configWrapperService.getTranslationTable() : null
+                setTranslationStart ? organismService.getTranslationTable(transcript.featureLocation.sequence.organism) : null
         );
     }
 
@@ -965,11 +960,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     }
 
-
-    void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension) {
-        log.debug "setLongestORF(transcript,translationTable,allowPartialExtension)"
-        setLongestORF(transcript, translationTable, allowPartialExtension, false);
-    }
 
     /** Get the residues for a feature with any alterations and frameshifts.
      *
@@ -1091,7 +1081,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  */
     @Timed
     @Transactional
-    void setLongestORF(Transcript transcript, TranslationTable translationTable, boolean allowPartialExtension, boolean readThroughStopCodon) {
+    void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
+        Organism organism = transcript.featureLocation.sequence.organism
+        TranslationTable translationTable = organismService.getTranslationTable(organism)
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
         if (!mrna) {
             return;
@@ -2908,6 +2900,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             CDS cds = transcriptService.getCDS(transcript)
             if (cds != null) {
                 featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                if (cds.parentFeatureRelationships) featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
                 cds.delete()
             }
             nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
@@ -2941,6 +2934,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 CDS cds = transcriptService.getCDS(transcript)
                 if (cds != null) {
                     featureRelationshipService.deleteChildrenForTypes(transcript, CDS.ontologyId)
+                    if (cds.parentFeatureRelationships) featureRelationshipService.deleteChildrenForTypes(cds, StopCodonReadThrough.ontologyId)
                     cds.delete()
                 }
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)

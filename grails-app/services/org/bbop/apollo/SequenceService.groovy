@@ -28,6 +28,7 @@ class SequenceService {
     def cdsService
     def gff3HandlerService
     def overlapperService
+    def organismService
 
 
 
@@ -297,8 +298,9 @@ class SequenceService {
         // Method returns the sequence for a single feature
         // Directly called for FASTA Export
         String featureResidues = null
-        TranslationTable translationTable = configWrapperService.translationTable
-        
+        Organism organism = gbolFeature.featureLocation.sequence.organism
+        TranslationTable translationTable = organismService.getTranslationTable(organism)
+
         if (type.equals(FeatureStringEnum.TYPE_PEPTIDE.value)) {
             if (gbolFeature instanceof Transcript && transcriptService.isProteinCoding((Transcript) gbolFeature)) {
                 CDS cds = transcriptService.getCDS((Transcript) gbolFeature)
@@ -314,7 +316,7 @@ class SequenceService {
                 int idx;
                 if ((idx = featureResidues.indexOf(StandardTranslationTable.STOP)) != -1) {
                     String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
-                    String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
+                    String aa = translationTable.getAlternateTranslationTable().get(codon)
                     if (aa != null) {
                         featureResidues = featureResidues.replace(StandardTranslationTable.STOP, aa)
                     }
@@ -333,7 +335,7 @@ class SequenceService {
                 int idx
                 if ((idx = featureResidues.indexOf(StandardTranslationTable.STOP)) != -1) {
                     String codon = rawSequence.substring(idx * 3, idx * 3 + 3)
-                    String aa = configWrapperService.getTranslationTable().getAlternateTranslationTable().get(codon)
+                    String aa = translationTable.getAlternateTranslationTable().get(codon)
                     if (aa != null) {
                         featureResidues = featureResidues.replace(StandardTranslationTable.STOP, aa)
                     }
@@ -348,7 +350,7 @@ class SequenceService {
                 if (cdsService.getStopCodonReadThrough(transcriptService.getCDS((Transcript) gbolFeature)).size() > 0) {
                     hasStopCodonReadThrough = true
                 }
-                String verifiedResidues = checkForInFrameStopCodon(featureResidues, 0, hasStopCodonReadThrough)
+                String verifiedResidues = checkForInFrameStopCodon(featureResidues, 0, hasStopCodonReadThrough,translationTable)
                 featureResidues = verifiedResidues
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                 log.debug "Fetching CDS sequence for selected exon: ${gbolFeature}"
@@ -361,7 +363,7 @@ class SequenceService {
                     }
                 }
                 int phase = exonService.getPhaseForExon((Exon) gbolFeature)
-                String verifiedResidues = checkForInFrameStopCodon(featureResidues, phase, hasStopCodonReadThrough)
+                String verifiedResidues = checkForInFrameStopCodon(featureResidues, phase, hasStopCodonReadThrough,translationTable)
                 featureResidues = verifiedResidues
             } else {
                 featureResidues = ""
@@ -397,9 +399,9 @@ class SequenceService {
         return featureResidues
     }
 
-    def checkForInFrameStopCodon(String residues, int phase, boolean hasStopCodonReadThrough = false) {
+    def checkForInFrameStopCodon(String residues, int phase, boolean hasStopCodonReadThrough ,TranslationTable translationTable) {
         String codon;
-        def stopCodons = configWrapperService.getTranslationTable().stopCodons
+        def stopCodons = translationTable.stopCodons
         for (int i = phase; i < residues.length(); i += 3) {
             if (i + 3 >= residues.length()) {
                 break
