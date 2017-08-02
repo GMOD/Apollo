@@ -61,8 +61,8 @@ class BamController {
         File file
         try {
             file = new File(organism.directory + "/" + params.urlTemplate)
-            println "BAM file to read ${file.absolutePath}"
-            println "BAM file to read exists ${file.exists()}"
+//            println "BAM file to read ${file.absolutePath}"
+//            println "BAM file to read exists ${file.exists()}"
 //            final SamReader samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(file))
             File baiFile = new File(organism.directory + "/" + params.urlTemplate+".bai")
             BAMFileReader samReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
@@ -121,8 +121,8 @@ class BamController {
         def binArray = new Integer[numBins]
         int currentStart = start
         int currentEnd = currentStart + binSize
-        int min = Integer.MAX_INTEGER
-        int max = Integer.MIN_INTEGER
+        int min = Integer.MIN_VALUE
+        int max = Integer.MAX_VALUE
         for(int i = 0 ; i < numBins ; ++i){
             Integer entrySize = samReader.query(refSeqName,currentStart,currentEnd,false).toList().size()
             binArray[i] = entrySize

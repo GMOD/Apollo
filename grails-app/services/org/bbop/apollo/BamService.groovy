@@ -3,18 +3,21 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import htsjdk.samtools.BAMFileReader
-import htsjdk.samtools.CigarElement
-import htsjdk.samtools.CigarOperator
-import htsjdk.samtools.SAMRecord
+import htsjdk.samtools.*
+import htsjdk.samtools.util.StringUtil
 import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 @Transactional
 class BamService {
 
+    // relevant pattern matching: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L785
+    static final Pattern mdPat = Pattern.compile("\\G(?:([0-9]+)|([ACTGNactgn])|(\\^[ACTGNactgn]+))");
     /**
      * matching DraggableAlignments.js
      */
@@ -112,7 +115,7 @@ class BamService {
             // TODO: add projection
             jsonObject.mismatches = calculateMismatches(samRecord)
             if (jsonObject.MD) {
-                handleMdMismatch(jsonObject,samRecord)
+                handleMdMismatch(jsonObject, samRecord)
             }
 
             featuresArray.add(jsonObject)
@@ -122,31 +125,471 @@ class BamService {
 
     }
 
-    def handleMdMismatch(JSONObject featureObject,SAMRecord samRecord) {
+    def handleMdMismatch(JSONObject featureObject, SAMRecord samRecord) {
 
-        JSONArray filteredMismatches = new JSONArray()
+        JSONArray filteredCigarMismatches = new JSONArray()
         featureObject.mismatches.each {
-           if(  ! (it.type=='deletion' || it.type=='mismatch') ){
-               filteredMismatches.add(it)
-           }
+            if (!(it.type == 'deletion' || it.type == 'mismatch')) {
+                filteredCigarMismatches.add(it)
+            }
         }
-        return handleMdMismatch(featureObject,filteredMismatches,samRecord)
+        return handleMdMismatch3(featureObject, filteredCigarMismatches, samRecord)
     }
 
-    def handleMdMismatch(JSONObject featureObject,JSONArray mismatches,SAMRecord samRecord) {
+    int getTemplateCoord(int refCoord, Cigar cigar) {
+        int templateOffset = 0
+        int refOffset = 0
+
+        println "input refCoord ${refCoord}"
+
+
+        for (CigarElement cigarElement in cigar.cigarElements) {
+            if (refOffset > refCoord) {
+                if (cigarElement.operator == CigarOperator.S || cigarElement.operator == CigarOperator.I) {
+                    templateOffset += cigarElement.length
+                } else if (cigarElement.operator == CigarOperator.D || cigarElement.operator == CigarOperator.P) {
+                    refOffset += cigarElement.length
+                } else {
+                    templateOffset += cigarElement.length
+                    refOffset += cigarElement.length
+                }
+            }
+        }
+
+        int returnValue = templateOffset - (refOffset - refCoord)
+        println "returnValue[${returnValue}]"
+
+        return returnValue
+    }
+
+    /**
+     * Returns new JSONObject
+     *
+     * @param cigarMismatches
+     * @param generatedMismatch
+     * @param mismatchRecords
+     * @return
+     */
+    JSONObject nextRecord(JSONArray cigarMismatches, JSONObject generatedMismatch, JSONArray mismatchRecords) {
+//        // correct the start of the current mismatch if it comes after a cigar skip
+        for (JSONObject cigarMismatch in cigarMismatches) {
+            if (cigarMismatch.type == 'skip' && generatedMismatch.start >= cigarMismatch.start) {
+                generatedMismatch.start += cigarMismatch.length;
+            }
+        }
+
+        // record it
+        mismatchRecords.push(generatedMismatch);
+
+        // get a new mismatch record ready
+        JSONObject jsonObject = new JSONObject(
+                start: generatedMismatch.start + generatedMismatch.length,
+                length: 0,
+                base: '',
+                type: 'mismatch'
+        )
+        return jsonObject
+//        curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
+    }
+
+    /**
+     *
+     //        https://github.com/vsbuffalo/devnotes/wiki/The-MD-Tag-in-BAM-Files
+     //        https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Store/SeqFeature/_MismatchesMixin.js
+
+     // relevant pattern matching: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L785
+     // relevant code process: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L819
+     // match token as either
+
+
+     // if the mdString
+     //        mdString.findAll(/(\d+|\^[a-z]+|[a-z])/).each { token ->
+     //
+     //        }//        JSONObject jsonObject = new JSONObject(
+     //                start: 0,
+     //                base: '',
+     //                length: 0,
+     //                type: 'mismatch'
+     //        )
+     *
+     *
+     * @param featureObject
+     * @param cigarMismatches
+     * @param samRecord
+     */
+
+    JSONArray handleMdMismatch3(JSONObject featureObject, JSONArray cigarMismatches, SAMRecord samRecord) {
+        println "handling mismatch ${cigarMismatches as JSON}"
+        println "handling feature mismatch ${featureObject as JSON}"
+        JSONArray mismatchRecords = new JSONArray()
+        String md = featureObject.getString(SAMTag.MD.name())
+        String seq = featureObject.getString('seq');
+
+        final Matcher match = mdPat.matcher(md);
+
+        Cigar cigar = samRecord.cigar
+
+        int curSeqPos = 0
+        int savedBases = 0
+        int maxOutputLength = 0;
+        final byte[] ret = new byte[maxOutputLength];
+        for (final CigarElement cigarElement : cigar.getCigarElements()) {
+            maxOutputLength += cigarElement.getLength();
+        }
+//        final byte[] seq = samRecord.getReadBases();
+        int outIndex = 0
+
+
+        JSONObject curr = new JSONObject(start: 0, base: '', length: 0, type: 'mismatch')
+
+
+        for (final CigarElement cigEl : cigar.getCigarElements()) {
+            final int cigElLen = cigEl.getLength();
+            final CigarOperator cigElOp = cigEl.getOperator();
+
+            int basesMatched = 0;
+
+            // Do we have any saved matched bases?
+//            while ((savedBases > 0) && (basesMatched < cigElLen)) {
+//                ret[outIndex++] = seq[curSeqPos++];
+//                savedBases--;
+//                basesMatched++;
+//            }
+
+            while (basesMatched < cigElLen) {
+
+                boolean matched = match.find()
+                println "is matched ${matched}"
+                if (matched) {
+                    String mg;
+                    println "is md ${md}"
+
+                    if (((mg = match.group(1)) != null) && (!mg.isEmpty())) {
+                        // It's a number , meaning a series of matches
+                        println "Group 1 in ${mg}"
+                        final int num = Integer.parseInt(mg);
+                        for (int i = 0; i < num; i++) {
+//                            curr.start += parseInt( token );
+                            if (basesMatched < cigElLen) {
+//                                ret[outIndex++] = seq[curSeqPos++];
+                            } else {
+                                savedBases++;
+                            }
+                            basesMatched++;
+                        }
+                        curr.start += num
+                        println "Group 1 out ${mg}"
+                    } else if (((mg = match.group(2)) != null) && (!mg.isEmpty())) {
+                        // It's a single nucleotide, meaning a mismatch
+
+                        println "Group 2 in ${mg}"
+                        for (int i = 0; i < mg.length(); i++) {
+                            curr.length = 1;
+                            // TODO: base is getting the wrong substring
+                            println "CURRENT START: ${curr.start} for ${seq}"
+
+                            int startIndex
+                            if(cigElOp){
+                                println "cigElOp ${cigElOp}"
+                                startIndex = getTemplateCoord(curr.start, cigar)
+                            }
+                            else{
+                                startIndex = curr.start
+                            }
+                            println "startIndex ${startIndex}"
+
+                            if(seq){
+                                println "seq ${seq}"
+                                curr.base = seq.substring(startIndex, startIndex+1 )
+                            }
+                            else{
+                                curr.base = CigarOperator.X.name()
+                            }
+                            println "curr.base ${curr.base}"
+
+                            curr.altbase = md
+
+                            println "new curr ${curr}"
+
+                            curr = nextRecord(cigarMismatches, curr, mismatchRecords);
+                        }
+
+
+                        if (basesMatched < cigElLen) {
+//                            ret[outIndex++] = StringUtil.charToByte(mg.charAt(0));
+                            curSeqPos++
+                        } else {
+                            throw new IllegalStateException("Should never happen.");
+                        }
+                        basesMatched++;
+                        println "Group 2 out ${mg}"
+                    } else if (((mg = match.group(3)) != null) && (!mg.isEmpty())) {
+                        // It's a deletion, starting with a caret
+                        // don't include caret
+                        println "Group 3 in ${mg}"
+
+                        curr.length = mg.length() - 1
+                        curr.base = '*'
+                        curr.type = 'deletion'
+                        curr.seq = mg.substring(1);
+//                        nextRecord();
+                        curr = nextRecord(cigarMismatches, curr, mismatchRecords);
+
+
+                        basesMatched += mg.length() - 1;
+
+                        // Check just to make sure.
+                        if (basesMatched != cigElLen) {
+                            throw new SAMException("Got a deletion in CIGAR (" + cigar + ", deletion " + cigElLen +
+                                    " length) with an unequal ref insertion in MD (" + md + ", md " + basesMatched + " length");
+                        }
+                        if (cigElOp != CigarOperator.DELETION) {
+                            throw new SAMException("Got an insertion in MD (" + md + ") without a corresponding deletion in cigar (" + cigar + ")");
+                        }
+                        println "Group 3 out ${mg}"
+
+                    } else {
+                        println "Group 4 not mateched all ${mg}"
+                        matched = false;
+                    }
+                }
+                if (!matched) {
+                    throw new SAMException("Illegal MD pattern: " + md + " for read " + samRecord.getReadName() +
+                            " with CIGAR " + samRecord.getCigarString());
+                }
+            }
+        }
+
+        println "successful return ${mismatchRecords as JSON}"
+
+        return mismatchRecords
+
+    }
+
+    /**
+     * Emulates _MismatchesMixin.js :: _mdToMismatches
+     *
+     * @param featureObject
+     * @param mismatches
+     * @param samRecord
+     * @return
+     */
+    def handleMdMismatch2(JSONObject featureObject, JSONArray mismatches, SAMRecord samRecord) {
         println "handling mismatch ${mismatches as JSON}"
         println "handling feature mismatch ${featureObject as JSON}"
-        def mismatchRecords = new JSONArray();
-        String mdString = featureObject.MD
+        def mismatchRecords = new JSONArray()
+        String mdString = featureObject.getString(SAMTag.MD.name())
+
+        final Matcher match = mdPat.matcher(mdString);
+
+        Cigar cigar = samRecord.cigar
+
+        int curSeqPos = 0
+        int savedBases = 0
+        int maxOutputLength = 0;
+        final byte[] ret = new byte[maxOutputLength];
+        for (final CigarElement cigarElement : cigar.getCigarElements()) {
+            maxOutputLength += cigarElement.getLength();
+        }
+        final byte[] seq = samRecord.getReadBases();
+        int outIndex = 0
+
+//        https://github.com/vsbuffalo/devnotes/wiki/The-MD-Tag-in-BAM-Files
+//        https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Store/SeqFeature/_MismatchesMixin.js
+
+        // relevant pattern matching: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L785
+        // relevant code process: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L819
+        while (match.find()) {
+
+//            String mg;
+//            if (((mg = match.group(1)) != null) && (!mg.isEmpty())) {
+//                // It's a number , meaning a series of matches
+//                final int num = Integer.parseInt(mg);
+//                for (int i = 0; i < num; i++) {
+//                    if (basesMatched < cigElLen) {
+//                        ret[outIndex++] = seq[curSeqPos++];
+//                    } else {
+//                        savedBases++;
+//                    }
+//                    basesMatched++;
+//                }
+//            } else if (((mg = match.group(2)) != null) && (!mg.isEmpty())) {
+//                // It's a single nucleotide, meaning a mismatch
+//                if (basesMatched < cigElLen) {
+//                    ret[outIndex++] = StringUtil.charToByte(mg.charAt(0));
+//                    curSeqPos++;
+//                } else {
+//                    throw new IllegalStateException("Should never happen.");
+//                }
+//                basesMatched++;
+//            } else if (((mg = match.group(3)) != null) && (!mg.isEmpty())) {
+//                // It's a deletion, starting with a caret
+//                // don't include caret
+//                if (includeReferenceBasesForDeletions) {
+//                    final byte[] deletedBases = StringUtil.stringToBytes(mg);
+//                    System.arraycopy(deletedBases, 1, ret, outIndex, deletedBases.length - 1);
+//                    outIndex += deletedBases.length - 1;
+//                }
+//                basesMatched += mg.length() - 1;
+//
+//                // Check just to make sure.
+//                if (basesMatched != cigElLen) {
+//                    throw new SAMException("Got a deletion in CIGAR (" + cigar + ", deletion " + cigElLen +
+//                            " length) with an unequal ref insertion in MD (" + md + ", md " + basesMatched + " length");
+//                }
+//                if (cigElOp != CigarOperator.DELETION) {
+//                    throw new SAMException("Got an insertion in MD (" + md + ") without a corresponding deletion in cigar (" + cigar + ")");
+//                }
+//
+//            } else {
+//                matched = false;
+//            }
+        }
+        // match token as either
+
+        // if the mdString
+//        mdString.findAll(/(\d+|\^[a-z]+|[a-z])/).each { token ->
+//
+//        }
+//        JSONObject jsonObject = new JSONObject(
+//                start: 0,
+//                base: '',
+//                length: 0,
+//                type: 'mismatch'
+//        )
+//        }
+        return mismatches
+    }
+
+    /**
+     *
+     * Emulates the htsjdk / SequenceUtil.java
+     *
+     * @param featureObject
+     * @param mismatches
+     * @param samRecord
+     * @return
+     */
+    def handleMdMismatch1(JSONObject featureObject, JSONArray mismatches, SAMRecord samRecord) {
+        println "handling mismatch ${mismatches as JSON}"
+        println "handling feature mismatch ${featureObject as JSON}"
+        def mismatchRecords = new JSONArray()
+        String mdString = featureObject.getString(SAMTag.MD.name())
+
+        final Matcher match = mdPat.matcher(mdString);
+        Cigar cigar = samRecord.cigar
+
+        int curSeqPos = 0
+        int savedBases = 0
+        int maxOutputLength = 0;
+        final byte[] ret = new byte[maxOutputLength];
+        for (final CigarElement cigarElement : cigar.getCigarElements()) {
+            maxOutputLength += cigarElement.getLength();
+        }
+        final byte[] seq = samRecord.getReadBases();
+        int outIndex = 0;
+
+        for (def cigEl in cigar.cigarElements) {
+            final int cigElLen = cigEl.length
+            final CigarOperator cigElOp = cigEl.operator
+            if (cigElOp == CigarOperator.SKIPPED_REGION) {
+                // We've decided that MD tag will not contain bases for skipped regions, as they
+                // could be megabases long, so just put N in there if caller wants reference bases,
+                // otherwise ignore skipped regions.
+//                if (includeReferenceBasesForDeletions) {
+//                    for (int i = 0; i < cigElLen; ++i) {
+//                        ret[outIndex++] = N;
+//                    }
+//                }
+            }
+            // If it consumes reference bases, it's either a match or a deletion in the sequence
+            // read.  Either way, we're going to need to parse through the MD.
+            else if (cigElOp.consumesReferenceBases()) {
+                // We have a match region, go through the MD
+                int basesMatched = 0;
+
+                // Do we have any saved matched bases?
+                while ((savedBases > 0) && (basesMatched < cigElLen)) {
+//                    ret[outIndex++] = seq[curSeqPos++];
+                    savedBases--
+                    basesMatched++
+                }
+
+                while (basesMatched < cigElLen) {
+                    boolean matched = match.find();
+                    if (matched) {
+                        String mg;
+                        if (((mg = match.group(1)) != null) && (!mg.isEmpty())) {
+                            // It's a number , meaning a series of matches
+                            final int num = Integer.parseInt(mg);
+                            for (int i = 0; i < num; i++) {
+                                if (basesMatched < cigElLen) {
+                                    ret[outIndex++] = seq[curSeqPos++];
+                                } else {
+                                    savedBases++;
+                                }
+                                basesMatched++;
+                            }
+                        } else if (((mg = match.group(2)) != null) && (!mg.isEmpty())) {
+                            // It's a single nucleotide, meaning a mismatch
+                            if (basesMatched < cigElLen) {
+                                ret[outIndex++] = StringUtil.charToByte(mg.charAt(0));
+                                curSeqPos++;
+                            } else {
+                                throw new IllegalStateException("Should never happen.");
+                            }
+                            basesMatched++;
+                        } else if (((mg = match.group(3)) != null) && (!mg.isEmpty())) {
+                            // It's a deletion, starting with a caret
+                            // don't include caret
+//                            if (includeReferenceBasesForDeletions) {
+//                                final byte[] deletedBases = StringUtil.stringToBytes(mg);
+//                                System.arraycopy(deletedBases, 1, ret, outIndex, deletedBases.length - 1);
+//                                outIndex += deletedBases.length - 1;
+//                            }
+//                            basesMatched += mg.length() - 1;
+
+                            // Check just to make sure.
+                            if (basesMatched != cigElLen) {
+                                throw new SAMException("Got a deletion in CIGAR (" + cigar + ", deletion " + cigElLen +
+                                        " length) with an unequal ref insertion in MD (" + md + ", md " + basesMatched + " length");
+                            }
+                            if (cigElOp != CigarOperator.DELETION) {
+                                throw new SAMException("Got an insertion in MD (" + md + ") without a corresponding deletion in cigar (" + cigar + ")");
+                            }
+
+                        } else {
+                            matched = false;
+                        }
+                    }
+
+                    if (!matched) {
+                        throw new SAMException("Illegal MD pattern: " + mdString + " for read " + samRecord.getReadName() +
+                                " with CIGAR " + samRecord.getCigarString());
+                    }
+                }
+
+            } else if (cigElOp.consumesReadBases()) {
+                // We have an insertion in read
+                for (int i = 0; i < cigElLen; i++) {
+                    final char c = (cigElOp == CigarOperator.SOFT_CLIP) ? '0' : '-';
+                    ret[outIndex++] = StringUtil.charToByte(c);
+                    curSeqPos++;
+                }
+            } else {
+                // It's an op that consumes neither read nor reference bases.  Do we just ignore??
+            }
+
+
+        }
+
         // match token as either
 
 //        https://github.com/vsbuffalo/devnotes/wiki/The-MD-Tag-in-BAM-Files
 //        https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Store/SeqFeature/_MismatchesMixin.js
 
-
         // relevant pattern matching: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L785
         // relevant code process: https://github.com/broadinstitute/htsjdk/blob/master/src/main/java/htsjdk/samtools/util/SequenceUtil.java#L819
-        
 
         // if the mdString
 //        mdString.findAll(/(\d+|\^[a-z]+|[a-z])/).each { token ->
