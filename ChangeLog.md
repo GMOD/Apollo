@@ -10,6 +10,7 @@ Features
 - Restrictions are now in place to prevent users from modifying or deleting annotations that they did not create. [#1260](https://github.com/GMOD/Apollo/issues/1260)
 - Updated settings for the ability to filter by organism when applying metadata. For instance, admin may now apply canned comments, keys and values, only to a subset of organisms in their server. As well, statuses can be retrieved per type of genomic element, per organism, etc. [#1676](https://github.com/GMOD/Apollo/pull/1676)
 - Admins can now build public URLs to hyperlink directly to a specific genomic element. [#1482](https://github.com/GMOD/Apollo/pull/1482)
+- In the absence of ```Name``` attribute in GFF3 file, Apollo uses ```ID``` attribute to name the annotation in JSON. [#1639](https://github.com/GMOD/Apollo/pull/1639)
 
 Bugfixes
 
@@ -25,6 +26,11 @@ Bugfixes
 - Fixed bug so that leading start non-M codons in non-standard tables are translated as Methionine (M). [#1544](https://github.com/GMOD/Apollo/issues/1544)
 - Added documentation for Web Service wrapper for Python, PHP, etc. See [Web Services API documentation](http://genomearchitect.readthedocs.io/en/latest/Web_services.html).
 - Updated GWT code to fix a bug to generate URLs appropriately - pipes were not being encoded. [#1606](https://github.com/GMOD/Apollo/pull/1606)
+- Fixed bug in the calculation of open reading frame for the negative strand for the purpose of coloring each exon according to the CDS. Exported sequences remain correct. [#1629](https://github.com/GMOD/Apollo/issues/1629)
+- Fixed bug that delayed updates of changes in boundaries for parent element in an annotation. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
+- Restored 'Pin to top' and 'Delete track' ability for tracks with HTMLFeatures. [#1632](https://github.com/GMOD/Apollo/issues/1632)
+- Fixed cascade bug when changing annotation type of a feature that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
+
 
 ## 2.0.6
 
