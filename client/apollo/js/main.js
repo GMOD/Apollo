@@ -17,6 +17,9 @@ define([
            'dojo/query',
            'dojo/_base/window',
            'dojo/_base/array',
+           'dojo/keys',
+           'dojo/on',
+           'dojo/Evented',
            'dijit/registry',
            'dijit/Menu',
            'dijit/MenuItem',
@@ -26,11 +29,16 @@ define([
            'dijit/form/DropDownButton',
            'dijit/DropDownMenu',
            'dijit/form/Button',
+           'dijit/form/ComboBox',
            'JBrowse/Plugin',
+           'JBrowse/View/InfoDialog',
            'WebApollo/FeatureEdgeMatchManager',
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
            'WebApollo/View/Track/AnnotTrack',
+           'WebApollo/View/Track/Projection/LegendTrack',
+           'WebApollo/View/Track/Projection/ProjectionGrid',
+           'WebApollo/View/Track/Projection/ProjectionBoundary',
            'WebApollo/View/TrackList/Hierarchical',
            'WebApollo/View/TrackList/Faceted',
            'WebApollo/InformationEditor',
@@ -39,7 +47,8 @@ define([
            'JBrowse/CodonTable',
            'dojo/io-query',
            'jquery/jquery',
-           'lazyload/lazyload'
+           'lazyload/lazyload',
+            'JBrowse/Util'
        ],
     function( declare,
             lang,
@@ -48,6 +57,9 @@ define([
             query,
             win,
             array,
+            keys,
+            on,
+            Evented,
             dijitRegistry,
             dijitMenu,
             dijitMenuItem,
@@ -57,11 +69,16 @@ define([
             dijitDropDownButton,
             dijitDropDownMenu,
             dijitButton,
+            dijitComboBox,
             JBPlugin,
+            InfoDialog,
             FeatureEdgeMatchManager,
             FeatureSelectionManager,
             TrackConfigTransformer,
             AnnotTrack,
+            LegendTrack,
+            ProjectionGrid,
+            ProjectionBoundary,
             Hierarchical,
             Faceted,
             InformationEditor,
@@ -70,15 +87,18 @@ define([
             CodonTable,
             ioQuery,
             $,
-            LazyLoad ) {
+            LazyLoad,
+            Util
+    ) {
 
-return declare( [JBPlugin, HelpMixin],
+return declare( [JBPlugin, HelpMixin,Evented],
 {
 
     constructor: function( args ) {
         console.log("loaded WebApollo plugin");
         var thisB = this;
         this.searchMenuInitialized = false;
+        this.replaceSearchBox = false;
         var browser = this.browser;  // this.browser set in Plugin superclass constructor
         [
           'plugins/WebApollo/jslib/bbop/bbop.js',
@@ -145,7 +165,7 @@ return declare( [JBPlugin, HelpMixin],
                 "title": "Apollo Help",
                 "content": this.defaultHelp()
             }
-        };
+        }
 
         // register the WebApollo track types with the browser, so
         // that the open-file dialog and other things will have them
@@ -195,6 +215,9 @@ return declare( [JBPlugin, HelpMixin],
             this.createMenus();
         }
 
+        this.hideDropDown();
+        this.hideOldSearch();
+
 
         // put the WebApollo logo in the powered_by place in the main JBrowse bar
         browser.afterMilestone( 'initView', function() {
@@ -216,41 +239,67 @@ return declare( [JBPlugin, HelpMixin],
             }
 
             // Initialize information editor with similar style to track selector
-                        var view = browser.view;
-                        view.oldOnResize = view.onResize;
+            var view = browser.view;
+            view.oldOnResize = view.onResize;
+             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
+               *    bug appears in Chrome, not Firefox, unsure of other browsers
+               */
+            view.onResize = function() {
+                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
+                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
+                var oldCharSize = thisB.getSequenceCharacterSize();
+                var newCharSize = thisB.getSequenceCharacterSize(true);
+                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
+                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
+                var charWidth = newCharSize.width;
+                if (charWidthChanged) {
+                        if (! browser.config.view) { browser.config.view = {}; }
+                        browser.config.view.maxPxPerBp = charWidth;
+                        view.maxPxPerBp = charWidth;
+                    }
+                if (charWidthChanged && fullZoom) {
+                        view.pxPerBp = view.maxPxPerBp;
+                        view.oldOnResize();
+                        thisB.browserZoomFix(centerBp);
+                    }
+                else  {
+                        view.oldOnResize();
+                    }
+            };
 
-                             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-                               *    bug appears in Chrome, not Firefox, unsure of other browsers
-                               */
-                                view.onResize = function() {
-                                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
-                                var oldCharSize = thisB.getSequenceCharacterSize();
-                                var newCharSize = thisB.getSequenceCharacterSize(true);
-                                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-                                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
-                                var charWidth = newCharSize.width;
-                                if (charWidthChanged) {
-                                        if (! browser.config.view) { browser.config.view = {}; }
-                                        browser.config.view.maxPxPerBp = charWidth;
-                                        view.maxPxPerBp = charWidth;
-                                    }
-                                if (charWidthChanged && fullZoom) {
-                                        view.pxPerBp = view.maxPxPerBp;
-                                        view.oldOnResize();
-                                        thisB.browserZoomFix(centerBp);
-                                    }
-                                else  {
-                                        view.oldOnResize();
-                                    }
-                            };
-            
 
         });
+
+
+        browser.afterMilestone( 'completely initialized', function() {
+            var view  = browser.view ;
+            // var projectionString = view.ref.name;
+            var projectionLength ;
+            if(thisB.runningApollo()){
+                var projectionString = JSON.stringify(view.ref) ;
+                projectionLength = thisB.getApollo().getProjectionLength(projectionString);
+            }
+            else{
+                projectionLength = view.ref.length ;
+            }
+            var ratio = view.elem.clientWidth  / projectionLength  ;
+
+            browser.view.pxPerBp = ratio ;
+            browser.view.onResize();
+        });
+
         this.monkeyPatchRegexPlugin();
 
 
     },
+
+
+
+
+    runningApollo: function () {
+        return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0');
+    },
+
     updateLabels: function() {
         if(!this._showLabels) {
             query('.track-label').style('visibility','hidden');
@@ -396,7 +445,6 @@ return declare( [JBPlugin, HelpMixin],
         var hrefTokens = hrefString.split("\/");
         var organism ;
         for(var h in hrefTokens){
-            // alert(hrefTokens[h]);
             if(hrefTokens[h]=="jbrowse"){
                 organism = hrefTokens[h-1] ;
             }
@@ -454,6 +502,9 @@ return declare( [JBPlugin, HelpMixin],
                                     }
                             });
         }
+        this.addSearchBox();
+        this.addNavBox();
+        this.removeFileMenu();
 
         // get all toplinks and hide the one that says 'Full-screen view'
         $('.topLink').each(function(index){
@@ -715,6 +766,245 @@ return declare( [JBPlugin, HelpMixin],
                 })
         );
         this.updateLabels();
+    },
+
+    hideDropDown: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var searchBox = dojo.byId('search-refseq');
+            dojo.style(searchBox, "display", "none");
+        });
+    },
+
+    hideOldSearch: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var searchBox = dojo.byId('search-box');
+            if(searchBox){
+                dojo.destroy(searchBox);
+            }
+        });
+    },
+
+    removeFileMenu: function(){
+        var thisB = this;
+        var browser = thisB.browser;
+        browser.afterMilestone('initView', function () {
+            var fileButton = dojo.byId('dropdownbutton_file');
+            if(fileButton){
+                dojo.destroy(fileButton);
+            }
+            // dojo.destroy(searchBox, "display", "none");
+        });
+    },
+
+    addNavBox: function() {
+        var thisB = this;
+        var browser = thisB.browser;
+
+        browser.afterMilestone('initView', function () {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-nav-box',
+                'class': "separate-nav-box"
+            }, navbox);
+            var sequenceObj , refSeqObject ;
+            var refSeqString  = browser.view.ref.name;
+            if(refSeqString.startsWith("{")){
+                refSeqString = refSeqString.substr(0,refSeqString.lastIndexOf("}")+1);
+                refSeqObject = JSON.parse(refSeqString);
+                // just grab the first one for now
+                sequenceObj = refSeqObject.sequenceList[0]
+            }
+            else{
+                sequenceObj = {};
+                sequenceObj.name = refSeqString;
+            }
+
+
+            this.navLabel = new dijitButton(
+                {
+                    id: "apollo-navigation",
+                    name: "apollo-navigation",
+                    style: {marginLeft: "20px"},
+                    maxLength: 400,
+                    searchAttr: "navigation",
+                    title: sequenceObj.name,
+                    label: (sequenceObj.reverse ? '&larr;': '') + sequenceObj.name +   (!sequenceObj.reverse ? '&rarr;': ''),
+                    onClick: function()  {
+                        if(thisB.runningApollo()){
+                            thisB.getApollo().doReverseComplement();
+                        }
+                        // public JBrowse
+                        else{
+                            // get the refseq name on this and create
+                            // name should already be set
+                            sequenceObj = browser.view.ref;
+
+                            // if it is set as JSON, just really want the individual name for now
+                            if(sequenceObj.name.startsWith("{")){
+                                // get the real name out
+                                var sequenceString = sequenceObj.name.substr(0,sequenceObj.name.lastIndexOf("}")+1);
+                                sequenceObj = JSON.parse(sequenceString).sequenceList[0];
+                            }
+
+
+                            var startBp = browser.view.minVisible();
+                            var endBp = browser.view.maxVisible();
+                            if(sequenceObj.reverse != null){
+                                sequenceObj.reverse = !sequenceObj.reverse ;
+                                if(sequenceObj.reverse==false){
+                                    startBp = sequenceObj.length - browser.view.maxVisible();
+                                    endBp = sequenceObj.length - browser.view.minVisible();
+                                }
+                            }
+                            else{
+                                sequenceObj.reverse = true ;
+                            }
+                            refSeqObject = {};
+                            refSeqObject.sequenceList = [sequenceObj];
+                            // set location
+                            var locString = JSON.stringify(refSeqObject)+":"+startBp+".."+endBp;
+
+                            var newUrl = "".concat(
+                                window.location.protocol,
+                                "//",
+                                window.location.host,
+                                window.location.pathname,
+                                "?",
+                                dojo.objectToQuery(
+                                    dojo.mixin(
+                                        dojo.mixin( {}, (browser.config.queryParams||{}) ),
+                                        dojo.mixin(
+                                            {
+                                                loc:    locString,
+                                                tracks: browser.view.visibleTrackNames().join(','),
+                                                highlight: (browser.getHighlight()||'').toString()
+                                            },
+                                            {}
+                                        )
+                                    )
+                                )
+                            );
+
+                            window.location.href = newUrl;
+                        }
+                    }
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            navbox.appendChild(this.navLabel.domNode);
+        });
+    },
+
+    getApollo: function () {
+        return window.parent;
+    },
+
+    addSearchBox: function(){
+        var thisB = this ;
+        var browser = thisB.browser ;
+
+        browser.afterMilestone( 'initView', function() {
+            var navbox = document.getElementById('navbox');
+            var searchbox = dojo.create('span', {
+                'id': 'apollo-search-box',
+                'class': "separate-location-box"
+            }, navbox);
+
+            var locationBox = new dijitComboBox(
+                {
+                    id: "apollo-location",
+                    name: "apollo-location",
+                    style: {width: "300px"},
+                    maxLength: 300,
+                    searchAttr: "name",
+                    title: 'Enter a symbol or ID to search'
+                },
+                dojo.create('input', {}, searchbox)
+            );
+            browser.afterMilestone('loadNames', dojo.hitch(this, function () {
+                if (browser.nameStore) {
+                    locationBox.set('store', browser.nameStore);
+                }
+            }));
+            locationBox.focusNode.spellcheck = false;
+            locationBox.set('placeholder',"Search genomic elements, IDs");
+            dojo.query('div.dijitArrowButton', locationBox.domNode ).orphan();
+            dojo.connect( locationBox.focusNode, "keydown", this, function(event) {
+                if( event.keyCode == keys.ESCAPE ) {
+                    locationBox.set('value','');
+                }
+                else if (event.keyCode == keys.ENTER) {
+                    locationBox.closeDropDown(false);
+                    var locationString = locationBox.get('value');
+                    browser.navigateTo( locationString );
+                    dojo.stopEvent(event);
+                }
+            });
+            browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                var sequenceObject ,sequenceString;
+                if(thisB.runningApollo()){
+                    var refObject = currRegion.ref.substr(0,currRegion.ref.lastIndexOf(':'))  +':'+ currRegion.start + ".."+currRegion.end ;
+                    thisB.getApollo().setCurrentSequence(refObject);
+                    sequenceString = currRegion.ref.substring(0,refObject.lastIndexOf("}")+1);
+                    sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                    if(this.navLabel){
+                        this.navLabel.set('title',sequenceObject.name);
+                        this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                    }
+                    var locationVal = Util.assembleLocStringWithLength( currRegion );
+                    locationVal = sequenceObject.name+ locationVal.substr(locationVal.lastIndexOf(":"));
+                    locationBox.set('value',locationVal,false);
+                }
+                else{
+                    if(currRegion.ref.startsWith("{")){
+                        sequenceString = currRegion.ref.substring(0,currRegion.ref.lastIndexOf("}")+1);
+                        sequenceObject = JSON.parse(sequenceString).sequenceList[0];
+                    }
+                    else{
+                       sequenceObject = {};
+                       sequenceObject.name = currRegion.ref;
+                       sequenceObject.reverse = false ;
+                    }
+                    if(this.navLabel){
+                        this.navLabel.set('title',sequenceObject.name);
+                        this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                    }
+                    var locationBoxString = Util.assembleProjectedString(currRegion);
+                    locationBox.set('value', locationBoxString,false);
+                    // this.navLabel.set('title',name);
+                    // this.navLabel.set('label',(sequenceObject.reverse ? '&larr;': '') + sequenceObject.name +   (!sequenceObject.reverse ? '&rarr;': ''));
+                }
+            }));
+            dojo.connect( navbox, 'onselectstart', function(evt) { evt.stopPropagation(); return true; });
+
+            on(window, 'resize', function() { console.log('resize!')});
+            on.emit(window, 'resize', {bubbles: true,cancelable: true});
+
+            (function(){
+
+                // add a moreMatches class to our hacked-in "more options" option
+                var dropDownProto = eval(locationBox.dropDownClass).prototype;
+                var oldCreateOption = dropDownProto._createOption;
+                dropDownProto._createOption = function( item ) {
+                    var option = oldCreateOption.apply( this, arguments );
+                    if( item.hitLimit )
+                        dojo.addClass( option, 'moreMatches');
+                    return option;
+                };
+
+                // prevent the "more matches" option from being clicked
+                var oldOnClick = dropDownProto.onClick;
+                dropDownProto.onClick = function( node ) {
+                    if( dojo.hasClass(node, 'moreMatches' ) )
+                        return null;
+                    return oldOnClick.apply( this, arguments );
+                };
+            }).call(this);
+        });
     }
 
 

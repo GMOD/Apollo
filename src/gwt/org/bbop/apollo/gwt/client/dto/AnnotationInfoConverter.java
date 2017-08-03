@@ -3,8 +3,9 @@ package org.bbop.apollo.gwt.client.dto;
 import java.util.Date;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.*;
+import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +40,19 @@ public class AnnotationInfoConverter {
         if (object.get("description") != null) {
             annotationInfo.setDescription(object.get("description").isString().stringValue());
         }
-        annotationInfo.setMin((int) object.get("location").isObject().get("fmin").isNumber().doubleValue());
-        annotationInfo.setMax((int) object.get("location").isObject().get("fmax").isNumber().doubleValue());
+        annotationInfo.setMin((long) object.get("location").isObject().get("fmin").isNumber().doubleValue());
+        annotationInfo.setMax((long) object.get("location").isObject().get("fmax").isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get("location").isObject().get("strand").isNumber().doubleValue());
         annotationInfo.setUniqueName(object.get("uniquename").isString().stringValue());
-        annotationInfo.setSequence(object.get("sequence").isString().stringValue());
+        String sequenceString = object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.SEQUENCE.getValue()).isString().stringValue() ;
+        JSONArray sequenceArray = JSONParser.parseLenient(sequenceString).isArray();
+        JSONObject locationObject = sequenceArray.get(0).isObject();
+//        String sequenceName = object.get("sequence").isString().stringValue();
+        SequenceInfo sequenceInfo = new SequenceInfo();
+        sequenceInfo.setName(locationObject.get(FeatureStringEnum.NAME.getValue()).isString().stringValue());
+        sequenceInfo.setStart((long) locationObject.get(FeatureStringEnum.START.getValue()).isNumber().doubleValue());
+        sequenceInfo.setEnd((long) locationObject.get(FeatureStringEnum.END.getValue()).isNumber().doubleValue());
+        annotationInfo.setSequence(sequenceInfo);
         if (object.get("owner") != null) {
             annotationInfo.setOwner(object.get("owner").isString().stringValue());
         }
@@ -67,6 +76,24 @@ public class AnnotationInfoConverter {
         }
 
         return annotationInfo;
+    }
+
+
+    public static JSONObject convertAnnotationInfoToJSONObject(AnnotationInfo annotationInfo){
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("name",new JSONString(annotationInfo.getName()));
+        jsonObject.put("uniquename",new JSONString(annotationInfo.getUniqueName()));
+        jsonObject.put("symbol",annotationInfo.getSymbol()!=null ? new JSONString(annotationInfo.getSymbol()):new JSONString(""));
+        jsonObject.put("description",annotationInfo.getDescription()!=null ? new JSONString(annotationInfo.getDescription()):new JSONString(""));
+        jsonObject.put("type",new JSONString(annotationInfo.getType()));
+        jsonObject.put("fmin",annotationInfo.getMin()!=null ? new JSONNumber(annotationInfo.getMin()): null);
+        jsonObject.put("fmax",annotationInfo.getMax()!=null ? new JSONNumber(annotationInfo.getMax()): null);
+        jsonObject.put("strand",annotationInfo.getStrand()!=null ? new JSONNumber(annotationInfo.getStrand()): null);
+
+
+        return jsonObject;
+
     }
 
 }

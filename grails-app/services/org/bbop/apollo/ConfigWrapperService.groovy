@@ -12,6 +12,7 @@ import org.bbop.apollo.sequence.TranslationTable
 class ConfigWrapperService {
 
     def grailsApplication
+    def grailsLinkGenerator
 
     Boolean useCDS() {
         return grailsApplication.config.apollo.use_cds_for_new_transcripts
@@ -122,4 +123,9 @@ class ConfigWrapperService {
     boolean getOnlyOwnersDelete(){
         return grailsApplication.config.apollo.only_owners_delete
     }
+
+    String getBaseLink(){
+        grailsLinkGenerator.serverBaseURL + ':' + (System.properties['server.port']?:'8080') + grailsLinkGenerator.contextPath
+    }
+
 }

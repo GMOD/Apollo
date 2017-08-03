@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -21,6 +20,8 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
+    def assemblageService
+    def featureProjectionService
 
     /**
      *
@@ -212,6 +213,15 @@ class FeatureEventService {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
+        for (JSONObject sequenceObject in newFeatureArray) {
+////            // we set it to true if not there, otherwise we set it to false
+//////                sequenceObject.reverse = sequenceObject.containsKey(FeatureStringEnum.REVERSE.value) ? !sequenceObject.getBoolean(FeatureStringEnum.REVERSE.value) : true
+            if (sequenceObject.containsKey(FeatureStringEnum.REVERSE.value)) {
+                sequenceObject.reverse = false
+            }
+            unProjectSequenceLocation(sequenceObject)
+        }
+
 
         List<FeatureEvent> lastFeatureEventList = findCurrentFeatureEvent(uniqueName, featureEventMap)
         FeatureEvent lastFeatureEvent = null
@@ -247,6 +257,32 @@ class FeatureEventService {
         }
 
         return featureEvent
+    }
+
+    def unProjectSequenceLocation(JSONObject sequenceObject) {
+
+
+        if (sequenceObject.containsKey(FeatureStringEnum.LOCATION.value)) {
+            JSONObject location = sequenceObject.location
+            if (location.containsKey(FeatureStringEnum.REVERSE.value)) {
+                location.reverse = false
+            }
+            if (location.containsKey(FeatureStringEnum.SEQUENCE.value)) {
+                String locationSequenceString = location.sequence
+                if (locationSequenceString.startsWith("[")) {
+                    JSONArray sequenceArray = JSON.parse(location.sequence) as JSONArray
+                    for (JSONObject so in sequenceArray) {
+                        so.reverse = false
+                    }
+                    location.sequence = sequenceArray.toString()
+                }
+            }
+        }
+        if (sequenceObject.containsKey(FeatureStringEnum.CHILDREN.value)) {
+            for (JSONObject innerSequenceObject in sequenceObject.getJSONArray(FeatureStringEnum.CHILDREN.value)) {
+                unProjectSequenceLocation(innerSequenceObject)
+            }
+        }
     }
 
     Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new HashMap<>()) {
@@ -430,7 +466,8 @@ class FeatureEventService {
         // if the current index is GREATER, then find the future indexes and set appropriately
         if (newIndex > currentIndex) {
             List<List<FeatureEvent>> futureFeatureEvents = findFutureFeatureEvents(currentFeatureEvent)
-            currentFeatureEventArray  = futureFeatureEvents.get(newIndex-currentIndex-1) // subtract one for the index offset
+            currentFeatureEventArray = futureFeatureEvents.get(newIndex - currentIndex - 1)
+            // subtract one for the index offset
             currentFeatureEventArray.each {
                 it.current = true
                 it.save()
@@ -444,10 +481,9 @@ class FeatureEventService {
                 it.current = true
                 it.save()
             }
-        }
-        else{
+        } else {
             log.warn("Setting history to same place ${currentIndex} -> ${newIndex}")
-            return findCurrentFeatureEvent(uniqueName,featureEventMap)
+            return findCurrentFeatureEvent(uniqueName, featureEventMap)
         }
 
         currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
@@ -462,7 +498,51 @@ class FeatureEventService {
         return findCurrentFeatureEvent(uniqueName, featureEventMap)
     }
 
-    def setHistoryState(JSONObject inputObject, int count) {
+    List<String> getMrnaTerms() {
+        def returnList = []
+        returnList.add(MRNA.cvTerm)
+        returnList.add(MRNA.alternateCvTerm)
+        return returnList
+    }
+
+    List<String> getTranscriptTerms() {
+        def returnList = []
+        returnList.addAll(getMrnaTerms())
+        returnList.add(Transcript.cvTerm)
+        returnList.add(Transcript.alternateCvTerm)
+        returnList.add(TRNA.cvTerm)
+        returnList.add(TRNA.alternateCvTerm)
+        returnList.add(SnRNA.cvTerm)
+        returnList.add(SnRNA.alternateCvTerm)
+        returnList.add(SnoRNA.cvTerm)
+        returnList.add(SnoRNA.alternateCvTerm)
+        returnList.add(NcRNA.cvTerm)
+        returnList.add(NcRNA.alternateCvTerm)
+        returnList.add(RRNA.cvTerm)
+        returnList.add(RRNA.alternateCvTerm)
+        returnList.add(MiRNA.cvTerm)
+        returnList.add(MiRNA.alternateCvTerm)
+        return returnList.unique()
+    }
+
+
+    List<String> getTopLevelTerms() {
+        def returnList = []
+        returnList.addAll(getTranscriptTerms())
+        returnList.add(RepeatRegion.cvTerm)
+        returnList.add(RepeatRegion.alternateCvTerm)
+        returnList.add(TransposableElement.cvTerm)
+        returnList.add(TransposableElement.alternateCvTerm)
+        return returnList.unique()
+    }
+
+    private boolean isJsonType(JSONObject jsonObject, List<String> types) {
+        JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
+        String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
+        return types.contains(typeString)
+    }
+
+    def setHistoryState(JSONObject inputObject, int count, Assemblage requestAssemblage) {
 
         String uniqueName = inputObject.getString(FeatureStringEnum.UNIQUENAME.value)
         log.debug "undo count ${count}"
@@ -487,21 +567,21 @@ class FeatureEventService {
             return
         }
 
+        Assemblage assemblage = assemblageService.generateAssemblageForFeature(Feature.findByUniqueName(uniqueName))
+        log.debug "assemblage: ${assemblage}"
+
         def newUniqueNames = history[count].collect() {
             it.uniqueName
         }
 
-        Sequence sequence = Feature.findByUniqueNameInList(newUniqueNames).featureLocation.sequence
-        log.debug "sequence: ${sequence}"
 
-
-
-
-        deleteCurrentState(inputObject, newUniqueNames, sequence)
+        deleteCurrentState(inputObject, newUniqueNames, assemblage)
 
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
         def transcriptsToCheckForIsoformOverlap = []
+        def featuresToUpdate = new HashSet()
+
         featureEventArray.each { featureEvent ->
             JSONArray jsonArray = (JSONArray) JSON.parse(featureEvent.newFeaturesJsonArray)
             JSONObject originalCommandObject = (JSONObject) JSON.parse(featureEvent.originalJsonCommand)
@@ -515,8 +595,11 @@ class FeatureEventService {
                 addCommandObject.put(FeatureStringEnum.FEATURES.value, featuresToAddArray)
 
                 // we have to explicitly set the track (if we have features ... which we should)
-                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value) && featuresToAddArray.size() > 0) {
-                    addCommandObject.put(FeatureStringEnum.TRACK.value, featuresToAddArray.getJSONObject(0).getString(FeatureStringEnum.SEQUENCE.value))
+                if (!addCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
+                    JSONArray sequenceArray = JSON.parse(assemblage.sequenceList) as JSONArray
+                    JSONObject jsonObject = new JSONObject()
+                    jsonObject.put(FeatureStringEnum.SEQUENCE_LIST.value, sequenceArray)
+                    addCommandObject.put(FeatureStringEnum.TRACK.value, jsonObject)
                 }
 
                 addCommandObject = permissionService.copyRequestValues(inputObject, addCommandObject)
@@ -524,45 +607,53 @@ class FeatureEventService {
                 addCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY.value, true)
 
 
-                if (featureService.isJsonTranscript(jsonFeature)) {
+                if (isJsonType(jsonFeature, mrnaTerms)) {
                     // set the original gene name
                     addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
+
                     for (int k = 0; k < featuresToAddArray.size(); k++) {
                         JSONObject featureObject = featuresToAddArray.getJSONObject(k)
                         featureObject.put(FeatureStringEnum.GENE_NAME.value, featureEvent.name)
                     }
-                    log.debug "original command object = ${originalCommandObject as JSON}"
-                    log.debug "final command object = ${addCommandObject as JSON}"
+                    log.debug "transcript original command object = ${originalCommandObject as JSON}"
+                    log.debug "transcript add command object = ${addCommandObject as JSON}"
                     requestHandlingService.addTranscript(addCommandObject)
                     transcriptsToCheckForIsoformOverlap.add(jsonFeature.getString("uniquename"))
-
                 } else {
-                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, false)
+                    log.debug "feature original command object = ${originalCommandObject as JSON}"
+                    log.debug "feature add command object = ${addCommandObject as JSON}"
+                    addCommandObject.put(FeatureStringEnum.SUPPRESS_EVENTS.value, true)
                     requestHandlingService.addFeature(addCommandObject)
+                }
+                if (isJsonType(jsonFeature, topLevelTerms)) {
+                    featuresToUpdate.add(jsonFeature.getString("uniquename"))
                 }
 
             }
         }
 
         // after all the transcripts from the feature event has been added, applying isoform overlap rule
-        Set transcriptsToUpdate = new HashSet()
         transcriptsToCheckForIsoformOverlap.each {
-            transcriptsToUpdate.add(it)
-            transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
+            featuresToUpdate.add(it)
+            featuresToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
         }
 
         // firing update annotation event
-        if (transcriptsToUpdate.size() > 0) {
+        if (featuresToUpdate) {
             JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
-            transcriptsToUpdate.each {
-                Transcript transcript = Transcript.findByUniqueName(it)
-                updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+            featuresToUpdate.each {
+                Feature feature = Feature.findByUniqueName(it)
+                JSONObject featuresJson = featureService.convertFeatureToJSON(feature, false, assemblage)
+                def transcriptJSONList = []
+                transcriptJSONList += featuresJson
+                def projectedJsonTranscript = featureProjectionService.projectTrack(transcriptJSONList as JSONArray, requestAssemblage, false)
+                updateFeatureContainer.put(FeatureStringEnum.FEATURES.value, projectedJsonTranscript)
             }
-            if (sequence) {
+            if (assemblage) {
                 AnnotationEvent annotationEvent = new AnnotationEvent(
-                        features: updateFeatureContainer,
-                        sequence: sequence,
-                        operation: AnnotationEvent.Operation.UPDATE
+                        features: updateFeatureContainer
+                        , assemblage: requestAssemblage
+                        , operation: AnnotationEvent.Operation.UPDATE
                 )
                 requestHandlingService.fireAnnotationEvent(annotationEvent)
             }
@@ -572,14 +663,14 @@ class FeatureEventService {
 
     }
 
-    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Assemblage assemblage) {
         for (uniqueName in newUniqueNames) {
-            deleteCurrentState(inputObject, uniqueName, sequence)
+            deleteCurrentState(inputObject, uniqueName, assemblage)
         }
     }
 
 
-    def deleteCurrentState(JSONObject inputObject, String uniqueName, Sequence sequence) {
+    def deleteCurrentState(JSONObject inputObject, String uniqueName, Assemblage assemblage) {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
@@ -597,7 +688,7 @@ class FeatureEventService {
             log.debug "deleteCommandObject ${deleteCommandObject as JSON}"
 
             if (!deleteCommandObject.containsKey(FeatureStringEnum.TRACK.value)) {
-                deleteCommandObject.put(FeatureStringEnum.TRACK.value, sequence.name)
+                deleteCommandObject.put(FeatureStringEnum.TRACK.value, assemblage.sequenceList)
             }
             deleteCommandObject.put(FeatureStringEnum.SUPPRESS_HISTORY, true)
             log.debug "final deleteCommandObject ${deleteCommandObject as JSON}"
@@ -620,7 +711,7 @@ class FeatureEventService {
      * @param confirm
      * @return
      */
-    def redo(JSONObject inputObject, int countForward) {
+    def redo(JSONObject inputObject, int countForward, Assemblage requestAssemblage) {
         log.info "redoing ${countForward}"
         if (countForward == 0) {
             log.warn "Redo to the same state"
@@ -628,15 +719,10 @@ class FeatureEventService {
         }
         String uniqueName = inputObject.get(FeatureStringEnum.UNIQUENAME.value)
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
-//        Set<String> uniqueNames = extractFeatureEventGroup(uniqueName).keySet()
-//        assert uniqueNames.remove(uniqueName)
-//        uniqueNames.each {
-//            currentIndex = Math.max(getCurrentFeatureEventIndex(it), currentIndex)
-//        }
         int count = currentIndex + countForward
         log.info "current Index ${currentIndex}"
         log.info "${count} = ${currentIndex}-${countForward}"
-        setHistoryState(inputObject, count)
+        setHistoryState(inputObject, count, requestAssemblage)
     }
 
     /**
@@ -661,7 +747,7 @@ class FeatureEventService {
         }
         FeatureEvent currentFeatureEvent = currentFeatureEventList.iterator().next()
         def history = getHistory(uniqueName)
-        Integer deepestIndex = history.size()-1
+        Integer deepestIndex = history.size() - 1
         def previousEvents = findPreviousFeatureEvents(currentFeatureEvent)
         def futureEvents = findFutureFeatureEvents(currentFeatureEvent)
         def offset = deepestIndex - futureEvents.size() - previousEvents.size()
@@ -685,7 +771,7 @@ class FeatureEventService {
         return Math.max(p1Id, p2Id)
     }
 
-    def undo(JSONObject inputObject, int countBackwards) {
+    def undo(JSONObject inputObject, int countBackwards, Assemblage requestAssemblage) {
         log.info "undoing ${countBackwards}"
         if (countBackwards == 0) {
             log.warn "Undo to the same state"
@@ -696,7 +782,7 @@ class FeatureEventService {
         int currentIndex = getCurrentFeatureEventIndex(uniqueName)
         int count = currentIndex - countBackwards
         log.debug "${count} = ${currentIndex}-${countBackwards}"
-        setHistoryState(inputObject, count)
+        setHistoryState(inputObject, count, requestAssemblage)
     }
 
     /**
@@ -780,7 +866,7 @@ class FeatureEventService {
 
     def buildMap(FeatureEvent featureEvent, TreeMap<Integer, Set<FeatureEvent>> unindexedMap, int index, Boolean includePrevious, Boolean includeFuture) {
 
-        if(!featureEvent) return
+        if (!featureEvent) return
 
         def featureEventSet = unindexedMap.get(index)
         if (!featureEventSet) {
@@ -818,7 +904,7 @@ class FeatureEventService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
 
             List<FeatureEvent> currentFeatureEventList = findCurrentFeatureEvent(uniqueName)
-            def thisFeatureEvent = currentFeatureEventList.find(){ it.uniqueName == uniqueName}
+            def thisFeatureEvent = currentFeatureEventList.find() { it.uniqueName == uniqueName }
             thisFeatureEvent = thisFeatureEvent ?: currentFeatureEventList.first()
             def futureEvents = findFutureFeatureEvents(thisFeatureEvent)
             def previousEvents = findPreviousFeatureEvents(thisFeatureEvent)
@@ -835,7 +921,7 @@ class FeatureEventService {
             for (int j = 0; j < transactionList.size(); ++j) {
                 // not sure if this is correct, or if I should just add both?
                 List<FeatureEvent> transactionSet = transactionList[j]
-                FeatureEvent transaction = transactionSet.find(){it.uniqueName==uniqueName}
+                FeatureEvent transaction = transactionSet.find() { it.uniqueName == uniqueName }
                 transaction = transaction ?: transactionSet.first()
                 // prefer a predecessor that is not "ADD_TRANSCRIPT"?
 

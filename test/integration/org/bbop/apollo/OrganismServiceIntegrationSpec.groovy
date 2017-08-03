@@ -4,7 +4,7 @@ import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
 
-class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec{
+class OrganismServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def organismService
     def requestHandlingService

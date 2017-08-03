@@ -5,13 +5,12 @@ import com.google.gwt.uibinder.client.UiBinder;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
-import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -90,7 +89,7 @@ public class RepeatRegionDetailPanel extends Composite {
         this.internalAnnotationInfo = annotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
-        sequenceField.setText(internalAnnotationInfo.getSequence());
+        sequenceField.setText(internalAnnotationInfo.getSequence().getName());
         userField.setText(internalAnnotationInfo.getOwner());
         
         if (internalAnnotationInfo.getMin() != null) {

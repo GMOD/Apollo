@@ -30,6 +30,7 @@ class AnnotatorController {
     def annotatorService
     def preferenceService
     def reportService
+    def assemblageService
     def featureRelationshipService
     def configWrapperService
 
@@ -180,7 +181,11 @@ class AnnotatorController {
     def updateFeature() {
         log.debug "updateFeature ${params.data}"
         JSONObject data = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+        Assemblage assemblage
+        try {
+            assemblage = permissionService.checkPermissions(data,PermissionEnum.WRITE)
+        } catch (e) {
+            log.error("Unauthorized: "+e)
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -196,19 +201,17 @@ class AnnotatorController {
         if (feature instanceof Gene) {
             List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
             for (childFeature in childFeatures) {
-                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false)
+                JSONObject jsonFeature = featureService.convertFeatureToJSON(childFeature, false,assemblage)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
             }
         } else {
-            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false)
+            JSONObject jsonFeature = featureService.convertFeatureToJSON(feature, false,assemblage)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
         }
 
-        Sequence sequence = feature?.featureLocation?.sequence
-
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: updateFeatureContainer
-                , sequence: sequence
+                , assemblage: assemblageService.generateAssemblageForFeature(feature)
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
@@ -230,10 +233,23 @@ class AnnotatorController {
     )
     def setExonBoundaries() {
         JSONObject data = permissionService.handleInput(request, params)
-        if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
+        Assemblage assemblage
+
+        try {
+            assemblage = permissionService.checkPermissions(data,PermissionEnum.WRITE)
+        } catch (e) {
+            log.error("Failed to authorize: "+e)
             render status: HttpStatus.UNAUTHORIZED
             return
         }
+        // TODO: this comes from the little interface.
+        // Not sure how to handle this there, other than you need to figure out if the feature
+        // location corresponds to the feature being used
+        Feature feature = Feature.findByUniqueName(data.uniquename)
+        feature.featureLocations.first().fmin = data.fmin
+        feature.featureLocations.first().fmax = data.fmax
+        feature.featureLocations.first().strand = data.strand
+        feature.save(flush: true, failOnError: true)
 
         JSONObject jsonObject = new JSONObject()
         JSONObject featureObject = new JSONObject()
@@ -256,7 +272,7 @@ class AnnotatorController {
         return requestHandlingService.setExonBoundaries(jsonObject)
     }
 
-    private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
+    private static JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
         JSONObject jsonFeatureContainer = new JSONObject();
         JSONArray jsonFeatures = new JSONArray();
         jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
@@ -280,18 +296,37 @@ class AnnotatorController {
      * @param sort
      * @return
      */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken) {
+    @Transactional
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort,String clientToken) {
+        JSONObject inputObject = permissionService.handleInput(this.request,params)
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             returnObject.clientToken = clientToken
-            if (sequenceName && !Sequence.countByName(sequenceName)) return
+//            if (sequenceName && !Sequence.countByName(sequenceName)) return
+            String[] sequenceNames = sequenceName.length() == 0 ? [] : sequenceName.split("\\:\\:")
+            List<Sequence> sequences = Sequence.findAllByNameInList(sequenceNames as List<String>)
+            if (!sequences) {
+                sequences = []
+//                render returnObject as JSON
+//              return
+            } else {
+                Assemblage generatedAssemblage = assemblageService.generateAssemblageForSequence(sequences as Sequence[])
+                String s = assemblageService.convertAssemblageToJson(generatedAssemblage).toString()
 
-            if (sequenceName) {
-                returnObject.track = sequenceName
+                if (sequenceName) {
+                    returnObject.track = s
+                }
             }
 
-            Sequence sequenceObj = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
-            Organism organism = sequenceObj.organism
+            Assemblage assemblage
+            Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+
+            returnObject.organism = organism?.id
+            if (returnObject.has("track")) {
+                assemblage = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+            } else {
+                assemblage = permissionService.checkPermissions(inputObject, PermissionEnum.READ)
+            }
             Integer index = Integer.parseInt(request)
 
             List<String> viewableTypes
@@ -319,11 +354,18 @@ class AnnotatorController {
             long start = System.currentTimeMillis()
             log.debug "${sort} ${sortorder}"
 
+//            List<Sequence> sequenceList
+//            if (assemblage) {
+//                sequenceList = assemblageService.getSequencesFromAssemblage(assemblage)
+//            }
+//            else{
+//
+//            }
             //use two step query. step 1 gets genes in a page
             def pagination = Feature.createCriteria().list(max: max, offset: offset) {
                 featureLocations {
-                    if (sequenceName) {
-                        eq('sequence', sequenceObj)
+                    if(sequences && !AssemblageService.isProjectionString(sequenceName)) {
+                        'in'('sequence',sequences)
                     }
                     if (sort == "length") {
                         order('length', sortorder)
@@ -386,7 +428,7 @@ class AnnotatorController {
 
             start = System.currentTimeMillis();
             for (Feature feature in features) {
-                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0)
+                JSONObject featureObject = featureService.convertFeatureToJSONLite(feature, false, 0,assemblage)
                 returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureObject)
             }
             durationInMilliseconds = System.currentTimeMillis() - start;

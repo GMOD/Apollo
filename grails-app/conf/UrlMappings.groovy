@@ -48,9 +48,11 @@ class UrlMappings {
         "/${clientToken}/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/${clientToken}/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/plugins/WebApollo/json/annot.json"(controller:"jbrowse", action: "annotInclude")
         "/jbrowse/data/${path}"(controller: "jbrowse", action: "data")
         "/jbrowse/data/${path}**"(controller: "jbrowse", action: "data")
         "/jbrowse/data/trackList.json"(controller:"jbrowse", action: "trackList")
+        "/${clientToken}/jbrowse/getSeqBoundaries"(controller: "jbrowse", action: "getSeqBoundaries")
 
 
 
@@ -122,5 +124,40 @@ class UrlMappings {
             action= "data"
             fileType = "gff"
         }
+        // add other types
+        "/bigwig/${trackName}/${organismId}/stats/global/"(controller: "bigwig",action: "global")
+        "/bigwig/${trackName}/${organismId}/stats/region"(controller: "bigwig",action: "region")
+        "/bigwig/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
+        "/bigwig/${trackName}/${organismId}/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName,organismId: organismId)
+
+//        "/${clientToken}/bigwig/stats/global"(controller: "bigwig",action: "global")
+//        "/${clientToken}/bigwig/stats/region"(controller: "bigwig",action: "region")
+//        "/${clientToken}/bigwig/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
+//        "/${clientToken}/bigwig/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName)
+
+        // VCF
+        "/vcf/${trackName}/${organismId}/stats/global/"(controller: "vcf", action: "global", trackName: trackName, organismId: organismId)
+        "/vcf/${trackName}/${organismId}/stats/getVcfHeader/${sequenceName}"(controller: "vcf", action: "getVcfHeader", trackName: trackName, organismId: organismId, sequenceName: sequenceName)
+        "/vcf/${trackName}/${organismId}/stats/region/${sequenceName}"(controller: "vcf", action: "region", trackName: trackName, organismId: organismId, sequenceName: sequenceName)
+        "/vcf/${trackName}/${organismId}/stats/regionFeatureDensities/${sequenceName}"(controller: "vcf", action: "regionFeatureDensities", trackName: trackName, organismId: organismId, sequenceName: sequenceName, params: params)
+        "/vcf/${trackName}/${organismId}/features/${sequenceName}"(controller: "vcf", action: "features", params: params, sequenceName: sequenceName, organismId: organismId)
+        "/vcf/${trackName}/${organismId}/feature/getGenotypes/${sequenceName}"(controller: "vcf", action: "getGenotypes", params: params, trackName: trackName, organismId: organismId, sequenceName: sequenceName)
+
+        "/sequence/stats/global"(controller: "sequence",action: "statsGlobal",params:params)
+        "/sequence/stats/region"(controller: "sequence",action: "statsRegion",params:params)
+        "/sequence/stats/regionFeatureDensities"(controller: "sequence",action: "regionFeatureDensities",params:params)
+        "/sequence/features/${sequenceName}"(controller: "sequence",action: "features",params:params,sequenceName:sequenceName)
+
+        "/projectionLegend/stats/global"(controller: "projectionLegendTrack",action: "statsGlobal",params:params)
+        "/projectionLegend/stats/region"(controller: "projectionLegendTrack",action: "statsRegion",params:params)
+        "/projectionLegend/stats/regionFeatureDensities"(controller: "projectionLegendTrack",action: "regionFeatureDensities",params:params)
+        "/projectionLegend/features/${sequenceName}"(controller: "projectionLegendTrack",action: "features",params:params,sequenceName:sequenceName)
+
+        "/projectionGrid/stats/global"(controller: "projectionGridTrack",action: "statsGlobal",params:params)
+        "/projectionGrid/stats/region"(controller: "projectionGridTrack",action: "statsRegion",params:params)
+        "/projectionGrid/stats/regionFeatureDensities"(controller: "projectionGridTrack",action: "regionFeatureDensities",params:params)
+        "/projectionGrid/features/${sequenceName}"(controller: "projectionGridTrack",action: "features",params:params,sequenceName:sequenceName)
+//        "/web_services/api"(controller:"annotationEditor",action: "web_services", params:params)
+
     }
 }

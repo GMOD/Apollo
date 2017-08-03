@@ -55,10 +55,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def annotationEditorService
     def organismService
     def brokerMessagingTemplate
+    def assemblageService
+    def featureProjectionService
 
 
     def index() {
-        log.debug "bang "
+        log.debug "Annotation Editor Index"
     }
 
     // Map the operation specified in the URL to a controller
@@ -84,7 +86,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
             User user = User.findByUsername(username)
             log.debug "getting user permission for ${user}, returnObject"
-//            Organism organism = preferenceService.getOrganismFromPreferences(user,null,returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             Organism organism = preferenceService.getCurrentOrganismForCurrentUser(returnObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if (!organism) {
                 log.error "somehow no organism shown, getting for all"
@@ -428,7 +429,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             permissionService.checkPermissions(returnObject, PermissionEnum.READ)
             render requestHandlingService.getFeatures(returnObject)
         } catch (e) {
-            def error = [error: 'problem getting features: ' + e.fillInStackTrace()]
+            def error = [error: 'Problem getting genomic features: ' + e.fillInStackTrace()]
             render error as JSON
             log.error(error.error)
         }
@@ -483,16 +484,19 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @Timed
     def getSequenceAlterations() {
         JSONObject returnObject = permissionService.handleInput(request, params)
-        Sequence sequence = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
+        Assemblage assemblage = permissionService.checkPermissions(returnObject, PermissionEnum.READ)
         JSONArray jsonFeatures = new JSONArray()
         returnObject.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
 
-        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes"
-                , [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations])
+        List<Sequence> sequences = assemblageService.getSequencesFromAssemblage(assemblage)
+        List<SequenceAlteration> sequenceAlterationList = Feature.executeQuery("select f from Feature f join f.featureLocations fl join fl.sequence s where s in (:sequence) and f.class in :sequenceTypes"
+                , [sequence: sequences, sequenceTypes: requestHandlingService.viewableAlterations])
         for (SequenceAlteration alteration : sequenceAlterationList) {
-            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true));
+            jsonFeatures.put(featureService.convertFeatureToJSON(alteration, true, assemblage));
         }
 
+        // project JSON features to current assemblage for display
+        featureProjectionService.projectTrack(jsonFeatures, assemblage, false)
         render returnObject
     }
 
@@ -903,8 +907,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             return
         }
         JSONObject featureContainer = createJSONFeatureContainer()
-        JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
-        featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(sequenceObject)
+        JSONArray featuresArray = sequenceService.getSequenceForFeatures(inputObject)
+        featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).addAll(featuresArray)
         render featureContainer
     }
 
@@ -982,10 +986,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @Timed
     def getAnnotationInfoEditorData() {
-        Sequence sequence
         JSONObject inputObject = permissionService.handleInput(request, params)
         try {
-            sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+            permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         } catch (e) {
             log.error(e)
             render new JSONObject() as JSON
@@ -1020,8 +1023,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
 
-            if (feature.featureLocation) {
-                newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
+            // TODO: not sure if this matters?, remove?
+            if (feature.featureLocations) {
+                newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocations.first().sequence.name);
             }
 
 
@@ -1172,7 +1176,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @SendTo("/topic/AnnotationNotification")
     @Timed
     protected String annotationEditor(String inputString, Principal principal) {
-        inputString = annotationEditorService.cleanJSONString(inputString)
+        log.debug "Input String: annotation editor service ${inputString}"
         JSONObject rootElement = (JSONObject) JSON.parse(inputString)
         rootElement.put(FeatureStringEnum.USERNAME.value, principal.name)
 
@@ -1248,8 +1252,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         errorObject.put(FeatureStringEnum.USERNAME.value, username)
 
         def destination = "/topic/AnnotationNotification/user/" + username
-        println "destination: ${destination}"
-        println "message: ${exception?.message}"
         brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
 
         return errorObject.toString()

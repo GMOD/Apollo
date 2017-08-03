@@ -557,3 +557,33 @@ If you don't want any reporting set:
 Restricts deletion and reverting to original editor or admin user by setting:
 
     apollo.only_owners_delete = true
+
+
+### Apollo specific tracks
+
+Apollo overrides several track types that are native to JBrowse.
+
+Following are tracks that are overridden by Apollo to extend its functionality:
+
+|    JBrowse     |          Apollo         |
+|:--------------:|:-----------------------:|
+| HTMLFeatures   |  DraggableHTMLFeatures  |
+| CanvasFeatures | WebApolloCanvasFeatures |
+| Alignments     | DraggableAlignments     |
+| HTMLVariants   | WebApolloHTMLVariants   |
+| CanvasVariants | WebApolloCanvasVariants |
+
+
+### Tracks for variants
+
+WebApolloHTMLVariants and WebApolloCanvasVariants are two new tracks that can be used to display VCF data.
+But these tracks rely on `VCFTabixREST` store class instead of the default `VCFTabix`.
+
+### Rendering histogram on variant tracks
+
+To enable rendering of histogram for variant tracks, specifically WebApolloHTMLVariants and WebApolloCanvasVariants,
+add the following to your track configuration in `trackList.json`:
+
+```
+"region_feature_densities" : true
+```

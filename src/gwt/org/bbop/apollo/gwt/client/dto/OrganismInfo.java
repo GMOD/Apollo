@@ -8,7 +8,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 
 /**
- * Created by ndunn on 12/18/14.
+ * Created by Nathan Dunn on 12/18/14.
  */
 public class OrganismInfo implements HasJSON{
 

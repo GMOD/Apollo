@@ -7,7 +7,7 @@ import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 
 /**
- * Created by ndunn on 3/24/15.
+ * Created by Nathan Dunn on 3/24/15.
  */
 abstract class OrganismPermissionInfo implements HasJSON{
 

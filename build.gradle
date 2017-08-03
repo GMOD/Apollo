@@ -14,15 +14,19 @@ import org.apache.tools.ant.taskdefs.condition.Os
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
+//    https://github.com/steffenschaefer/gwt-gradle-plugin
     dependencies {
+        classpath 'de.richsource.gradle.plugins:gwt-gradle-plugin:0.6'
     }
 }
 
-plugins {
+
+//plugins {
 //    id "com.eriwen.gradle.js" version "1.12.1"
 //    id "com.moowork.node" version "0.12"
-}
+//}
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -46,6 +50,8 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'gwt'
+apply plugin: 'gwt-compiler'
 //apply plugin: "de.qaware.seu.as.code.git"
 
 // In this section you declare the dependencies for your production and test code
@@ -452,4 +458,15 @@ def gitPull(File file) {
     proc.waitForProcessOutput(outputStream, errorStream);
     if(outputStream.length()>0) println "Out: " + outputStream
     if(errorStream.length()>0) println "Error: " + errorStream
+}
+
+gwt {
+    gwtVersion='2.7.0'
+    modules 'org.bbop.apollo.gwt.Annotator'
+    compiler {
+        strict = true;
+        enableClosureCompiler = true;
+        disableClassMetadata = true;
+        disableCastChecking = true;
+    }
 }

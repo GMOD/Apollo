@@ -819,3 +819,12 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     outline-width: 3px;
 }
 
+.boundary_left {
+    /*border-color: blue;*/
+    border: 5px pink solid;
+}
+
+.boundary_right{
+    /*border-color: green;*/
+    border: 5px red solid;
+}

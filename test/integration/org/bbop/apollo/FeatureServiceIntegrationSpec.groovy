@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import spock.lang.Ignore
@@ -11,6 +10,7 @@ import spock.lang.IgnoreRest
 class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
     def featureService
+    def assemblageService
     def transcriptService
     def requestHandlingService
     def featureRelationshipService
@@ -23,6 +23,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         when: "we parse it"
         JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(Sequence.first())
 
         then: "is is a valid object"
         assert jsonObject != null
@@ -33,7 +34,7 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert childArray.size() == 7
 
         when: "we convert it to a feature"
-        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject, Sequence.first())
+        Feature feature = featureService.convertJSONToFeature(mRNAJsonObject,assemblage)
 
         then: "it should convert it to the same feature"
         assert feature != null
@@ -108,7 +109,8 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         when: "we delete the gene and transcript and try to add the feature via the JSONObject"
         featureRelationshipService.deleteFeatureAndChildren(gene)
         Sequence sequence = Sequence.all.get(0)
-        featureService.convertJSONToFeature(geneFeatureJsonObject, sequence)
+        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
+        featureService.convertJSONToFeature(geneFeatureJsonObject, assemblage)
 
         then: "convertJSONToFeature() should interpret the JSONObject properly and we should see all the properties that we added above"
         assert Gene.count == 1
@@ -186,11 +188,11 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         Transcript transcript = transcriptService.getTranscripts(gene).iterator().next()
         def exonList = transcriptService.getExons(transcript)
 
-        assert gene.featureLocation.strand == Strand.POSITIVE.value
-        assert transcript.featureLocation.strand == Strand.POSITIVE.value
+        assert gene.isPositiveStrand()
+        assert transcript.isPositiveStrand()
 
         exonList.each {
-            it.featureLocation.strand == Strand.POSITIVE.value
+            it.isPositiveStrand()
         }
     }
 
@@ -207,6 +209,8 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
 
         then: "we should see the transcript"
         assert MRNA.all.size() == 1
+        assert NonCanonicalFivePrimeSpliceSite.all.size() == 0
+        assert NonCanonicalThreePrimeSpliceSite.all.size() == 0
         Gene parentGene = Gene.all.get(0)
 
         when: "we add transcript fragment 1"
@@ -219,10 +223,10 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         CDS transcriptFragment1Cds = transcriptService.getCDS(transcriptFragment1)
 
         assert transcriptService.getGene(transcriptFragment1) == parentGene
-        assert transcriptFragment1Cds.featureLocation.fmin == 690442
-        assert transcriptFragment1Cds.featureLocation.fmax == 690739
-        assert !transcriptFragment1Cds.featureLocation.isFminPartial
-        assert transcriptFragment1Cds.featureLocation.isFmaxPartial
+        assert transcriptFragment1Cds.fmin == 690442
+        assert transcriptFragment1Cds.fmax == 690739
+        assert !transcriptFragment1Cds.isFminPartial
+        assert transcriptFragment1Cds.isFmaxPartial
 
         when: "we add transcript fragment 2"
         JSONObject addTranscriptFragment2ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment2String) as JSONObject)
@@ -234,10 +238,10 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         CDS transcriptFragment2Cds = transcriptService.getCDS(transcriptFragment2)
 
         assert transcriptService.getGene(transcriptFragment2) == parentGene
-        assert transcriptFragment2Cds.featureLocation.fmin == 691158
-        assert transcriptFragment2Cds.featureLocation.fmax == 691353
-        assert transcriptFragment2Cds.featureLocation.isFminPartial
-        assert transcriptFragment2Cds.featureLocation.isFmaxPartial
+        assert transcriptFragment2Cds.fmin == 691158
+        assert transcriptFragment2Cds.fmax == 691353
+        assert transcriptFragment2Cds.isFminPartial
+        assert transcriptFragment2Cds.isFmaxPartial
 
         when: "we add transcript fragment 3"
         JSONObject addTranscriptFragment3ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment3String) as JSONObject)
@@ -249,10 +253,10 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         CDS transcriptFragment3Cds = transcriptService.getCDS(transcriptFragment3)
 
         assert transcriptService.getGene(transcriptFragment3) == parentGene
-        assert transcriptFragment3Cds.featureLocation.fmin == 691674
-        assert transcriptFragment3Cds.featureLocation.fmax == 691846
-        assert transcriptFragment3Cds.featureLocation.isFminPartial
-        assert transcriptFragment3Cds.featureLocation.isFmaxPartial
+        assert transcriptFragment3Cds.fmin == 691674
+        assert transcriptFragment3Cds.fmax == 691846
+        assert transcriptFragment3Cds.isFminPartial
+        assert transcriptFragment3Cds.isFmaxPartial
     }
 
     void "When adding a transcript (on the forward strand) and transcript fragment, all the fragments should be isoforms of the main transcript and have their CDS set as expected"() {
@@ -280,10 +284,10 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         CDS transcriptFragment1Cds = transcriptService.getCDS(transcriptFragment1)
 
         assert transcriptService.getGene(transcriptFragment1) == parentGene
-        assert transcriptFragment1Cds.featureLocation.fmin == 577493
-        assert transcriptFragment1Cds.featureLocation.fmax == 577643
-        assert !transcriptFragment1Cds.featureLocation.isFminPartial
-        assert transcriptFragment1Cds.featureLocation.isFmaxPartial
+        assert transcriptFragment1Cds.fmin == 577493
+        assert transcriptFragment1Cds.fmax == 577643
+        assert !transcriptFragment1Cds.isFminPartial
+        assert transcriptFragment1Cds.isFmaxPartial
 
         when: "we add transcript fragment 2"
         JSONObject addTranscriptFragment2ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment2String) as JSONObject)
@@ -295,10 +299,10 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         CDS transcriptFragment2Cds = transcriptService.getCDS(transcriptFragment2)
 
         assert transcriptService.getGene(transcriptFragment2) == parentGene
-        assert transcriptFragment2Cds.featureLocation.fmin == 582506
-        assert transcriptFragment2Cds.featureLocation.fmax == 582677
-        assert transcriptFragment2Cds.featureLocation.isFminPartial
-        assert transcriptFragment2Cds.featureLocation.isFmaxPartial
+        assert transcriptFragment2Cds.fmin == 582506
+        assert transcriptFragment2Cds.fmax == 582677
+        assert transcriptFragment2Cds.isFminPartial
+        assert transcriptFragment2Cds.isFmaxPartial
 
         when: "we add transcript fragment 3"
         JSONObject addTranscriptFragment3ReturnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptFragment3String) as JSONObject)
@@ -310,9 +314,26 @@ class FeatureServiceIntegrationSpec extends AbstractIntegrationSpec{
         CDS transcriptFragment3Cds = transcriptService.getCDS(transcriptFragment3)
 
         assert transcriptService.getGene(transcriptFragment3) != parentGene
-        assert transcriptFragment3Cds.featureLocation.fmin == 583188
-        assert transcriptFragment3Cds.featureLocation.fmax == 583554
-        assert transcriptFragment3Cds.featureLocation.isFminPartial
-        assert !transcriptFragment3Cds.featureLocation.isFmaxPartial
+        assert transcriptFragment3Cds.fmin == 583188
+        assert transcriptFragment3Cds.fmax == 583554
+        assert transcriptFragment3Cds.isFminPartial
+        assert !transcriptFragment3Cds.isFmaxPartial
+    }
+
+    void "When adding a transcript in the reverse sequence (on the reverse strand) and transcript fragment, all the fragments should be isoforms of the main transcript and have their CDS set as expected"() {
+
+        given: "1 transcript and 3 transcript fragments"
+        String addTranscript1String = "{${testCredentials} \"track\":{\"sequenceList\":[{\"name\":\"Group1.10\",\"start\":0,\"end\":1405242,\"reverse\":true,\"organism\":\"Honeybee\",\"location\":[{\"fmin\":0,\"fmax\":1405242}]}]},\"features\":[{\"location\":{\"fmin\":821637,\"fmax\":827749,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40819-RA\",\"children\":[{\"location\":{\"fmin\":827599,\"fmax\":827749,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":822565,\"fmax\":822736,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":821637,\"fmax\":822055,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":821962,\"fmax\":827749,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
+
+        when: "we add the complete transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscript1String) as JSONObject)
+        def allFeatures = Feature.all
+
+        then: "we should see the transcript"
+        assert MRNA.all.size() == 1
+        assert NonCanonicalFivePrimeSpliceSite.all.size() == 0
+        assert NonCanonicalThreePrimeSpliceSite.all.size() == 0
+        Gene parentGene = Gene.all.get(0)
+
     }
 }
