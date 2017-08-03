@@ -15,21 +15,21 @@ Features
 
 Bugfixes
 
-- Fixed bug in which add_transcripts_from_gff3_to_annotations.pl replaced valid mRNA name with gene name. [#1475](https://github.com/GMOD/Apollo/issues/1475)
-- Fixed bug in which REMOTE_USER was not cached everywhere and was being ignored on ping request. [#1492](https://github.com/GMOD/Apollo/pull/1492)
-- Added warning to Production pre-requisites: if using gradle and gradlew, admins should define JAVA_HOME to avoid build fails. See documentation [here](http://genomearchitect.readthedocs.io/en/latest/Setup.html#production-pre-requisites).
+- Fixed bug in which ```add_transcripts_from_gff3_to_annotations.pl``` replaced valid mRNA name with gene name. [#1475](https://github.com/GMOD/Apollo/issues/1475)
+- Fixed bug in which ```REMOTE_USER``` was not cached everywhere and was being ignored on ping request. [#1492](https://github.com/GMOD/Apollo/pull/1492)
+- Added warning to Production pre-requisites: if using gradle and gradlew, admins should define ```JAVA_HOME``` to avoid build fails. See documentation [here](http://genomearchitect.readthedocs.io/en/latest/Setup.html#production-pre-requisites).
 - Fixed sorting bug on the dropdown list of organisms. [#1497](https://github.com/GMOD/Apollo/issues/1497)
-- Fixed a bug in which the absence of an organism created downstream issues such as listing groups of users in Annotator panel. (Feature for admins). [#1504](https://github.com/GMOD/Apollo/pull/1504)
-- It is now possible to set Statuses as well as adding or editing Canned elements using our Web Service (REST) API. [#1538](https://github.com/GMOD/Apollo/pull/1538)
+- Fixed a bug in which the absence of an organism created downstream issues such as errors listing groups of users in Annotator panel. (Feature for admins). [#1504](https://github.com/GMOD/Apollo/pull/1504)
+- It is now possible to set _Statuses_ as well as adding or editing _Canned elements_ using our Web Service (REST) API. [#1538](https://github.com/GMOD/Apollo/pull/1538)
 - Fixed a bug in which creating a user via Web Service API generated an error message. [#1510](https://github.com/GMOD/Apollo/pull/1510)
 - Fixed import script ```add_transcripts_from_gff3_to_annotations.pl``` to introduce correct handling of sequence alterations and read-through stop codons. [#1524](https://github.com/GMOD/Apollo/pull/1524)
-- Fixed bug so that leading start non-M codons in non-standard tables are translated as Methionine (M). [#1544](https://github.com/GMOD/Apollo/issues/1544)
-- Added documentation for Web Service wrapper for Python, PHP, etc. See [Web Services API documentation](http://genomearchitect.readthedocs.io/en/latest/Web_services.html).
-- Updated GWT code to fix a bug to generate URLs appropriately - pipes were not being encoded. [#1606](https://github.com/GMOD/Apollo/pull/1606)
-- Fixed bug in the calculation of open reading frame for the negative strand for the purpose of coloring each exon according to the CDS. Exported sequences remain correct. [#1629](https://github.com/GMOD/Apollo/issues/1629)
-- Fixed bug that delayed updates of changes in boundaries for parent element in an annotation. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
-- Restored 'Pin to top' and 'Delete track' ability for tracks with HTMLFeatures. [#1632](https://github.com/GMOD/Apollo/issues/1632)
-- Fixed cascade bug when changing annotation type of a feature that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
+- Fixed bug that now allows leading start non-M codons in organisms with non-standard code to be translated as Methionine (M). [#1544](https://github.com/GMOD/Apollo/issues/1544)
+- Added documentation for a Web Service wrapper for Python, PHP, etc. See [Web Services API documentation](http://genomearchitect.readthedocs.io/en/latest/Web_services.html).
+- Updated GWT code to fix a bug that prevented Apollo from generating URLs appropriately - pipes were not being encoded. [#1606](https://github.com/GMOD/Apollo/pull/1606)
+- Fixed bug in the calculation of open reading frames for the negative strand for the purpose of coloring each exon according to the CDS. Exported sequences had been - and remain - correctly generated. [#1629](https://github.com/GMOD/Apollo/issues/1629)
+- Fixed bug that delayed propagation of updates when boundaries for an annotation's parent element were changed. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
+- Restored _'Pin to top'_ and _'Delete track'_ functionality for tracks with ```HTMLFeatures```. [#1632](https://github.com/GMOD/Apollo/issues/1632)
+- Fixed cascade bug when changing annotation type for an annotation that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
 
 
 ## 2.0.6
