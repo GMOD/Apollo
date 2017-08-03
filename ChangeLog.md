@@ -16,6 +16,8 @@
 - Fixed a bug in which the absence of an organism created downstream issues such as listing groups of users in Annotator panel. (Feature for admins). [#1504](https://github.com/GMOD/Apollo/pull/1504)
 - It is now possible to set Statuses as well as adding or editing Canned elements using our Web Service (REST) API. [#1538](https://github.com/GMOD/Apollo/pull/1538)
 - Fixed a bug in which creating a user via Web Service API generated an error message. [#1510](https://github.com/GMOD/Apollo/pull/1510)
+- Fixed import script ```add_transcripts_from_gff3_to_annotations.pl``` to introduce correct handling of sequence alterations and read-through stop codons. [#1524](https://github.com/GMOD/Apollo/pull/1524)
+- Fixed bug so that leading start non-M codons in non-standard tables are translated as Methionine (M). [#1544](https://github.com/GMOD/Apollo/issues/1544)
 
 
 ## 2.0.6
