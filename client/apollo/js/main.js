@@ -657,7 +657,7 @@ return declare( [JBPlugin, HelpMixin],
         css_frame_menu.addChild(new dijitMenuSeparator());
         css_frame_menu.addChild(
             new dijitMenuItem({
-                    label: "Non-Flat",
+                    label: "Grid",
                     onClick: function (event) {
                         browser.cookie("Scheme-Flat","");
                         domClass.remove(win.body(), "Flat");
@@ -667,7 +667,7 @@ return declare( [JBPlugin, HelpMixin],
         );
         css_frame_menu.addChild(
             new dijitMenuItem({
-                    label: "Flat",
+                    label: "No Grid",
                     onClick: function (event) {
                         browser.cookie("Scheme-Flat","Flat");
                         domClass.add(win.body(), "Flat");
