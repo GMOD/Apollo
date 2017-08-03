@@ -97,10 +97,17 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
+
         browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?!browser.config.overrideColorCdsByFrameTrue:browser.cookie("colorCdsByFrame"));
+
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
+
+        if (browser.cookie("Scheme-Flat")=="Flat") {
+            domClass.add(win.body(), "Flat");
+        }
+
         if(!browser.config.overrideApolloStyles) {
             domClass.add(win.body(), "Apollo");
         }
@@ -244,7 +251,7 @@ return declare( [JBPlugin, HelpMixin],
                                         view.oldOnResize();
                                     }
                             };
-            
+
 
         });
         this.monkeyPatchRegexPlugin();
@@ -642,6 +649,28 @@ return declare( [JBPlugin, HelpMixin],
                     onClick: function (event) {
                         browser.cookie("Scheme","Dark");
                         domClass.add(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+
+        css_frame_menu.addChild(new dijitMenuSeparator());
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Grid",
+                    onClick: function (event) {
+                        browser.cookie("Scheme-Flat","");
+                        domClass.remove(win.body(), "Flat");
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "No Grid",
+                    onClick: function (event) {
+                        browser.cookie("Scheme-Flat","Flat");
+                        domClass.add(win.body(), "Flat");
                     }
                 }
             )
