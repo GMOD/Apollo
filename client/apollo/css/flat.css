@@ -1,0 +1,29 @@
+.Flat div.gridline_minor {
+	border: none
+}
+.Flat div.gridline_major {
+	border: none
+}
+
+.Flat div.overview {
+	background: #f9f9f9;
+}
+.Flat.Dark div.overview {
+	background: #333333;
+	box-shadow: 0 2px 10px 0px #2b2b2b;
+	border: 1px solid black;
+}
+
+.Flat.Dark div.overview-pos{
+	color: white;
+}
+
+.Flat div#static_track{
+	background: #f9f9f9;
+}
+.Flat.Dark div#static_track{
+	color: white;
+	background: #333333;
+	box-shadow: 0 2px 10px 0px black;
+	border: 1px solid black;
+}
