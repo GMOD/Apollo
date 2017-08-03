@@ -1,21 +1,21 @@
 
 ## 2.0.7
 
-- Allow setting of alternate translation table per organism using the Details panel under the ‘Organism’ tab in the Annotator panel. https://github.com/GMOD/Apollo/issues/95
-- Draggable BAM tracks now support coloring by strand. Reads aligned to forward strand are colored blue, while those in the reverse strand are red.  https://github.com/GMOD/Apollo/issues/412
-- The list of ’Tracks’ in the Annotator panel now allows to separate data types into categories. https://github.com/GMOD/Apollo/issues/536
-- When applicable, warnings now alert users of insufficient permissions to perform certain functions. https://github.com/GMOD/Apollo/issues/553
-- Restrictions are now in place to prevent users from modifying or deleting annotations that they did not create. https://github.com/GMOD/Apollo/issues/1260
-- Updated settings for the ability to filter by organism when applying metadata. For instance, admin may now apply canned comments, keys and values, only to a subset of organisms in their server. As well, statuses can be retrieved per type of genomic element, per organism, etc. https://github.com/GMOD/Apollo/pull/1676
-- Fixed bug in which add_transcripts_from_gff3_to_annotations.pl replaced valid mRNA name with gene name. https://github.com/GMOD/Apollo/issues/1475
-- Admins can now build public URLs to hyperlink directly to a specific genomic element. https://github.com/GMOD/Apollo/pull/1482
-- A number of fixes to improve performance have been made, such as fetching preferences from session. https://github.com/GMOD/Apollo/pull/1604
-- Fixed bug in which REMOTE_USER was not cached everywhere and was being ignored on ping request. https://github.com/GMOD/Apollo/pull/1492
-- Added warning to Production pre-requisites: if using gradle and gradlew, admins should define JAVA_HOME to avoid build fails. See documentation at http://genomearchitect.readthedocs.io/en/latest/Setup.html#production-pre-requisites
-- Fixed sorting bug on the dropdown list of organisms. https://github.com/GMOD/Apollo/issues/1497
-- Fixed a bug in which the absence of an organism created downstream issues such as listing groups of users in Annotator panel. (Feature for admins). https://github.com/GMOD/Apollo/pull/1504
-- It is now possible to set Statuses as well as adding or editing Canned elements using our Web Service (REST) API. https://github.com/GMOD/Apollo/pull/1538
-- Fixed a bug in which creating a user via Web Service API generated an error message. https://github.com/GMOD/Apollo/pull/1510
+- Allow setting of alternate translation table per organism using the Details panel under the ‘Organism’ tab in the Annotator panel. [#95](https://github.com/GMOD/Apollo/issues/95)
+- Draggable BAM tracks now support coloring by strand. Reads aligned to forward strand are colored blue, while those in the reverse strand are red.  [#412](https://github.com/GMOD/Apollo/issues/412)
+- The list of ’Tracks’ in the Annotator panel now allows to separate data types into categories. [#536](https://github.com/GMOD/Apollo/issues/536)
+- When applicable, warnings now alert users of insufficient permissions to perform certain functions. [#553](https://github.com/GMOD/Apollo/issues/553)
+- Restrictions are now in place to prevent users from modifying or deleting annotations that they did not create. [#1260](https://github.com/GMOD/Apollo/issues/1260)
+- Updated settings for the ability to filter by organism when applying metadata. For instance, admin may now apply canned comments, keys and values, only to a subset of organisms in their server. As well, statuses can be retrieved per type of genomic element, per organism, etc. [#1676](https://github.com/GMOD/Apollo/pull/1676)
+- Fixed bug in which add_transcripts_from_gff3_to_annotations.pl replaced valid mRNA name with gene name. [#1475](https://github.com/GMOD/Apollo/issues/1475)
+- Admins can now build public URLs to hyperlink directly to a specific genomic element. [#1482](https://github.com/GMOD/Apollo/pull/1482)
+- A number of fixes to improve performance have been made, such as fetching preferences from session. [#1604](https://github.com/GMOD/Apollo/pull/1604)
+- Fixed bug in which REMOTE_USER was not cached everywhere and was being ignored on ping request. [#1492](https://github.com/GMOD/Apollo/pull/1492)
+- Added warning to Production pre-requisites: if using gradle and gradlew, admins should define JAVA_HOME to avoid build fails. See documentation [here](http://genomearchitect.readthedocs.io/en/latest/Setup.html#production-pre-requisites).
+- Fixed sorting bug on the dropdown list of organisms. [#1497](https://github.com/GMOD/Apollo/issues/1497)
+- Fixed a bug in which the absence of an organism created downstream issues such as listing groups of users in Annotator panel. (Feature for admins). [#1504](https://github.com/GMOD/Apollo/pull/1504)
+- It is now possible to set Statuses as well as adding or editing Canned elements using our Web Service (REST) API. [#1538](https://github.com/GMOD/Apollo/pull/1538)
+- Fixed a bug in which creating a user via Web Service API generated an error message. [#1510](https://github.com/GMOD/Apollo/pull/1510)
 
 
 ## 2.0.6
