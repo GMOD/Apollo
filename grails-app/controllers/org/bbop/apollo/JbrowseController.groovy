@@ -650,11 +650,8 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
-
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-
         trackObject = rewriteTracks(trackObject,currentOrganism)
-
 
         if (currentOrganism != null) {
             trackObject.put("dataset_id", currentOrganism.id)
@@ -692,23 +689,49 @@ class JbrowseController {
         }
         trackObject.include.add("../plugins/WebApollo/json/annot.json")
 
-        def plugins = grailsApplication.config.jbrowse?.plugins
-        // not sure if I do it this way or via the include
-        if (plugins) {
-            def pluginKeys = []
-            if (!trackObject.plugins) {
-                trackObject.plugins = new JSONArray()
-            } else {
-                for (int i = 0; i < trackObject.plugins.size(); i++) {
-                    if (trackObject.plugins[i] instanceof JSONObject) {
-                        pluginKeys.add(trackObject.plugins[i].name)
-                    } else if (trackObject.plugins[i] instanceof String) {
-                        pluginKeys.add(trackObject.plugins[i])
+        def pluginKeys = []
+        if (!trackObject.containsKey("plugins")) {
+            trackObject.put("plugins", new JSONArray())
+        } else {
+            if (trackObject.get("plugins") instanceof JSONObject) {
+                JSONObject trackPluginsObject = trackObject.getJSONObject("plugins")
+                JSONArray pluginsArray = new JSONArray()
+                trackPluginsObject.keySet().each { plugin ->
+                    JSONObject pluginObject = new JSONObject()
+                    if (trackPluginsObject.getJSONObject(plugin)) {
+                        def properties = trackPluginsObject.getJSONObject(plugin).keySet()
+                        properties.each { property ->
+                            pluginObject.put(property, trackPluginsObject.getJSONObject(plugin).get(property))
+                        }
                     }
+                    pluginsArray.add(pluginObject)
+                }
+                trackObject.put("plugins", pluginsArray)
+            }
+
+            for (int i = 0; i < trackObject.plugins.size(); i++) {
+                if (trackObject.plugins[i] instanceof JSONObject) {
+                    pluginKeys.add(trackObject.plugins[i].name)
+                } else if (trackObject.plugins[i] instanceof String) {
+                    JSONObject pluginObject = new JSONObject()
+                    pluginObject.name = trackObject.plugins[i]
+                    trackObject.plugins[i] = pluginObject
+                    pluginKeys.add(pluginObject.name)
                 }
             }
+        }
+
+        def plugins = grailsApplication.config.jbrowse?.plugins
+        if (plugins) {
             // add core plugin: https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Browser.js#L244
-            pluginKeys.add("RegexSequenceSearch")
+            //pluginKeys.add("RegexSequenceSearch")
+            if (!pluginKeys.contains("RegexSequenceSearch")) {
+                JSONObject corePluginObject = new JSONObject()
+                corePluginObject.name = "RegexSequenceSearch"
+                trackObject.plugins.add(corePluginObject)
+                pluginKeys.add("RegexSequenceSearch")
+            }
+
             for (plugin in plugins) {
                 if (!pluginKeys.contains(plugin.key)) {
                     pluginKeys.add(plugin.key)
@@ -720,6 +743,16 @@ class JbrowseController {
                     log.info "Loading plugin: ${pluginObject.name} details: ${pluginObject as JSON}"
                 }
             }
+        }
+
+        // loading tracks.conf, if it exists
+        String tracksConfFilePath = dataDirectory + "/tracks.conf"
+        File tracksConfFile = new File(tracksConfFilePath)
+        if (tracksConfFile.exists()) {
+            trackService.parseTracksConf(trackObject, tracksConfFile)
+        }
+        else {
+            log.info("Could not find file ${tracksConfFilePath}")
         }
 
         response.outputStream << trackObject.toString()
