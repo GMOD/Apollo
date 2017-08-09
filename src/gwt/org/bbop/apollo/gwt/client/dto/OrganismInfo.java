@@ -30,6 +30,7 @@ public class OrganismInfo implements HasJSON{
     private Boolean publicMode;
     private Boolean canEdit ;
     private boolean editable;
+    private String nonDefaultTranslationTable ;
 
 
     public OrganismInfo(){
@@ -129,6 +130,14 @@ public class OrganismInfo implements HasJSON{
         return current;
     }
 
+    public String getNonDefaultTranslationTable() {
+        return nonDefaultTranslationTable;
+    }
+
+    public void setNonDefaultTranslationTable(String nonDefaultTranslationTable) {
+        this.nonDefaultTranslationTable = nonDefaultTranslationTable;
+    }
+
     public JSONObject toJSON() {
         JSONObject payload = new JSONObject();
 
@@ -155,6 +164,9 @@ public class OrganismInfo implements HasJSON{
         }
         if(valid!=null){
             payload.put("valid",JSONBoolean.getInstance(valid));
+        }
+        if(nonDefaultTranslationTable!=null){
+            payload.put("nonDefaultTranslationTable",new JSONString(nonDefaultTranslationTable));
         }
 
         payload.put("publicMode",JSONBoolean.getInstance(publicMode != null ? publicMode : false));

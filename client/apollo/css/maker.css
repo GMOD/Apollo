@@ -277,5 +277,16 @@ div.gridline_minor {
 }
 
 
+.neg-cds-frame0 {
+    background-color: #8080FF;
+}
+
+.neg-cds-frame1 {
+    background-color: #80FF80;
+}
+
+.neg-cds-frame2 {
+    background-color: #FF8080;
+}
 
 /* end of MAKER styles */

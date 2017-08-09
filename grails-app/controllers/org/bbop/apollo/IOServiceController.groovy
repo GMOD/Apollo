@@ -47,7 +47,7 @@ class IOServiceController extends AbstractApolloController {
     }
 
     @RestApiMethod(description = "Write out genomic data.  An example script is used in the https://github.com/GMOD/Apollo/blob/master/docs/web_services/examples/groovy/get_gff3.groovy"
-            , path = "/ioService/write", verb = RestApiVerb.POST
+            , path = "/IOService/write", verb = RestApiVerb.POST
     )
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -78,7 +78,6 @@ class IOServiceController extends AbstractApolloController {
             String sequenceType = dataObject.seqType
             Boolean exportAllSequences = dataObject.exportAllSequences ? Boolean.valueOf(dataObject.exportAllSequences) : false
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
-//            String chadoExportType = dataObject.chadoExportType
             String output = dataObject.output
             String adapter = dataObject.adapter
             String format = dataObject.format
@@ -204,7 +203,7 @@ class IOServiceController extends AbstractApolloController {
     }
 
     @RestApiMethod(description = "This is used to retrieve the a download link once the write operation was initialized using output: file."
-            , path = "/ioService/download", verb = RestApiVerb.POST
+            , path = "/IOService/download", verb = RestApiVerb.POST
     )
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)

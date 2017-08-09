@@ -28,9 +28,6 @@ public class OrganismInfoConverter {
         } else {
             organismInfo.setNumFeatures(0);
         }
-        if (object.get("blatdb") != null && object.get("blatdb").isString() != null) {
-            organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
-        }
         organismInfo.setDirectory(object.get("directory").isString().stringValue());
         if (object.get("valid") != null) {
             organismInfo.setValid(object.get("valid").isBoolean().booleanValue());
@@ -43,6 +40,9 @@ public class OrganismInfoConverter {
         }
         if (object.get("blatdb") != null && object.get("blatdb").isString() != null) {
             organismInfo.setBlatDb(object.get("blatdb").isString().stringValue());
+        }
+        if (object.get("nonDefaultTranslationTable") != null && object.get("nonDefaultTranslationTable").isString() != null) {
+            organismInfo.setNonDefaultTranslationTable(object.get("nonDefaultTranslationTable").isString().stringValue());
         }
         if (object.get("publicMode") != null) {
             organismInfo.setPublicMode(object.get("publicMode").isBoolean().booleanValue());
@@ -90,6 +90,9 @@ public class OrganismInfoConverter {
         }
         if (organismInfo.getBlatDb() != null) {
             object.put("blatdb", new JSONString(organismInfo.getBlatDb()));
+        }
+        if (organismInfo.getNonDefaultTranslationTable() != null) {
+            object.put("nonDefaultTranslationTable", new JSONString(organismInfo.getNonDefaultTranslationTable()));
         }
 
         GWT.log("convertOrganismInfoToJSONObject "+organismInfo.getPublicMode());

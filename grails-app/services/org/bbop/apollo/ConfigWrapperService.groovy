@@ -122,4 +122,8 @@ class ConfigWrapperService {
     def getExtraTabs(){
         return grailsApplication.config.apollo.extraTabs
     }
+
+    boolean getOnlyOwnersDelete(){
+        return grailsApplication.config.apollo.only_owners_delete
+    }
 }

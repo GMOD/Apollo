@@ -22,7 +22,6 @@ class ReportService {
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
         Transcript.executeQuery("select distinct g from Transcript g ").each {
-//            println "it: ${it}"
             String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
             Integer count = transcriptMap.get(className) ?: 0
             transcriptMap.put(className, ++count)
@@ -54,7 +53,6 @@ class ReportService {
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
         Transcript.executeQuery("select distinct g from Transcript g join g.featureLocations fl join fl.sequence s join s.organism o where o = :organism", [organism: organism]).each {
-//            println "it: ${it}"
             String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
             Integer count = transcriptMap.get(className) ?: 0
             transcriptMap.put(className, ++count)
@@ -88,7 +86,6 @@ class ReportService {
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
         Transcript.executeQuery("select distinct g from Transcript g join g.featureLocations fl join fl.sequence s  where s = :sequence", [sequence: sequence]).each {
-//            println "it: ${it}"
             String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
             Integer count = transcriptMap.get(className) ?: 0
             transcriptMap.put(className, ++count)
@@ -127,7 +124,6 @@ class ReportService {
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
         Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner]).each {
-//            println "it: ${it}"
             String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
             Integer count = transcriptMap.get(className) ?: 0
             transcriptMap.put(className, ++count)
@@ -158,11 +154,9 @@ class ReportService {
                     OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
                     organismPermissionSummary.userOrganismPermission = it
                     copyProperties(generateOrganismSummary(it.organism), organismPermissionSummary)
-//                organismPermissionSummary.organismId = it.organismId
 
                     userOrganismPermissionList.add(organismPermissionSummary)
                 }
-//            annotatorSummary.userOrganismPermissionList =
             }
 
             owner.userGroups.each { group ->
