@@ -1317,8 +1317,8 @@ class TrackService {
         String operation, value
         HashMap confMap = [:]
 
-        file.text.split("\n").each { line ->
-
+        file.eachLine { String line ->
+            println "LINE: ${line}"
             line = line.replaceAll(COMMENT_PATTERN, "")
             Matcher sectionMatcher = SECTION_PATTERN.matcher(line)
             Matcher newValueMatcher = value == null ? NEW_VALUE_PATTERN_1.matcher(line) : NEW_VALUE_PATTERN_2.matcher(line)
@@ -1420,19 +1420,19 @@ class TrackService {
             def value = parseValueToJSON(confMap.get(key))
             String section = path.remove(0)
 
-            if (section == "tracks") {
+            if (section == FeatureStringEnum.TRACKS.value) {
                 JSONArray tracks = trackObject.getJSONArray(section)
                 String trackName = path.remove(0)
                 JSONObject track = findTrackFromArray(tracks, trackName)
                 if (track == null) {
                     // track doesn't exist
                     track = new JSONObject()
-                    track.put("label", trackName)
+                    track.put(FeatureStringEnum.LABEL.value, trackName)
                     tracks.add(track)
                 }
                 deepUpdate(track, path, value)
             }
-            else if (section == "plugins") {
+            else if (section == FeatureStringEnum.PLUGINS.value) {
                 JSONArray pluginsArray
                 if (trackObject.containsKey(section)) {
                     pluginsArray = trackObject.get(section)
@@ -1441,7 +1441,7 @@ class TrackService {
                         JSONObject pluginObject = findPlugin(pluginsArray, pluginName)
                         if (pluginObject == null) {
                             pluginObject = new JSONObject()
-                            pluginObject.put("name", pluginName)
+                            pluginObject.put(FeatureStringEnum.NAME.value, pluginName)
                             pluginsArray.add(pluginObject)
                         }
                         deepUpdate(pluginObject, path, value)
@@ -1450,12 +1450,12 @@ class TrackService {
                         if (value instanceof JSONArray) {
                             value.each {
                                 JSONObject pluginObject = new JSONObject()
-                                pluginObject.put("name", it)
+                                pluginObject.put(FeatureStringEnum.NAME.value, it)
                                 pluginsArray.add(pluginObject)
                             }
                         }
                         else {
-                            pluginsArray.add(new JSONObject().put("name", value))
+                            pluginsArray.add(new JSONObject().put(FeatureStringEnum.NAME.value, value))
                         }
                     }
                 }
@@ -1466,7 +1466,7 @@ class TrackService {
                         JSONObject pluginObject = new JSONObject()
                         if (pluginObject == null) {
                             pluginObject = new JSONObject()
-                            pluginObject.put("name", pluginName)
+                            pluginObject.put(FeatureStringEnum.NAME.value, pluginName)
                             pluginsArray.add(pluginObject)
                         }
                         deepUpdate(pluginObject, path, value)
@@ -1475,12 +1475,12 @@ class TrackService {
                         if (value instanceof JSONArray) {
                             value.each {
                                 JSONObject pluginObject = new JSONObject()
-                                pluginObject.put("name", it)
+                                pluginObject.put(FeatureStringEnum.NAME.value, it)
                                 pluginsArray.add(pluginObject)
                             }
                         }
                         else {
-                            pluginsArray.add(new JSONObject().put("name", value))
+                            pluginsArray.add(new JSONObject().put(FeatureStringEnum.NAME.value, value))
                         }
                     }
                     trackObject.put(section, pluginsArray)
@@ -1568,10 +1568,10 @@ class TrackService {
             // parse numbers if it looks numeric
             returnValue = Float.parseFloat(value.replaceAll(",", ""))
         }
-        else if (value == "true") {
+        else if (value == Boolean.TRUE.toString()) {
             returnValue = Boolean.parseBoolean(value)
         }
-        else if (value == "false") {
+        else if (value == Boolean.FALSE.toString()) {
             returnValue = Boolean.parseBoolean(value)
         }
         else {
@@ -1590,7 +1590,7 @@ class TrackService {
     def findTrackFromArray(JSONArray tracksArray, String trackName) {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
-            if (obj.getString("label") == trackName) return obj
+            if (obj.getString(FeatureStringEnum.LABEL.value) == trackName) return obj
         }
 
         return null
@@ -1604,7 +1604,7 @@ class TrackService {
      */
     def findPlugin(JSONArray pluginsArray, String name) {
         for (int i = 0; i < pluginsArray.size(); i++) {
-            if (pluginsArray.getJSONObject(i).get("name") == name) return pluginsArray.get(i)
+            if (pluginsArray.getJSONObject(i).get(FeatureStringEnum.NAME.value) == name) return pluginsArray.get(i)
         }
 
         return null

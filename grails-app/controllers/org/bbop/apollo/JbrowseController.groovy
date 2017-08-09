@@ -690,11 +690,11 @@ class JbrowseController {
         trackObject.include.add("../plugins/WebApollo/json/annot.json")
 
         def pluginKeys = []
-        if (!trackObject.containsKey("plugins")) {
-            trackObject.put("plugins", new JSONArray())
+        if (!trackObject.containsKey(FeatureStringEnum.PLUGINS.value)) {
+            trackObject.put(FeatureStringEnum.PLUGINS.value, new JSONArray())
         } else {
-            if (trackObject.get("plugins") instanceof JSONObject) {
-                JSONObject trackPluginsObject = trackObject.getJSONObject("plugins")
+            if (trackObject.get(FeatureStringEnum.PLUGINS.value) instanceof JSONObject) {
+                JSONObject trackPluginsObject = trackObject.getJSONObject(FeatureStringEnum.PLUGINS.value)
                 JSONArray pluginsArray = new JSONArray()
                 trackPluginsObject.keySet().each { plugin ->
                     JSONObject pluginObject = new JSONObject()
@@ -706,15 +706,16 @@ class JbrowseController {
                     }
                     pluginsArray.add(pluginObject)
                 }
-                trackObject.put("plugins", pluginsArray)
+                trackObject.put(FeatureStringEnum.PLUGINS.value, pluginsArray)
             }
 
-            for (int i = 0; i < trackObject.plugins.size(); i++) {
-                if (trackObject.plugins[i] instanceof JSONObject) {
-                    pluginKeys.add(trackObject.plugins[i].name)
-                } else if (trackObject.plugins[i] instanceof String) {
+            JSONArray pluginsArray = trackObject.getJSONArray(FeatureStringEnum.PLUGINS.value)
+            for (int i = 0; i < pluginsArray.size(); i++) {
+                if (pluginsArray[i] instanceof JSONObject) {
+                    pluginKeys.add(pluginsArray.getJSONObject(i).get(FeatureStringEnum.NAME.value))
+                } else if (pluginsArray[i] instanceof String) {
                     JSONObject pluginObject = new JSONObject()
-                    pluginObject.name = trackObject.plugins[i]
+                    pluginObject.put(FeatureStringEnum.NAME.value, pluginsArray.getString(i))
                     trackObject.plugins[i] = pluginObject
                     pluginKeys.add(pluginObject.name)
                 }
@@ -736,8 +737,8 @@ class JbrowseController {
                 if (!pluginKeys.contains(plugin.key)) {
                     pluginKeys.add(plugin.key)
                     JSONObject pluginObject = new JSONObject()
-                    pluginObject.name = plugin.key
-                    pluginObject.location = "./plugins/${plugin.key}"
+                    pluginObject.put(FeatureStringEnum.NAME.value, plugin.key)
+                    pluginObject.put(FeatureStringEnum.LOCATION.value, "./plugins/${plugin.key}")
                     pluginObject.putAll(plugin.value)
                     trackObject.plugins.add(pluginObject)
                     log.info "Loading plugin: ${pluginObject.name} details: ${pluginObject as JSON}"
