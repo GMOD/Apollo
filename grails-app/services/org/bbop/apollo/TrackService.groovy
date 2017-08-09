@@ -10,6 +10,8 @@ import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import javax.servlet.http.HttpSession
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 @Transactional
 class TrackService {
@@ -20,6 +22,16 @@ class TrackService {
     def permissionService
     def sequenceService
     def assemblageService
+
+    private static final Pattern COMMENT_PATTERN = Pattern.compile("^\\s*#.+")
+    private static final Pattern SECTION_PATTERN = Pattern.compile("^\\s*\\[([^\\]]+)")
+    private static final Pattern NEW_VALUE_PATTERN_1 = Pattern.compile("^([^\\+=]+)(\\+?=)(.*)")
+    private static final Pattern NEW_VALUE_PATTERN_2 = Pattern.compile("^(\\S[^\\+=]+)(\\+?=)(.*)")
+    private static final Pattern EXISTING_ARRAY_VALUE_PATTERN = Pattern.compile("^\\s{0,4}\\+\\s*(.+)")
+    private static final Pattern EXISTING_VALUE_PATTERN = Pattern.compile("^\\s+(\\S.*)")
+
+    private static final Pattern JSON_PATTERN = Pattern.compile("^json:(.+)")
+    private static final Pattern NUMERIC_PATTERN = Pattern.compile("^[\\+\\-]?[\\d\\.,]+([eE][\\-\\+]?\\d+)?\$")
 
     private Map<String, JSONObject> organismMap = [:]
 
@@ -1292,5 +1304,311 @@ class TrackService {
         }
         return organismJBrowseDirectory
     }
+
+    /**
+     *
+     * @param trackObject
+     * @param file
+     * @return
+     */
+    def parseTracksConf(JSONObject trackObject, File file) {
+        ArrayList sectionArray = new ArrayList()
+        ArrayList keypathArray = new ArrayList()
+        String operation, value
+        HashMap confMap = [:]
+
+        file.eachLine { String line ->
+            println "LINE: ${line}"
+            line = line.replaceAll(COMMENT_PATTERN, "")
+            Matcher sectionMatcher = SECTION_PATTERN.matcher(line)
+            Matcher newValueMatcher = value == null ? NEW_VALUE_PATTERN_1.matcher(line) : NEW_VALUE_PATTERN_2.matcher(line)
+            Matcher existingArrayValueMatcher = EXISTING_ARRAY_VALUE_PATTERN.matcher(line)
+            Matcher existingValueMatcher = EXISTING_VALUE_PATTERN.matcher(line)
+
+            if (sectionMatcher.find()) {
+                // new section
+                if (value != null) storeConfigValue(confMap, sectionArray, keypathArray, operation, value)
+                String matchString = sectionMatcher.group()
+                matchString = matchString.replaceAll(" ", "").replaceAll("\\[", "")
+                sectionArray = matchString.split("\\s*\\.\\s*")
+                if (sectionArray.size() == 1 && sectionArray.get(0).toLowerCase() == "general") {
+                    // ignoring 'general' section
+                    sectionArray.clear()
+                }
+            }
+            else if (newValueMatcher.find()) {
+                // new value
+                if (value != null) storeConfigValue(confMap, sectionArray, keypathArray, operation, value)
+                String matchString = newValueMatcher.group(1)
+                keypathArray = matchString.trim().split("\\s*\\.\\s*")
+                operation = newValueMatcher.group(2)
+                value = newValueMatcher.group(3).trim()
+            }
+            else if (value != null && existingArrayValueMatcher.find()) {
+                // add to existing array value
+                if (value != null) storeConfigValue(confMap, sectionArray, keypathArray, operation, value)
+                operation = "+="
+                String valueString = existingArrayValueMatcher.group(1).trim()
+                value = valueString
+            }
+            else if (value != null && existingValueMatcher.find()) {
+                String valueString = existingValueMatcher.group(1).trim()
+                value = value.isEmpty() ? valueString : value + ' ' + valueString
+            }
+            else {
+                // done with last value for a keypath
+                if (value != null) storeConfigValue(confMap, sectionArray, keypathArray, operation, value)
+                keypathArray = null
+                value = null
+            }
+        }
+        // store last value
+        if (value != null) storeConfigValue(confMap, sectionArray, keypathArray, operation, value)
+
+        mergeConfig(trackObject, confMap)
+
+        return trackObject
+
+    }
+
+    /**
+     *
+     * @param confMap
+     * @param sectionArray
+     * @param keypathArray
+     * @param operation
+     * @param value
+     * @return
+     */
+    def storeConfigValue(HashMap confMap, ArrayList sectionArray, ArrayList keypathArray, String operation, String value) {
+        def path = sectionArray + keypathArray
+        String key = path.join(".")
+
+        if (operation == "+=") {
+            def existingValue
+            def existingValueAsArray = []
+            if (confMap.containsKey(key)) existingValue = confMap.get(key)
+            if (existingValue != null) {
+                existingValueAsArray.addAll(existingValue)
+                existingValueAsArray.add(value)
+                confMap.put(key, existingValueAsArray)
+            }
+            else {
+                existingValueAsArray.add(value)
+                confMap.put(key, existingValueAsArray)
+            }
+        }
+        else {
+            confMap.put(key, value)
+        }
+    }
+
+    /**
+     *
+     * @param trackObject
+     * @param confMap
+     * @return
+     */
+    def mergeConfig(JSONObject trackObject, def confMap) {
+
+        confMap.keySet().sort().each { key ->
+            def path = []
+            key.split("\\.").each {
+                path.add(it)
+            }
+
+            def value = parseValueToJSON(confMap.get(key))
+            String section = path.remove(0)
+
+            if (section == FeatureStringEnum.TRACKS.value) {
+                JSONArray tracks = trackObject.getJSONArray(section)
+                String trackName = path.remove(0)
+                JSONObject track = findTrackFromArray(tracks, trackName)
+                if (track == null) {
+                    // track doesn't exist
+                    track = new JSONObject()
+                    track.put(FeatureStringEnum.LABEL.value, trackName)
+                    tracks.add(track)
+                }
+                deepUpdate(track, path, value)
+            }
+            else if (section == FeatureStringEnum.PLUGINS.value) {
+                JSONArray pluginsArray
+                if (trackObject.containsKey(section)) {
+                    pluginsArray = trackObject.get(section)
+                    if (path.size() > 0) {
+                        String pluginName = path.remove(0)
+                        JSONObject pluginObject = findPlugin(pluginsArray, pluginName)
+                        if (pluginObject == null) {
+                            pluginObject = new JSONObject()
+                            pluginObject.put(FeatureStringEnum.NAME.value, pluginName)
+                            pluginsArray.add(pluginObject)
+                        }
+                        deepUpdate(pluginObject, path, value)
+                    }
+                    else {
+                        if (value instanceof JSONArray) {
+                            value.each {
+                                JSONObject pluginObject = new JSONObject()
+                                pluginObject.put(FeatureStringEnum.NAME.value, it)
+                                pluginsArray.add(pluginObject)
+                            }
+                        }
+                        else {
+                            pluginsArray.add(new JSONObject().put(FeatureStringEnum.NAME.value, value))
+                        }
+                    }
+                }
+                else {
+                    pluginsArray = new JSONArray()
+                    if (path.size() > 0) {
+                        String pluginName = path.remove(0)
+                        JSONObject pluginObject = new JSONObject()
+                        if (pluginObject == null) {
+                            pluginObject = new JSONObject()
+                            pluginObject.put(FeatureStringEnum.NAME.value, pluginName)
+                            pluginsArray.add(pluginObject)
+                        }
+                        deepUpdate(pluginObject, path, value)
+                    }
+                    else {
+                        if (value instanceof JSONArray) {
+                            value.each {
+                                JSONObject pluginObject = new JSONObject()
+                                pluginObject.put(FeatureStringEnum.NAME.value, it)
+                                pluginsArray.add(pluginObject)
+                            }
+                        }
+                        else {
+                            pluginsArray.add(new JSONObject().put(FeatureStringEnum.NAME.value, value))
+                        }
+                    }
+                    trackObject.put(section, pluginsArray)
+                }
+            }
+            else {
+                def object
+                if (trackObject.has(section)) {
+                    object = trackObject.getJSONObject(section)
+                }
+                else {
+                    object = new JSONObject()
+                    trackObject.put(section, object)
+                }
+
+                if (path.size() == 1) {
+                    String propertyName = path.remove(0)
+                    if (value instanceof JSONArray) {
+                        object.put(propertyName, new JSONArray(value))
+                    }
+                    else {
+                        object.put(propertyName, value)
+                    }
+                }
+                else {
+                    deepUpdate(object, path, value)
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param jsonObject
+     * @param path
+     * @param value
+     * @return
+     */
+    def deepUpdate(JSONObject jsonObject, ArrayList path, def value) {
+        String property = path.remove(0)
+        if (path.size() == 0) {
+            jsonObject.put(property, value)
+        }
+        else {
+            JSONObject object
+            if (jsonObject.containsKey(property)) {
+                object = jsonObject.getJSONObject(property)
+            }
+            else {
+                object = new JSONObject()
+            }
+            jsonObject.put(property, deepUpdate(object, path, value))
+        }
+        return jsonObject
+    }
+
+    /**
+     *
+     * @param values
+     * @return
+     */
+    def parseValueToJSON(ArrayList values) {
+        JSONArray returnArray = new JSONArray()
+        values.each { value ->
+            returnArray.add(parseValueToJSON(value))
+        }
+        return returnArray
+    }
+
+    /**
+     *
+     * @param value
+     * @return
+     */
+    def parseValueToJSON(String value) {
+        def returnValue
+        Matcher jsonPatternMatcher = JSON_PATTERN.matcher(value)
+        Matcher numericPatternMatcher = NUMERIC_PATTERN.matcher(value)
+
+        if (jsonPatternMatcher.find()) {
+            // parse JSON
+            returnValue = JSON.parse(jsonPatternMatcher.group(1))
+        }
+        else if (numericPatternMatcher.find()) {
+            // parse numbers if it looks numeric
+            returnValue = Float.parseFloat(value.replaceAll(",", ""))
+        }
+        else if (value == Boolean.TRUE.toString()) {
+            returnValue = Boolean.parseBoolean(value)
+        }
+        else if (value == Boolean.FALSE.toString()) {
+            returnValue = Boolean.parseBoolean(value)
+        }
+        else {
+            returnValue = value
+        }
+
+        return returnValue
+    }
+
+    /**
+     *
+     * @param tracksArray
+     * @param trackName
+     * @return
+     */
+    def findTrackFromArray(JSONArray tracksArray, String trackName) {
+        for (int i = 0; i < tracksArray.size(); i++) {
+            JSONObject obj = tracksArray.getJSONObject(i)
+            if (obj.getString(FeatureStringEnum.LABEL.value) == trackName) return obj
+        }
+
+        return null
+    }
+
+    /**
+     *
+     * @param pluginsArray
+     * @param name
+     * @return
+     */
+    def findPlugin(JSONArray pluginsArray, String name) {
+        for (int i = 0; i < pluginsArray.size(); i++) {
+            if (pluginsArray.getJSONObject(i).get(FeatureStringEnum.NAME.value) == name) return pluginsArray.get(i)
+        }
+
+        return null
+    }
+
 
 }
