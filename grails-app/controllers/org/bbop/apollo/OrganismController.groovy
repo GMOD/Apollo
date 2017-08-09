@@ -329,9 +329,9 @@ class OrganismController {
                 //  -F "filecomment=This is an image file" \
                 //  -F "sequenceData=@/home/user1/Desktop/jbrowse/sample/seq.zip" \
                 //  localhost:8080/apollo
-                if (request.getFile("sequenceData)")) {
-
-                }
+//                if (request.getFile("sequenceData)")) {
+//
+//                }
 
                 sequenceService.loadRefSeqs(organism)
                 render findAllOrganisms()

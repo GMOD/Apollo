@@ -206,7 +206,7 @@ class JbrowseController {
 
         // see https://github.com/GMOD/Apollo/issues/1448
         if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
-            log.debug "params.path: ${params.path} directory ${dataDirectory}"
+            println "params.path: ${params.path} directory ${dataDirectory}"
             String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
             dataFileName = newPath
             dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -214,7 +214,7 @@ class JbrowseController {
         }
 
         if (!file.exists()) {
-            log.warn("File not found: " + dataFileName);
+            log.error("File not found: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
