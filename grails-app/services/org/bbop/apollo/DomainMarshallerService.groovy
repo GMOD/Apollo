@@ -2,6 +2,9 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.preference.OrganismDTO
+import org.bbop.apollo.preference.SequenceDTO
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 
 @Transactional
 class DomainMarshallerService {
@@ -27,6 +30,14 @@ class DomainMarshallerService {
             return returnArray
         }
 
+        JSON.registerObjectMarshaller(OrganismDTO) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['commonName'] = it.commonName
+            returnArray['directory'] = it.directory
+            return returnArray
+        }
+
         JSON.registerObjectMarshaller(Sequence) {
             def returnArray = [:]
             returnArray['id'] = it.id
@@ -37,7 +48,27 @@ class DomainMarshallerService {
             return returnArray
         }
 
+        JSON.registerObjectMarshaller(SequenceDTO) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['name'] = it.name
+            returnArray['organism'] = it.organism
+            return returnArray
+        }
+
         JSON.registerObjectMarshaller(UserOrganismPreference) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['organism'] = it.organism
+            returnArray['currentOrganism'] = it.currentOrganism
+            returnArray['nativeTrackList'] = it?.nativeTrackList
+            returnArray['sequence'] = it?.sequence
+            returnArray['startbp'] = it?.startbp
+            returnArray['endbp'] = it?.endbp
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(UserOrganismPreferenceDTO) {
             def returnArray = [:]
             returnArray['id'] = it.id
             returnArray['organism'] = it.organism
