@@ -5,6 +5,9 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.preference.OrganismDTO
+import org.bbop.apollo.preference.SequenceDTO
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.sequence.SequenceLocationDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -244,6 +247,46 @@ class PreferenceService {
                 evaluateSave(it.value, it.key)
             }
         }
+    }
+
+    UserOrganismPreference getPreferenceFromDTO(UserOrganismPreferenceDTO userOrganismPreferenceDTO){
+        Organism organism = Organism.findByCommonName(userOrganismPreferenceDTO.organism.commonName)
+        Sequence sequence = Sequence.findByNameAndOrganism(userOrganismPreferenceDTO.sequence.name,organism)
+        UserOrganismPreference userOrganismPreference = new UserOrganismPreference(
+                organism: organism
+                ,id: userOrganismPreferenceDTO.id // may be null
+                ,sequence: sequence
+                ,currentOrganism: userOrganismPreferenceDTO.currentOrganism
+                ,nativeTrackList: userOrganismPreferenceDTO.nativeTrackList
+                ,startbp: userOrganismPreferenceDTO.startbp
+                ,endbp: userOrganismPreferenceDTO.endbp
+        )
+        return userOrganismPreference
+    }
+
+    UserOrganismPreferenceDTO getDTOFromPreference(UserOrganismPreference userOrganismPreference){
+        Organism organism = userOrganismPreference.organism
+        Sequence sequence = userOrganismPreference.sequence
+        OrganismDTO organismDTO = new OrganismDTO(
+                id: organism.id
+                ,commonName: organism.commonName
+                ,directory: organism.directory
+        )
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                id: sequence.id
+                ,organism: organismDTO
+                ,name: sequence.name
+        )
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = new UserOrganismPreferenceDTO(
+                organism: organismDTO
+                ,sequence: sequenceDTO
+                ,id: userOrganismPreference.id
+                ,currentOrganism: userOrganismPreference.currentOrganism
+                ,nativeTrackList: userOrganismPreference.nativeTrackList
+                ,startbp: userOrganismPreference.startbp
+                ,endbp: userOrganismPreference.endbp
+        )
+        return userOrganismPreferenceDTO
     }
 
 
