@@ -232,6 +232,12 @@ You can view the add_features_from_gff3_to_annotations.pl help (`-h`) option for
 are treated as protein coding annotations and Genes that have transcript as its child feature are treated as non-coding
 annotations, specifically a pseudogene.
 
+**Note:** In order to create meaningful names from your evidence when creating manual annotations, the GFF3 should 
+provide the `Name` attribute in column 9 of the [GFF3 spec](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) as shown in this example:
+
+    NC_000001.11    BestRefSeq      gene    11874   14409   .       +       .       ID=gene1;Name=DDX11L1;Dbxref=GeneID:100287102,HGNC:37102;description=DEAD%2FH %28Asp-Glu-Ala-Asp%2FHis%29 box helicase 11 like 1;gbkey=Gene;gene=DDX11L1;pseudo=true
+
+
 If you would like to look at a compatible representative GFF3, export annotations from Apollo via GFF3 export.
 
 ### Disable draggable

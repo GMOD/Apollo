@@ -54,7 +54,7 @@ class AnnotatorController {
                 clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
             } else {
                 clientToken = ClientTokenGenerator.generateRandomString()
-                println 'generating client token on the backend: ' + clientToken
+                log.debug 'generating client token on the backend: ' + clientToken
             }
             Organism organism
             // check organism first

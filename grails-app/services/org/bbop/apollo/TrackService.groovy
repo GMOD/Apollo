@@ -23,7 +23,7 @@ class TrackService {
 
         File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            println "file does not exist ${trackDataFilePath}"
+            log.error "File does not exist ${trackDataFilePath}"
             return null
         }
         return JSON.parse(file.text) as JSONObject
@@ -54,7 +54,7 @@ class TrackService {
 
         // 1 - extract the appropriate region for fmin / fmax
         JSONArray filteredList = filterList(nclistArray, fmin, fmax)
-        println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
+        log.debug "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
 
         // if the first featured array has a chunk, then we need to evaluate the chunks instead
         if (filteredList) {
@@ -91,7 +91,7 @@ class TrackService {
 
         File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            println "file does not exist ${trackDataFilePath}"
+            log.error "file does not exist ${trackDataFilePath}"
             return null
         }
         return JSON.parse(file.text) as JSONArray

@@ -76,7 +76,7 @@ class PreferenceService {
         log.debug "found organism in session ${organism} so returning"
         if (organism) return organism
         if (permissionService.currentUser == null) {
-            println "no user, so just using client token"
+            log.warn "No user present, so using the client token"
             organism = getOrganismForTokenInDB(clientToken)
             return organism
         } else {
