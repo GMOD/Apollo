@@ -78,7 +78,8 @@
     <table>
         <thead>
         <tr>
-            <g:sortableColumn property="lastUpdated" title="Last updated" params="${filters}"/>
+            <g:sortableColumn property="lastUpdated" title="Last update" params="${filters}"/>
+            <g:sortableColumn property="dateCreated" title="Created" params="${filters}"/>
             <g:sortableColumn property="organism" title="Organism" params="${filters}"/>
             <g:sortableColumn property="sequencename" title="Sequence name" params="${filters}"/>
             <g:sortableColumn property="name" title="Name" params="${filters}"/>
@@ -92,6 +93,10 @@
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
                     <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.lastUpdated}"/>
+                    (v ${feature.version})
+                </td>
+                <td>
+                    <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.dateCreated}"/>
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"

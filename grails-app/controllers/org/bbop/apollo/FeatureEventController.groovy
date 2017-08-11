@@ -110,8 +110,12 @@ class FeatureEventController {
                         }
                     }
                 }
-            } else if (params.sort == "lastUpdated") {
+            }
+            else if (params.sort == "lastUpdated") {
                 order('lastUpdated', params.order)
+            }
+            else if (params.sort == "dateCreated") {
+                order('dateCreated', params.order)
             }
 
             if (params.ownerName && params.ownerName != "null") {
