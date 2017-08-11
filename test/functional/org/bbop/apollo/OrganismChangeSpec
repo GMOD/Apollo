@@ -1,0 +1,24 @@
+package org.bbop.apollo
+
+import geb.spock.GebReportingSpec
+import spock.lang.*
+
+import org.bbop.apollo.pages.*
+
+@Stepwise
+class PersonCRUDSpec extends GebReportingSpec {
+
+    def "there are no people"() {
+        when:
+        to InitPage
+        then:
+        personRows.size() == 0
+    }
+
+    def "add a person"() {
+        when:
+        newPersonButton.click()
+        then:
+        at CreatePage
+    }
+}
