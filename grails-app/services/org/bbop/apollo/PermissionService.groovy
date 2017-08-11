@@ -9,6 +9,7 @@ import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
@@ -317,7 +318,10 @@ class PermissionService {
         organism = getOrganismFromInput(inputObject)
 
         if (!organism) {
-            organism = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+            UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            if(preferenceDTO){
+                organism = Organism.findByCommonName(preferenceDTO.organism.commonName)
+            }
         }
 
         Sequence sequence

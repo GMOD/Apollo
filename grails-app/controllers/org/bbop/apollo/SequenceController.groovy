@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -31,7 +32,7 @@ class SequenceController {
     def setCurrentSequenceLocation(String name,Integer start, Integer end) {
 
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value].toString())
+            UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value].toString())
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }
@@ -74,7 +75,7 @@ class SequenceController {
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+        UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
         println "set current sequence and found: ${userOrganismPreference} start /stop ${userOrganismPreference?.startbp} / ${userOrganismPreference?.endbp}"
 
         Session session = SecurityUtils.subject.getSession(false)

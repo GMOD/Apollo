@@ -34,11 +34,12 @@ class PreferenceService {
     }
 
 
-    UserOrganismPreference getSessionPreference(String clientToken) {
+    UserOrganismPreferenceDTO getSessionPreference(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
         if (preferenceObject) {
             def preferenceId = preferenceObject.id as Long
-            return UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
+            UserOrganismPreference userOrganismPreference = UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
+            return userOrganismPreference ? getDTOFromPreference(userOrganismPreference) : null
         }
         return null
     }
@@ -60,7 +61,7 @@ class PreferenceService {
         return null
     }
 
-    UserOrganismPreference setSessionPreference(String clientToken, UserOrganismPreference userOrganismPreference) {
+    UserOrganismPreferenceDTO setSessionPreference(String clientToken, UserOrganismPreferenceDTO userOrganismPreference) {
         Session session = SecurityUtils.subject.getSession(false)
         if (session) {
             // should be client_token , JSONObject
@@ -83,8 +84,9 @@ class PreferenceService {
             organism = getOrganismForTokenInDB(clientToken)
             return organism
         } else {
-            UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)
-            return setSessionPreference(clientToken, userOrganismPreference)?.organism
+            UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)
+            OrganismDTO organismDTO = setSessionPreference(clientToken, userOrganismPreference)?.organism
+            return Organism.findByCommonName(organismDTO.commonName)
         }
     }
 
@@ -109,12 +111,12 @@ class PreferenceService {
     }
 
 
-    UserOrganismPreference setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
-        userOrganismPreference.organism = organism
+    UserOrganismPreferenceDTO setCurrentOrganism(User user, Organism organism, String clientToken) {
+        UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
+        OrganismDTO organismDTO = getDTOFromOrganism(organism)
+        userOrganismPreference.organism = organismDTO
         setSessionPreference(clientToken, userOrganismPreference)
-//        storePreferenceInDB(userOrganismPreference)
-        return setCurrentOrganismInDB(user, organism, clientToken)
+        return getDTOFromPreference(setCurrentOrganismInDB(user, organism, clientToken))
     }
 
     UserOrganismPreference setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
@@ -159,16 +161,16 @@ class PreferenceService {
         return affected
     }
 
-    UserOrganismPreference setCurrentSequence(User user, Sequence sequence, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, sequence.name, clientToken)  ?: null
+    UserOrganismPreferenceDTO setCurrentSequence(User user, Sequence sequence, String clientToken) {
+        UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(user, sequence.name, clientToken)  ?: null
         println "found an organism for name ${userOrganismPreference} . . start /end ${userOrganismPreference?.startbp} - ${userOrganismPreference?.endbp} "
         if(!userOrganismPreference){
             userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
-            userOrganismPreference.sequence = sequence
+            SequenceDTO sequenceDTO = getDTOFromSequence(sequence)
+            userOrganismPreference.sequence = sequenceDTO
         }
         setSessionPreference(clientToken, userOrganismPreference)
-//        storePreferenceInDB(userOrganismPreference)
-        return setCurrentSequenceInDB(user, sequence, clientToken)
+        return getDTOFromPreference(setCurrentSequenceInDB(user, sequence, clientToken))
     }
 
     UserOrganismPreference setCurrentSequenceInDB(User user, Sequence sequence, String clientToken) {
@@ -198,11 +200,12 @@ class PreferenceService {
         return userOrganismPreference
     }
 
-    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
-        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
-        if (userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence.organismId != userOrganismPreference.organismId) {
-            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
-            userOrganismPreference.sequence = sequence
+    UserOrganismPreferenceDTO setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
+        UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
+        if (userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence?.organism?.id != userOrganismPreference.organism.id) {
+            Organism organism = Organism.findByCommonName(userOrganismPreference.organism.commonName)
+            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+            userOrganismPreference.sequence = getDTOFromSequence(sequence)
         }
         userOrganismPreference.startbp = startBp
         userOrganismPreference.endbp = endBp
@@ -300,21 +303,33 @@ class PreferenceService {
         return userOrganismPreference
     }
 
-    UserOrganismPreferenceDTO getDTOFromPreference(UserOrganismPreference userOrganismPreference){
-        Organism organism = userOrganismPreference.organism
-        Sequence sequence = userOrganismPreference.sequence
+    SequenceDTO getDTOFromSequence(Sequence sequence) {
+        OrganismDTO organismDTO = getDTOFromOrganism(sequence.organism)
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                id: sequence.id
+                ,organism: organismDTO
+                ,name: sequence.name
+                ,start: sequence.start
+                ,end: sequence.end
+                ,length: sequence.length
+        )
+        return sequenceDTO
+    }
+
+    OrganismDTO getDTOFromOrganism(Organism organism) {
         OrganismDTO organismDTO = new OrganismDTO(
                 id: organism.id
                 ,commonName: organism.commonName
                 ,directory: organism.directory
         )
-        SequenceDTO sequenceDTO = new SequenceDTO(
-                id: sequence.id
-                ,organism: organismDTO
-                ,name: sequence.name
-        )
+        return organismDTO
+    }
+
+    UserOrganismPreferenceDTO getDTOFromPreference(UserOrganismPreference userOrganismPreference){
+        Sequence sequence = userOrganismPreference.sequence
+        SequenceDTO sequenceDTO = getDTOFromSequence(sequence)
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = new UserOrganismPreferenceDTO(
-                organism: organismDTO
+                organism: sequenceDTO.organism
                 ,sequence: sequenceDTO
                 ,id: userOrganismPreference.id
                 ,currentOrganism: userOrganismPreference.currentOrganism
@@ -335,11 +350,12 @@ class PreferenceService {
         Integer startBp = sequenceLocationDTO.startBp
         Integer endBp = sequenceLocationDTO.endBp
 
-        Organism currentOrganism = getCurrentOrganismPreference(currentUser, sequenceName, clientToken)?.organism
+        OrganismDTO currentOrganism = getCurrentOrganismPreference(currentUser, sequenceName, clientToken)?.organism
         if (!currentOrganism) {
             throw new AnnotationException("Organism preference is not set for user")
         }
-        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, currentOrganism)
+        Organism organism = Organism.findByCommonName(currentOrganism.commonName)
+        Sequence sequence = Sequence.findByNameAndOrganism(sequenceName,organism)
         if (!sequence) {
             throw new AnnotationException("Sequence name is invalid ${sequenceName}")
         }
@@ -351,7 +367,7 @@ class PreferenceService {
                 eq("user", currentUser)
                 eq("clientToken", clientToken)
                 eq("sequence.name", sequenceName)
-                eq("organism", currentOrganism)
+                eq("organism", organism)
             }
         }
         if (userOrganismPreferences.size() > 1) {
@@ -364,7 +380,7 @@ class PreferenceService {
                     user: currentUser
                     , currentOrganism: true
                     , sequence: sequence
-                    , organism: currentOrganism
+                    , organism: organism
                     , clientToken: clientToken
             ).save(insert: true)
         }
@@ -393,10 +409,10 @@ class PreferenceService {
         userOrganismPreference.save(flush: true, insert: false)
     }
 
-    UserOrganismPreference getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
-        UserOrganismPreference preference = getSessionPreference(clientToken)
-        println "found in-memory preference: ${preference}"
-        return preference ?: getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken)
+    UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
+        UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
+        println "found in-memory preference: ${preference ? preference as JSON : null}"
+        return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
     }
 
     UserOrganismPreference getCurrentOrganismPreferenceInDB(User user, String sequenceName, String clientToken) {

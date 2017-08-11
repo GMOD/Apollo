@@ -53,6 +53,9 @@ class DomainMarshallerService {
             returnArray['id'] = it.id
             returnArray['name'] = it.name
             returnArray['organism'] = it.organism
+            returnArray['length'] = it?.length
+            returnArray['start'] = it?.start
+            returnArray['end'] = it.end
             return returnArray
         }
 
