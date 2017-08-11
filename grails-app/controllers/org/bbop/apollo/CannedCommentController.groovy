@@ -102,7 +102,6 @@ class CannedCommentController {
             respond cannedCommentInstance.errors, view: 'edit'
             return
         }
-        println "pre-save update ${params}"
 
         cannedCommentInstance.save()
 

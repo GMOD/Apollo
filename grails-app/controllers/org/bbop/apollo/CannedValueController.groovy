@@ -67,9 +67,7 @@ class CannedValueController {
         }
 
         params?.organisms.each {
-            println "it ${it}"
             Organism organism = Organism.findById(it)
-            println "organism ${organism}"
             new CannedValueOrganismFilter(
                     organism: organism,
                     cannedValue: cannedValueInstance
@@ -112,9 +110,7 @@ class CannedValueController {
         }
 
         params?.organisms.each {
-            println "it2: ${it}"
             Organism organism = Organism.findById(it)
-            println "organism ${organism}"
             new CannedValueOrganismFilter(
                     organism: organism,
                     cannedValue: cannedValueInstance
