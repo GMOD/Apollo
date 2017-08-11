@@ -9,7 +9,7 @@ class LoginDialogPage extends ScaffoldPage{
     static at = { title.startsWith 'Annotator' }
 
     static content = {
-        login {  $('#loginDialogId') }
+        loginDialog {  $('#loginDialogId') }
     }
 
 //    static content = {

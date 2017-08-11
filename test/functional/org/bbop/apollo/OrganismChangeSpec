@@ -6,19 +6,24 @@ import spock.lang.*
 import org.bbop.apollo.pages.*
 
 @Stepwise
-class PersonCRUDSpec extends GebReportingSpec {
+class LoginSpec extends GebReportingSpec {
 
-    def "there are no people"() {
+    String username = "demo@demo.com"
+    String password = "demo"
+
+    def "login"() {
         when:
-        to InitPage
+        to LoginDialogPage
         then:
-        personRows.size() == 0
+        LoginDialogPage.loginDialog
+
+        when:
+        $("#login-form input[name=username]").value(username)
+        $("#login-form input[name=password]").value(password)
+
+        then:
+        "Dashboard".equals($(".page-header").text())
+//        LoginDialog.
     }
 
-    def "add a person"() {
-        when:
-        newPersonButton.click()
-        then:
-        at CreatePage
-    }
 }
