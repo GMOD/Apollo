@@ -11,8 +11,11 @@ class UserOrganismPreferenceDTO {
     Boolean currentOrganism  // this means the "active" client token
     Boolean nativeTrackList
     SequenceDTO sequence
+    UserDTO user
     Integer startbp
     Integer endbp
+    String clientToken
+
 
     boolean equals(o) {
         if (this.is(o)) return true
@@ -23,6 +26,7 @@ class UserOrganismPreferenceDTO {
         if (id != that.id) return false
         if (organism != that.organism) return false
         if (sequence != that.sequence) return false
+        if (user != that.user) return false
 
         return true
     }
@@ -32,6 +36,7 @@ class UserOrganismPreferenceDTO {
         result = organism.hashCode()
         result = 31 * result + sequence.hashCode()
         result = 31 * result + id.hashCode()
+        result = 31 * result + user.hashCode()
         return result
     }
 }

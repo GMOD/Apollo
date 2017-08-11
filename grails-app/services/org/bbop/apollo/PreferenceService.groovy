@@ -7,6 +7,7 @@ import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.preference.OrganismDTO
 import org.bbop.apollo.preference.SequenceDTO
+import org.bbop.apollo.preference.UserDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.sequence.SequenceLocationDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -112,36 +113,55 @@ class PreferenceService {
 
 
     UserOrganismPreferenceDTO setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(user, null, clientToken)
+        if(userOrganismPreferenceDTO.organism.commonName == organism.commonName){
+            log.info "Same organism so not changing preference"
+            return userOrganismPreferenceDTO
+        }
+        // we have to go to the database to see if there was a prior sequence
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user,organism,true,[sort: "lastUpdated", order: "desc"])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user,organism,[sort: "lastUpdated", order: "desc"])
+        SequenceDTO sequenceDTO = getDTOFromSequence(userOrganismPreference?.sequence ? userOrganismPreference.sequence : organism.sequences.first())
         OrganismDTO organismDTO = getDTOFromOrganism(organism)
-        userOrganismPreference.organism = organismDTO
-        setSessionPreference(clientToken, userOrganismPreference)
-        return getDTOFromPreference(setCurrentOrganismInDB(user, organism, clientToken))
+        userOrganismPreferenceDTO.organism = organismDTO
+        userOrganismPreferenceDTO.sequence = sequenceDTO
+
+        setSessionPreference(clientToken, userOrganismPreferenceDTO)
+        setCurrentOrganismInDB(userOrganismPreferenceDTO)
+        return userOrganismPreferenceDTO
     }
 
-    UserOrganismPreference setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
-        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(user, organism, clientToken, [sort: "lastUpdated", order: "desc"])
+    UserOrganismPreference setCurrentOrganismInDB(UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
+//        UserOrganismPreference setCurrentOrganismInDB(User user, Organism organism, String clientToken) {
+        UserOrganismPreference userOrganismPreference = getPreferenceFromDTO(userOrganismPreferenceDTO)
+        // if the preference already exists
+        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(userOrganismPreference.user, userOrganismPreference.organism, userOrganismPreference.clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first())
         }
-
-        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
-        if (!userOrganismPreference) {
-            userOrganismPreference = new UserOrganismPreference(
-                    user: user
-                    , organism: organism
-                    , currentOrganism: true
-                    , sequence: Sequence.findByOrganism(organism)
-                    , clientToken: clientToken
-            ).save(flush: true, insert: true)
-        } else if (!userOrganismPreference.currentOrganism) {
-            userOrganismPreference.currentOrganism = true;
-            userOrganismPreference.save(flush: true, insert: false)
-        }
-        int affected = setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
+//
+//        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+//        if (!userOrganismPreference) {
+//            userOrganismPreference = new UserOrganismPreference(
+//                    user: userOrganismPreference.user
+//                    , organism: u
+//                    , currentOrganism: true
+//                    , sequence: Sequence.findByOrganism(organism)
+//                    , clientToken: clientToken
+//            ).save(flush: true, insert: true)
+//        } else if (!userOrganismPreference.currentOrganism) {
+//            userOrganismPreference.currentOrganism = true;
+//            userOrganismPreference.save(flush: true, insert: false)
+//        }
+        int affected = setOtherCurrentOrganismsFalseInDB(userOrganismPreference,userOrganismPreference.user,userOrganismPreference.clientToken)
         println "others set to false: ${affected}"
         return userOrganismPreference
+    }
+
+    protected static
+    def setOtherCurrentOrganismsFalseInDB(UserOrganismPreference userOrganismPreference) {
+        return setOtherCurrentOrganismsFalseInDB(userOrganismPreference,userOrganismPreference.user,userOrganismPreference.clientToken)
     }
 
     protected static
@@ -291,14 +311,17 @@ class PreferenceService {
     UserOrganismPreference getPreferenceFromDTO(UserOrganismPreferenceDTO userOrganismPreferenceDTO){
         Organism organism = Organism.findByCommonName(userOrganismPreferenceDTO.organism.commonName)
         Sequence sequence = Sequence.findByNameAndOrganism(userOrganismPreferenceDTO.sequence.name,organism)
+        User user = User.findByUsername(userOrganismPreferenceDTO.user.username)
         UserOrganismPreference userOrganismPreference = new UserOrganismPreference(
                 organism: organism
                 ,id: userOrganismPreferenceDTO.id // may be null
+                ,user: user
                 ,sequence: sequence
                 ,currentOrganism: userOrganismPreferenceDTO.currentOrganism
                 ,nativeTrackList: userOrganismPreferenceDTO.nativeTrackList
                 ,startbp: userOrganismPreferenceDTO.startbp
                 ,endbp: userOrganismPreferenceDTO.endbp
+                ,clientToken: userOrganismPreferenceDTO.clientToken
         )
         return userOrganismPreference
     }
@@ -325,17 +348,28 @@ class PreferenceService {
         return organismDTO
     }
 
+    UserDTO getDTOFromUser(User user) {
+        UserDTO userDTO = new UserDTO(
+                id: user.id
+                ,username: user.username
+        )
+        return userDTO
+    }
+
     UserOrganismPreferenceDTO getDTOFromPreference(UserOrganismPreference userOrganismPreference){
         Sequence sequence = userOrganismPreference.sequence
         SequenceDTO sequenceDTO = getDTOFromSequence(sequence)
+        UserDTO userDTO = getDTOFromUser(userOrganismPreference.user)
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = new UserOrganismPreferenceDTO(
                 organism: sequenceDTO.organism
                 ,sequence: sequenceDTO
                 ,id: userOrganismPreference.id
+                ,user: userDTO
                 ,currentOrganism: userOrganismPreference.currentOrganism
                 ,nativeTrackList: userOrganismPreference.nativeTrackList
                 ,startbp: userOrganismPreference.startbp
                 ,endbp: userOrganismPreference.endbp
+                ,clientToken: userOrganismPreference.clientToken
         )
         return userOrganismPreferenceDTO
     }
