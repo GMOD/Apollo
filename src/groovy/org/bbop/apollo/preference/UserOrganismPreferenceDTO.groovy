@@ -23,20 +23,21 @@ class UserOrganismPreferenceDTO {
 
         UserOrganismPreferenceDTO that = (UserOrganismPreferenceDTO) o
 
-        if (id != that.id) return false
-        if (organism != that.organism) return false
-        if (sequence != that.sequence) return false
-        if (user != that.user) return false
+//        if (id != that.id) return false
+//        if (organism != that.organism) return false
+//        if (sequence != that.sequence) return false
+//        if (user != that.user) return false
+        if (clientToken != that.clientToken) return false
 
         return true
     }
 
     int hashCode() {
-        int result
-        result = organism.hashCode()
-        result = 31 * result + sequence.hashCode()
-        result = 31 * result + id.hashCode()
-        result = 31 * result + user.hashCode()
+        int result = clientToken.hashCode()
+//        result = organism.hashCode()
+//        result = 31 * result + sequence.hashCode()
+//        result = 31 * result + id.hashCode()
+//        result = 31 * result + user.hashCode()
         return result
     }
 }

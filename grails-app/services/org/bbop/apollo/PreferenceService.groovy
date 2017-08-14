@@ -19,7 +19,7 @@ class PreferenceService {
 
     final Integer PREFERENCE_SAVE_DELAY_SECONDS = 30  // saves every 30 seconds
     // enqueue to store save
-    private Map<SequenceLocationDTO, Date> saveSequenceLocationMap = [:]
+    private Map<UserOrganismPreferenceDTO, Date> saveSequenceLocationMap = [:]
     // set of client locations
     private Set<String> currentlySavingLocation = new HashSet<>()
     private Date lastSaveEvaluation = new Date()
@@ -37,13 +37,15 @@ class PreferenceService {
 
     UserOrganismPreferenceDTO getSessionPreference(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
-        if (preferenceObject) {
-            UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOPreferenceFromObject(preferenceObject)
-//            def preferenceId = preferenceObject.id as Long
-//            UserOrganismPreference userOrganismPreference = UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
-//            return userOrganismPreference ? getDTOFromPreference(userOrganismPreference) : null
-        }
-        return null
+        return preferenceObject ? getDTOPreferenceFromObject(preferenceObject) : null
+//        if (preferenceObject) {
+//            UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOPreferenceFromObject(preferenceObject)
+//            return userOrganismPreferenceDTO
+////            def preferenceId = preferenceObject.id as Long
+////            UserOrganismPreference userOrganismPreference = UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
+////            return userOrganismPreference ? getDTOFromPreference(userOrganismPreference) : null
+//        }
+//        return null
     }
 
     UserOrganismPreferenceDTO getDTOPreferenceFromObject(JSONObject userOrganismPreferenceObject) {
@@ -95,12 +97,20 @@ class PreferenceService {
         return organismDTO
     }
 
+    def printKeys(Session thisSession){
+        def keys = thisSession.getAttributeKeys()
+        keys.each {
+            println "key[${it}] value[${thisSession.getAttribute(it)}]"
+        }
+    }
+
     JSONObject getSessionPreferenceObject(String clientToken) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
                 // should be client_token , JSONObject
-                def keys = session.getAttributeKeys()
+                printKeys(session)
+
                 String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
                 if (!preferenceString) return null
                 return JSON.parse(preferenceString) as JSONObject
@@ -113,16 +123,16 @@ class PreferenceService {
         return null
     }
 
-    UserOrganismPreferenceDTO setSessionPreference(String clientToken, UserOrganismPreferenceDTO userOrganismPreference) {
+    UserOrganismPreferenceDTO setSessionPreference(String clientToken, UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
         Session session = SecurityUtils.subject.getSession(false)
         if (session) {
             // should be client_token , JSONObject
-            String preferenceString = (userOrganismPreference as JSON).toString()
+            String preferenceString = (userOrganismPreferenceDTO as JSON).toString()
             session.setAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken, preferenceString)
         } else {
             log.warn "No session found"
         }
-        return userOrganismPreference
+        return userOrganismPreferenceDTO
     }
 
 
@@ -340,7 +350,7 @@ class PreferenceService {
                     , clientToken: clientToken
             ).save(flush: true, insert: true)
         } else if (!userOrganismPreference.currentOrganism) {
-            userOrganismPreference.currentOrganism = true;
+            userOrganismPreference.currentOrganism = true
             userOrganismPreference.sequence = sequence
             userOrganismPreference.save(flush: true, insert: false)
         }
@@ -360,13 +370,13 @@ class PreferenceService {
         userOrganismPreferenceDTO.currentOrganism = true
         setSessionPreference(clientToken, userOrganismPreferenceDTO)
 
-        SequenceLocationDTO sequenceLocationDTO = new SequenceLocationDTO(
-                sequenceName: sequenceName,
-                startBp: startBp,
-                endBp: endBp,
-                clientToken: clientToken
-        )
-        scheduleSaveSequenceLocationInDB(sequenceLocationDTO)
+//        SequenceLocationDTO sequenceLocationDTO = new SequenceLocationDTO(
+//                sequenceName: sequenceName,
+//                startBp: startBp,
+//                endBp: endBp,
+//                clientToken: clientToken
+//        )
+        scheduleSaveSequenceLocationInDB(userOrganismPreferenceDTO)
 
         return userOrganismPreferenceDTO
     }
@@ -386,46 +396,46 @@ class PreferenceService {
 
     }
 
-    def evaluateSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
+    def evaluateSave(Date date, UserOrganismPreferenceDTO preferenceDTO) {
         try {
-            currentlySavingLocation.add(sequenceLocationDTO.clientToken)
+            currentlySavingLocation.add(preferenceDTO.clientToken)
             Date now = new Date()
-            println "trying to save it ${sequenceLocationDTO.clientToken}"
+            println "trying to save it ${preferenceDTO.clientToken}"
             def timeDiff = (now.getTime() - date.getTime()) / 1000
             if (timeDiff > PREFERENCE_SAVE_DELAY_SECONDS) {
-                println "saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
-                setCurrentSequenceLocationInDB(sequenceLocationDTO)
+                println "saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
+                setCurrentSequenceLocationInDB(preferenceDTO)
             } else {
-                println "not saving ${sequenceLocationDTO.clientToken} location to the database time: ${timeDiff}"
+                println "not saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
             }
         } catch (e) {
             log.error "Problem saving ${e}"
         } finally {
-            currentlySavingLocation.remove(sequenceLocationDTO.clientToken)
+            currentlySavingLocation.remove(preferenceDTO.clientToken)
         }
     }
 
-    def scheduleDbSave(Date date, SequenceLocationDTO sequenceLocationDTO) {
+    def scheduleDbSave(Date date, UserOrganismPreferenceDTO preferenceDTO) {
         // these should replace, though
-        if (!currentlySavingLocation.contains(sequenceLocationDTO.clientToken)) {
+        if (!currentlySavingLocation.contains(preferenceDTO.clientToken)) {
             // saves with the latest one now
-            currentlySavingLocation.add(sequenceLocationDTO.clientToken)
+            currentlySavingLocation.add(preferenceDTO.clientToken)
         }
-        saveSequenceLocationMap.put(sequenceLocationDTO, date)
+        saveSequenceLocationMap.put(preferenceDTO, date)
     }
 
-    def scheduleSaveSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
-        Date date = saveSequenceLocationMap.get(sequenceLocationDTO)
+    def scheduleSaveSequenceLocationInDB(UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
+        Date date = saveSequenceLocationMap.get(userOrganismPreferenceDTO)
         println "date: ${date}"
         if (!date) {
-            println "no last save found so saving ${sequenceLocationDTO.clientToken} location to the database"
-            setCurrentSequenceLocationInDB(sequenceLocationDTO)
+            println "no last save found so saving ${userOrganismPreferenceDTO.clientToken} location to the database"
+            setCurrentSequenceLocationInDB(userOrganismPreferenceDTO)
         } else {
             println "evaludate save : ${date}"
-            scheduleDbSave(date, sequenceLocationDTO)
+            scheduleDbSave(date, userOrganismPreferenceDTO)
         }
-        saveSequenceLocationMap.put(sequenceLocationDTO, new Date())
-        saveOutstandingLocationPreferences(sequenceLocationDTO.clientToken)
+        saveSequenceLocationMap.put(userOrganismPreferenceDTO, new Date())
+        saveOutstandingLocationPreferences(userOrganismPreferenceDTO.clientToken)
     }
 
     def saveOutstandingLocationPreferences(String ignoreToken = "") {
@@ -502,14 +512,14 @@ class PreferenceService {
     }
 
 
-    UserOrganismPreference setCurrentSequenceLocationInDB(SequenceLocationDTO sequenceLocationDTO) {
+    UserOrganismPreference setCurrentSequenceLocationInDB(UserOrganismPreferenceDTO preferenceDTO) {
         println "saving location in DB"
         saveSequenceLocationMap.remove(saveSequenceLocationMap)
         User currentUser = permissionService.currentUser
-        String sequenceName = sequenceLocationDTO.sequenceName
-        String clientToken = sequenceLocationDTO.clientToken
-        Integer startBp = sequenceLocationDTO.startBp
-        Integer endBp = sequenceLocationDTO.endBp
+        String sequenceName = preferenceDTO.sequence.name
+        String clientToken = preferenceDTO.clientToken
+        Integer startBp = preferenceDTO.startbp
+        Integer endBp = preferenceDTO.endbp
 
         OrganismDTO currentOrganism = getCurrentOrganismPreference(currentUser, sequenceName, clientToken)?.organism
         if (!currentOrganism) {

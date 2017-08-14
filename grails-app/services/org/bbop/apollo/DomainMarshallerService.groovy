@@ -80,6 +80,7 @@ class DomainMarshallerService {
             returnArray['sequence'] = it?.sequence
             returnArray['startbp'] = it?.startbp
             returnArray['endbp'] = it?.endbp
+            returnArray['clientToken'] = it?.clientToken
             return returnArray
         }
     }
