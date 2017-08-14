@@ -38,11 +38,61 @@ class PreferenceService {
     UserOrganismPreferenceDTO getSessionPreference(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
         if (preferenceObject) {
-            def preferenceId = preferenceObject.id as Long
-            UserOrganismPreference userOrganismPreference = UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
-            return userOrganismPreference ? getDTOFromPreference(userOrganismPreference) : null
+            UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOPreferenceFromObject(preferenceObject)
+//            def preferenceId = preferenceObject.id as Long
+//            UserOrganismPreference userOrganismPreference = UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
+//            return userOrganismPreference ? getDTOFromPreference(userOrganismPreference) : null
         }
         return null
+    }
+
+    UserOrganismPreferenceDTO getDTOPreferenceFromObject(JSONObject userOrganismPreferenceObject) {
+        SequenceDTO sequenceDTO = getDTOSequenceFromObject(userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.SEQUENCE.value))
+        User user = permissionService.currentUser
+        UserDTO userDTO = getDTOFromUser(user)
+//        UserDTO userDTO = getDTOUserFromObject(userOrganismPreferenceObject.getJSONObject("user"))
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = new UserOrganismPreferenceDTO(
+                organism: sequenceDTO.organism
+                , sequence: sequenceDTO
+                , id: userOrganismPreferenceObject.id
+                , user: userDTO
+                , currentOrganism: userOrganismPreferenceObject.currentOrganism
+                , nativeTrackList: userOrganismPreferenceObject.nativeTrackList
+                , startbp: userOrganismPreferenceObject.startbp
+                , endbp: userOrganismPreferenceObject.endbp
+                , clientToken: userOrganismPreferenceObject.clientToken
+        )
+        return userOrganismPreferenceDTO
+    }
+
+    UserDTO getDTOUserFromObject(JSONObject user) {
+        UserDTO userDTO = new UserDTO(
+                id: user.id
+                , username: user.username
+        )
+        return userDTO
+    }
+
+    SequenceDTO getDTOSequenceFromObject(JSONObject sequence) {
+        OrganismDTO organismDTO = getDTOFromOrganismFromObject(sequence.getJSONObject(FeatureStringEnum.ORGANISM.value))
+        SequenceDTO sequenceDTO = new SequenceDTO(
+                id: sequence.id
+                , organism: organismDTO
+                , name: sequence.name
+                , start: sequence.start
+                , end: sequence.end
+                , length: sequence.length
+        )
+        return sequenceDTO
+    }
+
+    OrganismDTO getDTOFromOrganismFromObject(JSONObject organism) {
+        OrganismDTO organismDTO = new OrganismDTO(
+                id: organism.id
+                , commonName: organism.commonName
+                , directory: organism.directory
+        )
+        return organismDTO
     }
 
     JSONObject getSessionPreferenceObject(String clientToken) {
@@ -122,10 +172,26 @@ class PreferenceService {
         // we have to go to the database to see if there was a prior sequence
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc"])
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc"])
-        SequenceDTO sequenceDTO = getDTOFromSequence(userOrganismPreference?.sequence ? userOrganismPreference.sequence : organism.sequences.first())
-        OrganismDTO organismDTO = getDTOFromOrganism(organism)
-        userOrganismPreferenceDTO.organism = organismDTO
-        userOrganismPreferenceDTO.sequence = sequenceDTO
+        if(!userOrganismPreference){
+            // then create one
+            userOrganismPreference = new UserOrganismPreference(
+                    user: user
+                    ,organism: organism
+                    ,clientToken: clientToken
+                    ,sequence: organism.sequences.first()
+                    ,currentOrganism: true
+            )
+        }
+        else{
+            userOrganismPreference.currentOrganism = true
+        }
+        userOrganismPreference.save(flush: true)
+
+        userOrganismPreferenceDTO = getDTOFromPreference(userOrganismPreference)
+//        SequenceDTO sequenceDTO = getDTOFromSequence(userOrganismPreference?.sequence ? userOrganismPreference.sequence : organism.sequences.first())
+//        OrganismDTO organismDTO = getDTOFromOrganism(organism)
+//        userOrganismPreferenceDTO.organism = organismDTO
+//        userOrganismPreferenceDTO.sequence = sequenceDTO
 
         setSessionPreference(clientToken, userOrganismPreferenceDTO)
         setCurrentOrganismInDB(userOrganismPreferenceDTO)
