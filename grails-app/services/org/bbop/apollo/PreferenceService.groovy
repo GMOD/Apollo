@@ -349,16 +349,16 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
-        if (userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence?.organism?.id != userOrganismPreference.organism.id) {
-            Organism organism = Organism.findById(userOrganismPreference.organism.id)
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
+        if (userOrganismPreferenceDTO.sequence.name != sequenceName || userOrganismPreferenceDTO.sequence?.organism?.id != userOrganismPreferenceDTO.organism.id) {
+            Organism organism = Organism.findById(userOrganismPreferenceDTO.organism.id)
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
-            userOrganismPreference.sequence = getDTOFromSequence(sequence)
+            userOrganismPreferenceDTO.sequence = getDTOFromSequence(sequence)
         }
-        userOrganismPreference.startbp = startBp
-        userOrganismPreference.endbp = endBp
-        userOrganismPreference.currentOrganism = true
-        setSessionPreference(clientToken, userOrganismPreference)
+        userOrganismPreferenceDTO.startbp = startBp
+        userOrganismPreferenceDTO.endbp = endBp
+        userOrganismPreferenceDTO.currentOrganism = true
+        setSessionPreference(clientToken, userOrganismPreferenceDTO)
 
         SequenceLocationDTO sequenceLocationDTO = new SequenceLocationDTO(
                 sequenceName: sequenceName,
@@ -368,7 +368,7 @@ class PreferenceService {
         )
         scheduleSaveSequenceLocationInDB(sequenceLocationDTO)
 
-        return userOrganismPreference
+        return userOrganismPreferenceDTO
     }
 
     def evaluateSaves(boolean forceSaves = false) {
