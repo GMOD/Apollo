@@ -409,7 +409,7 @@ class PreferenceService {
                 println "not saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
             }
         } catch (e) {
-            log.error "Problem saving ${e}"
+            log.error "Problem saving ${e} for ${preferenceDTO as JSON}"
         } finally {
             currentlySavingLocation.remove(preferenceDTO.clientToken)
         }
@@ -524,6 +524,11 @@ class PreferenceService {
     UserOrganismPreference setCurrentSequenceLocationInDB(UserOrganismPreferenceDTO preferenceDTO) {
         println "saving location in DB: ${preferenceDTO as JSON}"
         saveSequenceLocationMap.remove(preferenceDTO)
+
+        preferenceDTO = getSessionPreference(preferenceDTO.clientToken) ?: preferenceDTO
+        println "a more recent preference? : ${preferenceDTO as JSON}"
+
+
         User currentUser = permissionService.currentUser
         String sequenceName = preferenceDTO.sequence.name
         String clientToken = preferenceDTO.clientToken
