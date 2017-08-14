@@ -146,7 +146,7 @@ class PermissionService {
 
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism, user)
         if (!userOrganismPermission) {
-            userOrganismPermission = new UserOrganismPermission(
+            new UserOrganismPermission(
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , user: user
@@ -163,7 +163,7 @@ class PermissionService {
 
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism, group)
         if (!groupOrganismPermission) {
-            groupOrganismPermission = new GroupOrganismPermission(
+            new GroupOrganismPermission(
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , group: group
@@ -175,7 +175,7 @@ class PermissionService {
         }
     }
 
-    private String generatePermissionString(List<PermissionEnum> permissionEnums) {
+    private static String generatePermissionString(List<PermissionEnum> permissionEnums) {
         JSONArray jsonArray = new JSONArray()
         for (PermissionEnum permissionEnum in permissionEnums) {
             jsonArray.add(permissionEnum.name())
@@ -251,7 +251,7 @@ class PermissionService {
         return []
     }
 
-    public static String getSequenceNameFromInput(JSONObject inputObject) {
+    static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
         if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
             trackName = inputObject.sequence
@@ -264,7 +264,7 @@ class PermissionService {
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
-        String username
+        String username = null
         if (inputObject?.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
         }
@@ -272,7 +272,7 @@ class PermissionService {
             username = SecurityUtils.subject.principal
         }
         if (!username) {
-            return null;
+            return null
         }
 
         User user = User.findByUsername(username)
@@ -291,7 +291,7 @@ class PermissionService {
                 return organism
             }
             if (!organism) {
-                organism = Organism.findById(organismString as Long);
+                organism = Organism.findById(organismString as Long)
             }
             if (organism) {
                 log.debug "return organism ${organism} by ID ${organismString}"
@@ -320,7 +320,7 @@ class PermissionService {
         if (!organism) {
             UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             if(preferenceDTO){
-                organism = Organism.findByCommonName(preferenceDTO.organism.commonName)
+                organism = Organism.findById(preferenceDTO.organism.id)
             }
         }
 
@@ -355,7 +355,7 @@ class PermissionService {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
-                Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+                Map<String, Integer> permissions = (Map<String,Integer>) session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue())
                 if (permissions) {
                     Integer permission = permissions.get(SecurityUtils.subject.principal)
                     PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
@@ -423,8 +423,9 @@ class PermissionService {
             }
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
-                Subject subject = SecurityUtils.getSubject();
-                session = subject.getSession(true);
+                Subject subject = SecurityUtils.getSubject()
+                subject.getSession(true)
+//                session = subject.getSession(true)
 
                 subject.login(authToken)
                 if (!subject.authenticated) {
@@ -564,7 +565,7 @@ class PermissionService {
                     def req = request.JSON
                     def authToken = usernamePasswordToken ?: null
                     if (!authToken && req.username) {
-                        authToken = new UsernamePasswordToken(req.username, req.password)
+                        authToken = new UsernamePasswordToken(req.username as String, req.password as String)
                     }
                     if (authenticationService.authenticate(authToken, request)) {
                         log.info "Authenticated user ${authToken.username} using ${auth.name}"

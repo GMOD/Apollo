@@ -50,6 +50,7 @@ class PreferenceService {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
                 // should be client_token , JSONObject
+                def keys = session.getAttributeKeys()
                 String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
                 if (!preferenceString) return null
                 return JSON.parse(preferenceString) as JSONObject
