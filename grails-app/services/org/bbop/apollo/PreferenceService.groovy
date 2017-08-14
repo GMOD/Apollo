@@ -415,6 +415,13 @@ class PreferenceService {
         }
     }
 
+    def printSaves(){
+        println "# of entries ${saveSequenceLocationMap.size()}"
+        saveSequenceLocationMap.each {
+            println "JSON: ["+(it.key as JSON)+ "] date[" + it.value+"]"
+        }
+    }
+
     def scheduleDbSave(Date date, UserOrganismPreferenceDTO preferenceDTO) {
         // these should replace, though
         if (!currentlySavingLocation.contains(preferenceDTO.clientToken)) {
@@ -422,6 +429,8 @@ class PreferenceService {
             currentlySavingLocation.add(preferenceDTO.clientToken)
         }
         saveSequenceLocationMap.put(preferenceDTO, date)
+
+        printSaves()
     }
 
     def scheduleSaveSequenceLocationInDB(UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
@@ -513,7 +522,7 @@ class PreferenceService {
 
 
     UserOrganismPreference setCurrentSequenceLocationInDB(UserOrganismPreferenceDTO preferenceDTO) {
-        println "saving location in DB"
+        println "saving location in DB: ${preferenceDTO as JSON}"
         saveSequenceLocationMap.remove(preferenceDTO)
         User currentUser = permissionService.currentUser
         String sequenceName = preferenceDTO.sequence.name
@@ -547,6 +556,7 @@ class PreferenceService {
         }
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
+            println "creating a new prference"
             userOrganismPreference = new UserOrganismPreference(
                     user: currentUser
                     , currentOrganism: true
@@ -555,10 +565,13 @@ class PreferenceService {
                     , clientToken: clientToken
             ).save(insert: true)
         }
+        println "init save ${userOrganismPreference as JSON}"
 
         log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
 
         userOrganismPreference.refresh()
+
+        println "refresh save ${userOrganismPreference as JSON}"
 
         userOrganismPreference.clientToken = clientToken
         userOrganismPreference.currentOrganism = true
@@ -578,6 +591,7 @@ class PreferenceService {
         }
 
         userOrganismPreference.save(flush: true, insert: false)
+        println "final save ${userOrganismPreference as JSON}"
     }
 
     UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
