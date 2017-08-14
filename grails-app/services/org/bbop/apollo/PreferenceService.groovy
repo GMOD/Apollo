@@ -514,7 +514,7 @@ class PreferenceService {
 
     UserOrganismPreference setCurrentSequenceLocationInDB(UserOrganismPreferenceDTO preferenceDTO) {
         println "saving location in DB"
-        saveSequenceLocationMap.remove(saveSequenceLocationMap)
+        saveSequenceLocationMap.remove(preferenceDTO)
         User currentUser = permissionService.currentUser
         String sequenceName = preferenceDTO.sequence.name
         String clientToken = preferenceDTO.clientToken
@@ -649,7 +649,7 @@ class PreferenceService {
             Sequence sequence = sequenceName ? Sequence.findByName(sequenceName) : null
             Set<Organism> organisms = permissionService.getOrganisms(user)
 //            Organism organism = sequence ? sequence.organism : organisms?.first()
-            Organism organism
+            Organism organism = null
             if (sequence) {
                 organism = sequence.organism
             }
