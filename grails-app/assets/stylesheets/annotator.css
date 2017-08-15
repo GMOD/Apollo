@@ -129,21 +129,3 @@ h1 {
     font-size: medium;
 }
 
-.track-link {
-    display: inline !important;
-    cursor: pointer;
-    font-size: small;
-    margin-left: 5px;
-    padding-left: 5px;
-}
-
-.track-link:hover {
-    display: inline !important;
-    color: blue;
-    text-decoration: underline;
-}
-
-.track-slider {
-    margin-right: 5px;
-    padding-right: 5px;
-}
