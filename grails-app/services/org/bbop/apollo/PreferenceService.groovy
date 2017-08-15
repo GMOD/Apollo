@@ -100,9 +100,7 @@ class PreferenceService {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
-                // should be client_token , JSONObject
-                printKeys(session)
-
+//                printKeys(session)
                 String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
                 if (!preferenceString) return null
                 return JSON.parse(preferenceString) as JSONObject
@@ -242,22 +240,8 @@ class PreferenceService {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
             setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first())
         }
-//
-//        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
-//        if (!userOrganismPreference) {
-//            userOrganismPreference = new UserOrganismPreference(
-//                    user: userOrganismPreference.user
-//                    , organism: u
-//                    , currentOrganism: true
-//                    , sequence: Sequence.findByOrganism(organism)
-//                    , clientToken: clientToken
-//            ).save(flush: true, insert: true)
-//        } else if (!userOrganismPreference.currentOrganism) {
-//            userOrganismPreference.currentOrganism = true;
-//            userOrganismPreference.save(flush: true, insert: false)
-//        }
         int affected = setOtherCurrentOrganismsFalseInDB(organismPreference, organismPreference.user, organismPreference.clientToken)
-        println "others set to false: ${affected}"
+        log.debug( )"others set to false: ${affected}"
         return organismPreference
     }
 
@@ -311,15 +295,8 @@ class PreferenceService {
 
         userOrganismPreferenceDTO = getDTOFromPreference(userOrganismPreference)
 
-//        println "found an organism for name ${userOrganismPreferenceDTO} . . start /end ${userOrganismPreferenceDTO?.startbp} - ${userOrganismPreferenceDTO?.endbp} "
-//        if (!userOrganismPreferenceDTO) {
-//            userOrganismPreferenceDTO = getCurrentOrganismPreference(user, null, clientToken)
-//            SequenceDTO sequenceDTO = getDTOFromSequence(sequence)
-//            userOrganismPreferenceDTO.sequence = sequenceDTO
-//        }
         setSessionPreference(clientToken, userOrganismPreferenceDTO)
         setCurrentSequenceInDB(user, sequence, clientToken)
-//        return getDTOFromPreference(setCurrentSequenceInDB(user, sequence, clientToken))
         return userOrganismPreferenceDTO
     }
 
@@ -362,25 +339,19 @@ class PreferenceService {
         userOrganismPreferenceDTO.currentOrganism = true
         setSessionPreference(clientToken, userOrganismPreferenceDTO)
 
-//        SequenceLocationDTO sequenceLocationDTO = new SequenceLocationDTO(
-//                sequenceName: sequenceName,
-//                startBp: startBp,
-//                endBp: endBp,
-//                clientToken: clientToken
-//        )
         scheduleSaveSequenceLocationInDB(userOrganismPreferenceDTO)
 
         return userOrganismPreferenceDTO
     }
 
     def evaluateSaves(boolean forceSaves = false) {
-        println "evaluating saves: ${forceSaves}"
+        log.debug "Evaluating saves: ${forceSaves}"
         long timeDiff = (new Date()).getTime() - lastSaveEvaluation.getTime()
         if (!forceSaves && timeDiff / 1000.0 < PREFERENCE_SAVE_DELAY_SECONDS) {
-            println "not yet: ${timeDiff}"
+            log.debug "Not saving yet timeDif: ${timeDiff}"
             return
         }
-        println "saving this! : ${timeDiff}"
+        log.debug "Saving with time diff: ${timeDiff}"
         lastSaveEvaluation = new Date()
         saveSequenceLocationMap.each {
             evaluateSave(it.value, it.key)
@@ -392,13 +363,13 @@ class PreferenceService {
         try {
             currentlySavingLocation.add(preferenceDTO.clientToken)
             Date now = new Date()
-            println "trying to save it ${preferenceDTO.clientToken}"
+            log.debug "trying to save it ${preferenceDTO.clientToken}"
             def timeDiff = (now.getTime() - date.getTime()) / 1000
             if (timeDiff > PREFERENCE_SAVE_DELAY_SECONDS) {
-                println "saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
+                log.debug "saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
                 setCurrentSequenceLocationInDB(preferenceDTO)
             } else {
-                println "not saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
+                log.debug "not saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
             }
         } catch (e) {
             log.error "Problem saving ${e} for ${preferenceDTO as JSON}"
@@ -407,7 +378,7 @@ class PreferenceService {
         }
     }
 
-    def printSaves(){
+    private def printSaves(){
         println "# of entries ${saveSequenceLocationMap.size()}"
         saveSequenceLocationMap.each {
             println "JSON: ["+(it.key as JSON)+ "] date[" + it.value+"]"
@@ -421,18 +392,17 @@ class PreferenceService {
             currentlySavingLocation.add(preferenceDTO.clientToken)
         }
         saveSequenceLocationMap.put(preferenceDTO, date)
-
-        printSaves()
+//        printSaves()
     }
 
     def scheduleSaveSequenceLocationInDB(UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
         Date date = saveSequenceLocationMap.get(userOrganismPreferenceDTO)
-        println "date: ${date}"
+        log.debug "Scheduling save date: ${date}"
         if (!date) {
-            println "no last save found so saving ${userOrganismPreferenceDTO.clientToken} location to the database"
+            log.debug "No last save found so saving ${userOrganismPreferenceDTO.clientToken} location to the database."
             setCurrentSequenceLocationInDB(userOrganismPreferenceDTO)
         } else {
-            println "evaludate save : ${date}"
+            log.debug "Evaluate save for date: ${date}"
             scheduleDbSave(date, userOrganismPreferenceDTO)
         }
         saveSequenceLocationMap.put(userOrganismPreferenceDTO, new Date())
@@ -514,11 +484,10 @@ class PreferenceService {
 
 
     UserOrganismPreference setCurrentSequenceLocationInDB(UserOrganismPreferenceDTO preferenceDTO) {
-        println "saving location in DB: ${preferenceDTO as JSON}"
+        log.debug "Saving location in DB: ${preferenceDTO as JSON}"
         saveSequenceLocationMap.remove(preferenceDTO)
 
         preferenceDTO = getSessionPreference(preferenceDTO.clientToken) ?: preferenceDTO
-        println "a more recent preference? : ${preferenceDTO as JSON}"
 
 
         User currentUser = permissionService.currentUser
@@ -537,7 +506,6 @@ class PreferenceService {
             throw new AnnotationException("Sequence name is invalid ${sequenceName} and organism ${organism as JSON}")
         }
 
-//        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[sort: "lastUpdated", order: "desc"])
         def userOrganismPreferences = UserOrganismPreference.createCriteria().list {
             createAlias('sequence', 'sequence', org.hibernate.criterion.CriteriaSpecification.LEFT_JOIN)
             and {
@@ -553,7 +521,7 @@ class PreferenceService {
         }
         UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
         if (!userOrganismPreference) {
-            println "creating a new prference"
+            log.debug "Creating a new PReference"
             userOrganismPreference = new UserOrganismPreference(
                     user: currentUser
                     , currentOrganism: true
@@ -562,13 +530,13 @@ class PreferenceService {
                     , clientToken: clientToken
             ).save(insert: true)
         }
-        println "init save ${userOrganismPreference as JSON}"
+        log.debug "init save ${userOrganismPreference as JSON}"
 
         log.debug "version ${userOrganismPreference.version} for ${userOrganismPreference.organism.commonName} ${userOrganismPreference.currentOrganism}"
 
         userOrganismPreference.refresh()
 
-        println "refresh save ${userOrganismPreference as JSON}"
+        log.debug "refresh save ${userOrganismPreference as JSON}"
 
         userOrganismPreference.clientToken = clientToken
         userOrganismPreference.currentOrganism = true
@@ -588,12 +556,12 @@ class PreferenceService {
         }
 
         userOrganismPreference.save(flush: true, insert: false)
-        println "final save ${userOrganismPreference as JSON}"
+        log.debug "final save ${userOrganismPreference as JSON}"
     }
 
     UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
         UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
-        println "found in-memory preference: ${preference ? preference as JSON : null}"
+        log.debug "found in-memory preference: ${preference ? preference as JSON : null}"
         return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
     }
 
