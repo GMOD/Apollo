@@ -241,7 +241,7 @@ class PreferenceService {
             setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first())
         }
         int affected = setOtherCurrentOrganismsFalseInDB(organismPreference, organismPreference.user, organismPreference.clientToken)
-        log.debug( )"others set to false: ${affected}"
+        log.debug  "others set to false: ${affected}"
         return organismPreference
     }
 
