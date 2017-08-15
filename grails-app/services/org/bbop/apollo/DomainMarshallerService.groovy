@@ -81,6 +81,7 @@ class DomainMarshallerService {
             returnArray['startbp'] = it?.startbp
             returnArray['endbp'] = it?.endbp
             returnArray['clientToken'] = it?.clientToken
+            returnArray['user'] = it?.user
             return returnArray
         }
     }
