@@ -464,7 +464,12 @@ class UserController {
 
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
 
-        Organism organism = Organism.findByCommonName(dataObject.organism)
+        log.debug "Finding organism by ${dataObject.organism}"
+        Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
+        if (!organism) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism"] as JSON)
+            return
+        }
         log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {
             userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
@@ -474,7 +479,7 @@ class UserController {
             log.debug "creating new permissions! "
             userOrganismPermission = new UserOrganismPermission(
                     user: user
-                    , organism: Organism.findByCommonName(dataObject.organism)
+                    , organism: organism
                     , permissions: "[]"
             ).save(insert: true)
             log.debug "created new permissions! "
