@@ -50,6 +50,9 @@
             </div>
         </div>
         <div class="row col-sm-12">
+            <div class="col-sm-1">
+                <strong>Last Updated</strong>
+            </div>
             <div class="col-sm-4  form-group">
                 After:
                 <g:datePicker name="afterDate" value="${afterDate}" precision="day" relativeYears="[-20..20]"/>
