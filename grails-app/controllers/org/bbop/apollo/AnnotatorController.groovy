@@ -494,9 +494,8 @@ class AnnotatorController {
     }
 
     def ping() {
-        println "evaluating ssaves: ping"
+        log.debug "Ping: Evaluating Saves"
         preferenceService.evaluateSaves()
-        println "DONE evaluating ssaves: ping"
         if (permissionService.checkPermissions(PermissionEnum.READ)) {
             log.debug("permissions checked and alive")
             render new JSONObject() as JSON

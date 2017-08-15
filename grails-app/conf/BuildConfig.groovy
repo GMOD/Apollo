@@ -6,7 +6,6 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.8
 grails.project.source.level = 1.8
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-//def gebVersion = '1.1.1'
 def gebVersion = '1.0'
 def seleniumVersion = "2.51.0"
 
@@ -86,13 +85,13 @@ grails.project.dependency.resolution = {
         test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
         runtime 'org.grails:grails-datastore-gorm:3.1.5.RELEASE'
 
-        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
-        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-
+//        test "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
+//        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+//
+////        test "org.gebish:geb-spock:$gebVersion"
 //        test "org.gebish:geb-spock:$gebVersion"
-        test "org.gebish:geb-spock:$gebVersion"
         //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 
         // for coveralls
@@ -150,13 +149,11 @@ grails.project.dependency.resolution = {
         compile "org.grails.plugins:quartz2:2.1.6.2"
 
 
-        compile "org.grails.plugins:geb:$gebVersion"
-
         //compile ":joda-time:1.4"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
-        test "org.grails.plugins:geb:$gebVersion"
-//        test'com.github.detro:phantomjsdriver:1.2.0'
+//        test "org.grails.plugins:geb:$gebVersion"
+//        test 'com.github.detro:phantomjsdriver:1.2.0'
 
 
 //        grails.plugin.location.'chado-grails' = "../chado-grails"
@@ -164,7 +161,6 @@ grails.project.dependency.resolution = {
 //        runtime ":chado:0.1"
 //        compile ":test-plugin:0.1"
 //        compile ":chado-plugin:0.1"
-//        compile 'org.grails.plugins:geb:1.1.1'
 
         // remember to sync rest
         runtime ":rest-client-builder:2.1.1"

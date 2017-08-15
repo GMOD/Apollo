@@ -53,7 +53,6 @@ class SequenceController {
     def setCurrentSequenceForNameAndOrganism(Organism organism) {
         JSONObject inputObject = permissionService.handleInput(request,params)
         Sequence sequence = Sequence.findByNameAndOrganism(inputObject.sequenceName,organism)
-        println "found a sequence ${sequence}"
         setCurrentSequence(sequence)
     }
 
