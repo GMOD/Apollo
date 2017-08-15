@@ -83,7 +83,7 @@ class IOServiceController extends AbstractApolloController {
             String format = dataObject.format
             String region = dataObject.region
             def sequences = dataObject.sequences // can be array or string
-            Organism organism = dataObject.organism ? Organism.findByCommonName(dataObject.organism) : preferenceService.getCurrentOrganismForCurrentUser(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            Organism organism = dataObject.organism ? preferenceService.getOrganismForTokenInDB(dataObject.organism) : preferenceService.getCurrentOrganismForCurrentUser(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
 
             def st = System.currentTimeMillis()

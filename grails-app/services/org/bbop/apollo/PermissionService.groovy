@@ -285,20 +285,7 @@ class PermissionService {
 
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
-            Organism organism = Organism.findByCommonNameIlike(organismString)
-            if (organism) {
-                log.debug "return organism ${organism} by name ${organismString}"
-                return organism
-            }
-            if (!organism) {
-                organism = Organism.findById(organismString as Long)
-            }
-            if (organism) {
-                log.debug "return organism ${organism} by ID ${organismString}"
-                return organism
-            } else {
-                log.info "organism not found ${organismString}"
-            }
+            return preferenceService.getOrganismForTokenInDB(organismString)
         }
         return null
     }
@@ -479,9 +466,6 @@ class PermissionService {
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
         Organism organism = getOrganismFromInput(jsonObject)
-        if (clientToken == FeatureStringEnum.IGNORE.value) {
-            organism = getOrganismFromInput(jsonObject)
-        }
 
         organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
         // don't set the preferences if it is coming off a script
