@@ -17,7 +17,7 @@ class PreferenceService {
 
     def permissionService
 
-    final Integer PREFERENCE_SAVE_DELAY_SECONDS = 30  // saves every 30 seconds
+    final Integer PREFERENCE_SAVE_DELAY_SECONDS = 5  // saves every 30 seconds
     // enqueue to store save
     private Map<UserOrganismPreferenceDTO, Date> saveSequenceLocationMap = [:]
     // set of client locations
@@ -38,14 +38,6 @@ class PreferenceService {
     UserOrganismPreferenceDTO getSessionPreference(String clientToken) {
         JSONObject preferenceObject = getSessionPreferenceObject(clientToken)
         return preferenceObject ? getDTOPreferenceFromObject(preferenceObject) : null
-//        if (preferenceObject) {
-//            UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOPreferenceFromObject(preferenceObject)
-//            return userOrganismPreferenceDTO
-////            def preferenceId = preferenceObject.id as Long
-////            UserOrganismPreference userOrganismPreference = UserOrganismPreference.get(preferenceId) ?: UserOrganismPreference.findById(preferenceId)
-////            return userOrganismPreference ? getDTOFromPreference(userOrganismPreference) : null
-//        }
-//        return null
     }
 
     UserOrganismPreferenceDTO getDTOPreferenceFromObject(JSONObject userOrganismPreferenceObject) {
@@ -542,7 +534,7 @@ class PreferenceService {
         Organism organism = Organism.findById(currentOrganism.id)
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
         if (!sequence) {
-            throw new AnnotationException("Sequence name is invalid ${sequenceName}")
+            throw new AnnotationException("Sequence name is invalid ${sequenceName} and organism ${organism as JSON}")
         }
 
 //        def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(currentUser, true, clientToken,[sort: "lastUpdated", order: "desc"])
