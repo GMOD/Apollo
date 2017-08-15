@@ -50,7 +50,7 @@
             </div>
         </div>
         <div class="row col-sm-12">
-            <div class="col-sm-1">
+            <div class="col-sm-2">
                 <strong>Last Updated</strong>
             </div>
             <div class="col-sm-4  form-group">
@@ -60,6 +60,19 @@
             <div class="col-sm-4  form-group">
                 Before:
                 <g:datePicker name="beforeDate" value="${beforeDate}" precision="day" relativeYears="[-20..20]"/>
+            </div>
+        </div>
+        <div class="row col-sm-12">
+            <div class="col-sm-2">
+                <strong>Date Created</strong>
+            </div>
+            <div class="col-sm-4  form-group">
+                After:
+                <g:datePicker name="dateCreatedAfterDate" value="${dateCreatedAfterDate}" precision="day" relativeYears="[-20..20]"/>
+            </div>
+            <div class="col-sm-4  form-group">
+                Before:
+                <g:datePicker name="dateCreatedBeforeDate" value="${dateCreatedBeforeDate}" precision="day" relativeYears="[-20..20]"/>
             </div>
         </div>
 
