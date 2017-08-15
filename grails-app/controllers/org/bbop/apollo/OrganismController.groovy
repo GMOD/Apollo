@@ -44,11 +44,8 @@ class OrganismController {
             log.debug "deleteOrganism ${organismJson}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
 
-                log.debug "organism ID: ${organismJson.id}"
-                Organism organism = Organism.findById(organismJson.id as Long)
-                if (!organism) {
-                    organism = Organism.findByCommonName(organismJson.organism)
-                }
+                log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
+                Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
                 if (organism) {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
