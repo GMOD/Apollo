@@ -462,13 +462,17 @@ class UserController {
         }
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
-        User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
+        User user = dataObject.userId ? User.findById(dataObject.userId as Long) : User.findByUsername(dataObject.user)
 
         log.debug "Finding organism by ${dataObject.organism}"
         Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
         if (!organism) {
-            render([(FeatureStringEnum.ERROR.value): "Failed to find organism"] as JSON)
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism with ${dataObject.organism}"] as JSON)
             return
+        }
+        if(!user){
+            log.error("Failed to find user with ${dataObject.userId} OR ${dataObject.user}")
+            render([(FeatureStringEnum.ERROR.value): "Failed to find user with ${dataObject.userId} OR ${dataObject.user}"] as JSON)
         }
         log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {

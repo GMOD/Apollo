@@ -263,20 +263,20 @@ class GroupController {
 
         UserGroup group
         if (dataObject.groupId) {
-            group = UserGroup.findById(dataObject.groupId)
+            group = UserGroup.findById(dataObject.groupId as Long)
         }
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
         if (!group) {
-            render([(FeatureStringEnum.ERROR.value): "Failed to find group"] as JSON)
+            render([(FeatureStringEnum.ERROR.value): "Failed to find group for ${dataObject.name} and ${dataObject.groupId}"] as JSON)
             return
         }
 
         log.debug "Finding organism by ${dataObject.organism}"
         Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
         if (!organism) {
-            render([(FeatureStringEnum.ERROR.value): "Failed to find organism"] as JSON)
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism for ${dataObject.organism}"] as JSON)
             return
         }
 
