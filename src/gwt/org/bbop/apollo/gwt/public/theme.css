@@ -48,3 +48,12 @@
     padding-top: 1px !important;
     padding-bottom: 5px !important;
 }
+.track-header {
+    display: inline;
+    cursor: pointer;
+    font-size: medium;
+}
+
+.text-left {
+    text-align: left !important;
+}

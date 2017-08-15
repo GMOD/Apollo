@@ -210,7 +210,6 @@ public class TrackPanel extends Composite {
             InputGroup inputGroup = new InputGroup();
             addStyleName("track-entry");
 
-
             final CheckBoxButton selected = new CheckBoxButton();
             selected.setValue(trackInfo.getVisible());
 
@@ -219,6 +218,7 @@ public class TrackPanel extends Composite {
             inputGroup.add(inputGroupButton);
 
             InputGroupAddon label = new InputGroupAddon();
+            label.addStyleName("text-left");
             label.setText(trackInfo.getName());
             inputGroup.add(label);
 
