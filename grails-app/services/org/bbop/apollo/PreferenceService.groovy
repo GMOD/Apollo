@@ -351,7 +351,7 @@ class PreferenceService {
             println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
             println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
             println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
-            evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key)
+            evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key,forceSaves)
         }
 //        saveSequenceLocationMap.each {
 //            evaluateSave(it.value, it.key)
@@ -359,13 +359,13 @@ class PreferenceService {
 
     }
 
-    def evaluateSave(Date date, UserOrganismPreferenceDTO preferenceDTO) {
+    def evaluateSave(Date date, UserOrganismPreferenceDTO preferenceDTO,Boolean forceSave) {
         try {
             currentlySavingLocation.add(preferenceDTO.clientToken)
             Date now = new Date()
             log.debug "trying to save it ${preferenceDTO.clientToken}"
             def timeDiff = (now.getTime() - date.getTime()) / 1000
-            if (timeDiff > PREFERENCE_SAVE_DELAY_SECONDS) {
+            if (forceSave || timeDiff > PREFERENCE_SAVE_DELAY_SECONDS) {
                 log.debug "saving ${preferenceDTO.clientToken} location to the database time: ${timeDiff}"
                 setCurrentSequenceLocationInDB(preferenceDTO)
             } else {

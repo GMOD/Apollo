@@ -156,6 +156,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we set the location on organism 1 flush preference"
         userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism1.name, 300, 400, token)
+        preferenceService.evaluateSaves(true)
+        def allPrefs = UserOrganismPreference.all
 
 
         then: "we verify that it has been flushed"
@@ -167,6 +169,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we go back to organism 2"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token)
+        preferenceService.evaluateSaves(true)
 
 
         then: "we verify that the location / sequence is as we set it for organism 2"
@@ -177,6 +180,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we go back to organism 1"
+        allPrefs = UserOrganismPreference.all
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, token)
         preferenceService.evaluateSaves(true)
 
