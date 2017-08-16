@@ -9,7 +9,6 @@ import org.bbop.apollo.preference.OrganismDTO
 import org.bbop.apollo.preference.SequenceDTO
 import org.bbop.apollo.preference.UserDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
-import org.bbop.apollo.sequence.SequenceLocationDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
@@ -87,18 +86,20 @@ class PreferenceService {
         return organismDTO
     }
 
-    def printKeys(Session thisSession){
+    def printKeys(Session thisSession) {
+        println "==== START KEYS ===="
         def keys = thisSession.getAttributeKeys()
         keys.each {
             println "key[${it}] value[${thisSession.getAttribute(it)}]"
         }
+        println "==== END KEYS ===="
     }
 
     JSONObject getSessionPreferenceObject(String clientToken) {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
-//                printKeys(session)
+                printKeys(session)
                 String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
                 if (!preferenceString) return null
                 return JSON.parse(preferenceString) as JSONObject
@@ -167,6 +168,7 @@ class PreferenceService {
             log.info "Same organism so not changing preference"
             return userOrganismPreferenceDTO
         }
+        evaluateSaves(true, clientToken)
         // we have to go to the database to see if there was a prior sequence
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc"])
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc"])
@@ -235,7 +237,7 @@ class PreferenceService {
             setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first())
         }
         int affected = setOtherCurrentOrganismsFalseInDB(organismPreference, organismPreference.user, organismPreference.clientToken)
-        log.debug  "others set to false: ${affected}"
+        log.debug "others set to false: ${affected}"
         return organismPreference
     }
 
@@ -268,6 +270,7 @@ class PreferenceService {
             return userOrganismPreferenceDTO
         }
 
+        evaluateSaves(true,clientToken)
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndSequenceAndCurrentOrganism(user, sequence, true, [sort: "lastUpdated", order: "desc"])
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndSequence(user, sequence, [sort: "lastUpdated", order: "desc"])
 
@@ -338,7 +341,7 @@ class PreferenceService {
         return userOrganismPreferenceDTO
     }
 
-    def evaluateSaves(boolean forceSaves = false) {
+    def evaluateSaves(boolean forceSaves = false, String onlySaveToken = null) {
         log.debug "Evaluating saves: ${forceSaves}"
         long timeDiff = (new Date()).getTime() - lastSaveEvaluation.getTime()
         if (!forceSaves && timeDiff / 1000.0 < PREFERENCE_SAVE_DELAY_SECONDS) {
@@ -347,11 +350,16 @@ class PreferenceService {
         }
         log.debug "Saving with time diff: ${timeDiff}"
         lastSaveEvaluation = new Date()
-        for(Map.Entry<UserOrganismPreferenceDTO,Date> userOrganismPreferenceDTOEntry in saveSequenceLocationMap.entrySet()){
+        for (Map.Entry<UserOrganismPreferenceDTO, Date> userOrganismPreferenceDTOEntry in saveSequenceLocationMap.entrySet()) {
             println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
             println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
             println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
-            evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key,forceSaves)
+            if(onlySaveToken && onlySaveToken==userOrganismPreferenceDTOEntry.key.clientToken){
+                evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
+            }
+            else{
+                evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
+            }
         }
 //        saveSequenceLocationMap.each {
 //            evaluateSave(it.value, it.key)
@@ -359,7 +367,7 @@ class PreferenceService {
 
     }
 
-    def evaluateSave(Date date, UserOrganismPreferenceDTO preferenceDTO,Boolean forceSave) {
+    def evaluateSave(Date date, UserOrganismPreferenceDTO preferenceDTO, Boolean forceSave) {
         try {
             currentlySavingLocation.add(preferenceDTO.clientToken)
             Date now = new Date()
@@ -378,10 +386,10 @@ class PreferenceService {
         }
     }
 
-    private def printSaves(){
+    private def printSaves() {
         println "# of entries ${saveSequenceLocationMap.size()}"
         saveSequenceLocationMap.each {
-            println "JSON: ["+(it.key as JSON)+ "] date[" + it.value+"]"
+            println "JSON: [" + (it.key as JSON) + "] date[" + it.value + "]"
         }
     }
 
@@ -561,13 +569,13 @@ class PreferenceService {
 
     UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
         UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
-        preference = preference ?: getSavingPreferences(user,sequenceName,clientToken)
+        preference = preference ?: getSavingPreferences(user, sequenceName, clientToken)
         log.debug "found in-memory preference: ${preference ? preference as JSON : null}"
         return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
     }
 
     def getSavingPreferences(User user, String sequenceName, String clientToken) {
-        return saveSequenceLocationMap.keySet().find(){
+        return saveSequenceLocationMap.keySet().find() {
             it.clientToken == clientToken && it.user.username == user.username && it.sequence.name == sequenceName
         }
     }
