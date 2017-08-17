@@ -17,6 +17,7 @@ class Organism {
         metadata nullable: true
         commonName nullable: false
         nonDefaultTranslationTable nullable: true,blank: false
+        addedViaWebServices nullable: true
     }
 
     String abbreviation;
@@ -29,8 +30,8 @@ class Organism {
     String blatdb;
     String directory
     String nonDefaultTranslationTable
-
     String metadata
+    Boolean addedViaWebServices
 
     static hasMany = [
             organismProperties: OrganismProperty

@@ -26,7 +26,7 @@ class JbrowseController {
     def preferenceService
     def jbrowseService
     def servletContext
-
+    def configWrapperService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -213,12 +213,26 @@ class JbrowseController {
             file = new File(dataFileName)
         }
 
+        // TODO: Experimental
         if (!file.exists()) {
-            log.error("File not found: " + dataFileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
+            Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName)
 
+            if (extendedOrganismDataDirectory.exists()) {
+                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                String newPath = extendedOrganismDataDirectory.getAbsolutePath() + File.separator + params.path
+                dataFileName = newPath
+                dataFileName += params.fileType ? ".${params.fileType}" : ""
+                file = new File(dataFileName)
+                log.debug"data file name: ${dataFileName}"
+            }
+
+            if (!file.exists()) {
+                log.error("File not found: " + dataFileName)
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                return
+            }
+        }
 
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -380,6 +394,7 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
@@ -446,6 +461,18 @@ class JbrowseController {
             }
         }
 
+        // TODO: experimental
+        // add extendedTrackList.json, if available
+        if (!currentOrganism.addedViaWebServices) {
+            println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName + File.separator + "extendedTrackList.json"}"
+            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName + File.separator + "extendedTrackList.json")
+            if (file.exists()) {
+                log.debug "augmenting track JSON Object with extendedTrackList.json contents"
+                JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
+                jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
+            }
+        }
+
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
     }
@@ -498,10 +525,24 @@ class JbrowseController {
         }
         File file = new File(servletContext.getRealPath(dataFileName))
 
+        // TODO: Experimental
         if (!file.exists()) {
-            log.warn("File not found: " + dataFileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName)
+            if (extendedOrganismDataDirectory.exists()) {
+                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                String newPath = extendedOrganismDataDirectory.getAbsolutePath() + File.separator + params.path
+                dataFileName = newPath
+                dataFileName += params.fileType ? ".${params.fileType}" : ""
+                file = new File(dataFileName)
+                log.debug"data file name: ${dataFileName}"
+            }
+
+            if (!file.exists()) {
+                log.error("File not found: " + dataFileName)
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                return
+            }
         }
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -534,4 +575,5 @@ class JbrowseController {
         inputStream.close();
         out.close();
     }
+
 }
