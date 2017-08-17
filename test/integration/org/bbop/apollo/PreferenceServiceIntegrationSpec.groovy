@@ -644,7 +644,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we add a feature on organism 2"
         String featureString = "{${testCredentials} \"track\":\"chrI\",\"features\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"YAL019W\",\"children\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
-        requestHandlingService.addFeature(JSON.parse(featureString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(featureString) as JSONObject)
 
         then: "we verify it made it"
         assert Gene.count==1
@@ -661,7 +661,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "when we add a feature onto organism 1"
         String featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
-        requestHandlingService.addFeature(JSON.parse(featureString2) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
 
         then: "we verify that we added one here"
