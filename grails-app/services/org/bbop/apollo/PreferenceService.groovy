@@ -415,7 +415,7 @@ class PreferenceService {
     }
 
     UserOrganismPreference getCurrentOrganismPreferenceInDB(String token) {
-        getCurrentOrganismPreferenceInDB(permissionService.getCurrentUser(), null, token)
+        getCurrentOrganismPreferenceInDB(permissionService.currentUser, null, token)
     }
 
     /**
