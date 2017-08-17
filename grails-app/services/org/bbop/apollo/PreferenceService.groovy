@@ -174,7 +174,7 @@ class PreferenceService {
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             // then create one
-            Sequence sequence = organism.sequences.first()
+            Sequence sequence = organism.sequences.sort(){ a,b -> a.name <=> b.name }.first()
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
@@ -657,7 +657,7 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            sequence = sequence ?: organism.sequences?.first()
+            sequence = sequence ?: Sequence.findAllByOrganism(organism,[sort:"name",order:"asc",max: 1]).first()
             UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism

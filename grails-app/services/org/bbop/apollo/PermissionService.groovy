@@ -64,7 +64,7 @@ class PermissionService {
             organismList.addAll(getOrganismsForGroup(userGroup))
         }
         List<Organism> returnOrganismList = []
-        for(Organism organism in organismList.sort(){ a,b -> a.commonName <=> b.commonName }){
+        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
             returnOrganismList.add(organism)
         }
 
@@ -305,8 +305,15 @@ class PermissionService {
         organism = getOrganismFromInput(inputObject)
 
         if (!organism) {
-            UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
-            if(preferenceDTO){
+            String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+            def allPrefs = UserOrganismPreference.findAllByClientToken(clientToken)
+            for (p in allPrefs) {
+                println "org: " + p.organism.commonName
+                println "seq: " + p.sequence.name
+                println "token: " + clientToken
+            }
+            UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, clientToken)
+            if (preferenceDTO) {
                 organism = Organism.findById(preferenceDTO.organism.id)
             }
         }
@@ -342,7 +349,7 @@ class PermissionService {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
-                Map<String, Integer> permissions = (Map<String,Integer>) session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue())
+                Map<String, Integer> permissions = (Map<String, Integer>) session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue())
                 if (permissions) {
                     Integer permission = permissions.get(SecurityUtils.subject.principal)
                     PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)

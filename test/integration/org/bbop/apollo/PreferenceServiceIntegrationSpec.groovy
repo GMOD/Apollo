@@ -8,7 +8,6 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.IgnoreRest
 
 class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -105,12 +104,12 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
-        Organism organism1 = Organism.all.first() // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.last()  // GroupUn87
-        Organism organism2 = Organism.all.last()  //yeast
-        Sequence sequence1Organism2 = organism2.sequences.first() // ChrII
-        Sequence sequence2Organism2 = organism2.sequences.last()  // ChrI
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -193,12 +192,12 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "change sequences between one organism"() {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
-        Organism organism1 = Organism.all.first()
-        Sequence sequence1Organism1 = organism1.sequences.first()
-        Sequence sequence2Organism1 = organism1.sequences.last()
-        Organism organism2 = Organism.all.last()
-        Sequence sequence1Organism2 = organism2.sequences.first()
-        Sequence sequence2Organism2 = organism2.sequences.last()
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -281,12 +280,12 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "change sequences between organisms and verify they are the same when returning"() {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
-        Organism organism1 = Organism.all.first()
-        Sequence sequence1Organism1 = organism1.sequences.first()
-        Sequence sequence2Organism1 = organism1.sequences.last()
-        Organism organism2 = Organism.all.last()
-        Sequence sequence1Organism2 = organism2.sequences.first()
-        Sequence sequence2Organism2 = organism2.sequences.last()
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -367,12 +366,12 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "repeat changing organism without flushing to DB"() {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
-        Organism organism1 = Organism.all.first() // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.last()  // GroupUn87
-        Organism organism2 = Organism.all.last()  //yeast
-        Sequence sequence1Organism2 = organism2.sequences.first() // ChrII
-        Sequence sequence2Organism2 = organism2.sequences.last()  // ChrI
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -451,12 +450,12 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "repeat changing sequence without flushing to DB"() {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
-        Organism organism1 = Organism.all.first()
-        Sequence sequence1Organism1 = organism1.sequences.first()
-        Sequence sequence2Organism1 = organism1.sequences.last()
-        Organism organism2 = Organism.all.last()
-        Sequence sequence1Organism2 = organism2.sequences.first()
-        Sequence sequence2Organism2 = organism2.sequences.last()
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -531,12 +530,12 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "repeat changing organism and sequence without flushing to DB"() {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
-        Organism organism1 = Organism.all.first() // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.last()  // GroupUn87
-        Organism organism2 = Organism.all.last()  //yeast
-        Sequence sequence1Organism2 = organism2.sequences.first() // ChrII
-        Sequence sequence2Organism2 = organism2.sequences.last()  // ChrI
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -612,7 +611,4 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    void "repeat while logging out and back in"() {
-
-    }
 }
