@@ -36,7 +36,6 @@ import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
-import org.gwtbootstrap3.extras.toggleswitch.client.ui.base.constants.SizeType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,21 +206,23 @@ public class TrackPanel extends Composite {
         }
 
         private void decorate() {
-            HTML label = new HTML(trackInfo.getName());
-            label.addStyleName("track-link");
-            final ToggleSwitch selected = new ToggleSwitch();
-            selected.setValue(trackInfo.getVisible());
-            selected.setSize(SizeType.MINI);
-            selected.setAnimate(false);
-            selected.setOffText("Show");
-            selected.setOnText("Hide");
-            selected.addStyleName("track-slider");
-            setPaddingTop(2);
-            setPaddingBottom(2);
 
-            add(selected);
-            add(label);
-            setWidth("100%");
+            InputGroup inputGroup = new InputGroup();
+            addStyleName("track-entry");
+
+            final CheckBoxButton selected = new CheckBoxButton();
+            selected.setValue(trackInfo.getVisible());
+
+            InputGroupButton inputGroupButton = new InputGroupButton();
+            inputGroupButton.add(selected);
+            inputGroup.add(inputGroupButton);
+
+            InputGroupAddon label = new InputGroupAddon();
+            label.addStyleName("text-left");
+            label.setText(trackInfo.getName());
+            inputGroup.add(label);
+
+            add(inputGroup);
 
             selected.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                 @Override
@@ -237,12 +238,16 @@ public class TrackPanel extends Composite {
                     MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
                 }
             });
-            label.addClickHandler(new ClickHandler() {
+
+            label.addStyleName("track-link");
+            label.setWidth("100%");
+
+            label.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     MainPanel.getTrackPanel().setTrackInfo(trackInfo);
                 }
-            });
+            }, ClickEvent.getType());
         }
     }
 
