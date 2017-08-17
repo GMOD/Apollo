@@ -21,3 +21,40 @@
     /*background-color: black;*/
     /*color: yellowgreen;*/
 }
+
+.track-link {
+    width: 5px;
+    /*display: inline !important;*/
+    /*cursor: pointer;*/
+    /*font-size: small;*/
+    /*margin-left: 5px;*/
+    /*padding-left: 5px;*/
+}
+
+.track-link:hover {
+    /*display: inline !important;*/
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.track-slider {
+    /*display: inline ;*/
+    /*margin-right: 5px;*/
+    /*padding-right: 5px;*/
+}
+
+.track-entry {
+    padding-top: 1px !important;
+    padding-bottom: 5px !important;
+}
+.track-header {
+    display: inline;
+    cursor: pointer;
+    font-size: medium;
+}
+
+.text-left {
+    text-align: left !important;
+    background-color: white !important;
+}
