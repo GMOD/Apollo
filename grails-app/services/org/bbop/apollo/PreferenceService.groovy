@@ -568,9 +568,10 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
+
         UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
         preference = preference ?: getSavingPreferences(user, sequenceName, clientToken)
-        log.debug "found in-memory preference: ${preference ? preference as JSON : null}"
+        println "found in-memory preference: ${preference ? preference as JSON : null}"
         return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
     }
 

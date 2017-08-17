@@ -167,7 +167,7 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    Sequence sequence = organism?.sequences?.first()
+                    Sequence sequence =  Sequence.findAllByOrganism(organism,[sort:"name",order:"asc",max: 1]).first()
                     if (userOrganismPreference == null) {
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user

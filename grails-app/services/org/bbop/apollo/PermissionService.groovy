@@ -313,6 +313,7 @@ class PermissionService {
                 println "token: " + clientToken
             }
             UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, clientToken)
+            println "permission service found DTO: ${preferenceDTO as JSON}"
             if (preferenceDTO) {
                 organism = Organism.findById(preferenceDTO.organism.id)
             }

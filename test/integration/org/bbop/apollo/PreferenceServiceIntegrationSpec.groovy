@@ -632,7 +632,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert appStateObject.currentSequence.name == sequence1Organism1.name
 
         when: "we add a transcript for organism 1"
-        String featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String featureString2 = "{${getTestCredentials(token)} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
         then: "we expect to see it"
@@ -652,7 +652,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we add a feature on organism 2"
-        String featureString = "{${testCredentials} \"track\":\"chrI\",\"features\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"YAL019W\",\"children\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String featureString = "{${getTestCredentials(token)} \"track\":\"chrI\",\"features\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"YAL019W\",\"children\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         requestHandlingService.addTranscript(JSON.parse(featureString) as JSONObject)
 
         then: "we verify it made it"
@@ -670,7 +670,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "when we add a feature onto organism 1"
-        featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        featureString2 = "{${getTestCredentials(token)} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
 
@@ -740,7 +740,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.endbp == 400
 
         when: "we add a transcript for organism 1"
-        String featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String featureString2 = "{${getTestCredentials(token)} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
         then: "we expect to see it"
@@ -758,7 +758,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.endbp == 200
 
         when: "we add a feature on organism 2"
-        String featureString = "{${testCredentials} \"track\":\"chrII\",\"features\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"YAL019W\",\"children\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        String featureString = "{${getTestCredentials(token)} \"track\":\"chrII\",\"features\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"YAL019W\",\"children\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         requestHandlingService.addTranscript(JSON.parse(featureString) as JSONObject)
 
         then: "we verify it made it"
