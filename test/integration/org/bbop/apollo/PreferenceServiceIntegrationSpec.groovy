@@ -9,7 +9,6 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.Ignore
 import spock.lang.IgnoreRest
 
 class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
@@ -109,11 +108,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -197,11 +196,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -285,11 +284,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -332,7 +331,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we set the location on organism 2 flush preference"
-        userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism2.name, 100,200, token)
+        userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism2.name, 100, 200, token)
         preferenceService.evaluateSaves(true)
 
 
@@ -371,11 +370,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -455,11 +454,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -535,11 +534,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -619,11 +618,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -638,8 +637,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
         then: "we expect to see it"
-        assert Gene.count==1
-        assert MRNA.count==1
+        assert Gene.count == 1
+        assert MRNA.count == 1
 
 
         when: "we switch to organism 2"
@@ -658,8 +657,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addTranscript(JSON.parse(featureString) as JSONObject)
 
         then: "we verify it made it"
-        assert Gene.count==2
-        assert MRNA.count==2
+        assert Gene.count == 2
+        assert MRNA.count == 2
 
         when: "we change organisms back to organism 1"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, token)
@@ -677,19 +676,19 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         then: "we verify that we added one here"
-        assert Gene.count==2
-        assert MRNA.count==3
+        assert Gene.count == 2
+        assert MRNA.count == 3
     }
 
     void "repeat changing organism and sequence and add features along the way"() {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
         User user = User.first()
 
         when: "we setup the first two"
@@ -746,8 +745,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
         then: "we expect to see it"
-        assert Gene.count==1
-        assert MRNA.count==1
+        assert Gene.count == 1
+        assert MRNA.count == 1
 
         when: "we go back to organism 2"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token)
@@ -764,8 +763,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addTranscript(JSON.parse(featureString) as JSONObject)
 
         then: "we verify it made it"
-        assert Gene.count==2
-        assert MRNA.count==2
+        assert Gene.count == 2
+        assert MRNA.count == 2
 
 
         when: "we go back to organism 1"
@@ -782,38 +781,48 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
         then: "we expect to see it"
-        assert Gene.count==2
-        assert MRNA.count==3
+        assert Gene.count == 2
+        assert MRNA.count == 3
 
     }
 
 
-    @Ignore
     void "change sequences between organisms and different tokens should remain independent"() {
         given: "setting up two organisms and sequences"
-        String token1 = ClientTokenGenerator.generateRandomString()
-        String token2 = ClientTokenGenerator.generateRandomString()
+        String tokenA = "AAA"
+        String tokenB = "BBB"
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = Sequence.findAllByOrganism(organism2, [sort: "name", order: "asc"]).first()
+        Sequence sequence2Organism2 = Sequence.findAllByOrganism(organism2, [sort: "name", order: "asc"]).last()
         User user = User.first()
 
         when: "we setup the first two"
-        JSONObject appStateObject1 = annotatorService.getAppState(token1)
-        JSONObject appStateObject2 = annotatorService.getAppState(token2)
+        JSONObject appStateObject1 = annotatorService.getAppState(tokenA)
+        JSONObject appStateObject2 = annotatorService.getAppState(tokenB)
+        preferenceService.evaluateSaves(true)
+        def allPRefs = UserOrganismPreference.all
+        def tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        def tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+
 
         then: "verify some stuff on organism 1, sequence 1"
         assert appStateObject1.currentOrganism.commonName == organism1.commonName
         assert appStateObject1.currentSequence.name == sequence1Organism1.name
         assert appStateObject2.currentOrganism.commonName == organism1.commonName
         assert appStateObject2.currentSequence.name == sequence1Organism1.name
+        assert tokenAPrefs.size() == 1
+        assert tokenBPrefs.size() == 1
 
 
         when: "we set the location on organism 1 flush preference"
-        UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism1.name, 100,200, token2)
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism1.name, 100, 200, tokenB)
+        preferenceService.evaluateSaves(true, tokenB)
+        allPRefs = UserOrganismPreference.all
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
 
 
         then: "we verify that it has been flushed"
@@ -821,19 +830,41 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.sequence.name == sequence1Organism1.name
         assert userOrganismPreferenceDTO.startbp == 100
         assert userOrganismPreferenceDTO.endbp == 200
+        assert allPRefs.size() == 2
+        assert tokenAPrefs.size() == 1
+        assert tokenBPrefs.size() == 1
+        tokenBPrefs.first().startbp = 100
+        tokenBPrefs.first().endbp = 200
 
 
         when: "we switch to sequence 2"
-        userOrganismPreferenceDTO = preferenceService.setCurrentSequence(user, sequence2Organism1, token1)
+        userOrganismPreferenceDTO = preferenceService.setCurrentSequence(user, sequence2Organism1, tokenA)
+        preferenceService.evaluateSaves(true, tokenA)
+        allPRefs = UserOrganismPreference.all
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        def tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        def tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
         then: "verify some other things on organism 1"
         assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
         assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
         assert userOrganismPreferenceDTO.startbp == 0
         assert userOrganismPreferenceDTO.endbp == sequence2Organism1.end
+        assert allPRefs.size() == 3
+        assert tokenAPrefs.size() == 2
+        assert tokenBPrefs.size() == 1
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
 
         when: "we set some location data and flush the preference saved on sequence 2"
-        userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence2Organism1.name, 300, 400, token1)
+        userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence2Organism1.name, 300, 400, tokenA)
+        preferenceService.evaluateSaves(true, tokenA)
+        allPRefs = UserOrganismPreference.all
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
 
         then: "we verify that it is saved on organism 2, sequence 2"
@@ -841,9 +872,20 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
         assert userOrganismPreferenceDTO.startbp == 300
         assert userOrganismPreferenceDTO.endbp == 400
+        assert allPRefs.size() == 3
+        assert tokenAPrefs.size() == 2
+        assert tokenBPrefs.size() == 1
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
 
         when: "we change organisms back to organism 2"
-        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token2)
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, tokenB)
+        preferenceService.evaluateSaves(true, tokenB)
+        allPRefs = UserOrganismPreference.all
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
 
         then: "we verify that it has been moved to 2"
@@ -851,12 +893,21 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
         assert userOrganismPreferenceDTO.startbp == 0
         assert userOrganismPreferenceDTO.endbp == sequence1Organism2.end
-
+        assert allPRefs.size() == 4
+        assert tokenAPrefs.size() == 2
+        assert tokenBPrefs.size() == 2
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
 
 
         when: "we go back to organism 1"
-        def allPRefs = UserOrganismPreference.all
-        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, token2)
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, tokenB)
+        preferenceService.evaluateSaves(true, tokenB)
+        allPRefs = UserOrganismPreference.all
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
 
         then: "we verify that the location / sequence is as we set it for organism 1 (not from the previous setting"
@@ -864,6 +915,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
         assert userOrganismPreferenceDTO.startbp == 0
         assert userOrganismPreferenceDTO.endbp == sequence1Organism1.end
+        assert allPRefs.size() == 4
+        assert tokenAPrefs.size() == 2
+        assert tokenBPrefs.size() == 2
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
 
 //        when: "we go back to organism 2"
 //        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token1)
