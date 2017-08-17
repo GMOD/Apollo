@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
@@ -14,6 +15,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     def preferenceService
     def annotatorService
+    def requestHandlingService
 
 
     def setupDefaultUserOrg() {
@@ -611,4 +613,60 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
+    void "changing organism and add a feature"() {
+        given: "setting up two organisms and sequences"
+        String token = ClientTokenGenerator.generateRandomString()
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        User user = User.first()
+
+        when: "we setup the first two"
+        JSONObject appStateObject = annotatorService.getAppState(token)
+
+        then: "verify some stuff on organism 1"
+        assert appStateObject.currentOrganism.commonName == organism1.commonName
+        assert appStateObject.currentSequence.name == sequence1Organism1.name
+
+        when: "we switch to organism 2"
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token)
+
+        then: "verify some other things on organism 2"
+        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
+        assert userOrganismPreferenceDTO.startbp == 0
+        assert userOrganismPreferenceDTO.endbp == sequence1Organism2.end
+
+
+
+        when: "we add a feature on organism 2"
+        String featureString = "{${testCredentials} \"track\":\"chrI\",\"features\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"YAL019W\",\"children\":[{\"location\":{\"fmin\":114919,\"fmax\":118315,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        requestHandlingService.addFeature(JSON.parse(featureString) as JSONObject)
+
+        then: "we verify it made it"
+        assert Gene.count==1
+
+        when: "we change organisms back to organism 1"
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, token)
+
+        then: "we verify that it has been moved back 1"
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 0
+        assert userOrganismPreferenceDTO.endbp == sequence1Organism1.end
+
+
+        when: "when we add a feature onto organism 1"
+        String featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        requestHandlingService.addFeature(JSON.parse(featureString2) as JSONObject)
+
+
+        then: "we verify that we added one here"
+        assert Gene.count==2
+
+
+    }
 }
