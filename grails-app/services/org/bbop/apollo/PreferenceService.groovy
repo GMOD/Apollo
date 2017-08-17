@@ -174,7 +174,7 @@ class PreferenceService {
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc"])
         if (!userOrganismPreference) {
             // then create one
-            Sequence sequence = organism.sequences.sort(){ a,b -> a.name <=> b.name }.first()
+            Sequence sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism

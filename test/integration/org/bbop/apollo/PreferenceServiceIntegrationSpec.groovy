@@ -9,6 +9,7 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.IgnoreRest
 
 class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -783,5 +784,94 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Gene.count==2
         assert MRNA.count==3
 
+    }
+
+
+    @Ignore
+    void "change sequences between organisms and different tokens should remain independent"() {
+        given: "setting up two organisms and sequences"
+        String token1 = ClientTokenGenerator.generateRandomString()
+        String token2 = ClientTokenGenerator.generateRandomString()
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.first() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort(){a,b -> a.name <=> b.name }.last()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+        Sequence sequence1Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.first() // ChrI
+        Sequence sequence2Organism2 = organism2.sequences.sort(){a,b -> a.name <=> b.name }.last()  // ChrII
+        User user = User.first()
+
+        when: "we setup the first two"
+        JSONObject appStateObject1 = annotatorService.getAppState(token1)
+        JSONObject appStateObject2 = annotatorService.getAppState(token2)
+
+        then: "verify some stuff on organism 1, sequence 1"
+        assert appStateObject1.currentOrganism.commonName == organism1.commonName
+        assert appStateObject1.currentSequence.name == sequence1Organism1.name
+        assert appStateObject2.currentOrganism.commonName == organism1.commonName
+        assert appStateObject2.currentSequence.name == sequence1Organism1.name
+
+
+        when: "we set the location on organism 1 flush preference"
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism1.name, 100,200, token2)
+
+
+        then: "we verify that it has been flushed"
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 100
+        assert userOrganismPreferenceDTO.endbp == 200
+
+
+        when: "we switch to sequence 2"
+        userOrganismPreferenceDTO = preferenceService.setCurrentSequence(user, sequence2Organism1, token1)
+
+        then: "verify some other things on organism 1"
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 0
+        assert userOrganismPreferenceDTO.endbp == sequence2Organism1.end
+
+        when: "we set some location data and flush the preference saved on sequence 2"
+        userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence2Organism1.name, 300, 400, token1)
+
+
+        then: "we verify that it is saved on organism 2, sequence 2"
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 300
+        assert userOrganismPreferenceDTO.endbp == 400
+
+        when: "we change organisms back to organism 2"
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token2)
+
+
+        then: "we verify that it has been moved to 2"
+        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
+        assert userOrganismPreferenceDTO.startbp == 0
+        assert userOrganismPreferenceDTO.endbp == sequence1Organism2.end
+
+
+
+        when: "we go back to organism 1"
+        def allPRefs = UserOrganismPreference.all
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, token2)
+
+
+        then: "we verify that the location / sequence is as we set it for organism 1 (not from the previous setting"
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 0
+        assert userOrganismPreferenceDTO.endbp == sequence1Organism1.end
+
+//        when: "we go back to organism 2"
+//        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token1)
+//
+//
+//        then: "we verify that the location / sequence is as we set it for organism 2"
+//        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
+//        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
+//        assert userOrganismPreferenceDTO.startbp == 100
+//        assert userOrganismPreferenceDTO.endbp == 200
     }
 }
