@@ -631,6 +631,15 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert appStateObject.currentOrganism.commonName == organism1.commonName
         assert appStateObject.currentSequence.name == sequence1Organism1.name
 
+        when: "we add a transcript for organism 1"
+        String featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
+
+        then: "we expect to see it"
+        assert Gene.count==1
+        assert MRNA.count==1
+
+
         when: "we switch to organism 2"
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token)
 
@@ -647,7 +656,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addTranscript(JSON.parse(featureString) as JSONObject)
 
         then: "we verify it made it"
-        assert Gene.count==1
+        assert Gene.count==2
+        assert MRNA.count==2
 
         when: "we change organisms back to organism 1"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, token)
@@ -660,12 +670,13 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "when we add a feature onto organism 1"
-        String featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
+        featureString2 = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40733-RA\",\"children\":[{\"location\":{\"fmin\":974306,\"fmax\":975778,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\"}"
         requestHandlingService.addTranscript(JSON.parse(featureString2) as JSONObject)
 
 
         then: "we verify that we added one here"
         assert Gene.count==2
+        assert MRNA.count==3
 
 
     }
