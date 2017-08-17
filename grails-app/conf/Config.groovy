@@ -211,7 +211,7 @@ apollo {
     export_subfeature_attrs = false
 
     // used for uploading
-    root_jbrowse_directory = "/opt/apollo/"
+    common_data_directory = "/opt/apollo"
 
     // settings for Chado export
     // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database

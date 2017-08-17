@@ -69,8 +69,8 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.export_subfeature_attrs
     }
 
-    def getRootJBrowseDirectory() {
-        return grailsApplication.config.apollo.root_jbrowse_directory
+    def getCommonDataDirectory() {
+        return grailsApplication.config.apollo.common_data_directory
     }
 
     def hasChadoDataSource() {
