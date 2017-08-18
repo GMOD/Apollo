@@ -170,8 +170,14 @@ class PreferenceService {
         }
         evaluateSaves(true, clientToken)
         // we have to go to the database to see if there was a prior sequence
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc"])
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc"])
+        // we look for the organism association with the current active token, first
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganismAndClientToken(user, organism, true, clientToken,[sort: "lastUpdated", order: "desc",max: 1])
+        // we look for the organism association with the current inactive token, first
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism,clientToken, [sort: "lastUpdated", order: "desc",max:1])
+        // we look for the organism association with any current organism
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc",max:1])
+        // we look for the organism association with any non-current organism
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc",max:1])
         if (!userOrganismPreference) {
             // then create one
             Sequence sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])

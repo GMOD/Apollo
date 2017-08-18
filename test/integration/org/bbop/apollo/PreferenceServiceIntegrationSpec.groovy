@@ -810,7 +810,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         def tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
 
 
-        then: "verify some stuff on organism 1, sequence 1"
+        then: "verify that we both start at organism 1, sequence 1"
         assert appStateObject1.currentOrganism.commonName == organism1.commonName
         assert appStateObject1.currentSequence.name == sequence1Organism1.name
         assert appStateObject2.currentOrganism.commonName == organism1.commonName
@@ -819,7 +819,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert tokenBPrefs.size() == 1
 
 
-        when: "we set the location on organism 1 flush preference"
+        when: "we set the tokenB location on organism 1"
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence1Organism1.name, 100, 200, tokenB)
         preferenceService.evaluateSaves(true, tokenB)
         allPRefs = UserOrganismPreference.all
@@ -839,7 +839,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert tokenBPrefs.first().endbp == 200
 
 
-        when: "we switch to sequence 2"
+        when: "we switch token A to sequence 2 of organism 1"
         userOrganismPreferenceDTO = preferenceService.setCurrentSequence(user, sequence2Organism1, tokenA)
         preferenceService.evaluateSaves(true, tokenA)
         allPRefs = UserOrganismPreference.all
@@ -848,7 +848,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
         def tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
-        then: "verify some other things on organism 1"
+        then: "verify some other things on organism 1 for sequence 2"
         assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
         assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
         assert userOrganismPreferenceDTO.startbp == 0
@@ -859,7 +859,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert tokenAPrefsCurrent.size() == 1
         assert tokenBPrefsCurrent.size() == 1
 
-        when: "we set some location data and flush the preference saved on sequence 2"
+        when: "we set location data of token A to sequence 2 and organism 1"
         userOrganismPreferenceDTO = preferenceService.setCurrentSequenceLocation(sequence2Organism1.name, 300, 400, tokenA)
         preferenceService.evaluateSaves(true, tokenA)
         allPRefs = UserOrganismPreference.all
@@ -869,7 +869,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
 
-        then: "we verify that it is saved on organism 2, sequence 2"
+        then: "we verify that it is saved on organism 1, sequence 2"
         assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
         assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
         assert userOrganismPreferenceDTO.startbp == 300
@@ -880,7 +880,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert tokenAPrefsCurrent.size() == 1
         assert tokenBPrefsCurrent.size() == 1
 
-        when: "we change organisms back to organism 2"
+        when: "we change token B to organism 2"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, tokenB)
         preferenceService.evaluateSaves(true, tokenB)
         allPRefs = UserOrganismPreference.all
@@ -890,7 +890,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
 
 
-        then: "we verify that it has been moved to 2"
+        then: "we verify that tokenB is organism2 and has the de novo preference"
         assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
         assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
         assert userOrganismPreferenceDTO.startbp == 0
@@ -902,7 +902,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert tokenBPrefsCurrent.size() == 1
 
 
-        when: "we go back to organism 1"
+        when: "token B: go back to organism 1"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, tokenB)
         preferenceService.evaluateSaves(true, tokenB)
         allPRefs = UserOrganismPreference.all
@@ -914,23 +914,14 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we verify that the location / sequence is as we set it for organism 1 (not from the previous setting"
         assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
-        assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
-        assert userOrganismPreferenceDTO.startbp == 0
-        assert userOrganismPreferenceDTO.endbp == sequence1Organism1.end
+        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 100
+        assert userOrganismPreferenceDTO.endbp == 200
         assert allPRefs.size() == 4
         assert tokenAPrefs.size() == 2
         assert tokenBPrefs.size() == 2
-        assert tokenAPrefsCurrent.size() == 1
-        assert tokenBPrefsCurrent.size() == 1
+//        assert tokenAPrefsCurrent.size() == 1
+//        assert tokenBPrefsCurrent.size() == 1
 
-//        when: "we go back to organism 2"
-//        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token1)
-//
-//
-//        then: "we verify that the location / sequence is as we set it for organism 2"
-//        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
-//        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
-//        assert userOrganismPreferenceDTO.startbp == 100
-//        assert userOrganismPreferenceDTO.endbp == 200
     }
 }
