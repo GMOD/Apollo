@@ -658,7 +658,7 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            sequence = sequence ?: Sequence.findAllByOrganism(organism,[sort:"name",order:"asc",max: 1]).first()
+            sequence = sequence ?: Sequence.findAllByOrganism(organism,[sort:"end",order:"desc",max: 1]).first()
             UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism

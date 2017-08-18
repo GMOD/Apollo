@@ -108,11 +108,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -196,11 +196,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -284,11 +284,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -370,11 +370,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -454,11 +454,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -534,11 +534,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -618,11 +618,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -684,11 +684,11 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "setting up two organisms and sequences"
         String token = ClientTokenGenerator.generateRandomString()
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.first() // ChrI
-        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.name <=> b.name }.last()  // ChrII
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -792,11 +792,13 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         String tokenA = "AAA"
         String tokenB = "BBB"
         Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
-        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.first() // Group1.10
-        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.name <=> b.name }.last()  // GroupUn87
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
         Organism organism2 = Organism.findByCommonName("yeast")
-        Sequence sequence1Organism2 = Sequence.findAllByOrganism(organism2, [sort: "name", order: "asc"]).first()
-        Sequence sequence2Organism2 = Sequence.findAllByOrganism(organism2, [sort: "name", order: "asc"]).last()
+//        Sequence sequence1Organism2 = Sequence.findAllByOrganism(organism2, [sort: "end", order: "desc"]).last()
+//        Sequence sequence2Organism2 = Sequence.findAllByOrganism(organism2, [sort: "end", order: "desc"]).first()
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
         User user = User.first()
 
         when: "we setup the first two"
@@ -833,8 +835,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert allPRefs.size() == 2
         assert tokenAPrefs.size() == 1
         assert tokenBPrefs.size() == 1
-        tokenBPrefs.first().startbp = 100
-        tokenBPrefs.first().endbp = 200
+        assert tokenBPrefs.first().startbp == 100
+        assert tokenBPrefs.first().endbp == 200
 
 
         when: "we switch to sequence 2"
