@@ -180,7 +180,7 @@ class PreferenceService {
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc",max:1])
         if (!userOrganismPreference) {
             // then create one
-            Sequence sequence = Sequence.findByOrganism(organism, [max: 1, sort: "end", order: "desc"])
+            Sequence sequence = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"]).first()
             userOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
