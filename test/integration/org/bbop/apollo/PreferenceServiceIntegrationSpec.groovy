@@ -350,21 +350,20 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
 
         // NOTE: this line fails for MySQL, yeilding sequence1Organism1.name instead
+        assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
+        assert userOrganismPreferenceDTO.startbp == 300
+        assert userOrganismPreferenceDTO.endbp == 400
 
-//        assert userOrganismPreferenceDTO.sequence.name == sequence2Organism1.name
-//        assert userOrganismPreferenceDTO.startbp == 300
-//        assert userOrganismPreferenceDTO.endbp == 400
-//
-//        when: "we go back to organism 2"
-//        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token)
-//        preferenceService.evaluateSaves(true)
-//
-//
-//        then: "we verify that the location / sequence is as we set it for organism 2"
-//        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
-//        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
-//        assert userOrganismPreferenceDTO.startbp == 100
-//        assert userOrganismPreferenceDTO.endbp == 200
+        when: "we go back to organism 2"
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, token)
+        preferenceService.evaluateSaves(true)
+
+
+        then: "we verify that the location / sequence is as we set it for organism 2"
+        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
+        assert userOrganismPreferenceDTO.sequence.name == sequence1Organism2.name
+        assert userOrganismPreferenceDTO.startbp == 100
+        assert userOrganismPreferenceDTO.endbp == 200
     }
 
 

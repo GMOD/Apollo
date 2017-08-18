@@ -171,13 +171,13 @@ class PreferenceService {
         evaluateSaves(true, clientToken)
         // we have to go to the database to see if there was a prior sequence
         // we look for the organism association with the current active token, first
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganismAndClientToken(user, organism, true, clientToken,[sort: "lastUpdated", order: "desc",max: 1])
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganismAndClientToken(user, organism, true, clientToken, [sort: "lastUpdated", order: "desc", max: 1])
         // we look for the organism association with the current inactive token, first
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism,clientToken, [sort: "lastUpdated", order: "desc",max:1])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism, clientToken, [sort: "lastUpdated", order: "desc", max: 1])
         // we look for the organism association with any current organism
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc",max:1])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc", max: 1])
         // we look for the organism association with any non-current organism
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc",max:1])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc", max: 1])
         if (!userOrganismPreference) {
             // then create one
             Sequence sequence = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"]).first()
@@ -240,7 +240,7 @@ class PreferenceService {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientToken(organismPreference.user, organismPreference.organism, organismPreference.clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first())
+            setOtherCurrentOrganismsFalseInDB(getMostRecentPreference(userOrganismPreferences))
         }
         int affected = setOtherCurrentOrganismsFalseInDB(organismPreference, organismPreference.user, organismPreference.clientToken)
         log.debug "others set to false: ${affected}"
@@ -276,9 +276,11 @@ class PreferenceService {
             return userOrganismPreferenceDTO
         }
 
-        evaluateSaves(true,clientToken)
-        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndSequenceAndCurrentOrganism(user, sequence, true, [sort: "lastUpdated", order: "desc"])
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndSequence(user, sequence, [sort: "lastUpdated", order: "desc"])
+        evaluateSaves(true, clientToken)
+        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndSequenceAndCurrentOrganismAndClientToken(user, sequence, true, clientToken, [sort: "lastUpdated", order: "desc", max: 1])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndSequenceAndClientToken(user, sequence, clientToken, [sort: "lastUpdated", order: "desc", max: 1])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndSequenceAndCurrentOrganism(user, sequence, true, [sort: "lastUpdated", order: "desc", max: 1])
+        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndSequence(user, sequence, [sort: "lastUpdated", order: "desc", max: 1])
 
         if (!userOrganismPreference) {
             // then create one
@@ -303,15 +305,23 @@ class PreferenceService {
         return userOrganismPreferenceDTO
     }
 
+    private static UserOrganismPreference getMostRecentPreference(List<UserOrganismPreference> userOrganismPreferences){
+        if(userOrganismPreferences){
+            return userOrganismPreferences.sort(){ a,b ->
+                a.lastUpdated <=> b.lastUpdated
+            }.first()
+        }
+        return null
+    }
+
     UserOrganismPreference setCurrentSequenceInDB(User user, Sequence sequence, String clientToken) {
         Organism organism = sequence.organism
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndOrganismAndClientTokenAndSequence(user, organism, clientToken, sequence, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences for sequence and organism: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(getMostRecentPreference(userOrganismPreferences), user, clientToken)
         }
-
-        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+        UserOrganismPreference userOrganismPreference = getMostRecentPreference(userOrganismPreferences)
 
         if (!userOrganismPreference) {
             userOrganismPreference = new UserOrganismPreference(
@@ -360,10 +370,9 @@ class PreferenceService {
             println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
             println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
             println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
-            if(onlySaveToken && onlySaveToken==userOrganismPreferenceDTOEntry.key.clientToken){
+            if (onlySaveToken && onlySaveToken == userOrganismPreferenceDTOEntry.key.clientToken) {
                 evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
-            }
-            else{
+            } else {
                 evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
             }
         }
@@ -531,9 +540,9 @@ class PreferenceService {
         }
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(getMostRecentPreference(userOrganismPreferences), user, clientToken)
         }
-        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+        UserOrganismPreference userOrganismPreference = getMostRecentPreference(userOrganismPreferences)
         if (!userOrganismPreference) {
             log.debug "Creating a new PReference"
             userOrganismPreference = new UserOrganismPreference(
@@ -597,9 +606,9 @@ class PreferenceService {
         def userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, true, clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(getMostRecentPreference(userOrganismPreferences), user, clientToken)
         }
-        UserOrganismPreference userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+        UserOrganismPreference userOrganismPreference = getMostRecentPreference(userOrganismPreferences)
         if (userOrganismPreference) {
             return userOrganismPreference
         }
@@ -608,9 +617,9 @@ class PreferenceService {
         userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganismAndClientToken(user, false, clientToken, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(getMostRecentPreference(userOrganismPreferences), user, clientToken)
         }
-        userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+        userOrganismPreference = getMostRecentPreference(userOrganismPreferences)
         if (userOrganismPreference) {
             setOtherCurrentOrganismsFalseInDB(userOrganismPreference, user, clientToken)
             userOrganismPreference.currentOrganism = true
@@ -623,9 +632,9 @@ class PreferenceService {
         userOrganismPreferences = UserOrganismPreference.findAllByUserAndCurrentOrganism(user, true, [sort: "lastUpdated", order: "desc"])
         if (userOrganismPreferences.size() > 1) {
             log.warn("Multiple preferences found: " + userOrganismPreferences.size())
-            setOtherCurrentOrganismsFalseInDB(userOrganismPreferences.first(), user, clientToken)
+            setOtherCurrentOrganismsFalseInDB(getMostRecentPreference(userOrganismPreferences), user, clientToken)
         }
-        userOrganismPreference = userOrganismPreferences ? userOrganismPreferences.first() : null
+        userOrganismPreference = getMostRecentPreference(userOrganismPreferences)
 
         // just grab an adjacent one for that user, that is not current
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndCurrentOrganism(user, false, [max: 1, sort: "lastUpdated", order: "desc"])
@@ -649,7 +658,6 @@ class PreferenceService {
             // find a random organism based on sequence
             Sequence sequence = sequenceName ? Sequence.findByName(sequenceName) : null
             Set<Organism> organisms = permissionService.getOrganisms(user)
-//            Organism organism = sequence ? sequence.organism : organisms?.first()
             Organism organism = null
             if (sequence) {
                 organism = sequence.organism
@@ -664,7 +672,7 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
-            sequence = sequence ?: Sequence.findAllByOrganism(organism,[sort:"end",order:"desc",max: 1]).first()
+            sequence = sequence ?: Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1]).first()
             UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
