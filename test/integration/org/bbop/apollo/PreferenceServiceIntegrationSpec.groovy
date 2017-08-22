@@ -906,7 +906,8 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "token B: go back to organism 1"
         userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism1, tokenB)
         preferenceService.evaluateSaves(true, tokenB)
-        allPRefs = UserOrganismPreference.all
+        allPRefs.first().save(flush: true)
+        allPRefs = UserOrganismPreference.findAll()
         tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
         tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
         tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)

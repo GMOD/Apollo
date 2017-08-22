@@ -266,6 +266,13 @@ class PreferenceService {
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
                         "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence and pref.lastUpdated < :lastUpdated ",
                 [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence, lastUpdated: newDate])
+
+        // if the preference is not set correctly, we have to make sure we add it correctly
+        affected += UserOrganismPreference.executeUpdate(
+                "update UserOrganismPreference  pref set pref.currentOrganism = true " +
+                        "where pref.id = :prefId and pref.user = :user and pref.clientToken = :clientToken and pref.currentOrganism = false ",
+                [prefId: userOrganismPreference.id, user: user, clientToken: clientToken])
+
         return affected
     }
 
