@@ -66,7 +66,8 @@ class AnnotatorService {
 
                 if (!currentUserOrganismPreferenceDTO.sequence) {
                     Organism organism = Organism.findById(currentOrganism.id)
-                    Sequence sequence = Sequence.findAllByOrganism(organism,[sort:"name",order:"asc",max: 1]).first()
+                    Sequence sequence = Sequence.findByOrganism(organism,[sort:"name",order:"asc",max: 1])
+                    // often the case when creating it
                     currentUserOrganismPreferenceDTO.sequence = preferenceService.getDTOFromSequence(sequence)
                 }
                 appStateObject.put("currentSequence", currentUserOrganismPreferenceDTO.sequence)

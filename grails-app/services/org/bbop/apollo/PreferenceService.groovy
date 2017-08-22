@@ -40,10 +40,13 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO getDTOPreferenceFromObject(JSONObject userOrganismPreferenceObject) {
+//        JSONObject sequenceObject = userOrganismPreferenceObject.containsKey(FeatureStringEnum.SEQUENCE.value) && !userOrganismPreferenceObject.isNull(FeatureStringEnum.SEQUENCE.value) ? userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.SEQUENCE.value) : null
+//        SequenceDTO sequenceDTO = sequenceObject ? getDTOSequenceFromObject(sequenceObject) : null
+        OrganismDTO organismDTO = getDTOFromOrganismFromObject(userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.ORGANISM.value))
         SequenceDTO sequenceDTO = getDTOSequenceFromObject(userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.SEQUENCE.value))
         UserDTO userDTO = getDTOUserFromObject(userOrganismPreferenceObject.getJSONObject("user"))
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = new UserOrganismPreferenceDTO(
-                organism: sequenceDTO.organism
+                organism: organismDTO
                 , sequence: sequenceDTO
                 , id: userOrganismPreferenceObject.id
                 , user: userDTO
@@ -65,6 +68,7 @@ class PreferenceService {
     }
 
     SequenceDTO getDTOSequenceFromObject(JSONObject sequence) {
+        if(!sequence) return null
         OrganismDTO organismDTO = getDTOFromOrganismFromObject(sequence.getJSONObject(FeatureStringEnum.ORGANISM.value))
         SequenceDTO sequenceDTO = new SequenceDTO(
                 id: sequence.id
@@ -99,7 +103,7 @@ class PreferenceService {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
-                printKeys(session)
+//                printKeys(session)
                 String preferenceString = session.getAttribute(FeatureStringEnum.PREFERENCE.getValue() + "::" + clientToken)?.toString()
                 if (!preferenceString) return null
                 return JSON.parse(preferenceString) as JSONObject
@@ -377,16 +381,20 @@ class PreferenceService {
         def sequenceMapSet = saveSequenceLocationMap.entrySet()
         def sequenceMapSetIterator = sequenceMapSet.iterator()
 
-        while (sequenceMapSetIterator.hasNext()) {
-            Map.Entry<UserOrganismPreferenceDTO, Date> userOrganismPreferenceDTOEntry = sequenceMapSetIterator.next()
-            println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
-            println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
-            println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
-            if (onlySaveToken && onlySaveToken == userOrganismPreferenceDTOEntry.key.clientToken) {
-                evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
-            } else {
-                evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
+        try {
+            while (sequenceMapSetIterator.hasNext()) {
+                Map.Entry<UserOrganismPreferenceDTO, Date> userOrganismPreferenceDTOEntry = sequenceMapSetIterator.next()
+                println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
+                println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
+                println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
+                if (onlySaveToken && onlySaveToken == userOrganismPreferenceDTOEntry.key.clientToken) {
+                    evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
+                } else {
+                    evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
+                }
             }
+        } catch (e) {
+            log.warn("Problem saving preference: "+e)
         }
 
     }
@@ -467,6 +475,7 @@ class PreferenceService {
     }
 
     SequenceDTO getDTOFromSequence(Sequence sequence) {
+//        if(!sequence) return null
         OrganismDTO organismDTO = getDTOFromOrganism(sequence.organism)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 id: sequence.id
@@ -499,9 +508,10 @@ class PreferenceService {
     UserOrganismPreferenceDTO getDTOFromPreference(UserOrganismPreference userOrganismPreference) {
         Sequence sequence = userOrganismPreference.sequence
         SequenceDTO sequenceDTO = getDTOFromSequence(sequence)
+        OrganismDTO organismDTO = getDTOFromOrganism(userOrganismPreference.organism)
         UserDTO userDTO = getDTOFromUser(userOrganismPreference.user)
         UserOrganismPreferenceDTO userOrganismPreferenceDTO = new UserOrganismPreferenceDTO(
-                organism: sequenceDTO.organism
+                organism: organismDTO
                 , sequence: sequenceDTO
                 , id: userOrganismPreference.id
                 , user: userDTO
@@ -681,6 +691,7 @@ class PreferenceService {
                 throw new PermissionException("User does not have permission for any organisms.")
             }
 
+//            sequence = sequence ?: Sequence.findByOrganism(organism, [sort: "end", order: "desc", max: 1])
             sequence = sequence ?: Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1]).first()
             UserOrganismPreference newUserOrganismPreference = new UserOrganismPreference(
                     user: user

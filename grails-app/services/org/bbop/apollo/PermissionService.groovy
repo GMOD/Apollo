@@ -306,14 +306,8 @@ class PermissionService {
 
         if (!organism) {
             String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-            def allPrefs = UserOrganismPreference.findAllByClientToken(clientToken)
-            for (p in allPrefs) {
-                println "org: " + p.organism.commonName
-                println "seq: " + p.sequence.name
-                println "token: " + clientToken
-            }
             UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, clientToken)
-            println "permission service found DTO: ${preferenceDTO as JSON}"
+            log.debug "Permission service found DTO: ${preferenceDTO as JSON}"
             if (preferenceDTO) {
                 organism = Organism.findById(preferenceDTO.organism.id)
             }
