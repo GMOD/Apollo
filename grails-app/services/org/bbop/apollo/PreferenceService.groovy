@@ -178,22 +178,43 @@ class PreferenceService {
         UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganismAndClientToken(user, organism, true, clientToken, [sort: "lastUpdated", order: "desc", max: 1])
         // we look for the organism association with the current inactive token, first
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndClientToken(user, organism, clientToken, [sort: "lastUpdated", order: "desc", max: 1])
-        // we look for the organism association with any current organism
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc", max: 1])
-        // we look for the organism association with any non-current organism
-        userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc", max: 1])
         if (!userOrganismPreference) {
-            // then create one
-            Sequence sequence = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"]).first()
-            userOrganismPreference = new UserOrganismPreference(
-                    user: user
-                    , organism: organism
-                    , clientToken: clientToken
-                    , sequence: sequence
-                    , currentOrganism: true
-                    , startbp: 0
-                    , endbp: sequence.end
-            )
+
+            // We need to create a new preference
+            // We look for the organism association with any current organism
+            UserOrganismPreference existingPreference  = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc", max: 1])
+            // We look for the organism association with any non-current organism
+            existingPreference = existingPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc", max: 1])
+
+            // if the existing preference exists, then use those values
+            if(existingPreference){
+                userOrganismPreference = new UserOrganismPreference(
+                        user: user
+                        , organism: organism
+                        , clientToken: clientToken
+                        , sequence: existingPreference.sequence
+                        , currentOrganism: true
+                        , startbp: existingPreference.startbp
+                        , endbp: existingPreference.endbp
+                )
+            }
+
+
+            // else use random ones
+            else{
+                // then create one
+                Sequence sequence = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"]).first()
+                userOrganismPreference = new UserOrganismPreference(
+                        user: user
+                        , organism: organism
+                        , clientToken: clientToken
+                        , sequence: sequence
+                        , currentOrganism: true
+                        , startbp: 0
+                        , endbp: sequence.end
+                )
+            }
+
         } else {
             userOrganismPreference.currentOrganism = true
         }

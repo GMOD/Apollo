@@ -926,4 +926,95 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert tokenBPrefsCurrent.size() == 1
 
     }
+
+    void "changing organisms with two tokens should give 4 preferences"() {
+        given: "setting up two organisms and sequences"
+        String tokenA = "AAA"
+        String tokenB = "BBB"
+        Organism organism1 = Organism.findByCommonName("honeybee") // honeybee
+        Sequence sequence1Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.last() // Group1.10
+        Sequence sequence2Organism1 = organism1.sequences.sort() { a, b -> a.end <=> b.end }.first()  // GroupUn87
+        Organism organism2 = Organism.findByCommonName("yeast")
+//        Sequence sequence1Organism2 = Sequence.findAllByOrganism(organism2, [sort: "end", order: "desc"]).last()
+//        Sequence sequence2Organism2 = Sequence.findAllByOrganism(organism2, [sort: "end", order: "desc"]).first()
+        Sequence sequence1Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.last()  // ChrII
+        Sequence sequence2Organism2 = organism2.sequences.sort() { a, b -> a.end <=> b.end }.first() // ChrI
+        User user = User.first()
+
+        when: "we setup the first two"
+        JSONObject appStateObject1 = annotatorService.getAppState(tokenA)
+        JSONObject appStateObject2 = annotatorService.getAppState(tokenB)
+        preferenceService.setCurrentOrganism(user,organism1,tokenA)
+        preferenceService.evaluateSaves(true)
+        preferenceService.setCurrentOrganism(user,organism1,tokenB)
+        preferenceService.evaluateSaves(true)
+        def allPRefs = UserOrganismPreference.all
+        def tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        def tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        def tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        def tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
+
+
+        then: "verify that we both start at organism 1, sequence 1"
+        assert appStateObject1.currentOrganism.commonName == organism1.commonName
+        assert appStateObject2.currentOrganism.commonName == organism1.commonName
+        assert allPRefs.size() == 2
+        assert tokenAPrefs.size() == 1
+        assert tokenBPrefs.size() == 1
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
+
+        when: "we get it for token A"
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = preferenceService.getSessionPreference(tokenA)
+
+        then: "we confirm that it is for the first token "
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.clientToken == tokenA
+
+        when: "we get it for token B"
+        userOrganismPreferenceDTO = preferenceService.getSessionPreference(tokenB)
+
+        then: "we confirm that it is for token B"
+        assert userOrganismPreferenceDTO.organism.commonName == organism1.commonName
+        assert userOrganismPreferenceDTO.clientToken == tokenB
+
+
+        when: "we change token A to organism 2"
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, tokenA)
+        preferenceService.evaluateSaves(true, tokenB)
+        allPRefs = UserOrganismPreference.all
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
+
+
+        then: "we verify that tokenB is organism2 and has the de novo preference"
+        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
+        assert allPRefs.size() == 3
+        assert tokenAPrefs.size() == 2
+        assert tokenBPrefs.size() == 1
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
+
+
+        when: "token A: change to organism 2"
+        userOrganismPreferenceDTO = preferenceService.setCurrentOrganism(user, organism2, tokenB)
+        preferenceService.evaluateSaves(true, tokenB)
+        allPRefs = UserOrganismPreference.findAll()
+        tokenAPrefs = UserOrganismPreference.findAllByClientToken(tokenA)
+        tokenAPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenA, true)
+        tokenBPrefs = UserOrganismPreference.findAllByClientToken(tokenB)
+        tokenBPrefsCurrent = UserOrganismPreference.findAllByClientTokenAndCurrentOrganism(tokenB, true)
+
+
+        then: "we verify that the location / sequence is as we set it for organism 1 (not from the previous setting"
+        assert userOrganismPreferenceDTO.organism.commonName == organism2.commonName
+        assert allPRefs.size() == 4
+        assert tokenAPrefs.size() == 2
+        assert tokenBPrefs.size() == 2
+        assert tokenAPrefsCurrent.size() == 1
+        assert tokenBPrefsCurrent.size() == 1
+
+    }
 }
