@@ -107,7 +107,7 @@ public class TrackPanel extends Composite {
             @Override
             public boolean execute() {
                 reload();
-                if (trackInfoList.size() == 0) {
+                if (trackInfoList.isEmpty()) {
                     return true;
                 }
                 return false;
@@ -116,7 +116,7 @@ public class TrackPanel extends Composite {
     }
 
     public void reloadIfEmpty() {
-        if (dataProvider.getList().size() == 0) {
+        if (dataProvider.getList().isEmpty()) {
             loadTracks(7000);
         }
     }
@@ -296,7 +296,7 @@ public class TrackPanel extends Composite {
 
 
         for (final String key : categoryMap.keySet()) {
-            if (key != TrackInfo.TRACK_UNCATEGORIZED) {
+            if (!key.equals(TrackInfo.TRACK_UNCATEGORIZED)) {
 
                 List<TrackInfo> trackInfoList = categoryMap.get(key);
 
@@ -314,7 +314,7 @@ public class TrackPanel extends Composite {
                     Heading heading = new Heading(HeadingSize.H4, key);
                     panelHeader.add(heading);
                     heading.addStyleName("track-header");
-                    totalBadge = new Badge(trackInfoList.size() + "");
+                    totalBadge = new Badge(Integer.toString(trackInfoList.size()));
                     totalBadge.setPull(Pull.RIGHT);
                     panelHeader.add(totalBadge);
                     panel.add(panelHeader);
@@ -344,7 +344,7 @@ public class TrackPanel extends Composite {
                 });
 
                 Integer numVisible = 0;
-                if (trackInfoList.size() > 0) {
+                if (!trackInfoList.isEmpty()) {
                     for (TrackInfo trackInfo : trackInfoList) {
                         if (trackInfo.getVisible()) ++numVisible;
                         TrackBodyPanel panelBody = new TrackBodyPanel(trackInfo);
@@ -394,7 +394,7 @@ public class TrackPanel extends Composite {
     }
 
     public List<String> getTrackList() {
-        if (trackInfoList.size() == 0) {
+        if (trackInfoList.isEmpty()) {
             reload();
         }
         List<String> trackListArray = new ArrayList<>();

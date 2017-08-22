@@ -18,7 +18,7 @@ class PreferenceService {
 
     final Integer PREFERENCE_SAVE_DELAY_SECONDS = 5  // saves every 30 seconds
     // enqueue to store save
-    private Map<UserOrganismPreferenceDTO, Date> saveSequenceLocationMap = [:]
+    private Map<UserOrganismPreferenceDTO, Date> saveSequenceLocationMap = new HashMap<>()
     // set of client locations
     private Set<String> currentlySavingLocation = new HashSet<>()
     private Date lastSaveEvaluation = new Date()
@@ -305,9 +305,10 @@ class PreferenceService {
         return userOrganismPreferenceDTO
     }
 
-    private static UserOrganismPreference getMostRecentPreference(List<UserOrganismPreference> userOrganismPreferences){
-        if(userOrganismPreferences){
-            return userOrganismPreferences.sort(){ a,b ->
+    private
+    static UserOrganismPreference getMostRecentPreference(List<UserOrganismPreference> userOrganismPreferences) {
+        if (userOrganismPreferences) {
+            return userOrganismPreferences.sort() { a, b ->
                 a.lastUpdated <=> b.lastUpdated
             }.first()
         }
@@ -366,7 +367,11 @@ class PreferenceService {
         }
         log.debug "Saving with time diff: ${timeDiff}"
         lastSaveEvaluation = new Date()
-        for (Map.Entry<UserOrganismPreferenceDTO, Date> userOrganismPreferenceDTOEntry in saveSequenceLocationMap.entrySet()) {
+        def sequenceMapSet = saveSequenceLocationMap.entrySet()
+        def sequenceMapSetIterator = sequenceMapSet.iterator()
+
+        while (sequenceMapSetIterator.hasNext()) {
+            Map.Entry<UserOrganismPreferenceDTO, Date> userOrganismPreferenceDTOEntry = sequenceMapSetIterator.next()
             println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
             println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
             println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
@@ -376,9 +381,6 @@ class PreferenceService {
                 evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
             }
         }
-//        saveSequenceLocationMap.each {
-//            evaluateSave(it.value, it.key)
-//        }
 
     }
 
