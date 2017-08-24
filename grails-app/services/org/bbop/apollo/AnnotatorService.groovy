@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.preference.OrganismDTO
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -56,23 +58,24 @@ class AnnotatorService {
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(token)
-            if(currentUserOrganismPreference){
-                Organism currentOrganism = currentUserOrganismPreference?.organism
+            UserOrganismPreferenceDTO currentUserOrganismPreferenceDTO = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,null,token)
+            if(currentUserOrganismPreferenceDTO){
+                OrganismDTO currentOrganism = currentUserOrganismPreferenceDTO?.organism
                 appStateObject.put("currentOrganism", currentOrganism )
 
 
-                if (!currentUserOrganismPreference.sequence) {
-                    Sequence sequence = Sequence.findByOrganism(currentUserOrganismPreference.organism)
-                    currentUserOrganismPreference.sequence = sequence
-                    currentUserOrganismPreference.save()
+                if (!currentUserOrganismPreferenceDTO.sequence) {
+                    Organism organism = Organism.findById(currentOrganism.id)
+                    Sequence sequence = Sequence.findByOrganism(organism,[sort:"name",order:"asc",max: 1])
+                    // often the case when creating it
+                    currentUserOrganismPreferenceDTO.sequence = preferenceService.getDTOFromSequence(sequence)
                 }
-                appStateObject.put("currentSequence", currentUserOrganismPreference.sequence)
+                appStateObject.put("currentSequence", currentUserOrganismPreferenceDTO.sequence)
 
 
-                if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {
-                    appStateObject.put("currentStartBp", currentUserOrganismPreference.startbp)
-                    appStateObject.put("currentEndBp", currentUserOrganismPreference.endbp)
+                if (currentUserOrganismPreferenceDTO.startbp && currentUserOrganismPreferenceDTO.endbp) {
+                    appStateObject.put("currentStartBp", currentUserOrganismPreferenceDTO.startbp)
+                    appStateObject.put("currentEndBp", currentUserOrganismPreferenceDTO.endbp)
                 }
             }
         }

@@ -25,8 +25,8 @@ class AbstractIntegrationSpec extends IntegrationSpec{
         setupDefaultUserOrg()
     }
 
-    String getTestCredentials(){
-        "\"${FeatureStringEnum.CLIENT_TOKEN.value}\":\"1231232\",\"${FeatureStringEnum.USERNAME.value}\":\"test@test.com\","
+    String getTestCredentials(String clientToken = "1231232"){
+        "\"${FeatureStringEnum.CLIENT_TOKEN.value}\":\"${clientToken}\",\"${FeatureStringEnum.USERNAME.value}\":\"test@test.com\","
     }
 
     def setupDefaultUserOrg(){

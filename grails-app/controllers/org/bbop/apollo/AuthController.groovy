@@ -10,6 +10,7 @@ class AuthController {
 
 
     def permissionService
+    def preferenceService
 
     def index = { redirect(action: "login", params: params) }
 
@@ -81,6 +82,7 @@ class AuthController {
     }
 
     def signOut = {
+        preferenceService.evaluateSaves(true)
         // Log the user out of the application.
         SecurityUtils.subject?.logout()
         webRequest.getCurrentRequest().session = null

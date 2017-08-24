@@ -87,10 +87,10 @@ class RequestHandlingService {
         Sequence sequence = null
 
         for (int i = 0; i < featuresArray.length(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-            String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value);
+            String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value)
             sequence =  sequence ?: feature.getFeatureLocation().getSequence()
             permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
 
@@ -119,7 +119,7 @@ class RequestHandlingService {
         Sequence sequence = null
 
         for (int i = 0; i < featuresArray.length(); ++i) {
-            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
             String descriptionString = jsonFeature.getString(FeatureStringEnum.DESCRIPTION.value);
@@ -151,7 +151,7 @@ class RequestHandlingService {
     }
 
     def deleteNonPrimaryDbxrefs(JSONObject inputObject) {
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
 
