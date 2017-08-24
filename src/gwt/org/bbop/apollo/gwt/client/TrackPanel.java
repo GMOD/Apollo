@@ -37,12 +37,10 @@ import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
-import java.awt.Checkbox;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Locale.Category;
 
 
 /**
