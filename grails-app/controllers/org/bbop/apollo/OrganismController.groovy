@@ -312,6 +312,8 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism id or commonName used to uniquely identify the organism")
             , @RestApiParam(name = "trackData", type = "string", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed track data")
+            , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw)")
+            , @RestApiParam(name = "trackFileIndex", type = "string", paramType = RestApiParamType.QUERY, description = "index (*.bai, *.tbi)")
             , @RestApiParam(name = "trackConfig", type = "string", paramType = RestApiParamType.QUERY, description = "Track configuration (JBrowse JSON)")
     ])
     @Transactional
@@ -324,6 +326,16 @@ class OrganismController {
                 -F "username=admin"
                 -F "password=admin"
                 -F "trackData=@/path/to/compressed-track-data.zip"
+                -F "trackConfig={'label': 'track_name', 'key': 'Track Name'}"
+                -X POST
+                -v
+
+            curl http://localhost:8080/apollo/organism/addTrackToOrganism \
+                -F "commonName=Amel"
+                -F "username=admin"
+                -F "password=admin"
+                -F "trackFile=@/path/to/alignments.bam"
+                -F "trackFileIndex=@/path/to/alignments.bam.bai"
                 -F "trackConfig={'label': 'track_name', 'key': 'Track Name'}"
                 -X POST
                 -v
@@ -341,8 +353,15 @@ class OrganismController {
             return
         }
 
-        if (!requestObject.containsKey(FeatureStringEnum.TRACK_DATA.value)) {
-            returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.TRACK_DATA.value}'.")
+        if (requestObject.containsKey(FeatureStringEnum.TRACK_DATA.value) && requestObject.containsKey("trackFile")) {
+            returnObject.put("error", "Both 'trackData' and 'trackFile' specified; /addTrackToOrganism requires either '${FeatureStringEnum.TRACK_DATA.value}' or 'trackFile'.")
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+            render returnObject as JSON
+            return
+        }
+
+        if (!requestObject.containsKey(FeatureStringEnum.TRACK_DATA.value) && !requestObject.containsKey("trackFile")) {
+            returnObject.put("error", "/addTrackToOrganism requires either '${FeatureStringEnum.TRACK_DATA.value}' or 'trackFile'.")
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
             render returnObject as JSON
             return
@@ -384,13 +403,17 @@ class OrganismController {
                 File commonDataDirectory = new File(configWrapperService.commonDataDirectory)
 
                 CommonsMultipartFile trackDataFile = request.getFile(FeatureStringEnum.TRACK_DATA.value)
+                CommonsMultipartFile trackFile = request.getFile("trackFile")
+                CommonsMultipartFile trackFileIndex = request.getFile("trackFileIndex")
+
                 if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
                     // organism data is in common data directory
                     log.debug "organism data is in common data directory"
+                    File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                    JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
+                    JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+
                     if (trackDataFile) {
-                        File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
-                        JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
-                        JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                         // check if track exists in trackList.json
                         if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
                             // add track config to trackList.json
@@ -418,6 +441,38 @@ class OrganismController {
                         else {
                             log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                             returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
+                        }
+                    }
+                    else {
+                        // trackDataFile is null; use data from trackFile and trackFileIndex, if available
+                        if (trackFile) {
+                            if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+                                // add track config to trackList.json
+                                tracksArray.add(trackConfigObject)
+                                try {
+                                    String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
+                                    String trackDirectoryName = urlTemplate.split("/").first()
+                                    String path = organismDirectoryName + File.separator + trackDirectoryName
+                                    fileService.store(trackFile, path)
+                                    if (trackFileIndex) {
+                                        fileService.store(trackFileIndex, path)
+                                    }
+
+                                    // write to trackList.json
+                                    def trackListJsonWriter = trackListJsonFile.newWriter()
+                                    trackListJsonWriter << trackListObject.toString(4)
+                                    trackListJsonWriter.close()
+                                    returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
+                                }
+                                catch (IOException e) {
+                                    log.error e.printStackTrace()
+                                    returnObject.put("error", e.message)
+                                }
+                            }
+                            else {
+                                log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
+                                returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
+                            }
                         }
                     }
                 }

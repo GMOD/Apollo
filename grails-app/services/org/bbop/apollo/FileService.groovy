@@ -8,6 +8,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.IOUtils
+import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
@@ -166,6 +167,25 @@ class FileService {
 
             // delete temp folder
             new File(initialLocation).deleteDir()
+        }
+    }
+
+
+    def store(CommonsMultipartFile file, String path, String directoryName = null, boolean tempDir = false) {
+        File pathFile = new File(path)
+        if (!pathFile.exists()) {
+            pathFile.mkdirs()
+        }
+        String destinationFileName = directoryName ?
+                path + File.separator + directoryName + File.separator + file.getOriginalFilename() :
+                path + File.separator + file.getOriginalFilename()
+
+        File destinationFile = new File(destinationFileName)
+        try {
+            log.debug "transferring track file to ${destinationFileName}"
+            file.transferTo(destinationFile)
+        } catch (Exception e) {
+            log.error e.message
         }
     }
 
