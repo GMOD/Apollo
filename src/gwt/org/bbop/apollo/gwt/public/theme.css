@@ -58,3 +58,8 @@
     text-align: left !important;
     background-color: white !important;
 }
+
+.panel-select {
+    background-color: #f5f5f5 !important; 
+    border: none !important;
+}

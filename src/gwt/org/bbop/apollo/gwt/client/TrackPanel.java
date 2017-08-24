@@ -37,12 +37,10 @@ import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
-import java.awt.Checkbox;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Locale.Category;
 
 
 /**
@@ -318,6 +316,7 @@ public class TrackPanel extends Composite {
                 PanelHeader panelHeader = null;
                 final CheckBoxButton panelSelect = new CheckBoxButton();
                 panelSelect.addStyleName("panel-select");
+                panelSelect.setPull(Pull.RIGHT);
                 Badge totalBadge = null;
 
                 // if we only have a single uncategorized category, then do not add a header
@@ -331,8 +330,8 @@ public class TrackPanel extends Composite {
                     heading.addStyleName("track-header");
                     totalBadge = new Badge(trackInfoList.size() + "");
                     totalBadge.setPull(Pull.RIGHT);
-                    panelHeader.add(totalBadge);
                     panelHeader.add(panelSelect);
+                    panelHeader.add(totalBadge);
                     panel.add(panelHeader);
                 }
 
