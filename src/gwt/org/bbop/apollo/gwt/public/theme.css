@@ -62,4 +62,5 @@
 .panel-select {
     background-color: #f5f5f5 !important; 
     border: none !important;
+    padding: 0 0 0 5px !important;
 }

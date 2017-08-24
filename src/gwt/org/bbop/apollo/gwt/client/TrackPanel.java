@@ -201,7 +201,7 @@ public class TrackPanel extends Composite {
     static class TrackBodyPanel extends PanelBody {
 
         private final TrackInfo trackInfo;
-        
+
 
         public TrackBodyPanel(TrackInfo trackInfo) {
             this.trackInfo = trackInfo;
@@ -234,7 +234,7 @@ public class TrackPanel extends Composite {
                 }
             });
 
-            checkBoxMap.put(trackInfo,selected);
+            checkBoxMap.put(trackInfo, selected);
 
             label.addStyleName("track-link");
             label.setWidth("100%");
@@ -306,7 +306,7 @@ public class TrackPanel extends Composite {
 
 
         for (final String key : categoryMap.keySet()) {
-            if (key != TrackInfo.TRACK_UNCATEGORIZED) {
+            if (!key.equals(TrackInfo.TRACK_UNCATEGORIZED)) {
 
                 final List<TrackInfo> trackInfoList = categoryMap.get(key);
 
@@ -328,11 +328,10 @@ public class TrackPanel extends Composite {
                     Heading heading = new Heading(HeadingSize.H4, key);
                     panelHeader.add(heading);
                     heading.addStyleName("track-header");
-                    totalBadge = new Badge(trackInfoList.size() + "");
+                    totalBadge = new Badge(Integer.toString(trackInfoList.size()));
                     totalBadge.setPull(Pull.RIGHT);
                     panelHeader.add(panelSelect);
                     panelHeader.add(totalBadge);
-                    panelHeader.add(panelSelect);
                     panel.add(panelHeader);
                 }
 
@@ -369,7 +368,7 @@ public class TrackPanel extends Composite {
                     }
                     if (numVisible == 0) {
                         panelSelect.setValue(false);
-                    } else if(numVisible == trackInfoList.size()) {
+                    } else if (numVisible == trackInfoList.size()) {
                         panelSelect.setValue(true);
                     }
                     panelSelect.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
