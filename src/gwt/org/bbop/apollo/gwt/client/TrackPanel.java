@@ -109,7 +109,7 @@ public class TrackPanel extends Composite {
             @Override
             public boolean execute() {
                 reload();
-                if (trackInfoList.size() == 0) {
+                if (trackInfoList.isEmpty()) {
                     return true;
                 }
                 return false;
@@ -118,7 +118,7 @@ public class TrackPanel extends Composite {
     }
 
     public void reloadIfEmpty() {
-        if (dataProvider.getList().size() == 0) {
+        if (dataProvider.getList().isEmpty()) {
             loadTracks(7000);
         }
     }
@@ -359,7 +359,7 @@ public class TrackPanel extends Composite {
                 });
 
                 Integer numVisible = 0;
-                if (trackInfoList.size() > 0) {
+                if (!trackInfoList.isEmpty()) {
                     for (TrackInfo trackInfo : trackInfoList) {
                         if (trackInfo.getVisible()) ++numVisible;
                         TrackBodyPanel panelBody = new TrackBodyPanel(trackInfo);
@@ -426,7 +426,7 @@ public class TrackPanel extends Composite {
     }
 
     public List<String> getTrackList() {
-        if (trackInfoList.size() == 0) {
+        if (trackInfoList.isEmpty()) {
             reload();
         }
         List<String> trackListArray = new ArrayList<>();

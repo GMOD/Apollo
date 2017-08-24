@@ -13,7 +13,7 @@ Features
 - Admins can now build public URLs to hyperlink directly to a specific genomic element. [#1482](https://github.com/GMOD/Apollo/pull/1482)
 - It is now possible to set _Statuses_ as well as adding or editing _Canned elements_ using our Web Service (REST) API. [#1538](https://github.com/GMOD/Apollo/pull/1538)
 - In the absence of ```Name``` attribute in GFF3 file, Apollo uses ```ID``` attribute to name the annotation in JSON. [#1639](https://github.com/GMOD/Apollo/pull/1639)
-- A number of other improvements to performance have been made, such as fetching preferences from session. [#1604](https://github.com/GMOD/Apollo/pull/1604)
+- A number of other improvements to performance have been made, such as fetching preferences from session. [#1604](https://github.com/GMOD/Apollo/pull/1604) [#1725](https://github.com/GMOD/Apollo/pull/1725)
 - Added date created field to changes report. [#1728](https://github.com/GMOD/Apollo/pull/1728)
 - Added documentation for a Web Service wrapper for Python, PHP, etc. See [Web Services API documentation](http://genomearchitect.readthedocs.io/en/latest/Web_services.html).
 
@@ -32,6 +32,7 @@ Bugfixes
 - Fixed bug that delayed propagation of updates when boundaries for an annotation's parent element were changed. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
 - Restored _'Pin to top'_ and _'Delete track'_ functionality for tracks with ```HTMLFeatures```. [#1632](https://github.com/GMOD/Apollo/issues/1632)
 - Fixed cascade bug when changing annotation type for an annotation that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
+
 
 
 ## 2.0.6
