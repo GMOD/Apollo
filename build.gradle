@@ -326,9 +326,9 @@ def cloneRepoNpm(String url, String directory, String branch){
     }
     exec{
         println "using npm to install: ${finalUrl}"
-//        commandLine "npm","install",finalUrl
-        String knownUrl = "gmod/jbrowse#npm_install"
-        commandLine "npm","install",knownUrl
+        commandLine "npm","install",finalUrl
+//        String knownUrl = "gmod/jbrowse#npm_install"
+//        commandLine "npm","install",knownUrl
     }
 
     File npmDirectory = new File('node_modules')
