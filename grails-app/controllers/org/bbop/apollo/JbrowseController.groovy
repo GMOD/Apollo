@@ -213,14 +213,13 @@ class JbrowseController {
             file = new File(dataFileName)
         }
 
-        // TODO: Experimental
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
 
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
-                String newPath = extendedOrganismDataDirectory.getAbsolutePath() + File.separator + params.path
+                String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
                 dataFileName = newPath
                 dataFileName += params.fileType ? ".${params.fileType}" : ""
                 file = new File(dataFileName)
@@ -461,12 +460,11 @@ class JbrowseController {
             }
         }
 
-        // TODO: experimental
         // add extendedTrackList.json, if available
-        if (!currentOrganism.addedViaWebServices) {
-            println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName + File.separator + "extendedTrackList.json"}"
-            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName + File.separator + "extendedTrackList.json")
-            if (file.exists()) {
+        if (!currentOrganism.dataAddedViaWebServices) {
+            println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
+            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            if (extendedTrackListFile.exists()) {
                 log.debug "augmenting track JSON Object with extendedTrackList.json contents"
                 JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
                 jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
@@ -525,13 +523,12 @@ class JbrowseController {
         }
         File file = new File(servletContext.getRealPath(dataFileName))
 
-        // TODO: Experimental
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
-                String newPath = extendedOrganismDataDirectory.getAbsolutePath() + File.separator + params.path
+                String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
                 dataFileName = newPath
                 dataFileName += params.fileType ? ".${params.fileType}" : ""
                 file = new File(dataFileName)

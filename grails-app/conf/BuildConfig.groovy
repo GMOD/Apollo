@@ -74,7 +74,7 @@ grails.project.dependency.resolution = {
         // svg generation
         compile group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.9'
         compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.7'
-
+        compile group: 'org.apache.commons', name: 'commons-compress', version: '1.14'
 
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
@@ -110,7 +110,6 @@ grails.project.dependency.resolution = {
         compile ":scaffolding:2.1.2"
         compile ':cache:1.1.8'
         compile ':cache-ehcache:1.0.5'
-
 
         compile ':asset-pipeline:2.1.5'
         compile ":spring-websocket:1.3.1"
