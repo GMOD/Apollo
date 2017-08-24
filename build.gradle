@@ -314,7 +314,7 @@ def refreshNpmRepo(String directory){
     }
 }
 
-def cloneRepoBower(String url,String directory,String branch){
+def cloneRepoNpm(String url, String directory, String branch){
     println "init url ${url},${directory},${branch}"
     String finalUrl = url + (branch ? "#${branch}" : "")
     println "finalurl 1: ${finalUrl}"
@@ -326,7 +326,9 @@ def cloneRepoBower(String url,String directory,String branch){
     }
     exec{
         println "using npm to install: ${finalUrl}"
-        commandLine "npm","install",finalUrl
+//        commandLine "npm","install",finalUrl
+        String knownUrl = "gmod/jbrowse#npm_install"
+        commandLine "npm","install",knownUrl
     }
 
     File npmDirectory = new File('node_modules')
@@ -383,12 +385,12 @@ task cleanAll(type:Delete){
 
 
 def cloneRepo(String url, String directory, String branch, Integer depth) {
-    if(hasBower()){
-        cloneRepoBower(url,directory,branch)
-    }
-    else{
-        cloneRepoNoBower(url,directory,branch,depth)
-    }
+//    if(hasBower()){
+      cloneRepoNpm(url,directory,branch)
+//    }
+//    else{
+//        cloneRepoNoBower(url,directory,branch,depth)
+//    }
 }
 
 def fetchTags(File file) {
