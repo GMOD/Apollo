@@ -3,6 +3,7 @@
 
 Features
 
+- Add the ability to upload organism sequence data and track data to a remote Apollo instance via Apollo Web Services [#1670](https://github.com/GMOD/Apollo/pull/1670).
 - Allow setting of alternate translation table per organism using the _Details_ panel under the _Organism_ tab in the Annotator panel. [#95](https://github.com/GMOD/Apollo/issues/95)
 - Draggable BAM tracks now support coloring by strand. Reads aligned to forward strand are colored blue, while those in the reverse strand are red.  [#412](https://github.com/GMOD/Apollo/issues/412)
 - The list of _Tracks_ in the Annotator panel now allows for the separation of data types into categories. [#536](https://github.com/GMOD/Apollo/issues/536)
