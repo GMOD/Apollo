@@ -495,10 +495,18 @@ th.sortable a {
 
 th.asc a {
     background-image: url(../images/skin/sorted_asc.gif);
+    background-color: lightcoral;
+    border-radius: 10px;
+    background-position-x: 5px;
+    text-indent: 15px;
 }
 
 th.desc a {
     background-image: url(../images/skin/sorted_desc.gif);
+    background-color: lightblue;
+    border-radius: 10px;
+    background-position-x: 5px;
+    text-indent: 15px;
 }
 
 .odd {

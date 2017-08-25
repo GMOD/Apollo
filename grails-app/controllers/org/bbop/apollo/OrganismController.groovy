@@ -54,9 +54,8 @@ class OrganismController {
             log.debug "deleteOrganism ${requestObject}"
             if (permissionService.isUserAdmin(permissionService.getCurrentUser(requestObject))) {
 
-                log.debug "organism ID: ${requestObject.organism}"
-                Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
-
+                log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
+                Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
                 if (organism) {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
@@ -1062,7 +1061,8 @@ class OrganismController {
 
             if (requestObject.organism) {
                 log.debug "finding info for specific organism"
-                Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
+                Organism organism = Organism.findByCommonName(organismJson.organism)
+                if (!organism) organism = Organism.findById(organismJson.organism)
                 if (!organism) {
                     render([error: "Organism not found"] as JSON)
                     return
@@ -1132,10 +1132,10 @@ class OrganismController {
         }
     }
 
-/**
- * Permissions handled upstream
- * @return
- */
+    /**
+     * Permissions handled upstream
+     * @return
+     */
     def report() {
         Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
             @Override
