@@ -256,8 +256,8 @@ class OrganismController {
                         log.debug "Adding ${requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)} with directory: ${directoryName}"
                         organism.directory = directoryName
                         organism.save()
-                        preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
                         sequenceService.loadRefSeqs(organism)
+                        preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
                         findAllOrganisms()
                     }
                     catch (IOException e) {

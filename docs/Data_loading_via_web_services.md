@@ -27,9 +27,9 @@ Web Services using `curl`.
 
 ```
 curl http://localhost:8080/apollo/organism/addOrganismWithSequence  \
-    -F "commonName=Amel"
-    -F "username=admin"
-    -F "password=admin"
+    -F "commonName=Amel" \
+    -F "username=admin" \
+    -F "password=admin" \
     -F "organismData=@compressed-jbrowse-data.zip"
 ```
 
@@ -51,11 +51,11 @@ existing organism.
 
 ```
 curl http://localhost:8080/apollo/organism/addTrackToOrganism \
-    -F "organism=100001"
-    -F "username=admin"
-    -F "password=admin"
-    -F "trackData=@/path/to/compressed-track-data.zip"
-    -F "trackConfig={'label': 'track_name', 'urlTemplate': 'tracks/track_name/\{refseq\}/trackData.json'}"
+    -F "organism=100001" \
+    -F "username=admin" \
+    -F "password=admin" \
+    -F "trackData=@/path/to/compressed-track-data.zip" \
+    -F "trackConfig={'label': 'track_name',type: 'FeatureTrack', 'urlTemplate': 'tracks/track_name/\{refseq\}/trackData.json'}"
 
 ```
 
@@ -66,11 +66,11 @@ Here is another example that uploads a BAM file along with its index to an exist
 
 ```
 curl http://localhost:8080/apollo/organism/addTrackToOrganism \
-    -F "organism=100001"
-    -F "username=admin"
-    -F "password=admin"
-    -F "trackFile=@alignments.bam"
-    -F "trackFileIndex=@alignments.bam.bai"
+    -F "organism=100001" \
+    -F "username=admin" \
+    -F "password=admin" \
+    -F "trackFile=@alignments.bam" \
+    -F "trackFileIndex=@alignments.bam.bai" \
     -F "trackConfig={'label': 'bam_alignments', 'urlTemplate': 'bam/alignments.bam', 'key': 'BAM Alignments'}"
 
 ```
@@ -93,9 +93,9 @@ As an example, lets update the previously added track with some additional confi
 
 ```
 curl http://localhost:8080/apollo/organism/updateTrackForOrganism \
-    -F "organism=100001"
-    -F "username=admin"
-    -F "password=admin"
+    -F "organism=100001" \
+    -F "username=admin" \
+    -F "password=admin" \
     -F "trackConfig={'label': 'track_name', 'urlTemplate': 'tracks/track_name/\{refseq\}/trackData.json', 'key': 'Track Name', 'type': 'JBrowse/View/Track/CanvasFeatures'}"    
 
 ```
@@ -116,9 +116,9 @@ As an example, lets remove the previously added BAM track.
 
 ```
 curl  http://localhost:8080/apollo/organism/deleteTrackFromOrganism \
-    -F "organism=100001" 
-    -F "username=admin" 
-    -F "password=admin" 
+    -F "organism=100001"  \
+    -F "username=admin"  \
+    -F "password=admin"  \
     -F "trackLabel=bam_alignments" 
 
 ```
