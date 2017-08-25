@@ -36,6 +36,7 @@ Contents:
    Configure
    ChadoExport
    Data_loading
+   DataLoading_via_web_services
    Contributing
    Troubleshooting
    Migration

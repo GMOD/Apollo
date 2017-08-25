@@ -548,7 +548,7 @@ class PermissionService {
                 }
 
                 if (authenticationService.requiresToken()) {
-                    def req = request.JSON
+                    def req = handleInput(request, request.parameterMap)
                     def authToken = usernamePasswordToken ?: null
                     if (!authToken && req.username) {
                         authToken = new UsernamePasswordToken(req.username as String, req.password as String)
@@ -644,4 +644,21 @@ class PermissionService {
         handleToken(params, payloadJson)
         return payloadJson
     }
+
+    JSONObject handleInput(HttpServletRequest request, Map params) {
+        JSONObject payloadJson = new JSONObject()
+        if (request.JSON) {
+            payloadJson = request.JSON as JSONObject
+        }
+        else {
+            params.keySet().each { key ->
+                // TODO: what about this?
+                payloadJson.put(key, params.get(key)[0])
+
+            }
+        }
+        return payloadJson
+    }
+
+
 }

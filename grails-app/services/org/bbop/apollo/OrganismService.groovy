@@ -5,6 +5,13 @@ import grails.transaction.Transactional
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 
+import java.nio.file.FileSystemException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+
 @Transactional
 class OrganismService {
 

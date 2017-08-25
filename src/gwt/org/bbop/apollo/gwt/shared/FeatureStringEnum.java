@@ -120,6 +120,7 @@ public enum FeatureStringEnum {
         ORGANISM_JBROWSE_DIRECTORY("organismJBrowseDirectory"),
         ORGANISM_ID("organismId"),
         ORGANISM_NAME("commonName"),
+        ORGANISM_DATA("organismData"),
         SEQUENCE_NAME("sequenceName"),
         DEFAULT_SEQUENCE_NAME("defaultSequenceName"),
         PERMISSIONS,
@@ -133,7 +134,13 @@ public enum FeatureStringEnum {
         DOCK_OPEN("dockOpen"),
         DOCK_WIDTH("dockWidth"),
         USE_CDS,
-        USE_NAME
+        USE_NAME,
+        TRACKS,
+        LABEL,
+        URL_TEMPLATE("urlTemplate"),
+        TRACK_DATA("trackData"),
+        TRACK_CONFIG("trackConfig"),
+        TRACK_LABEL("trackLabel")
         ;
 
 
