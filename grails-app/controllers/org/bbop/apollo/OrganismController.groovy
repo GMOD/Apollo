@@ -87,15 +87,6 @@ class OrganismController {
     ])
     @Transactional
     def deleteOrganismWithSequence() {
-        /*
-            Representative CURL query:
-
-            curl http://localhost:8080/apollo/organism/deleteOrganismWithSequence  \
-            -F "organism=Amel" \
-            -F "username=admin" \
-            -F "password=admin" \
-            -X POST
-         */
 
         JSONObject requestObject = permissionService.handleInput(request, params)
         JSONObject responseObject = new JSONObject()
@@ -219,17 +210,6 @@ class OrganismController {
     ])
     @Transactional
     def addOrganismWithSequence() {
-        /*
-            Representative CURL query:
-
-            curl http://localhost:8080/apollo/organism/addOrganismWithSequence  \
-                -F "organism=Amel"
-                -F "username=admin"
-                -F "password=admin"
-                -F "organismData=@/path/to/compressed-jbrowse-data.zip"
-                -X POST
-                -v
-         */
 
         JSONObject returnObject = new JSONObject()
         String directoryName
@@ -316,28 +296,6 @@ class OrganismController {
     ])
     @Transactional
     def addTrackToOrganism() {
-        /*
-            Representative CURL query:
-
-            curl http://localhost:8080/apollo/organism/addTrackToOrganism \
-                -F "commonName=Amel"
-                -F "username=admin"
-                -F "password=admin"
-                -F "trackData=@/path/to/compressed-track-data.zip"
-                -F "trackConfig={'label': 'track_name', 'key': 'Track Name'}"
-                -X POST
-                -v
-
-            curl http://localhost:8080/apollo/organism/addTrackToOrganism \
-                -F "commonName=Amel"
-                -F "username=admin"
-                -F "password=admin"
-                -F "trackFile=@/path/to/alignments.bam"
-                -F "trackFileIndex=@/path/to/alignments.bam.bai"
-                -F "trackConfig={'label': 'track_name', 'key': 'Track Name'}"
-                -X POST
-                -v
-         */
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
@@ -693,17 +651,6 @@ class OrganismController {
     ])
     @Transactional
     def updateTrackForOrganism() {
-        /*
-            Representative CURL query:
-
-            curl http://localhost:8080/apollo/organism/updateTrackForOrganism \
-                -F "organism=Amel"
-                -F "username=admin"
-                -F "password=admin"
-                -F "trackConfig={'label': 'track_name', 'key': 'Track Name'}"
-                -X POST
-                -v
-         */
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
