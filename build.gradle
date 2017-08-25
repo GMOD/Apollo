@@ -294,10 +294,14 @@ task removeJBrowseDownload(type:Delete){
     delete("jbrowse-download")
 }
 
-task moveBowerJBrowse(dependsOn:removeJBrowseDownload) {
+task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
     doLast {
+//        file("jbrowse-download").deleteDir()
         file("node_modules/jbrowse").renameTo(file("jbrowse-download"))
-        file("node_modules").deleteDir()
+        file("jbrowse-download/node_modules/*").renameTo(file("jbrowse-download/src"))
+        file("node_modules/*").renameTo(file("jbrowse-download/src"))
+//        file("node_modules").deleteDir()
+//        file("jbrowse-download/node_modules").deleteDir()
     }
 }
 
@@ -326,7 +330,7 @@ def cloneRepoNpm(String url, String directory, String branch){
     }
     exec{
         println "using npm to install: ${finalUrl}"
-        commandLine "npm","install",finalUrl
+        commandLine "npm","install",finalUrl,"--ignore-scripts"
 //        String knownUrl = "gmod/jbrowse#npm_install"
 //        commandLine "npm","install",knownUrl
     }
@@ -334,7 +338,7 @@ def cloneRepoNpm(String url, String directory, String branch){
     File npmDirectory = new File('node_modules')
     if((finalUrl.contains("#")&&finalUrl.endsWith("jbrowse"))  || finalUrl.split("#")[0].endsWith("jbrowse")) {
         println "Moving JBrowse into position ${finalUrl}"
-        tasks.moveBowerJBrowse.execute()
+        tasks.moveNodeModulesJBrowse.execute()
         tasks.installJBrowseNpm.execute()
     }
     else{
