@@ -79,11 +79,11 @@ class OrganismController {
         }
     }
 
-    @RestApiMethod(description = "Delete an organism along with its data directory", path = "/organism/deleteOrganismWithSequence", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Delete an organism along with its data directory and returns a JSON object containing properties of the deleted organism", path = "/organism/deleteOrganismWithSequence", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism ID or commonName that can be used to uniquely identify an organism")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
     ])
     @Transactional
     def deleteOrganismWithSequence() {
@@ -164,7 +164,7 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "An organism json object that has an 'id' or 'commonName' parameter that corresponds to an organism.")
+            , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism.")
     ])
     @NotTransactional
     def deleteOrganismFeatures() {
@@ -230,7 +230,7 @@ class OrganismController {
                 -X POST
                 -v
          */
-        log.debug "addOrganismWithSequence with params: ${params.toString()}"
+
         JSONObject returnObject = new JSONObject()
         String directoryName
         JSONObject requestObject = permissionService.handleInput(request, params)
@@ -276,7 +276,6 @@ class OrganismController {
                         log.debug "Adding ${requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)} with directory: ${directoryName}"
                         organism.directory = directoryName
                         organism.save()
-                        log.debug "organism ${organism as JSON}"
                         preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
                         sequenceService.loadRefSeqs(organism)
                         findAllOrganisms()
@@ -305,11 +304,11 @@ class OrganismController {
         render returnObject as JSON
     }
 
-    @RestApiMethod(description = "Adds a track to an existing organism returning a JSON array of all tracks for the current organism.", path = "/organism/addTrackToOrganism", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Adds a track to an existing organism returning a JSON object containing all tracks for the current organism.", path = "/organism/addTrackToOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism id or commonName used to uniquely identify the organism")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
             , @RestApiParam(name = "trackData", type = "string", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed track data")
             , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw)")
             , @RestApiParam(name = "trackFileIndex", type = "string", paramType = RestApiParamType.QUERY, description = "index (*.bai, *.tbi)")
@@ -340,7 +339,6 @@ class OrganismController {
                 -v
          */
 
-        log.debug "addTrackToOrganism with params: ${params.toString()}"
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
 
@@ -556,16 +554,16 @@ class OrganismController {
         render returnObject as JSON
     }
 
-    @RestApiMethod(description = "Deletes a track, previously added via web services, from an existing organism", path = "/organism/deleteTrackFromOrganism", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Deletes a track from an existing organism and returns a JSON object of the deleted track's configuration", path = "/organism/deleteTrackFromOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "An id or commonName used to uniquely identify the organism")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
             , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Track label corresponding to the track that is to be deleted")
     ])
     @Transactional
     def deleteTrackFromOrganism() {
-        log.debug "deleteTrackFromOrganism with params: ${params}"
+
         JSONObject returnObject = new JSONObject()
 
         try {
@@ -686,11 +684,11 @@ class OrganismController {
         render returnObject as JSON
     }
 
-    @RestApiMethod(description = "Update a track in an existing organism returning a JSON array of all tracks for the current organism.", path = "/organism/updateTrackForOrganism", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update a track in an existing organism returning a JSON object containing old and new track configurations", path = "/organism/updateTrackForOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism id or commonName used to uniquely identify the organism")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
             , @RestApiParam(name = "trackConfig", type = "string", paramType = RestApiParamType.QUERY, description = "Track configuration (JBrowse JSON)")
     ])
     @Transactional
@@ -707,7 +705,6 @@ class OrganismController {
                 -v
          */
 
-        log.debug "updateTrackForOrganism with params: ${params.toString()}"
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
 
@@ -1052,7 +1049,7 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) if valid organism id or commonName is supplied show organism if user has permission")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) ID or commonName that can be used to uniquely identify an organism")
     ])
     def findAllOrganisms() {
         try {
