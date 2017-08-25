@@ -60,7 +60,9 @@ curl http://localhost:8080/apollo/organism/addTrackToOrganism \
 ```
 
 The track configuration (JBrowse JSON) must be supplied via `trackData` parameter and this JSON must contain 'label'
-and 'urlTemplate'.
+and 'urlTemplate'.  
+
+**Note**: The label is a unique identifier used to reference the track and can not be changed, just removed.
 
 Here is another example that uploads a BAM file along with its index to an existing organism.
 
@@ -71,8 +73,7 @@ curl http://localhost:8080/apollo/organism/addTrackToOrganism \
     -F "password=admin" \
     -F "trackFile=@alignments.bam" \
     -F "trackFileIndex=@alignments.bam.bai" \
-    -F "trackConfig={'label': 'bam_alignments', 'urlTemplate': 'bam/alignments.bam', 'key': 'BAM Alignments'}"
-
+    -F "trackConfig={'label': 'bam_alignments', 'urlTemplate': 'bam/alignments.bam', 'key': 'BAM Alignments','type': 'JBrowse/View/Track/Alignments2'}"
 ```
 
 `trackFile` parameter takes in the BAM file (or any other flat file like *.vcf, *.vcf.gz, *.bw, *.bigwig, etc.)
