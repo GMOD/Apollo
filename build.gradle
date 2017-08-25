@@ -296,7 +296,7 @@ task removeJBrowseDownload(type:Delete){
 
 task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
     doLast {
-//        file("jbrowse-download").deleteDir()
+        file("jbrowse-download").deleteDir()
         file("node_modules/jbrowse").renameTo(file("jbrowse-download"))
         file("jbrowse-download/node_modules/*").renameTo(file("jbrowse-download/src"))
         file("node_modules/*").renameTo(file("jbrowse-download/src"))
