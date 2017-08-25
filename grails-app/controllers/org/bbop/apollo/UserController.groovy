@@ -145,6 +145,7 @@ class UserController {
     @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
+        preferenceService.evaluateSaves(true)
 
 
         // grab from session

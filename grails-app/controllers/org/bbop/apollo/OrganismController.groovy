@@ -149,8 +149,8 @@ class OrganismController {
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
-                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
                 sequenceService.loadRefSeqs(organism)
+                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
                 render findAllOrganisms()
             } else {
                 def error = [error: 'not authorized to add organism']

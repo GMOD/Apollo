@@ -81,6 +81,8 @@ public class TrackPanel extends Composite {
 
     private static Map<String, List<TrackInfo>> categoryMap = new TreeMap<>();
     private static Map<String, Boolean> categoryOpen = new TreeMap<>();
+    private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
+    private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
 
     public TrackPanel() {
         exportStaticMethod();
@@ -107,7 +109,7 @@ public class TrackPanel extends Composite {
             @Override
             public boolean execute() {
                 reload();
-                if (trackInfoList.size() == 0) {
+                if (trackInfoList.isEmpty()) {
                     return true;
                 }
                 return false;
@@ -116,7 +118,7 @@ public class TrackPanel extends Composite {
     }
 
     public void reloadIfEmpty() {
-        if (dataProvider.getList().size() == 0) {
+        if (dataProvider.getList().isEmpty()) {
             loadTracks(7000);
         }
     }
@@ -200,6 +202,7 @@ public class TrackPanel extends Composite {
 
         private final TrackInfo trackInfo;
 
+
         public TrackBodyPanel(TrackInfo trackInfo) {
             this.trackInfo = trackInfo;
             decorate();
@@ -209,7 +212,6 @@ public class TrackPanel extends Composite {
 
             InputGroup inputGroup = new InputGroup();
             addStyleName("track-entry");
-
             final CheckBoxButton selected = new CheckBoxButton();
             selected.setValue(trackInfo.getVisible());
 
@@ -227,17 +229,12 @@ public class TrackPanel extends Composite {
             selected.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
                 @Override
                 public void onValueChange(ValueChangeEvent<Boolean> event) {
-                    JSONObject jsonObject = trackInfo.getPayload();
                     Boolean value = selected.getValue();
-                    trackInfo.setVisible(value);
-                    if (value) {
-                        jsonObject.put("command", new JSONString("show"));
-                    } else {
-                        jsonObject.put("command", new JSONString("hide"));
-                    }
-                    MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
+                    handleSelect(value);
                 }
             });
+
+            checkBoxMap.put(trackInfo, selected);
 
             label.addStyleName("track-link");
             label.setWidth("100%");
@@ -249,11 +246,24 @@ public class TrackPanel extends Composite {
                 }
             }, ClickEvent.getType());
         }
+
+        public void handleSelect(Boolean value) {
+            JSONObject jsonObject = trackInfo.getPayload();
+            trackInfo.setVisible(value);
+            if (value) {
+                jsonObject.put("command", new JSONString("show"));
+            } else {
+                jsonObject.put("command", new JSONString("hide"));
+            }
+            MainPanel.getInstance().postMessage("handleTrackVisibility", jsonObject);
+        }
     }
 
     public void clear() {
         categoryMap.clear();
         categoryOpen.clear();
+        checkBoxMap.clear();
+        trackBodyMap.clear();
         dataGrid.clear();
         dataGrid.add(new org.gwtbootstrap3.client.ui.Label("Loading..."));
     }
@@ -296,15 +306,19 @@ public class TrackPanel extends Composite {
 
 
         for (final String key : categoryMap.keySet()) {
-            if (key != TrackInfo.TRACK_UNCATEGORIZED) {
+            if (!key.equals(TrackInfo.TRACK_UNCATEGORIZED)) {
 
-                List<TrackInfo> trackInfoList = categoryMap.get(key);
+                final List<TrackInfo> trackInfoList = categoryMap.get(key);
 
                 // if this is a root panel
                 Panel panel = new Panel();
 
                 PanelHeader panelHeader = null;
+                final CheckBoxButton panelSelect = new CheckBoxButton();
+                panelSelect.addStyleName("panel-select");
+                panelSelect.setPull(Pull.RIGHT);
                 Badge totalBadge = null;
+
                 // if we only have a single uncategorized category, then do not add a header
                 if (categoryOpen.size() != 1 || (!key.equals(TrackInfo.TRACK_UNCATEGORIZED) && categoryOpen.size() == 1)) {
                     panelHeader = new PanelHeader();
@@ -314,8 +328,9 @@ public class TrackPanel extends Composite {
                     Heading heading = new Heading(HeadingSize.H4, key);
                     panelHeader.add(heading);
                     heading.addStyleName("track-header");
-                    totalBadge = new Badge(trackInfoList.size() + "");
+                    totalBadge = new Badge(Integer.toString(trackInfoList.size()));
                     totalBadge.setPull(Pull.RIGHT);
+                    panelHeader.add(panelSelect);
                     panelHeader.add(totalBadge);
                     panel.add(panelHeader);
                 }
@@ -344,12 +359,29 @@ public class TrackPanel extends Composite {
                 });
 
                 Integer numVisible = 0;
-                if (trackInfoList.size() > 0) {
+                if (!trackInfoList.isEmpty()) {
                     for (TrackInfo trackInfo : trackInfoList) {
                         if (trackInfo.getVisible()) ++numVisible;
                         TrackBodyPanel panelBody = new TrackBodyPanel(trackInfo);
+                        trackBodyMap.put(trackInfo, panelBody);
                         panelCollapse.add(panelBody);
                     }
+                    if (numVisible == 0) {
+                        panelSelect.setValue(false);
+                    } else if (numVisible == trackInfoList.size()) {
+                        panelSelect.setValue(true);
+                    }
+                    panelSelect.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
+                        @Override
+                        public void onValueChange(ValueChangeEvent<Boolean> event) {
+                            Boolean value = panelSelect.getValue();
+                            for (TrackInfo trackInfo : trackInfoList) {
+                                checkBoxMap.get(trackInfo).setValue(value);
+                                trackBodyMap.get(trackInfo).handleSelect(value);
+                            }
+                            categoryOpen.put(key, true);
+                        }
+                    });
                 }
                 if (totalBadge != null) {
                     totalBadge.setText(numVisible + "/" + trackInfoList.size());
@@ -394,7 +426,7 @@ public class TrackPanel extends Composite {
     }
 
     public List<String> getTrackList() {
-        if (trackInfoList.size() == 0) {
+        if (trackInfoList.isEmpty()) {
             reload();
         }
         List<String> trackListArray = new ArrayList<>();
