@@ -1061,8 +1061,8 @@ class OrganismController {
 
             if (requestObject.organism) {
                 log.debug "finding info for specific organism"
-                Organism organism = Organism.findByCommonName(organismJson.organism)
-                if (!organism) organism = Organism.findById(organismJson.organism)
+                Organism organism = Organism.findByCommonName(requestObject.organism)
+                if (!organism) organism = Organism.findById(requestObject.organism)
                 if (!organism) {
                     render([error: "Organism not found"] as JSON)
                     return
