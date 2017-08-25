@@ -385,4 +385,19 @@ class TrackService {
         }
         trackCache.save()
     }
+
+    /**
+     *
+     * @param tracksArray
+     * @param trackName
+     * @return
+     */
+    def findTrackFromArray(JSONArray tracksArray, String trackName) {
+        for (int i = 0; i < tracksArray.size(); i++) {
+            JSONObject obj = tracksArray.getJSONObject(i)
+            if (obj.getString("label") == trackName) return obj
+        }
+
+        return null
+    }
 }
