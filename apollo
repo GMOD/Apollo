@@ -75,10 +75,17 @@ function check_node(){
             exit 0
         fi
     fi
+    NODE_VERSION=`$node_executable -v | cut -d\. -f1`
+    if [ $NODE_VERSION -lt 5 ]; then
+        echo "node version 5 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+        exit 1
+    fi
+
+
     npm_executable=$(which npm)
     NPM_VERSION=`$npm_executable -v | cut -d\. -f1`
-    if [ $NPM_VERSION -lt 2 ]; then
-        echo "npm version 2 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+    if [ $NPM_VERSION -lt 3 ]; then
+        echo "npm version 3 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
 }
