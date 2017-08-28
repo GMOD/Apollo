@@ -33,6 +33,9 @@ repositories {
 ext {
     npmCommand = Os.isFamily(Os.FAMILY_WINDOWS) ? 'npm.cmd' : 'npm'
     githubURL = "https://github.com/"
+    nodeModulesDirectory = "node_modules"
+    jbrowseDirectory = "jbrowse-download"
+    pluginsDirectory = "jbrowse-download/plugins"
 }
 
 
@@ -60,8 +63,6 @@ dependencies {
 
 def jbrowseConfig
 def jbrowsePlugins
-def jbrowseDirectory = "jbrowse-download"
-def pluginsDirectory = "${jbrowseDirectory}/plugins"
 
 
 
@@ -97,40 +98,23 @@ task evaluateJBrowseConfigs {
 task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
     println "installing jbrowse ${jbrowseConfig}"
 
-    File jbrowseFile = new File(jbrowseDirectory)
+    File jbrowseFile = new File("jbrowse-download")
     if (jbrowseConfig.git) {
         def git = jbrowseConfig.git
         if (jbrowseFile.exists()) {
             if ( (git.alwaysRecheck || git.alwaysPull)) {
-                if(hasBower()) {
-                    refreshNpmRepo(jbrowseDirectory)
-                }
-                else{
-                    if (git.tag) {
-                        fetchTags(jbrowseFile)
-                        checkoutBranch(jbrowseFile, "tags/" + git.tag)
-                    } else if (git.branch) {
-                        checkoutBranch(jbrowseFile, git.branch)
-                    }
-                    if (git.alwaysPull && git.branch) {
-                        println "Pulling ${git.url}"
-                        gitPull(jbrowseFile)
-                    }
-                }
+                tasks.refreshNpmRepo.execute()
             }
         } else {
-            println "Cloning: ${git.url} into ${jbrowseDirectory}."
+            println "Cloning: ${git.url} into ${"jbrowse-download"}."
             def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
-            cloneRepo(git.url, jbrowseDirectory, branch, 1)
-            if(!hasBower()){
-                checkoutBranch(jbrowseFile, branch)
-            }
+            cloneRepo(git.url, "jbrowse-download", branch, 1)
         }
     } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
 
         if (jbrowseConfig.url.type == "zip") {
             // assume its a zip
-            def f = new File(jbrowseDirectory + ".zip")
+            def f = new File("jbrowse-directory"+ ".zip")
             new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
             File tempFile = File.createTempDir()
             ant.unzip(src: f.absolutePath, dest: tempFile, overwrite: false)
@@ -269,34 +253,30 @@ def cloneRepo(String url, String directory, String branch) {
     cloneRepo(url, directory, branch, null)
 }
 
-def cloneRepoNoBower(String url, String directory, String branch, Integer depth) {
-    String depthString = depth != null && depth > 0 ? " --recursive --depth ${depth} " : ""
-    def commandToExecute = "git clone ${depthString} ${url} ${directory} "
-    println "command to execute [${commandToExecute}]"
-    def proc = commandToExecute.execute()
-    def outputStream = new StringBuffer();
-    def errorStream = new StringBuffer();
-    proc.waitForProcessOutput(outputStream, errorStream);
-    println outputStream
-    println errorStream
-
-    if (branch.startsWith("tags")) {
-        fetchTags(new File(directory))
-    }
-    checkoutBranch(new File(directory), branch)
-}
-
-Boolean hasBower(){
-  return true
-}
+//def cloneRepoNoBower(String url, String directory, String branch, Integer depth) {
+//    String depthString = depth != null && depth > 0 ? " --recursive --depth ${depth} " : ""
+//    def commandToExecute = "git clone ${depthString} ${url} ${directory} "
+//    println "command to execute [${commandToExecute}]"
+//    def proc = commandToExecute.execute()
+//    def outputStream = new StringBuffer();
+//    def errorStream = new StringBuffer();
+//    proc.waitForProcessOutput(outputStream, errorStream);
+//    println outputStream
+//    println errorStream
+//
+//    if (branch.startsWith("tags")) {
+//        fetchTags(new File(directory))
+//    }
+//    checkoutBranch(new File(directory), branch)
+//}
 
 task removeJBrowseDownload(type:Delete){
-    delete("jbrowse-download")
+    delete(jbrowseDirectory)
 }
 
 task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
     doLast {
-        file("jbrowse-download").deleteDir()
+        file("jbrowse-download").deleteDir() // dependency handles this
         file("node_modules/jbrowse").renameTo(file("jbrowse-download"))
         file("node_modules/*").renameTo(file("jbrowse-download/src"))
         file("node_modules").deleteDir()
@@ -305,27 +285,28 @@ task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
 }
 
 task installJBrowseNpm(type:Exec) {
-    workingDir 'jbrowse-download'
+    workingDir jbrowseDirectory
     commandLine './setup.sh'
 }
 
-def refreshNpmRepo(String directory){
-    exec{
-        println "using npm to update: ${directory}"
-        workingDir directory
-        commandLine "npm","update"
-    }
+task refreshNpmRepo(type: Exec){
+//    println "using npm to update: ${directory}"
+    workingDir jbrowseDirectory
+    commandLine "npm","update"
 }
 
 def cloneRepoNpm(String url, String directory, String branch){
-    println "Initial JBrowse URL ${url},${directory},${branch}"
+    println "Cloning repo with ${url},${directory},${branch}"
     String finalUrl = url + (branch ? "#${branch}" : "")
-    println "finalurl 1: ${finalUrl}"
+//    println "finalurl 1: ${finalUrl}"
     finalUrl = finalUrl.replaceAll("tags/","")
-    println "finalurl 2: ${finalUrl}"
+//    println "finalurl 2: ${finalUrl}"
     if(finalUrl.startsWith(githubURL)){
         finalUrl = finalUrl.substring(githubURL.length())
-        println "finalurl github: ${finalUrl}"
+        println "final github url: ${finalUrl}"
+    }
+    else{
+        println "final non-github url: ${finalUrl}"
     }
     exec{
         println "using npm to install: ${finalUrl}"
@@ -333,9 +314,18 @@ def cloneRepoNpm(String url, String directory, String branch){
     }
 
     File npmDirectory = new File('node_modules')
-    println "Moving JBrowse into position ${finalUrl}"
-    tasks.moveNodeModulesJBrowse.execute()
-    tasks.installJBrowseNpm.execute()
+    if(finalUrl.contains("#") && (finalUrl.endsWith("jbrowse") || finalUrl.split("#")[0].endsWith("jbrowse"))) {
+        println "Moving JBrowse into position ${finalUrl}"
+        tasks.moveNodeModulesJBrowse.execute()
+        tasks.installJBrowseNpm.execute()
+    }
+    else{
+        npmDirectory.eachDir {
+            File targetFile = new File(directory)
+            println "Moving plugin into place: ${npmDirectory.absolutePath} -> ${targetFile}"
+            it.renameTo(targetFile)
+        }
+    }
 
     // delete on exit
     if(npmDirectory.exists() && npmDirectory.listFiles()?.length==0){
