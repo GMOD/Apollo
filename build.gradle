@@ -298,9 +298,7 @@ task refreshNpmRepo(type: Exec){
 def cloneRepoNpm(String url, String directory, String branch){
     println "Cloning repo with ${url},${directory},${branch}"
     String finalUrl = url + (branch ? "#${branch}" : "")
-//    println "finalurl 1: ${finalUrl}"
     finalUrl = finalUrl.replaceAll("tags/","")
-//    println "finalurl 2: ${finalUrl}"
     if(finalUrl.startsWith(githubURL)){
         finalUrl = finalUrl.substring(githubURL.length())
         println "final github url: ${finalUrl}"
