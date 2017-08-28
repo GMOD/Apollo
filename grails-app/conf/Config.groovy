@@ -391,7 +391,7 @@ jbrowse {
 //        tag = "99d8e6e1e7dfe290b839d41c18f41cf92d9afc7c"
 //		tag = "1.12.3-release"
 //        branch = "master"
-        branch = "f3292b59a1fa23558a08b38526e13ea0de9df941"
+        branch = "9d765aecaee02a41844fed11a241fdb4c35fc9f8"
         alwaysPull = false
         alwaysRecheck = false
     }
