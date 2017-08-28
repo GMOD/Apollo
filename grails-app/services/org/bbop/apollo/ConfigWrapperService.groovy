@@ -69,6 +69,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.export_subfeature_attrs
     }
 
+    def getCommonDataDirectory() {
+        return grailsApplication.config.apollo.common_data_directory
+    }
+
     def hasChadoDataSource() {
         if (grailsApplication.config.dataSource_chado) {
             return true
