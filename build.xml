@@ -39,8 +39,8 @@
             </classpath>
             <arg line="-war"/>
             <arg value="web-app"/>
-<!--            <arg line="-style"/>-->
-<!--            <arg value="PRETTY"/>-->
+            <!--            <arg line="-style"/>-->
+            <!--            <arg value="PRETTY"/>-->
             <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
             <arg line="${gwt.args}"/>
             <arg value="org.bbop.apollo.gwt.Annotator"/>
@@ -106,9 +106,9 @@
     <target name="unoptimized" description="unoptimized" depends="cloneJBrowse,copy.apollo.plugin.jbrowse">
         <copy todir="${apollo.jbrowse.directory}">
             <fileset dir="${jbrowse.download.directory}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
+                <exclude name="sample_data/**"/>
+                <exclude name="node_modules/**"/>
+                <exclude name="tests/**"/>
             </fileset>
         </copy>
         <delete dir="${apollo.jbrowse.directory}/.git"/>
@@ -123,9 +123,9 @@
         </exec>
         <move todir="${apollo.jbrowse.directory}">
             <fileset dir="JBrowse-${jbrowse.version}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
+                <exclude name="sample_data/**"/>
+                <exclude name="node_modules/**"/>
+                <exclude name="tests/**"/>
             </fileset>
         </move>
         <delete file="JBrowse-${jbrowse.version}.zip"/>
@@ -205,9 +205,9 @@
 
         <copy todir="${apollo.jbrowse.directory}">
             <fileset dir="${jbrowse.download.directory}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
+                <exclude name="sample_data/**"/>
+                <exclude name="node_modules/**"/>
+                <exclude name="tests/**"/>
             </fileset>
         </copy>
         <antcall target="install.jbrowse.perl"/>
@@ -232,9 +232,9 @@
     <target name="copy-jbrowse-into-webapp">
         <copy todir="${apollo.jbrowse.directory}">
             <fileset dir="${jbrowse.download.directory}">
-                <not>
-                    <filename name="sample_data/**"/>
-                </not>
+                <exclude name="sample_data/**"/>
+                <exclude name="node_modules/**"/>
+                <exclude name="tests/**"/>
             </fileset>
         </copy>
     </target>
@@ -245,7 +245,6 @@
             description="This is called externally by shell script.">
 
     </target>
-	
 
 
     <target name="copy-resources"

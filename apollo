@@ -75,24 +75,26 @@ function check_node(){
             exit 0
         fi
     fi
+    NODE_VERSION=`$node_executable -v | cut -d\. -f1`
+    if [[ $NODE_VERSION == v* ]]; then
+        NODE_VERSION=${NODE_VERSION:1}
+    fi
+    echo "Node Version: $NODE_VERSION"
+    if [ $NODE_VERSION -lt 5 ]; then
+        echo "node version 5 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+        exit 1
+    fi
+
+
     npm_executable=$(which npm)
     NPM_VERSION=`$npm_executable -v | cut -d\. -f1`
-    if [ $NPM_VERSION -lt 2 ]; then
-        echo "npm version 2 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+    echo "Npm Version: $NPM_VERSION"
+    if [ $NPM_VERSION -lt 3 ]; then
+        echo "npm version 3 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
 }
 
-function check_bower(){
-    bower_executable=$(which bower)
-    if ! [ -x "$bower_executable" ] ; then
-        $npm_executable install -g bower
-        if ! [ -x "$bower_executable" ] ; then
-            echo "You must install 'Bower' to do a release of Apollo.  sudo ${npm_executable} install -g bower"
-            exit 1 ;
-        fi
-    fi
-}
 
 function check_perldependencies(){
     perl -e 'use Text::Markdown'
@@ -142,7 +144,6 @@ function check_configs(){
     fi
 
     check_node
-    check_bower
     check_java
 }
 
