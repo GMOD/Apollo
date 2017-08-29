@@ -1,0 +1,71 @@
+{
+   "dataset_id" : "yeast",
+   "plugins" : [
+      "NeatHTMLFeatures",
+      "NeatCanvasFeatures",
+      "HideTrackLabels"
+   ],
+   "tracks" : [
+      {
+         "category" : "Reference sequence",
+         "seqType" : "dna",
+         "chunkSize" : 20000,
+         "label" : "DNA",
+         "urlTemplate" : "seq/{refseq_dirpath}/{refseq}-",
+         "key" : "Reference sequence",
+         "type" : "SequenceTrack",
+         "storeClass" : "JBrowse/Store/Sequence/StaticChunked"
+      },
+      {
+         "key" : "Protein-coding genes",
+         "autocomplete" : "all",
+         "style" : {
+            "arrowheadClass" : "transcript-arrowhead",
+            "subfeatureClasses" : {
+               "CDS" : "transcript-CDS"
+            },
+            "className" : "feature5"
+         },
+         "track" : "Genes",
+         "compress" : 0,
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         "type" : "FeatureTrack",
+         "subfeatures" : true,
+         "feature" : [
+            "gene"
+         ],
+         "category" : "Genes",
+         "urlTemplate" : "tracks/Genes/{refseq}/trackData.json",
+         "label" : "Genes"
+      },
+      {
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         "compress" : 0,
+         "description" : 1,
+         "type" : "FeatureTrack",
+         "key" : "Exonerate predictions (misconfigured for test, and with a long description)",
+         "autocomplete" : "all",
+         "style" : {
+            "className" : "transcript",
+            "subfeatureClasses" : {
+               "CDS" : "transcript-CDS",
+               "UTR" : "transcript-UTR"
+            },
+            "arrowheadClass" : "transcript-arrowhead"
+         },
+         "track" : "transcript_with_no_features",
+         "feature" : [
+            "mRNA"
+         ],
+         "category" : "Genes",
+         "urlTemplate" : "tracks/transcript_with_no_features/{refseq}/trackData.json",
+         "label" : "transcript_with_no_features",
+         "subfeatures" : true
+      }
+   ],
+   "names" : {
+      "type" : "Hash",
+      "url" : "names/"
+   },
+   "formatVersion" : 1
+}

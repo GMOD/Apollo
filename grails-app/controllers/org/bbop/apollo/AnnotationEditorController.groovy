@@ -1252,6 +1252,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         errorObject.put(FeatureStringEnum.USERNAME.value, username)
 
         def destination = "/topic/AnnotationNotification/user/" + username
+        log.error "destination: ${destination}"
+        log.error "message: ${exception?.message}"
         brokerMessagingTemplate.convertAndSend(destination, exception.message ?: exception.fillInStackTrace().fillInStackTrace())
 
         return errorObject.toString()

@@ -1,10 +1,13 @@
 /* styles for MAKER tracks and additional customization of WebApollo */
 .Dark .track_jbrowse_view_track_wiggle_xyplot .canvas-track {
-    background-color: #DDD;
+    background-color: hsla(240, 2%, 18%, 1);
 }
 
 .Dark .track_jbrowse_view_track_wiggle_density .canvas-track {
-    background-color: #DDD;
+    background-color: hsla(240, 2%, 18%, 1);
+}
+.Dark .wigglePositionIndicator {
+	background: white;
 }
 
 .Dark div.track  {
@@ -47,16 +50,13 @@
     color: #FAFFF9;
 }
 
-.Dark .track_annotations .feature-name {
-    color: #000;
-}
-
 .Dark div.feature-description {
     color: #bbb;
 }
 /* UI elements */
 .Dark div.locationTrap {
-    background-color: white;
+    background-color: #929292;
+	border-bottom-color: #0b2648;
 }
 
 .Dark .pin_underlay.track.block {
@@ -333,11 +333,15 @@
 */
 
 .Dark .left-edge-match  {
-    border-left: solid red 3px;
+    border-left: solid black 2px !important;
 }
 
 .Dark .right-edge-match  {
-    border-right: solid red 3px;
+    border-right: solid black 2px !important;
+}
+
+.Dark .selected-annotation {
+	outline-color: black;
 }
 
 /* start NeatHTMLFeatures styles */

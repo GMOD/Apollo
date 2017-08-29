@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -57,7 +59,6 @@ class CannedKeyController {
         }
 
         if (cannedKeyInstance.hasErrors()) {
-            println "has errors: ${cannedKeyInstance.errors}"
             respond cannedKeyInstance.errors, view:'create'
             return
         }
@@ -69,9 +70,7 @@ class CannedKeyController {
         }
 
         params?.organisms.each {
-            println "it ${it}"
             Organism organism = Organism.findById(it)
-            println "organism ${organism}"
             new CannedKeyOrganismFilter(
                     organism: organism,
                     cannedKey: cannedKeyInstance
@@ -114,9 +113,7 @@ class CannedKeyController {
         }
 
         params?.organisms.each {
-            println "it2: ${it}"
             Organism organism = Organism.findById(it)
-            println "organism ${organism}"
             new CannedKeyOrganismFilter(
                     organism: organism,
                     cannedKey: cannedKeyInstance

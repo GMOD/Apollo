@@ -4,8 +4,9 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.gwt.shared.projection.*
 import org.bbop.apollo.gwt.shared.track.TrackIndex
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.projection.*
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -42,7 +43,7 @@ class TrackService {
 
         File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            log.error "File does not exist when getting track data ${trackDataFilePath}"
+            log.error "File does not exist ${trackDataFilePath}"
             return null
         }
         return JSON.parse(file.text) as JSONObject
@@ -110,7 +111,7 @@ class TrackService {
 
         File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            log.error "File does not exist when getting chunk data ${trackDataFilePath}"
+            log.error "file does not exist ${trackDataFilePath}"
             return null
         }
         return JSON.parse(file.text) as JSONArray
@@ -1263,6 +1264,7 @@ class TrackService {
         String organismJBrowseDirectory = currentOrganism.directory
         println "directory is now ${organismJBrowseDirectory}"
         if (!organismJBrowseDirectory) {
+
             for (Organism organism in Organism.all) {
                 // load if not
                 if (!organism.sequences) {
@@ -1270,7 +1272,24 @@ class TrackService {
                 }
 
                 if (organism.sequences) {
-                    User user = permissionService.currentUser
+//                        User user = permissionService.currentUser
+//                        UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
+//                        Sequence sequence =  Sequence.findAllByOrganism(organism,[sort:"end",order:"desc",max: 1]).first()
+//                        if (userOrganismPreference == null) {
+//                            userOrganismPreference = new UserOrganismPreference(
+//                                    user: user
+//                                    , organism: organism
+//                                    , sequence: sequence
+//                                    , currentOrganism: true
+//                            ).save(insert: true, flush: true)
+//                        } else {
+//                            userOrganismPreference.sequence = sequence
+//                            userOrganismPreference.currentOrganism = true
+//                            userOrganismPreference.save()
+//                        }
+
+
+                        User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
                     def assemblageList = assemblageService.getAssemblagesForUserAndOrganism(permissionService.currentUser, organism)
                     JSONArray sequenceArray = new JSONArray()

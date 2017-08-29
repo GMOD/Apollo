@@ -145,6 +145,7 @@ class UserController {
     @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
+        preferenceService.evaluateSaves(true)
 
 
         // grab from session
@@ -462,9 +463,18 @@ class UserController {
         }
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
-        User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
+        User user = dataObject.userId ? User.findById(dataObject.userId as Long) : User.findByUsername(dataObject.user)
 
-        Organism organism = Organism.findByCommonName(dataObject.organism)
+        log.debug "Finding organism by ${dataObject.organism}"
+        Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
+        if (!organism) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism with ${dataObject.organism}"] as JSON)
+            return
+        }
+        if(!user){
+            log.error("Failed to find user with ${dataObject.userId} OR ${dataObject.user}")
+            render([(FeatureStringEnum.ERROR.value): "Failed to find user with ${dataObject.userId} OR ${dataObject.user}"] as JSON)
+        }
         log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {
             userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
@@ -474,7 +484,7 @@ class UserController {
             log.debug "creating new permissions! "
             userOrganismPermission = new UserOrganismPermission(
                     user: user
-                    , organism: Organism.findByCommonName(dataObject.organism)
+                    , organism: organism
                     , permissions: "[]"
             ).save(insert: true)
             log.debug "created new permissions! "

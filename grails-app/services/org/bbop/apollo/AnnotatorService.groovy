@@ -3,6 +3,8 @@ package org.bbop.apollo
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.preference.OrganismDTO
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -58,13 +60,13 @@ class AnnotatorService {
                 organismArray.add(jsonObject)
             }
             appStateObject.put("organismList", organismArray)
-            UserOrganismPreference currentUserOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(token)
-            if(currentUserOrganismPreference){
-                Organism currentOrganism = currentUserOrganismPreference?.organism
+            UserOrganismPreferenceDTO currentUserOrganismPreferenceDTO = preferenceService.getCurrentOrganismPreference(permissionService.currentUser,null,token)
+            if(currentUserOrganismPreferenceDTO){
+                OrganismDTO currentOrganism = currentUserOrganismPreferenceDTO?.organism
                 appStateObject.put("currentOrganism", currentOrganism )
 
 
-                if (!currentUserOrganismPreference.assemblage) {
+                if (!currentUserOrganismPreferenceDTO.assemblage) {
                     User currentUser = currentUserOrganismPreference.user
                     // find the first assemblage with a matching organism
                     def assemblages = assemblageService.getAssemblagesForUserAndOrganism(currentUser,currentOrganism)
@@ -74,15 +76,21 @@ class AnnotatorService {
                         Sequence sequence = Sequence.findByOrganism(currentOrganism)
                         assemblage = assemblageService.generateAssemblageForSequence(sequence)
                     }
-                    currentUserOrganismPreference.assemblage = assemblage
-                    currentUserOrganismPreference.save()
+                    currentUserOrganismPreferenceDTO.assemblage = assemblage
+//                    currentUserOrganismPreference.save()
+//                if (!currentUserOrganismPreferenceDTO.sequence) {
+//                    Organism organism = Organism.findById(currentOrganism.id)
+//                    Sequence sequence = Sequence.findByOrganism(organism,[sort:"name",order:"asc",max: 1])
+//                    // often the case when creating it
+//                    currentUserOrganismPreferenceDTO.sequence = preferenceService.getDTOFromSequence(sequence)
                 }
-                appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(currentUserOrganismPreference.assemblage))
+                appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(currentUserOrganismPreferenceDTO.assemblage))
+//                appStateObject.put("currentSequence", currentUserOrganismPreferenceDTO.sequence)
 
 
-                if (currentUserOrganismPreference.startbp && currentUserOrganismPreference.endbp) {
-                    appStateObject.put("currentStartBp", currentUserOrganismPreference.startbp)
-                    appStateObject.put("currentEndBp", currentUserOrganismPreference.endbp)
+                if (currentUserOrganismPreferenceDTO.startbp && currentUserOrganismPreferenceDTO.endbp) {
+                    appStateObject.put("currentStartBp", currentUserOrganismPreferenceDTO.startbp)
+                    appStateObject.put("currentEndBp", currentUserOrganismPreferenceDTO.endbp)
                 }
             }
         }

@@ -6,8 +6,8 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.8
 grails.project.source.level = 1.8
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
-def gebVersion = '0.9.3'
-def seleniumVersion = '2.21.0'
+def gebVersion = '1.0'
+def seleniumVersion = "2.51.0"
 
 
 //forkConfig = [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
@@ -20,7 +20,7 @@ grails.project.fork = [
         // configure settings for the test-app JVM, uses the daemon by default
         //test: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, daemon:true],
         // configure settings for the run-app JVM
-        run    : [maxMemory: 2048, minMemory: 64, debug: false , maxPerm: 1024, forkReserve: false],
+        run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
         // configure settings for the run-war JVM
         war    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
         // configure settings for the Console UI JVM
@@ -45,7 +45,8 @@ grails.project.dependency.resolution = {
 
     log "error" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
     checksums true // whether to verify checksums on resolve
-    legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
+    legacyResolve false
+    // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
 
     repositories {
 
@@ -54,7 +55,6 @@ grails.project.dependency.resolution = {
         mavenLocal()
         grailsCentral()
         mavenCentral()
-
 
         // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
@@ -74,7 +74,7 @@ grails.project.dependency.resolution = {
         // svg generation
         compile group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.9'
         compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.7'
-
+        compile group: 'org.apache.commons', name: 'commons-compress', version: '1.14'
 
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
@@ -99,6 +99,8 @@ grails.project.dependency.resolution = {
 //        test "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
 //        test "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
 //        test "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+//
+////        test "org.gebish:geb-spock:$gebVersion"
 //        test "org.gebish:geb-spock:$gebVersion"
         //test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 
@@ -121,14 +123,12 @@ grails.project.dependency.resolution = {
         compile ':cache:1.1.8'
         compile ':cache-ehcache:1.0.5'
 
-
         compile ':asset-pipeline:2.1.5'
         compile ":spring-websocket:1.3.1"
-        compile (":shiro:1.2.1") {
+        compile(":shiro:1.2.1") {
             excludes([name: 'quartz', group: 'org.opensymphony.quartz'])
         }
         compile ":audit-logging:1.0.3"
-
 
         // Uncomment these to enable additional asset-pipeline capabilities
         //compile ":sass-asset-pipeline:1.9.0"
@@ -141,8 +141,6 @@ grails.project.dependency.resolution = {
         runtime ":database-migration:1.4.1"
         runtime ":jquery-ui:1.10.4"
         runtime ":jquery:1.11.1"
-
-
 
         // https://github.com/groovydev/twitter-bootstrap-grails-plugin/blob/master/README.md
         runtime ':twitter-bootstrap:3.3.5'
@@ -160,11 +158,18 @@ grails.project.dependency.resolution = {
         compile "org.grails.plugins:quartz2:2.1.6.2"
 
 
-
         //compile ":joda-time:1.4"
         // TODO: re-add when ready to install functional tests
 //        test    ":geb:$gebVersion"
-//        runtime ":typescript:0.3.9"
+//        test "org.grails.plugins:geb:$gebVersion"
+//        test 'com.github.detro:phantomjsdriver:1.2.0'
+
+
+//        grails.plugin.location.'chado-grails' = "../chado-grails"
+//        grails.plugin.location.'test-plugin' = "../test-plugin"
+//        runtime ":chado:0.1"
+//        compile ":test-plugin:0.1"
+//        compile ":chado-plugin:0.1"
 
         // remember to sync rest
         runtime ":rest-client-builder:2.1.1"
