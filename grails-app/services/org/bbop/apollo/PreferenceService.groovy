@@ -40,8 +40,6 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO getDTOPreferenceFromObject(JSONObject userOrganismPreferenceObject) {
-//        JSONObject sequenceObject = userOrganismPreferenceObject.containsKey(FeatureStringEnum.SEQUENCE.value) && !userOrganismPreferenceObject.isNull(FeatureStringEnum.SEQUENCE.value) ? userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.SEQUENCE.value) : null
-//        SequenceDTO sequenceDTO = sequenceObject ? getDTOSequenceFromObject(sequenceObject) : null
         OrganismDTO organismDTO = getDTOFromOrganismFromObject(userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.ORGANISM.value))
         SequenceDTO sequenceDTO = getDTOSequenceFromObject(userOrganismPreferenceObject.getJSONObject(FeatureStringEnum.SEQUENCE.value))
         UserDTO userDTO = getDTOUserFromObject(userOrganismPreferenceObject.getJSONObject("user"))
@@ -90,14 +88,6 @@ class PreferenceService {
         return organismDTO
     }
 
-    def printKeys(Session thisSession) {
-        println "==== START KEYS ===="
-        def keys = thisSession.getAttributeKeys()
-        keys.each {
-            println "key[${it}] value[${thisSession.getAttribute(it)}]"
-        }
-        println "==== END KEYS ===="
-    }
 
     JSONObject getSessionPreferenceObject(String clientToken) {
         try {
@@ -405,9 +395,9 @@ class PreferenceService {
         try {
             while (sequenceMapSetIterator.hasNext()) {
                 Map.Entry<UserOrganismPreferenceDTO, Date> userOrganismPreferenceDTOEntry = sequenceMapSetIterator.next()
-                println "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
-                println "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
-                println "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
+                log.debug "DTO: ${userOrganismPreferenceDTOEntry.key as JSON}"
+                log.debug "value date : ${saveSequenceLocationMap.get(userOrganismPreferenceDTOEntry.key)}"
+                log.debug "value date 2 : ${userOrganismPreferenceDTOEntry.value}"
                 if (onlySaveToken && onlySaveToken == userOrganismPreferenceDTOEntry.key.clientToken) {
                     evaluateSave(userOrganismPreferenceDTOEntry.value, userOrganismPreferenceDTOEntry.key, forceSaves)
                 } else {
@@ -439,13 +429,6 @@ class PreferenceService {
         }
     }
 
-    private def printSaves() {
-        println "# of entries ${saveSequenceLocationMap.size()}"
-        saveSequenceLocationMap.each {
-            println "JSON: [" + (it.key as JSON) + "] date[" + it.value + "]"
-        }
-    }
-
     def scheduleDbSave(Date date, UserOrganismPreferenceDTO preferenceDTO) {
         // these should replace, though
         if (!currentlySavingLocation.contains(preferenceDTO.clientToken)) {
@@ -453,7 +436,6 @@ class PreferenceService {
             currentlySavingLocation.add(preferenceDTO.clientToken)
         }
         saveSequenceLocationMap.put(preferenceDTO, date)
-//        printSaves()
     }
 
     def scheduleSaveSequenceLocationInDB(UserOrganismPreferenceDTO userOrganismPreferenceDTO) {
@@ -626,7 +608,7 @@ class PreferenceService {
 
         UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
         preference = preference ?: getSavingPreferences(user, sequenceName, clientToken)
-        println "found in-memory preference: ${preference ? preference as JSON : null}"
+        log.debug "found in-memory preference: ${preference ? preference as JSON : null}"
         return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
     }
 
