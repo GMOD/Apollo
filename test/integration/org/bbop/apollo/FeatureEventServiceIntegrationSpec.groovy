@@ -1262,7 +1262,6 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-    @IgnoreRest
     void "we should be able to do a split THEN merge and undo and then redo it"() {
 
         given: "two transcripts A = gb40788 and B = gb40787"
