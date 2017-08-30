@@ -25,7 +25,7 @@ services:
 - mysql
 
 before_install:
-  - npm i -g npm@version-number
+#  - npm i -g npm@3
   - npm install -g jshint
 
 before_script:
