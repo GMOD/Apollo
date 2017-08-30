@@ -25,10 +25,11 @@ services:
 - mysql
 
 before_install:
-#  - npm i -g npm@3
   - npm install -g jshint
 
 before_script:
+  - node -v
+  - npm -v
   - "echo $JAVA_OPTS"
   - "export JAVA_OPTS='-Xmx2048m'"
   - "echo $JAVA_OPTS"
