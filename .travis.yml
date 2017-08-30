@@ -3,6 +3,8 @@ dist: trusty
 group: deprecated
 
 language: groovy
+node_js:
+  - "iojs"
 
 env:
   - DB=postgres
@@ -23,7 +25,8 @@ services:
 - mysql
 
 before_install:
-  - npm install -g jshint bower
+  - npm i -g npm@version-number
+  - npm install -g jshint
 
 before_script:
   - "echo $JAVA_OPTS"
