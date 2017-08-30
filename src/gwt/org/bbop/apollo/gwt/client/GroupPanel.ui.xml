@@ -121,7 +121,7 @@
                     <b:Container fluid="true" width="100%">
                         <b:Row>
                             <b:Column size="MD_8">
-                                <select:MultipleSelect width="100%" title="Membership" maxOptions="5" selectedTextFormat="COUNT"
+                                <select:MultipleSelect width="100%" title="Membership"  selectedTextFormat="COUNT"
                                                        countSelectedTextFormat="2"
                                                        ui:field="availableUsers"
                                                        liveSearch="true">
