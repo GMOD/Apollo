@@ -444,11 +444,19 @@ class FeatureEventService {
         else if (newIndex < currentIndex) {
             List<List<FeatureEvent>> previousFeatureEvents = findPreviousFeatureEvents(currentFeatureEvent)
             if (newIndex >= previousFeatureEvents.size()) {
-//                throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different element.")
-//                newIndex = previousFeatureEvents.size()-1
-                log.warn "This is an unsafe operation."
+//                log.warn "This is an unsafe operation."
+                // add them back to the newIndex
+                // we are going back as far as we can go without deleting the element
+                currentFeatureEventArray = previousFeatureEvents.get(previousFeatureEvents.size()-1)
+//                throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different element.  Please refresh your screen to see the current state of the elements.")
             }
-            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
+//            else
+//            if (newIndex < 0) {
+//                currentFeatureEventArray = previousFeatureEvents.get(0)
+//            }
+            else{
+                currentFeatureEventArray = previousFeatureEvents.get(newIndex)
+            }
             currentFeatureEventArray.each {
                 it.current = true
                 it.save()
