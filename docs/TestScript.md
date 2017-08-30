@@ -169,13 +169,15 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.3) Check that clicking on the show JBrowse tracks selector icons properly toggles the JBrowse tracks.
 
-13.2.3.1) Click on the track panel and confirm that doing and undoing the toggle switch toggles the JBrowse track view and the main panel toggle icon.
+13.2.3.1) Click on the track panel and confirm that selecting and unselecting the JBrowse track view and the main panel toggle icon.  
 
 13.2.3.2) Click on the main panel toggle button and confirm that doing and undoing the toggle switch toggles the JBrowse track view and switches the track panel toggle as well.
 
 13.2.3.3) Confirm that reload in either case saves the prior preference.
 
 13.2.3.4) Test as Admin and non-Admin for one case to confirm layout.
+
+13.2.3.5) Test a set of track categories can handle opening and closing, searching, and select / unselect all.
 
 13.3) Ref Sequence
 
@@ -218,7 +220,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.9.2) Confirm that clicking on a logged in link option in the main window when _logged out_ will take you to the login screen and then redirect you to the proper _Annotator Panel_ view when approved with the same selections in-tact.
 
-### C) Testing Integration
+### C) Testing Security Linking
 
 14) Test security redirect 
 
@@ -250,7 +252,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 15.3.3) Run ```add_features_from_gff3_to_annotations.pl``` against the same organism and user and confirm that it works. ```./add_features_from_gff3_to_annotations.pl -U http://testserver.gov/Apollo-staging -u adminuser@admin.gov -p adminpassword -i Annotations-chrI.gff3  --organism SampleOrganism```
 
-15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  ```groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism
+15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  `groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism`
 
 
 
