@@ -466,11 +466,11 @@ class FeatureEventService {
         log.debug "deepest current index ${currentIndex}"
 
         List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
-        log.debug "current feature event array ${currentFeatureEventArray as JSON}"
+        log.debug "current feature event array ${currentFeatureEventArray}"
         FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
 
-        println "current feature event ${currentFeatureEvent as JSON}"
+        log.debug "current feature event ${currentFeatureEvent}"
         // if the current index is GREATER, then find the future indexes and set appropriately
         if (newIndex > currentIndex) {
             List<List<FeatureEvent>> futureFeatureEvents = findFutureFeatureEvents(currentFeatureEvent)
