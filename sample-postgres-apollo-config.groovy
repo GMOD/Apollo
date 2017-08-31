@@ -119,9 +119,6 @@ environments {
 //	// We advise caution if enabling these plugins with Apollo until this process is finalized.
 //    }
 //    plugins {
-//        WebApollo{
-//            included = true
-//        }
 //        NeatHTMLFeatures{
 //            included = true
 //        }

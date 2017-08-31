@@ -72,9 +72,6 @@ environments {
 //        alwaysRecheck = true
 //    }
 //    plugins {
-//        WebApollo{
-//            included = true
-//        }
 //        NeatHTMLFeatures{
 //            included = true
 //        }
