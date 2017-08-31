@@ -400,6 +400,54 @@ class FeatureEventService {
     }
 
     /**
+     * Evaluates if history can be set to a certain position.
+     * Should mirror setTransactionForFeature
+     * @param uniqueName
+     * @param count
+     * @return Error message
+     */
+    Boolean evaluateSetTransactionForFeature(String uniqueName, int newIndex) throws AnnotationException{
+        try {
+            log.debug "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
+            log.debug "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
+
+            // find the current index of the current feature
+            Integer currentIndex = getCurrentFeatureEventIndex(uniqueName)
+            log.debug "deepest current index ${currentIndex}"
+
+            List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
+            log.debug "current feature event array ${currentFeatureEventArray as JSON}"
+            FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
+            currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
+
+            log.debug "current feature event ${currentFeatureEvent as JSON}"
+            // if the current index is GREATER, then find the future indexes and set appropriately
+            if (newIndex > currentIndex) {
+                List<List<FeatureEvent>> futureFeatureEvents = findFutureFeatureEvents(currentFeatureEvent)
+                currentFeatureEventArray = futureFeatureEvents.get(newIndex - currentIndex - 1)
+                // subtract one for the index offset
+            }
+            // if the current index is LESS, then find the previous indexes and set appropriately
+            else if (newIndex < currentIndex) {
+                List<List<FeatureEvent>> previousFeatureEvents = findPreviousFeatureEvents(currentFeatureEvent)
+    //            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
+                if (newIndex >= previousFeatureEvents.size()) {
+                    throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different genomic feature.")
+                }
+            }
+            return true
+        } catch (e) {
+            // just pass it through
+            if(e instanceof AnnotationException){
+                throw e
+            }
+            else{
+                throw new AnnotationException("Can not set history for this operation.  Try to undo or redo using a different genomic feature. ${e.message}")
+            }
+        }
+    }
+
+    /**
      * CurrentIndex of 0 is the oldest.  Highest number is the most recent
      * This returns an array.  We could have any number of splits going forward, so we have to return an array here.
      * @param uniqueName
@@ -410,22 +458,15 @@ class FeatureEventService {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
-        println "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
-        println "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
+        log.debug "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
+        log.debug "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
 
         // find the current index of the current feature
         Integer currentIndex = getCurrentFeatureEventIndex(uniqueName)
-        // since newIndex uses the "Deepest" index, they should use the deepest available current index I think
-//        featureEventMap.keySet().each {
-//            if(it!=uniqueName){
-//                def index = getCurrentFeatureEventIndex(it)
-//                currentIndex = index > currentIndex ? index : currentIndex
-//            }
-//        }
-        println "deepest current index ${currentIndex}"
+        log.debug "deepest current index ${currentIndex}"
 
         List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
-        println "current feature event array ${currentFeatureEventArray as JSON}"
+        log.debug "current feature event array ${currentFeatureEventArray as JSON}"
         FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
 
@@ -443,20 +484,7 @@ class FeatureEventService {
         // if the current index is LESS, then find the previous indexes and set appropriately
         else if (newIndex < currentIndex) {
             List<List<FeatureEvent>> previousFeatureEvents = findPreviousFeatureEvents(currentFeatureEvent)
-            if (newIndex >= previousFeatureEvents.size()) {
-//                log.warn "This is an unsafe operation."
-                // add them back to the newIndex
-                // we are going back as far as we can go without deleting the element
-                currentFeatureEventArray = previousFeatureEvents.get(previousFeatureEvents.size()-1)
-//                throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different element.  Please refresh your screen to see the current state of the elements.")
-            }
-//            else
-//            if (newIndex < 0) {
-//                currentFeatureEventArray = previousFeatureEvents.get(0)
-//            }
-            else{
-                currentFeatureEventArray = previousFeatureEvents.get(newIndex)
-            }
+            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
             currentFeatureEventArray.each {
                 it.current = true
                 it.save()
@@ -468,7 +496,6 @@ class FeatureEventService {
 
         currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
-
 
         setNotPreviousFutureHistoryEvents(currentFeatureEvent)
         setNotCurrentFutureHistoryEvents(currentFeatureEvent)
@@ -512,9 +539,8 @@ class FeatureEventService {
 
 
 
-
+        assert evaluateSetTransactionForFeature(uniqueName, count)
         deleteCurrentState(inputObject, newUniqueNames, sequence)
-
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
         def transcriptsToCheckForIsoformOverlap = []
@@ -587,6 +613,7 @@ class FeatureEventService {
         return featureEventArray
 
     }
+
 
     def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
         for (uniqueName in newUniqueNames) {
