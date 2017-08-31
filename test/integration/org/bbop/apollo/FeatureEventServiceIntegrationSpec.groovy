@@ -6,7 +6,6 @@ import org.bbop.apollo.history.FeatureOperation
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.IgnoreRest
 
 class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -1414,37 +1413,21 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
             a.featureLocation.fmin <=> b.featureLocation.fmin
         }
         undoString = undoOperation.replace("@UNIQUENAME@", sortedTranscripts[0].uniqueName).replace("@COUNT@", "1")
-        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
-        mrna40787 = MRNA.findByName("GB40787-RA-00001")
-        mrna40788 = MRNA.findByName("GB40788-RA-00001")
+        try {
+            requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+            assert false
+        } catch (e) {
+            assert true
+            assert e instanceof AnnotationException
+        }
 
-
-        then: "it should take us all the way back to the start (pre-split)"
-//        assert mrna40787 != null
-//        assert mrna40788 != null
+        then: "should be the same counts"
         assert Gene.count == 2
         assert MRNA.count == 2
         assert CDS.count == 2
         assert Exon.count == 5
-        assert NonCanonicalFivePrimeSpliceSite.count == 0
-        assert NonCanonicalThreePrimeSpliceSite.count == 0
-
-//        when: "we redo the right transcript all the way forward"
-//        sortedTranscripts = Transcript.all.sort() { a, b ->
-//            a.featureLocation.fmin <=> b.featureLocation.fmin
-//        }
-//        redoString = redoOperation.replace("@UNIQUENAME@", sortedTranscripts[1].uniqueName).replace("@COUNT@", "2")
-//        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
-//
-//
-//        then: "it should take us all the way back to the start (pre-split)"
-//        assert Gene.count == 2
-//        assert MRNA.count == 2
-//        assert CDS.count == 2
-//        assert Exon.count == 5
-//        assert NonCanonicalFivePrimeSpliceSite.count == 1
-//        assert NonCanonicalThreePrimeSpliceSite.count == 1
-
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
 
         when: "we delete the first transcript"
         def mrnaToDelete = MRNA.all.first().uniqueName
