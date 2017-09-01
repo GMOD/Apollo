@@ -460,6 +460,8 @@ class JbrowseController {
             }
         }
 
+        removeIncludedPlugins(jsonObject.plugins)
+
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
             println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
@@ -473,6 +475,26 @@ class JbrowseController {
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
+    }
+
+    /**
+     * Removes plugins included in annot.json (which is just WebApollo)
+     * @param pluginsArray
+     */
+    def removeIncludedPlugins(JSONArray pluginsArray) {
+        for(plugin in pluginsArray){
+            if(plugin instanceof JSONObject){
+                if(plugin.name == "WebApollo"){
+                    pluginsArray.remove(plugin)
+                }
+            }
+            else
+            if(plugin instanceof String){
+                if(plugin=="WebApollo"){
+                    pluginsArray.remove(plugin)
+                }
+            }
+        }
     }
 
     private static boolean isCacheableFile(String fileName) {
