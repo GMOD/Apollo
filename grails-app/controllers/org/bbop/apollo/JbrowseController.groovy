@@ -417,7 +417,6 @@ class JbrowseController {
 
         if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-//            organismObject.put("name", Organism.findById(id).commonName)
             organismObject.put("name", currentOrganism.commonName)
             organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
@@ -488,14 +487,12 @@ class JbrowseController {
             if(plugin instanceof JSONObject){
                 if(plugin.name == "WebApollo"){
                     iterator.remove()
-//                    pluginsArray.remove(plugin)
                 }
             }
             else
             if(plugin instanceof String){
                 if(plugin=="WebApollo"){
                     iterator.remove()
-//                    pluginsArray.remove(plugin)
                 }
             }
 
@@ -580,9 +577,6 @@ class JbrowseController {
 //        }
         
         response.setContentType(mimeType);
-//        // Set content size
-//        response << file.text
-//        response.flushBuffer()
         // Set content size
         response.setContentLength((int) file.length());
 
@@ -592,12 +586,12 @@ class JbrowseController {
 
         // Copy the contents of the file to the output stream
         byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-        int count = 0;
+        int count = 0
         while ((count = inputStream.read(buf)) >= 0) {
-            out.write(buf, 0, count);
+            out.write(buf, 0, count)
         }
-        inputStream.close();
-        out.close();
+        inputStream.close()
+        out.close()
     }
 
 }
