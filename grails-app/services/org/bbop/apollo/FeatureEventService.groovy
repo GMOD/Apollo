@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -401,6 +400,54 @@ class FeatureEventService {
     }
 
     /**
+     * Evaluates if history can be set to a certain position.
+     * Should mirror setTransactionForFeature
+     * @param uniqueName
+     * @param count
+     * @return Error message
+     */
+    Boolean evaluateSetTransactionForFeature(String uniqueName, int newIndex) throws AnnotationException{
+        try {
+            log.debug "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
+            log.debug "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
+
+            // find the current index of the current feature
+            Integer currentIndex = getCurrentFeatureEventIndex(uniqueName)
+            log.debug "deepest current index ${currentIndex}"
+
+            List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
+            log.debug "current feature event array ${currentFeatureEventArray as JSON}"
+            FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
+            currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
+
+            log.debug "current feature event ${currentFeatureEvent as JSON}"
+            // if the current index is GREATER, then find the future indexes and set appropriately
+            if (newIndex > currentIndex) {
+                List<List<FeatureEvent>> futureFeatureEvents = findFutureFeatureEvents(currentFeatureEvent)
+                currentFeatureEventArray = futureFeatureEvents.get(newIndex - currentIndex - 1)
+                // subtract one for the index offset
+            }
+            // if the current index is LESS, then find the previous indexes and set appropriately
+            else if (newIndex < currentIndex) {
+                List<List<FeatureEvent>> previousFeatureEvents = findPreviousFeatureEvents(currentFeatureEvent)
+    //            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
+                if (newIndex >= previousFeatureEvents.size()) {
+                    throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different genomic feature.")
+                }
+            }
+            return true
+        } catch (e) {
+            // just pass it through
+            if(e instanceof AnnotationException){
+                throw e
+            }
+            else{
+                throw new AnnotationException("Can not set history for this operation.  Try to undo or redo using a different genomic feature. ${e.message}")
+            }
+        }
+    }
+
+    /**
      * CurrentIndex of 0 is the oldest.  Highest number is the most recent
      * This returns an array.  We could have any number of splits going forward, so we have to return an array here.
      * @param uniqueName
@@ -411,26 +458,24 @@ class FeatureEventService {
 
         Map<String, Map<Long, FeatureEvent>> featureEventMap = extractFeatureEventGroup(uniqueName)
 
-        log.info "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
-        log.info "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
+        log.debug "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
+        log.debug "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
 
         // find the current index of the current feature
         Integer currentIndex = getCurrentFeatureEventIndex(uniqueName)
-        // since newIndex uses the "Deepest" index, they should use the deepest available current index I think
-//        featureEventMap.keySet().each {
-//            if(it!=uniqueName){
-//                def index = getCurrentFeatureEventIndex(it)
-//                currentIndex = index > currentIndex ? index : currentIndex
-//            }
-//        }
+        log.debug "deepest current index ${currentIndex}"
 
         List<FeatureEvent> currentFeatureEventArray = findCurrentFeatureEvent(uniqueName)
+        log.debug "current feature event array ${currentFeatureEventArray}"
         FeatureEvent currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
+
+        log.debug "current feature event ${currentFeatureEvent}"
         // if the current index is GREATER, then find the future indexes and set appropriately
         if (newIndex > currentIndex) {
             List<List<FeatureEvent>> futureFeatureEvents = findFutureFeatureEvents(currentFeatureEvent)
-            currentFeatureEventArray  = futureFeatureEvents.get(newIndex-currentIndex-1) // subtract one for the index offset
+            currentFeatureEventArray = futureFeatureEvents.get(newIndex - currentIndex - 1)
+            // subtract one for the index offset
             currentFeatureEventArray.each {
                 it.current = true
                 it.save()
@@ -444,15 +489,13 @@ class FeatureEventService {
                 it.current = true
                 it.save()
             }
-        }
-        else{
+        } else {
             log.warn("Setting history to same place ${currentIndex} -> ${newIndex}")
-            return findCurrentFeatureEvent(uniqueName,featureEventMap)
+            return findCurrentFeatureEvent(uniqueName, featureEventMap)
         }
 
         currentFeatureEvent = currentFeatureEventArray.find() { it.uniqueName == uniqueName }
         currentFeatureEvent = currentFeatureEvent ?: currentFeatureEventArray.first()
-
 
         setNotPreviousFutureHistoryEvents(currentFeatureEvent)
         setNotCurrentFutureHistoryEvents(currentFeatureEvent)
@@ -496,9 +539,8 @@ class FeatureEventService {
 
 
 
-
+        assert evaluateSetTransactionForFeature(uniqueName, count)
         deleteCurrentState(inputObject, newUniqueNames, sequence)
-
         List<FeatureEvent> featureEventArray = setTransactionForFeature(uniqueName, count)
 
         def transcriptsToCheckForIsoformOverlap = []
@@ -571,6 +613,7 @@ class FeatureEventService {
         return featureEventArray
 
     }
+
 
     def deleteCurrentState(JSONObject inputObject, List<String> newUniqueNames, Sequence sequence) {
         for (uniqueName in newUniqueNames) {
@@ -661,7 +704,7 @@ class FeatureEventService {
         }
         FeatureEvent currentFeatureEvent = currentFeatureEventList.iterator().next()
         def history = getHistory(uniqueName)
-        Integer deepestIndex = history.size()-1
+        Integer deepestIndex = history.size() - 1
         def previousEvents = findPreviousFeatureEvents(currentFeatureEvent)
         def futureEvents = findFutureFeatureEvents(currentFeatureEvent)
         def offset = deepestIndex - futureEvents.size() - previousEvents.size()
@@ -780,7 +823,7 @@ class FeatureEventService {
 
     def buildMap(FeatureEvent featureEvent, TreeMap<Integer, Set<FeatureEvent>> unindexedMap, int index, Boolean includePrevious, Boolean includeFuture) {
 
-        if(!featureEvent) return
+        if (!featureEvent) return
 
         def featureEventSet = unindexedMap.get(index)
         if (!featureEventSet) {
@@ -818,7 +861,7 @@ class FeatureEventService {
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
 
             List<FeatureEvent> currentFeatureEventList = findCurrentFeatureEvent(uniqueName)
-            def thisFeatureEvent = currentFeatureEventList.find(){ it.uniqueName == uniqueName}
+            def thisFeatureEvent = currentFeatureEventList.find() { it.uniqueName == uniqueName }
             thisFeatureEvent = thisFeatureEvent ?: currentFeatureEventList.first()
             def futureEvents = findFutureFeatureEvents(thisFeatureEvent)
             def previousEvents = findPreviousFeatureEvents(thisFeatureEvent)
@@ -835,7 +878,7 @@ class FeatureEventService {
             for (int j = 0; j < transactionList.size(); ++j) {
                 // not sure if this is correct, or if I should just add both?
                 List<FeatureEvent> transactionSet = transactionList[j]
-                FeatureEvent transaction = transactionSet.find(){it.uniqueName==uniqueName}
+                FeatureEvent transaction = transactionSet.find() { it.uniqueName == uniqueName }
                 transaction = transaction ?: transactionSet.first()
                 // prefer a predecessor that is not "ADD_TRANSCRIPT"?
 
