@@ -482,18 +482,23 @@ class JbrowseController {
      * @param pluginsArray
      */
     def removeIncludedPlugins(JSONArray pluginsArray) {
-        for(plugin in pluginsArray){
+        def iterator = pluginsArray.iterator()
+        while(iterator.hasNext()){
+            def plugin = iterator.next()
             if(plugin instanceof JSONObject){
                 if(plugin.name == "WebApollo"){
-                    pluginsArray.remove(plugin)
+                    iterator.remove()
+//                    pluginsArray.remove(plugin)
                 }
             }
             else
             if(plugin instanceof String){
                 if(plugin=="WebApollo"){
-                    pluginsArray.remove(plugin)
+                    iterator.remove()
+//                    pluginsArray.remove(plugin)
                 }
             }
+
         }
     }
 
