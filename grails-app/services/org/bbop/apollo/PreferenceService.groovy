@@ -331,7 +331,7 @@ class PreferenceService {
     static UserOrganismPreference getMostRecentPreference(List<UserOrganismPreference> userOrganismPreferences) {
         if (userOrganismPreferences) {
             return userOrganismPreferences.sort() { a, b ->
-                a.lastUpdated <=> b.lastUpdated
+                b.lastUpdated <=> a.lastUpdated
             }.first()
         }
         return null
