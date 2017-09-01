@@ -1,11 +1,25 @@
 #!/bin/bash
 
+url=$1
+username=$2
+password=$3
+userid=$4
+
+usage() {
+    echo "Sample script to get all features from a sequence of an organism via web services"
+    echo "Usage:    ./loadUsers.sh <complete_apollo_URL> <username> <password> <user_id>"
+    echo "Example:  ./loadUsers.sh http://localhost:8080/apollo demo demo 12345"
+}
+
+if [[ ! -n "$url" || ! -n "$username" || ! -n "$password" ]]; then
+    usage
+    exit
+fi
+
 echo "Load all users"
-curl  -i -X POST -H 'Content-Type: application/json' -d "{'username': 'demo@demo.com', 'password': 'supersecret'}" http://localhost:8080/apollo/user/loadUsers
+curl  -i -X POST -H 'Content-Type: application/json' -d "{'username': '${username}', 'password': '${password}'}" "${url}/user/loadUsers"
 
 
 echo "Load one users with a given userId"
 
-curl  -i -X POST -H 'Content-Type: application/json' -d "{'username': 'demo@demo.com', 'password': 'supersecret','userId':288335}" http://localhost:8080/apollo/user/loadUsers
-
-  
+curl  -i -X POST -H 'Content-Type: application/json' -d "{'username': '${username}', 'password': '${password}','userId': ${userid}}" http://localhost:8080/apollo/user/loadUsers
