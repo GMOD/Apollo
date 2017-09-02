@@ -248,7 +248,7 @@ class FeatureEventService {
         return featureEvent
     }
 
-    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new Treet Map<>()) {
+    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new TreeMap<>()) {
         def featureEvents = FeatureEvent.findAllByUniqueName(uniqueName)
         Map<Long, FeatureEvent> longFeatureEventMap = new TreeMap<>()
         Set<Long> idsToCollect = new HashSet<>()
