@@ -248,14 +248,9 @@ class FeatureEventService {
         return featureEvent
     }
 
-//    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new TreeMap<>()) {
-//        def featureEvents = FeatureEvent.findAllByUniqueName(uniqueName).sort(){ a,b ->
-//            b.lastUpdated <=> a.lastUpdated
-//        }
-//        Map<Long, FeatureEvent> longFeatureEventMap = new TreeMap<>()
-    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new HashMap<>()) {
+    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new Treet Map<>()) {
         def featureEvents = FeatureEvent.findAllByUniqueName(uniqueName)
-        Map<Long, FeatureEvent> longFeatureEventMap = new HashMap<>()
+        Map<Long, FeatureEvent> longFeatureEventMap = new TreeMap<>()
         Set<Long> idsToCollect = new HashSet<>()
         featureEvents.each {
             longFeatureEventMap.put(it.id, it)
@@ -592,8 +587,8 @@ class FeatureEventService {
         }
 
         // after all the transcripts from the feature event has been added, applying isoform overlap rule
-//        Set transcriptsToUpdate = new TreeSet()
-        Set transcriptsToUpdate = new HashSet()
+        Set transcriptsToUpdate = new TreeSet()
+//        Set transcriptsToUpdate = new HashSet()
         transcriptsToCheckForIsoformOverlap.each {
             transcriptsToUpdate.add(it)
             transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
@@ -833,8 +828,8 @@ class FeatureEventService {
 
         def featureEventSet = unindexedMap.get(index)
         if (!featureEventSet) {
-//            featureEventSet = new TreeSet<FeatureEvent>()
-            featureEventSet = new HashSet<FeatureEvent>()
+            featureEventSet = new TreeSet<FeatureEvent>()
+//            featureEventSet = new HashSet<FeatureEvent>()
         } else if (featureEventSet.contains(featureEvent)) {
             return
         }
