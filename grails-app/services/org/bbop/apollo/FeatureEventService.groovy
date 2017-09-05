@@ -74,7 +74,7 @@ class FeatureEventService {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
         FeatureEvent lastFeatureEvent = lastFeatureEventList[0]
-        lastFeatureEvent.current = false;
+        lastFeatureEvent.current = false
         lastFeatureEvent.save(flush: true)
         deleteFutureHistoryEvents(lastFeatureEvent)
 
@@ -83,8 +83,11 @@ class FeatureEventService {
         JSONArray newFeatureArray1 = new JSONArray()
         JSONArray newFeatureArray2 = new JSONArray()
 
-        newFeatureArray1.add(newFeatureArray.getJSONObject(0))
-        newFeatureArray2.add(newFeatureArray.getJSONObject(1))
+        JSONArray sortedFeatureArray = newFeatureArray.sort(){ a, b ->
+            a.location.fmin <=> b.location.fmin
+        }
+        newFeatureArray1.add(sortedFeatureArray[0])
+        newFeatureArray2.add(sortedFeatureArray[1])
 
         FeatureEvent featureEvent1 = new FeatureEvent(
                 editor: user
