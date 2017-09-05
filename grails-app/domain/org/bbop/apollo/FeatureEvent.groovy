@@ -4,7 +4,7 @@ import org.bbop.apollo.history.FeatureOperation
 
 //import org.bbop.apollo.history.FeatureOperation
 
-class FeatureEvent {
+class FeatureEvent implements Comparable<org.bbop.apollo.FeatureEvent>{
 
 
     Date dateCreated
@@ -47,6 +47,31 @@ class FeatureEvent {
         oldFeaturesJsonArray type: "text"
     }
 
+    @Override
+    int compareTo(FeatureEvent that) {
+        return lastUpdated <=> that.lastUpdated ?: id <=> that.id ?: uniqueName <=> that.uniqueName
+    }
+
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        FeatureEvent that = (FeatureEvent) o
+
+        if (current != that.current) return false
+        if (id != that.id) return false
+        if (lastUpdated != that.lastUpdated) return false
+
+        return true
+    }
+
+    int hashCode() {
+        int result
+        result = lastUpdated.hashCode()
+        result = 31 * result + current.hashCode()
+        result = 31 * result + id.hashCode()
+        return result
+    }
 //    static hasOne = [
 //            feature : Feature
 //    ]

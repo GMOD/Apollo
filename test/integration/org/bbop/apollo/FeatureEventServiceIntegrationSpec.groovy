@@ -1333,6 +1333,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert NonCanonicalThreePrimeSpliceSite.count == 1
 
 
+        // TODO: there is a race condition in here somewhere that needs to be fixed.  Sometimes these tests work and sometimes they don't.
         when: "we get the history of the 5' transcript"
         JSONObject history787Container = createJSONFeatureContainer();
         def thisHistory787String = getHistoryString.replaceAll("@TRANSCRIPT_UNIQUENAME@", mrna40787.uniqueName)
@@ -1344,12 +1345,12 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert history787Array.size() == 3
         assert history787Array[0].operation == FeatureOperation.ADD_TRANSCRIPT.name()
         assert !history787Array[0].current
-//        assert history787Array[0].features[0].name == "GB40787-RA-00001"
+        assert history787Array[0].features[0].name == "GB40788-RA-00001"
         assert history787Array[0].features.size() == 1
-//        assert history787Array[1].operation == FeatureOperation.SPLIT_TRANSCRIPT.name()
+        assert history787Array[1].operation == FeatureOperation.ADD_TRANSCRIPT.name()
         assert history787Array[1].features.size() == 1
         // this works in the code, not sure why it fails in the test here
-//        assert history787Array[1].features[0].name == "GB40787-RAa-00001"
+        assert history787Array[1].features[0].name == "GB40787-RA-00001"
         assert !history787Array[1].current
         assert history787Array[2].operation == FeatureOperation.MERGE_TRANSCRIPTS.name()
         assert history787Array[2].features[0].name == "GB40787-RA-00001"
@@ -1357,7 +1358,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert history787Array[2].current
 
         when: "we get the history of the 3' transcript"
-        JSONObject history788Container = createJSONFeatureContainer();
+        JSONObject history788Container = createJSONFeatureContainer()
         def thisHistory788String = getHistoryString.replaceAll("@TRANSCRIPT_UNIQUENAME@", mrna40788.uniqueName)
         history788Container = featureEventService.generateHistory(history788Container, (JSON.parse(thisHistory788String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray features788Array = history788Container.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1370,11 +1371,9 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert history788Array[0].features[0].name == "GB40788-RA-00001"
         assert history788Array[0].features.size() == 1
         assert history788Array[1].operation == FeatureOperation.SPLIT_TRANSCRIPT.name()
-        assert history788Array[1].features[0].name == "GB40788-RA-00001"
+        assert history788Array[1].features[0].name == "GB40788-RAa-00001"
         assert history788Array[1].features.size() == 1
         assert history788Array[1].current
-
-
 
         when: "we undo the second transcript"
         sortedTranscripts = Transcript.all.sort() { a, b ->
@@ -1385,10 +1384,10 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         then: "we should have 3 of everything again"
-        assert Exon.count == 5
-        assert MRNA.count == 3
+        assert Exon.count == 7
+        assert MRNA.count == 4
         assert Gene.count == 3
-        assert CDS.count == 3
+        assert CDS.count == 4
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
 

@@ -74,7 +74,7 @@ class FeatureEventService {
             throw new AnnotationException("Can not find original feature event to split for " + uniqueName1)
         }
         FeatureEvent lastFeatureEvent = lastFeatureEventList[0]
-        lastFeatureEvent.current = false;
+        lastFeatureEvent.current = false
         lastFeatureEvent.save(flush: true)
         deleteFutureHistoryEvents(lastFeatureEvent)
 
@@ -83,8 +83,15 @@ class FeatureEventService {
         JSONArray newFeatureArray1 = new JSONArray()
         JSONArray newFeatureArray2 = new JSONArray()
 
-        newFeatureArray1.add(newFeatureArray.getJSONObject(0))
-        newFeatureArray2.add(newFeatureArray.getJSONObject(1))
+        println "new json array ${newFeatureArray} vs ${uniqueName1} and ${uniqueName2}"
+        JSONObject uniqueName1Object = newFeatureArray.find() { JSONObject it ->
+            it.getString(FeatureStringEnum.UNIQUENAME.value) == uniqueName1
+        }
+        JSONObject uniqueName2Object = newFeatureArray.find() { JSONObject it ->
+            it.getString(FeatureStringEnum.UNIQUENAME.value) == uniqueName2
+        }
+        newFeatureArray1.add(uniqueName1Object)
+        newFeatureArray2.add(uniqueName2Object)
 
         FeatureEvent featureEvent1 = new FeatureEvent(
                 editor: user
@@ -248,9 +255,9 @@ class FeatureEventService {
         return featureEvent
     }
 
-    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new HashMap<>()) {
+    Map<String, Map<Long, FeatureEvent>> extractFeatureEventGroup(String uniqueName, Map<String, Map<Long, FeatureEvent>> featureEventMap = new TreeMap<>()) {
         def featureEvents = FeatureEvent.findAllByUniqueName(uniqueName)
-        Map<Long, FeatureEvent> longFeatureEventMap = new HashMap<>()
+        Map<Long, FeatureEvent> longFeatureEventMap = new TreeMap<>()
         Set<Long> idsToCollect = new HashSet<>()
         featureEvents.each {
             longFeatureEventMap.put(it.id, it)
@@ -406,7 +413,7 @@ class FeatureEventService {
      * @param count
      * @return Error message
      */
-    Boolean evaluateSetTransactionForFeature(String uniqueName, int newIndex) throws AnnotationException{
+    Boolean evaluateSetTransactionForFeature(String uniqueName, int newIndex) throws AnnotationException {
         try {
             log.debug "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
             log.debug "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
@@ -430,7 +437,7 @@ class FeatureEventService {
             // if the current index is LESS, then find the previous indexes and set appropriately
             else if (newIndex < currentIndex) {
                 List<List<FeatureEvent>> previousFeatureEvents = findPreviousFeatureEvents(currentFeatureEvent)
-    //            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
+                //            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
                 if (newIndex >= previousFeatureEvents.size()) {
                     throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different genomic feature.")
                 }
@@ -438,10 +445,9 @@ class FeatureEventService {
             return true
         } catch (e) {
             // just pass it through
-            if(e instanceof AnnotationException){
+            if (e instanceof AnnotationException) {
                 throw e
-            }
-            else{
+            } else {
                 throw new AnnotationException("Can not set history for this operation.  Try to undo or redo using a different genomic feature. ${e.message}")
             }
         }
@@ -587,7 +593,8 @@ class FeatureEventService {
         }
 
         // after all the transcripts from the feature event has been added, applying isoform overlap rule
-        Set transcriptsToUpdate = new HashSet()
+        Set transcriptsToUpdate = new TreeSet()
+//        Set transcriptsToUpdate = new HashSet()
         transcriptsToCheckForIsoformOverlap.each {
             transcriptsToUpdate.add(it)
             transcriptsToUpdate.addAll(featureService.handleDynamicIsoformOverlap(Transcript.findByUniqueName(it)).uniqueName)
@@ -760,6 +767,7 @@ class FeatureEventService {
                 }
             }
         }
+        Collections.sort(currentFeatureEvents)
 
         return currentFeatureEvents
 
@@ -827,7 +835,8 @@ class FeatureEventService {
 
         def featureEventSet = unindexedMap.get(index)
         if (!featureEventSet) {
-            featureEventSet = new HashSet<FeatureEvent>()
+            featureEventSet = new TreeSet<FeatureEvent>()
+//            featureEventSet = new HashSet<FeatureEvent>()
         } else if (featureEventSet.contains(featureEvent)) {
             return
         }
@@ -868,7 +877,7 @@ class FeatureEventService {
 
 
             JSONArray history = new JSONArray();
-            jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
+            jsonFeature.put(FeatureStringEnum.HISTORY.value, history)
             List<List<FeatureEvent>> transactionList = new ArrayList<>()
             transactionList.addAll(previousEvents)
             transactionList.add(currentFeatureEventList)
