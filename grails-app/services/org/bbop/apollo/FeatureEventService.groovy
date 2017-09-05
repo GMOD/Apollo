@@ -873,7 +873,7 @@ class FeatureEventService {
 
 
             JSONArray history = new JSONArray();
-            jsonFeature.put(FeatureStringEnum.HISTORY.value, history);
+            jsonFeature.put(FeatureStringEnum.HISTORY.value, history)
             List<List<FeatureEvent>> transactionList = new ArrayList<>()
             transactionList.addAll(previousEvents)
             transactionList.add(currentFeatureEventList)
