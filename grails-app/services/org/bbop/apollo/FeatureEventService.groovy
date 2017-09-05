@@ -83,11 +83,15 @@ class FeatureEventService {
         JSONArray newFeatureArray1 = new JSONArray()
         JSONArray newFeatureArray2 = new JSONArray()
 
-        JSONArray sortedFeatureArray = newFeatureArray.sort(){ a, b ->
-            a.location.fmin <=> b.location.fmin
+        println "new json array ${newFeatureArray} vs ${uniqueName1} and ${uniqueName2}"
+        JSONObject uniqueName1Object = newFeatureArray.find() { JSONObject it ->
+            it.getString(FeatureStringEnum.UNIQUENAME.value) == uniqueName1
         }
-        newFeatureArray1.add(sortedFeatureArray[0])
-        newFeatureArray2.add(sortedFeatureArray[1])
+        JSONObject uniqueName2Object = newFeatureArray.find() { JSONObject it ->
+            it.getString(FeatureStringEnum.UNIQUENAME.value) == uniqueName2
+        }
+        newFeatureArray1.add(uniqueName1Object)
+        newFeatureArray2.add(uniqueName2Object)
 
         FeatureEvent featureEvent1 = new FeatureEvent(
                 editor: user
@@ -409,7 +413,7 @@ class FeatureEventService {
      * @param count
      * @return Error message
      */
-    Boolean evaluateSetTransactionForFeature(String uniqueName, int newIndex) throws AnnotationException{
+    Boolean evaluateSetTransactionForFeature(String uniqueName, int newIndex) throws AnnotationException {
         try {
             log.debug "setting previous transaction for feature ${uniqueName} -> ${newIndex}"
             log.debug "unique values: ${FeatureEvent.countByUniqueName(uniqueName)} -> ${newIndex}"
@@ -433,7 +437,7 @@ class FeatureEventService {
             // if the current index is LESS, then find the previous indexes and set appropriately
             else if (newIndex < currentIndex) {
                 List<List<FeatureEvent>> previousFeatureEvents = findPreviousFeatureEvents(currentFeatureEvent)
-    //            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
+                //            currentFeatureEventArray = previousFeatureEvents.get(newIndex)
                 if (newIndex >= previousFeatureEvents.size()) {
                     throw new AnnotationException("Can not undo this operation due to a split or a merge.  Try to undo or redo using a different genomic feature.")
                 }
@@ -441,10 +445,9 @@ class FeatureEventService {
             return true
         } catch (e) {
             // just pass it through
-            if(e instanceof AnnotationException){
+            if (e instanceof AnnotationException) {
                 throw e
-            }
-            else{
+            } else {
                 throw new AnnotationException("Can not set history for this operation.  Try to undo or redo using a different genomic feature. ${e.message}")
             }
         }
@@ -764,6 +767,7 @@ class FeatureEventService {
                 }
             }
         }
+        Collections.sort(currentFeatureEvents)
 
         return currentFeatureEvents
 
