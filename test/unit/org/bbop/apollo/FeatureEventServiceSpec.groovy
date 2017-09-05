@@ -248,8 +248,15 @@ class FeatureEventServiceSpec extends Specification {
 
         when: "let's split this feature event!"
         JSONArray newJsonArray = new JSONArray()
-        newJsonArray.add(new JSONObject())
-        newJsonArray.add(new JSONObject())
+        JSONObject leftObject = new JSONObject()
+        leftObject.location = new JSONObject(
+                fmin: 10
+        )
+        JSONObject rightObject = new JSONObject()
+        rightObject.location = new JSONObject( fmin: 30)
+
+        newJsonArray.add(leftObject)
+        newJsonArray.add(rightObject)
         service.addSplitFeatureEvent(name1, uniqueName1, name2, uniqueName2, new JSONObject(), new JSONObject(), newJsonArray, null)
         featureEventList1 = service.getHistory(uniqueName1)
         List<List<FeatureEvent>> featureEventList2 = service.getHistory(uniqueName2)
