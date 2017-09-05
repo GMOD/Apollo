@@ -417,7 +417,6 @@ class JbrowseController {
 
         if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-//            organismObject.put("name", Organism.findById(id).commonName)
             organismObject.put("name", currentOrganism.commonName)
             organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
@@ -460,6 +459,8 @@ class JbrowseController {
             }
         }
 
+        removeIncludedPlugins(jsonObject.plugins)
+
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
             println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
@@ -473,6 +474,29 @@ class JbrowseController {
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
+    }
+
+    /**
+     * Removes plugins included in annot.json (which is just WebApollo)
+     * @param pluginsArray
+     */
+    def removeIncludedPlugins(JSONArray pluginsArray) {
+        def iterator = pluginsArray.iterator()
+        while(iterator.hasNext()){
+            def plugin = iterator.next()
+            if(plugin instanceof JSONObject){
+                if(plugin.name == "WebApollo"){
+                    iterator.remove()
+                }
+            }
+            else
+            if(plugin instanceof String){
+                if(plugin=="WebApollo"){
+                    iterator.remove()
+                }
+            }
+
+        }
     }
 
     private static boolean isCacheableFile(String fileName) {
@@ -553,9 +577,6 @@ class JbrowseController {
 //        }
         
         response.setContentType(mimeType);
-//        // Set content size
-//        response << file.text
-//        response.flushBuffer()
         // Set content size
         response.setContentLength((int) file.length());
 
@@ -565,12 +586,12 @@ class JbrowseController {
 
         // Copy the contents of the file to the output stream
         byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-        int count = 0;
+        int count = 0
         while ((count = inputStream.read(buf)) >= 0) {
-            out.write(buf, 0, count);
+            out.write(buf, 0, count)
         }
-        inputStream.close();
-        out.close();
+        inputStream.close()
+        out.close()
     }
 
 }

@@ -21,5 +21,5 @@ if [[ ! -n "$url" || ! -n "$username" || ! -n "$password" || ! -n "$organism" ||
     exit
 fi
 
-echo curl -i -H \"Content-type: application/json\" -X POST ${url}/annotationEditor/setStatus -d \"{\"username\":\"${username}\", \"password\":\"${password}\", \"features\":[{\"uniquename\":\"${uniqueName}\", \"status\":\'${status}\'}], \"track\":\"${trackName}\", \"organism\":\"${organism}\"}\"
-curl -i -H "Content-type: application/json" -X POST ${url}/annotationEditor/setStatus -d "{"username":"${username}", "password":"${password}", "features":[{"uniquename":"${uniqueName}", "status":'${status}'}], "track":"${trackName}", "organism":"${organism}"}"
+echo curl -i -H 'Content-type: application/json' -X POST ${url}/annotationEditor/setStatus -d "{'username': '${username}', 'password': '${password}', 'features': [{'uniquename': '${uniqueName}', 'status': '${status}'}], 'track': '${trackName}', 'organism': '${organism}'}"
+curl -i -H 'Content-type: application/json' -X POST ${url}/annotationEditor/setStatus -d "{'username': '${username}', 'password': '${password}', 'features': [{'uniquename': '${uniqueName}', 'status': '${status}'}], 'track': '${trackName}', 'organism': '${organism}'}"

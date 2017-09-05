@@ -4,10 +4,17 @@ url=$1
 username=$2
 password=$3
 
-username='demo'
+usage() {
+    echo "Sample script for finding all available organisms in an Apollo instance via web services"
+    echo "Usage:    ./findAllOrganisms.sh <complete_apollo_URL> <username> <password>"
+    echo "Example:  ./findAllOrganisms.sh http://localhost:8080/apollo demo demo"
+}
 
-curl  --header "Content-type: application/json" \
---request POST \
---data "{ 'username': 'demo@demo.com', 'password': 'password'}" http://localhost:8080/apollo/organism/findAllOrganisms 
-#--data "{ 'username': 'demo@demo.com', 'password': 'demo'}" http://icebox.lbl.gov/Apollo-staging/organism/findAllOrganisms 
+if [[ ! -n "$url" || ! -n "$username" || ! -n "$password" ]]; then
+    usage
+    exit
+fi
+
+echo curl  --header "Content-type: application/json" --request POST --data "{'username': '${username}', 'password': '${password}'}" "${url}/organism/findAllOrganisms"
+curl  --header "Content-type: application/json" --request POST --data "{'username': '${username}', 'password': '${password}'}" "${url}/organism/findAllOrganisms"
 
