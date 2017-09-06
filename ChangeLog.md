@@ -34,6 +34,7 @@ Bugfixes
 - Fixed bug that delayed propagation of updates when boundaries for an annotation's parent element were changed. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
 - Restored _'Pin to top'_ and _'Delete track'_ functionality for tracks with ```HTMLFeatures```. [#1632](https://github.com/GMOD/Apollo/issues/1632)
 - Fixed cascade bug when changing annotation type for an annotation that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
+- Apollo client being initialized twice in some instances. [#1742](https://github.com/GMOD/Apollo/issues/1742)
 
 
 
