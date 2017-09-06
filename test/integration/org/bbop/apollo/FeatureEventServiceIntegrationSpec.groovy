@@ -1377,12 +1377,12 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 //
 //
 
-        when: "we undo the second transcript"
-        sortedTranscripts = Transcript.all.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        }
-        String undoString = undoOperation.replace("@UNIQUENAME@", sortedTranscripts[1].uniqueName).replace("@COUNT@", "1")
-        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+//        when: "we undo the second transcript"
+//        sortedTranscripts = Transcript.all.sort() { a, b ->
+//            a.featureLocation.fmin <=> b.featureLocation.fmin
+//        }
+//        String undoString = undoOperation.replace("@UNIQUENAME@", sortedTranscripts[1].uniqueName).replace("@COUNT@", "1")
+//        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
 
 
 //        then: "we should have 3 of everything again"
@@ -1395,60 +1395,60 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 //
 //
 //        when: "we redo"
-        sortedTranscripts = Transcript.all.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        }
-        def redoString = redoOperation.replace("@UNIQUENAME@", sortedTranscripts[1].uniqueName).replace("@COUNT@", "1")
-        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
-
-//        then: "we should be back to two"
-//        assert Gene.count == 2
-//        assert MRNA.count == 2
-//        assert CDS.count == 2
-//        assert Exon.count == 5
-//        assert NonCanonicalFivePrimeSpliceSite.count == 1
-//        assert NonCanonicalThreePrimeSpliceSite.count == 1
+//        sortedTranscripts = Transcript.all.sort() { a, b ->
+//            a.featureLocation.fmin <=> b.featureLocation.fmin
+//        }
+//        def redoString = redoOperation.replace("@UNIQUENAME@", sortedTranscripts[1].uniqueName).replace("@COUNT@", "1")
+//        requestHandlingService.redo(JSON.parse(redoString) as JSONObject)
 //
-//        when: "we undo the left transcript instead"
-        sortedTranscripts = Transcript.all.sort() { a, b ->
-            a.featureLocation.fmin <=> b.featureLocation.fmin
-        }
-        undoString = undoOperation.replace("@UNIQUENAME@", sortedTranscripts[0].uniqueName).replace("@COUNT@", "1")
-        try {
-            requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
-            assert false
-        } catch (e) {
-            assert true
-            assert e instanceof AnnotationException
-        }
-
-//        then: "should be the same counts"
-//        assert Gene.count == 2
-//        assert MRNA.count == 2
-//        assert CDS.count == 2
-//        assert Exon.count == 5
-//        assert NonCanonicalFivePrimeSpliceSite.count == 1
-//        assert NonCanonicalThreePrimeSpliceSite.count == 1
+////        then: "we should be back to two"
+////        assert Gene.count == 2
+////        assert MRNA.count == 2
+////        assert CDS.count == 2
+////        assert Exon.count == 5
+////        assert NonCanonicalFivePrimeSpliceSite.count == 1
+////        assert NonCanonicalThreePrimeSpliceSite.count == 1
+////
+////        when: "we undo the left transcript instead"
+//        sortedTranscripts = Transcript.all.sort() { a, b ->
+//            a.featureLocation.fmin <=> b.featureLocation.fmin
+//        }
+//        undoString = undoOperation.replace("@UNIQUENAME@", sortedTranscripts[0].uniqueName).replace("@COUNT@", "1")
+//        try {
+//            requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
+//            assert false
+//        } catch (e) {
+//            assert true
+//            assert e instanceof AnnotationException
+//        }
 //
-//        when: "we delete the first transcript"
-        def mrnaToDelete = MRNA.all.first().uniqueName
-        requestHandlingService.deleteFeature(JSON.parse(deleteString1.replace("@TRANSCRIPT_NAME@", mrnaToDelete)))
-
-        then: "there should be only one MRNA and gene left"
-        assert Gene.count == 1
-        assert MRNA.count == 1
-
-        when: "we delete the second transcript"
-        mrnaToDelete = MRNA.all.first().uniqueName
-        requestHandlingService.deleteFeature(JSON.parse(deleteString1.replace("@TRANSCRIPT_NAME@", mrnaToDelete)))
-
-        then: "there should be no features left"
-        assert Gene.count == 0
-        assert MRNA.count == 0
-        assert CDS.count == 0
-        assert Exon.count == 0
-        assert NonCanonicalFivePrimeSpliceSite.count == 0
-        assert NonCanonicalThreePrimeSpliceSite.count == 0
+//////        then: "should be the same counts"
+//////        assert Gene.count == 2
+//////        assert MRNA.count == 2
+//////        assert CDS.count == 2
+//////        assert Exon.count == 5
+//////        assert NonCanonicalFivePrimeSpliceSite.count == 1
+//////        assert NonCanonicalThreePrimeSpliceSite.count == 1
+//////
+////        when: "we delete the first transcript"
+//        def mrnaToDelete = MRNA.all.first().uniqueName
+//        requestHandlingService.deleteFeature(JSON.parse(deleteString1.replace("@TRANSCRIPT_NAME@", mrnaToDelete)))
+//
+//        then: "there should be only one MRNA and gene left"
+//        assert Gene.count == 1
+//        assert MRNA.count == 1
+//
+//        when: "we delete the second transcript"
+//        mrnaToDelete = MRNA.all.first().uniqueName
+//        requestHandlingService.deleteFeature(JSON.parse(deleteString1.replace("@TRANSCRIPT_NAME@", mrnaToDelete)))
+//
+//        then: "there should be no features left"
+//        assert Gene.count == 0
+//        assert MRNA.count == 0
+//        assert CDS.count == 0
+//        assert Exon.count == 0
+//        assert NonCanonicalFivePrimeSpliceSite.count == 0
+//        assert NonCanonicalThreePrimeSpliceSite.count == 0
 
     }
 }
