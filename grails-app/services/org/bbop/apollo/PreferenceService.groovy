@@ -158,7 +158,7 @@ class PreferenceService {
             organism = getOrganismForTokenInDB(clientToken)
             return organism
         } else {
-            UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, null, clientToken)
+            UserOrganismPreferenceDTO userOrganismPreference = getDTOFromPreference(getCurrentOrganismPreferenceInDB(clientToken))
             OrganismDTO organismDTO = setSessionPreference(clientToken, userOrganismPreference)?.organism
             return Organism.findById(organismDTO.id)
         }
@@ -235,7 +235,7 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(user, null, clientToken)
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOFromPreference(getCurrentOrganismPreferenceInDB(clientToken))
         if (userOrganismPreferenceDTO.organism.id == organism.id) {
             log.info "Same organism so not changing preference"
             return userOrganismPreferenceDTO
@@ -772,7 +772,7 @@ class PreferenceService {
         Integer endBp = preferenceDTO.endbp
 
 //        OrganismDTO currentOrganism = getCurrentOrganismPreference(user, sequenceName, clientToken)?.organism
-        OrganismDTO currentOrganism = getCurrentOrganismPreference(user, assemblage, clientToken)?.organism
+        OrganismDTO currentOrganism = getCurrentOrganismPreferenceForAssemblage(user, assemblage, clientToken)?.organism
         if (!currentOrganism) {
             throw new AnnotationException("Organism preference is not set for user")
         }
@@ -891,7 +891,7 @@ class PreferenceService {
         }
     }
 
-    UserOrganismPreference getCurrentOrganismPreferenceInDB(User user, String sequenceName, String clientToken) {
+    UserOrganismPreference getCurrentOrganismPreferenceInDB(User user, Assemblage assemblage, String clientToken) {
         if (!user && !clientToken) {
             log.warn("No organism preference if no user ${user} or client token ${clientToken}")
             return null
@@ -935,7 +935,7 @@ class PreferenceService {
         userOrganismPreference = userOrganismPreference ?: UserOrganismPreference.findByUserAndCurrentOrganism(user, false, [max: 1, sort: "lastUpdated", order: "desc"])
         if (userOrganismPreference) {
             Organism organism = userOrganismPreference.organism
-            Assemblage assemblage = sequenceName ? Assemblage.findByNameAndOrganism(sequenceName, organism) : userOrganismPreference.assemblage
+//            Assemblage assemblage = sequenceName ? Assemblage.findByNameAndOrganism(sequenceName, organism) : userOrganismPreference.assemblage
             UserOrganismPreference newPreference = new UserOrganismPreference(
                     user: user
                     , organism: organism
@@ -951,7 +951,7 @@ class PreferenceService {
         // 4 - if none at all exist, then we create one
         if (!userOrganismPreference) {
             // find a random organism based on sequence
-            Assemblage assemblage = sequenceName ? Assemblage.findByName(sequenceName) : null
+//            Assemblage assemblage = sequenceName ? Assemblage.findByName(sequenceName) : null
             Set<Organism> organisms = permissionService.getOrganisms(user)
 //            Organism organism = sequence ? sequence.organism : organisms?.first()
             Organism organism = null
@@ -971,7 +971,9 @@ class PreferenceService {
 //            sequence = sequence ?: Sequence.findByOrganism(organism, [sort: "end", order: "desc", max: 1])
             if(!assemblage){
 //                sequence = sequence ?: Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1]).first()
-                Sequence sequence = sequenceName ? Sequence.findByNameAndOrganism(sequenceName, organism) : Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1]).first()
+                List<Sequence> sequences  = assemblageService.getSequencesFromAssemblage(assemblage)
+//                Sequence sequence = sequenceName ? Sequence.findByNameAndOrganism(sequenceName, organism) : Sequence.findAllByOrganism(organism, [sort: "end", order: "desc", max: 1]).first()
+                Sequence sequence = sequences.first()
                 sequence = sequence ?: organism.sequences?.first()
                 if(sequence){
                     assemblage = assemblageService.generateAssemblageForSequence(sequence)
