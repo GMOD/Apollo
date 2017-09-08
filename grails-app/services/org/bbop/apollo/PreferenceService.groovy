@@ -386,8 +386,8 @@ class PreferenceService {
         // no current organisms if they are 8 hours hold
         affected += UserOrganismPreference.executeUpdate(
                 "update UserOrganismPreference  pref set pref.currentOrganism = false " +
-                        "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence and pref.lastUpdated < :lastUpdated ",
-                [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence, lastUpdated: newDate])
+                        "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.assemblage = :assemblage and pref.lastUpdated < :lastUpdated ",
+                [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, assemblage: userOrganismPreference.assemblage, lastUpdated: newDate])
 
         // if the preference is not set correctly, we have to make sure we add it correctly
         affected += UserOrganismPreference.executeUpdate(

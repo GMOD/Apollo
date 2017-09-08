@@ -67,16 +67,16 @@ class AnnotatorService {
 
 
                 if (!currentUserOrganismPreferenceDTO.assemblage) {
-                    User currentUser = currentUserOrganismPreference.user
+                    User currentUser = userOrganismPreference.user
                     // find the first assemblage with a matching organism
-                    def assemblages = assemblageService.getAssemblagesForUserAndOrganism(currentUser,currentOrganism)
+                    def assemblages = assemblageService.getAssemblagesForUserAndOrganism(currentUser,userOrganismPreference.organism)
                     Assemblage assemblage = assemblages.size()>0 ? assemblages.first() : null
                     if (!assemblage) {
                         // just need the first random one
-                        Sequence sequence = Sequence.findByOrganism(currentOrganism)
+                        Sequence sequence = Sequence.findByOrganism(userOrganismPreference.organism)
                         assemblage = assemblageService.generateAssemblageForSequence(sequence)
                     }
-                    currentUserOrganismPreferenceDTO.assemblage = assemblage
+                    userOrganismPreference.assemblage = assemblage
 //                    currentUserOrganismPreference.save()
 //                if (!currentUserOrganismPreferenceDTO.sequence) {
 //                    Organism organism = Organism.findById(currentOrganism.id)
@@ -84,7 +84,8 @@ class AnnotatorService {
 //                    // often the case when creating it
 //                    currentUserOrganismPreferenceDTO.sequence = preferenceService.getDTOFromSequence(sequence)
                 }
-                appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(currentUserOrganismPreferenceDTO.assemblage))
+//                appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(currentUserOrganismPreferenceDTO.assemblage))
+                appStateObject.put(FeatureStringEnum.CURRENT_ASSEMBLAGE.getValue(), assemblageService.convertAssemblageToJson(userOrganismPreference.assemblage))
 //                appStateObject.put("currentSequence", currentUserOrganismPreferenceDTO.sequence)
 
 
