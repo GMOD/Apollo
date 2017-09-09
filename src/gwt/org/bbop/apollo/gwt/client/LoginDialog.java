@@ -52,6 +52,7 @@ public class LoginDialog extends DialogBox {
 
 
     public LoginDialog() {
+        getElement().setId("loginDialogId");
         setText("Login");
         setAnimationEnabled(true);
         // Enable glass background.

@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus
 class GroupController {
 
     def permissionService
+    def preferenceService
 
     @RestApiMethod(description = "Get organism permissions for group", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
@@ -53,7 +54,7 @@ class GroupController {
     def loadGroups() {
         try {
             log.debug "loadGroups"
-            JSONObject dataObject = permissionService.handleInput(request,params)
+            JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -262,20 +263,20 @@ class GroupController {
 
         UserGroup group
         if (dataObject.groupId) {
-            group = UserGroup.findById(dataObject.groupId)
+            group = UserGroup.findById(dataObject.groupId as Long)
         }
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
         if (!group) {
-            render([(FeatureStringEnum.ERROR.value): "Failed to find group"] as JSON)
+            render([(FeatureStringEnum.ERROR.value): "Failed to find group for ${dataObject.name} and ${dataObject.groupId}"] as JSON)
             return
         }
 
-        Organism organism = Organism.findByCommonName(dataObject.organism)
-        if (!organism) Organism.findById(dataObject.organism)
+        log.debug "Finding organism by ${dataObject.organism}"
+        Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
         if (!organism) {
-            render([(FeatureStringEnum.ERROR.value): "Failed to find organism"] as JSON)
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism for ${dataObject.organism}"] as JSON)
             return
         }
 

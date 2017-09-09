@@ -2,6 +2,10 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.preference.AssemblageDTO
+import org.bbop.apollo.preference.OrganismDTO
+import org.bbop.apollo.preference.SequenceDTO
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.gwt.shared.projection.Coordinate
 
@@ -25,6 +29,14 @@ class DomainMarshallerService {
             returnArray['commonName'] = it.commonName
             returnArray['genus'] = it?.genus
             returnArray['species'] = it?.species
+            returnArray['directory'] = it.directory
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(OrganismDTO) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['commonName'] = it.commonName
             returnArray['directory'] = it.directory
             return returnArray
         }
@@ -69,6 +81,29 @@ class DomainMarshallerService {
             return returnArray
         }
 
+        JSON.registerObjectMarshaller(SequenceDTO) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['name'] = it.name
+            returnArray['organism'] = it.organism
+            returnArray['length'] = it?.length
+            returnArray['start'] = it?.start
+            returnArray['end'] = it.end
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(AssemblageDTO) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['name'] = it.name
+            returnArray['organism'] = it.organism
+//            returnArray['length'] = it?.length
+            returnArray['start'] = it?.start
+            returnArray['end'] = it.end
+            returnArray['sequenceList'] = it.sequenceList
+            return returnArray
+        }
+
         JSON.registerObjectMarshaller(UserOrganismPreference) {
             def returnArray = [:]
             returnArray['id'] = it.id
@@ -78,6 +113,20 @@ class DomainMarshallerService {
             returnArray['assemblage'] = it?.assemblage
             returnArray['startbp'] = it?.startbp
             returnArray['endbp'] = it?.endbp
+            return returnArray
+        }
+
+        JSON.registerObjectMarshaller(UserOrganismPreferenceDTO) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['organism'] = it.organism
+            returnArray['currentOrganism'] = it.currentOrganism
+            returnArray['nativeTrackList'] = it?.nativeTrackList
+            returnArray['assemblage'] = it?.assemblage
+            returnArray['startbp'] = it?.startbp
+            returnArray['endbp'] = it?.endbp
+            returnArray['clientToken'] = it?.clientToken
+            returnArray['user'] = it?.user
             return returnArray
         }
     }

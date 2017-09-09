@@ -50,6 +50,9 @@
             </div>
         </div>
         <div class="row col-sm-12">
+            <div class="col-sm-2">
+                <strong>Last Updated</strong>
+            </div>
             <div class="col-sm-4  form-group">
                 After:
                 <g:datePicker name="afterDate" value="${afterDate}" precision="day" relativeYears="[-20..20]"/>
@@ -57,6 +60,19 @@
             <div class="col-sm-4  form-group">
                 Before:
                 <g:datePicker name="beforeDate" value="${beforeDate}" precision="day" relativeYears="[-20..20]"/>
+            </div>
+        </div>
+        <div class="row col-sm-12">
+            <div class="col-sm-2">
+                <strong>Date Created</strong>
+            </div>
+            <div class="col-sm-4  form-group">
+                After:
+                <g:datePicker name="dateCreatedAfterDate" value="${dateCreatedAfterDate}" precision="day" relativeYears="[-20..20]"/>
+            </div>
+            <div class="col-sm-4  form-group">
+                Before:
+                <g:datePicker name="dateCreatedBeforeDate" value="${dateCreatedBeforeDate}" precision="day" relativeYears="[-20..20]"/>
             </div>
         </div>
 
@@ -78,7 +94,8 @@
     <table>
         <thead>
         <tr>
-            <g:sortableColumn property="lastUpdated" title="Last updated" params="${filters}"/>
+            <g:sortableColumn property="lastUpdated" title="Last update" params="${filters}"/>
+            <g:sortableColumn property="dateCreated" title="Created" params="${filters}"/>
             <g:sortableColumn property="organism" title="Organism" params="${filters}"/>
             <g:sortableColumn property="sequencename" title="Sequence name" params="${filters}"/>
             <g:sortableColumn property="name" title="Name" params="${filters}"/>
@@ -92,6 +109,10 @@
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
                     <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.lastUpdated}"/>
+                    (v ${feature.version})
+                </td>
+                <td>
+                    <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.dateCreated}"/>
                 </td>
                 <td>
                     <g:link target="_blank" controller="annotator" action="loadLink"

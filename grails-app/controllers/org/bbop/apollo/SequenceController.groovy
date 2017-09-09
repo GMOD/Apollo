@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -34,7 +35,7 @@ class SequenceController {
         JSONObject inputObject = permissionService.handleInput(request,params)
 
         try {
-            UserOrganismPreference userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequenceLocation(name, start, end,params[FeatureStringEnum.CLIENT_TOKEN.value].toString())
             if(params.suppressOutput){
                 render new JSONObject() as JSON
             }
@@ -67,14 +68,17 @@ class SequenceController {
      * @param sequenceName
      * @return
      */
+
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         JSONObject inputObject = permissionService.handleInput(request,params)
+        println "setting the current sequence here: ${inputObject}"
         String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
-        preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+        UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequence(currentUser,sequenceInstance,token)
+        println "set current sequence and found: ${userOrganismPreference} start /stop ${userOrganismPreference?.startbp} / ${userOrganismPreference?.endbp}"
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -92,7 +96,6 @@ class SequenceController {
         sequenceObject.put("length", sequenceInstance.length)
         sequenceObject.put("start", sequenceInstance.start)
         sequenceObject.put("end", sequenceInstance.end)
-        UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreference(currentUser,sequenceInstance.name,token)
         sequenceObject.startBp = userOrganismPreference.startbp
         sequenceObject.endBp = userOrganismPreference.endbp
 

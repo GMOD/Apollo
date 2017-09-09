@@ -117,10 +117,17 @@ return declare( [JBPlugin, HelpMixin,Evented],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
+
         browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?!browser.config.overrideColorCdsByFrameTrue:browser.cookie("colorCdsByFrame"));
+
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
+
+        if (browser.cookie("Scheme-Flat")=="Flat") {
+            domClass.add(win.body(), "Flat");
+        }
+
         if(!browser.config.overrideApolloStyles) {
             domClass.add(win.body(), "Apollo");
         }
@@ -239,33 +246,34 @@ return declare( [JBPlugin, HelpMixin,Evented],
             }
 
             // Initialize information editor with similar style to track selector
-            var view = browser.view;
-            view.oldOnResize = view.onResize;
-             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
-               *    bug appears in Chrome, not Firefox, unsure of other browsers
-               */
-            view.onResize = function() {
-                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
-                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
-                var oldCharSize = thisB.getSequenceCharacterSize();
-                var newCharSize = thisB.getSequenceCharacterSize(true);
-                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
-                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
-                var charWidth = newCharSize.width;
-                if (charWidthChanged) {
-                        if (! browser.config.view) { browser.config.view = {}; }
-                        browser.config.view.maxPxPerBp = charWidth;
-                        view.maxPxPerBp = charWidth;
-                    }
-                if (charWidthChanged && fullZoom) {
-                        view.pxPerBp = view.maxPxPerBp;
-                        view.oldOnResize();
-                        thisB.browserZoomFix(centerBp);
-                    }
-                else  {
-                        view.oldOnResize();
-                    }
-            };
+                        var view = browser.view;
+                        view.oldOnResize = view.onResize;
+
+                             /* trying to fix residues rendering bug when web browser scaling/zoom (Cmd+, Cmd-) is used
+                               *    bug appears in Chrome, not Firefox, unsure of other browsers
+                               */
+                                view.onResize = function() {
+                                var fullZoom = (view.pxPerBp >= view.maxPxPerBp);
+                                var centerBp = Math.round((view.minVisible() + view.maxVisible())/2);
+                                var oldCharSize = thisB.getSequenceCharacterSize();
+                                var newCharSize = thisB.getSequenceCharacterSize(true);
+                                // detect if something happened to change pixel size of residues font (likely a web browser zoom)
+                                    var charWidthChanged = (newCharSize.width != oldCharSize.width);
+                                var charWidth = newCharSize.width;
+                                if (charWidthChanged) {
+                                        if (! browser.config.view) { browser.config.view = {}; }
+                                        browser.config.view.maxPxPerBp = charWidth;
+                                        view.maxPxPerBp = charWidth;
+                                    }
+                                if (charWidthChanged && fullZoom) {
+                                        view.pxPerBp = view.maxPxPerBp;
+                                        view.oldOnResize();
+                                        thisB.browserZoomFix(centerBp);
+                                    }
+                                else  {
+                                        view.oldOnResize();
+                                    }
+                            };
 
 
         });
@@ -693,6 +701,28 @@ return declare( [JBPlugin, HelpMixin,Evented],
                     onClick: function (event) {
                         browser.cookie("Scheme","Dark");
                         domClass.add(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+
+        css_frame_menu.addChild(new dijitMenuSeparator());
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Grid",
+                    onClick: function (event) {
+                        browser.cookie("Scheme-Flat","");
+                        domClass.remove(win.body(), "Flat");
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "No Grid",
+                    onClick: function (event) {
+                        browser.cookie("Scheme-Flat","Flat");
+                        domClass.add(win.body(), "Flat");
                     }
                 }
             )

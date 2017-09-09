@@ -144,26 +144,22 @@ jbrowse {
 
 The default translation table is [1](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi#SG1) 
 
-To use [one of the others](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi) set the number in the ```apollo-config.groovy``` file as:
+To use a different table from [this list of NCBI translation tables](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi) set the number in the ```apollo-config.groovy``` file as:
 
 ```
 apollo {
 ...
   get_translation_code = "11"
 }
-```
+```   
 
-These correspond to the NCBI translation tables.   
-
-To add a custom translation table, you can add it to to the ```web-app/translation_tables``` directory as:
+You may also add a custom translation table in the ```web-app/translation_tables``` directory as follows:
 
 ```
 web-app/translation_tables/ncbi_customname_translation_table.txt
 ```
 
-and specify the ```customname``` as:
-
-In apollo-config.groovy:
+Specify the ```customname``` in apollo-config.groovy as follows:
 
 ```
 apollo {
@@ -171,6 +167,9 @@ apollo {
   get_translation_code = "customname"
 }
 ```
+
+As well, translation tables can be set per organism using the _'Details'_ panel located in the _'Organism'_ tab of the Annotator panel in the Apollo window: to replace the translation table (default or set by admin) for any given organism, use the field labeled as _'Non-default Translation Table'_ to enter a different table identifier as needed. 
+
 
 ### Logging configuration
 

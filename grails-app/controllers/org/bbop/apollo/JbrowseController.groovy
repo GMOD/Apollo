@@ -39,8 +39,6 @@ class JbrowseController {
     def configWrapperService
     def grailsLinkGenerator
 
-
-
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
     }
@@ -173,6 +171,7 @@ class JbrowseController {
                 refererLoc = refererLoc.substring(0, spaceIndex + 6);
             }
             File file = new File(dataFileName);
+
 
             if (!file.exists()) {
                 log.warn("File not found: " + dataFileName);
@@ -333,7 +332,7 @@ class JbrowseController {
 
         // see https://github.com/GMOD/Apollo/issues/1448
         if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
-            println "params.path: ${params.path} directory ${dataDirectory}"
+            log.debug "params.path: ${params.path} directory ${dataDirectory}"
             String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
             dataFileName = newPath
             dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -341,11 +340,24 @@ class JbrowseController {
         }
 
         if (!file.exists()) {
-            log.warn("File not found: " + dataFileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
+            currentOrganism = currentOrganism ?: preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName as String)
 
+            if (extendedOrganismDataDirectory.exists()) {
+                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
+                dataFileName = newPath
+                dataFileName += params.fileType ? ".${params.fileType}" : ""
+                file = new File(dataFileName)
+                log.debug"data file name: ${dataFileName}"
+            }
+
+            if (!file.exists()) {
+                log.error("File not found: " + dataFileName)
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                return
+            }
+        }
 
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -746,6 +758,18 @@ class JbrowseController {
             }
         }
 
+        // add extendedTrackList.json, if available
+        if (!currentOrganism.dataAddedViaWebServices) {
+            println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
+            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            if (extendedTrackListFile.exists()) {
+                log.debug "augmenting track JSON Object with extendedTrackList.json contents"
+                JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
+                jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
+            }
+        }
+
+//        response.outputStream << jsonObject.toString()
         // loading tracks.conf, if it exists
         String tracksConfFilePath = dataDirectory + "/tracks.conf"
         File tracksConfFile = new File(tracksConfFilePath)
@@ -848,9 +872,22 @@ class JbrowseController {
         File file = new File(servletContext.getRealPath(dataFileName))
 
         if (!file.exists()) {
-            log.warn("File not found: " + dataFileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            if (extendedOrganismDataDirectory.exists()) {
+                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
+                dataFileName = newPath
+                dataFileName += params.fileType ? ".${params.fileType}" : ""
+                file = new File(dataFileName)
+                log.debug"data file name: ${dataFileName}"
+            }
+
+            if (!file.exists()) {
+                log.error("File not found: " + dataFileName)
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                return
+            }
         }
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -878,4 +915,5 @@ class JbrowseController {
         inputStream.close();
         out.close();
     }
+
 }

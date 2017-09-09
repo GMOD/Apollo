@@ -111,7 +111,7 @@ class AssemblageController {
 
 
         User user = permissionService.currentUser
-        Organism organism = preferenceService.getCurrentOrganismPreference(user, inputObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(), inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
+        Organism organism = preferenceService.getCurrentOrganismPreferenceWithSequence(user, inputObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value).toString(), inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))?.organism
 
         // creates a projection based on the Assemblages and caches them
         inputObject.organism = organism.commonName
