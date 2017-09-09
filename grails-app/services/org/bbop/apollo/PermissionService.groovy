@@ -7,7 +7,6 @@ import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
-import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
@@ -362,7 +361,7 @@ class PermissionService {
 
         if (!organism) {
             String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-            UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, clientToken)
+            UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreferenceWithSequence(user, sequenceName, clientToken)
             log.debug "Permission service found DTO: ${preferenceDTO as JSON}"
             if (preferenceDTO) {
                 organism = Organism.findById(preferenceDTO.organism.id)

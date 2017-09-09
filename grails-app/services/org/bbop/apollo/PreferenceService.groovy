@@ -11,7 +11,6 @@ import org.bbop.apollo.preference.SequenceDTO
 import org.bbop.apollo.preference.SequenceListDTO
 import org.bbop.apollo.preference.UserDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
-import org.bbop.apollo.sequence.SequenceLocationDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
@@ -158,7 +157,11 @@ class PreferenceService {
             organism = getOrganismForTokenInDB(clientToken)
             return organism
         } else {
-            UserOrganismPreferenceDTO userOrganismPreference = getDTOFromPreference(getCurrentOrganismPreferenceInDB(clientToken))
+//<<<<<<< HEAD
+//            UserOrganismPreferenceDTO userOrganismPreference = getDTOFromPreference(getCurrentOrganismPreferenceInDB(clientToken))
+//=======
+            UserOrganismPreferenceDTO userOrganismPreference = getCurrentOrganismPreferenceWithSequence(permissionService.currentUser,  clientToken)
+//>>>>>>> merge_master_2.1.0_v2
             OrganismDTO organismDTO = setSessionPreference(clientToken, userOrganismPreference)?.organism
             return Organism.findById(organismDTO.id)
         }
@@ -235,7 +238,11 @@ class PreferenceService {
     }
 
     UserOrganismPreferenceDTO setCurrentOrganism(User user, Organism organism, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOFromPreference(getCurrentOrganismPreferenceInDB(clientToken))
+//<<<<<<< HEAD
+//        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getDTOFromPreference(getCurrentOrganismPreferenceInDB(clientToken))
+//=======
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreferenceWithSequence(user,  clientToken)
+//>>>>>>> merge_master_2.1.0_v2
         if (userOrganismPreferenceDTO.organism.id == organism.id) {
             log.info "Same organism so not changing preference"
             return userOrganismPreferenceDTO
@@ -406,7 +413,7 @@ class PreferenceService {
      * @return
      */
     UserOrganismPreferenceDTO setCurrentSequence(User user, Sequence sequence, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(user, sequence.name, clientToken) ?: null
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreferenceWithSequence(user, sequence.name, clientToken) ?: null
         Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
         if (userOrganismPreferenceDTO.assemblage.id == assemblage.id) {
             log.info "Same sequence so not changing preference"
@@ -442,7 +449,7 @@ class PreferenceService {
         return userOrganismPreferenceDTO
     }
 //    def setCurrentSequence(User user, Sequence sequence, String clientToken) {
-//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(user, null, clientToken)
+//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreferenceWithSequence(user, null, clientToken)
 //        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
 //        userOrganismPreference.assemblage = assemblage
 //        setSessionPreference(clientToken, userOrganismPreference)
@@ -515,7 +522,7 @@ class PreferenceService {
     }
 
 //    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
-//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
+//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreferenceWithSequence(permissionService.currentUser, sequenceName, clientToken)
 //        println "assemblage ${userOrganismPreference.assemblage}"
 //        if (userOrganismPreference?.assemblage?.name != sequenceName ) {
 ////            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
@@ -539,7 +546,7 @@ class PreferenceService {
 
 
 //    UserOrganismPreference setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
-//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
+//        UserOrganismPreference userOrganismPreference = getCurrentOrganismPreferenceWithSequence(permissionService.currentUser, sequenceName, clientToken)
 //        if (userOrganismPreference.sequence.name != sequenceName || userOrganismPreference.sequence.organismId != userOrganismPreference.organismId) {
 //            Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, userOrganismPreference.organism)
 //            userOrganismPreference.sequence = sequence
@@ -569,7 +576,7 @@ class PreferenceService {
      * @return
      */
     UserOrganismPreferenceDTO setCurrentSequenceLocation(String sequenceName, Integer startBp, Integer endBp, String clientToken) {
-        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreference(permissionService.currentUser, sequenceName, clientToken)
+        UserOrganismPreferenceDTO userOrganismPreferenceDTO = getCurrentOrganismPreferenceWithSequence(permissionService.currentUser, sequenceName, clientToken)
         if (userOrganismPreferenceDTO.assemblage.name != sequenceName || userOrganismPreferenceDTO.assemblage?.organism?.id != userOrganismPreferenceDTO.organism.id) {
             Organism organism = Organism.findById(userOrganismPreferenceDTO.organism.id)
             Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
@@ -771,8 +778,13 @@ class PreferenceService {
         Integer startBp = preferenceDTO.startbp
         Integer endBp = preferenceDTO.endbp
 
-//        OrganismDTO currentOrganism = getCurrentOrganismPreference(user, sequenceName, clientToken)?.organism
-        OrganismDTO currentOrganism = getCurrentOrganismPreferenceForAssemblage(user, assemblage, clientToken)?.organism
+//<<<<<<< HEAD
+////        OrganismDTO currentOrganism = getCurrentOrganismPreference(user, sequenceName, clientToken)?.organism
+//        OrganismDTO currentOrganism = getCurrentOrganismPreferenceForAssemblage(user, assemblage, clientToken)?.organism
+//=======
+//        OrganismDTO currentOrganism = getCurrentOrganismPreferenceWithSequence(user, sequenceName, clientToken)?.organism
+        OrganismDTO currentOrganism = getCurrentOrganismPreferenceByAssemblage(user, assemblage, clientToken)?.organism
+//>>>>>>> merge_master_2.1.0_v2
         if (!currentOrganism) {
             throw new AnnotationException("Organism preference is not set for user")
         }
@@ -847,14 +859,25 @@ class PreferenceService {
         log.debug "final save ${userOrganismPreference as JSON}"
     }
 
-    UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, Assemblage assemblage, String clientToken) {
+    UserOrganismPreferenceDTO getCurrentOrganismPreferenceByAssemblage(User user, Assemblage assemblage, String clientToken) {
 
         UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
 //        preference = preference ?: getSavingPreferences(user, sequenceName, clientToken)
-        preference = preference ?: getSavingPreferences(user, assemblage, clientToken)
+        preference = preference ?: getSavingPreferencesForAssemblage(user, assemblage, clientToken)
         println "found in-memory preference: ${preference ? preference as JSON : null}"
 //        return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
+        // TODO: this is not correct as assemblage does not have a method
         return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, assemblage, clientToken))
+    }
+
+    /**
+     * @deprecated
+     * @param user
+     * @param clientToken
+     * @return
+     */
+    UserOrganismPreferenceDTO getCurrentOrganismPreferenceWithSequence(User user, String clientToken) {
+        return getCurrentOrganismPreferenceWithSequence(user, null,clientToken)
     }
 
     /**
@@ -864,7 +887,7 @@ class PreferenceService {
      * @param clientToken
      * @return
      */
-    UserOrganismPreferenceDTO getCurrentOrganismPreference(User user, String sequenceName, String clientToken) {
+    UserOrganismPreferenceDTO getCurrentOrganismPreferenceWithSequence(User user, String sequenceName, String clientToken) {
 
         UserOrganismPreferenceDTO preference = getSessionPreference(clientToken)
         preference = preference ?: getSavingPreferences(user, sequenceName, clientToken)
@@ -872,7 +895,7 @@ class PreferenceService {
         return preference ?: getDTOFromPreference(getCurrentOrganismPreferenceInDB(user, sequenceName, clientToken))
     }
 
-    def getSavingPreferences(User user, Assemblage assemblage, String clientToken) {
+    def getSavingPreferencesForAssemblage(User user, Assemblage assemblage, String clientToken) {
         return saveSequenceLocationMap.keySet().find() {
             it.clientToken == clientToken && it.user.username == user.username && it.assemblage.id == assemblage.id
         }
@@ -887,7 +910,7 @@ class PreferenceService {
      */
     def getSavingPreferences(User user, String sequenceList, String clientToken) {
         return saveSequenceLocationMap.keySet().find() {
-            it.clientToken == clientToken && it.user.username == user.username && it.assemblage.sequenceList == sequenceList
+            it.clientToken == clientToken && it.user.username == user.username && it.assemblage.sequenceList.toString() == sequenceList
         }
     }
 

@@ -266,7 +266,14 @@ class AssemblageService {
             organism = preferenceService.getOrganismForToken(inputObject.getString(FeatureStringEnum.ORGANISM.value))
         }
         if (!organism && inputObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
+//<<<<<<< HEAD
+//            UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+//=======
+//            UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreferenceWithSequence(permissionService.getCurrentUser(),inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            // TODO: incirrect
+//            UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreferenceWithSequence(permissionService.getCurrentUser(),inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
             UserOrganismPreference userOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+//>>>>>>> merge_master_2.1.0_v2
             organism = userOrganismPreference?.organism
         }
         List<Sequence> sequences1 = getSequencesFromAssemblage(organism, sequenceArray)
