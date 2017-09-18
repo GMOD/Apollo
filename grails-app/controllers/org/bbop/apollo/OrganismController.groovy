@@ -44,15 +44,15 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
+            , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "Pass an Organism JSON object with an 'id' that corresponds to the organism to be removed")
     ])
     @Transactional
     def deleteOrganism() {
 
         try {
-            JSONObject requestObject = permissionService.handleInput(request, params)
-            log.debug "deleteOrganism ${requestObject}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(requestObject))) {
+            JSONObject organismJson = permissionService.handleInput(request, params)
+            log.debug "deleteOrganism ${organismJson}"
+            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
 
                 log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
                 Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
@@ -60,10 +60,10 @@ class OrganismController {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
                     organism.delete()
-                    log.info "Success deleting organism: ${requestObject.organism}"
+                    log.info "Success deleting organism: ${organismJson.organism}"
                 }
                 else {
-                    log.error "Organism ${requestObject.organism} not found"
+                    log.error "Organism ${organismJson.organism} not found"
                 }
                 render findAllOrganisms()
             } else {
