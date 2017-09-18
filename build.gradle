@@ -108,8 +108,8 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
             }
         } else {
             println "Cloning: ${git.url} into ${"jbrowse-download"}."
-            def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
-            cloneRepo(git.url, "jbrowse-download", branch, 1)
+            def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : "master")
+            cloneRepoNpm(git.url, "jbrowse-download", branch)
         }
     } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
 
@@ -199,7 +199,7 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
                 }
             } else {
                 println "Cloning '${plugin.value.git}' into '${path}'"
-                cloneRepo(plugin.value.git, path, plugin.value.branch)
+                cloneRepoNpm(plugin.value.git, path, plugin.value.branch)
                 println "CLONED from ${plugin.value.git} into ${path}"
             }
         } else if (plugin.value.url == true) {
@@ -250,26 +250,6 @@ def confirmPlugin(String path) {
     return file.exists() && file.isDirectory() && file.canRead()
 }
 
-def cloneRepo(String url, String directory, String branch) {
-    cloneRepo(url, directory, branch, null)
-}
-
-//def cloneRepoNoBower(String url, String directory, String branch, Integer depth) {
-//    String depthString = depth != null && depth > 0 ? " --recursive --depth ${depth} " : ""
-//    def commandToExecute = "git clone ${depthString} ${url} ${directory} "
-//    println "command to execute [${commandToExecute}]"
-//    def proc = commandToExecute.execute()
-//    def outputStream = new StringBuffer();
-//    def errorStream = new StringBuffer();
-//    proc.waitForProcessOutput(outputStream, errorStream);
-//    println outputStream
-//    println errorStream
-//
-//    if (branch.startsWith("tags")) {
-//        fetchTags(new File(directory))
-//    }
-//    checkoutBranch(new File(directory), branch)
-//}
 
 task removeJBrowseDownload(type:Delete){
     delete(jbrowseDirectory)
@@ -365,26 +345,6 @@ task cleanAll(type:Delete){
     delete 'web-app/WEB-INF/deploy', 'web-app/annotator','target'
 }
 
-
-def cloneRepo(String url, String directory, String branch, Integer depth) {
-      cloneRepoNpm(url,directory,branch)
-}
-
-def fetchTags(File file) {
-    println "fetching tags"
-    if(!isValidGitDirectory(file)) return
-
-    def processBuilder = new ProcessBuilder()
-    processBuilder.redirectErrorStream(true)
-    processBuilder.directory(file)
-    processBuilder.command("git", "fetch", "--tags")
-    def proc = processBuilder.start()
-    def outputStream = new StringBuffer();
-    def errorStream = new StringBuffer();
-    proc.waitForProcessOutput(outputStream, errorStream);
-    if(outputStream.length()>0) println "Out: " + outputStream
-    if(errorStream.length()>0) println "Error: " + errorStream
-}
 
 Boolean isValidGitDirectory(File file){
     File gitFile = new File(file.absolutePath+"/.git")
