@@ -33,6 +33,7 @@ repositories {
 ext {
     npmCommand = Os.isFamily(Os.FAMILY_WINDOWS) ? 'npm.cmd' : 'npm'
     githubURL = "https://github.com/"
+    githubGitURL = "git@github.com:"
     nodeModulesDirectory = "node_modules"
     jbrowseDirectory = "jbrowse-download"
     pluginsDirectory = "jbrowse-download/plugins"
@@ -125,7 +126,7 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
         } else {
 //            new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
             println "Must specify type"
-            throw new GradleException("Unable to specify jbrowse download type")
+            throw new GradleException("Unable to specify JBrowse download type")
         }
     }
 }
@@ -303,8 +304,14 @@ def cloneRepoNpm(String url, String directory, String branch){
         finalUrl = finalUrl.substring(githubURL.length())
         println "final github url: ${finalUrl}"
     }
+    else
+    if(finalUrl.startsWith(githubGitURL)){
+        finalUrl = finalUrl.substring(githubGitURL.length())
+        println "final git github url: ${finalUrl}"
+    }
     else{
-        println "final non-github url: ${finalUrl}"
+        println "Non-github url: ${finalUrl}"
+        throw new GradleException("Non-GitHub URL not supported.  Please raise a GitHub Issue in gmod/apollo fix your url:  [${finalUrl}]")
     }
     exec{
         println "using npm to install: ${finalUrl}"
