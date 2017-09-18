@@ -12,7 +12,7 @@ class NcbiProxyServiceController {
     // only returns title if xml, not json
     private static String FETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?retmode=xml";
     /**
-     * Request URL:http://icebox.lbl.gov/WebApolloDemoStaging/ProxyService?proxy=eutils&operation=fetch&db=pubmed&id=PMC3013679
+     * Request URL:http://demo.genomearchitect.org/WebApolloDemoStaging/ProxyService?proxy=eutils&operation=fetch&db=pubmed&id=PMC3013679
 
      * @return
      */
