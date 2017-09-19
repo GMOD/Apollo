@@ -2087,9 +2087,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
         }
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
-        // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should 
+        // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should
         // be merged to the 5' most transcript's gene.
-        // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be 
+        // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be
         // given a new, de-novo gene.
         log.debug "allSortedTranscripts:${allSortedTranscripts.name}"
         Transcript fivePrimeTranscript = allSortedTranscripts.get(0)
@@ -2341,7 +2341,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Sequence sequence = feature.featureLocation.sequence
         sessionFactory.currentSession.flushMode = FlushMode.MANUAL
 
-        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where fl.fmin >= :fmin and fl.fmin <= :fmax or fl.fmax >= :fmin and fl.fmax <= :fmax and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
+        List<SequenceAlteration> sequenceAlterations = SequenceAlteration.executeQuery("select distinct sa from SequenceAlteration sa join sa.featureLocations fl where ((fl.fmin >= :fmin and fl.fmin <= :fmax) or (fl.fmax >= :fmin and fl.fmax <= :fmax)) and fl.sequence = :seqId", [fmin: fmin, fmax: fmax, seqId: sequence])
         sessionFactory.currentSession.flushMode = FlushMode.AUTO
 
         return sequenceAlterations
