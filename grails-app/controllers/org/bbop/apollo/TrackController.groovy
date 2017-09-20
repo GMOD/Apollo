@@ -30,7 +30,7 @@ class TrackController {
         if( params.action=="featuresByName"
         || params.action=="featuresByLocation"
         ){
-            response.addHeader( "Access-Control-Allow-Origin", "*")
+            response.setHeader( "Access-Control-Allow-Origin", "*")
         }
     }
 
@@ -122,8 +122,6 @@ class TrackController {
                 returnArray.add(returnObject)
             }
         }
-
-        response.addHeader( "Access-Control-Allow-Origin", "*")
 
         if (type == "json") {
             trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
