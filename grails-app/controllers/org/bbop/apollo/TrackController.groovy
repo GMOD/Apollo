@@ -25,6 +25,15 @@ class TrackController {
     def grailsApplication
     def svgService
 
+
+    def beforeInterceptor = {
+        if( params.action=="featuresByName"
+        || params.action=="featuresByLocation"
+        ){
+            response.addHeader( "Access-Control-Allow-Origin", "*")
+        }
+    }
+
     /**
      * Just a convenience method
      * @param trackName
@@ -114,6 +123,7 @@ class TrackController {
             }
         }
 
+        response.addHeader( "Access-Control-Allow-Origin", "*")
 
         if (type == "json") {
             trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
