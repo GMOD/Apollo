@@ -131,7 +131,7 @@ class TrackService {
                     def subArray = featureArray.get(subIndex)
                     if (subArray instanceof JSONArray) {
                         def subArray2 = convertAllNCListToObject(subArray, sequenceDTO)
-                        childArray.add(subArray2)
+                        childArray.addAll(subArray2)
                     }
                     if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
                         def subArrays2 = subArray.getJSONArray("Sublist")
