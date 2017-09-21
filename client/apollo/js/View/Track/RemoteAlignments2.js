@@ -5,6 +5,7 @@ define( [
         'dojo/Deferred',
         'dojo/promise/all',
         'JBrowse/Util',
+        'WebApollo/JSONUtils',
         'JBrowse/View/Track/Alignments2'
     ],
     function(
@@ -14,6 +15,7 @@ define( [
         Deferred,
         all,
         Util,
+        JSONUtils,
         Alignments2
     ) {
 
