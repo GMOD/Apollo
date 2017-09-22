@@ -35,10 +35,6 @@ class TrackService {
         return jsonObject
     }
 
-    String getUrl(String jbrowseDirectory,String trackName,String sequence){
-
-    }
-
     JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
         JSONObject trackObject = getTrackList(jbrowseDirectory)
@@ -51,6 +47,8 @@ class TrackService {
 
         String trackDataFilePath = "${urlTemplate.replace("{refseq}",sequence)}"
         trackDataFilePath = trackDataFilePath.replace(" ","%20")
+
+        println "final trackData url [${trackDataFilePath}]"
 
         if(trackDataFilePath.startsWith("http")){
             if(trackDataFilePath.endsWith(".json")){
@@ -71,6 +69,12 @@ class TrackService {
             }
         }
         else{
+            println "handling local file: ${trackDataFilePath}"
+            if(!trackDataFilePath.startsWith("/")){
+                trackDataFilePath = jbrowseDirectory + "/" +trackDataFilePath
+            }
+            trackDataFilePath = trackDataFilePath.replace("%20"," ")
+            println "converted : ${trackDataFilePath}"
             File file = new File(trackDataFilePath)
             if (!file.exists()) {
                 log.error "File does not exist ${trackDataFilePath}"
@@ -90,14 +94,14 @@ class TrackService {
         assert fmin <= fmax
 
         // TODO: refactor into a common method
-        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, sequence)
+        JSONArray classesForTrack = getClassesForTrack(trackName, organismString, sequence)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        trackMapperService.storeTrack(sequenceDTO, clasesForTrack)
+        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
 
         // 1. get the trackData.json file
         JSONObject trackObject = getTrackData(trackName, organismString, sequence)
@@ -150,7 +154,7 @@ class TrackService {
         }
         String trackDataFilePath = "${urlTemplate.replace("{refseq}",sequence)}"
         trackDataFilePath = trackDataFilePath.replace(" ","%20")
-//        println "final url [${trackDataFilePath}]"
+        println "final chunk url [${trackDataFilePath}]"
 
 
         trackDataFilePath = trackDataFilePath.replace("trackData.json","lf-${chunk}.json")
@@ -175,6 +179,12 @@ class TrackService {
             }
         }
         else{
+            println "handling local file: ${trackDataFilePath}"
+            if(!trackDataFilePath.startsWith("/")){
+                trackDataFilePath = jbrowseDirectory + "/" +trackDataFilePath
+            }
+            trackDataFilePath = trackDataFilePath.replace("%20"," ")
+            println "converted : ${trackDataFilePath}"
             File file = new File(trackDataFilePath)
             if (!file.exists()) {
                 log.error "File does not exist ${trackDataFilePath}"
