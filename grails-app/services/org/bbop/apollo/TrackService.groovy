@@ -6,7 +6,10 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONObject
+
+import java.util.zip.GZIPInputStream
 
 @Transactional
 class TrackService {
@@ -16,17 +19,68 @@ class TrackService {
 
     public static String TRACK_NAME_SPLITTER = "::"
 
+    JSONObject getTrackList(String jbrowseDirectory) {
+        log.debug "got data directory of . . . ? ${jbrowseDirectory}"
+        String absoluteFilePath = jbrowseDirectory + "/trackList.json"
+        File file = new File(absoluteFilePath);
+
+        if (!file.exists()) {
+            log.warn("Could not get for name and path: ${absoluteFilePath}");
+            return null;
+        }
+
+        // add datasets to the configuration
+        JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+        return jsonObject
+    }
+
+    String getTrackDataFile(String jbrowseDirectory,String trackName, String sequence) {
+        JSONObject trackObject = getTrackList(jbrowseDirectory)
+        String urlTemplate = null
+        for (JSONObject track in trackObject.tracks) {
+            if (track.key == trackName) {
+                urlTemplate = track.urlTemplate
+            }
+        }
+
+        return  "${urlTemplate.replace("{refseq}", sequence)}"
+    }
+
+    JSONElement retrieveFileObject(String jbrowseDirectory,String trackDataFilePath){
+
+        if (trackDataFilePath.startsWith("http")) {
+            trackDataFilePath = trackDataFilePath.replace(" ", "%20")
+            if (trackDataFilePath.endsWith(".json")) {
+                return JSON.parse(new URL(trackDataFilePath).text)
+            } else if (trackDataFilePath.endsWith(".jsonz")) {
+                def inputStream = new URL(trackDataFilePath).openStream()
+                GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
+                String outputString = gzipInputStream.readLines().join("\n")
+                return JSON.parse(outputString)
+            } else {
+                log.error("type not understood: " + trackDataFilePath)
+                return null
+            }
+        } else {
+            println "handling local file: ${trackDataFilePath}"
+            if (!trackDataFilePath.startsWith("/")) {
+                trackDataFilePath = jbrowseDirectory + "/" + trackDataFilePath
+            }
+            println "converted : ${trackDataFilePath}"
+            File file = new File(trackDataFilePath)
+            if (!file.exists()) {
+                log.error "File does not exist ${trackDataFilePath}"
+                return null
+            }
+            return JSON.parse(file.text)
+        }
+    }
+
     JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${sequence}"
-        String trackDataFilePath = "${trackPath}/trackData.json"
-
-        File file = new File(trackDataFilePath)
-        if (!file.exists()) {
-            log.error "File does not exist ${trackDataFilePath}"
-            return null
-        }
-        return JSON.parse(file.text) as JSONObject
+        String trackDataFilePath = getTrackDataFile(jbrowseDirectory,trackName,sequence)
+//        println "final trackData url [${trackDataFilePath}]"
+        return retrieveFileObject(jbrowseDirectory,trackDataFilePath) as JSONObject
     }
 
     @NotTransactional
@@ -39,14 +93,14 @@ class TrackService {
         assert fmin <= fmax
 
         // TODO: refactor into a common method
-        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, sequence)
+        JSONArray classesForTrack = getClassesForTrack(trackName, organismString, sequence)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        trackMapperService.storeTrack(sequenceDTO, clasesForTrack)
+        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
 
         // 1. get the trackData.json file
         JSONObject trackObject = getTrackData(trackName, organismString, sequence)
@@ -86,15 +140,18 @@ class TrackService {
      */
     JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${sequenceDTO.trackName}/${sequenceDTO.sequenceName}"
-        String trackDataFilePath = "${trackPath}/lf-${chunk}.json"
 
-        File file = new File(trackDataFilePath)
-        if (!file.exists()) {
-            log.error "file does not exist ${trackDataFilePath}"
-            return null
-        }
-        return JSON.parse(file.text) as JSONArray
+        String trackName = sequenceDTO.trackName
+        String sequence = sequenceDTO.sequenceName
+
+        String trackDataFilePath = getTrackDataFile(jbrowseDirectory,trackName,sequence)
+
+        println "final chunk url [${trackDataFilePath}]"
+
+
+        trackDataFilePath = trackDataFilePath.replace("trackData.json", "lf-${chunk}.json")
+
+        return retrieveFileObject(jbrowseDirectory,trackDataFilePath) as JSONArray
     }
 
     @NotTransactional
