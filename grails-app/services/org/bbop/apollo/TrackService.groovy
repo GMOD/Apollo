@@ -3,10 +3,14 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 @Transactional
 class TrackService {
@@ -16,17 +20,73 @@ class TrackService {
 
     public static String TRACK_NAME_SPLITTER = "::"
 
+    JSONObject getTrackList(String jbrowseDirectory){
+        log.debug "got data directory of . . . ? ${jbrowseDirectory}"
+        String absoluteFilePath = jbrowseDirectory + "/trackList.json"
+        File file = new File(absoluteFilePath);
+
+        if (!file.exists()) {
+            log.warn("Could not get for name and path: ${absoluteFilePath}");
+            return null;
+        }
+
+        // add datasets to the configuration
+        JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+        return jsonObject
+    }
+
     JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${sequence}"
-        String trackDataFilePath = "${trackPath}/trackData.json"
-
-        File file = new File(trackDataFilePath)
-        if (!file.exists()) {
-            log.error "File does not exist ${trackDataFilePath}"
-            return null
+        String trackListPath = "${jbrowseDirectory}/trackList.json"
+        JSONObject trackObject = getTrackList(jbrowseDirectory)
+        String urlTemplate = null
+        for(JSONObject track in trackObject.tracks){
+            if(track.key == trackName){
+                urlTemplate = track.urlTemplate
+            }
         }
-        return JSON.parse(file.text) as JSONObject
+
+        println trackListPath
+        println jbrowseDirectory
+        println trackObject as JSON
+
+        String trackDataFilePath = "${urlTemplate.replace("{refseq}",sequence)}"
+        trackDataFilePath = trackDataFilePath.replace(" ","%20")
+        println "final url [${trackDataFilePath}]"
+
+        if(trackDataFilePath.startsWith("http")){
+            println "is remote: ${trackDataFilePath}"
+            if(trackDataFilePath.endsWith(".json")){
+                def dataObject = JSON.parse( new URL( trackDataFilePath).text ) as JSONObject
+                return dataObject
+            }
+            else
+            if(trackDataFilePath.endsWith(".jsonz")){
+                println "handling jsonz"
+                def inputStream = new URL(trackDataFilePath).openStream()
+//                println "got bytes: ${gzipBytes.length}"
+                GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
+                println "init input stream"
+                String outputString = gzipInputStream.readLines().join("\n")
+                println "output string ${outputString}"
+                JSONObject dataObject = JSON.parse( outputString ) as JSONObject
+                println "final data object ${dataObject as JSON}"
+                return dataObject
+            }
+            else{
+                log.error("type not understood: "+trackDataFilePath)
+                return null
+            }
+        }
+        else{
+            println "is local file: ${trackDataFilePath}"
+            File file = new File(trackDataFilePath)
+            if (!file.exists()) {
+                log.error "File does not exist ${trackDataFilePath}"
+                return null
+            }
+            return JSON.parse(file.text) as JSONObject
+        }
     }
 
     @NotTransactional
