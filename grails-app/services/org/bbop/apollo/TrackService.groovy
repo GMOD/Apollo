@@ -35,9 +35,12 @@ class TrackService {
         return jsonObject
     }
 
+    String getUrl(String jbrowseDirectory,String trackName,String sequence){
+
+    }
+
     JSONObject getTrackData(String trackName, String organism, String sequence) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-        String trackListPath = "${jbrowseDirectory}/trackList.json"
         JSONObject trackObject = getTrackList(jbrowseDirectory)
         String urlTemplate = null
         for(JSONObject track in trackObject.tracks){
@@ -46,31 +49,20 @@ class TrackService {
             }
         }
 
-        println trackListPath
-        println jbrowseDirectory
-        println trackObject as JSON
-
         String trackDataFilePath = "${urlTemplate.replace("{refseq}",sequence)}"
         trackDataFilePath = trackDataFilePath.replace(" ","%20")
-        println "final url [${trackDataFilePath}]"
 
         if(trackDataFilePath.startsWith("http")){
-            println "is remote: ${trackDataFilePath}"
             if(trackDataFilePath.endsWith(".json")){
                 def dataObject = JSON.parse( new URL( trackDataFilePath).text ) as JSONObject
                 return dataObject
             }
             else
             if(trackDataFilePath.endsWith(".jsonz")){
-                println "handling jsonz"
                 def inputStream = new URL(trackDataFilePath).openStream()
-//                println "got bytes: ${gzipBytes.length}"
                 GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
-                println "init input stream"
                 String outputString = gzipInputStream.readLines().join("\n")
-                println "output string ${outputString}"
                 JSONObject dataObject = JSON.parse( outputString ) as JSONObject
-                println "final data object ${dataObject as JSON}"
                 return dataObject
             }
             else{
@@ -79,7 +71,6 @@ class TrackService {
             }
         }
         else{
-            println "is local file: ${trackDataFilePath}"
             File file = new File(trackDataFilePath)
             if (!file.exists()) {
                 log.error "File does not exist ${trackDataFilePath}"
@@ -146,15 +137,51 @@ class TrackService {
      */
     JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) {
         String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${sequenceDTO.trackName}/${sequenceDTO.sequenceName}"
-        String trackDataFilePath = "${trackPath}/lf-${chunk}.json"
 
-        File file = new File(trackDataFilePath)
-        if (!file.exists()) {
-            log.error "file does not exist ${trackDataFilePath}"
-            return null
+        JSONObject trackObject = getTrackList(jbrowseDirectory)
+        String trackName = sequenceDTO.trackName
+        String sequence = sequenceDTO.sequenceName
+
+        String urlTemplate = null
+        for(JSONObject track in trackObject.tracks){
+            if(track.key == trackName){
+                urlTemplate = track.urlTemplate
+            }
         }
-        return JSON.parse(file.text) as JSONArray
+        String trackDataFilePath = "${urlTemplate.replace("{refseq}",sequence)}"
+        trackDataFilePath = trackDataFilePath.replace(" ","%20")
+//        println "final url [${trackDataFilePath}]"
+
+
+        trackDataFilePath = trackDataFilePath.replace("trackData.json","lf-${chunk}.json")
+
+        if(trackDataFilePath.startsWith("http")){
+            println "is remote: ${trackDataFilePath}"
+            if(trackDataFilePath.endsWith(".json")){
+                def dataObject = JSON.parse( new URL( trackDataFilePath).text ) as JSONArray
+                return dataObject
+            }
+            else
+            if(trackDataFilePath.endsWith(".jsonz")){
+                def inputStream = new URL(trackDataFilePath).openStream()
+                GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
+                String outputString = gzipInputStream.readLines().join("\n")
+                def dataObject = JSON.parse( outputString ) as JSONArray
+                return dataObject
+            }
+            else{
+                log.error("type not understood: "+trackDataFilePath)
+                return null
+            }
+        }
+        else{
+            File file = new File(trackDataFilePath)
+            if (!file.exists()) {
+                log.error "File does not exist ${trackDataFilePath}"
+                return null
+            }
+            return JSON.parse(file.text) as JSONArray
+        }
     }
 
     @NotTransactional
