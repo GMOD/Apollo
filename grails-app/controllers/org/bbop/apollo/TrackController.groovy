@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -61,14 +62,30 @@ class TrackController {
 
     @RestApiMethod(description = "Remove track cache for an organism", path = "/track/cache/clear/<organism name>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required) or 'ALL' if admin")
     ])
     @Transactional
     def clearOrganismCache(String organismName) {
-        if (!checkPermission(organismName)) return
-        int removed = TrackCache.countByOrganismName(organismName)
-        TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
-        render new JSONObject(removed: removed) as JSON
+        if(organismName.toLowerCase().equals("all") && permissionService.isAdmin()){
+            log.info "Deleting cache for all organisms"
+            JSONArray jsonArray = new JSONArray()
+            Organism.all.each { organism ->
+                int removed = TrackCache.countByOrganismName(organism.commonName)
+                TrackCache.deleteAll(TrackCache.findAllByOrganismName(organism.commonName))
+                JSONObject jsonObject = new JSONObject(name: organism.commonName, removed: removed) as JSONObject
+                jsonArray.add(jsonObject)
+            }
+
+            render jsonArray as JSON
+        }
+        else{
+            log.info "Deleting cache for ${organismName}"
+            if (!checkPermission(organismName)) return
+            int removed = TrackCache.countByOrganismName(organismName)
+            TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
+            render new JSONObject(removed: removed) as JSON
+        }
+
     }
 
 

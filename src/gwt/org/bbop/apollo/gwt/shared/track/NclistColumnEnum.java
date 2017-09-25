@@ -16,6 +16,7 @@ public enum NclistColumnEnum {
     ID,
     SOURCE,
     NAME,
+    ALIAS,
     CHUNK,
     PHASE;
 

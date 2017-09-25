@@ -53,6 +53,7 @@ class TrackMapperService {
         trackIndex.type = attributes.indexOf(NclistColumnEnum.TYPE.value)+1
         trackIndex.phase = attributes.indexOf(NclistColumnEnum.PHASE.value)+1
         trackIndex.name = attributes.indexOf(NclistColumnEnum.NAME.value)+1
+        trackIndex.alias = attributes.indexOf(NclistColumnEnum.ALIAS.value)+1
         trackIndex.fixCoordinates()
 
 
