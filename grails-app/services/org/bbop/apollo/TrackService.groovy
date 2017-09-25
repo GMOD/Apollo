@@ -162,22 +162,33 @@ class TrackService {
             if (featureArray[0] instanceof Integer) {
                 TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
 
+                System.out.println(featureArray as JSON)
+
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
+                if (trackIndex.source) {
+                    jsonObject.source = featureArray[trackIndex.getSource()]
+                }
                 if (trackIndex.strand) {
                     jsonObject.strand = featureArray[trackIndex.getStrand()]
                 }
-//                if (trackIndex.source) {
-//                    jsonObject.source = featureArray[trackIndex.getSource()]
-//                }
+                if (trackIndex.phase) {
+                    jsonObject.phase = featureArray[trackIndex.phase]
+                }
                 if (trackIndex.type) {
                     jsonObject.type = featureArray[trackIndex.getType()]
                 }
-                if (trackIndex.id) {
-                    jsonObject.name = featureArray[trackIndex.id]
+                if (trackIndex.score) {
+                    jsonObject.score = featureArray[trackIndex.score]
                 }
-                if (trackIndex.phase) {
-                    jsonObject.phase = featureArray[trackIndex.phase]
+                if (trackIndex.name) {
+                    jsonObject.name = featureArray[trackIndex.name]
+                }
+                if (trackIndex.id) {
+                    jsonObject.id = featureArray[trackIndex.id]
+                }
+                if (trackIndex.seqId) {
+                    jsonObject.seqId = featureArray[trackIndex.seqId]
                 }
                 // sequence source
 //                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
