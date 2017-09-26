@@ -31,6 +31,59 @@ define([
                     "WebApollo/View/Track/Wiggle/RemoteDensity": "quantitative",
                     "WebApollo/Store/SeqFeature/Combination": "set"
                 });
+
+                // overriding configuration
+                dojo.safeMixin(this.trackClasses, {
+                    "set":  {
+                        resultsTypes:   [{
+                            name: "HTMLFeatures",
+                            path: "JBrowse/View/Track/HTMLFeatures"
+                        }
+                        ],
+                        store:        "WebApollo/Store/SeqFeature/Combination",
+                        allowedOps:   ["&", "U", "X", "S"],
+                        defaultOp :   "&"
+                    },
+                    "quantitative":        {
+                        resultsTypes:   [{
+                            name: "XYPlot",
+                            path: "JBrowse/View/Track/Wiggle/XYPlot"
+                        },
+                            {
+                                name: "Density",
+                                path: "JBrowse/View/Track/Wiggle/Density"
+                            }],
+                        store:        "WebApollo/Store/SeqFeature/QuantitativeCombination",
+                        allowedOps:   ["+", "-", "*", "/"],
+                        defaultOp:    "+"
+                    },
+                    "mask": {
+                        resultsTypes: [{
+                            name: "XYPlot",
+                            path: "JBrowse/View/Track/Wiggle/XYPlot"
+                        },
+                            {
+                                name: "Density",
+                                path: "JBrowse/View/Track/Wiggle/Density"
+                            }],
+                        store:          "WebApollo/Store/SeqFeature/Mask",
+                        allowedOps: ["M", "N"],
+                        defaultOp:      "M"
+                    },
+                    "BAM": {
+                        resultsTypes: [{
+                            name: "Detail",
+                            path: "JBrowse/View/Track/Alignments2"
+                        },
+                            {
+                                name: "Summary",
+                                path: "JBrowse/View/Track/SNPCoverage"
+                            }],
+                        store:          "WebApollo/Store/SeqFeature/BAMCombination",
+                        allowedOps: ["U"],
+                        defaultOp:      "U"
+                    }
+                })
             }
         });
 });

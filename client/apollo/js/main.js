@@ -376,7 +376,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
             var storeConf = {
                 browser: this,
                 refSeq: this.refSeq,
-                type: 'JBrowse/Store/SeqFeature/Combination'
+                type: 'WebApollo/Store/SeqFeature/Combination'
             };
             var storeName = this.addStoreConfig(undefined, storeConf);
             storeConf.name = storeName;
