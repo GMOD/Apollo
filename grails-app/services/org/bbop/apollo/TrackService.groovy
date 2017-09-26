@@ -34,7 +34,7 @@ class TrackService {
         return jsonObject
     }
 
-    String getTrackDataFile(String jbrowseDirectory,String trackName, String sequence) {
+    String getTrackDataFile(String jbrowseDirectory, String trackName, String sequence) {
         JSONObject trackObject = getTrackList(jbrowseDirectory)
         String urlTemplate = null
         for (JSONObject track in trackObject.tracks) {
@@ -43,10 +43,10 @@ class TrackService {
             }
         }
 
-        return  "${urlTemplate.replace("{refseq}", sequence)}"
+        return "${urlTemplate.replace("{refseq}", sequence)}"
     }
 
-    JSONElement retrieveFileObject(String jbrowseDirectory,String trackDataFilePath){
+    JSONElement retrieveFileObject(String jbrowseDirectory, String trackDataFilePath) {
 
         if (trackDataFilePath.startsWith("http")) {
             trackDataFilePath = trackDataFilePath.replace(" ", "%20")
@@ -76,11 +76,10 @@ class TrackService {
         }
     }
 
-    JSONObject getTrackData(String trackName, String organism, String sequence) {
+    JSONObject getTrackData(String trackName, String organism, String sequence) throws FileNotFoundException {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-        String trackDataFilePath = getTrackDataFile(jbrowseDirectory,trackName,sequence)
-//        println "final trackData url [${trackDataFilePath}]"
-        return retrieveFileObject(jbrowseDirectory,trackDataFilePath) as JSONObject
+        String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
+        return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONObject
     }
 
     @NotTransactional
@@ -138,24 +137,24 @@ class TrackService {
      * @param chunk
      * @return
      */
-    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) {
+    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) throws FileNotFoundException{
         String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
 
         String trackName = sequenceDTO.trackName
         String sequence = sequenceDTO.sequenceName
 
-        String trackDataFilePath = getTrackDataFile(jbrowseDirectory,trackName,sequence)
+        String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
 
         println "final chunk url [${trackDataFilePath}]"
 
 
         trackDataFilePath = trackDataFilePath.replace("trackData.json", "lf-${chunk}.json")
 
-        return retrieveFileObject(jbrowseDirectory,trackDataFilePath) as JSONArray
+        return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONArray
     }
 
     @NotTransactional
-    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) {
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException{
         JSONObject jsonObject = new JSONObject()
 
         if (featureArray.size() > 3) {
@@ -218,7 +217,7 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
+    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) throws FileNotFoundException {
         JSONArray returnArray = new JSONArray()
 
         for (def jsonArray in fullArray) {

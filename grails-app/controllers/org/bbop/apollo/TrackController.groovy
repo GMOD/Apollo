@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -121,17 +120,24 @@ class TrackController {
             }
         }
 
-        JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, -1, -1)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        JSONArray returnArray = new JSONArray()
+        JSONArray renderedArray
+        try {
+            JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, -1, -1)
+            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+        } catch (FileNotFoundException fnfe) {
+            log.warn(fnfe.message)
+            response.status = 404
+            return
+        }
 
-        for (returnObject in renderedArray) {
+        JSONArray returnArray = new JSONArray()
+        for (JSONObject returnObject in renderedArray) {
             // only set if true?
             returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${featureName}.json")
             if (returnObject?.name == featureName) {
@@ -191,17 +197,24 @@ class TrackController {
                 }
             }
         }
-        JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
+        JSONArray renderedArray
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        JSONArray returnArray = new JSONArray()
+        try {
+            JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
+            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+        } catch (FileNotFoundException fnfe) {
+            log.warn(fnfe.message)
+            response.status = 404
+            return
+        }
 
-        for (returnObject in renderedArray) {
+        JSONArray returnArray = new JSONArray()
+        for (JSONObject returnObject in renderedArray) {
             // only set if true?
             if (returnObject.name) {
                 returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${returnObject.name}.json")
