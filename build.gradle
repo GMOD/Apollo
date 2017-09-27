@@ -273,6 +273,10 @@ def cloneRepoShell(String url, String directory, String branch, Integer depth) {
     println outputStream
     println errorStream
 
+    if(!branch){
+        branch = "master"
+    }
+    else
     if (branch.startsWith("tags")) {
         fetchTags(new File(directory))
     }
