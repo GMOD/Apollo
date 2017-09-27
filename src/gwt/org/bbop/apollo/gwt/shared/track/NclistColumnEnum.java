@@ -15,6 +15,8 @@ public enum NclistColumnEnum {
     SEQ_ID,
     ID,
     SOURCE,
+    NAME,
+    ALIAS,
     CHUNK,
     PHASE;
 

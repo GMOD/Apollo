@@ -15,6 +15,8 @@ public class TrackIndex {
     private Integer chunk;
     private Integer id;
     private Integer subFeaturesColumn;
+    private Integer name ;
+    private Integer alias;
 
     private Integer seqId;
     private Integer classIndex;
@@ -172,5 +174,21 @@ public class TrackIndex {
 
     public void setClassIndex(Integer classIndex) {
         this.classIndex = classIndex;
+    }
+
+    public Integer getName() {
+        return name;
+    }
+
+    public void setName(Integer name) {
+        this.name = name;
+    }
+
+    public Integer getAlias() {
+        return alias;
+    }
+
+    public void setAlias(Integer alias) {
+        this.alias = alias;
     }
 }
