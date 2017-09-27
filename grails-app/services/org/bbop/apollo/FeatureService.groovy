@@ -1961,7 +1961,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
         for (Feature childFeature : feature?.parentFeatureRelationships?.childFeature) {
-            flipStrand(childFeature);
+            flipStrand(childFeature)
         }
 
         feature.save()

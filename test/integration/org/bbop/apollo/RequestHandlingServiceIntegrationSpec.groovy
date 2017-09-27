@@ -341,8 +341,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         for (int i = 0; i < 3; i++) {
             JSONObject codingObject = children.get(i)
             JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject.strand == -1
             assert locationObject != null
         }
+        assert MRNA.first().featureLocations.first().strand==-1
+        assert Gene.first().featureLocations.first().strand==-1
+        assert Exon.first().featureLocations.first().strand==-1
+        assert Exon.last().featureLocations.first().strand==-1
 
 
         when: "we flip the strand"
@@ -367,6 +372,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
         assert childrenArray.size() == 5
+        assert MRNA.first().featureLocations.first().strand==1
+        assert Gene.first().featureLocations.first().strand==1
+        assert Exon.first().featureLocations.first().strand==1
+        assert Exon.last().featureLocations.first().strand==1
 
         when: "we flip it back the other way"
         returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
@@ -387,6 +396,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert CDS.count == 1
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert MRNA.first().featureLocations.first().strand==-1
+        assert Gene.first().featureLocations.first().strand==-1
+        assert Exon.first().featureLocations.first().strand==-1
+        assert Exon.last().featureLocations.first().strand==-1
     }
 
     void "delete an entire transcript"() {
