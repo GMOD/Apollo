@@ -105,7 +105,8 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
         } else {
             println "Cloning: ${git.url} into ${"jbrowse-download"}."
             def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
-            cloneRepo(git.url, "jbrowse-download", branch, 1)
+//            cloneRepo(git.url, "jbrowse-download", branch, 1)
+            cloneRepoNpm(git.url, "jbrowse-download", branch)
         }
     } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
 
