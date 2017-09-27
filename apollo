@@ -39,8 +39,8 @@ function deploy_message(){
 }
 
 function check_rest_api(){
-	if [ ! -f web-app/js/restapidoc/restapidoc.json ]; then 
-		$grails_executable rest-api-doc 
+	if [ ! -d target ]; then
+		$grails_executable doc
 	fi
 }
 
@@ -206,9 +206,9 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
-    $gradle_executable handleJBrowse 
+    $gradle_executable handleJBrowse
     check_rest_api
-	$grails_executable test-app 
+	$grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     check_configs
     copy_configs
@@ -242,4 +242,3 @@ elif [[ $1 == "jbrowse" ]];then
 else
     usage
 fi
-
