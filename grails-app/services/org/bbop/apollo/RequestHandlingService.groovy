@@ -1474,18 +1474,20 @@ class RequestHandlingService {
                 feature = transcriptService.flipTranscriptStrand((Transcript) feature);
                 featureService.setLongestORF((Transcript) feature)
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature)
-                featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
-                def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
-                if (transcriptsToUpdate.size() > 0) {
-                    JSONObject updateFeatureContainer = createJSONFeatureContainer()
-                    transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
-                    if (sequence) {
-                        AnnotationEvent annotationEvent = new AnnotationEvent(
-                                features: updateFeatureContainer,
-                                sequence: sequence,
-                                operation: AnnotationEvent.Operation.UPDATE
-                        )
-                        fireAnnotationEvent(annotationEvent)
+                if(transcriptService.getGene( (Transcript) feature)){
+                    featureEventService.addNewFeatureEventWithUser(FeatureOperation.FLIP_STRAND, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
+                    def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
+                    if (transcriptsToUpdate.size() > 0) {
+                        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+                        transcriptsToUpdate.each { updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it)) }
+                        if (sequence) {
+                            AnnotationEvent annotationEvent = new AnnotationEvent(
+                                    features: updateFeatureContainer,
+                                    sequence: sequence,
+                                    operation: AnnotationEvent.Operation.UPDATE
+                            )
+                            fireAnnotationEvent(annotationEvent)
+                        }
                     }
                 }
             } else {

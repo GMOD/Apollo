@@ -402,6 +402,113 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.last().featureLocations.first().strand==-1
     }
 
+    @IgnoreRest
+    void "flip strand on an existing transcript with two isoforms"() {
+
+        given: "a input JSON string"
+        String jsonString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":219994,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40772-RA\",\"children\":[{\"location\":{\"fmin\":222109,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":220044,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":222081,\"fmax\":222245,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":219994,\"fmax\":222109,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }"
+        String commandString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@TRANSCRIPT_NAME@\" } ], \"operation\": \"flip_strand\" }"
+
+        when: "we parse the string"
+        JSONObject jsonObject = JSON.parse(jsonString) as JSONObject
+
+        then: "we get a valid json object and no features"
+        assert Feature.count == 0
+
+        when: "we add the first transcript"
+        JSONObject returnObject1 = requestHandlingService.addTranscript(jsonObject)
+        JSONObject returnObject2 = requestHandlingService.addTranscript(jsonObject)
+
+        then: "we should get a transcript back"
+        assert returnObject1.getString('operation') == "ADD"
+        assert returnObject2.getString('operation') == "ADD"
+        JSONArray featuresArray1 = returnObject1.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == featuresArray1.size()
+        JSONObject mrna1Object = featuresArray1.getJSONObject(0)
+        JSONArray featuresArray2 = returnObject2.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert 1 == featuresArray2.size()
+        JSONObject mrna2Object = featuresArray2.getJSONObject(0)
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+        assert CDS.count == 2
+        assert "GB40772-RA-00001" == mrna1Object.getString(FeatureStringEnum.NAME.value)
+        assert "GB40772-RA-00002" == mrna2Object.getString(FeatureStringEnum.NAME.value)
+
+
+        when: "we get the transcripts back"
+        MRNA mrna1 = MRNA.findByName("GB40772-RA-00001")
+        MRNA mrna2 = MRNA.findByName("GB40772-RA-00002")
+        String transcriptUniqueName = mrna1.uniqueName
+        JSONArray children = mrna1Object.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert 3 == children.size()
+        for (int i = 0; i < 3; i++) {
+            JSONObject codingObject = children.get(i)
+            JSONObject locationObject = codingObject.getJSONObject(FeatureStringEnum.LOCATION.value)
+            assert locationObject.strand == -1
+            assert locationObject != null
+        }
+
+        then: "the strand should be correct"
+        assert MRNA.first().featureLocations.first().strand==-1
+        assert Gene.first().featureLocations.first().strand==-1
+        assert Exon.first().featureLocations.first().strand==-1
+        assert Exon.last().featureLocations.first().strand==-1
+
+
+        when: "we flip the strand"
+        commandString = commandString.replaceAll("@TRANSCRIPT_NAME@", transcriptUniqueName)
+        println "commandString ${commandString}"
+        JSONObject commandObject = JSON.parse(commandString) as JSONObject
+        JSONObject returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
+
+        then: "we should see that we flipped the strand"
+        assert returnedAfterExonObject != null
+        log.debug Feature.count
+        assert Feature.count > 5
+        JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        assert returnFeaturesArray.size() == 1
+        JSONObject mRNAObject = returnFeaturesArray.get(0)
+        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
+        JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        assert MRNA.count == 2
+        // we are losing an exon somewhere!
+        assert Exon.count == 4
+        assert CDS.count == 2
+        assert Gene.count == 2
+        assert NonCanonicalFivePrimeSpliceSite.count == 1
+        assert NonCanonicalThreePrimeSpliceSite.count == 1
+        assert childrenArray.size() == 5
+        assert MRNA.first().featureLocations.first().strand==1
+        assert Gene.first().featureLocations.first().strand==1
+        assert Exon.first().featureLocations.first().strand==1
+        assert Exon.last().featureLocations.first().strand==1
+
+        when: "we flip it back the other way"
+        returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
+        returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        mRNAObject = returnFeaturesArray.get(0)
+        childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+
+        then: "we should have no splice sites"
+        log.debug Feature.count
+        assert Feature.count == 5
+        assert returnFeaturesArray.size() == 1
+        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        // we are losing an exon somewhere!
+        assert childrenArray.size() == 3
+        assert Exon.count == 4
+        assert CDS.count == 2
+        assert NonCanonicalFivePrimeSpliceSite.count == 0
+        assert NonCanonicalThreePrimeSpliceSite.count == 0
+        assert MRNA.first().featureLocations.first().strand==-1
+        assert Gene.first().featureLocations.first().strand==-1
+        assert Exon.first().featureLocations.first().strand==-1
+        assert Exon.last().featureLocations.first().strand==-1
+    }
+
     void "delete an entire transcript"() {
 
         given: "a input JSON string"
