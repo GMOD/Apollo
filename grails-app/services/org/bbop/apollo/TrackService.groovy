@@ -467,4 +467,25 @@ class TrackService {
 
         return null
     }
+
+    /**
+     * Removes plugins included in annot.json (which is just WebApollo)
+     * @param pluginsArray
+     */
+    def removeIncludedPlugins(JSONArray pluginsArray) {
+        def iterator = pluginsArray.iterator()
+        while(iterator.hasNext()) {
+            def plugin = iterator.next()
+            if(plugin instanceof JSONObject) {
+                if(plugin.name == "WebApollo") {
+                    iterator.remove()
+                }
+            }
+            else if(plugin instanceof String) {
+                if(plugin == "WebApollo") {
+                    iterator.remove()
+                }
+            }
+        }
+    }
 }
