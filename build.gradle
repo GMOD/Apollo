@@ -404,6 +404,9 @@ def checkoutBranch(File file, String branch) {
     def processBuilder = new ProcessBuilder()
     processBuilder.redirectErrorStream(true)
     processBuilder.directory(file)
+    if(branch.startsWith("tags/")){
+        branch = branch.substr("tags/".length())
+    }
     processBuilder.command("git", "checkout", branch)
     def proc = processBuilder.start()
     def outputStream = new StringBuffer();
