@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/GMOD/Apollo/issues"
   },
-  "homepage": "https://github.com/GMOD/Apollo#readme"
+  "homepage": "https://github.com/GMOD/Apollo#readme",
+  "dependencies": {
+    "jbrowse": "github:gmod/jbrowse#17111e6da6677085f1aeed41216fb558b63ed7ad"
+  }
 }
