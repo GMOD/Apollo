@@ -1829,6 +1829,7 @@ class RequestHandlingService {
                         featureRelationshipService.removeFeatureRelationship(gene, transcript)
                         featureRelationshipService.deleteFeatureAndChildren(transcript)
 //                        gene.save(flush: true)
+                        featureService.updateGeneBoundaries(gene)
                         gene.save()
 
                         if (!suppressEvents) {
