@@ -105,6 +105,7 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) << {
         } else {
             logger.quiet "Cloning: ${git.url} into ${"jbrowse-download"}"
             def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
+            // NOTE: this is possible, but user may have to explicitly force the checkout
 //            cloneRepo(git.url, "jbrowse-download", branch, 1)
             cloneRepoNpm(git.url, "jbrowse-download", branch)
         }
@@ -197,7 +198,10 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) << {
             } else {
                 logger.quiet "Cloning '${plugin.value.git}' into '${path}'"
                 // checking if gitMethod exists, otherwise setting the default to 'shell'
-                def gitMethod = plugin.value.gitMethod ? plugin.value.gitMethod : defaultGitMethod
+//                def gitMethod = plugin.value.gitMethod ? plugin.value.gitMethod : defaultGitMethod
+                // Currently we only support the shell git method.
+                // At a future time (when we install plugins as npm modules in JBrowse), this method can be optional.
+                def gitMethod = defaultGitMethod
                 cloneRepo(plugin.value.git, path, plugin.value.branch, 0, gitMethod)
                 logger.quiet "Cloned from ${plugin.value.git} into ${path}"
             }
