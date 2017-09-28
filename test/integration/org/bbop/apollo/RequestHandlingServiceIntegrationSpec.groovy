@@ -3774,4 +3774,42 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert scrt6.fmax == 983966
 
     }
+
+    void "Deleting a transcript should trigger an update exon boundary operation on its parent transcript"() {
+        given: "Transcript GB40828-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":734606,\"fmax\":734766},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":734930,\"fmax\":735014},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":735245,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":734733,\"fmax\":735446},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40828-RA\",\"location\":{\"strand\":1,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setExonBoundariesString = "{  ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":733999,\"fmax\":734766}}],\"track\":\"Group1.10\",\"operation\":\"set_exon_boundaries\"}"
+        String deleteTranscriptString = "{  ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"delete_feature\"}"
+
+        when: "we add the transcripts"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see a gene and two isoforms"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+
+        when: "we set exon boundaries of one of the isoforms"
+        Transcript transcript = Transcript.findByName("GB40828-RA-00001")
+        requestHandlingService.setExonBoundaries(JSON.parse(setExonBoundariesString.replace("@UNIQUENAME@", transcriptService.getSortedExons(transcript, true).first().uniqueName)) as JSONObject)
+
+        then: "the boundaries should have changed for GB40828-RA-00001 and its parent gene"
+        assert transcript.fmin == 733999
+        assert transcript.fmax == 735570
+
+        Gene gene = transcriptService.getGene(transcript)
+        assert gene.fmin == 733999
+        assert gene.fmax == 735570
+
+        when: "we delete the extended isoform"
+        requestHandlingService.deleteFeature(JSON.parse(deleteTranscriptString.replace("@UNIQUENAME@", transcript.uniqueName)) as JSONObject)
+
+        then: "the gene's boundaries should match its own isoform's boundaries"
+        Transcript remainingIsoform = Transcript.all.first()
+        assert remainingIsoform.fmin == gene.fmin
+        assert remainingIsoform.fmax == gene.fmax
+        assert gene.fmin == 734606
+        assert gene.fmax == 735570
+
+    }
 }
