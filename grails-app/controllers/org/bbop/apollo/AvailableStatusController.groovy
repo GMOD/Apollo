@@ -31,8 +31,6 @@ class AvailableStatusController {
     }
 
     def index(Integer max) {
-//        params.max = Math.min(max ?: 10, 100)
-//        respond AvailableStatus.list(params), model:[availableStatusInstanceCount: AvailableStatus.count()]
         params.max = Math.min(max ?: 10, 100)
         def availableStatuss = AvailableStatus.list(params)
         def organismFilterMap = [:]
