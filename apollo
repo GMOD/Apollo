@@ -80,8 +80,8 @@ function check_node(){
         NODE_VERSION=${NODE_VERSION:1}
     fi
     echo "Node Version: $NODE_VERSION"
-    if [ $NODE_VERSION -lt 5 ]; then
-        echo "node version 5 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+    if [ $NODE_VERSION -lt 6 ]; then
+        echo "node version 6 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
 
