@@ -345,6 +345,11 @@ class PermissionService {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
                 Map<String, Integer> permissions = (Map<String, Integer>) session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue())
+                // permissions not always on session if they come through a web-service, see #1759
+                if(!permissions){
+                    User user = User.findByUsername(SecurityUtils.subject.principal.toString())
+                    permissions = getPermissionsForUser(user)
+                }
                 if (permissions) {
                     Integer permission = permissions.get(SecurityUtils.subject.principal)
                     PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)

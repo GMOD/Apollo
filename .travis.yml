@@ -45,6 +45,7 @@ cache:
     - extlib/
     - $HOME/.grails/
     - $HOME/.m2/
+    - $HOME/.npm/
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:

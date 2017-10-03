@@ -6,7 +6,10 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONObject
+
+import java.util.zip.GZIPInputStream
 
 @Transactional
 class TrackService {
@@ -16,17 +19,67 @@ class TrackService {
 
     public static String TRACK_NAME_SPLITTER = "::"
 
-    JSONObject getTrackData(String trackName, String organism, String sequence) {
-        String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${trackName}/${sequence}"
-        String trackDataFilePath = "${trackPath}/trackData.json"
+    JSONObject getTrackList(String jbrowseDirectory) {
+        log.debug "got data directory of . . . ? ${jbrowseDirectory}"
+        String absoluteFilePath = jbrowseDirectory + "/trackList.json"
+        File file = new File(absoluteFilePath);
 
-        File file = new File(trackDataFilePath)
         if (!file.exists()) {
-            log.error "File does not exist ${trackDataFilePath}"
-            return null
+            log.warn("Could not get for name and path: ${absoluteFilePath}");
+            return null;
         }
-        return JSON.parse(file.text) as JSONObject
+
+        // add datasets to the configuration
+        JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+        return jsonObject
+    }
+
+    String getTrackDataFile(String jbrowseDirectory, String trackName, String sequence) {
+        JSONObject trackObject = getTrackList(jbrowseDirectory)
+        String urlTemplate = null
+        for (JSONObject track in trackObject.tracks) {
+            if (track.key == trackName) {
+                urlTemplate = track.urlTemplate
+            }
+        }
+
+        return "${urlTemplate.replace("{refseq}", sequence)}"
+    }
+
+    JSONElement retrieveFileObject(String jbrowseDirectory, String trackDataFilePath) {
+
+        if (trackDataFilePath.startsWith("http")) {
+            trackDataFilePath = trackDataFilePath.replace(" ", "%20")
+            if (trackDataFilePath.endsWith(".json")) {
+                return JSON.parse(new URL(trackDataFilePath).text)
+            } else if (trackDataFilePath.endsWith(".jsonz")) {
+                def inputStream = new URL(trackDataFilePath).openStream()
+                GZIPInputStream gzipInputStream = new GZIPInputStream(inputStream);
+                String outputString = gzipInputStream.readLines().join("\n")
+                return JSON.parse(outputString)
+            } else {
+                log.error("type not understood: " + trackDataFilePath)
+                return null
+            }
+        } else {
+            println "handling local file: ${trackDataFilePath}"
+            if (!trackDataFilePath.startsWith("/")) {
+                trackDataFilePath = jbrowseDirectory + "/" + trackDataFilePath
+            }
+            println "converted : ${trackDataFilePath}"
+            File file = new File(trackDataFilePath)
+            if (!file.exists()) {
+                log.error "File does not exist ${trackDataFilePath}"
+                return null
+            }
+            return JSON.parse(file.text)
+        }
+    }
+
+    JSONObject getTrackData(String trackName, String organism, String sequence) throws FileNotFoundException {
+        String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
+        String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
+        return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONObject
     }
 
     @NotTransactional
@@ -39,14 +92,14 @@ class TrackService {
         assert fmin <= fmax
 
         // TODO: refactor into a common method
-        JSONArray clasesForTrack = getClassesForTrack(trackName, organismString, sequence)
+        JSONArray classesForTrack = getClassesForTrack(trackName, organismString, sequence)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        trackMapperService.storeTrack(sequenceDTO, clasesForTrack)
+        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
 
         // 1. get the trackData.json file
         JSONObject trackObject = getTrackData(trackName, organismString, sequence)
@@ -84,43 +137,57 @@ class TrackService {
      * @param chunk
      * @return
      */
-    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) {
+    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) throws FileNotFoundException{
         String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
-        String trackPath = "${jbrowseDirectory}/tracks/${sequenceDTO.trackName}/${sequenceDTO.sequenceName}"
-        String trackDataFilePath = "${trackPath}/lf-${chunk}.json"
 
-        File file = new File(trackDataFilePath)
-        if (!file.exists()) {
-            log.error "file does not exist ${trackDataFilePath}"
-            return null
-        }
-        return JSON.parse(file.text) as JSONArray
+        String trackName = sequenceDTO.trackName
+        String sequence = sequenceDTO.sequenceName
+
+        String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
+
+        println "final chunk url [${trackDataFilePath}]"
+
+
+        trackDataFilePath = trackDataFilePath.replace("trackData.json", "lf-${chunk}.json")
+
+        return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONArray
     }
 
     @NotTransactional
-    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) {
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException{
         JSONObject jsonObject = new JSONObject()
 
         if (featureArray.size() > 3) {
             if (featureArray[0] instanceof Integer) {
                 TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
 
+                System.out.println(featureArray as JSON)
+
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
+                if (trackIndex.source) {
+                    jsonObject.source = featureArray[trackIndex.getSource()]
+                }
                 if (trackIndex.strand) {
                     jsonObject.strand = featureArray[trackIndex.getStrand()]
                 }
-//                if (trackIndex.source) {
-//                    jsonObject.source = featureArray[trackIndex.getSource()]
-//                }
+                if (trackIndex.phase) {
+                    jsonObject.phase = featureArray[trackIndex.phase]
+                }
                 if (trackIndex.type) {
                     jsonObject.type = featureArray[trackIndex.getType()]
                 }
-                if (trackIndex.id) {
-                    jsonObject.name = featureArray[trackIndex.id]
+                if (trackIndex.score) {
+                    jsonObject.score = featureArray[trackIndex.score]
                 }
-                if (trackIndex.phase) {
-                    jsonObject.phase = featureArray[trackIndex.phase]
+                if (trackIndex.name) {
+                    jsonObject.name = featureArray[trackIndex.name]
+                }
+                if (trackIndex.id) {
+                    jsonObject.id = featureArray[trackIndex.id]
+                }
+                if (trackIndex.seqId) {
+                    jsonObject.seqId = featureArray[trackIndex.seqId]
                 }
                 // sequence source
 //                jsonObject.seqId = featureArray[trackIndex.getSeqId()]
@@ -131,7 +198,7 @@ class TrackService {
                     def subArray = featureArray.get(subIndex)
                     if (subArray instanceof JSONArray) {
                         def subArray2 = convertAllNCListToObject(subArray, sequenceDTO)
-                        childArray.add(subArray2)
+                        childArray.addAll(subArray2)
                     }
                     if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
                         def subArrays2 = subArray.getJSONArray("Sublist")
@@ -150,7 +217,7 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) {
+    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) throws FileNotFoundException {
         JSONArray returnArray = new JSONArray()
 
         for (def jsonArray in fullArray) {
@@ -399,5 +466,26 @@ class TrackService {
         }
 
         return null
+    }
+
+    /**
+     * Removes plugins included in annot.json (which is just WebApollo)
+     * @param pluginsArray
+     */
+    def removeIncludedPlugins(JSONArray pluginsArray) {
+        def iterator = pluginsArray.iterator()
+        while(iterator.hasNext()) {
+            def plugin = iterator.next()
+            if(plugin instanceof JSONObject) {
+                if(plugin.name == "WebApollo") {
+                    iterator.remove()
+                }
+            }
+            else if(plugin instanceof String) {
+                if(plugin == "WebApollo") {
+                    iterator.remove()
+                }
+            }
+        }
     }
 }

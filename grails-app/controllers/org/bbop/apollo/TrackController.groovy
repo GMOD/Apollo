@@ -25,6 +25,15 @@ class TrackController {
     def grailsApplication
     def svgService
 
+
+    def beforeInterceptor = {
+        if( params.action=="featuresByName"
+        || params.action=="featuresByLocation"
+        ){
+            response.setHeader( "Access-Control-Allow-Origin", "*")
+        }
+    }
+
     /**
      * Just a convenience method
      * @param trackName
@@ -52,14 +61,30 @@ class TrackController {
 
     @RestApiMethod(description = "Remove track cache for an organism", path = "/track/cache/clear/<organism name>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
-            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required) or 'ALL' if admin")
     ])
     @Transactional
     def clearOrganismCache(String organismName) {
-        if (!checkPermission(organismName)) return
-        int removed = TrackCache.countByOrganismName(organismName)
-        TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
-        render new JSONObject(removed: removed) as JSON
+        if(organismName.toLowerCase().equals("all") && permissionService.isAdmin()){
+            log.info "Deleting cache for all organisms"
+            JSONArray jsonArray = new JSONArray()
+            Organism.all.each { organism ->
+                int removed = TrackCache.countByOrganismName(organism.commonName)
+                TrackCache.deleteAll(TrackCache.findAllByOrganismName(organism.commonName))
+                JSONObject jsonObject = new JSONObject(name: organism.commonName, removed: removed) as JSONObject
+                jsonArray.add(jsonObject)
+            }
+
+            render jsonArray as JSON
+        }
+        else{
+            log.info "Deleting cache for ${organismName}"
+            if (!checkPermission(organismName)) return
+            int removed = TrackCache.countByOrganismName(organismName)
+            TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
+            render new JSONObject(removed: removed) as JSON
+        }
+
     }
 
 
@@ -95,17 +120,24 @@ class TrackController {
             }
         }
 
-        JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, -1, -1)
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        JSONArray returnArray = new JSONArray()
+        JSONArray renderedArray
+        try {
+            JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, -1, -1)
+            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+        } catch (FileNotFoundException fnfe) {
+            log.warn(fnfe.message)
+            response.status = 404
+            return
+        }
 
-        for (returnObject in renderedArray) {
+        JSONArray returnArray = new JSONArray()
+        for (JSONObject returnObject in renderedArray) {
             // only set if true?
             returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${featureName}.json")
             if (returnObject?.name == featureName) {
@@ -113,7 +145,6 @@ class TrackController {
                 returnArray.add(returnObject)
             }
         }
-
 
         if (type == "json") {
             trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
@@ -166,17 +197,24 @@ class TrackController {
                 }
             }
         }
-        JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
+        JSONArray renderedArray
         Organism organism = preferenceService.getOrganismForToken(organismString)
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: organism.commonName
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        JSONArray renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
-        JSONArray returnArray = new JSONArray()
+        try {
+            JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
+            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+        } catch (FileNotFoundException fnfe) {
+            log.warn(fnfe.message)
+            response.status = 404
+            return
+        }
 
-        for (returnObject in renderedArray) {
+        JSONArray returnArray = new JSONArray()
+        for (JSONObject returnObject in renderedArray) {
             // only set if true?
             if (returnObject.name) {
                 returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${returnObject.name}.json")
