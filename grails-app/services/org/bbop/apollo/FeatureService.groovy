@@ -1956,7 +1956,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     def flipStrand(Feature feature) {
 
         for (FeatureLocation featureLocation in feature.featureLocations) {
-            featureLocation.strand = featureLocation.strand > 0 ? -1 : 1
+            featureLocation.strand = featureLocation.strand == Strand.POSITIVE.value ? Strand.NEGATIVE.value : Strand.POSITIVE.value
             featureLocation.save()
         }
 
