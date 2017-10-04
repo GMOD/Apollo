@@ -402,7 +402,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Exon.last().featureLocations.first().strand==-1
     }
 
-    @IgnoreRest
+//    @IgnoreRest
     void "flip strand on an existing transcript with two isoforms"() {
 
         given: "a input JSON string"
@@ -475,10 +475,10 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         // we are losing an exon somewhere!
         assert Exon.count == 4
         assert CDS.count == 2
-        assert Gene.count == 2
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
         assert childrenArray.size() == 5
+        assert Gene.count == 2
         assert MRNA.first().featureLocations.first().strand==1
         assert Gene.first().featureLocations.first().strand==1
         assert Exon.first().featureLocations.first().strand==1
