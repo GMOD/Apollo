@@ -4,7 +4,7 @@ define([
         'dojo/dom-construct',
         'dojo/promise/all',
         'JBrowse/Util',
-        'JBrowse/View/Track/_VariantDetailMixin',
+        'JBrowse/View/Track/_VariantDetailMixin'
     ],
     function(
         declare,
@@ -15,18 +15,25 @@ define([
         VariantDetailMixin
     ) {
 
-return declare( [ VariantDetailMixin ], {
+return declare( VariantDetailMixin, {
 
     _renderGenotypes: function( parentElement, track, f, featDiv  ) {
         var thisB = this;
         var genotypes;
         var hasGenotypes = f.get('genotypes');
+        var isRestStore = track.config.storeClass === "WebApollo/Store/SeqFeature/VCFTabixREST";
+
         if (hasGenotypes) {
-            this.store.requestGenotypes(f).then(function(data) {
-                genotypes = data;
-                if (!genotypes) return;
-                thisB._renderVariantGenotypes(parentElement, track, f, genotypes, featDiv);
-            });
+            if (isRestStore) {
+                this.store.requestGenotypes(f).then(function(data) {
+                    genotypes = data;
+                    if (!genotypes) return;
+                    thisB._renderVariantGenotypes(parentElement, track, f, genotypes, featDiv);
+                });
+            }
+            else {
+                thisB._renderVariantGenotypes(parentElement, track, f, f.get('genotypes'), featDiv);
+            }
         }
     },
 

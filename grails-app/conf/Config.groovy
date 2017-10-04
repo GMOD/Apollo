@@ -394,8 +394,8 @@ jbrowse {
 //        url= "https://github.com/gmod/jbrowse"
 //        tag = "1.12.2-apollo"
 //        branch = "master"
-        alwaysPull = false
-        alwaysRecheck = false
+//        alwaysPull = false
+//        alwaysRecheck = false
     }
 //    url {
 //        // always use dev for apollo
@@ -407,9 +407,6 @@ jbrowse {
 //	// Warning: We are still testing the performance of the NeatFeatures plugins in combination with Apollo.
 //	// We advise caution if enabling these plugins with Apollo until this process is finalized.
     plugins {
-        WebApollo {
-            included = true
-        }
 //        NeatHTMLFeatures{
 //            included = true
 //            linearGradient = 0

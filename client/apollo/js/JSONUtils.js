@@ -10,7 +10,7 @@ function JSONUtils() {
 }
 
 JSONUtils.verbose_conversion = false;
-
+JSONUtils.NOT_YET_SUPPORTED_MESSAGE = "Reverse complement view with local tracks not yet supported.";
 /**
 *  creates a feature in JBrowse JSON format
 *  takes as arguments:
@@ -416,6 +416,13 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     }
     if (diagnose)  { console.log("result:"); console.log(afeature); }
     return afeature;
+};
+
+JSONUtils.parseSequenceList = function( refSeqName ) {
+    var refSeqNameSplit = refSeqName.split(':');
+    var sequenceListString = refSeqNameSplit.slice(0, refSeqNameSplit.length - 1).join(':');
+    var sequenceListObject = JSON.parse(sequenceListString).sequenceList;
+    return sequenceListObject;
 };
 
 // experimenting with forcing export of JSONUtils into global namespace...

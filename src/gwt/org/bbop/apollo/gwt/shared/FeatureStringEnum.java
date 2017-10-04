@@ -158,7 +158,9 @@ public enum FeatureStringEnum {
         REFERENCE_ALLELE,
         ALTERNATIVE_ALLELES,
         GENOTYPES,
-        FILTER
+        FILTER,
+        PLUGINS,
+        LABEL
         ;
 
 
