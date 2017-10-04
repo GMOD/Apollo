@@ -34,3 +34,6 @@ docs/Makefile
 .gradle
 .slcache
 restapi.doc
+package-lock.json
+jb_run.js
+jb_setup.js

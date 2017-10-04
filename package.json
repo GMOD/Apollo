@@ -1,0 +1,33 @@
+{
+  "name": "apollo-genome-architect",
+  "version": "2.0.7",
+  "description": "Genome annotation editor with a Java Server backend and a Javascript client that runs in a web browser as a JBrowse plugin. http://genomearchitect.org",
+  "main": "client/apollo/main.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GMOD/Apollo.git"
+  },
+  "keywords": [
+    "genome-annotation-editor",
+    "jbrowse",
+    "jbrowse-plugin",
+    "biocuration",
+    "apollo"
+  ],
+  "author": "Nathan Dunn, Deepak Unni",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/GMOD/Apollo/issues"
+  },
+  "homepage": "https://github.com/GMOD/Apollo#readme",
+  "dependencies": {
+    "jbrowse": "github:gmod/jbrowse#17111e6da6677085f1aeed41216fb558b63ed7ad"
+  }
+}
