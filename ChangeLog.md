@@ -8,10 +8,10 @@ Bugfixes
 - Fixes to track services to allow remote jbrowse tracks and jsonz [#1767](https://github.com/GMOD/Apollo/issues/1767)
 - Fixes to track services to return 404 when bad URL is given [#1768](https://github.com/GMOD/Apollo/issues/1768)
 - Fixed CORS issues [#1760](https://github.com/GMOD/Apollo/issues/1760)
-- Fixed bug where positions are sometimes wrong when deleting exons [#1770](https://github.com/GMOD/Apollo/issues/1770)
+- Fixed bug where gene positions are sometimes wrong when a longer isoform is deleted from a gene [#1770](https://github.com/GMOD/Apollo/issues/1770)
 - Fixed permissions for REMOTE_USER when using web services [#1759](https://github.com/GMOD/Apollo/issues/1759)
 - Fixes build issues [#1756](https://github.com/GMOD/Apollo/issues/1756) [#1752](https://github.com/GMOD/Apollo/issues/1752) [#1773](https://github.com/GMOD/Apollo/issues/1773)
-- Fixes SQL alteration issue [#1754](https://github.com/GMOD/Apollo/issues/1754)
+- Fixes error in SQL query for listing alterations [#1754](https://github.com/GMOD/Apollo/issues/1754)
 - Minimum node version is version 6
 
 
