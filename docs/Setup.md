@@ -63,6 +63,9 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
 #### Configure for H2:
 - H2 is an embedded database engine, so no external setups are needed. Simply copy sample-h2-apollo-config.groovy to
   apollo-config.groovy.
+    - The default dev environment (`apollo run-local` or `apollo run-app`) is in memory so you will have to change that to file.
+- If you use H2 with tomcat or jetty in production you have to set the permissions for the file path in production correctly (e.g. `jdbc:h2:/mypath/prodDb`, `chown -u tomcat:tomcat /mypath/prodDb.*.db`).
+    - If you use the local relative path `jdbc:h2:./prodDb` and tomcat8 the path will likely be: `/usr/share/tomcat8/prodDb*db`
 
 #### Configure for PostgreSQL:
 - Create a new database with postgres and add a user for production mode.  Here are [a few ways to do this in PostgreSQL](PostgreSQLSetup.md).
