@@ -38,6 +38,11 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
         else if (featureLocation1.calculateLength() != featureLocation2.calculateLength()) {
             retVal = featureLocation1.calculateLength() < featureLocation2.calculateLength() ? -1 : 1;
         }
+            // overlapping perfectly, use strand to force consistent results
+        else{
+            retVal = featureLocation1.strand - featureLocation2.strand
+        }
+
         if (sortByStrand && featureLocation1.getStrand() == -1) {
             retVal *= -1;
         }

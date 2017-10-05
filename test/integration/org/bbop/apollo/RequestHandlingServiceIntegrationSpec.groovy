@@ -468,37 +468,27 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 1
-        JSONObject mRNAObject = returnFeaturesArray.get(0)
-        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
-        JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
         assert MRNA.count == 2
         // we are losing an exon somewhere!
         assert Exon.count == 4
         assert CDS.count == 2
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
-        assert childrenArray.size() == 5
         assert Gene.count == 2
         assert MRNA.first().featureLocations.first().strand==1
-        assert Gene.first().featureLocations.first().strand==1
-        assert Exon.first().featureLocations.first().strand==1
-        assert Exon.last().featureLocations.first().strand==1
+        assert Gene.last().featureLocations.first().strand!=Gene.first().featureLocations.strand
+        assert Exon.first().featureLocations.first().strand!=Exon.last().featureLocations.first().strand
 
         when: "we flip it back the other way"
         returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
-        returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        mRNAObject = returnFeaturesArray.get(0)
-        childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
 
         then: "we should have no splice sites"
         log.debug Feature.count
-        assert Feature.count == 5
+        assert Feature.count == 4 + 2 + 2 + 1
         assert returnFeaturesArray.size() == 1
-        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
         assert Gene.count == 1
         assert MRNA.count == 2
         // we are losing an exon somewhere!
-        assert childrenArray.size() == 3
         assert Exon.count == 4
         assert CDS.count == 2
         assert NonCanonicalFivePrimeSpliceSite.count == 0

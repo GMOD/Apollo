@@ -479,7 +479,6 @@ class TranscriptService {
             oldGene.save()
         }
         else{
-            featureRelationshipService.removeFeatureRelationship(oldGene,oldTranscript)
             oldTranscript = featureService.flipStrand(oldTranscript)
             oldTranscript.save()
         }
