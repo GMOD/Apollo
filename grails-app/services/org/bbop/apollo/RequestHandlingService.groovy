@@ -1481,10 +1481,10 @@ class RequestHandlingService {
     @Timed
     def flipStrand(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONObject featureContainer = createJSONFeatureContainer()
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         for (int i = 0; i < features.length(); ++i) {
-            JSONObject jsonFeature = features.getJSONObject(i);
+            JSONObject jsonFeature = features.getJSONObject(i)
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
 
             if (feature instanceof Transcript) {

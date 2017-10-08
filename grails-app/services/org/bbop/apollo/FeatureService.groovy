@@ -2082,7 +2082,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
         List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
         if (transcript.strand == Strand.POSITIVE.value) {
-            allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
+            allSortedTranscripts = allTranscripts?.sort() { a, b ->
+                a.featureLocation.fmin <=> b.featureLocation.fmin
+            }
         } else {
             allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
         }

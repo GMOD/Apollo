@@ -6,15 +6,15 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
 
     private boolean sortByStrand;
 
-    public FeaturePositionComparator() {
-        this(true);
+    FeaturePositionComparator() {
+        this(true)
     }
 
-    public FeaturePositionComparator(boolean sortByStrand) {
-        this.sortByStrand = sortByStrand;
+    FeaturePositionComparator(boolean sortByStrand) {
+        this.sortByStrand = sortByStrand
     }
 
-    public int compare(T feature1, T feature2) {
+    int compare(T feature1, T feature2) {
 
         if (feature1 == null || feature2 == null) {
 //            log.info("both features null");
