@@ -1488,7 +1488,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
 
             if (feature instanceof Transcript) {
-                feature = transcriptService.flipTranscriptStrand((Transcript) feature);
+                feature = transcriptService.flipTranscriptStrand((Transcript) feature)
                 featureService.setLongestORF((Transcript) feature)
                 nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites((Transcript) feature)
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
