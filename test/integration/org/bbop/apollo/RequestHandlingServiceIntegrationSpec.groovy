@@ -437,11 +437,11 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we get the transcripts back"
-        MRNA mrna1 = MRNA.findByName("GB40772-RA-00001")
-        MRNA mrna2 = MRNA.findByName("GB40772-RA-00002")
+        MRNA mrna00001 = MRNA.findByName("GB40772-RA-00001")
+        MRNA mrna00002 = MRNA.findByName("GB40772-RA-00002")
         Gene gene = Gene.first()
         String gene1Name = gene.name
-        String transcript1UniqueName = mrna1.uniqueName
+        String transcript1UniqueName = mrna00001.uniqueName
         JSONArray children = mrna1Object.getJSONArray(FeatureStringEnum.CHILDREN.value)
         assert 3 == children.size()
         for (int i = 0; i < 3; i++) {
@@ -452,8 +452,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         }
 
         then: "the strand should be correct"
-        assert mrna1.featureLocations.first().strand == -1
-        assert mrna2.featureLocations.first().strand == -1
+        assert mrna00001.featureLocations.first().strand == -1
+        assert mrna00002.featureLocations.first().strand == -1
         assert gene.featureLocations.first().strand == -1
         for (exon in Exon.all) {
             assert exon.featureLocations.first().strand == -1
@@ -465,13 +465,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         println "commandString ${commandString}"
         JSONObject commandObject = JSON.parse(commandString) as JSONObject
         JSONObject returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
-        Gene gene1 = transcriptService.getGene(mrna1)
-        CDS cds1 = transcriptService.getCDS(mrna1)
-        def exons1 = transcriptService.getSortedExons(mrna1,true)
+        Gene newGene = transcriptService.getGene(mrna00001)
+        CDS cds00001 = transcriptService.getCDS(mrna00001)
+        def exons00001 = transcriptService.getSortedExons(mrna00001,true)
 
-        Gene gene2 = transcriptService.getGene(mrna2)
-        def exons2 = transcriptService.getSortedExons(mrna2, true)
-        CDS cds2 = transcriptService.getCDS(mrna2)
+        Gene originalGene = transcriptService.getGene(mrna00002)
+        def exons00002 = transcriptService.getSortedExons(mrna00002, true)
+        CDS cds00002 = transcriptService.getCDS(mrna00002)
 
 
         then: "we should see that we flipped the strand"
@@ -480,12 +480,18 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Feature.count > 5
         JSONArray returnFeaturesArray = returnedAfterExonObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         assert returnFeaturesArray.size() == 1
-        JSONObject mRNAObject = returnFeaturesArray.get(0)
+        JSONObject mRNAObject00001 = returnFeaturesArray.get(0)
         // transcript is named for new gene
-        // no need to rename the transcript
-//        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
-        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
-        JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        // no need to rename the transcriptA
+
+
+        // note that this keeps changing
+        println "new gene strand ${newGene.featureLocations.strand}"
+        println "flipped transcript strand ${mrna00001.featureLocations.strand}"
+
+        // TODO: when the gene strand does not flip, the name is wrong
+        assert mRNAObject00001.getString(FeatureStringEnum.NAME.value) == "GB40772-RAa-00001"
+        JSONArray childrenArray = mRNAObject00001.getJSONArray(FeatureStringEnum.CHILDREN.value)
         assert Gene.count == 2
         assert MRNA.count == 2
         // we are losing an exon somewhere!
@@ -494,46 +500,46 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 1
         assert NonCanonicalThreePrimeSpliceSite.count == 1
 
-        assert gene1.featureLocations.first().strand == 1
 
         // have to rename the new gene
-        assert gene1.name == 'GB40772-RAa'
-        assert mrna1.featureLocations.first().strand == 1
-        assert mrna1.name == 'GB40772-RAa-00001'
-        assert cds1.featureLocations.first().strand == 1
-        for (exon in exons1) {
+        assert mrna00001.featureLocations.first().strand == 1
+        assert mrna00001.name == 'GB40772-RAa-00001'
+        assert newGene.name == 'GB40772-RAa'
+        assert newGene.featureLocations.first().strand == 1
+        assert cds00001.featureLocations.first().strand == 1
+        for (exon in exons00001) {
             assert exon.featureLocations.first().strand == 1
         }
 
-        assert gene2.featureLocations.first().strand == -1
+        assert originalGene.featureLocations.first().strand == -1
         // sae gene
-        assert gene2.name == 'GB40772-RA'
-        assert mrna2.featureLocations.first().strand == -1
+        assert originalGene.name == 'GB40772-RA'
+        assert mrna00002.featureLocations.first().strand == -1
         // sae transcript
-        assert mrna2.name == 'GB40772-RA-00002'
-        assert cds2.featureLocations.first().strand == -1
-        for (exon in exons2) {
+        assert mrna00002.name == 'GB40772-RA-00002'
+        assert cds00002.featureLocations.first().strand == -1
+        for (exon in exons00002) {
             assert exon.featureLocations.first().strand == -1
         }
 
         when: "we flip it back the other way"
         returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
 
-        gene1 = transcriptService.getGene(mrna1)
-        cds1 = transcriptService.getCDS(mrna1)
-        exons1 = transcriptService.getSortedExons(mrna1,true)
+        newGene = transcriptService.getGene(mrna00001)
+        cds00001 = transcriptService.getCDS(mrna00001)
+        exons00001 = transcriptService.getSortedExons(mrna00001,true)
 
-        gene2 = transcriptService.getGene(mrna2)
-        exons2 = transcriptService.getSortedExons(mrna2,true)
-        cds2 = transcriptService.getCDS(mrna2)
-        childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
+        originalGene = transcriptService.getGene(mrna00002)
+        exons00002 = transcriptService.getSortedExons(mrna00002,true)
+        cds00002 = transcriptService.getCDS(mrna00002)
+        childrenArray = mRNAObject00001.getJSONArray(FeatureStringEnum.CHILDREN.value)
 
 
         then: "we should have no splice sites"
         log.debug Feature.count
         assert Feature.count == 4 + 2 + 2 + 1
         assert returnFeaturesArray.size() == 1
-        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RAa-00001"
+        assert mRNAObject00001.getString(FeatureStringEnum.NAME.value) == "GB40772-RAa-00001"
         assert Gene.count == 1
         assert MRNA.count == 2
         // we are losing an exon somewhere!
@@ -542,23 +548,23 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
 
-        assert gene1 == gene2
+        assert newGene == originalGene
 
-        assert gene1.featureLocations.first().strand == -1
-        assert gene1.name == 'GB40772-RA'
-        assert mrna1.featureLocations.first().strand == -1
-        assert mrna1.name == 'GB40772-RA-00001'
-        assert cds1.featureLocations.first().strand == -1
-        for (exon in exons1) {
+        assert newGene.featureLocations.first().strand == -1
+        assert newGene.name == 'GB40772-RA'
+        assert mrna00001.featureLocations.first().strand == -1
+        assert mrna00001.name == 'GB40772-RA-00001'
+        assert cds00001.featureLocations.first().strand == -1
+        for (exon in exons00001) {
             assert exon.featureLocations.first().strand == -1
         }
 
-        assert gene2.featureLocations.first().strand == -1
-        assert gene2.name == 'GB40772-RA'
-        assert mrna2.featureLocations.first().strand == -1
-        assert mrna2.name == 'GB40772-RA-00002'
-        assert cds2.featureLocations.first().strand == -1
-        for (exon in exons2) {
+        assert originalGene.featureLocations.first().strand == -1
+        assert originalGene.name == 'GB40772-RA'
+        assert mrna00002.featureLocations.first().strand == -1
+        assert mrna00002.name == 'GB40772-RA-00002'
+        assert cds00002.featureLocations.first().strand == -1
+        for (exon in exons00002) {
             assert exon.featureLocations.first().strand == -1
         }
 
