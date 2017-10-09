@@ -402,7 +402,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.last().featureLocations.first().strand == -1
     }
 
-    @IgnoreRest
     void "flip strand on an existing transcript with two isoforms"() {
 
         given: "a input JSON string"

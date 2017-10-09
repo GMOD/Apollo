@@ -2083,10 +2083,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
         if (transcript.strand == Strand.POSITIVE.value) {
             allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                a.featureLocation.fmin <=> b.featureLocation.fmin
+                a.featureLocation.fmin <=> b.featureLocation.fmin ?: a.strand <=> b.strand
             }
         } else {
-            allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
+            allSortedTranscripts = allTranscripts?.sort() { a, b ->
+                b.featureLocation.fmax <=> a.featureLocation.fmax  ?: b.strand <=> a.strand
+            }
+        }
+        println "sorted transcripts"
+        allSortedTranscripts.each {
+            println it.name + ' ' + it.featureLocations.strand
         }
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should
