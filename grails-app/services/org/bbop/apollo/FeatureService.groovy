@@ -2080,19 +2080,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
         List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
-        List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
-        if (transcript.strand == Strand.POSITIVE.value) {
+        List<Transcript> allSortedTranscripts
+        // force null / 0 strand to be positive
+        // when getting the up-most strand, make sure to put matching transcript strands BEFORE unmatching strands
+        if (transcript.strand != Strand.NEGATIVE.value) {
             allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                a.featureLocation.fmin <=> b.featureLocation.fmin ?: a.strand <=> b.strand
+                a.strand <=> b.strand ?: a.featureLocation.fmin <=> b.featureLocation.fmin
             }
         } else {
             allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                b.featureLocation.fmax <=> a.featureLocation.fmax  ?: b.strand <=> a.strand
+                b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax
             }
-        }
-        println "sorted transcripts"
-        allSortedTranscripts.each {
-            println it.name + ' ' + it.featureLocations.strand
         }
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should

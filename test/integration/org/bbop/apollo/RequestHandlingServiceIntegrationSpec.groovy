@@ -461,7 +461,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we flip the strand for GB40772-RA-00001"
         commandString = commandString.replaceAll("@TRANSCRIPT_NAME@", transcript1UniqueName)
-        println "commandString ${commandString}"
         JSONObject commandObject = JSON.parse(commandString) as JSONObject
         JSONObject returnedAfterExonObject = requestHandlingService.flipStrand(commandObject)
         Gene newGene = transcriptService.getGene(mrna00001)
@@ -484,11 +483,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         // no need to rename the transcriptA
 
 
-        // note that this keeps changing
-        println "new gene strand ${newGene.featureLocations.strand}"
-        println "flipped transcript strand ${mrna00001.featureLocations.strand}"
-
-        // TODO: when the gene strand does not flip, the name is wrong
         assert mRNAObject00001.getString(FeatureStringEnum.NAME.value) == "GB40772-RAa-00001"
         JSONArray childrenArray = mRNAObject00001.getJSONArray(FeatureStringEnum.CHILDREN.value)
         assert Gene.count == 2
@@ -1046,7 +1040,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we delete 1 exon and things are great"
         JSONObject removeExonObject1 = JSON.parse(removeExonCommand.replace("@EXON1_UNIQUENAME@", exon1UniqueName)) as JSONObject
         JSONObject deletedObjectCommand = requestHandlingService.deleteFeature(removeExonObject1)
-        println "deleted object command ${deletedObjectCommand as JSON}"
 
         then: "we delete 2 exons and things are okay"
         def allFeatures = Feature.all
@@ -1060,7 +1053,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         when: "we delete 2 exon and things are great"
         removeExonObject1 = JSON.parse(removeExonCommand2.replace("@EXON2_UNIQUENAME@", exon2UniqueName).replace("@EXON3_UNIQUENAME@", exon3UniqueName)) as JSONObject
         deletedObjectCommand = requestHandlingService.deleteFeature(removeExonObject1)
-        println "deleted object command ${deletedObjectCommand as JSON}"
         allFeatures = Feature.all
 
         then: "Deleting objects"
@@ -3332,9 +3324,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see the transcript, its gene and gene metadata, as provided by the JSON"
         Transcript transcript = Transcript.all.get(0)
-        println "Transcript: ${transcript}"
         Gene gene = transcriptService.getGene(transcript)
-        println "Gene: ${gene}"
 
         assert gene.name == "GB40861-RA"
         assert gene.symbol == "PSGN1"
@@ -3684,7 +3674,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we should get a JSON representation of the features"
         JSONArray outputJsonArray = JSON.parse(process.text) as JSONArray
         for (int i = 0; i < outputJsonArray.size(); i++) {
-            println outputJsonArray.getJSONObject(i).toString()
             if (outputJsonArray.getJSONObject(i).has("addFeature")) {
                 String inputString = "{${testCredentials} \"track\": \"${sequence.name}\", \"operation\": \"add_feature\", \"features\": " + outputJsonArray.getJSONObject(i).getJSONArray("addFeature").toString() + "}"
                 requestHandlingService.addFeature(JSON.parse(inputString) as JSONObject)
@@ -3743,7 +3732,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we add the same transcript again"
         JSONObject returnObject = requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
-        println returnObject.toString()
         String transcript2UniqueName = returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
 
         then: "due to the presence of an overlapping sequence alteration, the transcript's CDS should be recalculated automatically"
@@ -3770,8 +3758,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         String transcript1UniqueName = addTranscript1ReturnOject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
         String transcript2UniqueName = addTranscript2ReturnOject.getJSONArray(FeatureStringEnum.FEATURES.value).getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
-        println transcript1UniqueName
-        println transcript2UniqueName
 
         then: "we see the transcripts"
         assert Transcript.count == 2
