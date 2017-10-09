@@ -483,6 +483,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         JSONObject mRNAObject = returnFeaturesArray.get(0)
         // transcript is named for new gene
         // no need to rename the transcript
+//        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
         assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
         JSONArray childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
         assert Gene.count == 2
@@ -498,7 +499,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         // have to rename the new gene
         assert gene1.name == 'GB40772-RAa'
         assert mrna1.featureLocations.first().strand == 1
-        assert mrna1.name == 'GB40772-RA-00001'
+        assert mrna1.name == 'GB40772-RAa-00001'
         assert cds1.featureLocations.first().strand == 1
         for (exon in exons1) {
             assert exon.featureLocations.first().strand == 1
@@ -525,13 +526,14 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         gene2 = transcriptService.getGene(mrna2)
         exons2 = transcriptService.getSortedExons(mrna2,true)
         cds2 = transcriptService.getCDS(mrna2)
+        childrenArray = mRNAObject.getJSONArray(FeatureStringEnum.CHILDREN.value)
 
 
         then: "we should have no splice sites"
         log.debug Feature.count
         assert Feature.count == 4 + 2 + 2 + 1
         assert returnFeaturesArray.size() == 1
-        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RA-00001"
+        assert mRNAObject.getString(FeatureStringEnum.NAME.value) == "GB40772-RAa-00001"
         assert Gene.count == 1
         assert MRNA.count == 2
         // we are losing an exon somewhere!

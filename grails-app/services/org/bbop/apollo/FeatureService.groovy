@@ -2122,7 +2122,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         transcriptsToUpdate.addAll(transcriptsToAssociate)
         transcriptsToUpdate.addAll(transcriptsToDissociate)
 
-        if (transcriptsToAssociate.size() > 0) {
+        if (transcriptsToAssociate) {
             Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
@@ -2143,7 +2143,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-        if (transcriptsToDissociate.size() > 0) {
+        if (transcriptsToDissociate) {
             Transcript firstTranscript = null
             for (Transcript eachTranscript in transcriptsToDissociate) {
                 if (firstTranscript == null) {
