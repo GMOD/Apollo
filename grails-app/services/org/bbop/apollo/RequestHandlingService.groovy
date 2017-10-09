@@ -1497,7 +1497,6 @@ class RequestHandlingService {
                     if (transcriptsToUpdate.size()) {
                         JSONObject updateFeatureContainer = createJSONFeatureContainer()
                         transcriptsToUpdate.each {
-                            println "updating transcript ${it.name} ${it.featureLocations.strand} "
                             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
                         }
                         if (sequence) {
