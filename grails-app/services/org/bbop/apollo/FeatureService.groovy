@@ -2085,11 +2085,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         // when getting the up-most strand, make sure to put matching transcript strands BEFORE unmatching strands
         if (transcript.strand != Strand.NEGATIVE.value) {
             allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                a.strand <=> b.strand ?: a.featureLocation.fmin <=> b.featureLocation.fmin
+                a.strand <=> b.strand ?: a.featureLocation.fmin <=> b.featureLocation.fmin ?: a.name <=> b.name
             }
         } else {
             allSortedTranscripts = allTranscripts?.sort() { a, b ->
-                b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax
+                b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax ?: a.name <=> b.name
             }
         }
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.

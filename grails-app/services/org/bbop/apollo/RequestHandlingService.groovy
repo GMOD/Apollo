@@ -2144,7 +2144,7 @@ class RequestHandlingService {
         }
 
         List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
-            a.fmin <=> b.fmin
+            a.fmin <=> b.fmin ?: a.fmax <=> b.fmax ?: a.name <=> b.name
         }
         if (transcript1.strand == Strand.NEGATIVE.value) {
             sortedTranscripts.reverse(true)

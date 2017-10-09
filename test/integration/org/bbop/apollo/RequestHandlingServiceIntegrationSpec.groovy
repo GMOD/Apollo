@@ -945,6 +945,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "this one should be long-gone"
         assert undisturbedMRNA != null
         assert bigMRNA != null
+        assert undisturbedMRNA.name == "GB40787-RAa-00001"
         assert undisturbedMRNA.featureLocation.fmax > undisturbedMRNA.featureLocation.fmin
         assert undisturbedMRNA.featureLocation.fmax - undisturbedMRNA.featureLocation.fmin > 0
         assert 0 == MRNA.countByName("GB40788-RA-00001")
