@@ -6,15 +6,15 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
 
     private boolean sortByStrand;
 
-    public FeaturePositionComparator() {
-        this(true);
+    FeaturePositionComparator() {
+        this(true)
     }
 
-    public FeaturePositionComparator(boolean sortByStrand) {
-        this.sortByStrand = sortByStrand;
+    FeaturePositionComparator(boolean sortByStrand) {
+        this.sortByStrand = sortByStrand
     }
 
-    public int compare(T feature1, T feature2) {
+    int compare(T feature1, T feature2) {
 
         if (feature1 == null || feature2 == null) {
 //            log.info("both features null");
@@ -26,19 +26,24 @@ class FeaturePositionComparator<T extends Feature> implements  Comparator<T>{
         if (featureLocation1.fmin < featureLocation2.fmin) {
             retVal = -1;
         }
-        else if (featureLocation1.getFmin() > featureLocation2.getFmin()) {
+        else if (featureLocation1.fmin > featureLocation2.fmin) {
             retVal = 1;
         }
-        else if (featureLocation1.getFmax() < featureLocation2.getFmax()) {
+        else if (featureLocation1.fmax < featureLocation2.fmax) {
             retVal = -1;
         }
-        else if (featureLocation1.getFmax() > featureLocation2.getFmax()) {
+        else if (featureLocation1.fmax > featureLocation2.fmax) {
             retVal = 1;
         }
         else if (featureLocation1.calculateLength() != featureLocation2.calculateLength()) {
             retVal = featureLocation1.calculateLength() < featureLocation2.calculateLength() ? -1 : 1;
         }
-        if (sortByStrand && featureLocation1.getStrand() == -1) {
+            // overlapping perfectly, use strand to force consistent results
+        else{
+            retVal = featureLocation1.strand - featureLocation2.strand
+        }
+
+        if (sortByStrand && featureLocation1.strand == -1) {
             retVal *= -1;
         }
         return retVal;
