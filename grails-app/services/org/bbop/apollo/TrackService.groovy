@@ -88,6 +88,10 @@ class TrackService {
         return trackObject.getJSONObject("intervals").getJSONArray("classes")
     }
 
+    def storeTrackData(SequenceDTO sequenceDTO,JSONArray classesForTrack){
+        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
+    }
+
     JSONArray getNCList(String trackName, String organismString, String sequence, Long fmin, Long fmax) {
         assert fmin <= fmax
 
@@ -99,7 +103,7 @@ class TrackService {
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
+        this.storeTrackData(sequenceDTO,classesForTrack)
 
         // 1. get the trackData.json file
         JSONObject trackObject = getTrackData(trackName, organismString, sequence)
