@@ -21,16 +21,17 @@ class TrackServiceSpec extends Specification {
     void "test something"() {
 
         given: "an NCList object for the C. elegans gene flp-1"
-        // http://localhost:8080/apollo/track/Caenorhabditis%20elegans/All%20Genes/IV:9144692..9146122.json?name=flp-1&ignoreCache=true
-        // http://jbrowse.alliancegenome.org/jbrowse/index.html?data=data%2FCaenorhabditis%20elegans&tracks=All%20Genes&highlight=&lookupSymbol=flp-1&loc=IV%3A9143834..9146980
-		String ncListString = ""
-        String classesForTrackString = ""
+        // http://jbrowse.alliancegenome.org/jbrowse/index.html?data=data%2FMus%20musculus&tracks=All%20Genes&highlight=&lookupSymbol=Msx2&loc=13%3A53463164..53476782
+//        http://localhost:8080/apollo/track/Mus%20musculus/All%20Genes/13:53466884..53473074.json?name=Msx2
+        println new File(".").absolutePath
+		String ncListString = new File("test/integration/resources/track-data/inputArray.json")
+        String classesForTrackString = new File("test/integration/resources/track-data/trackClasses.json")
 
 
         JSONArray ncListArray = new JSONArray(ncListString)
         JSONArray classesForTrackArray = new JSONArray(classesForTrackString)
         SequenceDTO sequenceDTO = new SequenceDTO(
-                organismCommonName: 'Wormbase'
+                organismCommonName: 'Caenorhabditis elegans'
                 , trackName:'All Genes'
                 , sequenceName: 'IV'
         )
@@ -53,5 +54,4 @@ class TrackServiceSpec extends Specification {
     }
 
     // TODO: repeat the same for mouse, ignoring the outter gene
-    // http://jbrowse.alliancegenome.org/jbrowse/index.html?data=data%2FMus%20musculus&tracks=All%20Genes&highlight=&lookupSymbol=Msx2&loc=13%3A53463164..53476782
 }
