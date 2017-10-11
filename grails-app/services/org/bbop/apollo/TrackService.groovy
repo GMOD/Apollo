@@ -161,12 +161,12 @@ class TrackService {
     @NotTransactional
     JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException{
         JSONObject jsonObject = new JSONObject()
+        println "converting featureArray: ${featureArray.toString()}"
 
         if (featureArray.size() > 3) {
             if (featureArray[0] instanceof Integer) {
                 TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
-
-                System.out.println(featureArray as JSON)
+                println "valid feature: ${featureArray.toString()}"
 
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
@@ -207,12 +207,19 @@ class TrackService {
                     }
                     if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
                         def subArrays2 = subArray.getJSONArray("Sublist")
+                        println "converting sublist: ${subArrays2.toString()}"
                         childArray.add(convertIndividualNCListToObject(subArrays2, sequenceDTO))
                     }
                 }
                 if (childArray) {
                     jsonObject.children = childArray
                 }
+            }
+        }
+        else{
+            // process any subfeature arrays
+            if(featureArray instanceof JSONArray){
+                jsonObject = convertAllNCListToObject(featureArray, sequenceDTO)
             }
         }
 
@@ -226,6 +233,7 @@ class TrackService {
         JSONArray returnArray = new JSONArray()
 
         for (def jsonArray in fullArray) {
+            println "projecessing ${jsonArray.toString() }"
             if (jsonArray instanceof JSONArray) {
                 returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
             }
