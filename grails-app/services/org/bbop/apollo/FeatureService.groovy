@@ -1956,12 +1956,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     def flipStrand(Feature feature) {
 
         for (FeatureLocation featureLocation in feature.featureLocations) {
-            featureLocation.strand = featureLocation.strand > 0 ? -1 : 1
+            featureLocation.strand = featureLocation.strand == Strand.POSITIVE.value ? Strand.NEGATIVE.value : Strand.POSITIVE.value
             featureLocation.save()
         }
 
         for (Feature childFeature : feature?.parentFeatureRelationships?.childFeature) {
-            flipStrand(childFeature);
+            flipStrand(childFeature)
         }
 
         feature.save()
@@ -2080,11 +2080,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         List<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
         List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
-        List<Transcript> allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
-        if (transcript.strand == Strand.POSITIVE.value) {
-            allSortedTranscripts = allTranscripts?.sort() { a, b -> a.featureLocation.fmin <=> b.featureLocation.fmin }
+        List<Transcript> allSortedTranscripts
+        // force null / 0 strand to be positive
+        // when getting the up-most strand, make sure to put matching transcript strands BEFORE unmatching strands
+        if (transcript.strand != Strand.NEGATIVE.value) {
+            allSortedTranscripts = allTranscripts?.sort() { a, b ->
+                a.strand <=> b.strand ?: a.featureLocation.fmin <=> b.featureLocation.fmin ?: a.name <=> b.name
+            }
         } else {
-            allSortedTranscripts = allTranscripts?.sort() { a, b -> b.featureLocation.fmax <=> a.featureLocation.fmax }
+            allSortedTranscripts = allTranscripts?.sort() { a, b ->
+                b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax ?: a.name <=> b.name
+            }
         }
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should
@@ -2120,7 +2126,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         transcriptsToUpdate.addAll(transcriptsToAssociate)
         transcriptsToUpdate.addAll(transcriptsToDissociate)
 
-        if (transcriptsToAssociate.size() > 0) {
+        if (transcriptsToAssociate) {
             Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
@@ -2141,7 +2147,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-        if (transcriptsToDissociate.size() > 0) {
+        if (transcriptsToDissociate) {
             Transcript firstTranscript = null
             for (Transcript eachTranscript in transcriptsToDissociate) {
                 if (firstTranscript == null) {

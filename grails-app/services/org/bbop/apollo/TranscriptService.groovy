@@ -474,8 +474,14 @@ class TranscriptService {
     @Transactional
     Transcript flipTranscriptStrand(Transcript oldTranscript) {
         Gene oldGene = getGene(oldTranscript)
-        oldTranscript = featureService.flipStrand(oldTranscript)
-        oldTranscript.save()
+        if(oldGene.parentFeatureRelationships.size()==1){
+            oldGene = featureService.flipStrand(oldGene)
+            oldGene.save()
+        }
+        else{
+            oldTranscript = featureService.flipStrand(oldTranscript)
+            oldTranscript.save()
+        }
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript)
         oldTranscript.save()
 
