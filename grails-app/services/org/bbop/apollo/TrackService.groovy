@@ -62,11 +62,9 @@ class TrackService {
                 return null
             }
         } else {
-            println "handling local file: ${trackDataFilePath}"
             if (!trackDataFilePath.startsWith("/")) {
                 trackDataFilePath = jbrowseDirectory + "/" + trackDataFilePath
             }
-            println "converted : ${trackDataFilePath}"
             File file = new File(trackDataFilePath)
             if (!file.exists()) {
                 log.error "File does not exist ${trackDataFilePath}"
@@ -88,6 +86,10 @@ class TrackService {
         return trackObject.getJSONObject("intervals").getJSONArray("classes")
     }
 
+    def storeTrackData(SequenceDTO sequenceDTO,JSONArray classesForTrack){
+        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
+    }
+
     JSONArray getNCList(String trackName, String organismString, String sequence, Long fmin, Long fmax) {
         assert fmin <= fmax
 
@@ -99,7 +101,7 @@ class TrackService {
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        trackMapperService.storeTrack(sequenceDTO, classesForTrack)
+        this.storeTrackData(sequenceDTO,classesForTrack)
 
         // 1. get the trackData.json file
         JSONObject trackObject = getTrackData(trackName, organismString, sequence)
@@ -145,9 +147,6 @@ class TrackService {
 
         String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
 
-        println "final chunk url [${trackDataFilePath}]"
-
-
         trackDataFilePath = trackDataFilePath.replace("trackData.json", "lf-${chunk}.json")
 
         return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONArray
@@ -160,8 +159,6 @@ class TrackService {
         if (featureArray.size() > 3) {
             if (featureArray[0] instanceof Integer) {
                 TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
-
-                System.out.println(featureArray as JSON)
 
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
@@ -208,6 +205,12 @@ class TrackService {
                 if (childArray) {
                     jsonObject.children = childArray
                 }
+            }
+        }
+        else{
+            // process any subfeature arrays
+            if(featureArray instanceof JSONArray){
+                jsonObject = convertAllNCListToObject(featureArray, sequenceDTO)
             }
         }
 
