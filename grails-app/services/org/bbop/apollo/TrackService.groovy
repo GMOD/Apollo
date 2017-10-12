@@ -493,20 +493,18 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONArray flattenArray(JSONArray jsonArray, JSONArray rootArray = new JSONArray(), int depth=0) {
+    JSONArray flattenArray(JSONArray jsonArray,String... types) {
 
+        List<String> typeList = new ArrayList<>()
+        types.each { typeList.add(it)}
+        JSONArray rootArray = new JSONArray()
         // here we just clone it
-        for(JSONObject obj in jsonArray){
-            if(obj.type == 'gene'){
-                rootArray.add(obj)
-            }
-        }
-
-        while(hasGeneChildrenInArray(rootArray)){
-            for(JSONObject obj in rootArray){
-                for(JSONObject child in getGeneChildren(obj)){
+        for (JSONObject obj in jsonArray) {
+            if (typeList.contains(obj.type)) {
+                for (JSONObject child in getGeneChildren(obj,typeList)) {
                     rootArray.add(child)
                 }
+                rootArray.add(obj)
             }
         }
 
@@ -516,26 +514,28 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONArray getGeneChildren(JSONObject jsonObject) {
+    JSONArray getGeneChildren(JSONObject jsonObject,List<String> typeList) {
         JSONArray geneChildren = new JSONArray()
-        for(child in jsonObject.children){
-            if(child.type=='gene'){
-                geneChildren.add(child)
+        boolean hasGeneChild = false
+        for (child in jsonObject.children) {
+            if (typeList.contains(child.type)) {
+                hasGeneChild = true
+                geneChildren.addAll(getGeneChildren(child,typeList))
             }
         }
-        for(child in geneChildren){
-                jsonObject.children.remove(child)
+        if (!hasGeneChild) {
+            geneChildren.add(jsonObject)
+        } else {
+            Iterator iter = jsonObject.children.iterator()
+            while(iter.hasNext()){
+                def object = iter.next()
+                if(typeList.contains(object.type)){
+                    iter.remove()
+                }
+            }
+
         }
         return geneChildren
     }
 
-    @NotTransactional
-    boolean hasGeneChildrenInArray(JSONArray jsonArray) {
-        for(JSONObject obj in jsonArray){
-            for(JSONObject child in obj.children){
-                if(child.type=='gene') return true
-            }
-        }
-        return false
-    }
 }
