@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.test.mixin.TestFor
-import net.sf.json.JSON
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -11,7 +10,6 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
 @TestFor(TrackService)
-//@Mock([Sequence, FeatureLocation, Feature,MRNA])
 class TrackServiceSpec extends Specification {
 
     def setup() {
@@ -30,11 +28,8 @@ class TrackServiceSpec extends Specification {
         String classesForTrackString = new File("test/integration/resources/track-data/trackClasses.json").text
 
 
-        println "converting: ${ncListString}"
         JSONArray ncListArray = new JSONArray(ncListString)
-        println ncListArray.size()
         JSONArray classesForTrackArray = new JSONArray(classesForTrackString)
-        println classesForTrackArray.size()
         SequenceDTO sequenceDTO = new SequenceDTO(
                 organismCommonName: 'Caenorhabditis elegans'
                 , trackName:'All Genes'
@@ -44,7 +39,6 @@ class TrackServiceSpec extends Specification {
         when: "we filter it to an object"
         service.storeTrackData(sequenceDTO,classesForTrackArray)
         JSONArray renderedArray = service.convertAllNCListToObject(ncListArray, sequenceDTO)
-        println renderedArray.toString()
 
 
         then: "we should get all of the surrounding data and the data itself"
@@ -78,10 +72,42 @@ class TrackServiceSpec extends Specification {
 
     }
 
-    void "flatten nested data"(){
+    void "flatten nested mouse"(){
 
         given: "a nested JSON object"
-        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/nestedOutput.json").text)
+        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/mouseMsx2.json").text)
+
+
+        when: "we flatten it"
+        JSONArray renderedArray = service.flattenArray(inputArray,'gene')
+
+        then: "we should see an expected result"
+        assert renderedArray.size()==2
+
+        when: "we get the two genes out"
+        JSONObject gene1 = renderedArray.getJSONObject(0)
+        JSONObject gene2 = renderedArray.getJSONObject(1)
+
+        then: "we should see the appropriate structure"
+        assert gene1.type=='gene'
+        assert gene1.name=='Msx2'
+        assert gene1.children.size()==2
+        assert gene1.children[0].children.size()==4
+        assert gene1.children[0].type=='mRNA'
+
+        assert gene2.type=='gene'
+        assert gene2.name=='Gm33763'
+        assert gene2.children.size()==3
+        assert gene2.children[0].children.size()==3
+        assert gene2.children[0].type=='ncRNA'
+
+
+    }
+
+    void "flatten nested worm"(){
+
+        given: "a nested JSON object"
+        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/wormGeneFb23.24.json").text)
 
 
         when: "we flatten it"

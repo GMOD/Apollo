@@ -150,7 +150,7 @@ class TrackController {
         }
 
         if(flatten){
-            returnArray  = trackService.flattenArray(returnArray)
+            returnArray  = trackService.flattenArray(returnArray,flatten)
         }
 
         if (type == "json") {
@@ -244,7 +244,7 @@ class TrackController {
         }
 
         if(flatten){
-            renderedArray = trackService.flattenArray(renderedArray)
+            renderedArray = trackService.flattenArray(renderedArray,flatten)
         }
 
         if (type == "json") {
