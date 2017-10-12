@@ -1,0 +1,1061 @@
+[
+  {
+    "strand": 1,
+    "children": [
+      {
+        "strand": 1,
+        "children": [
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544198",
+            "fmin": 112707504,
+            "type": "exon",
+            "fmax": 112707882,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544198",
+            "fmin": 112707504,
+            "type": "five_prime_UTR",
+            "fmax": 112707717,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544198",
+            "fmin": 112707717,
+            "type": "CDS",
+            "fmax": 112707882,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544199",
+            "fmin": 112766325,
+            "type": "exon",
+            "fmax": 112766410,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544199",
+            "fmin": 112766325,
+            "type": "CDS",
+            "fmax": 112766410,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544200",
+            "fmin": 112767188,
+            "type": "exon",
+            "fmax": 112767390,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544200",
+            "fmin": 112767188,
+            "type": "CDS",
+            "fmax": 112767390,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544201",
+            "fmin": 112775628,
+            "type": "exon",
+            "fmax": 112775737,
+            "seqId": "5"
+          },
+          {
+            "phase": 1,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544201",
+            "fmin": 112775628,
+            "type": "CDS",
+            "fmax": 112775737,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544202",
+            "fmin": 112780789,
+            "type": "exon",
+            "fmax": 112780903,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544202",
+            "fmin": 112780789,
+            "type": "CDS",
+            "fmax": 112780903,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544203",
+            "fmin": 112801278,
+            "type": "exon",
+            "fmax": 112801383,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544203",
+            "fmin": 112801278,
+            "type": "CDS",
+            "fmax": 112801383,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544204",
+            "fmin": 112815494,
+            "type": "exon",
+            "fmax": 112815593,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544204",
+            "fmin": 112815494,
+            "type": "CDS",
+            "fmax": 112815593,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544205",
+            "fmin": 112818965,
+            "type": "exon",
+            "fmax": 112819344,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544205",
+            "fmin": 112818965,
+            "type": "CDS",
+            "fmax": 112819344,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544206",
+            "fmin": 112821895,
+            "type": "exon",
+            "fmax": 112821991,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544206",
+            "fmin": 112821895,
+            "type": "CDS",
+            "fmax": 112821991,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544207",
+            "fmin": 112827107,
+            "type": "exon",
+            "fmax": 112827247,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544207",
+            "fmin": 112827107,
+            "type": "CDS",
+            "fmax": 112827247,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544208",
+            "fmin": 112827928,
+            "type": "exon",
+            "fmax": 112828006,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544208",
+            "fmin": 112827928,
+            "type": "CDS",
+            "fmax": 112828006,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544209",
+            "fmin": 112828855,
+            "type": "exon",
+            "fmax": 112828972,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544209",
+            "fmin": 112828855,
+            "type": "CDS",
+            "fmax": 112828972,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544210",
+            "fmin": 112834950,
+            "type": "exon",
+            "fmax": 112835165,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544210",
+            "fmin": 112834950,
+            "type": "CDS",
+            "fmax": 112835165,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544211",
+            "fmin": 112837552,
+            "type": "exon",
+            "fmax": 112846239,
+            "seqId": "5"
+          },
+          {
+            "phase": 1,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544211",
+            "fmin": 112837552,
+            "type": "CDS",
+            "fmax": 112844126,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544211",
+            "fmin": 112844126,
+            "type": "three_prime_UTR",
+            "fmax": 112846239,
+            "seqId": "5"
+          }
+        ],
+        "name": "NM_001127511",
+        "source": "RGD",
+        "id": "mRNA5151806",
+        "fmin": 112707504,
+        "type": "mRNA",
+        "fmax": 112846239,
+        "seqId": "5"
+      },
+      {
+        "strand": 1,
+        "children": [
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544214",
+            "fmin": 112737858,
+            "type": "exon",
+            "fmax": 112737925,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544214",
+            "fmin": 112737858,
+            "type": "five_prime_UTR",
+            "fmax": 112737925,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544215",
+            "fmin": 112738352,
+            "type": "exon",
+            "fmax": 112738460,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544215",
+            "fmin": 112738352,
+            "type": "five_prime_UTR",
+            "fmax": 112738460,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544216",
+            "fmin": 112754872,
+            "type": "exon",
+            "fmax": 112755025,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544216",
+            "fmin": 112754872,
+            "type": "five_prime_UTR",
+            "fmax": 112754890,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544216",
+            "fmin": 112754890,
+            "type": "CDS",
+            "fmax": 112755025,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544199_2",
+            "fmin": 112766325,
+            "type": "exon",
+            "fmax": 112766410,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544199_2",
+            "fmin": 112766325,
+            "type": "CDS",
+            "fmax": 112766410,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544200_2",
+            "fmin": 112767188,
+            "type": "exon",
+            "fmax": 112767390,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544200_2",
+            "fmin": 112767188,
+            "type": "CDS",
+            "fmax": 112767390,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544201_2",
+            "fmin": 112775628,
+            "type": "exon",
+            "fmax": 112775737,
+            "seqId": "5"
+          },
+          {
+            "phase": 1,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544201_2",
+            "fmin": 112775628,
+            "type": "CDS",
+            "fmax": 112775737,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544202_2",
+            "fmin": 112780789,
+            "type": "exon",
+            "fmax": 112780903,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544202_2",
+            "fmin": 112780789,
+            "type": "CDS",
+            "fmax": 112780903,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544217",
+            "fmin": 112792445,
+            "type": "exon",
+            "fmax": 112792529,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544217",
+            "fmin": 112792445,
+            "type": "CDS",
+            "fmax": 112792529,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544203_2",
+            "fmin": 112801278,
+            "type": "exon",
+            "fmax": 112801383,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544203_2",
+            "fmin": 112801278,
+            "type": "CDS",
+            "fmax": 112801383,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544204_2",
+            "fmin": 112815494,
+            "type": "exon",
+            "fmax": 112815593,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544204_2",
+            "fmin": 112815494,
+            "type": "CDS",
+            "fmax": 112815593,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544205_2",
+            "fmin": 112818965,
+            "type": "exon",
+            "fmax": 112819344,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544205_2",
+            "fmin": 112818965,
+            "type": "CDS",
+            "fmax": 112819344,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544206_2",
+            "fmin": 112821895,
+            "type": "exon",
+            "fmax": 112821991,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544206_2",
+            "fmin": 112821895,
+            "type": "CDS",
+            "fmax": 112821991,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544207_2",
+            "fmin": 112827107,
+            "type": "exon",
+            "fmax": 112827247,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544207_2",
+            "fmin": 112827107,
+            "type": "CDS",
+            "fmax": 112827247,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544208_2",
+            "fmin": 112827928,
+            "type": "exon",
+            "fmax": 112828006,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544208_2",
+            "fmin": 112827928,
+            "type": "CDS",
+            "fmax": 112828006,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544209_2",
+            "fmin": 112828855,
+            "type": "exon",
+            "fmax": 112828972,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544209_2",
+            "fmin": 112828855,
+            "type": "CDS",
+            "fmax": 112828972,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544210_2",
+            "fmin": 112834950,
+            "type": "exon",
+            "fmax": 112835165,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544210_2",
+            "fmin": 112834950,
+            "type": "CDS",
+            "fmax": 112835165,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544211_2",
+            "fmin": 112837552,
+            "type": "exon",
+            "fmax": 112846239,
+            "seqId": "5"
+          },
+          {
+            "phase": 1,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544211_2",
+            "fmin": 112837552,
+            "type": "CDS",
+            "fmax": 112844126,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544211_2",
+            "fmin": 112844126,
+            "type": "three_prime_UTR",
+            "fmax": 112846239,
+            "seqId": "5"
+          }
+        ],
+        "name": "NM_001127510",
+        "source": "RGD",
+        "id": "mRNA5151823",
+        "fmin": 112737858,
+        "type": "mRNA",
+        "fmax": 112846239,
+        "seqId": "5"
+      },
+      {
+        "strand": 1,
+        "children": [
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544214_2",
+            "fmin": 112737858,
+            "type": "exon",
+            "fmax": 112737925,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544214_2",
+            "fmin": 112737858,
+            "type": "five_prime_UTR",
+            "fmax": 112737925,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544216_2",
+            "fmin": 112754872,
+            "type": "exon",
+            "fmax": 112755025,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544216_2",
+            "fmin": 112754872,
+            "type": "five_prime_UTR",
+            "fmax": 112754890,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544216_2",
+            "fmin": 112754890,
+            "type": "CDS",
+            "fmax": 112755025,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544199_3",
+            "fmin": 112766325,
+            "type": "exon",
+            "fmax": 112766410,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544199_3",
+            "fmin": 112766325,
+            "type": "CDS",
+            "fmax": 112766410,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544200_3",
+            "fmin": 112767188,
+            "type": "exon",
+            "fmax": 112767390,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544200_3",
+            "fmin": 112767188,
+            "type": "CDS",
+            "fmax": 112767390,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544201_3",
+            "fmin": 112775628,
+            "type": "exon",
+            "fmax": 112775737,
+            "seqId": "5"
+          },
+          {
+            "phase": 1,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544201_3",
+            "fmin": 112775628,
+            "type": "CDS",
+            "fmax": 112775737,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544202_3",
+            "fmin": 112780789,
+            "type": "exon",
+            "fmax": 112780903,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544202_3",
+            "fmin": 112780789,
+            "type": "CDS",
+            "fmax": 112780903,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544217_2",
+            "fmin": 112792445,
+            "type": "exon",
+            "fmax": 112792529,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544217_2",
+            "fmin": 112792445,
+            "type": "CDS",
+            "fmax": 112792529,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544203_3",
+            "fmin": 112801278,
+            "type": "exon",
+            "fmax": 112801383,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544203_3",
+            "fmin": 112801278,
+            "type": "CDS",
+            "fmax": 112801383,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544204_3",
+            "fmin": 112815494,
+            "type": "exon",
+            "fmax": 112815593,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544204_3",
+            "fmin": 112815494,
+            "type": "CDS",
+            "fmax": 112815593,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544205_3",
+            "fmin": 112818965,
+            "type": "exon",
+            "fmax": 112819344,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544205_3",
+            "fmin": 112818965,
+            "type": "CDS",
+            "fmax": 112819344,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544206_3",
+            "fmin": 112821895,
+            "type": "exon",
+            "fmax": 112821991,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544206_3",
+            "fmin": 112821895,
+            "type": "CDS",
+            "fmax": 112821991,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544207_3",
+            "fmin": 112827107,
+            "type": "exon",
+            "fmax": 112827247,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544207_3",
+            "fmin": 112827107,
+            "type": "CDS",
+            "fmax": 112827247,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544208_3",
+            "fmin": 112827928,
+            "type": "exon",
+            "fmax": 112828006,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544208_3",
+            "fmin": 112827928,
+            "type": "CDS",
+            "fmax": 112828006,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544209_3",
+            "fmin": 112828855,
+            "type": "exon",
+            "fmax": 112828972,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544209_3",
+            "fmin": 112828855,
+            "type": "CDS",
+            "fmax": 112828972,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544210_3",
+            "fmin": 112834950,
+            "type": "exon",
+            "fmax": 112835165,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544210_3",
+            "fmin": 112834950,
+            "type": "CDS",
+            "fmax": 112835165,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "exon8544211_3",
+            "fmin": 112837552,
+            "type": "exon",
+            "fmax": 112846239,
+            "seqId": "5"
+          },
+          {
+            "phase": 1,
+            "strand": 1,
+            "source": "RGD",
+            "id": "cds8544211_3",
+            "fmin": 112837552,
+            "type": "CDS",
+            "fmax": 112844126,
+            "seqId": "5"
+          },
+          {
+            "strand": 1,
+            "source": "RGD",
+            "id": "utr8544211_3",
+            "fmin": 112844126,
+            "type": "three_prime_UTR",
+            "fmax": 112846239,
+            "seqId": "5"
+          }
+        ],
+        "name": "NM_000038",
+        "source": "RGD",
+        "id": "mRNA5151829",
+        "fmin": 112737858,
+        "type": "mRNA",
+        "fmax": 112846239,
+        "seqId": "5"
+      },
+      [
+        {
+          "strand": -1,
+          "children": [
+            {
+              "strand": -1,
+              "children": [
+                {
+                  "strand": -1,
+                  "source": "RGD",
+                  "id": "ft5490501",
+                  "fmin": 112777442,
+                  "type": "exon",
+                  "fmax": 112778259,
+                  "seqId": "5"
+                }
+              ],
+              "source": "RGD",
+              "id": "tr5490501",
+              "fmin": 112777442,
+              "type": "transcript_region",
+              "fmax": 112778259,
+              "seqId": "5"
+            }
+          ],
+          "name": "CBX3P3",
+          "source": "RGD",
+          "id": "g5490501",
+          "fmin": 112777442,
+          "type": "gene",
+          "fmax": 112778259,
+          "seqId": "5"
+        },
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "RGD",
+                  "id": "ft10413106",
+                  "fmin": 112778362,
+                  "type": "exon",
+                  "fmax": 112778469,
+                  "seqId": "5"
+                }
+              ],
+              "source": "RGD",
+              "id": "tr10413106",
+              "fmin": 112778362,
+              "type": "transcript_region",
+              "fmax": 112778469,
+              "seqId": "5"
+            }
+          ],
+          "name": "RNU6-482P",
+          "source": "RGD",
+          "id": "g10413106",
+          "fmin": 112778362,
+          "type": "gene",
+          "fmax": 112778469,
+          "seqId": "5"
+        }
+      ]
+    ],
+    "name": "APC",
+    "source": "RGD",
+    "id": "http://localhost:8080/apollo/track/Homo sapiens/All Genes/5/APC.json",
+    "fmin": 112707504,
+    "type": "gene",
+    "fmax": 112846239,
+    "seqId": "5",
+    "selected": true
+  }
+]

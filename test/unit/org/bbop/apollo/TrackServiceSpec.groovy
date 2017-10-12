@@ -4,6 +4,8 @@ import grails.test.mixin.TestFor
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.Ignore
+//import spock.lang.IgnoreRest
 import spock.lang.Specification
 
 /**
@@ -19,12 +21,12 @@ class TrackServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "return embedded JSON"() {
+    void "return embedded JSON from NCList"() {
 
         given: "an NCList object for the C. elegans gene flp-1"
         // http://jbrowse.alliancegenome.org/jbrowse/index.html?data=data%2FMus%20musculus&tracks=All%20Genes&highlight=&lookupSymbol=Msx2&loc=13%3A53463164..53476782
 //        http://localhost:8080/apollo/track/Mus%20musculus/All%20Genes/13:53466884..53473074.json?name=Msx2&ignoreCache=true
-		String ncListString = new File("test/integration/resources/track-data/inputArray.json").text
+		String ncListString = new File("test/integration/resources/track-data/inputNcList.json").text
         String classesForTrackString = new File("test/integration/resources/track-data/trackClasses.json").text
 
 
@@ -56,10 +58,12 @@ class TrackServiceSpec extends Specification {
         assert firstGeneChildren.getJSONObject(0).type=='ncRNA'
         assert firstGeneChildren.getJSONObject(1).type=='ncRNA'
         assert firstGeneChildren.getJSONObject(2).type=='ncRNA'
-        assert firstGeneChildren.getJSONObject(3).type=='gene'
+        assert firstGeneChildren.getJSONArray(3)
 
         when: "we get the coding gene"
-        JSONObject codingGene = firstGeneChildren.getJSONObject(3)
+        JSONArray subArray = firstGeneChildren.getJSONArray(3)
+        println "subarray siez ${subArray.size()}"
+        JSONObject codingGene = subArray.getJSONObject(0)
         JSONArray codingGeneChildren = codingGene.children
 
         then: "we should see 2 mrnas"
@@ -72,6 +76,8 @@ class TrackServiceSpec extends Specification {
 
     }
 
+//    @IgnoreRest
+    @Ignore
     void "flatten nested mouse"(){
 
         given: "a nested JSON object"
@@ -104,10 +110,44 @@ class TrackServiceSpec extends Specification {
 
     }
 
+    @Ignore
     void "flatten nested worm"(){
 
         given: "a nested JSON object"
-        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/wormGeneFb23.24.json").text)
+        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/wormGeneflp-1.json").text)
+
+
+        when: "we flatten it"
+        JSONArray renderedArray = service.flattenArray(inputArray,'gene')
+
+        then: "we should see an expected result"
+        assert renderedArray.size()==2
+
+        when: "we get the two genes out"
+        JSONObject gene1 = renderedArray.getJSONObject(0)
+        JSONObject gene2 = renderedArray.getJSONObject(1)
+
+        then: "we should see the appropriate structure"
+        assert gene1.type=='gene'
+//        assert gene1.name=='Msx2'
+//        assert gene1.children.size()==2
+//        assert gene1.children[0].children.size()==4
+//        assert gene1.children[0].type=='mRNA'
+
+        assert gene2.type=='gene'
+//        assert gene2.name=='Gm33763'
+//        assert gene2.children.size()==3
+//        assert gene2.children[0].children.size()==3
+//        assert gene2.children[0].type=='ncRNA'
+
+
+    }
+
+    @Ignore
+    void "flatten nested human"(){
+
+        given: "a nested JSON object"
+        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/humanAPC.json").text)
 
 
         when: "we flatten it"
@@ -132,7 +172,5 @@ class TrackServiceSpec extends Specification {
         assert gene2.children.size()==3
         assert gene2.children[0].children.size()==3
         assert gene2.children[0].type=='ncRNA'
-
-
     }
 }

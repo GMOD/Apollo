@@ -1,258 +1,156 @@
 [
   {
-    "strand": 1,
+    "strand": -1,
     "children": [
       {
-        "strand": 1,
+        "strand": -1,
         "children": [
           {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e10",
-            "fmin": 53461316,
+            "strand": -1,
+            "name": "ENSMUSE00000376402",
+            "source": "ENSEMBL",
+            "id": "MGI:97168.e5",
+            "fmin": 37820484,
             "type": "exon",
-            "fmax": 53462181,
-            "seqId": "13"
+            "fmax": 37821700,
+            "seqId": "5"
           },
           {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e9",
-            "fmin": 53473974,
-            "type": "exon",
-            "fmax": 53476598,
-            "seqId": "13"
+            "phase": 2,
+            "strand": -1,
+            "name": "ENSMUSP00000058354",
+            "source": "ENSEMBL",
+            "id": "MGI:97168.c2",
+            "fmin": 37821257,
+            "type": "CDS",
+            "fmax": 37821700,
+            "seqId": "5"
           },
           {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e8",
-            "fmin": 53477052,
+            "phase": 0,
+            "strand": -1,
+            "name": "ENSMUSP00000058354",
+            "source": "ENSEMBL",
+            "id": "MGI:97168.c2",
+            "fmin": 37823864,
+            "type": "CDS",
+            "fmax": 37824333,
+            "seqId": "5"
+          },
+          {
+            "strand": -1,
+            "name": "ENSMUSE00000355418",
+            "source": "ENSEMBL",
+            "id": "MGI:97168.e4",
+            "fmin": 37823864,
             "type": "exon",
-            "fmax": 53478244,
-            "seqId": "13"
+            "fmax": 37824583,
+            "seqId": "5"
           }
         ],
-        "name": "XR_873404.1",
-        "source": "NCBI",
-        "id": "MGI:5592922.t3",
-        "fmin": 53461316,
-        "type": "ncRNA",
-        "fmax": 53478244,
-        "seqId": "13"
-      },
-      {
-        "strand": 1,
-        "children": [
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e7",
-            "fmin": 53461316,
-            "type": "exon",
-            "fmax": 53462181,
-            "seqId": "13"
-          },
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e6",
-            "fmin": 53473974,
-            "type": "exon",
-            "fmax": 53475926,
-            "seqId": "13"
-          },
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e5",
-            "fmin": 53477052,
-            "type": "exon",
-            "fmax": 53478244,
-            "seqId": "13"
-          }
-        ],
-        "name": "XR_873405.1",
-        "source": "NCBI",
-        "id": "MGI:5592922.t2",
-        "fmin": 53461316,
-        "type": "ncRNA",
-        "fmax": 53478244,
-        "seqId": "13"
-      },
-      {
-        "strand": 1,
-        "children": [
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e4",
-            "fmin": 53461316,
-            "type": "exon",
-            "fmax": 53462181,
-            "seqId": "13"
-          },
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e3",
-            "fmin": 53473974,
-            "type": "exon",
-            "fmax": 53475798,
-            "seqId": "13"
-          },
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e2",
-            "fmin": 53475875,
-            "type": "exon",
-            "fmax": 53475926,
-            "seqId": "13"
-          },
-          {
-            "strand": 1,
-            "source": "NCBI",
-            "id": "MGI:5592922.e1",
-            "fmin": 53477052,
-            "type": "exon",
-            "fmax": 53478244,
-            "seqId": "13"
-          }
-        ],
-        "name": "XR_873406.1",
-        "source": "NCBI",
-        "id": "MGI:5592922.t1",
-        "fmin": 53461316,
-        "type": "ncRNA",
-        "fmax": 53478244,
-        "seqId": "13"
+        "name": "ENSMUST00000063116",
+        "source": "ENSEMBL",
+        "id": "MGI:97168.t3",
+        "fmin": 37820484,
+        "type": "mRNA",
+        "fmax": 37824583,
+        "seqId": "5"
       },
       {
         "strand": -1,
         "children": [
           {
             "strand": -1,
-            "children": [
-              {
-                "strand": -1,
-                "source": "NCBI",
-                "id": "MGI:97169.e5",
-                "fmin": 53472331,
-                "type": "exon",
-                "fmax": 53472780,
-                "seqId": "13"
-              },
-              {
-                "strand": -1,
-                "source": "NCBI",
-                "id": "MGI:97169.e4",
-                "fmin": 53466880,
-                "type": "exon",
-                "fmax": 53468593,
-                "seqId": "13"
-              },
-              {
-                "phase": 0,
-                "strand": -1,
-                "name": "NP_038629.2",
-                "source": "NCBI",
-                "id": "MGI:97169.c2",
-                "fmin": 53472331,
-                "type": "CDS",
-                "fmax": 53472710,
-                "seqId": "13"
-              },
-              {
-                "phase": 2,
-                "strand": -1,
-                "name": "NP_038629.2",
-                "source": "NCBI",
-                "id": "MGI:97169.c2",
-                "fmin": 53468168,
-                "type": "CDS",
-                "fmax": 53468593,
-                "seqId": "13"
-              }
-            ],
-            "name": "NM_013601.2",
             "source": "NCBI",
-            "id": "MGI:97169.t3",
-            "fmin": 53466880,
-            "type": "mRNA",
-            "fmax": 53472780,
-            "seqId": "13"
+            "id": "MGI:97168.e2",
+            "fmin": 37823864,
+            "type": "exon",
+            "fmax": 37824585,
+            "seqId": "5"
           },
           {
             "strand": -1,
-            "children": [
-              {
-                "strand": -1,
-                "name": "ENSMUSE00000641992",
-                "source": "ENSEMBL",
-                "id": "MGI:97169.e3",
-                "fmin": 53466883,
-                "type": "exon",
-                "fmax": 53468593,
-                "seqId": "13"
-              },
-              {
-                "phase": 2,
-                "strand": -1,
-                "name": "ENSMUSP00000021922",
-                "source": "ENSEMBL",
-                "id": "MGI:97169.c1",
-                "fmin": 53468168,
-                "type": "CDS",
-                "fmax": 53468593,
-                "seqId": "13"
-              },
-              {
-                "phase": 0,
-                "strand": -1,
-                "name": "ENSMUSP00000021922",
-                "source": "ENSEMBL",
-                "id": "MGI:97169.c1",
-                "fmin": 53472331,
-                "type": "CDS",
-                "fmax": 53472710,
-                "seqId": "13"
-              },
-              {
-                "strand": -1,
-                "name": "ENSMUSE00000118134",
-                "source": "ENSEMBL",
-                "id": "MGI:97169.e2",
-                "fmin": 53472331,
-                "type": "exon",
-                "fmax": 53473074,
-                "seqId": "13"
-              }
-            ],
-            "name": "ENSMUST00000021922",
-            "source": "ENSEMBL",
-            "id": "MGI:97169.t2",
-            "fmin": 53466883,
-            "type": "mRNA",
-            "fmax": 53473074,
-            "seqId": "13"
+            "source": "NCBI",
+            "id": "MGI:97168.e1",
+            "fmin": 37820490,
+            "type": "exon",
+            "fmax": 37821700,
+            "seqId": "5"
+          },
+          {
+            "phase": 0,
+            "strand": -1,
+            "name": "NP_034965.2",
+            "source": "NCBI",
+            "id": "MGI:97168.c1",
+            "fmin": 37823864,
+            "type": "CDS",
+            "fmax": 37824333,
+            "seqId": "5"
+          },
+          {
+            "phase": 2,
+            "strand": -1,
+            "name": "NP_034965.2",
+            "source": "NCBI",
+            "id": "MGI:97168.c1",
+            "fmin": 37821257,
+            "type": "CDS",
+            "fmax": 37821700,
+            "seqId": "5"
           }
         ],
-        "name": "Msx2",
-        "source": "MGI",
-        "id": "MGI:97169",
-        "fmin": 53466880,
-        "type": "gene",
-        "fmax": 53473074,
-        "seqId": "13"
-      }
+        "name": "NM_010835.2",
+        "source": "NCBI",
+        "id": "MGI:97168.t1",
+        "fmin": 37820490,
+        "type": "mRNA",
+        "fmax": 37824585,
+        "seqId": "5"
+      },
+      [
+        {
+          "strand": 1,
+          "children": [
+            {
+              "strand": 1,
+              "children": [
+                {
+                  "strand": 1,
+                  "source": "NCBI",
+                  "id": "MGI:2136762.e1",
+                  "fmin": 37820563,
+                  "type": "exon",
+                  "fmax": 37822751,
+                  "seqId": "5"
+                }
+              ],
+              "name": "NR_027920.1",
+              "source": "NCBI",
+              "id": "MGI:2136762.t1",
+              "fmin": 37820563,
+              "type": "ncRNA",
+              "fmax": 37822751,
+              "seqId": "5"
+            }
+          ],
+          "name": "Msx1os",
+          "source": "MGI",
+          "id": "MGI:2136762",
+          "fmin": 37820563,
+          "type": "gene",
+          "fmax": 37822751,
+          "seqId": "5"
+        }
+      ]
     ],
-    "name": "Gm33763",
+    "name": "Msx1",
     "source": "MGI",
-    "id": "http://localhost:8080/apollo/track/Mus musculus/All Genes/13/Gm33763.json",
-    "fmin": 53461316,
+    "id": "http://localhost:8080/apollo/track/Mus musculus/All Genes/5/Msx1.json",
+    "fmin": 37820484,
     "type": "gene",
-    "fmax": 53478244,
-    "seqId": "13"
+    "fmax": 37824585,
+    "seqId": "5",
+    "selected": true
   }
 ]
