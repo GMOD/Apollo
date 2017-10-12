@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.test.mixin.TestFor
+import net.sf.json.JSON
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -20,7 +21,7 @@ class TrackServiceSpec extends Specification {
     def cleanup() {
     }
 
-    void "test something"() {
+    void "return embedded JSON"() {
 
         given: "an NCList object for the C. elegans gene flp-1"
         // http://jbrowse.alliancegenome.org/jbrowse/index.html?data=data%2FMus%20musculus&tracks=All%20Genes&highlight=&lookupSymbol=Msx2&loc=13%3A53463164..53476782
@@ -43,6 +44,7 @@ class TrackServiceSpec extends Specification {
         when: "we filter it to an object"
         service.storeTrackData(sequenceDTO,classesForTrackArray)
         JSONArray renderedArray = service.convertAllNCListToObject(ncListArray, sequenceDTO)
+        println renderedArray.toString()
 
 
         then: "we should get all of the surrounding data and the data itself"
@@ -76,5 +78,37 @@ class TrackServiceSpec extends Specification {
 
     }
 
-    // TODO: repeat the same for mouse, ignoring the outter gene
+    void "flatten nested data"(){
+
+        given: "a nested JSON object"
+        JSONArray inputArray = new JSONArray(new File("test/integration/resources/track-data/nestedOutput.json").text)
+
+
+        when: "we flatten it"
+        JSONArray renderedArray = service.flattenArray(inputArray)
+        println "rendered array ${renderedArray.toString(4) }"
+
+        then: "we should see an expected result"
+        assert renderedArray.size()==2
+
+        when: "we get the two genes out"
+        JSONObject gene1 = renderedArray.getJSONObject(0)
+        JSONObject gene2 = renderedArray.getJSONObject(1)
+
+        then: "we should see the appropriate structure"
+        assert gene1.type=='gene'
+        assert gene1.name=='Gm33763'
+        assert gene1.children.size()==3
+        assert gene1.children[0].children.size()==3
+        assert gene1.children[0].type=='ncRNA'
+
+        assert gene2.type=='gene'
+        assert gene2.name=='Msx2'
+        assert gene2.children.size()==2
+        assert gene2.children[0].children.size()==4
+        assert gene2.children[0].type=='mRNA'
+
+
+
+    }
 }

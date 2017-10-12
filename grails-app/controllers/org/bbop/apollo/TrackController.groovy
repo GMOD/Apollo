@@ -104,6 +104,7 @@ class TrackController {
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
         paramMap.put("name", featureName)
+        Boolean flatten = params.flatten != null ? params.flatten : true
         paramMap.put("onlySelected", true)
         if (!ignoreCache) {
             String responseString = trackService.checkCache(organismString, trackName, sequence, featureName, type, paramMap)
@@ -146,6 +147,10 @@ class TrackController {
             }
         }
 
+        if(flatten){
+            returnArray  = trackService.flattenArray(returnArray)
+        }
+
         if (type == "json") {
             trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
             render returnArray as JSON
@@ -176,6 +181,7 @@ class TrackController {
 
         String name = params.name ? params.name : ""
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
+        Boolean flatten = params.flatten != null ? params.flatten : true
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
         paramMap.put("type", type)
@@ -231,6 +237,10 @@ class TrackController {
 
         if (onlySelected) {
             renderedArray = returnArray
+        }
+
+        if(flatten){
+            renderedArray = trackService.flattenArray(renderedArray)
         }
 
         if (type == "json") {

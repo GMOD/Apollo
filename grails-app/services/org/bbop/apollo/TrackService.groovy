@@ -86,7 +86,7 @@ class TrackService {
         return trackObject.getJSONObject("intervals").getJSONArray("classes")
     }
 
-    def storeTrackData(SequenceDTO sequenceDTO,JSONArray classesForTrack){
+    def storeTrackData(SequenceDTO sequenceDTO, JSONArray classesForTrack) {
         trackMapperService.storeTrack(sequenceDTO, classesForTrack)
     }
 
@@ -101,7 +101,7 @@ class TrackService {
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        this.storeTrackData(sequenceDTO,classesForTrack)
+        this.storeTrackData(sequenceDTO, classesForTrack)
 
         // 1. get the trackData.json file
         JSONObject trackObject = getTrackData(trackName, organismString, sequence)
@@ -139,7 +139,7 @@ class TrackService {
      * @param chunk
      * @return
      */
-    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) throws FileNotFoundException{
+    JSONArray getChunkData(SequenceDTO sequenceDTO, int chunk) throws FileNotFoundException {
         String jbrowseDirectory = preferenceService.getOrganismForToken(sequenceDTO.organismCommonName)?.directory
 
         String trackName = sequenceDTO.trackName
@@ -153,7 +153,7 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException{
+    JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException {
         JSONObject jsonObject = new JSONObject()
 
         if (featureArray.size() > 3) {
@@ -206,10 +206,9 @@ class TrackService {
                     jsonObject.children = childArray
                 }
             }
-        }
-        else{
+        } else {
             // process any subfeature arrays
-            if(featureArray instanceof JSONArray){
+            if (featureArray instanceof JSONArray) {
                 jsonObject = convertAllNCListToObject(featureArray, sequenceDTO)
             }
         }
@@ -462,6 +461,7 @@ class TrackService {
      * @param trackName
      * @return
      */
+    @NotTransactional
     def findTrackFromArray(JSONArray tracksArray, String trackName) {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
@@ -475,20 +475,67 @@ class TrackService {
      * Removes plugins included in annot.json (which is just WebApollo)
      * @param pluginsArray
      */
+    @NotTransactional
     def removeIncludedPlugins(JSONArray pluginsArray) {
         def iterator = pluginsArray.iterator()
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             def plugin = iterator.next()
-            if(plugin instanceof JSONObject) {
-                if(plugin.name == "WebApollo") {
+            if (plugin instanceof JSONObject) {
+                if (plugin.name == "WebApollo") {
                     iterator.remove()
                 }
-            }
-            else if(plugin instanceof String) {
-                if(plugin == "WebApollo") {
+            } else if (plugin instanceof String) {
+                if (plugin == "WebApollo") {
                     iterator.remove()
                 }
             }
         }
+    }
+
+    @NotTransactional
+    JSONArray flattenArray(JSONArray jsonArray, JSONArray rootArray = new JSONArray(), int depth=0) {
+
+        // here we just clone it
+        for(JSONObject obj in jsonArray){
+            if(obj.type == 'gene'){
+                rootArray.add(obj)
+            }
+        }
+
+        while(hasGeneChildrenInArray(rootArray)){
+            for(JSONObject obj in rootArray){
+                for(JSONObject child in getGeneChildren(obj)){
+                    rootArray.add(child)
+                }
+            }
+        }
+
+
+        return rootArray
+
+    }
+
+    @NotTransactional
+    JSONArray getGeneChildren(JSONObject jsonObject) {
+        JSONArray geneChildren = new JSONArray()
+        for(child in jsonObject.children){
+            if(child.type=='gene'){
+                geneChildren.add(child)
+            }
+        }
+        for(child in geneChildren){
+                jsonObject.children.remove(child)
+        }
+        return geneChildren
+    }
+
+    @NotTransactional
+    boolean hasGeneChildrenInArray(JSONArray jsonArray) {
+        for(JSONObject obj in jsonArray){
+            for(JSONObject child in obj.children){
+                if(child.type=='gene') return true
+            }
+        }
+        return false
     }
 }
