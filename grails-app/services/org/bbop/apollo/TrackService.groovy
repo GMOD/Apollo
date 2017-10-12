@@ -62,11 +62,9 @@ class TrackService {
                 return null
             }
         } else {
-            println "handling local file: ${trackDataFilePath}"
             if (!trackDataFilePath.startsWith("/")) {
                 trackDataFilePath = jbrowseDirectory + "/" + trackDataFilePath
             }
-            println "converted : ${trackDataFilePath}"
             File file = new File(trackDataFilePath)
             if (!file.exists()) {
                 log.error "File does not exist ${trackDataFilePath}"
@@ -150,9 +148,6 @@ class TrackService {
 
         String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)
 
-        println "final chunk url [${trackDataFilePath}]"
-
-
         trackDataFilePath = trackDataFilePath.replace("trackData.json", "lf-${chunk}.json")
 
         return retrieveFileObject(jbrowseDirectory, trackDataFilePath) as JSONArray
@@ -161,12 +156,10 @@ class TrackService {
     @NotTransactional
     JSONObject convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException{
         JSONObject jsonObject = new JSONObject()
-        println "converting featureArray: ${featureArray.toString()}"
 
         if (featureArray.size() > 3) {
             if (featureArray[0] instanceof Integer) {
                 TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
-                println "valid feature: ${featureArray.toString()}"
 
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
@@ -207,7 +200,6 @@ class TrackService {
                     }
                     if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
                         def subArrays2 = subArray.getJSONArray("Sublist")
-                        println "converting sublist: ${subArrays2.toString()}"
                         childArray.add(convertIndividualNCListToObject(subArrays2, sequenceDTO))
                     }
                 }
@@ -233,7 +225,6 @@ class TrackService {
         JSONArray returnArray = new JSONArray()
 
         for (def jsonArray in fullArray) {
-            println "projecessing ${jsonArray.toString() }"
             if (jsonArray instanceof JSONArray) {
                 returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
             }
