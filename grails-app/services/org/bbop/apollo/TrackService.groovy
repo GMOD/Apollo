@@ -101,7 +101,6 @@ class TrackService {
                 , trackName: trackName
                 , sequenceName: sequence
         )
-        String classesForTrackString = classesForTrack.toString()
         this.storeTrackData(sequenceDTO,classesForTrack)
 
         // 1. get the trackData.json file
