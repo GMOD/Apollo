@@ -95,6 +95,7 @@ class TrackController {
             , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "flatten", type = "string", paramType = RestApiParamType.QUERY, description = "Brings nested top-level components to the root level.  If not provided or 'false' it will not flatten.  Default is 'gene'." )
             , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
@@ -104,6 +105,8 @@ class TrackController {
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
         paramMap.put("name", featureName)
+        String flatten = params.flatten != null ? params.flatten : 'gene'
+        flatten = flatten == 'false' ? '' : flatten
         paramMap.put("onlySelected", true)
         if (!ignoreCache) {
             String responseString = trackService.checkCache(organismString, trackName, sequence, featureName, type, paramMap)
@@ -146,6 +149,10 @@ class TrackController {
             }
         }
 
+        if(flatten){
+            returnArray  = trackService.flattenArray(returnArray,flatten)
+        }
+
         if (type == "json") {
             trackService.cacheRequest(returnArray.toString(), organismString, trackName, sequence, featureName, type, paramMap)
             render returnArray as JSON
@@ -168,7 +175,8 @@ class TrackController {
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
             , @RestApiParam(name = "onlySelected", type = "string", paramType = RestApiParamType.QUERY, description = "(default false).  If 'selected'!=1 one, then exclude.")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
+            , @RestApiParam(name = "flatten", type = "string", paramType = RestApiParamType.QUERY, description = "Brings nested top-level components to the root level.  If not provided or 'false' it will not flatten.  Default is 'gene'." )
+            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json or .svg")
     ])
     @Transactional
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
@@ -176,6 +184,8 @@ class TrackController {
 
         String name = params.name ? params.name : ""
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
+        String flatten = params.flatten != null ? params.flatten : 'gene'
+        flatten = flatten == 'false' ? '' : flatten
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
         paramMap.put("type", type)
@@ -231,6 +241,10 @@ class TrackController {
 
         if (onlySelected) {
             renderedArray = returnArray
+        }
+
+        if(flatten){
+            renderedArray = trackService.flattenArray(renderedArray,flatten)
         }
 
         if (type == "json") {
