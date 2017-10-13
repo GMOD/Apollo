@@ -150,7 +150,9 @@ Note: The `<param-value>` is in bytes.
 
 ### Memory configuration
 
-The default memory assigned to Apollo, in both development and production, is 2048 MB. This can be changed in your
+Changing the memory used by Apollo in production must be [configured within Tomcat directly](Troubleshooting#tomcat-memory).
+
+The default memory assigned to Apollo to run commands in Apollo is 2048 MB. This can be changed in your
 `apollo-config.groovy` by uncommenting the memory configuration block:
 
 ```
@@ -165,8 +167,6 @@ grails.project.fork = [
         console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
 ]
 ```
-
-Changing the memory actually used by tomcat must be [Troubleshooting#tomcat-memory](done within tomcat itself).
 
 ### Note on database settings
 
