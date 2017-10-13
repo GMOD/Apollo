@@ -512,10 +512,32 @@ class TrackService {
     JSONArray getGeneChildren(JSONObject jsonObject, List<String> typeList) {
         JSONArray geneChildren = new JSONArray()
         boolean hasGeneChild = false
-        for (child in jsonObject.children) {
-            if (typeList.contains(child.type)) {
-                hasGeneChild = true
-                geneChildren.addAll(getGeneChildren(child, typeList))
+        Iterator childIterator = jsonObject.children.iterator()
+        while (childIterator.hasNext()) {
+            def child = childIterator.next()
+            if (child instanceof JSONObject) {
+                if (typeList.contains(child.type)) {
+                    hasGeneChild = true
+                    geneChildren.addAll(getGeneChildren(child, typeList))
+                }
+            }
+            // if a subarray instead
+            else if (child instanceof JSONArray) {
+                for (grandChild in child) {
+                    if (typeList.contains(grandChild.type)) {
+                        hasGeneChild = true
+                        geneChildren.addAll(getGeneChildren(grandChild, typeList))
+                    }
+                }
+                geneChildren.add(jsonObject)
+
+                Iterator iter = child.iterator()
+                while (iter.hasNext()) {
+                    def object = iter.next()
+                    if (typeList.contains(object.type)) {
+                        iter.remove()
+                    }
+                }
             }
         }
         if (!hasGeneChild) {
