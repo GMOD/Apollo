@@ -160,11 +160,13 @@ grails.project.fork = [
         // configure settings for the run-app JVM
         run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
         // configure settings for the run-war JVM
-        war    : [maxMemory: 4096, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+        war    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
         // configure settings for the Console UI JVM
         console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
 ]
 ```
+
+Changing the memory actually used by tomcat must be [Troubleshooting#tomcat-memory](done within tomcat itself).
 
 ### Note on database settings
 
