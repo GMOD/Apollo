@@ -129,6 +129,24 @@ testing
 
 This temporary server will be accessible at "http://localhost:8085/apollo"
 
+### Tomcat configuration
+
+If you have tracks that have deep nested features that will result in a feature JSON larger than 10MB or if you have a client
+ that sends requests to the Apollo server as JSON of size larger than 10MB then you will have to modify `src/war/templates/web.xml`.
+
+Specifically the following block in `web.xml`:
+```
+    <context-param>
+        <param-name>org.apache.tomcat.websocket.textBufferSize</param-name>
+        <param-value>10000000</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.apache.tomcat.websocket.binaryBufferSize</param-name>
+        <param-value>10000000</param-value>
+    </context-param>
+```
+
+Note: The `<param-value>` is in bytes.
 
 ### Note on database settings
 
