@@ -148,6 +148,24 @@ Specifically the following block in `web.xml`:
 
 Note: The `<param-value>` is in bytes.
 
+### Memory configuration
+
+The default memory assigned to Apollo, in both development and production, is 2048 MB. This can be changed in your
+`apollo-config.groovy` by uncommenting the memory configuration block:
+
+```
+// Uncomment to change the default memory configurations
+grails.project.fork = [
+        test   : false,
+        // configure settings for the run-app JVM
+        run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+        // configure settings for the run-war JVM
+        war    : [maxMemory: 4096, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+        // configure settings for the Console UI JVM
+        console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
+]
+```
+
 ### Note on database settings
 
 If you use the `apollo run-local` command, then the "development" section of the apollo-config.groovy is used (or an

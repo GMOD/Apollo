@@ -60,6 +60,17 @@ environments {
     }
 }
 
+// Uncomment to change the default memory configurations
+//grails.project.fork = [
+//        test   : false,
+//        // configure settings for the run-app JVM
+//        run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+//        // configure settings for the run-war JVM
+//        war    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+//        // configure settings for the Console UI JVM
+//        console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
+//]
+
 // Uncomment to make changes
 //
 //jbrowse {
