@@ -2,7 +2,12 @@
 
 ## 2.0.8
 
+Features
+
 - Added the ability to annotate from high performance [Alignments2](http://gmod.org/wiki/JBrowse_Configuration_Guide#Alignments2) BAM reads [#1789](https://github.com/GMOD/Apollo/pull/1789)
+
+Bugfixes 
+
 - Fixed bug when flipping strand fails to flip the strand of the owning gene [#1769](https://github.com/GMOD/Apollo/issues/1769)
 - Fixes to track services to allow remote jbrowse tracks and jsonz [#1767](https://github.com/GMOD/Apollo/issues/1767)
 - Fixes to track services to return 404 when bad URL is given [#1768](https://github.com/GMOD/Apollo/issues/1768)
