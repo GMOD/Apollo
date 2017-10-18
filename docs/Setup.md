@@ -129,6 +129,44 @@ testing
 
 This temporary server will be accessible at "http://localhost:8085/apollo"
 
+### Tomcat configuration
+
+If you have tracks that have deep nested features that will result in a feature JSON larger than 10MB or if you have a client
+ that sends requests to the Apollo server as JSON of size larger than 10MB then you will have to modify `src/war/templates/web.xml`.
+
+Specifically the following block in `web.xml`:
+```
+    <context-param>
+        <param-name>org.apache.tomcat.websocket.textBufferSize</param-name>
+        <param-value>10000000</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.apache.tomcat.websocket.binaryBufferSize</param-name>
+        <param-value>10000000</param-value>
+    </context-param>
+```
+
+Note: The `<param-value>` is in bytes.
+
+### Memory configuration
+
+Changing the memory used by Apollo in production must be [configured within Tomcat directly](Troubleshooting#tomcat-memory).
+
+The default memory assigned to Apollo to run commands in Apollo is 2048 MB. This can be changed in your
+`apollo-config.groovy` by uncommenting the memory configuration block:
+
+```
+// Uncomment to change the default memory configurations
+grails.project.fork = [
+        test   : false,
+        // configure settings for the run-app JVM
+        run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+        // configure settings for the run-war JVM
+        war    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+        // configure settings for the Console UI JVM
+        console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
+]
+```
 
 ### Note on database settings
 

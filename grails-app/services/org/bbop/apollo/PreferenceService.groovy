@@ -66,7 +66,7 @@ class PreferenceService {
     }
 
     SequenceDTO getDTOSequenceFromObject(JSONObject sequence) {
-        if(!sequence) return null
+        if (!sequence) return null
         OrganismDTO organismDTO = getDTOFromOrganismFromObject(sequence.getJSONObject(FeatureStringEnum.ORGANISM.value))
         SequenceDTO sequenceDTO = new SequenceDTO(
                 id: sequence.id
@@ -172,12 +172,12 @@ class PreferenceService {
 
             // We need to create a new preference
             // We look for the organism association with any current organism
-            UserOrganismPreference existingPreference  = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc", max: 1])
+            UserOrganismPreference existingPreference = UserOrganismPreference.findByUserAndOrganismAndCurrentOrganism(user, organism, true, [sort: "lastUpdated", order: "desc", max: 1])
             // We look for the organism association with any non-current organism
             existingPreference = existingPreference ?: UserOrganismPreference.findByUserAndOrganism(user, organism, [sort: "lastUpdated", order: "desc", max: 1])
 
             // if the existing preference exists, then use those values
-            if(existingPreference){
+            if (existingPreference) {
                 userOrganismPreference = new UserOrganismPreference(
                         user: user
                         , organism: organism
@@ -189,9 +189,8 @@ class PreferenceService {
                 )
             }
 
-
             // else use random ones
-            else{
+            else {
                 // then create one
                 Sequence sequence = Sequence.findAllByOrganism(organism, [max: 1, sort: "end", order: "desc"]).first()
                 userOrganismPreference = new UserOrganismPreference(
@@ -277,10 +276,12 @@ class PreferenceService {
         Date now = new Date()
         Date newDate = new Date(now.getTime() - 8 * 1000 * 60 * 60)
         // no current organisms if they are 8 hours hold
-        affected += UserOrganismPreference.executeUpdate(
-                "update UserOrganismPreference  pref set pref.currentOrganism = false " +
-                        "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence and pref.lastUpdated < :lastUpdated ",
-                [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence, lastUpdated: newDate])
+        if (userOrganismPreference.sequence) {
+            affected += UserOrganismPreference.executeUpdate(
+                    "update UserOrganismPreference  pref set pref.currentOrganism = false " +
+                            "where pref.id != :prefId and pref.user = :user and pref.organism = :organism and pref.sequence = :sequence and pref.lastUpdated < :lastUpdated ",
+                    [prefId: userOrganismPreference.id, user: user, organism: userOrganismPreference.organism, sequence: userOrganismPreference.sequence, lastUpdated: newDate])
+        }
 
         // if the preference is not set correctly, we have to make sure we add it correctly
         affected += UserOrganismPreference.executeUpdate(
@@ -405,7 +406,7 @@ class PreferenceService {
                 }
             }
         } catch (e) {
-            log.warn("Problem saving preference: "+e)
+            log.warn("Problem saving preference: " + e)
         }
 
     }

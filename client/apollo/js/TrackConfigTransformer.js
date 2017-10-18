@@ -36,7 +36,9 @@ constructor: function( args )  {
         }
     };
 
-    this.transformers["JBrowse/View/Track/Alignments2"] = this.transformers["JBrowse/View/Track/Alignments"];
+    this.transformers["JBrowse/View/Track/Alignments2"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/WebApolloAlignments2";
+    };
 
 },
 
