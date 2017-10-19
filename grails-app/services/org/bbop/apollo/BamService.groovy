@@ -140,7 +140,7 @@ class BamService {
         int templateOffset = 0
         int refOffset = 0
 
-        println "input refCoord ${refCoord}"
+        log.debug "input refCoord ${refCoord}"
 
 
         for (CigarElement cigarElement in cigar.cigarElements) {
@@ -157,7 +157,7 @@ class BamService {
         }
 
         int returnValue = templateOffset - (refOffset - refCoord)
-        println "returnValue[${returnValue}]"
+        log.debug "returnValue[${returnValue}]"
 
         return returnValue
     }
@@ -219,8 +219,8 @@ class BamService {
      */
 
     JSONArray handleMdMismatch3(JSONObject featureObject, JSONArray cigarMismatches, SAMRecord samRecord) {
-        println "handling mismatch ${cigarMismatches as JSON}"
-        println "handling feature mismatch ${featureObject as JSON}"
+        log.debug "handling mismatch ${cigarMismatches as JSON}"
+        log.debug "handling feature mismatch ${featureObject as JSON}"
         JSONArray mismatchRecords = new JSONArray()
         String md = featureObject.getString(SAMTag.MD.name())
         String seq = featureObject.getString('seq');
@@ -259,14 +259,14 @@ class BamService {
             while (basesMatched < cigElLen) {
 
                 boolean matched = match.find()
-                println "is matched ${matched}"
+                log.debug "is matched ${matched}"
                 if (matched) {
                     String mg;
-                    println "is md ${md}"
+                    log.debug "is md ${md}"
 
                     if (((mg = match.group(1)) != null) && (!mg.isEmpty())) {
                         // It's a number , meaning a series of matches
-                        println "Group 1 in ${mg}"
+                        log.debug "Group 1 in ${mg}"
                         final int num = Integer.parseInt(mg);
                         for (int i = 0; i < num; i++) {
 //                            curr.start += parseInt( token );
@@ -278,38 +278,38 @@ class BamService {
                             basesMatched++;
                         }
                         curr.start += num
-                        println "Group 1 out ${mg}"
+                        log.debug "Group 1 out ${mg}"
                     } else if (((mg = match.group(2)) != null) && (!mg.isEmpty())) {
                         // It's a single nucleotide, meaning a mismatch
 
-                        println "Group 2 in ${mg}"
+                        log.debug "Group 2 in ${mg}"
                         for (int i = 0; i < mg.length(); i++) {
                             curr.length = 1;
                             // TODO: base is getting the wrong substring
-                            println "CURRENT START: ${curr.start} for ${seq}"
+                            log.debug "CURRENT START: ${curr.start} for ${seq}"
 
                             int startIndex
                             if(cigElOp){
-                                println "cigElOp ${cigElOp}"
+                                log.debug "cigElOp ${cigElOp}"
                                 startIndex = getTemplateCoord(curr.start, cigar)
                             }
                             else{
                                 startIndex = curr.start
                             }
-                            println "startIndex ${startIndex}"
+                            log.debug "startIndex ${startIndex}"
 
                             if(seq){
-                                println "seq ${seq}"
+                                log.debug "seq ${seq}"
                                 curr.base = seq.substring(startIndex, startIndex+1 )
                             }
                             else{
                                 curr.base = CigarOperator.X.name()
                             }
-                            println "curr.base ${curr.base}"
+                            log.debug "curr.base ${curr.base}"
 
                             curr.altbase = md
 
-                            println "new curr ${curr}"
+                            log.debug "new curr ${curr}"
 
                             curr = nextRecord(cigarMismatches, curr, mismatchRecords);
                         }
@@ -322,11 +322,11 @@ class BamService {
                             throw new IllegalStateException("Should never happen.");
                         }
                         basesMatched++;
-                        println "Group 2 out ${mg}"
+                        log.debug "Group 2 out ${mg}"
                     } else if (((mg = match.group(3)) != null) && (!mg.isEmpty())) {
                         // It's a deletion, starting with a caret
                         // don't include caret
-                        println "Group 3 in ${mg}"
+                        log.debug "Group 3 in ${mg}"
 
                         curr.length = mg.length() - 1
                         curr.base = '*'
@@ -346,10 +346,10 @@ class BamService {
                         if (cigElOp != CigarOperator.DELETION) {
                             throw new SAMException("Got an insertion in MD (" + md + ") without a corresponding deletion in cigar (" + cigar + ")");
                         }
-                        println "Group 3 out ${mg}"
+                        log.debug "Group 3 out ${mg}"
 
                     } else {
-                        println "Group 4 not mateched all ${mg}"
+                        log.debug "Group 4 not mateched all ${mg}"
                         matched = false;
                     }
                 }
@@ -360,7 +360,7 @@ class BamService {
             }
         }
 
-        println "successful return ${mismatchRecords as JSON}"
+        log.debug "successful return ${mismatchRecords as JSON}"
 
         return mismatchRecords
 
@@ -375,8 +375,8 @@ class BamService {
      * @return
      */
     def handleMdMismatch2(JSONObject featureObject, JSONArray mismatches, SAMRecord samRecord) {
-        println "handling mismatch ${mismatches as JSON}"
-        println "handling feature mismatch ${featureObject as JSON}"
+        log.debug "handling mismatch ${mismatches as JSON}"
+        log.debug "handling feature mismatch ${featureObject as JSON}"
         def mismatchRecords = new JSONArray()
         String mdString = featureObject.getString(SAMTag.MD.name())
 
@@ -471,8 +471,8 @@ class BamService {
      * @return
      */
     def handleMdMismatch1(JSONObject featureObject, JSONArray mismatches, SAMRecord samRecord) {
-        println "handling mismatch ${mismatches as JSON}"
-        println "handling feature mismatch ${featureObject as JSON}"
+        log.debug "handling mismatch ${mismatches as JSON}"
+        log.debug "handling feature mismatch ${featureObject as JSON}"
         def mismatchRecords = new JSONArray()
         String mdString = featureObject.getString(SAMTag.MD.name())
 
@@ -613,9 +613,9 @@ class BamService {
 
         Integer min = samRecord.start
         Integer max = null
-//            println "cigar string ${samRecord.cigarString}"
+//            log.debug "cigar string ${samRecord.cigarString}"
         for (CigarElement cigarElement in samRecord.cigar.cigarElements) {
-//                println "OP: '${cigarElement.operator.toString()}'"
+//                log.debug "OP: '${cigarElement.operator.toString()}'"
             // parse matches for subfeatures
             switch (cigarElement.operator) {
                 case CigarOperator.M:

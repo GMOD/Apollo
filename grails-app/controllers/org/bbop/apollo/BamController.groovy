@@ -61,8 +61,8 @@ class BamController {
         File file
         try {
             file = new File(organism.directory + "/" + params.urlTemplate)
-//            println "BAM file to read ${file.absolutePath}"
-//            println "BAM file to read exists ${file.exists()}"
+//            log.debug "BAM file to read ${file.absolutePath}"
+//            log.debug "BAM file to read exists ${file.exists()}"
 //            final SamReader samReader = SamReaderFactory.makeDefault().open(SamInputResource.of(file))
             File baiFile = new File(organism.directory + "/" + params.urlTemplate+".bai")
             BAMFileReader samReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
@@ -105,7 +105,7 @@ class BamController {
             currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         }
         JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
-        println "params ${params}"
+        log.debug "params ${params}"
 
         File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
         File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
@@ -161,13 +161,13 @@ class BamController {
             currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         }
         JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
-        println "params ${params}"
+        log.debug "params ${params}"
 
         File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
         File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
         BAMFileReader bamFileReader = new BAMFileReader(file,baiFile,false, false, ValidationStringency.SILENT, new DefaultSAMRecordFactory())
         BAMIndexMetaData[] metaData = BAMIndexMetaData.getIndexStats(bamFileReader)
-        println "metadata length: " + metaData.length
+        log.debug "metadata length: " + metaData.length
 
 //        final SamReader reader = SamReaderFactory.makeDefault().open(file)
         JSONObject returnObject = new JSONObject()
@@ -175,7 +175,7 @@ class BamController {
         Long featureCount = 0
         // obviously not
         Long totalLength = Organism.executeQuery("select sum(s.length) from Sequence s where s.organism = :organism",[organism:currentOrganism]).first()
-        println "total length ${totalLength}"
+        log.debug "total length ${totalLength}"
 //        Integer scoreMin = 0
 //        Integer scoreMax = 0
 //        Integer scoreMean = 0
@@ -196,7 +196,7 @@ class BamController {
 //        }
         returnObject.featureCount = featureCount
         returnObject.featureDensity = (double) featureCount  / (double) totalLength
-        println "global BAM ${returnObject as JSON}"
+        log.debug "global BAM ${returnObject as JSON}"
 
         render returnObject as JSON
     }
@@ -211,7 +211,7 @@ class BamController {
         }
         Sequence sequence = Sequence.findByNameAndOrganism(refSeqName,currentOrganism)
         JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
-        println "params ${params}"
+        log.debug "params ${params}"
 
         File file = new File(currentOrganism.directory + "/" + trackObject.urlTemplate)
         File baiFile = new File(currentOrganism.directory + "/" + trackObject.urlTemplate+".bai")
@@ -233,7 +233,7 @@ class BamController {
 //            "scoreMean": 42,
 //            "scoreStdDev": 2.1
 //        }
-        println "region BAM ${returnObject as JSON}"
+        log.debug "region BAM ${returnObject as JSON}"
         render returnObject as JSON
     }
 
