@@ -9,6 +9,7 @@ import org.bbop.apollo.gwt.shared.projection.MultiSequenceProjection
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -21,6 +22,7 @@ class BamService {
     /**
      * matching DraggableAlignments.js
      */
+    @Timed
     @NotTransactional
     def processProjection(JSONArray featuresArray, MultiSequenceProjection projection, BAMFileReader samReader, int start, int end, File sourceFile) {
 
@@ -125,6 +127,7 @@ class BamService {
 
     }
 
+    @Timed
     def handleMdMismatch(JSONObject featureObject, SAMRecord samRecord) {
 
         JSONArray filteredCigarMismatches = new JSONArray()
@@ -136,6 +139,7 @@ class BamService {
         return handleMdMismatch3(featureObject, filteredCigarMismatches, samRecord)
     }
 
+    @Timed
     int getTemplateCoord(int refCoord, Cigar cigar) {
         int templateOffset = 0
         int refOffset = 0
@@ -170,6 +174,7 @@ class BamService {
      * @param mismatchRecords
      * @return
      */
+    @Timed
     JSONObject nextRecord(JSONArray cigarMismatches, JSONObject generatedMismatch, JSONArray mismatchRecords) {
 //        // correct the start of the current mismatch if it comes after a cigar skip
         for (JSONObject cigarMismatch in cigarMismatches) {
@@ -218,6 +223,7 @@ class BamService {
      * @param samRecord
      */
 
+    @Timed
     JSONArray handleMdMismatch3(JSONObject featureObject, JSONArray cigarMismatches, SAMRecord samRecord) {
         log.debug "handling mismatch ${cigarMismatches as JSON}"
         log.debug "handling feature mismatch ${featureObject as JSON}"
@@ -604,6 +610,7 @@ class BamService {
         return mismatches
     }
 
+    @Timed
     def calculateMatches(MultiSequenceProjection projection, SAMRecord samRecord) {
         // TODO: put in a separate method
         JSONArray subfeatsArray = new JSONArray()
@@ -663,6 +670,7 @@ class BamService {
         return subfeatsArray
     }
 
+    @Timed
     def calculateMismatches(SAMRecord samRecord) {
 
         def cigarElements = samRecord.cigar.cigarElements
