@@ -130,6 +130,11 @@ class UrlMappings {
         "/bigwig/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")
         "/bigwig/${trackName}/${organismId}/features/${sequenceName}"(controller: "bigwig",action: "features",params:params,sequenceName:sequenceName,organismId: organismId)
 
+        "/bam/${trackName}/${organismId}/stats/global/"(controller: "bam",action: "global")
+        "/bam/${trackName}/${organismId}/stats/region"(controller: "bam",action: "region")
+        "/bam/${trackName}/${organismId}/stats/regionFeatureDensities"(controller: "bam",action: "regionFeatureDensities")
+        "/bam/${trackName}/${organismId}/features/${sequenceName}"(controller: "bam",action: "features",params:params,sequenceName:sequenceName,organismId: organismId)
+
 //        "/${clientToken}/bigwig/stats/global"(controller: "bigwig",action: "global")
 //        "/${clientToken}/bigwig/stats/region"(controller: "bigwig",action: "region")
 //        "/${clientToken}/bigwig/stats/regionFeatureDensities"(controller: "bigwig",action: "regionFeatureDensities")

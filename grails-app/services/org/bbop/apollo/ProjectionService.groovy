@@ -8,6 +8,7 @@ import org.bbop.apollo.gwt.shared.projection.*
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.grails.plugins.metrics.groovy.Timed
 
 @Transactional(readOnly = true)
 class ProjectionService {
@@ -340,6 +341,7 @@ class ProjectionService {
      * @param organism
      * @return
      */
+    @Timed
     @Transactional
     MultiSequenceProjection getProjection(String putativeProjectionLoc, Organism organism) {
         if (AssemblageService.isProjectionString(putativeProjectionLoc)) {

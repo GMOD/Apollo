@@ -19,6 +19,7 @@ class TrackService {
     def projectionService
     def preferenceService
     def trackMapperService
+    def grailsLinkGenerator
     def permissionService
     def sequenceService
     def assemblageService
@@ -1246,7 +1247,7 @@ class TrackService {
      * @param clientToken
      * @return
      */
-    private String getJBrowseDirectoryForSession(HttpSession session, String clientToken) {
+    String getJBrowseDirectoryForSession(HttpSession session, String clientToken) {
         println "current user? ${permissionService.currentUser}"
         if (!permissionService.currentUser) {
             return getDirectoryFromSession(session, clientToken)

@@ -780,6 +780,19 @@ class JbrowseController {
             obj.query.urlTemplate = urlTemplate
             //obj.region_feature_densities = true
         }
+        else
+        if(obj.storeClass == "JBrowse/Store/SeqFeature/BAM"){
+            log.debug "REWRITIGN BAM"
+//            if(obj.type == "JBrowse/View/Track/DraggableAlignments"){
+            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bam/${obj.key}/${obj.organismId}"
+            obj.query = obj.query ?: new JSONObject()
+            obj.query.urlTemplate = urlTemplate
+            obj.region_stats = true
+        }
+        log.debug "final obj ${obj}"
+        log.debug "Rewrote track ${obj as JSON}"
         return obj
     }
 

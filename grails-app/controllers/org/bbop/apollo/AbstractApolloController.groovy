@@ -76,9 +76,9 @@ abstract class AbstractApolloController {
             key = key.replaceAll(replaceString,"")
             key = key.replaceAll("\"\\{\"","{\"")
         }
-        println "clean 1: ${key}"
+//        println "clean 1: ${key}"
         key = key.replaceAll("\"\\{\"","{\"")
-        println "clean 2: $key"
+//        println "clean 2: $key"
         return key
     }
 

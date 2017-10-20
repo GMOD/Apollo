@@ -38,13 +38,13 @@ class BigwigController {
      * @param end The request view end
      * @return
      */
-    JSONObject features(String sequenceName,Long organismId, Integer start, Integer end) {
+    JSONObject features(String sequenceName, Long organismId, Integer start, Integer end) {
 
         JSONObject data = permissionService.handleInput(request, params)
         Organism organism = Organism.findById(organismId)
-        JSONObject returnObject = trackService.getBigWigFromCache(organism,sequenceName,start,end,params.urlTemplate) ?: new JSONObject()
+        JSONObject returnObject = trackService.getBigWigFromCache(organism, sequenceName, start, end, params.urlTemplate) ?: new JSONObject()
 //        JSONObject returnObject = new JSONObject()
-        if(returnObject.containsKey(FeatureStringEnum.FEATURES.value)){
+        if (returnObject.containsKey(FeatureStringEnum.FEATURES.value)) {
             render returnObject as JSON
         }
         JSONArray featuresArray = new JSONArray()
@@ -65,20 +65,20 @@ class BigwigController {
             } else {
                 bigwigService.processSequence(featuresArray, sequenceName, bigWigFileReader, start, end)
             }
-            trackService.cacheBigWig(returnObject,organism,sequenceName,start,end,params.urlTemplate)
+//            trackService.cacheBam(returnObject,organism,sequenceName,start,end,params.urlTemplate)
             log.debug "end bigwith featrues array size ${featuresArray.size()}"
         } catch (e) {
-            log.error  "Error retrieving bigwig features ${e} -> ${path}"
+            log.error "Error retrieving bigwig features ${e} -> ${path}"
         }
 
         render returnObject as JSON
     }
 
-    JSONObject region(String refSeqName, Integer start, Integer end) {
+    JSONObject region(String refSeqName, Long organismId, Integer start, Integer end) {
         render new JSONObject() as JSON
     }
 
-    JSONObject regionFeatureDensities(String refSeqName, Integer start, Integer end, Integer basesPerBin) {
+    JSONObject regionFeatureDensities(String refSeqName, Long organismId, Integer start, Integer end, Integer basesPerBin) {
 //        {
 //            "bins":  [ 51, 50, 58, 63, 57, 57, 65, 66, 63, 61,
 //                       56, 49, 50, 47, 39, 38, 54, 41, 50, 71,
@@ -93,15 +93,15 @@ class BigwigController {
     }
 
 
-    JSONObject global(String trackName) {
+    JSONObject global(String trackName, Long organismId) {
         JSONObject data = permissionService.handleInput(request, params)
-        Organism currentOrganism = preferenceService.getOrganismFromInput(data)
+        Organism currentOrganism = Organism.findById(organismId)
 
-        if(!currentOrganism){
+        if (!currentOrganism) {
             String clientToken = request.session.getAttribute(FeatureStringEnum.CLIENT_TOKEN.value)
             currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         }
-        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism,trackName)
+        JSONObject trackObject = trackService.getTrackObjectForOrganismAndTrack(currentOrganism, trackName)
 
         JSONObject returnObject = new JSONObject()
         Path path = FileSystems.getDefault().getPath(currentOrganism.directory + "/" + trackObject.urlTemplate)
@@ -116,49 +116,4 @@ class BigwigController {
         render returnObject as JSON
     }
 
-    // TODO: abstract or put in service
-    private String getJBrowseDirectoryForSession() {
-        JSONObject data = permissionService.handleInput(request, params)
-        println "data as ${data as JSON}"
-        if (!permissionService.currentUser) {
-            return request.session.getAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value)
-        }
-        Organism currentOrganism = preferenceService.getOrganismFromInput(data)
-
-        String organismJBrowseDirectory = currentOrganism?.directory
-        if (!organismJBrowseDirectory) {
-            for (Organism organism in Organism.all) {
-                // load if not
-                if (!organism.sequences) {
-                    sequenceService.loadRefSeqs(organism)
-                }
-
-                if (organism.sequences) {
-                    User user = permissionService.currentUser
-                    UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism)
-                    Sequence sequence = organism?.sequences?.first()
-                    if (userOrganismPreference == null) {
-                        Assemblage assemblage = assemblageService.generateAssemblageForSequence(sequence)
-                        userOrganismPreference = new UserOrganismPreference(
-                                user: user
-                                , organism: organism
-                                , assemblage: assemblage
-                                , currentOrganism: true
-                        ).save(insert: true, flush: true)
-                    } else {
-                        userOrganismPreference.currentOrganism = true
-                        userOrganismPreference.save()
-                    }
-
-                    organismJBrowseDirectory = organism.directory
-                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismJBrowseDirectory)
-                    session.setAttribute(FeatureStringEnum.SEQUENCE_NAME.value, sequence.name)
-                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, sequence.organismId)
-                    session.setAttribute(FeatureStringEnum.ORGANISM.value, sequence.organism.commonName)
-                    return organismJBrowseDirectory
-                }
-            }
-        }
-        return organismJBrowseDirectory
-    }
 }
