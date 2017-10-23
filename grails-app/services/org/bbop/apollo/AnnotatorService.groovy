@@ -44,6 +44,7 @@ class AnnotatorService {
                         commonName     : organism.commonName,
                         blatdb         : organism.blatdb,
                         directory      : organism.directory,
+                        genomeFasta    : organism.genomeFasta,
                         annotationCount: annotationCountMap.get(organism) ?: 0,
                         sequences      : sequenceCount,
                         genus          : organism.genus,

@@ -1,5 +1,9 @@
 package org.bbop.apollo
 
+import htsjdk.samtools.reference.FastaSequenceFile
+import htsjdk.samtools.reference.FastaSequenceIndex
+import htsjdk.samtools.reference.FastaSequenceIndexCreator
+import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
@@ -217,6 +221,25 @@ class SequenceService {
     }
 
     String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
+        if(sequence.organism.genomeFasta) {
+            getRawResiduesFromSequenceFasta(sequence, fmin, fmax)
+        }
+        else {
+            getRawResiduesFromSequenceChunks(sequence, fmin, fmax)
+        }
+    }
+
+    String getRawResiduesFromSequenceFasta(Sequence sequence, int fmin, int fmax) {
+        String sequenceString
+        File genomeFastaFile = new File(sequence.organism.genomeFastaFileName)
+        File genomeFastaIndexFile = new File(sequence.organism.genomeFastaIndexFileName)
+        IndexedFastaSequenceFile indexedFastaSequenceFile = new IndexedFastaSequenceFile(genomeFastaFile, new FastaSequenceIndex(genomeFastaIndexFile))
+        // using fmin + 1 since getSubsequenceAt uses 1-based start and ends
+        sequenceString = indexedFastaSequenceFile.getSubsequenceAt(sequence.name, (long) fmin + 1, (long) fmax).getBaseString()
+        return sequenceString
+    }
+
+    String getRawResiduesFromSequenceChunks(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
@@ -246,8 +269,16 @@ class SequenceService {
         return label.toList().collate(size)*.join()
     }
 
-
     def loadRefSeqs(Organism organism) {
+        if (organism.genomeFasta) {
+            loadGenomeFasta(organism)
+        }
+        else {
+            loadRefSeqsJson(organism)
+        }
+    }
+
+    def loadRefSeqsJson(Organism organism) {
         log.info "loading refseq ${organism.refseqFile}"
         organism.valid = false ;
         organism.save(flush: true, failOnError: true,insert:false)
@@ -282,6 +313,44 @@ class SequenceService {
             organism.save(flush: true,insert:false,failOnError: true)
 
         }
+    }
+
+    def loadGenomeFasta(Organism organism) {
+        organism.valid = false;
+        organism.save(flush: true, failOnError: true, insert: false)
+
+        String genomeFastaFileName = organism.genomeFastaFileName
+        String genomeFastaIndexFileName = organism.genomeFastaIndexFileName
+        File genomeFastaFile = new File(genomeFastaFileName)
+        if(!genomeFastaFile.exists()) {
+            throw new FileNotFoundException("${genomeFastaFile.getCanonicalPath()} does not exist!")
+        }
+        File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
+        FastaSequenceIndex index
+        if (!genomeFastaIndexFile.exists()) {
+            // create index if it does not exist
+            log.info "Creating FASTA index for ${genomeFastaFile.name}"
+            index = FastaSequenceIndexCreator.buildFromFasta(genomeFastaFile.toPath())
+        }
+        else {
+            index = new FastaSequenceIndex(genomeFastaIndexFile)
+        }
+
+        // reading the index
+        def iterator = index.iterator()
+        while(iterator.hasNext()) {
+            def entry = iterator.next()
+            Sequence sequence = new Sequence(
+                    organism: organism,
+                    length: entry.size,
+                    start: 0,
+                    end: entry.size,
+                    name: entry.contig
+            ).save(failOnError: true)
+        }
+
+        organism.valid = true
+        organism.save(flush: true, insert: false, failOnError: true)
     }
 
     def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {

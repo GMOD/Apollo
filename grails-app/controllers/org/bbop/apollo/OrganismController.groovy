@@ -201,6 +201,7 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
             , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
+            , @RestApiParam(name = "genomeFasta", type = "string", paramType = RestApiParamType.QUERY, description = "genome FASTA filename (optional; only if you are using an indexed genome FASTA as reference)")
             , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
             , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
             , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "commonName for an organism")
@@ -237,6 +238,7 @@ class OrganismController {
                 def organism = new Organism(
                         commonName: requestObject.get(FeatureStringEnum.ORGANISM_NAME.value),
                         directory: configWrapperService.commonDataDirectory,
+                        genomeFasta: requestObject.genomeFasta ?: "",
                         blatdb: requestObject.blatdb ?: "",
                         genus: requestObject.genus ?: "",
                         species: requestObject.species ?: "",
@@ -789,6 +791,7 @@ class OrganismController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
+            , @RestApiParam(name = "genomeFasta", type = "string", paramType = RestApiParamType.QUERY, description = "genome FASTA filename (optional; only if you are using an indexed genome FASTA as reference)")
             , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
             , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
             , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
@@ -810,6 +813,7 @@ class OrganismController {
                 Organism organism = new Organism(
                         commonName: organismJson.commonName
                         , directory: organismJson.directory
+                        , genomeFasta: organismJson.genomeFasta
                         , blatdb: organismJson.blatdb
                         , species: organismJson.species
                         , genus: organismJson.genus
@@ -919,6 +923,7 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "unique id of organism to change")
             , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
+            , @RestApiParam(name = "genomeFasta", type = "string", paramType = RestApiParamType.QUERY, description = "genome FASTA filename (optional; only if you are using an indexed genome FASTA as reference)")
             , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
             , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
             , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
@@ -942,6 +947,7 @@ class OrganismController {
                 organism.genus = organismJson.genus
                 organism.metadata = organismJson.metadata
                 organism.directory = organismJson.directory
+                organism.genomeFasta = organismJson.genomeFasta
                 organism.publicMode = organismJson.publicMode
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
 
@@ -1055,6 +1061,7 @@ class OrganismController {
                         commonName     : organism.commonName,
                         blatdb         : organism.blatdb,
                         directory      : organism.directory,
+                        genomeFasta    : organism.genomeFasta,
                         annotationCount: annotationCount,
                         sequences      : sequenceCount,
                         genus          : organism.genus,

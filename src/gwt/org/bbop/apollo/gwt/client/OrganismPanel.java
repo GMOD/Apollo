@@ -63,6 +63,8 @@ public class OrganismPanel extends Composite {
     TextBox species;
     @UiField
     TextBox sequenceFile;
+    @UiField
+    TextBox genomeFasta;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
@@ -223,6 +225,9 @@ public class OrganismPanel extends Composite {
         sequenceFile.setText(organismInfo.getDirectory());
         sequenceFile.setEnabled(isEditable);
 
+        genomeFasta.setText(organismInfo.getGenomeFasta());
+        genomeFasta.setEnabled(isEditable);
+
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
 
@@ -311,6 +316,7 @@ public class OrganismPanel extends Composite {
         OrganismInfo organismInfo = new OrganismInfo();
         organismInfo.setName(organismName.getText());
         organismInfo.setDirectory(sequenceFile.getText());
+        organismInfo.setGenomeFasta(genomeFasta.getText());
         organismInfo.setGenus(genus.getText());
         organismInfo.setSpecies(species.getText());
         organismInfo.setBlatDb(blatdb.getText());
@@ -417,6 +423,13 @@ public class OrganismPanel extends Composite {
         }
     }
 
+    @UiHandler("genomeFasta")
+    public void handleGenomeFasta(ChangeEvent changeEvent) {
+        if (singleSelectionModel.getSelectedObject() != null) {
+            singleSelectionModel.getSelectedObject().setGenomeFasta(genomeFasta.getText());
+            updateOrganismInfo();
+        }
+    }
 
     private void updateOrganismInfo() {
         updateOrganismInfo(false);
@@ -465,6 +478,7 @@ public class OrganismPanel extends Composite {
     //Utility function for toggling the textboxes (gray out)
     private void setTextEnabled(boolean enabled) {
         sequenceFile.setEnabled(enabled);
+        genomeFasta.setEnabled(enabled);
         organismName.setEnabled(enabled);
         genus.setEnabled(enabled);
         species.setEnabled(enabled);
@@ -477,6 +491,7 @@ public class OrganismPanel extends Composite {
     private void clearTextBoxes() {
         organismName.setText("");
         sequenceFile.setText("");
+        genomeFasta.setText("");
         genus.setText("");
         species.setText("");
         blatdb.setText("");
