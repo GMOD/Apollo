@@ -29,9 +29,6 @@ public class OrganismInfoConverter {
             organismInfo.setNumFeatures(0);
         }
         organismInfo.setDirectory(object.get("directory").isString().stringValue());
-        if (object.containsKey("genomeFasta") && object.get("genomeFasta").isString() != null) {
-            organismInfo.setGenomeFasta(object.get("genomeFasta").isString().stringValue());
-        }
         if (object.get("valid") != null) {
             organismInfo.setValid(object.get("valid").isBoolean().booleanValue());
         }
@@ -79,9 +76,6 @@ public class OrganismInfoConverter {
         }
         object.put("commonName", new JSONString(organismInfo.getName()));
         object.put("directory", new JSONString(organismInfo.getDirectory()));
-        if (organismInfo.getGenomeFasta() != null) {
-            object.put("genomeFasta", new JSONString(organismInfo.getGenomeFasta()));
-        }
         if (organismInfo.getGenus() != null) {
             object.put("genus", new JSONString(organismInfo.getGenus()));
         }
