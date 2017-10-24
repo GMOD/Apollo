@@ -1,5 +1,6 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
 import htsjdk.samtools.reference.FastaSequenceFile
 import htsjdk.samtools.reference.FastaSequenceIndex
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
@@ -33,6 +34,7 @@ class SequenceService {
     def gff3HandlerService
     def overlapperService
     def organismService
+    def trackService
 
 
 
@@ -270,8 +272,9 @@ class SequenceService {
     }
 
     def loadRefSeqs(Organism organism) {
-        if (organism.genomeFasta) {
-            loadGenomeFasta(organism)
+        JSONObject referenceTrackObject = getReferenceTrackObject(organism)
+        if (referenceTrackObject.storeClass == "JBrowse/Store/Sequence/IndexedFasta") {
+            loadGenomeFasta(organism, referenceTrackObject)
         }
         else {
             loadRefSeqsJson(organism)
@@ -315,42 +318,53 @@ class SequenceService {
         }
     }
 
-    def loadGenomeFasta(Organism organism) {
+    def loadGenomeFasta(Organism organism, JSONObject referenceTrackObject) {
         organism.valid = false;
         organism.save(flush: true, failOnError: true, insert: false)
 
-        String genomeFastaFileName = organism.genomeFastaFileName
-        String genomeFastaIndexFileName = organism.genomeFastaIndexFileName
+        String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
+        String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
         File genomeFastaFile = new File(genomeFastaFileName)
-        if(!genomeFastaFile.exists()) {
-            throw new FileNotFoundException("${genomeFastaFile.getCanonicalPath()} does not exist!")
-        }
-        File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
-        FastaSequenceIndex index
-        if (!genomeFastaIndexFile.exists()) {
-            // create index if it does not exist
-            log.info "Creating FASTA index for ${genomeFastaFile.name}"
-            index = FastaSequenceIndexCreator.buildFromFasta(genomeFastaFile.toPath())
+        if(genomeFastaFile.exists()) {
+            organism.genomeFasta = referenceTrackObject.urlTemplate
+            File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
+            if (genomeFastaIndexFile.exists()) {
+                organism.genomeFastaIndex = referenceTrackObject.faiUrlTemplate
+                FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
+                // reading the index
+                def iterator = index.iterator()
+                while(iterator.hasNext()) {
+                    def entry = iterator.next()
+                    Sequence sequence = new Sequence(
+                            organism: organism,
+                            length: entry.size,
+                            start: 0,
+                            end: entry.size,
+                            name: entry.contig
+                    ).save(failOnError: true)
+                }
+
+                organism.valid = true
+                organism.save(flush: true, insert: false, failOnError: true)
+            }
+            else {
+                throw  new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
+            }
         }
         else {
-            index = new FastaSequenceIndex(genomeFastaIndexFile)
+            throw new FileNotFoundException("Genome fasta ${genomeFastaFile.getCanonicalPath()} does not exist!")
         }
+    }
 
-        // reading the index
-        def iterator = index.iterator()
-        while(iterator.hasNext()) {
-            def entry = iterator.next()
-            Sequence sequence = new Sequence(
-                    organism: organism,
-                    length: entry.size,
-                    start: 0,
-                    end: entry.size,
-                    name: entry.contig
-            ).save(failOnError: true)
+    def getReferenceTrackObject(Organism organism) {
+        JSONObject referenceTrackObject = new JSONObject()
+        File directory = new File(organism.directory)
+        if (directory.exists()) {
+            File trackListFile = new File(organism.trackList)
+            JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
+            referenceTrackObject = trackService.findTrackFromArray(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), "DNA")
         }
-
-        organism.valid = true
-        organism.save(flush: true, insert: false, failOnError: true)
+        return referenceTrackObject
     }
 
     def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {

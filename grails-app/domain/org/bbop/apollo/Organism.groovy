@@ -17,6 +17,7 @@ class Organism {
         metadata nullable: true
         commonName nullable: false
         genomeFasta nullable: true
+        genomeFastaIndex nullable: true
         nonDefaultTranslationTable nullable: true,blank: false
         dataAddedViaWebServices nullable: true
     }
@@ -31,6 +32,7 @@ class Organism {
     String blatdb;
     String directory
     String genomeFasta
+    String genomeFastaIndex
     String nonDefaultTranslationTable
     String metadata
     Boolean dataAddedViaWebServices
@@ -60,21 +62,11 @@ class Organism {
     }
 
     public String getGenomeFastaFileName() {
-        if (!genomeFasta) {
-            return null
-        }
-        else {
-            return directory + File.separator + 'seq' + File.separator + genomeFasta
-        }
+        return genomeFasta ? directory + File.separator + genomeFasta : null
     }
 
     public String getGenomeFastaIndexFileName() {
-        if (!genomeFasta) {
-            return null
-        }
-        else {
-            return getGenomeFastaFileName() + '.fai'
-        }
+        return genomeFastaIndex ? directory + File.separator + genomeFastaIndex : null
     }
 
     static mapping = {
