@@ -17,6 +17,14 @@ script to output to the data directory.
 bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 ```
 
+If you want to use an indexed FASTA genome then you can run prepare-refseqs.pl as follows:
+
+```
+bin/prepare-refseqs.pl --indexed_fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
+```
+
+The script will copy the genome FASTA and its FAI index into the output folder.
+
 Note: the output directory is used later when we load the organism into the browser with the "Create organism" form
 
 ### flatfile-to-json.pl

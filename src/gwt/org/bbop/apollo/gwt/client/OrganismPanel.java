@@ -417,7 +417,6 @@ public class OrganismPanel extends Composite {
         }
     }
 
-
     private void updateOrganismInfo() {
         updateOrganismInfo(false);
     }
