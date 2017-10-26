@@ -16,6 +16,8 @@ class Organism {
         blatdb nullable: true
         metadata nullable: true
         commonName nullable: false
+        genomeFasta nullable: true
+        genomeFastaIndex nullable: true
         nonDefaultTranslationTable nullable: true,blank: false
         dataAddedViaWebServices nullable: true
     }
@@ -29,6 +31,8 @@ class Organism {
     boolean publicMode;
     String blatdb;
     String directory
+    String genomeFasta
+    String genomeFastaIndex
     String nonDefaultTranslationTable
     String metadata
     Boolean dataAddedViaWebServices
@@ -55,6 +59,14 @@ class Organism {
         } else {
             return directory + "/seq/refSeqs.json"
         }
+    }
+
+    public String getGenomeFastaFileName() {
+        return genomeFasta ? directory + File.separator + genomeFasta : null
+    }
+
+    public String getGenomeFastaIndexFileName() {
+        return genomeFastaIndex ? directory + File.separator + genomeFastaIndex : null
     }
 
     static mapping = {

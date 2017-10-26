@@ -9,6 +9,7 @@ class Sequence {
         start nullable: false
         end nullable: false
         organism nullable: true
+        seqChunkSize nullable: true
     }
 
 

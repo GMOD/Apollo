@@ -5,6 +5,7 @@
 Features
 
 - Added the ability to annotate from high performance [Alignments2](http://gmod.org/wiki/JBrowse_Configuration_Guide#Alignments2) BAM reads [#1789](https://github.com/GMOD/Apollo/pull/1789)
+- Added support for indexed FASTA to be used as reference sequence. [#1791](https://github.com/GMOD/Apollo/pull/1791)
 
 Bugfixes 
 

@@ -929,7 +929,7 @@ class OrganismController {
     ])
     @Transactional
     def updateOrganismInfo() {
-        log.debug "updating organism info ${params}"
+        println"updating organism info ${params}"
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
@@ -937,12 +937,12 @@ class OrganismController {
             if (organism) {
                 log.debug "Updating organism info ${organismJson as JSON}"
                 organism.commonName = organismJson.name
-                organism.blatdb = organismJson.blatdb
-                organism.species = organismJson.species
-                organism.genus = organismJson.genus
-                organism.metadata = organismJson.metadata
+                organism.blatdb = organismJson.blatdb ?: null
+                organism.species = organismJson.species ?: null
+                organism.genus = organismJson.genus ?: null
+                organism.metadata = organismJson.metadata ?: null
                 organism.directory = organismJson.directory
-                organism.publicMode = organismJson.publicMode
+                organism.publicMode = organismJson.publicMode ?: null
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
 
                 if (checkOrganism(organism)) {

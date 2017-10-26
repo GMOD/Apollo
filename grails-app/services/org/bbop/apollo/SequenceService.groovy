@@ -1,5 +1,10 @@
 package org.bbop.apollo
 
+import grails.converters.JSON
+import htsjdk.samtools.reference.FastaSequenceFile
+import htsjdk.samtools.reference.FastaSequenceIndex
+import htsjdk.samtools.reference.FastaSequenceIndexCreator
+import htsjdk.samtools.reference.IndexedFastaSequenceFile
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
@@ -29,6 +34,7 @@ class SequenceService {
     def gff3HandlerService
     def overlapperService
     def organismService
+    def trackService
 
 
 
@@ -217,6 +223,25 @@ class SequenceService {
     }
 
     String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
+        if(sequence.organism.genomeFasta) {
+            getRawResiduesFromSequenceFasta(sequence, fmin, fmax)
+        }
+        else {
+            getRawResiduesFromSequenceChunks(sequence, fmin, fmax)
+        }
+    }
+
+    String getRawResiduesFromSequenceFasta(Sequence sequence, int fmin, int fmax) {
+        String sequenceString
+        File genomeFastaFile = new File(sequence.organism.genomeFastaFileName)
+        File genomeFastaIndexFile = new File(sequence.organism.genomeFastaIndexFileName)
+        IndexedFastaSequenceFile indexedFastaSequenceFile = new IndexedFastaSequenceFile(genomeFastaFile, new FastaSequenceIndex(genomeFastaIndexFile))
+        // using fmin + 1 since getSubsequenceAt uses 1-based start and ends
+        sequenceString = indexedFastaSequenceFile.getSubsequenceAt(sequence.name, (long) fmin + 1, (long) fmax).getBaseString()
+        return sequenceString
+    }
+
+    String getRawResiduesFromSequenceChunks(Sequence sequence, int fmin, int fmax) {
         StringBuilder sequenceString = new StringBuilder()
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
@@ -246,8 +271,17 @@ class SequenceService {
         return label.toList().collate(size)*.join()
     }
 
-
     def loadRefSeqs(Organism organism) {
+        JSONObject referenceTrackObject = getReferenceTrackObject(organism)
+        if (referenceTrackObject.storeClass == "JBrowse/Store/Sequence/IndexedFasta") {
+            loadGenomeFasta(organism, referenceTrackObject)
+        }
+        else {
+            loadRefSeqsJson(organism)
+        }
+    }
+
+    def loadRefSeqsJson(Organism organism) {
         log.info "loading refseq ${organism.refseqFile}"
         organism.valid = false ;
         organism.save(flush: true, failOnError: true,insert:false)
@@ -282,6 +316,55 @@ class SequenceService {
             organism.save(flush: true,insert:false,failOnError: true)
 
         }
+    }
+
+    def loadGenomeFasta(Organism organism, JSONObject referenceTrackObject) {
+        organism.valid = false;
+        organism.save(flush: true, failOnError: true, insert: false)
+
+        String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
+        String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
+        File genomeFastaFile = new File(genomeFastaFileName)
+        if(genomeFastaFile.exists()) {
+            organism.genomeFasta = referenceTrackObject.urlTemplate
+            File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
+            if (genomeFastaIndexFile.exists()) {
+                organism.genomeFastaIndex = referenceTrackObject.faiUrlTemplate
+                FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
+                // reading the index
+                def iterator = index.iterator()
+                while(iterator.hasNext()) {
+                    def entry = iterator.next()
+                    Sequence sequence = new Sequence(
+                            organism: organism,
+                            length: entry.size,
+                            start: 0,
+                            end: entry.size,
+                            name: entry.contig
+                    ).save(failOnError: true)
+                }
+
+                organism.valid = true
+                organism.save(flush: true, insert: false, failOnError: true)
+            }
+            else {
+                throw  new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
+            }
+        }
+        else {
+            throw new FileNotFoundException("Genome fasta ${genomeFastaFile.getCanonicalPath()} does not exist!")
+        }
+    }
+
+    def getReferenceTrackObject(Organism organism) {
+        JSONObject referenceTrackObject = new JSONObject()
+        File directory = new File(organism.directory)
+        if (directory.exists()) {
+            File trackListFile = new File(organism.trackList)
+            JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
+            referenceTrackObject = trackService.findTrackFromArray(trackListJsonObject.getJSONArray(FeatureStringEnum.TRACKS.value), "DNA")
+        }
+        return referenceTrackObject
     }
 
     def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {
