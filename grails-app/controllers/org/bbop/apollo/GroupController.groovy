@@ -312,6 +312,12 @@ class GroupController {
             permissionsArray.add(PermissionEnum.READ.name())
         }
 
+        if(permissionsArray.size()==0){
+            groupOrganismPermission.delete(flush: true)
+            render groupOrganismPermission as JSON
+            return
+        }
+
 
         groupOrganismPermission.permissions = permissionsArray.toString()
         groupOrganismPermission.save(flush: true)
