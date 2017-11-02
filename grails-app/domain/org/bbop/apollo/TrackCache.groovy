@@ -31,5 +31,6 @@ class TrackCache {
         response type: "text"
         trackName type: "text"
         sequenceName type: "text"
+        paramMap type: "text"
     }
 }
