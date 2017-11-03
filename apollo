@@ -45,7 +45,7 @@ function check_rest_api(){
 }
 
 function check_java(){
-    javac_version=`javac -version 2>&1`
+    javac_version=`javac -version 2>&1 | grep ^javac`
     echo "$javac_version found";
     if [[ $javac_version == javac*  ]]; then
         echo "javac installed";
