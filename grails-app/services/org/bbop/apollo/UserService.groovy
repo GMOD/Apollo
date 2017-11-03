@@ -36,6 +36,7 @@ class UserService {
             JSONObject organismJSON = new JSONObject()
             organismJSON.put("organism", userOrganismPermission.organism.commonName)
             organismJSON.put("permissions", userOrganismPermission.permissions)
+            organismJSON.put("permissionArray", userOrganismPermission.permissionValues)
             organismJSON.put("userId", userOrganismPermission.userId)
             organismJSON.put("id", userOrganismPermission.id)
 

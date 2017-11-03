@@ -104,6 +104,7 @@ class GroupController {
                         JSONObject organismJSON = new JSONObject()
                         organismJSON.organism = groupOrganismPermission.organism.commonName
                         organismJSON.permissions = groupOrganismPermission.permissions
+                        organismJSON.permissionArray = groupOrganismPermission.permissionValues
                         organismJSON.groupId = groupOrganismPermission.groupId
                         organismJSON.id = groupOrganismPermission.id
                         organismPermissionsArray.add(organismJSON)
@@ -119,6 +120,7 @@ class GroupController {
                     JSONObject organismJSON = new JSONObject()
                     organismJSON.organism = organism.commonName
                     organismJSON.permissions = "[]"
+                    organismJSON.permissionArray = new JSONArray()
                     organismJSON.groupId = it.id
                     organismPermissionsArray.add(organismJSON)
                 }
@@ -292,6 +294,7 @@ class GroupController {
                     group: group
                     , organism: organism
                     , permissions: "[]"
+                    , permissionArray: new JSONArray()
             ).save(insert: true)
             log.debug "created new permissions! "
         }
