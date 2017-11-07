@@ -24,6 +24,10 @@ class UrlMappings {
         "/track/cache/clear/${organismName}/${trackName}"(controller: "track", action: "clearTrackCache")
         "/track/cache/clear/${organismName}"(controller: "track", action: "clearOrganismCache")
 
+        "/sequence/${organismString}/?loc=${sequenceName}:${fmin}..${fmax}"(controller: "sequence", action: "sequenceByLocation",[params:params])
+        "/sequence/${organismString}/${sequenceName}:${fmin}..${fmax}"(controller: "sequence", action: "sequenceByLocation",[params:params])
+        "/sequence/${organismString}/${sequenceName}/${featureName}"(controller: "sequence", action: "sequenceByName",[params:params])
+
         // TODO: remove if we merge with the JSON
         "/track/biolink/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.biolink"(controller: "track", action: "biolink")
         "/track/biolink/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "biolink")
