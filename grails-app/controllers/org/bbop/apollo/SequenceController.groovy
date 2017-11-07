@@ -10,6 +10,11 @@ import org.bbop.apollo.report.SequenceSummary
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApiMethod
+import org.restapidoc.annotation.RestApiParam
+import org.restapidoc.annotation.RestApiParams
+import org.restapidoc.pojo.RestApiParamType
+import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
@@ -228,16 +233,33 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
+    @RestApiMethod(description = "Get sequence data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.<type>?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
+            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
+            , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range(required)")
+            , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
+//            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json or .svg")
+    ])
     String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
         Organism organism = Organism.findByCommonName(organismString) ?: Organism.findById(organismString as Long)
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
 
-        Strand strand = Strand.POSITIVE;
+        Strand strand = params.strand ? Strand.getStrandForValue(params.strand as Integer): Strand.POSITIVE
         render sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, fmin, fmax, strand)
 
     }
 
-    String sequenceByName(String organismString, String sequenceName, String featureName) {
+    @RestApiMethod(description = "Get sequence data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
+            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
+            , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
+//            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
+            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
+    ])
+    String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
         Feature feature = Feature.findByUniqueName(featureName)
         if (!feature) {
             def features = Feature.findAllByName(featureName)
@@ -254,7 +276,8 @@ class SequenceController {
         }
 
         if (feature) {
-            render sequenceService.getGenomicResiduesFromSequenceWithAlterations(feature.featureLocation.sequence, feature.fmin, feature.fmax, Strand.getStrandForValue(feature.strand))
+            String sequenceString = sequenceService.getSequenceForFeature(feature, type)
+            render sequenceString
         } else {
             response.status = 404
         }
