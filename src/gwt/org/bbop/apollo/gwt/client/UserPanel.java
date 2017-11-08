@@ -488,6 +488,9 @@ public class UserPanel extends Composite {
     }
 
     private void userIsSame() {
+        if(selectedUserInfo == null ){
+            return ;
+        }
         if(selectedUserInfo.getEmail().equals(email.getText().trim())
                 && selectedUserInfo.getFirstName().equals(firstName.getText().trim())
                 && selectedUserInfo.getLastName().equals(lastName.getText().trim())
