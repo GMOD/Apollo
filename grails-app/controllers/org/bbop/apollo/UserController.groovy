@@ -30,6 +30,8 @@ class UserController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
+            , @RestApiParam(name = "start", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result start / offset")
+            , @RestApiParam(name = "length", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result length")
     ])
     def loadUsers() {
         try {
@@ -55,7 +57,11 @@ class UserController {
             }
 
             def c = User.createCriteria()
-            def users = c.list() {
+            def offset = params.start?: 0
+            def maxResults = params.length ?: Integer.MAX_VALUE
+            println "params: [${params}]"
+
+            def users = c.list(max: maxResults , offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
                     eq('id', (Long) dataObject.userId)
                 }

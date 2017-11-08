@@ -77,6 +77,13 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "user/loadUsers/");
     }
 
+    public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("start",new JSONNumber(start));
+        jsonObject.put("length",new JSONNumber(length));
+        RestService.sendRequest(requestCallback, "user/loadUsers/",jsonObject);
+    }
+
     public static void loadUsers(final List<UserInfo> userInfoList) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
