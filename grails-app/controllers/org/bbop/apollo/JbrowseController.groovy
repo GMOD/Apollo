@@ -522,40 +522,7 @@ class JbrowseController {
                     out.close();
                 }
             }
-//            else if (fileName.endsWith(".bai")) {
-//                println "processing bai file"
-//
-//                // TODO: read in . . . write out another one to process . . . which will be alternate index?
-//                // file, index file, etc. etc. etc.
-//                // generate the BAM
-//                if (projectionMap) {
-//                    // TODO: implement
-////                    String bamfileName = findBamFileName(fileName)
-////                    File bamFile = new File(bamfileName)
-////                    File newIndexFile = new File(generateBamIndexFileForProjection())
-//////                    BAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
-////                    ProjectionBAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
-////                    BAMFileReader reader = new BAMFileReader(bamFile,file,false)
-//                }
-//
-////                SAMFileReader samFileReader = new SAMFileReader()
-//                // Set content size
-//                response.setContentLength((int) file.length());
-//
-//                // Open the file and output streams
-//                FileInputStream inputStream = new FileInputStream(file);
-//                OutputStream out = response.getOutputStream();
-//
-//                // Copy the contents of the file to the output stream
-//                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-//                int count = 0;
-//                while ((count = inputStream.read(buf)) >= 0) {
-//                    out.write(buf, 0, count);
-//                }
-//                inputStream.close();
-//                out.close();
-//            }
-            else {
+            else if (fileName.endsWith(".bai")) {
                 // Set content size
                 response.setContentLength((int) file.length());
 
@@ -571,9 +538,9 @@ class JbrowseController {
                 }
                 inputStream.close();
                 out.close();
-
             }
-        } else if (ranges.size() == 1) {
+        }
+        else if (ranges.size() == 1) {
             // Return single part of file.
             Range r = ranges.get(0);
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
