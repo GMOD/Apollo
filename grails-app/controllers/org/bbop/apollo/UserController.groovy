@@ -34,7 +34,8 @@ class UserController {
             , @RestApiParam(name = "length", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result length")
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Search name")
             , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column, default 'name'")
-            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true, default false")
+            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true (default false)")
+            , @RestApiParam(name = "omitEmptyOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Omits empty organism permissions from return (default false)")
     ])
     def loadUsers() {
         try {
@@ -63,8 +64,9 @@ class UserController {
             def offset = dataObject.start ?: 0
             def maxResults = dataObject.length ?: Integer.MAX_VALUE
             def searchName = dataObject.name ?: null
-            def sortName = dataObject.sortColumn ?: null
-            def sortAscending = dataObject.sortAscending ?: null
+            def sortName = dataObject.sortColumn ?: 'name'
+            def sortAscending = dataObject.sortAscending ?: true
+            def omitEmptyOrganisms = dataObject.omitEmptyOrganisms!=null ? dataObject.omitEmptyOrganisms : false
 
             def users = c.list(max: maxResults, offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
@@ -167,13 +169,15 @@ class UserController {
                     !organismsWithPermissions.contains(it.id)
                 }
 
-                for (Organism organism in organismList) {
-                    JSONObject organismJSON = new JSONObject()
-                    organismJSON.put("organism", organism.commonName)
-                    organismJSON.put("permissions", "[]")
-                    organismJSON.put("permissionArray", new JSONArray())
-                    organismJSON.put("userId", it.id)
-                    organismPermissionsArray.add(organismJSON)
+                if(!omitEmptyOrganisms){
+                    for (Organism organism in organismList) {
+                        JSONObject organismJSON = new JSONObject()
+                        organismJSON.put("organism", organism.commonName)
+                        organismJSON.put("permissions", "[]")
+                        organismJSON.put("permissionArray", new JSONArray())
+                        organismJSON.put("userId", it.id)
+                        organismPermissionsArray.add(organismJSON)
+                    }
                 }
 
 
