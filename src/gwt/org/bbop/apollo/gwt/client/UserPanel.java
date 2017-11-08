@@ -40,7 +40,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.gwtbootstrap3.extras.bootbox.client.callback.Callback;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
@@ -201,7 +200,7 @@ public class UserPanel extends Composite {
             @Override
             protected void onRangeChanged(HasData<UserInfo> display) {
                 final Range range = display.getVisibleRange();
-                final ColumnSortList sortList = dataGrid.getColumnSortList();
+//                final ColumnSortList sortList = dataGrid.getColumnSortList();
                 final int start = range.getStart();
                 final int length = range.getLength();
 
@@ -225,7 +224,7 @@ public class UserPanel extends Composite {
                 };
 
 
-                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
+//                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
 //                if (nameSortInfo.getColumn().isSortable()) {
 //                    Column<UserInfo, ?> sortColumn = (Column<UserInfo, ?>) sortList.get(0).getColumn();
 //                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
@@ -235,7 +234,7 @@ public class UserPanel extends Composite {
 ////                    UserRestService.loadUsers(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
 //                    UserRestService.loadUsers(requestCallback, start, length);
 //                }
-                UserRestService.loadUsers(requestCallback, start, length);
+                UserRestService.loadUsers(requestCallback, start, length,nameSearchBox.getText());
             }
         };
 
@@ -492,8 +491,7 @@ public class UserPanel extends Composite {
 
     @UiHandler(value = {"nameSearchBox"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
-        reload();
-//        filterSequences();
+        reload(true);
     }
 
 

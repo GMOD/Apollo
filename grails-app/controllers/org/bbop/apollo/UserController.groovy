@@ -59,6 +59,7 @@ class UserController {
             def c = User.createCriteria()
             def offset = dataObject.start?: 0
             def maxResults = dataObject.length ?: Integer.MAX_VALUE
+            def searchName = dataObject.searchName ?: null
 
             def users = c.list(max: maxResults , offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
@@ -66,6 +67,13 @@ class UserController {
                 }
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
+                }
+                if(searchName){
+//                    or{
+//                        like('firstname', '%'+searchName+'%')
+//                        like('lastname', '%'+searchName+'%')
+//                        like('username', '%'+searchName+'%')
+//                    }
                 }
             }.unique{ a, b ->
                 a.id <=> b.id
