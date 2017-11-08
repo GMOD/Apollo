@@ -17,7 +17,7 @@ if [[ ! -n "$url" || ! -n "$username" || ! -n "$password" ]]; then
 fi
 
 echo "Load all users"
-curl  -i -X POST -H 'Content-Type: application/json' -d "{'omitEmptyOrganisms':Grue,'username': '${username}', 'password': '${password}'}" "${url}/user/loadUsers"
+curl  -i -X POST -H 'Content-Type: application/json' -d "{'omitEmptyOrganisms':true,'username': '${username}', 'password': '${password}'}" "${url}/user/loadUsers"
 
 
 echo "Load one users with a given userId"
