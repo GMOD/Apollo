@@ -4,7 +4,8 @@ define([
            'dojo/_base/lang',
            'JBrowse/View/Track/Alignments',
            'WebApollo/View/Track/DraggableHTMLFeatures', 
-           'JBrowse/Util'
+           'JBrowse/Util',
+            'WebApollo/JSONUtils'
        ],
        function(
            declare,
@@ -12,7 +13,8 @@ define([
            lang,
            AlignmentsTrack,
            DraggableTrack, 
-           Util
+           Util,
+           JSONUtils
        ) {
 
 return declare([ DraggableTrack, AlignmentsTrack ], {
