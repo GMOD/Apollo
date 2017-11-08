@@ -1061,6 +1061,8 @@ return declare( [JBPlugin, HelpMixin,Evented],
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                 var sequenceObject ,sequenceString;
+                currRegion.start = Math.floor(currRegion.start);
+                currRegion.end = Math.ceil(currRegion.end);
                 if(thisB.runningApollo()){
                     var refObject = currRegion.ref.substr(0,currRegion.ref.lastIndexOf(':'))  +':'+ currRegion.start + ".."+currRegion.end ;
                     thisB.getApollo().setCurrentSequence(refObject);
