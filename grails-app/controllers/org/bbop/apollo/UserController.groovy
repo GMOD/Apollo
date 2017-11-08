@@ -178,11 +178,10 @@ class UserController {
 
                 userObject.organismPermissions = organismPermissionsArray
 
-                returnArray.put(userObject)
-            }
+                // could probably be done in a separate object
+                userObject.userCount = userCount
 
-            if (returnArray.size() > 0) {
-                returnArray.getJSONObject(0).put("userCount", userCount)
+                returnArray.put(userObject)
             }
 
             render returnArray as JSON
