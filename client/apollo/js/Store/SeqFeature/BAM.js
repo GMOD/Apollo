@@ -71,8 +71,8 @@ define( [
                             var feature = f[i];
                             if( feature._refID == chrId ) {
                                 // on the right ref seq
-                                var start = feature.isProjected ? feature.get('original_start') : feature.get('start');
-                                var end = feature.isProjected ? feature.get('original_end') : feature.get('end');
+                                var start = feature.isProjected ? feature.get('_original_start') : feature.get('start');
+                                var end = feature.isProjected ? feature.get('_original_end') : feature.get('end');
                                 if( start > max ) // past end of range, can stop iterating
                                     break;
                                 else if( end >= min ) // must be in range
