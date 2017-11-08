@@ -16,10 +16,10 @@ if [[ ! -n "$url" || ! -n "$username" || ! -n "$password" ]]; then
     exit
 fi
 
-echo "Load all users"
-curl  -i -X POST -H 'Content-Type: application/json' -d "{'omitEmptyOrganisms':true,'username': '${username}', 'password': '${password}'}" "${url}/user/loadUsers"
-
-
-echo "Load one users with a given userId"
-
-curl  -i -X POST -H 'Content-Type: application/json' -d "{'username': '${username}', 'password': '${password}','userId': ${userid}}" http://localhost:8080/apollo/user/loadUsers
+if [ ! -n "$userid" ]; then
+    echo "Load all users"
+    curl  -i -X POST -H 'Content-Type: application/json' -d "{'omitEmptyOrganisms':true,'username': '${username}', 'password': '${password}'}" "${url}/user/loadUsers"
+else
+    echo "Load one users with a given userId: ${userid}"
+    curl  -i -X POST -H 'Content-Type: application/json' -d "{'username': '${username}', 'password': '${password}','userId': ${userid}}" ${url}/user/loadUsers
+fi
