@@ -32,6 +32,8 @@ class UserController {
             , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
             , @RestApiParam(name = "start", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result start / offset")
             , @RestApiParam(name = "length", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result length")
+            , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column")
+            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true")
     ])
     def loadUsers() {
         try {
@@ -60,7 +62,7 @@ class UserController {
             def offset = dataObject.start ?: 0
             def maxResults = dataObject.length ?: Integer.MAX_VALUE
             def searchName = dataObject.name ?: null
-            def sortName = dataObject.sortName ?: null
+            def sortName = dataObject.sortColumn ?: null
             def sortAscending = dataObject.sortAscending ?: null
 
             def users = c.list(max: maxResults, offset: offset) {
