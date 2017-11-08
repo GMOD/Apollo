@@ -140,6 +140,10 @@ class UserController {
                 returnArray.put(userObject)
             }
 
+            if(returnArray.size()>0){
+                returnArray.getJSONObject(0).put("userCount",User.count)
+            }
+
             render returnArray as JSON
         }
         catch (Exception e) {

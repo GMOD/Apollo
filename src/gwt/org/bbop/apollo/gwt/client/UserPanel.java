@@ -209,12 +209,12 @@ public class UserPanel extends Composite {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
-//                        Integer sequenceCount = 0;
-//                        if (jsonArray != null && jsonArray.size() > 0) {
-//                            JSONObject jsonObject = jsonArray.get(0).isObject();
-//                            sequenceCount = (int) jsonObject.get("sequenceCount").isNumber().doubleValue();
-//                        }
-                        dataGrid.setRowCount(jsonArray.size(), true);
+                        Integer userCount = 0;
+                        if (jsonArray != null && jsonArray.size() > 0) {
+                            JSONObject jsonObject = jsonArray.get(0).isObject();
+                            userCount = (int) jsonObject.get("userCount").isNumber().doubleValue();
+                        }
+                        dataGrid.setRowCount(userCount, true);
                         dataGrid.setRowData(start, UserInfoConverter.convertFromJsonArray(jsonArray));
                     }
 
