@@ -35,7 +35,7 @@ class UserController {
     ])
     def loadUsers() {
         try {
-            JSONObject dataObject = permissionService.handleInput(request,params)
+            JSONObject dataObject = permissionService.handleInput(request, params)
             JSONArray returnArray = new JSONArray()
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -57,27 +57,45 @@ class UserController {
             }
 
             def c = User.createCriteria()
-            def offset = dataObject.start?: 0
+            def offset = dataObject.start ?: 0
             def maxResults = dataObject.length ?: Integer.MAX_VALUE
-            def searchName = dataObject.searchName ?: null
+            def searchName = dataObject.name ?: null
 
-            def users = c.list(max: maxResults , offset: offset) {
+            def users = c.list(max: maxResults, offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
                     eq('id', (Long) dataObject.userId)
                 }
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
-                if(searchName){
-//                    or{
-//                        like('firstname', '%'+searchName+'%')
-//                        like('lastname', '%'+searchName+'%')
-//                        like('username', '%'+searchName+'%')
-//                    }
+                if (searchName) {
+                    or {
+                        ilike('firstName', '%' + searchName + '%')
+                        ilike('lastName', '%' + searchName + '%')
+                        ilike('username', '%' + searchName + '%')
+                    }
                 }
-            }.unique{ a, b ->
+            }.unique { a, b ->
                 a.id <=> b.id
             }
+
+            int userCount = User.withCriteria{
+                if (dataObject.userId && dataObject.userId in Integer) {
+                    eq('id', (Long) dataObject.userId)
+                }
+                if (dataObject.userId && dataObject.userId in String) {
+                    eq('username', dataObject.userId)
+                }
+                if (searchName) {
+                    or {
+                        ilike('firstName', '%' + searchName + '%')
+                        ilike('lastName', '%' + searchName + '%')
+                        ilike('username', '%' + searchName + '%')
+                    }
+                }
+            }.unique { a, b ->
+                a.id <=> b.id
+            }.size()
 
             users.each {
                 def userObject = new JSONObject()
@@ -148,8 +166,8 @@ class UserController {
                 returnArray.put(userObject)
             }
 
-            if(returnArray.size()>0){
-                returnArray.getJSONObject(0).put("userCount",User.count)
+            if (returnArray.size() > 0) {
+                returnArray.getJSONObject(0).put("userCount", userCount)
             }
 
             render returnArray as JSON
@@ -167,20 +185,18 @@ class UserController {
         def currentUser = permissionService.currentUser
         preferenceService.evaluateSaves(true)
 
-
         // grab from session
-        if(!currentUser){
-            def authToken  = null
-            if(request.getParameter("username")){
+        if (!currentUser) {
+            def authToken = null
+            if (request.getParameter("username")) {
                 String username = request.getParameter("username")
                 String password = request.getParameter("password")
                 authToken = new UsernamePasswordToken(username, password)
             }
 
-            if(permissionService.authenticateWithToken(request)){
+            if (permissionService.authenticateWithToken(request)) {
                 currentUser = permissionService.currentUser
-            }
-            else{
+            } else {
                 log.error("Failed to authenticate")
             }
         }
@@ -321,7 +337,7 @@ class UserController {
 
             String roleString = dataObject.role ?: UserService.USER
             Role role = Role.findByName(roleString.toUpperCase())
-            if(!role){
+            if (!role) {
                 role = Role.findByName(UserService.USER)
             }
             log.debug "adding role: ${role}"
@@ -403,7 +419,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.sameUser(dataObject,request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject, request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -491,7 +507,7 @@ class UserController {
             render([(FeatureStringEnum.ERROR.value): "Failed to find organism with ${dataObject.organism}"] as JSON)
             return
         }
-        if(!user){
+        if (!user) {
             log.error("Failed to find user with ${dataObject.userId} OR ${dataObject.user}")
             render([(FeatureStringEnum.ERROR.value): "Failed to find user with ${dataObject.userId} OR ${dataObject.user}"] as JSON)
         }
@@ -525,7 +541,7 @@ class UserController {
             permissionsArray.add(PermissionEnum.READ.name())
         }
 
-        if(permissionsArray.size()==0){
+        if (permissionsArray.size() == 0) {
             userOrganismPermission.delete(flush: true)
             render userOrganismPermission as JSON
             return
