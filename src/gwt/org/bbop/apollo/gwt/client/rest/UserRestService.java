@@ -74,14 +74,16 @@ public class UserRestService {
     }
 
     public static void loadUsers(RequestCallback requestCallback) {
-        loadUsers(requestCallback,-1,-1,"");
+        loadUsers(requestCallback,-1,-1,"","name",true);
     }
 
-    public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length,String searchNameString) {
+    public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length, String searchNameString, String searchColumnString, Boolean sortNameAscending) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("start",new JSONNumber(start < 0 ? 0 : start));
         jsonObject.put("length",new JSONNumber(length < 0 ? 20 : length));
         jsonObject.put("name",new JSONString(searchNameString));
+        jsonObject.put("sortName",new JSONString(searchColumnString));
+        jsonObject.put("sortAscending",JSONBoolean.getInstance(sortNameAscending));
         RestService.sendRequest(requestCallback, "user/loadUsers/",jsonObject);
     }
 

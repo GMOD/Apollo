@@ -155,7 +155,7 @@ public class UserPanel extends Composite {
                 return user.getRole();
             }
         };
-        thirdNameColumn.setSortable(true);
+        thirdNameColumn.setSortable(false);
 
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(secondNameColumn, "Email");
@@ -169,38 +169,13 @@ public class UserPanel extends Composite {
                 updateUserInfo();
             }
         });
-
-
-//        dataProvider.addDataDisplay(dataGrid);
-//        pager.setDisplay(dataGrid);
-
         createOrganismPermissionsTable();
 
-//        ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(filteredUserInfoList);
-//        dataGrid.addColumnSortHandler(sortHandler);
-//        sortHandler.setComparator(firstNameColumn, new Comparator<UserInfo>() {
-//            @Override
-//            public int compare(UserInfo o1, UserInfo o2) {
-//                return o1.getName().compareTo(o2.getName());
-//            }
-//        });
-//        sortHandler.setComparator(secondNameColumn, new Comparator<UserInfo>() {
-//            @Override
-//            public int compare(UserInfo o1, UserInfo o2) {
-//                return o1.getEmail().compareTo(o2.getEmail());
-//            }
-//        });
-//        sortHandler.setComparator(thirdNameColumn, new Comparator<UserInfo>() {
-//            @Override
-//            public int compare(UserInfo o1, UserInfo o2) {
-//                return o1.getRole().compareTo(o2.getRole());
-//            }
-//        });
         dataProvider = new AsyncDataProvider<UserInfo>() {
             @Override
             protected void onRangeChanged(HasData<UserInfo> display) {
                 final Range range = display.getVisibleRange();
-//                final ColumnSortList sortList = dataGrid.getColumnSortList();
+                final ColumnSortList sortList = dataGrid.getColumnSortList();
                 final int start = range.getStart();
                 final int length = range.getLength();
 
@@ -224,17 +199,14 @@ public class UserPanel extends Composite {
                 };
 
 
-//                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
-//                if (nameSortInfo.getColumn().isSortable()) {
-//                    Column<UserInfo, ?> sortColumn = (Column<UserInfo, ?>) sortList.get(0).getColumn();
-//                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
-////                    String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "length" : "count";
-////                    Boolean sortNameAscending = nameSortInfo.isAscending();
-////                    UserRestService.getUserForOffsetAndMax(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
-////                    UserRestService.loadUsers(requestCallback, nameSearchBox.getText(), start, length, searchColumnString, sortNameAscending, minFeatureLength.getText(), maxFeatureLength.getText());
-//                    UserRestService.loadUsers(requestCallback, start, length);
-//                }
-                UserRestService.loadUsers(requestCallback, start, length,nameSearchBox.getText());
+                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
+                if (nameSortInfo.getColumn().isSortable()) {
+                    Column<UserInfo, ?> sortColumn = (Column<UserInfo, ?>) sortList.get(0).getColumn();
+                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
+                    String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "email" : "";
+                    Boolean sortNameAscending = nameSortInfo.isAscending();
+                    UserRestService.loadUsers(requestCallback, start, length,nameSearchBox.getText(), searchColumnString, sortNameAscending);
+                }
             }
         };
 
@@ -243,7 +215,6 @@ public class UserPanel extends Composite {
         dataGrid.addColumnSortHandler(columnSortHandler);
         dataGrid.getColumnSortList().push(firstNameColumn);
         dataGrid.getColumnSortList().push(secondNameColumn);
-        dataGrid.getColumnSortList().push(thirdNameColumn);
 
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
@@ -272,7 +243,6 @@ public class UserPanel extends Composite {
                     case USERS_RELOADED:
                         selectionModel.clear();
                         reload();
-//                        filterSequences();
                         break;
 
                 }
@@ -285,7 +255,6 @@ public class UserPanel extends Composite {
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
                     if(MainPanel.getInstance().isCurrentUserAdmin()) {
-//                        UserRestService.loadUsers(userInfoList);
                         reload(true);
                     }
                     return false ;
@@ -495,24 +464,6 @@ public class UserPanel extends Composite {
     }
 
 
-
-//    private void filterSequences() {
-//
-//        filteredUserInfoList.clear();
-//        String nameText = nameSearchBox.getText().toLowerCase().trim();
-//        if (nameText.length() > 0) {
-//            for (UserInfo userInfo : userInfoList) {
-//                if (userInfo.getName().toLowerCase().contains(nameText)
-//                        || userInfo.getEmail().toLowerCase().contains(nameText)
-//                        ) {
-//                    filteredUserInfoList.add(userInfo);
-//                }
-//            }
-//        } else {
-//            filteredUserInfoList.addAll(userInfoList);
-//        }
-//    }
-
     @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox"})
     public void updateInterface(KeyUpEvent keyUpEvent) {
         userIsSame();
@@ -566,7 +517,6 @@ public class UserPanel extends Composite {
                         saveButton.setEnabled(false);
                         cancelButton.setEnabled(false);
                         reload(true);
-//                        UserRestService.loadUsers(userInfoList);
                     }
                 }
 
@@ -708,13 +658,6 @@ public class UserPanel extends Composite {
         groupTable.setWidget(i, 1, new HTML(group));
     }
 
-//    public void reload() {
-//        if(MainPanel.getInstance().getCurrentUser()!=null) {
-//            UserRestService.loadUsers(userInfoList);
-//        }
-//        dataGrid.redraw();
-//    }
-
     public void reload() {
         reload(false);
     }
@@ -757,7 +700,7 @@ public class UserPanel extends Composite {
             });
         }
 
-        public String getGroupName() {
+        String getGroupName() {
             return groupName;
         }
     }

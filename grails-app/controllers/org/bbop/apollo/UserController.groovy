@@ -60,6 +60,8 @@ class UserController {
             def offset = dataObject.start ?: 0
             def maxResults = dataObject.length ?: Integer.MAX_VALUE
             def searchName = dataObject.name ?: null
+            def sortName = dataObject.sortName ?: null
+            def sortAscending = dataObject.sortAscending ?: null
 
             def users = c.list(max: maxResults, offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
@@ -73,6 +75,17 @@ class UserController {
                         ilike('firstName', '%' + searchName + '%')
                         ilike('lastName', '%' + searchName + '%')
                         ilike('username', '%' + searchName + '%')
+                    }
+                }
+                if(sortName){
+                    switch(sortName){
+                        case "name":
+                            order('firstName', sortAscending?"asc":"desc")
+                            order('lastName', sortAscending?"asc":"desc")
+                            break
+                        case "email":
+                            order('username', sortAscending?"asc":"desc")
+                            break
                     }
                 }
             }.unique { a, b ->
