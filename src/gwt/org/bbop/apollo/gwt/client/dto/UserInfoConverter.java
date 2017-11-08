@@ -16,6 +16,16 @@ import java.util.TreeMap;
  */
 public class UserInfoConverter {
 
+    public static List<UserInfo> convertFromJsonArray(JSONArray jsonArray) {
+
+        List<UserInfo> userInfoList = new ArrayList<>();
+        for(int i = 0 ; i < jsonArray.size() ; i++){
+            userInfoList.add(convertToUserInfoFromJSON(jsonArray.get(i).isObject()));
+        }
+
+        return userInfoList;
+    }
+
     public static UserInfo convertToUserInfoFromJSON(JSONObject object){
         UserInfo userInfo = new UserInfo();
 
@@ -98,4 +108,5 @@ public class UserInfoConverter {
         }
         return userInfo ;
     }
+
 }

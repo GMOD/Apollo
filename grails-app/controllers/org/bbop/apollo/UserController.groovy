@@ -30,10 +30,15 @@ class UserController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
+            , @RestApiParam(name = "start", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result start / offset")
+            , @RestApiParam(name = "length", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result length")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Search name")
+            , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column, default 'name'")
+            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true, default false")
     ])
     def loadUsers() {
         try {
-            JSONObject dataObject = permissionService.handleInput(request,params)
+            JSONObject dataObject = permissionService.handleInput(request, params)
             JSONArray returnArray = new JSONArray()
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -55,16 +60,59 @@ class UserController {
             }
 
             def c = User.createCriteria()
-            def users = c.list() {
+            def offset = dataObject.start ?: 0
+            def maxResults = dataObject.length ?: Integer.MAX_VALUE
+            def searchName = dataObject.name ?: null
+            def sortName = dataObject.sortColumn ?: null
+            def sortAscending = dataObject.sortAscending ?: null
+
+            def users = c.list(max: maxResults, offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
                     eq('id', (Long) dataObject.userId)
                 }
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
-            }.unique{ a, b ->
+                if (searchName) {
+                    or {
+                        ilike('firstName', '%' + searchName + '%')
+                        ilike('lastName', '%' + searchName + '%')
+                        ilike('username', '%' + searchName + '%')
+                    }
+                }
+                if(sortName){
+                    switch(sortName){
+                        case "name":
+                            order('firstName', sortAscending?"asc":"desc")
+                            order('lastName', sortAscending?"asc":"desc")
+                            break
+                        case "email":
+                            order('username', sortAscending?"asc":"desc")
+                            break
+                    }
+                }
+            }.unique { a, b ->
                 a.id <=> b.id
             }
+
+            int userCount = User.withCriteria{
+                if (dataObject.userId && dataObject.userId in Integer) {
+                    eq('id', (Long) dataObject.userId)
+                }
+                if (dataObject.userId && dataObject.userId in String) {
+                    eq('username', dataObject.userId)
+                }
+                if (searchName) {
+                    or {
+                        ilike('firstName', '%' + searchName + '%')
+                        ilike('lastName', '%' + searchName + '%')
+                        ilike('username', '%' + searchName + '%')
+                    }
+                }
+            }.unique { a, b ->
+                a.id <=> b.id
+            }.size()
+
             users.each {
                 def userObject = new JSONObject()
 
@@ -131,6 +179,10 @@ class UserController {
 
                 userObject.organismPermissions = organismPermissionsArray
 
+                // could probably be done in a separate object
+                userObject.userCount = userCount
+                userObject.searchName = searchName
+
                 returnArray.put(userObject)
             }
 
@@ -149,20 +201,18 @@ class UserController {
         def currentUser = permissionService.currentUser
         preferenceService.evaluateSaves(true)
 
-
         // grab from session
-        if(!currentUser){
-            def authToken  = null
-            if(request.getParameter("username")){
+        if (!currentUser) {
+            def authToken = null
+            if (request.getParameter("username")) {
                 String username = request.getParameter("username")
                 String password = request.getParameter("password")
                 authToken = new UsernamePasswordToken(username, password)
             }
 
-            if(permissionService.authenticateWithToken(request)){
+            if (permissionService.authenticateWithToken(request)) {
                 currentUser = permissionService.currentUser
-            }
-            else{
+            } else {
                 log.error("Failed to authenticate")
             }
         }
@@ -303,7 +353,7 @@ class UserController {
 
             String roleString = dataObject.role ?: UserService.USER
             Role role = Role.findByName(roleString.toUpperCase())
-            if(!role){
+            if (!role) {
                 role = Role.findByName(UserService.USER)
             }
             log.debug "adding role: ${role}"
@@ -385,7 +435,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.sameUser(dataObject,request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject, request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -473,7 +523,7 @@ class UserController {
             render([(FeatureStringEnum.ERROR.value): "Failed to find organism with ${dataObject.organism}"] as JSON)
             return
         }
-        if(!user){
+        if (!user) {
             log.error("Failed to find user with ${dataObject.userId} OR ${dataObject.user}")
             render([(FeatureStringEnum.ERROR.value): "Failed to find user with ${dataObject.userId} OR ${dataObject.user}"] as JSON)
         }
@@ -507,7 +557,7 @@ class UserController {
             permissionsArray.add(PermissionEnum.READ.name())
         }
 
-        if(permissionsArray.size()==0){
+        if (permissionsArray.size() == 0) {
             userOrganismPermission.delete(flush: true)
             render userOrganismPermission as JSON
             return
