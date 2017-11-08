@@ -444,8 +444,7 @@ JSONUtils.projectJSONFeature = function( feature, refSeqName ) {
 
 JSONUtils.unProjectCoordinates = function( refSeqName, start, end ) {
     var sequenceListObject = this.parseSequenceList(refSeqName);
-    // TODO: this is a hack! projectionLength will be different for MSPs
-    var projectionLength = sequenceListObject[0].end;
+    var projectionLength = parseInt(window.parent.getProjectionLength(refSeqName).toString());
 
     if (start > 0) {
         if (end < 0) {
