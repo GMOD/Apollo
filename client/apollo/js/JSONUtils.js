@@ -425,6 +425,85 @@ JSONUtils.parseSequenceList = function( refSeqName ) {
     return sequenceListObject;
 };
 
+JSONUtils.projectJSONFeature = function( feature, refSeqName ) {
+    var start = feature.get("start");
+    var end = feature.get("end");
+    var projectedArray = this.projectCoordinates(refSeqName, start, end);
+    feature.data.original_start = start;
+    feature.data.original_end = end;
+    feature.data.start = projectedArray[0];
+    feature.data.end = projectedArray[1];
+    feature.isProjected = true;
+    if (feature.data.subfeatures) {
+        for (var i = 0; i < feature.data.subfeatures.length; i++) {
+            this.projectJSONFeature(feature.data.subfeatures[i], refSeqName);
+        }
+    }
+    return feature;
+};
+
+JSONUtils.unProjectCoordinates = function( refSeqName, start, end ) {
+    var sequenceListObject = this.parseSequenceList(refSeqName);
+    // TODO: this is a hack! projectionLength will be different for MSPs
+    var projectionLength = sequenceListObject[0].end;
+
+    if (start > 0) {
+        if (end < 0) {
+            // request is to fetch something near the end of the projection
+            // and the requested end is outside the projection boundary.
+            // Thus, adjust end to max length of current projection
+            end = sequenceListObject[0].end;
+        }
+        else {
+            // request is to fetch something near the end of the projection
+            // and the requested end is outside the projection boundary.
+            // Thus, adjust end to max length of current projection
+            if (start < projectionLength && end > projectionLength) end = projectionLength;
+        }
+    }
+    else if (start < 0) {
+        if (end < 0) {
+            // do nothing
+        }
+        else {
+            // request is to fetch something at the start of the projection
+            // and the requested start is outside the projection boundary.
+            // Thus, adjust start to 0
+            start = 0;
+        }
+    }
+
+    var unprojectedStart = parseInt(window.parent.unProjectValue(refSeqName, start).toString());
+    var unprojectedEnd = parseInt(window.parent.unProjectValue(refSeqName, end).toString());
+    if (unprojectedStart > unprojectedEnd) {
+        // in a reverse projection, unprojected start will always be greater than unprojected end
+        start = unprojectedEnd;
+        end = unprojectedStart;
+    }
+    else {
+        start = unprojectedStart;
+        end = unprojectedEnd;
+    }
+
+    return [start, end];
+};
+
+JSONUtils.projectCoordinates = function( refSeqName, start, end ) {
+    var sequenceListObject = this.parseSequenceList(refSeqName);
+    var projectedStart = parseInt(window.parent.projectValue(refSeqName, start).toString());
+    var projectedEnd = parseInt(window.parent.projectValue(refSeqName, end).toString());
+    if (projectedStart > projectedEnd) {
+        start = projectedEnd;
+        end = projectedStart;
+    }
+    else {
+        start = projectedStart;
+        end = projectedEnd;
+    }
+
+    return [start, end];
+};
+
 // experimenting with forcing export of JSONUtils into global namespace...
 window.JSONUtils = JSONUtils;
 
