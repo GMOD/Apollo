@@ -157,10 +157,13 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
         var featCallback = dojo.hitch(this,function( feature ) {
             var uniqueId = feature.id();
             // project feature after it is fetched from the store
-            if ( !feature.isProjected ) {
-                feature = JSONUtils.projectJSONFeature(feature, this.refSeq.name);
+            if ( feature.isProjected ) {
+                uniqueId = feature.get('name')+'/'+feature.get('md')+'/'+feature.get('cigar')+'/'+feature.get('original_start')+'/'+feature.get('multi_segment_next_segment_reversed');
             }
-
+            else {
+                feature = JSONUtils.projectJSONFeature(feature, this.refSeq.name);
+                uniqueId = feature.get('name')+'/'+feature.get('md')+'/'+feature.get('cigar')+'/'+feature.get('original_start')+'/'+feature.get('multi_segment_next_segment_reversed');
+            }
             if( ! this._featureIsRendered( uniqueId ) ) {
                 if( this.filterFeature( feature ) )  {
                     var render = 1;
