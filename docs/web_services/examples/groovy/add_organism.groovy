@@ -25,6 +25,7 @@ cli.public('public', args: 0)
 cli.species('species', args: 1)
 cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
+cli.returnAllOrganisms('returnAllOrganisms (default true)', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 def admin_username
@@ -66,7 +67,8 @@ def argumentsArray = [
         blatdb    : options.blatdb ?: null,
         genus     : options.genus ?: null,
         species   : options.species ?: null,
-        publicMode: options.public
+        publicMode: options.public,
+        returnAllOrganisms : options.returnAllOrganisms ?: true 
 ]
 
 def client = new RESTClient(options.url)
