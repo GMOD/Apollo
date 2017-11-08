@@ -187,6 +187,12 @@ public class UserPanel extends Composite {
                         if (jsonArray != null && jsonArray.size() > 0) {
                             JSONObject jsonObject = jsonArray.get(0).isObject();
                             userCount = (int) jsonObject.get("userCount").isNumber().doubleValue();
+                            if(jsonObject.containsKey("searchName") && jsonObject.get("searchName").isString()!=null){
+                                String searchName = jsonObject.get("searchName").isString().stringValue();
+                                if(searchName.trim().length()>0 && !searchName.trim().equals(nameSearchBox.getText().trim())){
+                                    return ;
+                                }
+                            }
                         }
                         dataGrid.setRowCount(userCount, true);
                         dataGrid.setRowData(start, UserInfoConverter.convertFromJsonArray(jsonArray));
@@ -255,7 +261,7 @@ public class UserPanel extends Composite {
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
                     if(MainPanel.getInstance().isCurrentUserAdmin()) {
-                        reload(true);
+                        reload();
                     }
                     return false ;
                 }
@@ -460,7 +466,8 @@ public class UserPanel extends Composite {
 
     @UiHandler(value = {"nameSearchBox"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
-        reload(true);
+        pager.setPageStart(0);
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
 

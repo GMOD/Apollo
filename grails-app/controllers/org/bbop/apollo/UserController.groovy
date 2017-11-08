@@ -32,8 +32,9 @@ class UserController {
             , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
             , @RestApiParam(name = "start", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result start / offset")
             , @RestApiParam(name = "length", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result length")
-            , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column")
-            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Search name")
+            , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column, default 'name'")
+            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true, default false")
     ])
     def loadUsers() {
         try {
@@ -180,6 +181,7 @@ class UserController {
 
                 // could probably be done in a separate object
                 userObject.userCount = userCount
+                userObject.searchName = searchName
 
                 returnArray.put(userObject)
             }
