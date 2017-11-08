@@ -61,8 +61,7 @@ class OrganismController {
                     OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
                     organism.delete()
                     log.info "Success deleting organism: ${organismJson.organism}"
-                }
-                else {
+                } else {
                     log.error "Organism ${organismJson.organism} not found"
                 }
                 render findAllOrganisms()
@@ -107,24 +106,21 @@ class OrganismController {
                         log.debug "organism ${organism.id} was added via web services;"
                         File dataDirectory = new File(organismDirectory)
                         if (dataDirectory.deleteDir()) {
-                            log.info"dataDirectory: ${organismDirectory} deleted successfully."
-                        }
-                        else {
+                            log.info "dataDirectory: ${organismDirectory} deleted successfully."
+                        } else {
                             log.error "Could not delete data directory: ${organismDirectory}."
                             responseObject.put("warn", "Could not delete data directory: ${organismDirectory}")
                         }
-                    }
-                    else {
-                        log.warn"organism ${organism.id} was not added via web services; Organism deleted but cannot delete data directory ${organismDirectory}"
+                    } else {
+                        log.warn "organism ${organism.id} was not added via web services; Organism deleted but cannot delete data directory ${organismDirectory}"
                         responseObject.put("warn", "Organism ${organism.id} was not added via web services; Organism deleted but cannot delete data directory ${organismDirectory}.")
                         String extendedDataDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
                         File extendedDataDirectory = new File(extendedDataDirectoryName)
                         if (extendedDataDirectory.exists()) {
-                            log.info"Extended data directory found: ${extendedDataDirectoryName}"
+                            log.info "Extended data directory found: ${extendedDataDirectoryName}"
                             if (extendedDataDirectory.deleteDir()) {
                                 log.info "extended data directory found and deleted"
-                            }
-                            else {
+                            } else {
                                 log.error "Extended data directory found but could not be deleted"
                                 responseObject.put("warn", responseObject.get("warn") + " Extended data directory found but could not be deleted.")
                             }
@@ -133,13 +129,11 @@ class OrganismController {
                     //render organismAsJSON
                     responseObject.put("organism", JSON.parse(organismAsJSON.toString()) as JSONObject)
                     log.info "Success deleting organism: ${requestObject.organism}"
-                }
-                else {
+                } else {
                     log.error "Organism: ${requestObject.organism} not found"
                     responseObject.put("error", "Organism: ${requestObject.organism} not found.")
                 }
-            }
-            else {
+            } else {
                 log.error "username not authorized to delete organism"
                 responseObject.put("error", "username not authorized to delete organism.")
             }
@@ -265,14 +259,12 @@ class OrganismController {
                         returnObject.put("error", e.message)
                         organism.delete()
                     }
-                }
-                else {
-                    log.error"Could not create ${directoryName}"
+                } else {
+                    log.error "Could not create ${directoryName}"
                     returnObject.put("error", "Could not create ${directoryName}.")
                     organism.delete()
                 }
-            }
-            else {
+            } else {
                 log.error "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms"
                 returnObject.put("error", "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms.")
             }
@@ -392,13 +384,11 @@ class OrganismController {
                                 log.error e.printStackTrace()
                                 returnObject.put("error", e.message)
                             }
-                        }
-                        else {
+                        } else {
                             log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                             returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                         }
-                    }
-                    else {
+                    } else {
                         // trackDataFile is null; use data from trackFile and trackFileIndex, if available
                         if (trackFile) {
                             if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
@@ -423,15 +413,13 @@ class OrganismController {
                                     log.error e.printStackTrace()
                                     returnObject.put("error", e.message)
                                 }
-                            }
-                            else {
+                            } else {
                                 log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                                 returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                             }
                         }
                     }
-                }
-                else {
+                } else {
                     // organism data is somewhere on the server where we don't want to modify anything
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
@@ -439,15 +427,13 @@ class OrganismController {
                     if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
                         log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
-                    }
-                    else {
+                    } else {
                         String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
                         File extendedDirectory = new File(extendedDirectoryName)
                         if (extendedDirectory.exists()) {
                             // extended organism directory present in common data directory
                             log.debug "extended organism directory ${extendedDirectoryName} present in common data directory"
-                        }
-                        else {
+                        } else {
                             // make a new extended organism directory in common data directory
                             log.debug "creating extended organism directory ${extendedDirectoryName} in common data directory"
                             if (extendedDirectory.mkdirs()) {
@@ -456,8 +442,7 @@ class OrganismController {
                                 def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                 trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                 trackListJsonWriter.close()
-                            }
-                            else {
+                            } else {
                                 log.error "Cannot create directory ${extendedDirectoryName}"
                                 returnObject.put("error", "Cannot create directory ${extendedDirectoryName}.")
                             }
@@ -471,8 +456,7 @@ class OrganismController {
                             if (trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
                                 log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectoryName}/${EXTENDED_TRACKLIST}"
                                 returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectoryName}/${EXTENDED_TRACKLIST}.")
-                            }
-                            else {
+                            } else {
                                 // add track config to extendedTrackList.json
                                 extendedTracksArray.add(trackConfigObject)
                                 // unpack track data into organism directory
@@ -498,8 +482,7 @@ class OrganismController {
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 log.error "Organism not found"
                 returnObject.put("error", "Organism not found.")
             }
@@ -562,8 +545,7 @@ class OrganismController {
                             // track not found
                             log.error "Track with label '${trackLabel}' not found"
                             returnObject.put("error", "Track with label '${trackLabel}' not found.")
-                        }
-                        else {
+                        } else {
                             log.debug "Track with label '${trackLabel}' found; removing from extendedTrackList.json"
                             extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value).remove(trackObject)
                             String urlTemplate = trackObject.get(FeatureStringEnum.URL_TEMPLATE.value)
@@ -577,8 +559,7 @@ class OrganismController {
                                     trackListJsonWriter << extendedTrackListObject.toString(4)
                                     trackListJsonWriter.close()
                                 }
-                            }
-                            else {
+                            } else {
                                 log.error "track directory ${trackDir.getAbsolutePath()} not found"
                                 returnObject.put("error", "Track with label '${trackLabel}' removed from config but track directory not found.")
                                 // updating extendedTrackList.json
@@ -588,13 +569,11 @@ class OrganismController {
                             }
                             returnObject.put("track", trackObject)
                         }
-                    }
-                    else {
+                    } else {
                         log.error "Track with label '${trackLabel}' not found"
                         returnObject.put("error", "Track with label '${trackLabel}' not found.")
                     }
-                }
-                else {
+                } else {
                     // track found in trackList.json
                     log.debug "track with label '${trackLabel}' found in trackList.json"
                     if (organism.dataAddedViaWebServices) {
@@ -612,8 +591,7 @@ class OrganismController {
                                 trackListJsonWriter << trackListObject.toString(4)
                                 trackListJsonWriter.close()
                             }
-                        }
-                        else {
+                        } else {
                             log.error "track directory ${trackDir.getAbsolutePath()} not found"
                             returnObject.put("error", "Track with label '${trackLabel}' removed from config but track directory not found.")
                             // updating trackList.json
@@ -622,15 +600,13 @@ class OrganismController {
                             trackListJsonWriter.close()
                         }
                         returnObject.put("track", trackObject)
-                    }
-                    else {
+                    } else {
                         // cannot delete track since its part of the main data directory
                         log.error "Track with label '${trackLabel}' found but is part of the main data directory and cannot be deleted."
                         returnObject.put("error", "Track with label '${trackLabel}' found but is part of the main data directory and cannot be deleted.")
                     }
                 }
-            }
-            else {
+            } else {
                 log.error("Organism not found")
                 returnObject.put("error", "Organism not found.")
             }
@@ -708,8 +684,7 @@ class OrganismController {
                     if (trackObject == null) {
                         log.error "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'"
                         returnObject.put("error", "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'.")
-                    }
-                    else {
+                    } else {
                         // replaces track config
                         tracksArray.remove(trackObject)
                         tracksArray.add(trackConfigObject)
@@ -722,8 +697,7 @@ class OrganismController {
                         returnObject.put("oldTrackConfig", trackObject)
                         returnObject.put("newTrackConfig", trackConfigObject)
                     }
-                }
-                else {
+                } else {
                     // organism data is somewhere on the server where we don't want to modify anything
                     log.debug "organism data is somewhere on the FS"
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
@@ -735,8 +709,7 @@ class OrganismController {
                         // cannot update track config
                         log.error "Track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' found but is part of the main data directory and cannot be updated."
                         returnObject.put("error", "Track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' found but is part of the main data directory and cannot be updated.")
-                    }
-                    else {
+                    } else {
                         String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
                         File extendedDirectory = new File(extendedDirectoryName)
                         if (extendedDirectory.exists()) {
@@ -750,8 +723,7 @@ class OrganismController {
                             if (trackObject == null) {
                                 log.error "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'"
                                 returnObject.put("error", "Cannot find track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'.")
-                            }
-                            else {
+                            } else {
                                 // replaces track config
                                 extendedTracksArray.remove(trackObject)
                                 extendedTracksArray.add(trackConfigObject)
@@ -764,15 +736,13 @@ class OrganismController {
                                 returnObject.put("oldTrackConfig", trackObject)
                                 returnObject.put("newTrackConfig", trackConfigObject)
                             }
-                        }
-                        else {
+                        } else {
                             log.error "Extended organism directory does not exist; Cannot find track with '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'."
                             returnObject.put("error", "Cannot find track with '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}'.")
                         }
                     }
                 }
-            }
-            else {
+            } else {
                 log.error "Organism not found"
                 returnObject.put("error", "Organism not found.")
             }
@@ -788,13 +758,14 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for the organisms data directory (required)")
-            , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
-            , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
-            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
-            , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
-            , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "a name used for the organism")
-            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
+            , @RestApiParam(name = "directory", type = "string", paramType = RestApiParamType.QUERY, description = "Filesystem path for the organisms data directory (required)")
+            , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "A name used for the organism")
+            , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Species name")
+            , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Species genus")
+            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Filesystem path for a BLAT database (e.g. a .2bit file)")
+            , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) A flag for whether the organism appears as in the public genomes list (default false)")
+            , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism metadata")
+            , @RestApiParam(name = "returnAllOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Return all organisms (true / false) (default true)")
     ])
     @Transactional
     def addOrganism() {
@@ -814,7 +785,7 @@ class OrganismController {
                         , species: organismJson.species
                         , genus: organismJson.genus
                         , metadata: organismJson.metadata
-                        , nonDefaultTranslationTable:  organismJson.nonDefaultTranslationTable ?: null
+                        , nonDefaultTranslationTable: organismJson.nonDefaultTranslationTable ?: null
                         , publicMode: organismJson.publicMode ?: false
                 )
                 log.debug "organism ${organism as JSON}"
@@ -832,10 +803,13 @@ class OrganismController {
 //                if (request.getFile("sequenceData)")) {
 //
 //                }
-
                 sequenceService.loadRefSeqs(organism)
+
                 preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
-                render findAllOrganisms()
+                Boolean returnAllOrganisms = organismJson.returnAllOrganisms ? Boolean.valueOf(organismJson.returnAllOrganisms): true
+
+                render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
+
             } else {
                 def error = [error: 'not authorized to add organism']
                 render error as JSON
@@ -929,7 +903,6 @@ class OrganismController {
     ])
     @Transactional
     def updateOrganismInfo() {
-        println"updating organism info ${params}"
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
