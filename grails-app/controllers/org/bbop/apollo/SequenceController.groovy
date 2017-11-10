@@ -5,19 +5,24 @@ import grails.transaction.Transactional
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.session.Session
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.bbop.apollo.report.SequenceSummary
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 
+import javax.servlet.http.HttpServletResponse
+
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
+@RestApi(name = "Sequence Services", description = "Methods for retrieving sequence data")
 @Transactional(readOnly = true)
 class SequenceController {
 
@@ -34,6 +39,13 @@ class SequenceController {
 
     def permissions() {}
 
+    def beforeInterceptor = {
+        if (params.action == "sequenceByName"
+                || params.action == "sequenceByLocation"
+        ) {
+            response.setHeader("Access-Control-Allow-Origin", "*")
+        }
+    }
 
     @Transactional
     def setCurrentSequenceLocation(String name, Integer start, Integer end) {
@@ -233,33 +245,60 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data as an JSON within an range", path = "/track/<organism name>/<track name>/<sequence name>:<fmin>..<fmax>.<type>?name=<name>&onlySelected=<onlySelected>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data within a range", path = "/track/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "fmin", type = "integer", paramType = RestApiParamType.QUERY, description = "Minimum range(required)")
             , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
-//            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = ".json or .svg")
+            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
-    String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
+    String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax, String type) {
+
+        Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        Map paramMap = new TreeMap<>()
+
+        if (!ignoreCache) {
+            String responseString = sequenceService.checkCache(organismString, sequenceName, fmin, fmax, type, paramMap)
+            if (responseString) {
+                render responseString
+                return
+            }
+        }
+
         Organism organism = Organism.findByCommonName(organismString) ?: Organism.findById(organismString as Long)
         Sequence sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
 
-        Strand strand = params.strand ? Strand.getStrandForValue(params.strand as Integer): Strand.POSITIVE
-        render sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, fmin, fmax, strand)
+        Strand strand = params.strand ? Strand.getStrandForValue(params.strand as Integer) : Strand.POSITIVE
+        String sequenceString = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, fmin, fmax, strand)
+        sequenceService.cacheRequest(sequenceString, organismString, sequenceName, fmin, fmax, type, paramMap)
+        render sequenceString
 
     }
 
-    @RestApiMethod(description = "Get sequence data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data as for a selected name", path = "/track/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
-//            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
-            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = ".json or .svg")
+            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
+            , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
+
+        Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        Map paramMap = new TreeMap<>()
+        paramMap.put("name", featureName)
+
+
+        if (!ignoreCache) {
+            String responseString = sequenceService.checkCache(organismString, sequenceName, featureName, type, paramMap)
+            if (responseString) {
+                render responseString
+                return
+            }
+        }
+
         Feature feature = Feature.findByUniqueName(featureName)
         if (!feature) {
             def features = Feature.findAllByName(featureName)
@@ -278,9 +317,63 @@ class SequenceController {
         if (feature) {
             String sequenceString = sequenceService.getSequenceForFeature(feature, type)
             render sequenceString
+            sequenceService.cacheRequest(sequenceString, organismString, sequenceName, featureName, type, paramMap)
+            return
         } else {
             response.status = 404
         }
     }
 
+    @RestApiMethod(description = "Remove track cache for an organism and track", path = "/track/cache/clear/<organism name>/<track name>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
+            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
+    ])
+    @Transactional
+    def clearSequenceCache(String organismName, String sequenceName) {
+        if (!checkPermission(organismName)) return
+        int removed = SequenceCache.countByOrganismNameAndSequenceName(organismName, sequenceName)
+        SequenceCache.deleteAll(SequenceCache.findAllByOrganismNameAndSequenceName(organismName, sequenceName))
+        render new JSONObject(removed: removed) as JSON
+    }
+
+    @RestApiMethod(description = "Remove sequence cache for an organism", path = "/sequence/cache/clear/<organism name>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required) or 'ALL' if admin")
+    ])
+    @Transactional
+    def clearOrganismCache(String organismName) {
+        if (organismName.toLowerCase().equals("all") && permissionService.isAdmin()) {
+            log.info "Deleting cache for all organisms"
+            JSONArray jsonArray = new JSONArray()
+            Organism.all.each { organism ->
+                int removed = SequenceCache.countByOrganismName(organism.commonName)
+                SequenceCache.deleteAll(SequenceCache.findAllByOrganismName(organism.commonName))
+                JSONObject jsonObject = new JSONObject(name: organism.commonName, removed: removed) as JSONObject
+                jsonArray.add(jsonObject)
+            }
+
+            render jsonArray as JSON
+        } else {
+            log.info "Deleting cache for ${organismName}"
+            if (!checkPermission(organismName)) return
+            int removed = SequenceCache.countByOrganismName(organismName)
+            SequenceCache.deleteAll(SequenceCache.findAllByOrganismName(organismName))
+            render new JSONObject(removed: removed) as JSON
+        }
+
+    }
+
+    def checkPermission(String organismString) {
+        Organism organism = preferenceService.getOrganismForToken(organismString)
+        if (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ)) {
+            return true
+        } else {
+            // not accessible to the public
+            response.status = HttpServletResponse.SC_FORBIDDEN
+            render ""
+            return false
+        }
+
+    }
 }
