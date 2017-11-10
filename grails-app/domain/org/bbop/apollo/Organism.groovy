@@ -45,7 +45,7 @@ class Organism {
             , groupPermissions: GroupOrganismPermission
     ]
 
-    public String getTrackList() {
+    String getTrackList() {
         if (!directory) {
             return null
         } else {
@@ -53,7 +53,7 @@ class Organism {
         }
     }
 
-    public String getRefseqFile() {
+    String getRefseqFile() {
         if (!directory) {
             return null
         } else {
@@ -61,11 +61,11 @@ class Organism {
         }
     }
 
-    public String getGenomeFastaFileName() {
+    String getGenomeFastaFileName() {
         return genomeFasta ? directory + File.separator + genomeFasta : null
     }
 
-    public String getGenomeFastaIndexFileName() {
+    String getGenomeFastaIndexFileName() {
         return genomeFastaIndex ? directory + File.separator + genomeFastaIndex : null
     }
 
