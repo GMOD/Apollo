@@ -915,7 +915,7 @@ class OrganismController {
                 organism.genus = organismJson.genus ?: null
                 organism.metadata = organismJson.metadata ?: null
                 organism.directory = organismJson.directory
-                organism.publicMode = organismJson.publicMode ?: null
+                organism.publicMode = organismJson.publicMode ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
 
                 if (checkOrganism(organism)) {
