@@ -111,11 +111,17 @@ class AnnotatorController {
         }
 
         String queryParamString = ""
+
+        String servletInfo  = servletContext.getServerInfo()
+        Boolean doHack = servletInfo.contains("Tomcat") ? servletInfo.contains("/8.0") || servletInfo.contains("/7.") : false
+        println "server infp ${servletInfo} --> doHack ${doHack}"
+
+
         def keyList = []
         // this fixes a bug in addStores being duplicated or processed incorrectly
         for (p in params) {
             // if "addStores is not being processed correclty, this will fix it
-            if (p.key.startsWith("addStores=")) {
+            if (p.key.startsWith("addStores=") && doHack) {
                 if (!p.value) {
                     queryParamString += "&" + p.key
                     keyList << "addStores"
@@ -127,7 +133,8 @@ class AnnotatorController {
         }
 
         // for some reason the addTracks requires the context path, which seems to be an obscure bug in grails
-        if (queryParamString.contains("addTracks")) {
+
+        if (queryParamString.contains("addTracks") && doHack) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
         } else {
             redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString

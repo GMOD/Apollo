@@ -52,6 +52,9 @@ class SecurityFilters {
                                 def targetUri = "/${controllerName}/${actionName}"
                                 int paramCount = 0
                                 def paramString = ""
+                                String servletInfo  = servletContext.getServerInfo()
+                                Boolean doHack = servletInfo.contains("Tomcat") ? servletInfo.contains("/8.0") || servletInfo.contains("/7.") : false
+                                println "Security Filter server infp ${servletInfo} --> doHack ${doHack}"
                                 for(p in params){
                                     if(p.key!="controller" && p.key!="action"){
                                         paramString += paramCount==0 ? "?" : "&"
@@ -65,7 +68,7 @@ class SecurityFilters {
                                             key = p.key.substring(lastIndex)
                                         }
                                         else
-                                        if(p.key.startsWith("addStores")){
+                                        if(p.key.startsWith("addStores") && doHack){
                                             value = URLEncoder.encode(value,"UTF-8")
                                         }
                                         paramString += key +"="+ value
