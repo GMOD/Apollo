@@ -40,6 +40,7 @@
         <li>Grails version: <g:meta name="app.grails.version"/></li>
         <li>Groovy version: ${GroovySystem.getVersion()}</li>
         <li>JVM version: ${System.getProperty('java.version')}</li>
+        <li>Servlet Container Version: ${application.getServerInfo()}</li>
     </ul>
 
 </div>
