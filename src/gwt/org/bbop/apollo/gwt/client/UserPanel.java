@@ -673,7 +673,7 @@ public class UserPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
-        if (MainPanel.getInstance().getSequencePanel().isVisible() || forceReload) {
+        if (MainPanel.getInstance().getUserPanel().isVisible() || forceReload) {
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
             dataGrid.redraw();

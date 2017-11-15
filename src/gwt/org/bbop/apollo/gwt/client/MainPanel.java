@@ -804,7 +804,7 @@ public class MainPanel extends Composite {
                 organismPanel.reload();
                 break;
             case 4:
-                userPanel.reload();
+                userPanel.reload(true);
                 break;
             case 5:
                 userGroupPanel.reload();
@@ -1112,6 +1112,10 @@ public class MainPanel extends Composite {
 
     public static SequencePanel getSequencePanel() {
         return sequencePanel;
+    }
+
+    public static UserPanel getUserPanel() {
+        return userPanel;
     }
 
     public static TrackPanel getTrackPanel() {
