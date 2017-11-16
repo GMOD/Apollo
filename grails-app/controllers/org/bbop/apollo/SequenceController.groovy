@@ -277,9 +277,9 @@ class SequenceController {
 
     @RestApiMethod(description = "Get sequence data as for a selected name", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
-            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
-            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
-            , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
+            @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)")
+            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
+            , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "The uniqueName (UUID) or given name of the feature (typically transcript) of the element to retrieve sequence from")
             , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
