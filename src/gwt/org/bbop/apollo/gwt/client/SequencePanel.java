@@ -30,7 +30,6 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
@@ -44,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.bbop.apollo.gwt.client.MainPanel.sequenceSuggestBox;
 
 /**
  * Created by ndunn on 12/17/14.
@@ -386,7 +384,6 @@ public class SequencePanel extends Composite {
         } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportChadoButton.getText();
         }
-//        GWT.log("Type selected is " + type);
 
         ExportPanel exportPanel = new ExportPanel(organismInfo, type, exportAll, sequenceInfoList);
         exportPanel.show();
