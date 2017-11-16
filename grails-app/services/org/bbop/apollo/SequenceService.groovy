@@ -558,9 +558,9 @@ class SequenceService {
         return SequenceCache.findByOrganismNameAndSequenceNameAndFeatureNameAndTypeAndParamMap(organismString, sequenceName, featureName, type, mapString)?.response
     }
 
-    String checkCache(String organismString, String sequenceName, Long fmin, Long fmax, String type, Map paramMap) {
+    String checkCache(String organismString, String sequenceName, Long fmin, Long fmax,  Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
-        return SequenceCache.findByOrganismNameAndSequenceNameAndFminAndFmaxAndTypeAndParamMap(organismString, sequenceName, fmin, fmax, type, mapString)?.response
+        return SequenceCache.findByOrganismNameAndSequenceNameAndFminAndFmaxAndParamMap(organismString, sequenceName, fmin, fmax, mapString)?.response
     }
 
     @Transactional
@@ -579,14 +579,13 @@ class SequenceService {
     }
 
     @Transactional
-    def cacheRequest(String responseString, String organismString, String sequenceName, Long fmin, Long fmax, String type, Map paramMap) {
+    def cacheRequest(String responseString, String organismString, String sequenceName, Long fmin, Long fmax, Map paramMap) {
         SequenceCache sequenceCache = new SequenceCache(
                 response: responseString
                 , organismName: organismString
                 , sequenceName: sequenceName
                 , fmin: fmin
                 , fmax: fmax
-                , type: type
         )
         if (paramMap) {
             sequenceCache.paramMap = (paramMap as JSON).toString()

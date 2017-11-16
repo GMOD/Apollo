@@ -87,13 +87,11 @@ class SequenceController {
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         JSONObject inputObject = permissionService.handleInput(request, params)
-        println "setting the current sequence here: ${inputObject}"
         String token = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         Organism organism = sequenceInstance.organism
 
         User currentUser = permissionService.currentUser
         UserOrganismPreferenceDTO userOrganismPreference = preferenceService.setCurrentSequence(currentUser, sequenceInstance, token)
-        println "set current sequence and found: ${userOrganismPreference} start /stop ${userOrganismPreference?.startbp} / ${userOrganismPreference?.endbp}"
 
         Session session = SecurityUtils.subject.getSession(false)
         session.setAttribute(FeatureStringEnum.DEFAULT_SEQUENCE_NAME.value, sequenceInstance.name)
@@ -245,7 +243,7 @@ class SequenceController {
         render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
-    @RestApiMethod(description = "Get sequence data within a range", path = "/track/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data within a range", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
@@ -253,13 +251,14 @@ class SequenceController {
             , @RestApiParam(name = "fmax", type = "integer", paramType = RestApiParamType.QUERY, description = "Maximum range (required)")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
-    String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax, String type) {
+    @Transactional
+    String sequenceByLocation(String organismString, String sequenceName, int fmin, int fmax) {
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
 
         if (!ignoreCache) {
-            String responseString = sequenceService.checkCache(organismString, sequenceName, fmin, fmax, type, paramMap)
+            String responseString = sequenceService.checkCache(organismString, sequenceName, fmin, fmax,  paramMap)
             if (responseString) {
                 render responseString
                 return
@@ -271,19 +270,20 @@ class SequenceController {
 
         Strand strand = params.strand ? Strand.getStrandForValue(params.strand as Integer) : Strand.POSITIVE
         String sequenceString = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, fmin, fmax, strand)
-        sequenceService.cacheRequest(sequenceString, organismString, sequenceName, fmin, fmax, type, paramMap)
+        sequenceService.cacheRequest(sequenceString, organismString, sequenceName, fmin, fmax,  paramMap)
         render sequenceString
 
     }
 
-    @RestApiMethod(description = "Get sequence data as for a selected name", path = "/track/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Get sequence data as for a selected name", path = "/sequence/<organism name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)")
             , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name(required)")
             , @RestApiParam(name = "featureName", type = "string", paramType = RestApiParamType.QUERY, description = "If top-level feature 'id' matches, then annotate with 'selected'=1")
-            , @RestApiParam(name = "type", type = "json/svg", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
+            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "(default genomic) Return type: genomic, cds, cdna, peptide")
             , @RestApiParam(name = "ignoreCache", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false).  Use cache for request if available.")
     ])
+    @Transactional
     String sequenceByName(String organismString, String sequenceName, String featureName, String type) {
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
@@ -316,18 +316,19 @@ class SequenceController {
 
         if (feature) {
             String sequenceString = sequenceService.getSequenceForFeature(feature, type)
-            render sequenceString
-            sequenceService.cacheRequest(sequenceString, organismString, sequenceName, featureName, type, paramMap)
-            return
-        } else {
-            response.status = 404
+            if(sequenceString?.trim()){
+                render sequenceString
+                sequenceService.cacheRequest(sequenceString, organismString, sequenceName, featureName, type, paramMap)
+                return
+            }
         }
+        response.status = 404
     }
 
-    @RestApiMethod(description = "Remove track cache for an organism and track", path = "/track/cache/clear/<organism name>/<track name>", verb = RestApiVerb.GET)
+    @RestApiMethod(description = "Remove sequence cache for an organism and sequence", path = "/sequence/cache/clear/<organism name>/<sequence name>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
-            , @RestApiParam(name = "trackName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
+            , @RestApiParam(name = "sequenceName", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name (required)")
     ])
     @Transactional
     def clearSequenceCache(String organismName, String sequenceName) {
