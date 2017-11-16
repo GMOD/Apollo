@@ -42,6 +42,18 @@ Download Apollo from the [latest release](https://github.com/GMOD/Apollo/release
 
 If you get an ```Unsupported major.minor error``` or similar, please confirm that the version of java that tomcat is running ```ps -ef | grep java``` is the same as the one you used to build.  Setting JAVA_HOME to the Java 8 JDK should fix most problems.
 
+
+#### JSON in the URL with newer versions of Tomcat
+
+When JSON is added to the URL string (e.g., `addStores` and `addTracks`) you may get this error with newer patched versions of Tomcat 7.0.73, 8.0.39, 8.5.7:
+
+     java.lang.IllegalArgumentException: Invalid character found in the request target. The valid characters are defined in RFC 7230 and RFC 3986
+
+To fix these, the best solution we've come up with (and there may be many) is to explicitly allow these characters, which you can do starting with Tomcat versions: 7.0.76, 8.0.42, 8.5.12.
+This is done by adding the following line to `$CATALINA_HOME/conf/catalina.properties`:
+
+    tomcat.util.http.parser.HttpParser.requestTargetAllow=|{}
+
 ### Database configuration
 
 Apollo supports several database backends, and you can choose sample configurations from using H2, Postgres, or
