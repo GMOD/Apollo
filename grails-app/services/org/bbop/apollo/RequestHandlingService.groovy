@@ -1912,6 +1912,7 @@ class RequestHandlingService {
                     gene.save()
 
                     def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
+                    featureService.updateGeneBoundaries(gene)
                     if (transcriptsToUpdate.size() > 0) {
                         JSONObject updateFeatureContainer = createJSONFeatureContainer()
                         transcriptsToUpdate.each {

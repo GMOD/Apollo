@@ -3841,4 +3841,59 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert gene.fmax == 735570
 
     }
+
+    void "genes should conform to isoform length"(){
+
+        given: "GB40751-RA"
+        String addTranscriptString = "{ ${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":675719,\"fmax\":680586,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40751-RA\",\"children\":[{\"location\":{\"fmin\":675719,\"fmax\":676397,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":678693,\"fmax\":680586,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":678693,\"fmax\":680586,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\" }"
+
+        when: "we add the transcripts"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see a gene and two isoforms"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert Exon.count == 4
+
+        when: "we delete overlapping exons"
+        def mrna1 = MRNA.all.first()
+        def exon1s = featureRelationshipService.getChildrenForFeatureAndTypes(mrna1,Exon.ontologyId).sort(){ a,b ->
+            a.fmin <=> b.fmin
+        }
+        def firstExon1 = exon1s.first()
+
+        def mrna2 = MRNA.all.last()
+        def exon2s = featureRelationshipService.getChildrenForFeatureAndTypes(mrna2,Exon.ontologyId).sort(){ a,b ->
+            a.fmin <=> b.fmin
+        }
+        def lastExon2 = exon2s.last()
+
+        String deleteFeatureString = "{ ${testCredentials} \"track\":\"Group1.10\",\"operation\":\"delete_feature\",\"features\":[{\"uniquename\":\"@UNIQUE_NAME@\"}]}"
+
+        requestHandlingService.deleteFeature(JSON.parse(deleteFeatureString.replace("@UNIQUE_NAME@",firstExon1.uniqueName)))
+        requestHandlingService.deleteFeature(JSON.parse(deleteFeatureString.replace("@UNIQUE_NAME@",lastExon2.uniqueName)))
+
+        def allMRNA = MRNA.all
+        def allGene = Gene.all
+        def allExon = Exon.all
+
+
+        then: "we expect a different gene"
+        assert MRNA.count == 2
+        assert Exon.count == 2
+        assert Gene.count == 2
+
+        when: "we get the left-most gene / MRNA"
+        def gene1MRNA = featureRelationshipService.getChildrenForFeatureAndTypes(Gene.first(),MRNA.ontologyId).first()
+        def gene2MRNA = featureRelationshipService.getChildrenForFeatureAndTypes(Gene.last(),MRNA.ontologyId).first()
+
+
+        then: "they should have the same fmin / fmax "
+        assert gene2MRNA.fmin == Gene.last().fmin
+        assert gene2MRNA.fmax == Gene.last().fmax
+        assert gene1MRNA.fmin == Gene.first().fmin
+        assert gene1MRNA.fmax == Gene.first().fmax
+
+    }
 }
