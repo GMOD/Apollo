@@ -6,6 +6,7 @@ Features
 
 - Added the ability to annotate from high performance [Alignments2](http://gmod.org/wiki/JBrowse_Configuration_Guide#Alignments2) BAM reads [#1789](https://github.com/GMOD/Apollo/pull/1789)
 - Added support for indexed FASTA to be used as reference sequence. [#1791](https://github.com/GMOD/Apollo/pull/1791)
+- Added sequence API [#1799](https://github.com/GMOD/Apollo/pull/1799)
 
 Bugfixes 
 
@@ -18,6 +19,9 @@ Bugfixes
 - Fixes build issues [#1756](https://github.com/GMOD/Apollo/issues/1756) [#1752](https://github.com/GMOD/Apollo/issues/1752) [#1773](https://github.com/GMOD/Apollo/issues/1773)
 - Fixes error in SQL query for listing alterations [#1754](https://github.com/GMOD/Apollo/issues/1754)
 - Minimum node version is version 6
+- Fix UserPanel for a large number of users [#1800](https://github.com/GMOD/Apollo/pull/1800)
+- Fixes recalculated gene positions for some delete exon operations [#1808](https://github.com/GMOD/Apollo/issues/1808)
+- Fix big when updating organism via web-service [#1804](https://github.com/GMOD/Apollo/issues/1804)
 
 
 ## 2.0.7
