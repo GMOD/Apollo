@@ -4,7 +4,7 @@ define([
         'dojo/_base/array',
         'dojo/Deferred',
         'JBrowse/Util',
-        'WebApollo/JSONUtils'
+        'WebApollo/ProjectionUtils'
     ],
     function(
         declare,
@@ -12,7 +12,7 @@ define([
         array,
         Deferred,
         Util,
-        JSONUtils
+        ProjectionUtils
     ) {
 
         return declare( null, {
@@ -59,9 +59,9 @@ define([
                 };
 
                 // get just the sequence name from the sequenceList
-                var sequenceList = JSONUtils.parseSequenceList(this.refSeq.name);
+                var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
                 if (sequenceList[0].reverse) {
-                    errorCallback(JSONUtils.NOT_YET_SUPPORTED_MESSAGE)
+                    errorCallback(ProjectionUtils.NOT_YET_SUPPORTED_MESSAGE)
                 }
                 else {
                     region.ref = sequenceList[0].name;

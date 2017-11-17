@@ -3,14 +3,14 @@ define([
         'dojo/dom-construct',
         'dojo/_base/array',
         'JBrowse/Util',
-        'WebApollo/JSONUtils'
+        'WebApollo/ProjectionUtils'
     ],
     function(
         declare,
         domConstruct,
         array,
         Util,
-        JSONUtils
+        ProjectionUtils
     ) {
 
         return declare( null, {
@@ -63,9 +63,9 @@ define([
                     finishCallback(e);
                 });
 
-                var sequenceList = JSONUtils.parseSequenceList(this.refSeq.name);
+                var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
                 if (sequenceList[0].reverse) {
-                    errorCallback(JSONUtils.NOT_YET_SUPPORTED_MESSAGE)
+                    errorCallback(ProjectionUtils.NOT_YET_SUPPORTED_MESSAGE)
                 }
                 else {
                     var refSeqName = sequenceList[0].name;

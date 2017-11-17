@@ -5,7 +5,7 @@ define([
         'dojo/when',
         'dojo/promise/all',
         'JBrowse/Util',
-        'WebApollo/JSONUtils'
+        'WebApollo/ProjectionUtils'
     ],
     function(
         declare,
@@ -14,7 +14,7 @@ define([
         when,
         all,
         Util,
-        JSONUtils
+        ProjectionUtils
     ) {
 
         // Helper object that wraps a feature and which store it comes from
@@ -69,9 +69,9 @@ define([
                 // featureArrays will be a map from the names of the stores to an array of each store's features
                 var featureArrays = {};
 
-                var sequenceList = JSONUtils.parseSequenceList(query.ref);
+                var sequenceList = ProjectionUtils.parseSequenceList(query.ref);
                 if (sequenceList[0].reverse) {
-                    errorCallback(JSONUtils.NOT_YET_SUPPORTED_MESSAGE);
+                    errorCallback(ProjectionUtils.NOT_YET_SUPPORTED_MESSAGE);
                 }
                 else {
                     query.ref = sequenceList[0].name;

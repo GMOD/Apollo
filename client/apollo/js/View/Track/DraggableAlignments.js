@@ -5,7 +5,7 @@ define([
            'JBrowse/View/Track/Alignments',
            'WebApollo/View/Track/DraggableHTMLFeatures', 
            'JBrowse/Util',
-            'WebApollo/JSONUtils'
+           'WebApollo/ProjectionUtils'
        ],
        function(
            declare,
@@ -14,7 +14,7 @@ define([
            AlignmentsTrack,
            DraggableTrack, 
            Util,
-           JSONUtils
+           ProjectionUtils
        ) {
 
 return declare([ DraggableTrack, AlignmentsTrack ], {
@@ -161,7 +161,7 @@ return declare([ DraggableTrack, AlignmentsTrack ], {
                 uniqueId = feature.get('name')+'/'+feature.get('md')+'/'+feature.get('cigar')+'/'+feature.get('_original_start')+'/'+feature.get('multi_segment_next_segment_reversed');
             }
             else {
-                feature = JSONUtils.projectJSONFeature(feature, this.refSeq.name);
+                feature = ProjectionUtils.projectJSONFeature(feature, this.refSeq.name);
                 uniqueId = feature.get('name')+'/'+feature.get('md')+'/'+feature.get('cigar')+'/'+feature.get('_original_start')+'/'+feature.get('multi_segment_next_segment_reversed');
             }
             if( ! this._featureIsRendered( uniqueId ) ) {

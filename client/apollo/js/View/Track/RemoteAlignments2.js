@@ -5,7 +5,7 @@ define( [
         'dojo/Deferred',
         'dojo/promise/all',
         'JBrowse/Util',
-        'WebApollo/JSONUtils',
+        'WebApollo/ProjectionUtils',
         'JBrowse/View/Track/Alignments2'
     ],
     function(
@@ -15,7 +15,7 @@ define( [
         Deferred,
         all,
         Util,
-        JSONUtils,
+        ProjectionUtils,
         Alignments2
     ) {
 
@@ -65,9 +65,9 @@ define( [
                     end: rightBase + bpExpansion
                 };
 
-                var sequenceList = JSONUtils.parseSequenceList(this.refSeq.name);
+                var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
                 if (sequenceList[0].reverse) {
-                    errorCallback(JSONUtils.NOT_YET_SUPPORTED_MESSAGE);
+                    errorCallback(ProjectionUtils.NOT_YET_SUPPORTED_MESSAGE);
                 }
                 else {
                     region.ref = sequenceList[0].name;

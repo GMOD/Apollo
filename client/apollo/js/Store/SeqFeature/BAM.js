@@ -6,6 +6,7 @@ define( [
         'JBrowse/has',
         'JBrowse/Util',
         'WebApollo/JSONUtils',
+        'WebApollo/ProjectionUtils',
         'JBrowse/Errors',
         'JBrowse/Store/LRUCache',
         'JBrowse/Store/SeqFeature/BAM'
@@ -18,6 +19,7 @@ define( [
         has,
         Util,
         JSONUtils,
+        ProjectionUtils,
         Errors,
         LRUCache,
         BAMStore
@@ -93,7 +95,7 @@ define( [
         _estimateGlobalStats: function(refseq) {
             var deferred = new Deferred();
             refseq = refseq || this.refSeq;
-            var sequenceListObject = JSONUtils.parseSequenceList(refseq.name);
+            var sequenceListObject = ProjectionUtils.parseSequenceList(refseq.name);
             var timeout = this.storeTimeout || 3000;
             var startTime = new Date();
 
@@ -108,7 +110,7 @@ define( [
                 }
                 var start = Math.max( 0, Math.round( sampleCenter - length/2 ) );
                 var end = Math.min( Math.round( sampleCenter + length/2 ), refseq.end );
-                var unprojectedArray = JSONUtils.unProjectCoordinates(refseq.name, start, end);
+                var unprojectedArray = ProjectionUtils.unProjectCoordinates(refseq.name, start, end);
                 var unprojectedStart = unprojectedArray[0];
                 var unprojectedEnd = unprojectedArray[1];
                 var features = [];
@@ -171,9 +173,9 @@ define( [
          */
         getFeatures: function(query, featCallback, endCallback, errorCallback) {
             // parse sequenceList from query.ref
-            var sequenceListObject = JSONUtils.parseSequenceList(query.ref);
+            var sequenceListObject = ProjectionUtils.parseSequenceList(query.ref);
             // unproject start and end
-            var featureLocationArray = JSONUtils.unProjectCoordinates(query.ref, query.start, query.end);
+            var featureLocationArray = ProjectionUtils.unProjectCoordinates(query.ref, query.start, query.end);
             // rebuild the query
             query.ref = sequenceListObject[0].name;
             query.start = featureLocationArray[0];
