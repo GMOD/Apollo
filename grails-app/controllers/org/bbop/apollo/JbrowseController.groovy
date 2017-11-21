@@ -731,14 +731,15 @@ class JbrowseController {
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
         log.debug "Rewriting track ${obj as JSON}"
-        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-        }
-        else if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+//        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
+//            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+//            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+//            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
+//            obj.query = obj.query ?: new JSONObject()
+//            obj.query.urlTemplate = urlTemplate
+//        }
+//        else
+        if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
             String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
             // Switching to REST store
             obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
