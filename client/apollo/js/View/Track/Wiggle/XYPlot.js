@@ -37,6 +37,10 @@ define([
             );
         },
 
+        // getFeatures: function(args){
+        //
+        // },
+
         /**
          * Override _getBlockFeatures
          */
@@ -60,11 +64,11 @@ define([
                 finishCallback(e);
             });
 
-            var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
-            var refSeqName = sequenceList[0].name;
+            // var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
+            // var refSeqName = sequenceList[0].name;
             this.getFeatures(
                 {
-                    ref: refSeqName,
+                    ref: this.refSeq.name,
                     basesPerSpan: 1 / scale,
                     scale: scale,
                     start: leftBase,
