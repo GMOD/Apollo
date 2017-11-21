@@ -57,16 +57,13 @@ return declare( BigWigStore,
 
         // parse sequenceList from query.ref
         var sequenceListObject = ProjectionUtils.parseSequenceList(query.ref);
-        console.log(sequenceListObject)
+        console.log(sequenceListObject);
         // unproject start and end
         var featureLocationArray = ProjectionUtils.unProjectCoordinates(query.ref, query.start, query.end);
         // rebuild the query
-        console.log(featureLocationArray)
         var chrName = sequenceListObject[0].name;
         var min = featureLocationArray[0];
         var max = featureLocationArray[1];
-
-
 
         var v = query.basesPerSpan ? this.getView( 1/query.basesPerSpan ) :
                        query.scale ? this.getView( query.scale )          :
