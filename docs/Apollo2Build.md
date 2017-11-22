@@ -16,7 +16,8 @@ You have to install Java and the Java Development Kit (JDK) 8 or higher to run A
 
 You will need to [install node.js](https://nodejs.org/en/download/), which includes NPM (the node package manager) to build Apollo.
 
-[nvm](https://github.com/creationix/nvm) is highly recommended as well version 8 of node or better, but it should work with node 6..
+[nvm](https://github.com/creationix/nvm) is highly recommended for installing and managing multiple version of Node.
+Node v6 and up should work, but we recommend Node v8 or better.
 
 ### Grails / Groovy / Gradle  (optional)
 
@@ -36,11 +37,11 @@ grails for you.
 
 To setup Apollo, you can download our [latest release](https://github.com/GMOD/Apollo/releases/latest) from our [official releases](https://github.com/GMOD/Apollo/releases/) as compressed zip or tar.gz file (link at the bottom).  
 
-Alternatively you can check it out from git as directly as follows:
+Alternatively you can check it out from git directly as follows:
 
-1. git clone https://github.com/GMOD/Apollo.git Apollo
-1. cd Apollo
-1. (optional) git checkout <XYZ>  # where XYZ is the tagged version you want from here: https://github.com/GMOD/Apollo/releases
+1. `git clone https://github.com/GMOD/Apollo.git Apollo`
+2. `cd Apollo`
+3. `git checkout <XYZ>` - optional, where XYZ is the tagged version you want from here: https://github.com/GMOD/Apollo/releases
 
 ### Verify install requirements
 
@@ -71,7 +72,7 @@ There are several distinct parts of the code.
 1. Tools / scripts in the [examples](web_services/examples) and [tools](../tools/data): Groovy, perl, bash
 1. JBrowse (JS: [dojo](https://dojotoolkit.org/documentation/), jquery, etc.)
 
-In general the command `./apollo run-local` will build and run the client and the server code.  Subsequent runs that do not change the GWT code can use `./apollo run-app`.  Changes to domain objects or adding controller methods may make stopping and restarting the server necessary, but most other changes will compile without having to restart the server.
+In general, the command `./apollo run-local` will build and run the client and the server code.  Subsequent runs that do not change the GWT code can use `./apollo run-app`.  Changes to domain objects or adding controller methods may make stopping and restarting the server necessary, but most other changes will compile without having to restart the server.
 
 `./apollo test` runs the grails unit and integration [tests](../test).
 
@@ -80,9 +81,9 @@ Updating the web-service doc can be done with `./apollo create-rest-doc`
 
 #### Running the code for the making client plugin changes
 
-After starting the server run `./apollo watchman` which should automatically copy any changes files from the [client directory](../client) to the running instance.
+After starting the server run `./apollo watchman` which should automatically copy any files that have been modified from the [client directory](../client) to the running instance.
 
-If for some reason this is not working make sure that your network development tab has disabled caching.  You can also run the command `gradle copy-resources-dev` manually each time instead if the files don't seem to be getting copied.
+If for some reason this is not working then make sure that your network development tab, in your browser console, has disabled caching.  You can also run the command `gradle copy-resources-dev` manually each time instead if the files don't seem to be getting copied.
 
 #### Running the code for GWT changes 
 
