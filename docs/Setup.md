@@ -25,10 +25,8 @@ Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configu
      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
      sudo apt-get install nodejs 
      
-NOTE: npm (installed with nodejs) must be version 2 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
+NOTE: npm (installed with nodejs) must be version 6 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  [nvm](https://github.com/creationix/nvm) may also be useful.
 
-    sudo npm install -g bower 
-    
 NOTE: you must link nodejs to to node if your system installs it as a ```nodejs``` binary instead of a node one.  E.g., 
 
     sudo ln -s /usr/bin/nodejs /usr/bin/node

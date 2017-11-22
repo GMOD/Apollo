@@ -12,13 +12,11 @@ This guide will cover the "development mode" scenario which should be easy to st
 
 You have to install Java and the Java Development Kit (JDK) 8 or higher to run Apollo.  Both the Oracle and OpenJDK versions have been tested.
 
-### Node.js / NPM / Bower
+### Node.js / NPM
 
 You will need to [install node.js](https://nodejs.org/en/download/), which includes NPM (the node package manager) to build Apollo.
 
-Once node.js / npm is installed, install bower using (you may need sudo):
-
-    npm install -g bower 
+[nvm](https://github.com/creationix/nvm) is highly recommended as well version 8 of node or better, but it should work with node 6..
 
 ### Grails / Groovy / Gradle  (optional)
 
@@ -42,8 +40,7 @@ Alternatively you can check it out from git as directly as follows:
 
 1. git clone https://github.com/GMOD/Apollo.git Apollo
 1. cd Apollo
-1. git checkout 2.X.Y  # where X.Y is the tagged version you want from here: https://github.com/GMOD/Apollo/tags
-
+1. (optional) git checkout <XYZ>  # where XYZ is the tagged version you want from here: https://github.com/GMOD/Apollo/releases
 
 ### Verify install requirements
 
@@ -63,6 +60,17 @@ Also note: if there are any errors at this step, check the setup.log file for er
 
 Also also note: the "development mode" uses an in-memory H2 database for storing data by default. The setup guide will
 show you how to configure custom database settings.
+
+### Running the code
+
+There are several distinct parts of the code.
+
+1. Apollo client plugin (JS: dojo, jquery, etc.) in [client directory](../client)
+1. Server (Grails 2.5.5: Groovy and Java) in [grails-app](../grails-app), [src](../src), [web components](../web-app) and [tests](../test).
+1. Side-panel code / wrapper code (GWT 2.8: Java) 
+1. Tools / scripts in the [examples](web_services/examples) and [tools](../tools/data): Groovy, perl, bash
+1. JBrowse (JS: dojo, jquery, etc.)
+
 
 ### Create server documentation
 
