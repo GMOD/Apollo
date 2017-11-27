@@ -35,6 +35,30 @@ define([
                 );
             },
 
+            /* If boolean track, mask accordingly */
+            _maskBySpans: function( scale, leftBase, rightBase, block, canvas, pixels, dataScale, spans ) {
+                var context = canvas.getContext('2d');
+                var canvasHeight = canvas.height;
+                context.fillStyle = this.config.style.mask_color || 'rgba(128,128,128,0.6)';
+                this.config.style.mask_color = context.fillStyle;
+
+                for ( var index in spans ) {
+                    if (spans.hasOwnProperty(index)) {
+                        var w = Math.ceil(( spans[index].end   - spans[index].start ) * scale );
+                        var l = Math.round(( spans[index].start - leftBase ) * scale );
+                        context.fillRect( l, 0, w, canvasHeight );
+                        context.clearRect( l, 0, w, canvasHeight/3);
+                        context.clearRect( l, (2/3)*canvasHeight, w, canvasHeight/3);
+                    }
+                }
+                dojo.forEach( pixels, function(p,i) {
+                    if (!p) {
+                        // if there is no data at a point, erase the mask.
+                        context.clearRect( i, 0, 1, canvasHeight );
+                    }
+                });
+            },
+
             /**
              * Override _getBlockFeatures
              */
@@ -61,9 +85,18 @@ define([
 
                 // var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
                 // var refSeqName = sequenceList[0].name;
+                var chrName ;
+                if(ProjectionUtils.isSequenceList(this.refSeq.name)){
+                    var sequenceListObject = ProjectionUtils.parseSequenceList(this.refSeq.name);
+                    console.log(sequenceListObject);
+                    chrName = sequenceListObject[0].name ;
+                }
+                else{
+                    chrName = this.refSeq.name ;
+                }
                 this.getFeatures(
                     {
-                        ref: this.refSeq.name,
+                        ref: chrName,
                         basesPerSpan: 1 / scale,
                         scale: scale,
                         start: leftBase,
@@ -103,13 +136,13 @@ define([
             },
 
             // TODO: implement ;
-            getRegionStats: function(){
-
+            getRegionStats: function(args){
+                console.log('getting region stats: '+args)
             },
 
             // TODO: implement ;
-            getGlobalStats: function(){
-
+            getGlobalStats: function(args){
+                console.log('getting global stats: '+ args)
             },
 
             /**

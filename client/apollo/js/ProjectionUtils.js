@@ -10,12 +10,19 @@ define([ 'dojo/_base/declare',
 
         ProjectionUtils.NOT_YET_SUPPORTED_MESSAGE = "Reverse complement view with local tracks not yet supported.";
 
+        ProjectionUtils.isSequenceList = function (refSeqName){
+            if(refSeqName.indexOf('{')<0){
+                return false ;
+            }
+            return true ;
+        };
         /**
          * Parse sequenceList string and return a JSON object
          */
         ProjectionUtils.parseSequenceList = function( refSeqName ) {
             var refSeqNameSplit = refSeqName.split(':');
             var sequenceListString = refSeqNameSplit.slice(0, refSeqNameSplit.length - 1).join(':');
+            console.log(refSeqName)
             var sequenceListObject = JSON.parse(sequenceListString).sequenceList;
             return sequenceListObject;
         };
