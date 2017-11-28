@@ -552,4 +552,44 @@ class SequenceService {
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
     }
+
+    String checkCache(String organismString, String sequenceName, String featureName, String type, Map paramMap) {
+        String mapString = paramMap ? (paramMap as JSON).toString() : null
+        return SequenceCache.findByOrganismNameAndSequenceNameAndFeatureNameAndTypeAndParamMap(organismString, sequenceName, featureName, type, mapString)?.response
+    }
+
+    String checkCache(String organismString, String sequenceName, Long fmin, Long fmax,  Map paramMap) {
+        String mapString = paramMap ? (paramMap as JSON).toString() : null
+        return SequenceCache.findByOrganismNameAndSequenceNameAndFminAndFmaxAndParamMap(organismString, sequenceName, fmin, fmax, mapString)?.response
+    }
+
+    @Transactional
+    def cacheRequest(String responseString, String organismString, String sequenceName, String featureName, String type, Map paramMap) {
+        SequenceCache sequenceCache = new SequenceCache(
+                response: responseString
+                , organismName: organismString
+                , sequenceName: sequenceName
+                , featureName: featureName
+                , type: type
+        )
+        if (paramMap) {
+            sequenceCache.paramMap = (paramMap as JSON).toString()
+        }
+        sequenceCache.save()
+    }
+
+    @Transactional
+    def cacheRequest(String responseString, String organismString, String sequenceName, Long fmin, Long fmax, Map paramMap) {
+        SequenceCache sequenceCache = new SequenceCache(
+                response: responseString
+                , organismName: organismString
+                , sequenceName: sequenceName
+                , fmin: fmin
+                , fmax: fmax
+        )
+        if (paramMap) {
+            sequenceCache.paramMap = (paramMap as JSON).toString()
+        }
+        sequenceCache.save()
+    }
 }

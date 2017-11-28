@@ -25,10 +25,8 @@ Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configu
      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
      sudo apt-get install nodejs 
      
-NOTE: npm (installed with nodejs) must be version 2 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
+NOTE: npm (installed with nodejs) must be version 6 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  [nvm](https://github.com/creationix/nvm) may also be useful.
 
-    sudo npm install -g bower 
-    
 NOTE: you must link nodejs to to node if your system installs it as a ```nodejs``` binary instead of a node one.  E.g., 
 
     sudo ln -s /usr/bin/nodejs /usr/bin/node
@@ -41,6 +39,18 @@ Build settings for Apollo specifically.  Recent versions of tomcat7 will work, t
 Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  To setup for production continue onto configuration below after install . 
 
 If you get an ```Unsupported major.minor error``` or similar, please confirm that the version of java that tomcat is running ```ps -ef | grep java``` is the same as the one you used to build.  Setting JAVA_HOME to the Java 8 JDK should fix most problems.
+
+
+#### JSON in the URL with newer versions of Tomcat
+
+When JSON is added to the URL string (e.g., `addStores` and `addTracks`) you may get this error with newer patched versions of Tomcat 7.0.73, 8.0.39, 8.5.7:
+
+     java.lang.IllegalArgumentException: Invalid character found in the request target. The valid characters are defined in RFC 7230 and RFC 3986
+
+To fix these, the best solution we've come up with (and there may be many) is to explicitly allow these characters, which you can do starting with Tomcat versions: 7.0.76, 8.0.42, 8.5.12.
+This is done by adding the following line to `$CATALINA_HOME/conf/catalina.properties`:
+
+    tomcat.util.http.parser.HttpParser.requestTargetAllow=|{}
 
 ### Database configuration
 

@@ -10,6 +10,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -27,10 +28,9 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
-import com.google.gwt.view.client.SingleSelectionModel;
+import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
@@ -40,7 +40,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.gwtbootstrap3.extras.bootbox.client.callback.Callback;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
@@ -65,7 +64,7 @@ public class UserPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<UserInfo> dataGrid = new DataGrid<UserInfo>(10, tablecss);
+    DataGrid<UserInfo> dataGrid = new DataGrid<UserInfo>(20, tablecss);
     @UiField
     org.gwtbootstrap3.client.ui.Button createButton;
     @UiField
@@ -104,9 +103,9 @@ public class UserPanel extends Composite {
     org.gwtbootstrap3.client.ui.Label saveLabel;
 
 
-    private ListDataProvider<UserInfo> dataProvider = new ListDataProvider<>();
+    private AsyncDataProvider<UserInfo> dataProvider;
     private List<UserInfo> userInfoList = new ArrayList<>();
-    private List<UserInfo> filteredUserInfoList = dataProvider.getList();
+//    private List<UserInfo> filteredUserInfoList = dataProvider.getList();
     private SingleSelectionModel<UserInfo> selectionModel = new SingleSelectionModel<>();
     private UserInfo selectedUserInfo;
 
@@ -156,7 +155,7 @@ public class UserPanel extends Composite {
                 return user.getRole();
             }
         };
-        thirdNameColumn.setSortable(true);
+        thirdNameColumn.setSortable(false);
 
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(secondNameColumn, "Email");
@@ -170,34 +169,61 @@ public class UserPanel extends Composite {
                 updateUserInfo();
             }
         });
+        createOrganismPermissionsTable();
 
+        dataProvider = new AsyncDataProvider<UserInfo>() {
+            @Override
+            protected void onRangeChanged(HasData<UserInfo> display) {
+                final Range range = display.getVisibleRange();
+                final ColumnSortList sortList = dataGrid.getColumnSortList();
+                final int start = range.getStart();
+                final int length = range.getLength();
+
+                RequestCallback requestCallback = new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
+                        Integer userCount = 0;
+                        if (jsonArray != null && jsonArray.size() > 0) {
+                            JSONObject jsonObject = jsonArray.get(0).isObject();
+                            userCount = (int) jsonObject.get("userCount").isNumber().doubleValue();
+                            if(jsonObject.containsKey("searchName") && jsonObject.get("searchName").isString()!=null){
+                                String searchName = jsonObject.get("searchName").isString().stringValue();
+                                if(searchName.trim().length()>0 && !searchName.trim().equals(nameSearchBox.getText().trim())){
+                                    return ;
+                                }
+                            }
+                        }
+                        dataGrid.setRowCount(userCount, true);
+                        dataGrid.setRowData(start, UserInfoConverter.convertFromJsonArray(jsonArray));
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        Bootbox.alert("error getting sequence info: " + exception);
+                    }
+                };
+
+
+                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
+                if (nameSortInfo.getColumn().isSortable()) {
+                    Column<UserInfo, ?> sortColumn = (Column<UserInfo, ?>) sortList.get(0).getColumn();
+                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
+                    String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "email" : "";
+                    Boolean sortNameAscending = nameSortInfo.isAscending();
+                    UserRestService.loadUsers(requestCallback, start, length,nameSearchBox.getText(), searchColumnString, sortNameAscending);
+                }
+            }
+        };
+
+
+        ColumnSortEvent.AsyncHandler columnSortHandler = new ColumnSortEvent.AsyncHandler(dataGrid);
+        dataGrid.addColumnSortHandler(columnSortHandler);
+        dataGrid.getColumnSortList().push(firstNameColumn);
+        dataGrid.getColumnSortList().push(secondNameColumn);
 
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
-
-        createOrganismPermissionsTable();
-
-
-        ColumnSortEvent.ListHandler<UserInfo> sortHandler = new ColumnSortEvent.ListHandler<UserInfo>(filteredUserInfoList);
-        dataGrid.addColumnSortHandler(sortHandler);
-        sortHandler.setComparator(firstNameColumn, new Comparator<UserInfo>() {
-            @Override
-            public int compare(UserInfo o1, UserInfo o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        sortHandler.setComparator(secondNameColumn, new Comparator<UserInfo>() {
-            @Override
-            public int compare(UserInfo o1, UserInfo o2) {
-                return o1.getEmail().compareTo(o2.getEmail());
-            }
-        });
-        sortHandler.setComparator(thirdNameColumn, new Comparator<UserInfo>() {
-            @Override
-            public int compare(UserInfo o1, UserInfo o2) {
-                return o1.getRole().compareTo(o2.getRole());
-            }
-        });
 
         Annotator.eventBus.addHandler(UserChangeEvent.TYPE, new UserChangeEventHandler() {
             @Override
@@ -222,7 +248,7 @@ public class UserPanel extends Composite {
                         break;
                     case USERS_RELOADED:
                         selectionModel.clear();
-                        filterSequences();
+                        reload();
                         break;
 
                 }
@@ -235,7 +261,7 @@ public class UserPanel extends Composite {
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
                     if(MainPanel.getInstance().isCurrentUserAdmin()) {
-                        UserRestService.loadUsers(userInfoList);
+                        reload();
                     }
                     return false ;
                 }
@@ -440,25 +466,10 @@ public class UserPanel extends Composite {
 
     @UiHandler(value = {"nameSearchBox"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
-        filterSequences();
+        pager.setPageStart(0);
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    private void filterSequences() {
-
-        filteredUserInfoList.clear();
-        String nameText = nameSearchBox.getText().toLowerCase().trim();
-        if (nameText.length() > 0) {
-            for (UserInfo userInfo : userInfoList) {
-                if (userInfo.getName().toLowerCase().contains(nameText)
-                        || userInfo.getEmail().toLowerCase().contains(nameText)
-                        ) {
-                    filteredUserInfoList.add(userInfo);
-                }
-            }
-        } else {
-            filteredUserInfoList.addAll(userInfoList);
-        }
-    }
 
     @UiHandler(value = {"firstName", "lastName", "email", "passwordTextBox"})
     public void updateInterface(KeyUpEvent keyUpEvent) {
@@ -477,6 +488,9 @@ public class UserPanel extends Composite {
     }
 
     private void userIsSame() {
+        if(selectedUserInfo == null ){
+            return ;
+        }
         if(selectedUserInfo.getEmail().equals(email.getText().trim())
                 && selectedUserInfo.getFirstName().equals(firstName.getText().trim())
                 && selectedUserInfo.getLastName().equals(lastName.getText().trim())
@@ -512,7 +526,7 @@ public class UserPanel extends Composite {
                         updateUserInfo();
                         saveButton.setEnabled(false);
                         cancelButton.setEnabled(false);
-                        UserRestService.loadUsers(userInfoList);
+                        reload(true);
                     }
                 }
 
@@ -655,10 +669,15 @@ public class UserPanel extends Composite {
     }
 
     public void reload() {
-        if(MainPanel.getInstance().getCurrentUser()!=null) {
-            UserRestService.loadUsers(userInfoList);
+        reload(false);
+    }
+
+    public void reload(Boolean forceReload) {
+        if (MainPanel.getInstance().getUserPanel().isVisible() || forceReload) {
+            pager.setPageStart(0);
+            dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+            dataGrid.redraw();
         }
-        dataGrid.redraw();
     }
 
     private void removeGroupFromUI(String group) {
@@ -691,7 +710,7 @@ public class UserPanel extends Composite {
             });
         }
 
-        public String getGroupName() {
+        String getGroupName() {
             return groupName;
         }
     }
