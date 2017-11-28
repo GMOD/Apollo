@@ -103,7 +103,7 @@ If you are testing making changes directly to JBrowse within Apollo, the followi
 
 #### Adding sample data
 
-If you want to test with pre-processed data you can load the following data into a directory to be [added as an organism](Apollo2Build.md#login-to-the-web-interface).
+If you want to test with pre-processed data instead of [adding your own](Apollo2Build.md#adding-data-to-apollo) you can load the following data into a directory to be [added as an organism](Apollo2Build.md#login-to-the-web-interface).
 
 - [Yeast from JBrowse sample data](https://s3.amazonaws.com/apollo-data/yeast.tgz) 0.5 MB
 - [Volvox imaginary sample organism from JBrowse](https://s3.amazonaws.com/apollo-data/volvox.tgz) 2 MB
