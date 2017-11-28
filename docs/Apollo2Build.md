@@ -109,7 +109,6 @@ If you want to test with pre-processed data instead of [adding your own](Apollo2
 - [Volvox imaginary sample organism from JBrowse](https://s3.amazonaws.com/apollo-data/volvox.tgz) 2 MB
 - [Honeybee without BAM](https://s3.amazonaws.com/apollo-data/data-amel-demo-nobam.tgz) 500 MB
 - [Honeybee with BAM](https://s3.amazonaws.com/apollo-data/data-amel-demo.tgz) 17 GB
-- [Human](https://s3.amazonaws.com/apollo-data/human-GRCh38-v2.tgz) 19 GB
 
 ### Create server documentation
 
