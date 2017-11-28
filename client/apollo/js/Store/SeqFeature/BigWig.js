@@ -183,6 +183,7 @@ return declare( BigWigStore,
             return;
         }
 
+        chrName = this.browser.regularizeReferenceName(chrName);
         v.readWigData( chrName, min, max, dojo.hitch( this, function( features ) {
             array.forEach( features || [], featureCallback );
             endCallback();
