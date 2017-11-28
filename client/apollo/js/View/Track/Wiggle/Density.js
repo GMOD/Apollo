@@ -69,6 +69,7 @@ define([
 
                 var leftBase = args.leftBase;
                 var rightBase = args.rightBase;
+                var refSeqName = this.refSeq.name ;
 
                 var scale = args.scale;
                 var finishCallback = args.finishCallback || function () {
@@ -105,6 +106,9 @@ define([
 
                     function (f) {
                         if (thisB.filterFeature(f)){
+                            if(!f.isProjected){
+                                f = ProjectionUtils.projectJSONFeature(f,refSeqName);
+                            }
                             features.push(f);
                         }
                     },
@@ -117,7 +121,7 @@ define([
 
                         var featureRects = array.map(features, function (f) {
                             // if(!f.isProjected) {
-                            //     f = ProjectionUtils.projectJSONFeature(f,this.refSeq.name);
+                            //     f = ProjectionUtils.projectJSONFeature(f,refSeqName);
                             // }
                             return this._featureRect(scale, leftBase, canvasWidth, f);
                         }, this);

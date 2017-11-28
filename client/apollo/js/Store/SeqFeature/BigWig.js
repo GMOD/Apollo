@@ -146,6 +146,7 @@ return declare( BigWigStore,
      * others are not.
      */
     hasRefSeq: function( seqName, callback, errorCallback ) {
+        // TODO:
         return false ;
         // var thisB = this;
         // seqName = thisB.browser.regularizeReferenceName( seqName );

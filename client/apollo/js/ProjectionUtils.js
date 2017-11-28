@@ -22,7 +22,7 @@ define([ 'dojo/_base/declare',
         ProjectionUtils.parseSequenceList = function( refSeqName ) {
             var refSeqNameSplit = refSeqName.split(':');
             var sequenceListString = refSeqNameSplit.slice(0, refSeqNameSplit.length - 1).join(':');
-            console.log(refSeqName)
+            // console.log(refSeqName)
             var sequenceListObject = JSON.parse(sequenceListString).sequenceList;
             return sequenceListObject;
         };
