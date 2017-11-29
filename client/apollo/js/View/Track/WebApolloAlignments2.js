@@ -12,6 +12,7 @@ define( [
         'dijit/Dialog',
         'JBrowse/Util',
         'JBrowse/View/Track/Alignments2',
+        'JBrowse/Store/SeqFeature/_MismatchesMixin',
         'WebApollo/ProjectionUtils'
     ],
     function(
@@ -28,8 +29,28 @@ define( [
         dijitDialog,
         Util,
         Alignments2,
+        MismatchesMixin,
         ProjectionUtils
     ) {
+
+        MismatchesMixin.extend({
+
+            _parseCigar: function(cigar) {
+                var sequenceListObject = ProjectionUtils.parseSequenceList(this.browser.refSeq.name);
+                if (sequenceListObject[0].reverse) {
+                    console.log("cigar before: ", cigar);
+                    var cigar_array = cigar.match(/\d+\D/g);
+                    cigar_array.reverse();
+                    cigar = cigar_array.join('');
+                    console.log("cigar after: ", cigar);
+                }
+
+                return array.map( cigar.toUpperCase().match(/\d+\D/g), function( op ) {
+                    return [ op.match(/\D/)[0], parseInt( op ) ];
+                });
+            }
+        });
+
         return declare(Alignments2, {
 
             /**
