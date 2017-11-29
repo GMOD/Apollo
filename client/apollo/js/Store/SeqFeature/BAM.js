@@ -8,8 +8,10 @@ define( [
         'WebApollo/JSONUtils',
         'WebApollo/ProjectionUtils',
         'JBrowse/Errors',
+        'JBrowse/Model/XHRBlob',
         'JBrowse/Store/LRUCache',
-        'JBrowse/Store/SeqFeature/BAM'
+        'JBrowse/Store/SeqFeature/BAM',
+        'WebApollo/Store/SeqFeature/BAM/File'
     ],
     function(
         declare,
@@ -21,13 +23,65 @@ define( [
         JSONUtils,
         ProjectionUtils,
         Errors,
+        XHRBlob,
         LRUCache,
-        BAMStore
+        BAMStore,
+        WebApolloBAMFile
     ) {
 
     return declare(BAMStore, {
 
         constructor: function(args) {
+            console.log("In BAM Constructor");
+
+            var bamBlob = args.bam ||
+                new XHRBlob( this.resolveUrl(
+                        args.urlTemplate || 'data.bam'
+                    )
+                );
+
+            var baiBlob = args.bai ||
+                new XHRBlob( this.resolveUrl(
+                        args.baiUrlTemplate || ( args.urlTemplate ? args.urlTemplate+'.bai' : 'data.bam.bai' )
+                    )
+                );
+
+            this.bam = new WebApolloBAMFile({
+                store: this,
+                data: bamBlob,
+                bai: baiBlob,
+                chunkSizeLimit: args.chunkSizeLimit
+            });
+
+            this.source = ( bamBlob.url  ? bamBlob.url.match( /\/([^/\#\?]+)($|[\#\?])/ )[1] :
+                    bamBlob.blob ? bamBlob.blob.name : undefined ) || undefined;
+
+            if( ! has( 'typed-arrays' ) ) {
+                this._failAllDeferred( 'This web browser lacks support for JavaScript typed arrays.' );
+                return;
+            }
+
+            this.bam.init({
+                success: lang.hitch( this,
+                    function() {
+                        this._deferred.features.resolve({success:true});
+
+                        this._estimateGlobalStats()
+                            .then( lang.hitch(
+                                this,
+                                function( stats ) {
+                                    this.globalStats = stats;
+                                    this._deferred.stats.resolve({success:true});
+                                }
+                                ),
+                                lang.hitch( this, '_failAllDeferred' )
+                            );
+                    }),
+                failure: lang.hitch( this, '_failAllDeferred' )
+            });
+
+            this.storeTimeout = args.storeTimeout || 3000;
+
 
             // replace _fetchChunkFeatures with few changes
             this.bam._fetchChunkFeatures = function( chunks, chrId, min, max, featCallback, endCallback, errorCallback ) {
