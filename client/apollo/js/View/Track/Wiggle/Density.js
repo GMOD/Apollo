@@ -119,10 +119,14 @@ define([
                         if (!(block.domNode && block.domNode.parentNode ))
                             return;
 
+                        // features = features.sort(function (a,b) {
+                        //     return a.data.start - b.data.start ;
+                        // });
+
                         var featureRects = array.map(features, function (f) {
-                            // if(!f.isProjected) {
-                            //     f = ProjectionUtils.projectJSONFeature(f,refSeqName);
-                            // }
+                            if(!f.isProjected) {
+                                f = ProjectionUtils.projectJSONFeature(f,refSeqName);
+                            }
                             return this._featureRect(scale, leftBase, canvasWidth, f);
                         }, this);
 
@@ -139,15 +143,117 @@ define([
                 );
             },
 
-            // TODO: implement ;
-            getRegionStats: function(args){
-                console.log('getting region stats: '+args)
+            _featureRect: function( scale, leftBase, canvasWidth, feature ) {
+                var fRect = {
+                    w: Math.ceil(( feature.get('end')   - feature.get('start') ) * scale ),
+                    l: Math.round(( feature.get('start') - leftBase ) * scale )
+                };
+
+                // if fRect.l is negative (off the left
+                // side of the canvas), clip off the
+                // (possibly large!) non-visible
+                // portion
+                if( fRect.l < 0 ) {
+                    fRect.w += fRect.l;
+                    fRect.l  = 0;
+                }
+
+                // also don't let fRect.w get overly big
+                if(canvasWidth >= fRect.l){
+                    fRect.w = Math.min( canvasWidth-fRect.l, fRect.w );
+                }
+                fRect.r = fRect.w + fRect.l;
+
+                // if(fRect.l > fRect.r){
+                //     fRect.w = -fRect.w ;
+                //     var temp = fRect.l ;
+                //     fRect.l = fRect.r ;
+                //     fRect.r = temp ;
+                // }
+
+                return fRect;
             },
 
-            // TODO: implement ;
-            getGlobalStats: function(args){
-                console.log('getting global stats: '+ args)
+            _calculatePixelScores: function( canvasWidth, features, featureRects ) {
+                var scoreType = this.config.scoreType;
+                var pixelValues = new Array( canvasWidth );
+                if(!scoreType||scoreType=="maxScore") {
+                    // make an array of the max score at each pixel on the canvas
+                    dojo.forEach( features, function( f, i ) {
+                        var store = f.source;
+                        var fRect = featureRects[i];
+                        var jEnd = fRect.r;
+                        var score = f.get(scoreType)||f.get('score');
+                        for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+                            if ( pixelValues[j] && pixelValues[j]['lastUsedStore'] == store ) {
+                                /* Note: if the feature is from a different store, the condition should fail,
+                                 *       and we will add to the value, rather than adjusting for overlap */
+                                pixelValues[j]['score'] = Math.max( pixelValues[j]['score'], score );
+                            }
+                            else if ( pixelValues[j] ) {
+                                pixelValues[j]['score'] = pixelValues[j]['score'] + score;
+                                pixelValues[j]['lastUsedStore'] = store;
+                            }
+                            else {
+                                pixelValues[j] = { score: score, lastUsedStore: store, feat: f };
+                            }
+                        }
+                    },this);
+                    // when done looping through features, forget the store information.
+                    for (var i=0; i<pixelValues.length; i++) {
+                        if ( pixelValues[i] ) {
+                            delete pixelValues[i]['lastUsedStore'];
+                        }
+                    }
+                }
+                else if(scoreType=="avgScore") {
+                    // make an array of the average score at each pixel on the canvas
+                    dojo.forEach( features, function( f, i ) {
+                        var store = f.source;
+                        var fRect = featureRects[i];
+                        var jEnd = fRect.r;
+                        var score = f.get('score');
+                        for( var j = Math.round(fRect.l); j < jEnd; j++ ) {
+                            // bin scores according to store
+                            if ( pixelValues[j] && store in pixelValues[j]['scores'] ) {
+                                pixelValues[j]['scores'][store].push(score);
+                            }
+                            else if ( pixelValues[j] ) {
+                                pixelValues[j]['scores'][store] = [score];
+                            }
+                            else {
+                                pixelValues[j] = { scores: {}, feat: f };
+                                pixelValues[j]['scores'][store] = [score];
+                            }
+                        }
+                    },this);
+                    // when done looping through features, average the scores in the same store then add them all together as the final score
+                    for (var i=0; i<pixelValues.length; i++) {
+                        if ( pixelValues[i] ) {
+                            pixelValues[i]['score'] = 0;
+                            for ( var store in pixelValues[i]['scores']) {
+                                var j, sum = 0, len = pixelValues[i]['scores'][store].length;
+                                for (j = 0; j < len; j++) {
+                                    sum += pixelValues[i]['scores'][store][j];
+                                }
+                                pixelValues[i]['score'] += sum / len;
+                            }
+                            delete pixelValues[i]['scores'];
+                        }
+                    }
+                }
+                return pixelValues;
             },
+
+            // // TODO: implement ;
+            // getRegionStats: function(args){
+            //     console.log('getting region stats: '+args)
+            // },
+            //
+            // // TODO: implement ;
+            // getGlobalStats: function(args){
+            //     console.log('getting global stats: '+ args)
+            // },
 
             /**
              * Override _getScalingStats

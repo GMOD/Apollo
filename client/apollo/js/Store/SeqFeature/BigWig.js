@@ -147,12 +147,12 @@ return declare( BigWigStore,
      */
     hasRefSeq: function( seqName, callback, errorCallback ) {
         // TODO:
-        return false ;
-        // var thisB = this;
-        // seqName = thisB.browser.regularizeReferenceName( seqName );
-        // this._deferred.features.then(function() {
-        //     callback( seqName in thisB.refsByName );
-        // }, errorCallback );
+        // return false ;
+        var thisB = this;
+        seqName = thisB.browser.regularizeReferenceName( seqName );
+        this._deferred.features.then(function() {
+            callback( seqName in thisB.refsByName );
+        }, errorCallback );
     },
 
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
