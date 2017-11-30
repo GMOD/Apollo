@@ -32,7 +32,6 @@ define( [
     return declare(BAMStore, {
 
         constructor: function(args) {
-            console.log("In BAM Constructor");
 
             var bamBlob = args.bam ||
                 new XHRBlob( this.resolveUrl(

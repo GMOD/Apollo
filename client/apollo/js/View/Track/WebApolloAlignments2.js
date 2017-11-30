@@ -38,11 +38,9 @@ define( [
             _parseCigar: function(cigar) {
                 var sequenceListObject = ProjectionUtils.parseSequenceList(this.browser.refSeq.name);
                 if (sequenceListObject[0].reverse) {
-                    console.log("cigar before: ", cigar);
                     var cigar_array = cigar.match(/\d+\D/g);
                     cigar_array.reverse();
                     cigar = cigar_array.join('');
-                    console.log("cigar after: ", cigar);
                 }
 
                 return array.map( cigar.toUpperCase().match(/\d+\D/g), function( op ) {
