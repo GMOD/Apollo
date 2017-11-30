@@ -10,7 +10,10 @@ define( [
         'JBrowse/Errors',
         'JBrowse/Model/XHRBlob',
         'JBrowse/Store/LRUCache',
-        'JBrowse/Store/SeqFeature/BAM',
+        'JBrowse/Store/SeqFeature',
+        'JBrowse/Store/DeferredStatsMixin',
+        'JBrowse/Store/DeferredFeaturesMixin',
+        'JBrowse/Store/SeqFeature/GlobalStatsEstimationMixin',
         'WebApollo/Store/SeqFeature/BAM/File'
     ],
     function(
@@ -25,11 +28,14 @@ define( [
         Errors,
         XHRBlob,
         LRUCache,
-        BAMStore,
+        SeqFeatureStore,
+        DeferredStatsMixin,
+        DeferredFeaturesMixin,
+        GlobalStatsEstimationMixin,
         WebApolloBAMFile
     ) {
 
-    return declare(BAMStore, {
+    return declare([ SeqFeatureStore, DeferredStatsMixin, DeferredFeaturesMixin, GlobalStatsEstimationMixin ], {
 
         constructor: function(args) {
 
@@ -237,6 +243,34 @@ define( [
                 dojo.hitch( this, '_getFeatures', query, featCallback, endCallback, errorCallback ),
                 errorCallback
             );
+        },
+
+        /**
+         * Interrogate whether a store has data for a given reference
+         * sequence.  Calls the given callback with either true or false.
+         *
+         * Implemented as a binary interrogation because some stores are
+         * smart enough to regularize reference sequence names, while
+         * others are not.
+         */
+        hasRefSeq: function( seqName, callback, errorCallback ) {
+            var thisB = this;
+            seqName = thisB.browser.regularizeReferenceName( seqName );
+            this._deferred.stats.then( function() {
+                callback( seqName in thisB.bam.chrToIndex );
+            }, errorCallback );
+        },
+
+        // called by getFeatures from the DeferredFeaturesMixin
+        _getFeatures: function( query, featCallback, endCallback, errorCallback ) {
+            this.bam.fetch( query.ref ? query.ref : this.refSeq.name, query.start, query.end, featCallback, endCallback, errorCallback );
+        },
+
+        saveStore: function() {
+            return {
+                urlTemplate: this.config.bam.url,
+                baiUrlTemplate: this.config.bai.url
+            };
         }
 
     });
