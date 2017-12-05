@@ -12,11 +12,13 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -144,6 +146,9 @@ public class TrackPanel extends Composite {
             if (jsonObject.get(key).isObject() != null) {
                 treeItem.addItem(generateTreeItem(jsonObject.get(key).isObject()));
             }
+//            else{
+//                treeItem.setHTML(generateHtmlFromObject(jsonObject, key));
+//            }
             optionTree.addItem(treeItem);
         }
     }
@@ -151,9 +156,12 @@ public class TrackPanel extends Composite {
     private String generateHtmlFromObject(JSONObject jsonObject, String key) {
         if (jsonObject.get(key) == null) {
             return key;
-        } else if (jsonObject.get(key).isObject() != null) {
-            return key;
-        } else {
+        }
+        else if (jsonObject.get(key).isObject() != null) {
+            GWT.log("We should have screened this: " + key);
+            return "<b>" + key + "</b>";
+        }
+        else {
             return "<b>" + key + "</b>: " + jsonObject.get(key).toString().replace("\\", "");
         }
     }
@@ -416,6 +424,10 @@ public class TrackPanel extends Composite {
             else Bootbox.alert("Track label should not be null, please check your tracklist");
 
             if (object.get("type") != null) trackInfo.setType(object.get("type").isString().stringValue());
+
+            if (object.get("storeClass") != null) trackInfo.setStoreClass(object.get("storeClass").isString().stringValue());
+
+            if (object.get("style") != null) trackInfo.setStyle(object.get("style").toString());
 
             if (object.get("urlTemplate") != null)
                 trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
