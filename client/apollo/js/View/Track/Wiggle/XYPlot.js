@@ -5,7 +5,6 @@ define([
         'JBrowse/Util',
         'WebApollo/ProjectionUtils',
         'JBrowse/View/Track/Wiggle/XYPlot',
-        'JBrowse/View/Track/Wiggle/_Scale'
     ],
 
     function(
@@ -14,32 +13,11 @@ define([
         lang,
         Util,
         ProjectionUtils,
-        XYPlotTrack,
-        Scale
+        XYPlotTrack
     ) {
 
     return declare( XYPlotTrack, {
 
-        _defaultConfig: function() {
-            return Util.deepUpdate(
-                dojo.clone( this.inherited(arguments) ),
-                {
-                    style: {
-                        pos_color: 'blue',
-                        neg_color: 'red',
-                        origin_color: '#888',
-                        variance_band_color: 'rgba(0,0,0,0.3)'
-                    },
-                    autoscale: 'global',
-                    variance_band: 1,
-                    logScaleOption: true
-                }
-            );
-        },
-
-        // getFeatures: function(args){
-        //
-        // },
 
         /**
          * Override _getBlockFeatures
@@ -64,8 +42,6 @@ define([
                 finishCallback(e);
             });
 
-            // var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
-            // var refSeqName = sequenceList[0].name;
             this.getFeatures(
                 {
                     ref: this.refSeq.name,
@@ -87,9 +63,7 @@ define([
                         return;
 
                     var featureRects = array.map(features, function (f) {
-                        if(!f.isProjected){
-                            f = ProjectionUtils.projectJSONFeature(f, this.refSeq.name);
-                        }
+                        f = ProjectionUtils.projectJSONFeature(f, this.refSeq.name);
                         return this._featureRect(scale, leftBase, canvasWidth, f);
                     }, this);
 
@@ -106,34 +80,5 @@ define([
             );
         },
 
-       // TODO: implement ;
-        getRegionStats: function(){
-
-        },
-
-        // TODO: implement ;
-        getGlobalStats: function(){
-
-        },
-
-        /**
-         * Override _getScalingStats
-         */
-        _getScalingStats: function( viewArgs, callback, errorCallback ) {
-            if( ! Scale.prototype.needStats( this.config ) ) {
-                callback( null );
-                return null;
-            }
-            else if( this.config.autoscale == 'local' ) {
-                var region = lang.mixin( { scale: viewArgs.scale }, this.browser.view.visibleRegion() );
-                // region.ref = ProjectionUtils.parseSequenceList(region.ref)[0].name;
-                // region.start = Math.ceil( region.start );
-                // region.end = Math.floor( region.end );
-                return this.getRegionStats.call( this, region, callback, errorCallback );
-            }
-            else {
-                return this.getGlobalStats.call( this, callback, errorCallback );
-            }
-        }
     });
 });
