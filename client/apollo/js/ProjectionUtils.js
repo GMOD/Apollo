@@ -31,7 +31,6 @@ define([ 'dojo/_base/declare',
          * Project the given start and end
          */
         ProjectionUtils.projectCoordinates =  function( refSeqName, start, end ) {
-            var sequenceListObject = this.parseSequenceList(refSeqName);
             var projectedStart = parseInt(window.parent.projectValue(refSeqName, start).toString());
             var projectedEnd = parseInt(window.parent.projectValue(refSeqName, end).toString());
             if (projectedStart > projectedEnd) {
@@ -43,6 +42,18 @@ define([ 'dojo/_base/declare',
                 end = projectedEnd;
             }
             return [start, end];
+        };
+
+        /**
+         * Projects a single coordinate
+         * @param refSeqName
+         * @param start
+         * @param end
+         * @returns {*[]}
+         */
+        ProjectionUtils.projectCoordinate =  function( refSeqName, input) {
+            var projectedInput = parseInt(window.parent.projectValue(refSeqName, input ).toString());
+            return projectedInput ;
         };
 
         /**
@@ -97,6 +108,8 @@ define([ 'dojo/_base/declare',
          * Project a given JSON feature
          */
         ProjectionUtils.projectJSONFeature = function( feature, refSeqName ) {
+            if(feature.isProjected) return feature ;
+
             var start = feature.get("start");
             var end = feature.get("end");
             var projectedArray = this.projectCoordinates(refSeqName, start, end);

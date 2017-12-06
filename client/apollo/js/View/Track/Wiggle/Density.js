@@ -87,17 +87,17 @@ define([
                 // var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
                 // var refSeqName = sequenceList[0].name;
                 var chrName ;
-                if(ProjectionUtils.isSequenceList(this.refSeq.name)){
-                    var sequenceListObject = ProjectionUtils.parseSequenceList(this.refSeq.name);
-                    console.log(sequenceListObject);
-                    chrName = sequenceListObject[0].name ;
-                }
-                else{
-                    chrName = this.refSeq.name ;
-                }
+                // if(ProjectionUtils.isSequenceList(this.refSeq.name)){
+                //     var sequenceListObject = ProjectionUtils.parseSequenceList(this.refSeq.name);
+                //     console.log(sequenceListObject);
+                //     chrName = sequenceListObject[0].name ;
+                // }
+                // else{
+                //     chrName = this.refSeq.name ;
+                // }
                 this.getFeatures(
                     {
-                        ref: chrName,
+                        ref: refSeqName,
                         basesPerSpan: 1 / scale,
                         scale: scale,
                         start: leftBase,
@@ -106,9 +106,9 @@ define([
 
                     function (f) {
                         if (thisB.filterFeature(f)){
-                            if(!f.isProjected){
+                            // if(!f.isProjected){
                                 f = ProjectionUtils.projectJSONFeature(f,refSeqName);
-                            }
+                            // }
                             features.push(f);
                         }
                     },
@@ -122,11 +122,11 @@ define([
                         // features = features.sort(function (a,b) {
                         //     return a.data.start - b.data.start ;
                         // });
+                        console.log('A')
+                        console.log(features)
 
                         var featureRects = array.map(features, function (f) {
-                            if(!f.isProjected) {
-                                f = ProjectionUtils.projectJSONFeature(f,refSeqName);
-                            }
+                            // f = ProjectionUtils.projectJSONFeature(f,refSeqName);
                             return this._featureRect(scale, leftBase, canvasWidth, f);
                         }, this);
 
@@ -143,26 +143,57 @@ define([
                 );
             },
 
-            _featureRect: function( scale, leftBase, canvasWidth, feature ) {
-                var fRect = {
-                    w: Math.ceil(( feature.get('end')   - feature.get('start') ) * scale ),
-                    l: Math.round(( feature.get('start') - leftBase ) * scale )
-                };
+            _featureRect: function( scale, leftBase,  canvasWidth, feature ) {
+                // console.log('leftBase: ' + leftBase);
+                // console.log('start: '+feature.get('start'));
+                // console.log('scale: '+scale);
+
+
+                // if(ProjectionUtils.isSequenceList(this.refSeq.name)){
+                //     console.log(feature) ;
+                //     feature = ProjectionUtils.projectJSONFeature(feature,this.refSeq.name);
+                //     console.log('bases: '+leftBase+ ' '+rightBase) ;
+                //     var projectedBases = ProjectionUtils.projectCoordinates(this.refSeq.name,leftBase,rightBase);
+                //     leftBase = projectedBases[0];
+                //     console.log('projected bases: '+projectedBases) ;
+                // }
+                // if(ProjectionUtils.isSequenceList(this.refSeq.name)){
+                //     // feature = ProjectionUtils.projectJSONFeature(feature,this.refSeq.name);
+                //     var fRect = {
+                //         w: Math.ceil(( feature.get('_original_end')   - feature.get('_original_start') ) * scale ),
+                //         l: Math.round(( feature.get('_original_start') - leftBase ) * scale )
+                //     };
+                // }
+                // else{
+                    var fRect = {
+                        w: Math.ceil(( feature.get('end')   - feature.get('start') ) * scale ),
+                        l: Math.round(( feature.get('start') - leftBase ) * scale )
+                    };
+                // }
+
+
+
 
                 // if fRect.l is negative (off the left
                 // side of the canvas), clip off the
                 // (possibly large!) non-visible
                 // portion
+                // console.log('A');
+                // console.log(fRect);
                 if( fRect.l < 0 ) {
                     fRect.w += fRect.l;
                     fRect.l  = 0;
                 }
+                // console.log('B');
+                // console.log(fRect);
 
                 // also don't let fRect.w get overly big
                 if(canvasWidth >= fRect.l){
                     fRect.w = Math.min( canvasWidth-fRect.l, fRect.w );
                 }
                 fRect.r = fRect.w + fRect.l;
+                // console.log('C');
+                // console.log(fRect);
 
                 // if(fRect.l > fRect.r){
                 //     fRect.w = -fRect.w ;
@@ -180,6 +211,9 @@ define([
                 if(!scoreType||scoreType=="maxScore") {
                     // make an array of the max score at each pixel on the canvas
                     dojo.forEach( features, function( f, i ) {
+                        // if (!f.isProjected) {
+                        //     f = ProjectionUtils.projectJSONFeature(f, this.refSeq.name);
+                        // }
                         var store = f.source;
                         var fRect = featureRects[i];
                         var jEnd = fRect.r;
@@ -209,6 +243,9 @@ define([
                 else if(scoreType=="avgScore") {
                     // make an array of the average score at each pixel on the canvas
                     dojo.forEach( features, function( f, i ) {
+                        // if (!f.isProjected) {
+                        //     f = ProjectionUtils.projectJSONFeature(f, this.refSeq.name);
+                        // }
                         var store = f.source;
                         var fRect = featureRects[i];
                         var jEnd = fRect.r;

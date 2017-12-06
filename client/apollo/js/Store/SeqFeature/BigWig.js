@@ -7,6 +7,7 @@ define( [
             'JBrowse/Model/XHRBlob',
             'WebApollo/JSONUtils',
             'WebApollo/ProjectionUtils',
+            './BigWig/Window',
             'JBrowse/Store/SeqFeature/BigWig'
         ],
         function(
@@ -18,6 +19,7 @@ define( [
             XHRBlob,
             JSONUtils,
             ProjectionUtils,
+            Window,
             BigWigStore
         ) {
 return declare( BigWigStore,
@@ -60,15 +62,27 @@ return declare( BigWigStore,
             sizeFunction: function( stats ) { return 1; },
             fillCallback: function( query, callback ) {
                 //console.log( '_getRegionStats', query );
+                console.log('region status name: '+this.refSeq.name );
+                var sequenceListObject = ProjectionUtils.parseSequenceList(thisB.refSeq.name);
+                var unprojectedArray = ProjectionUtils.unProjectCoordinates(thisB.refSeq.name, query.start, query.end);
+                var unprojectedStart = unprojectedArray[0];
+                var unprojectedEnd = unprojectedArray[1];
+                console.log('start / end : '+start + ' ' + end + ' ' + sequenceListObject[0].name);
                 var s = {
                     scoreMax: -Infinity,
                     scoreMin: Infinity,
                     scoreSum: 0,
                     scoreSumSquares: 0,
-                    basesCovered: query.end - query.start,
+                    basesCovered: unprojectedEnd - unprojectedStart,
                     featureCount: 0
                 };
-                thisB.getFeatures( query,
+                thisB.getFeatures(
+                    {
+                        ref: sequenceListObject[0].name,
+                        start: unprojectedStart,
+                        end: unprojectedEnd
+                    }
+                    ,
                     function( feature ) {
                         var score = feature.get('score') || 0;
                         s.scoreMax = Math.max( score, s.scoreMax );
@@ -91,7 +105,13 @@ return declare( BigWigStore,
             }
         });
 
-        cache.get( query,
+        cache.get(
+            {
+                ref: sequenceListObject[0].name,
+                start: unprojectedStart,
+                end: unprojectedEnd
+            }
+            ,
             function( stats, error ) {
                 if( error )
                     errorCallback( error );
@@ -137,6 +157,39 @@ return declare( BigWigStore,
         );
     },
 
+    getUnzoomedView: function() {
+        if (!this.unzoomedView) {
+            var cirLen = 4000;
+            var nzl = this.zoomLevels[0];
+            if (nzl) {
+                cirLen = this.zoomLevels[0].dataOffset - this.unzoomedIndexOffset;
+            }
+            this.unzoomedView = new Window( this, this.unzoomedIndexOffset, cirLen, false );
+        }
+        return this.unzoomedView;
+    },
+
+
+    _getView: function( scale ) {
+        var basesPerPx = 1/scale;
+        //console.log('getting view for '+basesPerSpan+' bases per span');
+        var maxLevel = this.zoomLevels.length;
+        if( ! this.fileSize ) // if we don't know the file size, we can't fetch the highest zoom level :-(
+            maxLevel--;
+        for( var i = maxLevel; i > 0; i-- ) {
+            var zh = this.zoomLevels[i];
+            if( zh && zh.reductionLevel <= 2*basesPerPx ) {
+                var indexLength = i < this.zoomLevels.length - 1
+                    ? this.zoomLevels[i + 1].dataOffset - zh.indexOffset
+                    : this.fileSize - 4 - zh.indexOffset;
+                //console.log( 'using zoom level '+i);
+                return new Window( this, zh.indexOffset, indexLength, true );
+            }
+        }
+        //console.log( 'using unzoomed level');
+        return this.getUnzoomedView();
+    },
+
     /**
      * Interrogate whether a store has data for a given reference
      * sequence.  Calls the given callback with either true or false.
@@ -155,10 +208,13 @@ return declare( BigWigStore,
         }, errorCallback );
     },
 
+
     _getFeatures: function( query, featureCallback, endCallback, errorCallback ) {
 
         // parse sequenceList from query.ref
         var chrName, min, max ;
+        console.log('REFREFREF');
+        console.log(query.ref);
         if(ProjectionUtils.isSequenceList(query.ref)){
             var sequenceListObject = ProjectionUtils.parseSequenceList(query.ref);
             console.log(sequenceListObject);
@@ -185,6 +241,7 @@ return declare( BigWigStore,
         }
 
         chrName = this.browser.regularizeReferenceName(chrName);
+        console.log(chrName+': reading min['+min+'] max['+max+'] from '+query.start + ' ' + query.end);
         v.readWigData( chrName, min, max, dojo.hitch( this, function( features ) {
             array.forEach( features || [], featureCallback );
             endCallback();
