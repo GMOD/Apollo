@@ -2,17 +2,14 @@
              xmlns:gwt="urn:import:com.google.gwt.user.client.ui"
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:toggle="urn:import:org.gwtbootstrap3.extras.toggleswitch.client.ui"
-             xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
-        >
+>
     <ui:style>
         .northPanel {
             padding: 0px;
             margin: 10px;
         }
 
-
-
-        .tableKeyName{
+        .tableKeyName {
             font-weight: bolder;
         }
 
@@ -48,70 +45,72 @@
             <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%">
-                        <b:Row>
-                            <b:Column size="MD_3" >
-                                <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
-                            </b:Column>
-                            <b:Column size="MD_4" >
-                                <gwt:HTML ui:field="trackName"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row>
-                            <b:Column size="MD_3" >
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Type
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_4" >
-                                <gwt:HTML ui:field="trackType"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row visible="true">
-                            <b:Column size="MD_3" >
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Configuration
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_7" >
-                                <gwt:Tree ui:field="optionTree"/>
-                            </b:Column>
-                        </b:Row>
+                    <gwt:ScrollPanel>
+                        <b:Container fluid="true" width="100%">
+                            <b:Row>
+                                <b:Column size="MD_3">
+                                    <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
+                                </b:Column>
+                                <b:Column size="MD_4">
+                                    <gwt:HTML ui:field="trackName"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row>
+                                <b:Column size="MD_3">
+                                    <gwt:HTML styleName="{style.tableKeyName}">
+                                        Type
+                                    </gwt:HTML>
+                                </b:Column>
+                                <b:Column size="MD_4">
+                                    <gwt:HTML ui:field="trackType"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row visible="true">
+                                <b:Column size="MD_3">
+                                    <gwt:HTML styleName="{style.tableKeyName}">
+                                        Configuration
+                                    </gwt:HTML>
+                                </b:Column>
+                                <b:Column size="MD_7">
+                                    <gwt:Tree ui:field="optionTree"/>
+                                </b:Column>
+                            </b:Row>
 
-                        <b:Row visible="false">
-                            <b:Column size="MD_3" >
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Feature Count
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_4" >
-                                <gwt:HTML ui:field="trackCount"/>
-                            </b:Column>
-                        </b:Row>
-                        <b:Row visible="false">
-                            <b:Column size="MD_3" >
-                                <gwt:HTML styleName="{style.tableKeyName}">
-                                    Feature Density
-                                </gwt:HTML>
-                            </b:Column>
-                            <b:Column size="MD_4" >
-                                <gwt:HTML ui:field="trackDensity"/>
-                            </b:Column>
-                        </b:Row>
-                    </b:Container>
+                            <b:Row visible="false">
+                                <b:Column size="MD_3">
+                                    <gwt:HTML styleName="{style.tableKeyName}">
+                                        Feature Count
+                                    </gwt:HTML>
+                                </b:Column>
+                                <b:Column size="MD_4">
+                                    <gwt:HTML ui:field="trackCount"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row visible="false">
+                                <b:Column size="MD_3">
+                                    <gwt:HTML styleName="{style.tableKeyName}">
+                                        Feature Density
+                                    </gwt:HTML>
+                                </b:Column>
+                                <b:Column size="MD_4">
+                                    <gwt:HTML ui:field="trackDensity"/>
+                                </b:Column>
+                            </b:Row>
+                        </b:Container>
+                    </gwt:ScrollPanel>
                 </gwt:tab>
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>Configuration</gwt:header>-->
-                    <!--<gwt:FlexTable ui:field="configurationTable"/>-->
+                <!--<gwt:header>Configuration</gwt:header>-->
+                <!--<gwt:FlexTable ui:field="configurationTable"/>-->
                 <!--</gwt:tab>-->
                 <!--TODO: add back for 2.0-alpha2 or 2.1-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>Users</gwt:header>-->
-                    <!--<gwt:HTML text="user permissions on table"/>-->
+                <!--<gwt:header>Users</gwt:header>-->
+                <!--<gwt:HTML text="user permissions on table"/>-->
                 <!--</gwt:tab>-->
                 <!--<gwt:tab>-->
-                    <!--<gwt:header>Groups</gwt:header>-->
-                    <!--<gwt:HTML text="group permissions on table"/>-->
+                <!--<gwt:header>Groups</gwt:header>-->
+                <!--<gwt:HTML text="group permissions on table"/>-->
                 <!--</gwt:tab>-->
             </gwt:TabLayoutPanel>
         </gwt:south>

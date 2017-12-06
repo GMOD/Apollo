@@ -3,7 +3,7 @@ define([
         'dojo/_base/array',
         'dojo/_base/lang',
         'JBrowse/Util',
-        'WebApollo/JSONUtils',
+        'WebApollo/ProjectionUtils',
         'JBrowse/View/Track/Wiggle/XYPlot',
         'JBrowse/View/Track/Wiggle/_Scale'
     ],
@@ -13,7 +13,7 @@ define([
         array,
         lang,
         Util,
-        JSONUtils,
+        ProjectionUtils,
         XYPlotTrack,
         Scale
     ) {
@@ -60,9 +60,9 @@ define([
                 finishCallback(e);
             });
 
-            var sequenceList = JSONUtils.parseSequenceList(this.refSeq.name);
+            var sequenceList = ProjectionUtils.parseSequenceList(this.refSeq.name);
             if (sequenceList[0].reverse) {
-                errorCallback(JSONUtils.NOT_YET_SUPPORTED_MESSAGE)
+                errorCallback(ProjectionUtils.NOT_YET_SUPPORTED_MESSAGE)
             }
             else {
                 var refSeqName = sequenceList[0].name;
@@ -114,7 +114,7 @@ define([
             }
             else if( this.config.autoscale == 'local' ) {
                 var region = lang.mixin( { scale: viewArgs.scale }, this.browser.view.visibleRegion() );
-                region.ref = JSONUtils.parseSequenceList(region.ref)[0].name;
+                region.ref = ProjectionUtils.parseSequenceList(region.ref)[0].name;
                 region.start = Math.ceil( region.start );
                 region.end = Math.floor( region.end );
                 return this.getRegionStats.call( this, region, callback, errorCallback );
