@@ -13,6 +13,7 @@ define( [
             'dojo/on',
             'JBrowse/has',
             'JBrowse/Util',
+            'WebApollo/ProjectionUtils',
             'JBrowse/View/Track/CanvasFeatures'
         ],
         function(
@@ -26,6 +27,7 @@ define( [
             on,
             has,
             Util,
+            ProjectionUtils,
             CanvasFeatures
         ) {
 
@@ -39,6 +41,89 @@ define( [
 return declare(
     [ CanvasFeatures ], {
 
+        _defaultConfig: function() {
+            return Util.deepUpdate(
+                lang.clone( this.inherited(arguments) ),
+                {
+                    maxFeatureScreenDensity: 0.5,
+
+                    // default glyph class to use
+                    glyph: lang.hitch( this, 'guessGlyphType' ),
+
+                    // maximum number of pixels on each side of a
+                    // feature's bounding coordinates that a glyph is
+                    // allowed to use
+                    maxFeatureGlyphExpansion: 500,
+
+                    // maximum height of the track, in pixels
+                    maxHeight: 600,
+
+                    histograms: {
+                        description: 'feature density',
+                        min: 0,
+                        height: 100,
+                        color: 'goldenrod',
+                        clip_marker_color: 'red'
+                    },
+
+                    style: {
+                        // not configured by users
+                        _defaultHistScale: 4,
+                        _defaultLabelScale: 30,
+                        _defaultDescriptionScale: 120,
+
+                        showLabels: true,
+                        showTooltips: true,
+                        label: 'name,id',
+                        description: 'note, description'
+                    },
+
+                    displayMode: 'normal',
+
+                    events: {
+                        contextmenu: function( feature, fRect, block, track, evt ) {
+                            evt = domEvent.fix( evt );
+                            if( fRect && fRect.contextMenu )
+                                fRect.contextMenu._openMyself({ target: block.featureCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
+                            domEvent.stop( evt );
+                        }
+                    },
+
+                    menuTemplate: [
+                        { label: 'View details',
+                            title: '{type} {name}',
+                            action: 'contentDialog',
+                            iconClass: 'dijitIconTask',
+                            content: dojo.hitch( this, 'defaultFeatureDetail' )
+                        },
+                        {
+                            "label" : function() {
+                                return 'Zoom to this '+( this.feature.get('type') || 'feature' );
+                            },
+                            "action" : function(){
+                                var ref   = this.track.refSeq;
+                                var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
+
+                                this.feature = ProjectionUtils.projectJSONFeature(this.feature,ref.name);
+                                var start = Math.max( ref.start, this.feature.get('start') - paddingBp );
+                                var end   = Math.min( ref.end, this.feature.get('end') + paddingBp );
+                                this.track.genomeView.setLocation( ref, start, end );
+                            },
+                            "iconClass" : "dijitIconConnector"
+                        },
+                        {
+                            label : function() {
+                                return 'Highlight this '+( this.feature.get('type') || 'feature' );
+                            },
+                            action: function() {
+                                var loc = new Location({ feature: this.feature, tracks: [this.track] });
+                                this.track.browser.setHighlightAndRedraw(loc);
+                            },
+                            iconClass: 'dijitIconFilter'
+                        }
+                    ]
+                });
+        },
 
 
 
@@ -77,7 +162,9 @@ return declare(
         // example)
         var bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale );
 
-        var region = { ref: this.refSeq.name,
+        var refSeqName = this.refSeq.name ;
+
+        var region = { ref: refSeqName,
                        start: Math.max( 0, leftBase - bpExpansion ),
                        end: rightBase + bpExpansion
                      };
@@ -88,6 +175,8 @@ return declare(
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;
+
+                                    feature = ProjectionUtils.projectJSONFeature(feature,refSeqName);
 
                                     // get the appropriate glyph object to render this feature
                                     thisB.getGlyph(
