@@ -55,6 +55,18 @@ define([ 'dojo/_base/declare',
             return projectedInput ;
         };
 
+        ProjectionUtils.projectStrand = function(refSeqName,input){
+            if(!input) return input ;
+
+            var sequenceListObject = this.parseSequenceList(refSeqName);
+            if(sequenceListObject[0].reverse){
+                return input < 0 ? 1 : -1 ;
+            }
+            else{
+                return input ;
+            }
+        }
+
         /**
          * Unproject the given start and end
          */
