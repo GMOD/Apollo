@@ -41,91 +41,23 @@ define( [
 return declare(
     [ CanvasFeatures ], {
 
-        _defaultConfig: function() {
-            return Util.deepUpdate(
-                lang.clone( this.inherited(arguments) ),
-                {
-                    maxFeatureScreenDensity: 0.5,
+        _renderAdditionalTagsDetail: function( track, f, featDiv, container ) {
+            var additionalTags = array.filter( f.tags(), function(t) {
+                return ! this._isReservedTag( t ) && !t.startsWith('_');
+            },this);
 
-                    // default glyph class to use
-                    glyph: lang.hitch( this, 'guessGlyphType' ),
-
-                    // maximum number of pixels on each side of a
-                    // feature's bounding coordinates that a glyph is
-                    // allowed to use
-                    maxFeatureGlyphExpansion: 500,
-
-                    // maximum height of the track, in pixels
-                    maxHeight: 600,
-
-                    histograms: {
-                        description: 'feature density',
-                        min: 0,
-                        height: 100,
-                        color: 'goldenrod',
-                        clip_marker_color: 'red'
+            if( additionalTags.length ) {
+                var atElement = domConstruct.create(
+                    'div',
+                    { className: 'additional',
+                        innerHTML: '<h2 class="sectiontitle">Attributes</h2>'
                     },
-
-                    style: {
-                        // not configured by users
-                        _defaultHistScale: 4,
-                        _defaultLabelScale: 30,
-                        _defaultDescriptionScale: 120,
-
-                        showLabels: true,
-                        showTooltips: true,
-                        label: 'name,id',
-                        description: 'note, description'
-                    },
-
-                    displayMode: 'normal',
-
-                    events: {
-                        contextmenu: function( feature, fRect, block, track, evt ) {
-                            evt = domEvent.fix( evt );
-                            if( fRect && fRect.contextMenu )
-                                fRect.contextMenu._openMyself({ target: block.featureCanvas, coords: { x: evt.pageX, y: evt.pageY }} );
-                            domEvent.stop( evt );
-                        }
-                    },
-
-                    menuTemplate: [
-                        { label: 'View details',
-                            title: '{type} {name}',
-                            action: 'contentDialog',
-                            iconClass: 'dijitIconTask',
-                            content: dojo.hitch( this, 'defaultFeatureDetail' )
-                        },
-                        {
-                            "label" : function() {
-                                return 'Zoom to this '+( this.feature.get('type') || 'feature' );
-                            },
-                            "action" : function(){
-                                var ref   = this.track.refSeq;
-                                var paddingBp = Math.round( 10 /*pixels*/ / this.viewInfo.scale /* px/bp */ );
-
-                                this.feature = ProjectionUtils.projectJSONFeature(this.feature,ref.name);
-                                var start = Math.max( ref.start, this.feature.get('start') - paddingBp );
-                                var end   = Math.min( ref.end, this.feature.get('end') + paddingBp );
-                                this.track.genomeView.setLocation( ref, start, end );
-                            },
-                            "iconClass" : "dijitIconConnector"
-                        },
-                        {
-                            label : function() {
-                                return 'Highlight this '+( this.feature.get('type') || 'feature' );
-                            },
-                            action: function() {
-                                var loc = new Location({ feature: this.feature, tracks: [this.track] });
-                                this.track.browser.setHighlightAndRedraw(loc);
-                            },
-                            iconClass: 'dijitIconFilter'
-                        }
-                    ]
-                });
+                    container );
+                array.forEach( additionalTags.sort(), function(t) {
+                    this.renderDetailField( container, t, f.get(t), f );
+                }, this );
+            }
         },
-
-
 
     fillFeatures: function( args ) {
         var thisB = this;
