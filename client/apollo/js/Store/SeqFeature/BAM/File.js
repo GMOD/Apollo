@@ -26,10 +26,6 @@ define( [
 
     var WebApolloBAMFile = declare( JBrowseBAMFile, {
 
-        constructor: function(args) {
-            console.log("In BAM File Constructor");
-        },
-
         /*
          * Override
          */
