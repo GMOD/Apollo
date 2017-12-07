@@ -366,6 +366,8 @@ define([
                         filteredTrack.type = trackConfig.type;
                         filteredTrack.category = trackConfig.category;
                         filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                        filteredTrack.storeClass = trackConfig.storeClass;
+                        filteredTrack.style = JSON.stringify(trackConfig.style);
                         filteredTrack.visible = visible;
                         filteredTrackList.push(filteredTrack);
                     }
