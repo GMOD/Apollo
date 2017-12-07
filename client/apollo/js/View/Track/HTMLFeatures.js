@@ -6,6 +6,7 @@ define( [
         'dojo/dom-geometry',
         'dojo/on',
         'dojo/query',
+        'dojo/dom-construct',
         'JBrowse/Util',
         'WebApollo/ProjectionUtils',
         'JBrowse/View/Track/HTMLFeatures'
@@ -17,12 +18,32 @@ define( [
               domGeom,
               on,
               query,
+              domConstruct,
               Util,
               ProjectionUtils,
               HTMLFeatures
     ) {
 
         var HTMLFeatures = declare( [ HTMLFeatures], {
+
+
+            _renderAdditionalTagsDetail: function( track, f, featDiv, container ) {
+                var additionalTags = array.filter( f.tags(), function(t) {
+                    return ! this._isReservedTag( t ) && !t.startsWith('_');
+                },this);
+
+                if( additionalTags.length ) {
+                    var atElement = domConstruct.create(
+                        'div',
+                        { className: 'additional',
+                            innerHTML: '<h2 class="sectiontitle">Attributes</h2>'
+                        },
+                        container );
+                    array.forEach( additionalTags.sort(), function(t) {
+                        this.renderDetailField( container, t, f.get(t), f );
+                    }, this );
+                }
+            },
 
 
             renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd ) {

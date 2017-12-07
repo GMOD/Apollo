@@ -7,7 +7,7 @@ define( [
              'dojo/_base/declare',
              'dojo/promise/all',
              'WebApollo/View/Track/HTMLFeatures',
-             'JBrowse/View/Track/_VariantDetailMixin'
+             'WebApollo/View/Track/_VariantDetailMixin'
          ],
 
          function(
