@@ -7,6 +7,7 @@ define( [
         'dojo/on',
         'dojo/query',
         'JBrowse/Util',
+        'WebApollo/ProjectionUtils',
         'JBrowse/View/Track/HTMLFeatures'
     ],
     function( declare,
@@ -17,193 +18,202 @@ define( [
               on,
               query,
               Util,
+              ProjectionUtils,
               HTMLFeatures
     ) {
 
-        var ProjectedHTMLFeatures = declare( [ HTMLFeatures], {
+        var HTMLFeatures = declare( [ HTMLFeatures], {
 
-            updateFeatureArrowPositions: function( coords ) {
-                if( ! ('x' in coords) )
-                    return;
-
-                var viewmin = this.browser.view.minVisible();
-                var viewmax = this.browser.view.maxVisible();
-
-                var blocks = this.blocks;
-
-                for( var blockIndex = 0; blockIndex < blocks.length; blockIndex++ ) {
-                    var block = blocks[blockIndex];
-                    if( ! block )
-                        continue;
-                    var childNodes = block.domNode.childNodes;
-                    for( var i = 0; i<childNodes.length; i++ ) {
-                        var featDiv = childNodes[i];
-                        if( ! featDiv.feature )
-                            continue;
-                        var feature = featDiv.feature;
-
-                        // Retrieve containerStart/End to resolve div truncation from renderFeature
-                        var containerStart = featDiv._containerStart;
-                        var containerEnd = featDiv._containerEnd;
-
-                        var strand  = feature.get('strand');
-                        if( ! strand )
-                            continue;
-
-                        var fmin    = feature.get('start');
-                        var fmax    = feature.get('end');
-                        var arrowhead;
-                        var featDivChildren;
-                        //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
-                        var displayStart = Math.max( fmin, containerStart );
-                        var displayEnd = Math.min( fmax, containerEnd );
-
-                        // minus strand
-                        if( strand < 0 && fmax > viewmin ) {
-                            var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
-                            featDivChildren = featDiv.childNodes;
-                            for( var j = 0; j<featDivChildren.length; j++ ) {
-                                arrowhead = featDivChildren[j];
-                                if (typeof arrowhead.className === 'string') {
-                                    if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
-                                        arrowhead.style.left =
-                                            ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
-                                                    : -this.minusArrowWidth
-                                            ) + 'px';
-                                    };
-                                }
-                            }
-                        }
-                        // plus strand
-                        else if( strand > 0 && fmin < viewmax ) {
-                            var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
-                            featDivChildren = featDiv.childNodes;
-                            for( var j = 0; j<featDivChildren.length; j++ ) {
-                                arrowhead = featDivChildren[j];
-                                if (typeof arrowhead.className === 'string') {
-                                    if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
-                                        arrowhead.style.right =
-                                            ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
-                                                    : -this.plusArrowWidth
-                                            ) + 'px';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-
-
-            /**
-             * arguments:
-             * @param args.block div to be filled with info
-             * @param args.leftBlock div to the left of the block to be filled
-             * @param args.rightBlock div to the right of the block to be filled
-             * @param args.leftBase starting base of the block
-             * @param args.rightBase ending base of the block
-             * @param args.scale pixels per base at the current zoom level
-             * @param args.containerStart don't make HTML elements extend further left than this
-             * @param args.containerEnd don't make HTML elements extend further right than this. 0-based.
-             */
-            fillFeatures: function(args) {
-                var blockIndex = args.blockIndex;
-                var block = args.block;
-                var leftBase = args.leftBase;
-                var rightBase = args.rightBase;
-                var scale = args.scale;
-                var stats = args.stats;
-                var containerStart = args.containerStart;
-                var containerEnd = args.containerEnd;
-                var finishCallback = args.finishCallback;
-                var browser = this.browser;
+            // updateFeatureArrowPositions: function( coords ) {
+            //     if( ! ('x' in coords) )
+            //         return;
+            //
+            //     var viewmin = this.browser.view.minVisible();
+            //     var viewmax = this.browser.view.maxVisible();
+            //
+            //     var blocks = this.blocks;
+            //
+            //     for( var blockIndex = 0; blockIndex < blocks.length; blockIndex++ ) {
+            //         var block = blocks[blockIndex];
+            //         if( ! block )
+            //             continue;
+            //         var childNodes = block.domNode.childNodes;
+            //         for( var i = 0; i<childNodes.length; i++ ) {
+            //             var featDiv = childNodes[i];
+            //             if( ! featDiv.feature )
+            //                 continue;
+            //             var feature = featDiv.feature;
+            //
+            //             // Retrieve containerStart/End to resolve div truncation from renderFeature
+            //             var containerStart = featDiv._containerStart;
+            //             var containerEnd = featDiv._containerEnd;
+            //
+            //             var strand  = feature.get('strand');
+            //             if( ! strand )
+            //                 continue;
+            //
+            //             var fmin    = feature.get('start');
+            //             var fmax    = feature.get('end');
+            //             var arrowhead;
+            //             var featDivChildren;
+            //             //borrow displayStart,displayEnd for arrowhead calculations because of truncations in renderFeat
+            //             var displayStart = Math.max( fmin, containerStart );
+            //             var displayEnd = Math.min( fmax, containerEnd );
+            //
+            //             // minus strand
+            //             if( strand < 0 && fmax > viewmin ) {
+            //                 var minusArrowClass = 'minus-'+this.config.style.arrowheadClass;
+            //                 featDivChildren = featDiv.childNodes;
+            //                 for( var j = 0; j<featDivChildren.length; j++ ) {
+            //                     arrowhead = featDivChildren[j];
+            //                     if (typeof arrowhead.className === 'string') {
+            //                         if( arrowhead && arrowhead.className && arrowhead.className.indexOf( minusArrowClass ) >= 0 ) {
+            //                             arrowhead.style.left =
+            //                                 ( fmin < viewmin ? block.bpToX( viewmin ) - block.bpToX( displayStart )
+            //                                         : -this.minusArrowWidth
+            //                                 ) + 'px';
+            //                         };
+            //                     }
+            //                 }
+            //             }
+            //             // plus strand
+            //             else if( strand > 0 && fmin < viewmax ) {
+            //                 var plusArrowClass = 'plus-'+this.config.style.arrowheadClass;
+            //                 featDivChildren = featDiv.childNodes;
+            //                 for( var j = 0; j<featDivChildren.length; j++ ) {
+            //                     arrowhead = featDivChildren[j];
+            //                     if (typeof arrowhead.className === 'string') {
+            //                         if( arrowhead && arrowhead.className && arrowhead.className.indexOf( plusArrowClass ) >= 0 ) {
+            //                             arrowhead.style.right =
+            //                                 ( fmax > viewmax ? block.bpToX( displayEnd ) - block.bpToX( viewmax-2 )
+            //                                         : -this.plusArrowWidth
+            //                                 ) + 'px';
+            //                         }
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // },
 
 
-                this.scale = scale;
-
-                block.featureNodes = {};
-
-                //determine the glyph height, arrowhead width, label text dimensions, etc.
-                if( !this.haveMeasurements ) {
-                    this.measureStyles();
-                    this.haveMeasurements = true;
-                }
-
-                var labelScale       = this.config.style.labelScale       || stats.featureDensity * this.config.style._defaultLabelScale;
-                var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
-
-                var curTrack = this;
-
-                var featCallback = dojo.hitch(this,function( feature ) {
-                    var uniqueId = feature.id();
-                    if( ! this._featureIsRendered( uniqueId ) ) {
-                        /* feature render, adding to block, centering refactored into addFeatureToBlock() */
-                        // var filter = this.browser.view.featureFilter;
-                        if( this.filterFeature( feature ) )  {
-
-                            //todo: adapt filterFeature instead of renderFeature
-
-                            // hook point
-                            var render = 1;
-                            if (typeof this.renderFilter === 'function')
-                                render = this.renderFilter(feature);
-
-                            if (render === 1) {
-                                this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
-                            }
-                        }
-                    }
-                });
-
-                this.store.getFeatures( { ref: this.refSeq.name,
-                        start: leftBase,
-                        end: rightBase
-                    },
-                    featCallback,
-                    function ( args ) {
-                        curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
-                            blockIndex);
-                        if ( args && args.maskingSpans ) {
-                            //note: spans have to be inverted
-                            var invSpan = [];
-                            invSpan[0] = { start: leftBase };
-                            var i = 0;
-                            for ( var span in args.maskingSpans) {
-                                if (args.maskingSpans.hasOwnProperty(span)) {
-                                    span = args.maskingSpans[span];
-                                    invSpan[i].end = span.start;
-                                    i++;
-                                    invSpan[i] = { start: span.end };
-                                }
-                            }
-                            invSpan[i].end = rightBase;
-                            if (invSpan[i].end <= invSpan[i].start) {
-                                invSpan.splice(i,1); }
-                            if (invSpan[0].end <= invSpan[0].start) {
-                                invSpan.splice(0,1); }
-                            curTrack.maskBySpans( invSpan, args.maskingSpans );
-                        }
-                        finishCallback();
-                    },
-                    function( error ) {
-                        console.error( error, error.stack );
-                        curTrack.fillBlockError( blockIndex, block, error );
-                        finishCallback();
-                    }
-                );
-            },
+            // /**
+            //  * arguments:
+            //  * @param args.block div to be filled with info
+            //  * @param args.leftBlock div to the left of the block to be filled
+            //  * @param args.rightBlock div to the right of the block to be filled
+            //  * @param args.leftBase starting base of the block
+            //  * @param args.rightBase ending base of the block
+            //  * @param args.scale pixels per base at the current zoom level
+            //  * @param args.containerStart don't make HTML elements extend further left than this
+            //  * @param args.containerEnd don't make HTML elements extend further right than this. 0-based.
+            //  */
+            // fillFeatures: function(args) {
+            //     var blockIndex = args.blockIndex;
+            //     var block = args.block;
+            //     var leftBase = args.leftBase;
+            //     var rightBase = args.rightBase;
+            //     var scale = args.scale;
+            //     var stats = args.stats;
+            //     var containerStart = args.containerStart;
+            //     var containerEnd = args.containerEnd;
+            //     var finishCallback = args.finishCallback;
+            //     var browser = this.browser;
+            //
+            //
+            //     this.scale = scale;
+            //
+            //     block.featureNodes = {};
+            //
+            //     //determine the glyph height, arrowhead width, label text dimensions, etc.
+            //     if( !this.haveMeasurements ) {
+            //         this.measureStyles();
+            //         this.haveMeasurements = true;
+            //     }
+            //
+            //     var labelScale       = this.config.style.labelScale       || stats.featureDensity * this.config.style._defaultLabelScale;
+            //     var descriptionScale = this.config.style.descriptionScale || stats.featureDensity * this.config.style._defaultDescriptionScale;
+            //
+            //     var curTrack = this;
+            //
+            //     var featCallback = dojo.hitch(this,function( feature ) {
+            //         var uniqueId = feature.id();
+            //         if( ! this._featureIsRendered( uniqueId ) ) {
+            //             /* feature render, adding to block, centering refactored into addFeatureToBlock() */
+            //             // var filter = this.browser.view.featureFilter;
+            //             if( this.filterFeature( feature ) )  {
+            //
+            //                 //todo: adapt filterFeature instead of renderFeature
+            //
+            //                 // hook point
+            //                 var render = 1;
+            //                 if (typeof this.renderFilter === 'function')
+            //                     render = this.renderFilter(feature);
+            //
+            //                 if (render === 1) {
+            //                     this.addFeatureToBlock( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd );
+            //                 }
+            //             }
+            //         }
+            //     });
+            //
+            //     this.store.getFeatures( { ref: this.refSeq.name,
+            //             start: leftBase,
+            //             end: rightBase
+            //         },
+            //         featCallback,
+            //         function ( args ) {
+            //             curTrack.heightUpdate(curTrack._getLayout(scale).getTotalHeight(),
+            //                 blockIndex);
+            //             if ( args && args.maskingSpans ) {
+            //                 //note: spans have to be inverted
+            //                 var invSpan = [];
+            //                 invSpan[0] = { start: leftBase };
+            //                 var i = 0;
+            //                 for ( var span in args.maskingSpans) {
+            //                     if (args.maskingSpans.hasOwnProperty(span)) {
+            //                         span = args.maskingSpans[span];
+            //                         invSpan[i].end = span.start;
+            //                         i++;
+            //                         invSpan[i] = { start: span.end };
+            //                     }
+            //                 }
+            //                 invSpan[i].end = rightBase;
+            //                 if (invSpan[i].end <= invSpan[i].start) {
+            //                     invSpan.splice(i,1); }
+            //                 if (invSpan[0].end <= invSpan[0].start) {
+            //                     invSpan.splice(0,1); }
+            //                 curTrack.maskBySpans( invSpan, args.maskingSpans );
+            //             }
+            //             finishCallback();
+            //         },
+            //         function( error ) {
+            //             console.error( error, error.stack );
+            //             curTrack.fillBlockError( blockIndex, block, error );
+            //             finishCallback();
+            //         }
+            //     );
+            // },
 
             renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd ) {
                 //featureStart and featureEnd indicate how far left or right
                 //the feature extends in bp space, including labels
                 //and arrowheads if applicable
 
+                var refSeqName = this.refSeq.name ;
                 var featureEnd = feature.get('end');
                 var featureStart = feature.get('start');
                 if( typeof featureEnd == 'string' )
                     featureEnd = parseInt(featureEnd);
                 if( typeof featureStart == 'string' )
                     featureStart = parseInt(featureStart);
+
+
+                var projectedFeatures = ProjectionUtils.projectCoordinates(refSeqName,featureStart,featureEnd);
+                featureStart = projectedFeatures[0];
+                featureEnd = projectedFeatures[1];
+
+
                 // layoutStart: start genome coord (at current scale) of horizontal space need to render feature,
                 //       including decorations (arrowhead, label, etc) and padding
                 var layoutStart = featureStart;
@@ -420,6 +430,11 @@ define( [
             renderSubfeature: function( feature, featDiv, subfeature, displayStart, displayEnd, block ) {
                 var subStart = subfeature.get('start');
                 var subEnd = subfeature.get('end');
+
+                var projectedFeatures = ProjectionUtils.projectCoordinates(refSeqName,subStart,subEnd);
+                subStart = projectedFeatures[0];
+                subEnd = projectedFeatures[1];
+
                 var featLength = displayEnd - displayStart;
                 var type = subfeature.get('type');
                 var className;
@@ -482,7 +497,7 @@ define( [
 
         });
 
-        return ProjectedHTMLFeatures;
+        return HTMLFeatures;
     });
 
 /*

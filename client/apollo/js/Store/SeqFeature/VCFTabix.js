@@ -23,7 +23,6 @@ return declare( [ VCFTabix ],
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         thisB.getVCFHeader().then( function() {
-
             var min , max , chrName ;
             var refSeqName = query.ref || thisB.refSeq.name;
             if(ProjectionUtils.isSequenceList(refSeqName)){
