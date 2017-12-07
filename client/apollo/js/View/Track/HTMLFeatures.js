@@ -6,6 +6,7 @@ define( [
         'dojo/dom-geometry',
         'dojo/on',
         'dojo/query',
+        'JBrowse/Util',
         'JBrowse/View/Track/HTMLFeatures'
     ],
     function( declare,
@@ -15,6 +16,7 @@ define( [
               domGeom,
               on,
               query,
+              Util,
               HTMLFeatures
     ) {
 
@@ -468,8 +470,6 @@ define( [
 
                 if ( truncate && (subEnd <= displayStart || subStart >= displayEnd) )
                     return null;
-
-                if (Util.is_ie6) subDiv.appendChild(document.createComment());
 
                 subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
                     + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
