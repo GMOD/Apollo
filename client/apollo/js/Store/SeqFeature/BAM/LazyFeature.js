@@ -25,6 +25,19 @@ define( [
             }
         },
 
+        strand: function() {
+            var strand;
+            if (this.isProjected) {
+                if (this.file.store.refSeq.sequenceList[0].reverse) {
+                    strand = this._get('seq_reverse_complemented') ? 1 :  -1;
+                }
+                else {
+                    strand = this._get('seq_reverse_complemented') ? -1 :  1;
+                }
+            }
+            return strand;
+        },
+
         /*
          * Override
          */
