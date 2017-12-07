@@ -13,7 +13,7 @@ define( [
             'dojo/on',
             'JBrowse/has',
             'JBrowse/Util',
-            'WebApollo/View/Track/CanvasFeatures'
+            'JBrowse/View/Track/CanvasFeatures'
         ],
         function(
             declare,

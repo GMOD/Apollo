@@ -246,6 +246,8 @@ class JbrowseController {
         String refererLoc = trackService.extractLocation(referer)
         println "data directory ${dataDirectory} refererLoc = ${refererLoc}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println "fileName ${fileName}"
+        println "dataFileName ${dataFileName}"
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
@@ -347,6 +349,7 @@ class JbrowseController {
         }
 
 
+        println "A"
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
@@ -373,6 +376,7 @@ class JbrowseController {
         }
 
 
+        println "B"
 
         if (isCacheableFile(fileName)) {
             sequenceCacheService.cacheFile(response, file)
@@ -383,6 +387,8 @@ class JbrowseController {
         Range full = new Range(0, length - 1, length);
 
         List<Range> ranges = new ArrayList<Range>();
+
+        println "C: range ${range} ranges ${ranges?.size()}"
 
         // from http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html#sublong
         if (range != null) {
@@ -422,9 +428,12 @@ class JbrowseController {
 
         }
 
+        println "D"
+
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
+            println "E is empty ${dataFileName}"
 
             if (fileName.endsWith(".json") || params.format == "json") {
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
@@ -522,8 +531,9 @@ class JbrowseController {
                     out.close();
                 }
             }
-            else if (fileName.endsWith(".bai")) {
+            else if (dataFileName.endsWith(".bai") || dataFileName.endsWith(".tbi") ) {
                 // Set content size
+
                 response.setContentLength((int) file.length());
 
                 // Open the file and output streams
@@ -543,6 +553,7 @@ class JbrowseController {
         else if (ranges.size() == 1) {
             // Return single part of file.
             Range r = ranges.get(0);
+            println "F"
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
@@ -739,15 +750,15 @@ class JbrowseController {
 //            obj.query.urlTemplate = urlTemplate
 //        }
 //        else
-        if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            // Switching to REST store
-            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
-            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-            //obj.region_feature_densities = true
-        }
+//        if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+//            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+//            // Switching to REST store
+//            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
+//            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
+//            obj.query = obj.query ?: new JSONObject()
+//            obj.query.urlTemplate = urlTemplate
+//            //obj.region_feature_densities = true
+//        }
         return obj
     }
 
