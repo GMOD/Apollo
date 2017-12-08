@@ -244,10 +244,10 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
-        println "data directory ${dataDirectory} refererLoc = ${refererLoc}"
+        log.debug "data directory ${dataDirectory} refererLoc = ${refererLoc}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        println "fileName ${fileName}"
-        println "dataFileName ${dataFileName}"
+        log.debug  "fileName ${fileName}"
+        log.debug  "dataFileName ${dataFileName}"
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
@@ -264,11 +264,11 @@ class JbrowseController {
 
 
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
-                println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
+                log.debug "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-                println "putative sequence array ${sequenceArray as JSON}"
+                log.debug "putative sequence array ${sequenceArray as JSON}"
 
                 if (fileName.endsWith("trackData.json")) {
 
@@ -323,7 +323,6 @@ class JbrowseController {
             }
             else if (fileName.endsWith(".bw") ) {
                 String bigWigPath = params.path
-                println "bigwig path ${bigWigPath}"
             }
             else if (fileName.endsWith(".vcf.gz")) {
                 String vcfFilePath = params.path
@@ -335,7 +334,6 @@ class JbrowseController {
 
         // see https://github.com/GMOD/Apollo/issues/1448
         if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
-            println "params.path: ${params.path} directory ${dataDirectory}"
             String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
             dataFileName = newPath
             dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -345,11 +343,9 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            return
         }
 
-
-        println "A"
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
@@ -376,8 +372,6 @@ class JbrowseController {
         }
 
 
-        println "B"
-
         if (isCacheableFile(fileName)) {
             sequenceCacheService.cacheFile(response, file)
         }
@@ -387,8 +381,6 @@ class JbrowseController {
         Range full = new Range(0, length - 1, length);
 
         List<Range> ranges = new ArrayList<Range>();
-
-        println "C: range ${range} ranges ${ranges?.size()}"
 
         // from http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html#sublong
         if (range != null) {
@@ -428,13 +420,9 @@ class JbrowseController {
 
         }
 
-        println "D"
-
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
-            println "E is empty ${dataFileName}"
-
             if (fileName.endsWith(".json") || params.format == "json") {
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
@@ -553,7 +541,6 @@ class JbrowseController {
         else if (ranges.size() == 1) {
             // Return single part of file.
             Range r = ranges.get(0);
-            println "F"
             response.setHeader("Content-Range", "bytes " + r.start + "-" + r.end + "/" + r.total);
             response.setHeader("Content-Length", String.valueOf(r.length));
             response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT); // 206.
@@ -601,7 +588,6 @@ class JbrowseController {
                 return "lf-${chunkIndex - i + 1}.json"
             }
         }
-        println "unable to find an offset "
         return "lf-${chunkIndex + 1}.json"
     }
 
