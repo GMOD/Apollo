@@ -246,6 +246,8 @@ class JbrowseController {
         String refererLoc = trackService.extractLocation(referer)
         println "data directory ${dataDirectory} refererLoc = ${refererLoc}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println  "fileName ${fileName}"
+        println  "dataFileName ${dataFileName}"
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
@@ -262,11 +264,11 @@ class JbrowseController {
 
 
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
-                println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
+                log.debug "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-                println "putative sequence array ${sequenceArray as JSON}"
+                log.debug "putative sequence array ${sequenceArray as JSON}"
 
                 if (fileName.endsWith("trackData.json")) {
 
@@ -321,7 +323,6 @@ class JbrowseController {
             }
             else if (fileName.endsWith(".bw") ) {
                 String bigWigPath = params.path
-                println "bigwig path ${bigWigPath}"
             }
             else if (fileName.endsWith(".vcf.gz")) {
                 String vcfFilePath = params.path
@@ -331,9 +332,10 @@ class JbrowseController {
 
         File file = new File(dataFileName)
 
+        println "file exists ${file.exists()} for ${dataFileName}"
+
         // see https://github.com/GMOD/Apollo/issues/1448
         if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
-            println "params.path: ${params.path} directory ${dataDirectory}"
             String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
             dataFileName = newPath
             dataFileName += params.fileType ? ".${params.fileType}" : ""
@@ -343,9 +345,8 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            return
         }
-
 
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -360,18 +361,21 @@ class JbrowseController {
                     || fileName.endsWith(".conf")
                     || fileName.endsWith(".csv")
             ) {
-                mimeType = "text/plain";
+                mimeType = "text/plain"
             } else if (fileName.endsWith(".tbi")) {
-                mimeType = "application/x-gzip";
+                mimeType = "application/x-gzip"
             } else {
-                log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
-                mimeType = "text/plain";
+                log.info("Could not get MIME type of " + fileName + " falling back to text/plain")
+                mimeType = "text/plain"
             }
             if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
         }
 
+        if(dataFileName.endsWith("gff3")){
+            println "this data filename: ${dataFileName}"
+        }
 
 
         if (isCacheableFile(fileName)) {
@@ -425,7 +429,6 @@ class JbrowseController {
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
-
             if (fileName.endsWith(".json") || params.format == "json") {
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
@@ -500,7 +503,7 @@ class JbrowseController {
             }
             // handle the sequence text data
             else
-            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            if ( (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) || mimeType == "text/plain") {
                 response.setContentLength((int) file.length());
 
                 MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
@@ -522,8 +525,9 @@ class JbrowseController {
                     out.close();
                 }
             }
-            else if (fileName.endsWith(".bai")) {
+            else if (dataFileName.endsWith(".bai") || dataFileName.endsWith(".tbi") ) {
                 // Set content size
+
                 response.setContentLength((int) file.length());
 
                 // Open the file and output streams
@@ -590,7 +594,6 @@ class JbrowseController {
                 return "lf-${chunkIndex - i + 1}.json"
             }
         }
-        println "unable to find an offset "
         return "lf-${chunkIndex + 1}.json"
     }
 
@@ -739,15 +742,15 @@ class JbrowseController {
 //            obj.query.urlTemplate = urlTemplate
 //        }
 //        else
-        if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            // Switching to REST store
-            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
-            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-            //obj.region_feature_densities = true
-        }
+//        if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+//            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+//            // Switching to REST store
+//            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
+//            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
+//            obj.query = obj.query ?: new JSONObject()
+//            obj.query.urlTemplate = urlTemplate
+//            //obj.region_feature_densities = true
+//        }
         return obj
     }
 

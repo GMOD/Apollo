@@ -1,6 +1,6 @@
 define([
         'dojo/_base/declare',
-        'JBrowse/View/Track/CanvasVariants',
+        'WebApollo/View/Track/CanvasVariants',
         'WebApollo/View/Track/_WebApolloVariantDetailMixin'
     ],
     function(

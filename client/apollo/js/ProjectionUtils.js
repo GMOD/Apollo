@@ -55,6 +55,18 @@ define([ 'dojo/_base/declare',
             return projectedInput ;
         };
 
+        ProjectionUtils.projectStrand = function(refSeqName,input){
+            if(!input) return input ;
+
+            var sequenceListObject = this.parseSequenceList(refSeqName);
+            if(sequenceListObject[0].reverse){
+                return input < 0 ? 1 : -1 ;
+            }
+            else{
+                return input ;
+            }
+        }
+
         /**
          * Unproject the given start and end
          */
@@ -101,6 +113,24 @@ define([ 'dojo/_base/declare',
             }
 
             return [start, end];
+        };
+
+        /**
+         * Project a given JSON feature
+         */
+        ProjectionUtils.unprojectJSONFeature = function( feature ) {
+            if(!feature.isProjected) return feature ;
+            feature.data.start = feature.data._original_start ;
+            feature.data.end = feature.data._original_end ;
+            delete feature.data._original_start;
+            delete feature.data._original_end ;
+            feature.isProjected = false;
+            if (feature.data.subfeatures) {
+                for (var i = 0; i < feature.data.subfeatures.length; i++) {
+                    this.unprojectJSONFeature(feature.data.subfeatures[i]);
+                }
+            }
+            return feature;
         };
 
         /**
