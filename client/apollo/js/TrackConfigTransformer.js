@@ -40,10 +40,14 @@ constructor: function( args )  {
 
     this.transformers["JBrowse/View/Track/HTMLVariants"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/WebApolloHTMLVariants";
+        // NOTE: Remove and put in JBRowseController if not picked up here
+        trackConfig.storeClass = "WebApollo/Store/SeqFeature/VCFTabix";
     };
 
     this.transformers["JBrowse/View/Track/CanvasVariants"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/WebApolloCanvasVariants";
+        // NOTE: Remove and put in JBRowseController if not picked up here
+        trackConfig.storeClass = "WebApollo/Store/SeqFeature/VCFTabix";
     }
 },
 

@@ -11,7 +11,6 @@ import org.bbop.apollo.gwt.shared.projection.ProjectionChunk
 import org.bbop.apollo.gwt.shared.projection.ProjectionSequence
 import org.bbop.apollo.sequence.Range
 import org.bbop.apollo.sequence.SequenceTranslationHandler
-
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -40,7 +39,6 @@ class JbrowseController {
     def grailsLinkGenerator
 
 
-
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
     }
@@ -62,27 +60,25 @@ class JbrowseController {
         if (permissionService.currentUser && clientToken) {
 //            Organism organism = preferenceService.getOrganismForToken(clientToken)
             Organism organism = preferenceService.getOrganismForTokenInDB(clientToken)
-            if(organism){
+            if (organism) {
                 // we need to generate a client_token and do a redirection
-                paramList = paramList.findAll(){
+                paramList = paramList.findAll() {
                     !it.startsWith(FeatureStringEnum.CLIENT_TOKEN.value)
                 }
                 clientToken = ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
                 String paramString = ""
                 paramList.each {
-                    if(it.toString().startsWith("addStore")){
-                        paramString += URLEncoder.encode(it.toString(),"UTF-8")+"&"
-                    }
-                    else{
+                    if (it.toString().startsWith("addStore")) {
+                        paramString += URLEncoder.encode(it.toString(), "UTF-8") + "&"
+                    } else {
                         paramString += it + "&"
                     }
                 }
                 String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
-                redirect(uri:  uriString)
+                redirect(uri: uriString)
                 return
-            }
-            else{
+            } else {
                 organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             }
             def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
@@ -116,7 +112,7 @@ class JbrowseController {
                     return
                 }
                 // only show if public, otherwise will go to the end and force a login
-                if(organism.publicMode) {
+                if (organism.publicMode) {
                     def session = request.getSession(true)
                     session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
                     session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
@@ -184,19 +180,19 @@ class JbrowseController {
             // we also have folding information once that is available
             JSONArray displayArray = new JSONArray()
             def projectionLength = projection.getLength()
-            List<ProjectionSequence> projectionSequences = projection.getUnProjectedSequences(0,projectionLength-1)
+            List<ProjectionSequence> projectionSequences = projection.getUnProjectedSequences(0, projectionLength - 1)
 
 
-            for(ProjectionSequence projectionSequence in projectionSequences){
+            for (ProjectionSequence projectionSequence in projectionSequences) {
                 Long projectedLength = projection.getLengthForSequence(projectionSequence)
 //                JSONObject thisSeq = sequenceList.get(i)
                 JSONObject regionObject = new JSONObject()
 //                regionObject.refseq = generateRefSeqLabel(thisSeq)
                 regionObject.refseq = projectionSequence.name
 //                int currentPosition = thisSeq.start ?: 0
-                regionObject.originalPosition = 0 ;
+                regionObject.originalPosition = 0;
 //                currentPosition = projection ? projection.projectValue(currentPosition,0,projectedOffset) : currentPosition
-                regionObject.start =  projectionSequence.projectedOffset
+                regionObject.start = projectionSequence.projectedOffset
 //                regionObject.end = projectedLength + projectionSequence.offset
                 regionObject.end = projectionSequence.projectedOffset + 1
                 regionObject.ref = refererLoc
@@ -233,7 +229,7 @@ class JbrowseController {
  */
     def data() {
         def p = params
-        if(p.path == "trackData.json"){
+        if (p.path == "trackData.json") {
             println "path ${p.path}"
         }
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -246,11 +242,13 @@ class JbrowseController {
         String refererLoc = trackService.extractLocation(referer)
         println "data directory ${dataDirectory} refererLoc = ${refererLoc}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+        println "fileName ${fileName}"
+        println "dataFileName ${dataFileName}"
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
                 SequenceCache cache = SequenceCache.findByKey(dataFileName)
-                if (cache && false ) {
+                if (cache && false) {
                     if (cache.value == String.valueOf(HttpServletResponse.SC_NOT_FOUND)) {
                         response.setStatus(HttpServletResponse.SC_NOT_FOUND)
                     } else {
@@ -262,11 +260,11 @@ class JbrowseController {
 
 
                 String putativeSequencePathName = trackService.getSequencePathName(dataFileName)
-                println "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
+                log.debug "putative sequence path name ${dataFileName} -> ${putativeSequencePathName} "
 
                 JSONObject projectionSequenceObject = (JSONObject) JSON.parse(putativeSequencePathName)
                 JSONArray sequenceArray = projectionSequenceObject.getJSONArray(FeatureStringEnum.SEQUENCE_LIST.value)
-                println "putative sequence array ${sequenceArray as JSON}"
+                log.debug "putative sequence array ${sequenceArray as JSON}"
 
                 if (fileName.endsWith("trackData.json")) {
 
@@ -295,8 +293,7 @@ class JbrowseController {
                     return
                 }
 
-            }
-            else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            } else if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
                 String sequencePath = sequenceService.calculatePath(params.path)
 
                 SequenceCache cache = SequenceCache.findByKey(sequencePath)
@@ -318,12 +315,9 @@ class JbrowseController {
                 response.setContentLength((int) returnSequence.bytes.length);
                 response.outputStream << returnSequence
                 response.outputStream.close()
-            }
-            else if (fileName.endsWith(".bw") ) {
+            } else if (fileName.endsWith(".bw")) {
                 String bigWigPath = params.path
-                println "bigwig path ${bigWigPath}"
-            }
-            else if (fileName.endsWith(".vcf.gz")) {
+            } else if (fileName.endsWith(".vcf.gz")) {
                 String vcfFilePath = params.path
             }
 
@@ -331,10 +325,11 @@ class JbrowseController {
 
         File file = new File(dataFileName)
 
+        println "file exists ${file.exists()} for ${dataFileName}"
+
         // see https://github.com/GMOD/Apollo/issues/1448
-        if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
-            println "params.path: ${params.path} directory ${dataDirectory}"
-            String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
+        if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory, params.path)) {
+            String newPath = jbrowseService.fixOverlappingPath(dataDirectory, params.path)
             dataFileName = newPath
             dataFileName += params.fileType ? ".${params.fileType}" : ""
             file = new File(dataFileName)
@@ -343,9 +338,8 @@ class JbrowseController {
         if (!file.exists()) {
             log.warn("File not found: " + dataFileName);
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            return
         }
-
 
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -360,18 +354,21 @@ class JbrowseController {
                     || fileName.endsWith(".conf")
                     || fileName.endsWith(".csv")
             ) {
-                mimeType = "text/plain";
+                mimeType = "text/plain"
             } else if (fileName.endsWith(".tbi")) {
-                mimeType = "application/x-gzip";
+                mimeType = "application/x-gzip"
             } else {
-                log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
-                mimeType = "text/plain";
+                log.info("Could not get MIME type of " + fileName + " falling back to text/plain")
+                mimeType = "text/plain"
             }
             if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
         }
 
+        if (dataFileName.endsWith("gff3")) {
+            println "this data filename: ${dataFileName}"
+        }
 
 
         if (isCacheableFile(fileName)) {
@@ -425,7 +422,6 @@ class JbrowseController {
         response.setContentType(mimeType);
         if (ranges.isEmpty() || ranges.get(0) == full) {
             // Set content size
-
             if (fileName.endsWith(".json") || params.format == "json") {
                 // this returns ALL of the sequences . . but if we project, we'll want to grab only certain ones
                 if (fileName.endsWith("refSeqs.json")) {
@@ -445,8 +441,7 @@ class JbrowseController {
                         sequenceArray.add(refererObject)
                         sequenceArray = refSeqProjectorService.projectRefSeq(sequenceArray, projection, currentOrganism, refererLoc)
                         mangleNames = true
-                    } else
-                    if (AssemblageService.isProjectionReferer(refererLoc)) {
+                    } else if (AssemblageService.isProjectionReferer(refererLoc)) {
                         MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
 
                         // NOTE: not sure if this is the correct object
@@ -466,16 +461,15 @@ class JbrowseController {
                     String fileText = new File(dataFileName).text
                     JSONArray inputArray = JSON.parse(fileText) as JSONArray
 
-                    for(assemblage in Assemblage.findAllByOrganism(currentOrganism)){
+                    for (assemblage in Assemblage.findAllByOrganism(currentOrganism)) {
                         JSONObject assemblageRefSeq = projectionService.generateRefSeqForAssemblage(assemblage)
                         assemblageRefSeq.name = assemblageRefSeq.toString()
                         sequenceArray.add(assemblageRefSeq)
                     }
 
-                    if(mangleNames){
+                    if (mangleNames) {
                         sequenceArray.addAll(projectionService.fixProjectionName(inputArray))
-                    }
-                    else{
+                    } else {
                         sequenceArray.addAll(inputArray)
                     }
 
@@ -500,15 +494,18 @@ class JbrowseController {
             }
             // handle the sequence text data
             else
-            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            if (
+            (fileName.endsWith(".txt") && params.path.toString().startsWith("seq"))
+                    || fileName.endsWith(".gff")
+                    || fileName.endsWith(".gff3")
+            ) {
                 response.setContentLength((int) file.length());
 
                 MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)
-                if(projection && projection.getLastSequence().reverse){
+                if (projection && projection.getLastSequence().reverse) {
                     response.outputStream << SequenceTranslationHandler.reverseComplementSequence(file.text)
                     response.outputStream.close()
-                }
-                else{
+                } else {
                     // Open the file and output streams
                     FileInputStream inputStream = new FileInputStream(file);
                     OutputStream out = response.getOutputStream();
@@ -521,42 +518,9 @@ class JbrowseController {
                     inputStream.close();
                     out.close();
                 }
-            }
-//            else if (fileName.endsWith(".bai")) {
-//                println "processing bai file"
-//
-//                // TODO: read in . . . write out another one to process . . . which will be alternate index?
-//                // file, index file, etc. etc. etc.
-//                // generate the BAM
-//                if (projectionMap) {
-//                    // TODO: implement
-////                    String bamfileName = findBamFileName(fileName)
-////                    File bamFile = new File(bamfileName)
-////                    File newIndexFile = new File(generateBamIndexFileForProjection())
-//////                    BAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
-////                    ProjectionBAMIndexer.createIndex(new SAMFileReader(bamFile),newIndexFile)
-////                    BAMFileReader reader = new BAMFileReader(bamFile,file,false)
-//                }
-//
-////                SAMFileReader samFileReader = new SAMFileReader()
-//                // Set content size
-//                response.setContentLength((int) file.length());
-//
-//                // Open the file and output streams
-//                FileInputStream inputStream = new FileInputStream(file);
-//                OutputStream out = response.getOutputStream();
-//
-//                // Copy the contents of the file to the output stream
-//                byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-//                int count = 0;
-//                while ((count = inputStream.read(buf)) >= 0) {
-//                    out.write(buf, 0, count);
-//                }
-//                inputStream.close();
-//                out.close();
-//            }
-            else {
+            } else if (dataFileName.endsWith(".bai") || dataFileName.endsWith(".tbi")) {
                 // Set content size
+
                 response.setContentLength((int) file.length());
 
                 // Open the file and output streams
@@ -571,7 +535,6 @@ class JbrowseController {
                 }
                 inputStream.close();
                 out.close();
-
             }
         } else if (ranges.size() == 1) {
             // Return single part of file.
@@ -623,7 +586,6 @@ class JbrowseController {
                 return "lf-${chunkIndex - i + 1}.json"
             }
         }
-        println "unable to find an offset "
         return "lf-${chunkIndex + 1}.json"
     }
 
@@ -651,7 +613,7 @@ class JbrowseController {
         // add datasets to the configuration
         JSONObject trackObject = JSON.parse(file.text) as JSONObject
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        trackObject = rewriteTracks(trackObject,currentOrganism)
+        trackObject = rewriteTracks(trackObject, currentOrganism)
 
         if (currentOrganism != null) {
             trackObject.put("dataset_id", currentOrganism.id)
@@ -680,7 +642,7 @@ class JbrowseController {
             organismObjectContainer.put(id, organismObject)
         }
 
-        trackService.putOrganismTrack(currentOrganism,trackObject)
+        trackService.putOrganismTrack(currentOrganism, trackObject)
 
         trackObject.put("datasets", organismObjectContainer)
 
@@ -751,8 +713,7 @@ class JbrowseController {
         File tracksConfFile = new File(tracksConfFilePath)
         if (tracksConfFile.exists()) {
             trackService.parseTracksConf(trackObject, tracksConfFile)
-        }
-        else {
+        } else {
             log.info("Could not find file ${tracksConfFilePath}")
         }
 
@@ -764,30 +725,31 @@ class JbrowseController {
     @NotTransactional
     private JSONObject rewriteTrack(JSONObject obj) {
         log.debug "Rewriting track ${obj as JSON}"
-        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
-            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-        }
-        else if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
-            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
-            // Switching to REST store
-            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
-            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
-            obj.query = obj.query ?: new JSONObject()
-            obj.query.urlTemplate = urlTemplate
-            //obj.region_feature_densities = true
-        }
+//        if(obj.type == "JBrowse/View/Track/Wiggle/XYPlot" || obj.type == "JBrowse/View/Track/Wiggle/Density"){
+//            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+//            obj.storeClass = "JBrowse/Store/SeqFeature/REST"
+//            obj.baseUrl =  "${grailsLinkGenerator.contextPath}/bigwig/${obj.key}/${obj.organismId}"
+//            obj.query = obj.query ?: new JSONObject()
+//            obj.query.urlTemplate = urlTemplate
+//        }
+//        else
+//        if (obj.storeClass == "JBrowse/Store/SeqFeature/VCFTabix") {
+//            String urlTemplate = obj.urlTemplate ?: obj.query.urlTemplate
+//            // Switching to REST store
+//            obj.storeClass = "WebApollo/Store/SeqFeature/VCFTabixREST"
+//            obj.baseUrl = "${grailsLinkGenerator.contextPath}/vcf/${obj.key}/${obj.organismId}"
+//            obj.query = obj.query ?: new JSONObject()
+//            obj.query.urlTemplate = urlTemplate
+//            //obj.region_feature_densities = true
+//        }
         return obj
     }
 
     @NotTransactional
-    private JSONObject rewriteTracks(JSONObject jsonObject,Organism organism) {
+    private JSONObject rewriteTracks(JSONObject jsonObject, Organism organism) {
         JSONArray tracksArray = jsonObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-        for(JSONObject obj in tracksArray){
-            obj.put(FeatureStringEnum.ORGANISM_ID.value,organism.id)
+        for (JSONObject obj in tracksArray) {
+            obj.put(FeatureStringEnum.ORGANISM_ID.value, organism.id)
             obj = rewriteTrack(obj)
         }
         return jsonObject

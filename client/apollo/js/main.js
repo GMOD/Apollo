@@ -11,6 +11,7 @@ define.amd.jQuery = true;
 
 define([
            'dojo/_base/declare',
+           'dojo/Deferred',
            'dojo/_base/lang',
            'dojo/dom-construct',
            'dojo/dom-class',
@@ -32,6 +33,7 @@ define([
            'dijit/form/ComboBox',
            'JBrowse/Plugin',
            'JBrowse/View/InfoDialog',
+           'JBrowse/View/ConfirmDialog',
            'WebApollo/FeatureEdgeMatchManager',
            'WebApollo/FeatureSelectionManager',
            'WebApollo/TrackConfigTransformer',
@@ -50,7 +52,9 @@ define([
            'lazyload/lazyload',
             'JBrowse/Util'
        ],
-    function( declare,
+    function(
+            declare,
+            Deferred,
             lang,
             domConstruct,
             domClass,
@@ -72,6 +76,7 @@ define([
             dijitComboBox,
             JBPlugin,
             InfoDialog,
+            ConfirmDialog,
             FeatureEdgeMatchManager,
             FeatureSelectionManager,
             TrackConfigTransformer,
@@ -171,19 +176,80 @@ return declare( [JBPlugin, HelpMixin,Evented],
         // that the open-file dialog and other things will have them
         // as options
         browser.registerTrackType({
-            type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
-            defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
+            type:                 'WebApollo/View/Track/RemoteWebApolloCanvasFeatures',
+            defaultForStoreTypes: [
+                                    'JBrowse/Store/SeqFeature/NCList',
                                     'JBrowse/Store/SeqFeature/GFF3',
+                                    'JBrowse/Store/SeqFeature/BED',
                                     'WebApollo/Store/SeqFeature/ApolloGFF3'
-                                  ],
-            label: 'WebApollo Features'
+            ],
+            label: 'WebApollo Canvas Features'
         });
         browser.registerTrackType({
-            type:                 'WebApollo/View/Track/DraggableAlignments',
+            type:                 'WebApollo/View/Track/RemoteDraggableHTMLFeatures',
+            defaultForStoreTypes: [
+                                    'JBrowse/Store/SeqFeature/NCList',
+                                    'JBrowse/Store/SeqFeature/GFF3',
+                                    'JBrowse/Store/SeqFeature/BED',
+                                    'WebApollo/Store/SeqFeature/ApolloGFF3'
+                                  ],
+            label: 'WebApollo HTML Features'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/RemoteSNPCoverage',
             defaultForStoreTypes: [
                                     'JBrowse/Store/SeqFeature/BAM'
-                                  ],
+            ],
+            label: 'WebApollo SNPCoverage'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/RemoteFeatureCoverage',
+            defaultForStoreTypes: [
+                'JBrowse/Store/SeqFeature/BAM'
+            ],
+            label: 'WebApollo FeatureCoverage'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/RemoteAlignments2',
+            defaultForStoreTypes: [
+                'JBrowse/Store/SeqFeature/BAM'
+            ],
+            label: 'WebApollo Alignments2'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/RemoteDraggableAlignments',
+            defaultForStoreTypes: [
+                'JBrowse/Store/SeqFeature/BAM'
+            ],
             label: 'WebApollo Alignments'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/RemoteWebApolloCanvasVariants',
+            defaultForStoreTypes: [
+                                    'JBrowse/Store/SeqFeature/VCFTabix'
+            ],
+            label: 'WebApollo Canvas Variants'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/RemoteWebApolloHTMLVariants',
+            defaultForStoreTypes: [
+                                    'JBrowse/Store/SeqFeature/VCFTabix'
+            ],
+            label: 'WebApollo HTML Variants'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/Wiggle/RemoteDensity',
+            defaultForStoreTypes: [
+                'JBrowse/Store/SeqFeature/BigWig'
+            ],
+            label: 'WebApollo Density Plot'
+        });
+        browser.registerTrackType({
+            type:                 'WebApollo/View/Track/Wiggle/RemoteXYPlot',
+            defaultForStoreTypes: [
+                                    'JBrowse/Store/SeqFeature/BigWig'
+            ],
+            label: 'WebApollo XY Plot'
         });
         browser.registerTrackType({
             type:                 'WebApollo/View/Track/SequenceTrack',
@@ -286,15 +352,62 @@ return declare( [JBPlugin, HelpMixin,Evented],
 
             browser.view.pxPerBp = ratio ;
             browser.view.onResize();
+
+            // unregister JBrowse track types from the open-file dialog
+            // since Apollo provides its alternative
+            browser.unregisterTrackType('JBrowse/View/Track/HTMLFeatures');
+            browser.unregisterTrackType('JBrowse/View/Track/CanvasFeatures');
+            browser.unregisterTrackType('JBrowse/View/Track/HTMLVariants');
+            browser.unregisterTrackType('JBrowse/View/Track/CanvasVariants');
+            browser.unregisterTrackType('JBrowse/View/Track/SNPCoverage');
+            browser.unregisterTrackType('JBrowse/View/Track/FeatureCoverage');
+            browser.unregisterTrackType('JBrowse/View/Track/Wiggle/XYPlot');
+            browser.unregisterTrackType('JBrowse/View/Track/Wiggle/Density');
+            browser.unregisterTrackType('JBrowse/View/Track/Alignments');
+            browser.unregisterTrackType('JBrowse/View/Track/Alignments2');
+
         });
 
         this.monkeyPatchRegexPlugin();
 
+        browser.createCombinationTrack = function() {
+            if(this._combinationTrackCount === undefined) this._combinationTrackCount = 0;
+            var d = new Deferred();
+            var storeConf = {
+                browser: this,
+                refSeq: this.refSeq,
+                type: 'WebApollo/Store/SeqFeature/Combination'
+            };
+            var storeName = this.addStoreConfig(undefined, storeConf);
+            storeConf.name = storeName;
+            this.getStore(storeName, function(store) {
+                d.resolve(true);
+            });
+            var thisB = this;
+            d.promise.then(function(){
+                var combTrackConfig = {
+                    type: 'WebApollo/View/Track/Combination',
+                    label: "combination_track" + (thisB._combinationTrackCount++),
+                    key: "Combination Track " + (thisB._combinationTrackCount),
+                    metadata: {Description: "Drag-and-drop interface that creates a track out of combinations of other tracks."},
+                    store: storeName
+                };
+                // send out a message about how the user wants to create the new tracks
+                thisB.publish( '/jbrowse/v1/v/tracks/new', [combTrackConfig] );
 
+                // Open the track immediately
+                thisB.publish( '/jbrowse/v1/v/tracks/show', [combTrackConfig] );
+            });
+        };
+
+        browser.unregisterTrackType = function(typeName) {
+            var types = browser.getTrackTypes();
+            var idx = types.knownTrackTypes.indexOf(typeName);
+            if (idx !== -1) {
+                types.knownTrackTypes.splice(idx, 1);
+            }
+        };
     },
-
-
-
 
     runningApollo: function () {
         return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0');
@@ -504,7 +617,8 @@ return declare( [JBPlugin, HelpMixin,Evented],
         }
         this.addSearchBox();
         this.addNavBox();
-        this.removeFileMenu();
+        // re-enabling fileMenu
+        //this.removeFileMenu();
 
         // get all toplinks and hide the one that says 'Full-screen view'
         $('.topLink').each(function(index){
@@ -654,6 +768,7 @@ return declare( [JBPlugin, HelpMixin,Evented],
                     return translated;
                 }
             });
+
         });
     },
     // createMenus adds new menu items and is run before the initView milestone
@@ -946,6 +1061,8 @@ return declare( [JBPlugin, HelpMixin,Evented],
             });
             browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
                 var sequenceObject ,sequenceString;
+                currRegion.start = Math.floor(currRegion.start);
+                currRegion.end = Math.ceil(currRegion.end);
                 if(thisB.runningApollo()){
                     var refObject = currRegion.ref.substr(0,currRegion.ref.lastIndexOf(':'))  +':'+ currRegion.start + ".."+currRegion.end ;
                     thisB.getApollo().setCurrentSequence(refObject);
