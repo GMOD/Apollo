@@ -81,7 +81,7 @@ return declare( null, {
             } else {
                 var refLen = refseq.end - refseq.start;
                 if( stats._statsSampleFeatures >= 300 || interval * 2 > refLen || error ) {
-                    console.log( 'Store statistics: '+(this.source||this.name), stats );
+                    console.log( 'WA Store statistics: '+(this.source||this.name), stats );
                     deferred.resolve( stats );
                 } else if( ((new Date()) - startTime) < timeout ) {
                     statsFromInterval.call( this, interval * 2, maybeRecordStats );

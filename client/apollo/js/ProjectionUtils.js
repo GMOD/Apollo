@@ -118,6 +118,24 @@ define([ 'dojo/_base/declare',
         /**
          * Project a given JSON feature
          */
+        ProjectionUtils.unprojectJSONFeature = function( feature ) {
+            if(!feature.isProjected) return feature ;
+            feature.data.start = feature.data._original_start ;
+            feature.data.end = feature.data._original_end ;
+            delete feature.data._original_start;
+            delete feature.data._original_end ;
+            feature.isProjected = false;
+            if (feature.data.subfeatures) {
+                for (var i = 0; i < feature.data.subfeatures.length; i++) {
+                    this.unprojectJSONFeature(feature.data.subfeatures[i]);
+                }
+            }
+            return feature;
+        };
+
+        /**
+         * Project a given JSON feature
+         */
         ProjectionUtils.projectJSONFeature = function( feature, refSeqName ) {
             if(feature.isProjected) return feature ;
 
