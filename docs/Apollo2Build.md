@@ -110,6 +110,28 @@ If you want to test with pre-processed data instead of [adding your own](Apollo2
 - [Honeybee without BAM](https://s3.amazonaws.com/apollo-data/data-amel-demo-nobam.tgz) 500 MB
 - [Honeybee with BAM](https://s3.amazonaws.com/apollo-data/data-amel-demo.tgz) 17 GB
 
+#### Using Apollo with IntelliJ
+
+You can use Intellij, NetBeans, Eclipse, or just a simple text editor with Apollo to aid in development.  
+
+Here we discuss using [IntelliJ](https://www.jetbrains.com/idea/download/) ultimate with Apollo:
+
+- Download [IntelliJ](https://www.jetbrains.com/idea/download/) ultimate (you need the commercial version).  [Licensing options](https://www.jetbrains.com/store/terms/comparison.html). 
+- Clone / download Apollo if you haven't already. `git clone https://github.com/GMOD/Apollo` and follow the instructions on building Apollo in this doc.
+- If you've tried to use it before with IntelliJ, make sure that there is no .idea or *.ipr file present in the directory.
+- Open IntelliJ 
+- Select `Import Project`
+- Select `Create from Existing Sources`
+- After it detects the web-app it should have [detected `Web`](images/SelectGrails.png).  Select `Grails` instead.
+- Note that there is a [`Grails` view](images/GrailsPackage.png) in the project menu.
+- Open Terminal and run `./apollo run-local` to take care of all dependencies and etc.  If you aren't developing GWT, you can use `./apollo run-app` instead.  Most java / groovy files will automatically recompile in a few seconds after changing.
+- You can also run debug or run [directly from the IDE](images/GrailsDebug1.png) with [output below](iamges/GrailsDebug2.png).
+
+Notes on Debugging:
+- In IntelliJ, run debug (works only for JVM files, debug JavaScript in the browser)
+- There is an [error in IntelliJ 2017.3](https://youtrack.jetbrains.com/issue/IDEA-182962) so either downgrade to 2017.2 or disable the Insrumenting agent in `File | Settings | Build, Execution, Deployment | Debugger | Async Stacktraces` in the preferences menu.
+
+
 ### Create server documentation
 
 Using an IDE like IntelliJ, NetBeans, Eclipse etc. is highly recommended in conjunction with [Grails 2.5.X documentation](http://docs.grails.org/2.5.x/).
