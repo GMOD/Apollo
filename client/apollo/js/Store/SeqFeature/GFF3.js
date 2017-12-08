@@ -6,7 +6,8 @@ define( [
             'WebApollo/ProjectionUtils',
             'WebApollo/Store/SeqFeature/GlobalStatsEstimationMixin',
             'JBrowse/Store/SeqFeature/GFF3',
-            'WebApollo/Store/SeqFeature/GFF3/Parser'
+            'WebApollo/Store/SeqFeature/GFF3/Parser',
+            'JBrowse/Errors'
         ],
         function(
             declare,
@@ -16,7 +17,8 @@ define( [
             ProjectionUtils,
             GlobalStatsEstimationMixin,
             GFF3,
-            Parser
+            Parser,
+            Errors
         ) {
 
 return declare([ GFF3 ],
