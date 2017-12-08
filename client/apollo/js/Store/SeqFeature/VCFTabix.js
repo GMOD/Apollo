@@ -3,6 +3,7 @@ define([
             'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/Deferred',
+            'JBrowse/Errors',
            'WebApollo/ProjectionUtils',
            'JBrowse/Store/SeqFeature/VCFTabix'
        ],
@@ -11,6 +12,7 @@ define([
            array,
            lang,
            Deferred,
+           Errors,
            ProjectionUtils,
            VCFTabix
        ) {
