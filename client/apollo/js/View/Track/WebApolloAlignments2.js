@@ -35,6 +35,89 @@ define( [
 
         MismatchesMixin.extend({
 
+            _mdToMismatches: function( feature, mdstring, cigarOps, cigarMismatches ) {
+                var sequenceList = ProjectionUtils.parseSequenceList(this.browser.refSeq.name);
+                var mismatchRecords = [];
+                var curr = { start: 0, base: '', length: 0, type: 'mismatch' };
+
+                // convert a position on the reference sequence to a position
+                // on the template sequence, taking into account hard and soft
+                // clipping of reads
+                function getTemplateCoord( refCoord, cigarOps ) {
+                    var templateOffset = 0;
+                    var refOffset = 0;
+                    for( var i = 0; i < cigarOps.length && refOffset <= refCoord ; i++ ) {
+                        var op  = cigarOps[i][0];
+                        var len = cigarOps[i][1];
+                        if( op == 'S' || op == 'I' ) {
+                            templateOffset += len;
+                        }
+                        else if( op == 'D' || op == 'P' ) {
+                            refOffset += len;
+                        }
+                        else {
+                            templateOffset += len;
+                            refOffset += len;
+                        }
+                    }
+                    return templateOffset - ( refOffset - refCoord );
+                }
+
+                function nextRecord() {
+                    // correct the start of the current mismatch if it comes after a cigar skip
+                    var skipOffset = 0;
+                    array.forEach( cigarMismatches || [], function( mismatch ) {
+                        if( mismatch.type == 'skip' && curr.start >= mismatch.start ) {
+                            curr.start += mismatch.length;
+                        }
+                    });
+
+                    // record it
+                    mismatchRecords.push( curr );
+
+                    // get a new mismatch record ready
+                    curr = { start: curr.start + curr.length, length: 0, base: '', type: 'mismatch'};
+                };
+
+                var seq = feature.get('seq');
+                if (feature.isProjected) {
+                    if (sequenceList[0].reverse) {
+                        var md_array = mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig);
+                        md_array.reverse();
+                        mdstring = md_array.join('');
+
+                        seq = seq.split('').reverse().join('');
+                    }
+                }
+
+                // now actually parse the MD string
+                array.forEach( mdstring.match(/(\d+|\^[a-z]+|[a-z])/ig), function( token ) {
+                    if( token.match(/^\d/) ) { // matching bases
+                        curr.start += parseInt( token );
+                    }
+                    else if( token.match(/^\^/) ) { // insertion in the template
+                        curr.length = token.length-1;
+                        curr.base   = '*';
+                        curr.type   = 'deletion';
+                        curr.seq    = token.substring(1);
+                        nextRecord();
+                    }
+                    else if( token.match(/^[a-z]/i) ) { // mismatch
+                        for( var i = 0; i<token.length; i++ ) {
+                            curr.length = 1;
+                            curr.base = seq ? seq.substr( cigarOps ? getTemplateCoord( curr.start, cigarOps)
+                                    : curr.start,
+                                1
+                            )
+                                : 'X';
+                            curr.altbase = token;
+                            nextRecord();
+                        }
+                    }
+                });
+                return mismatchRecords;
+            },
+
             _parseCigar: function(cigar) {
                 var sequenceListObject = ProjectionUtils.parseSequenceList(this.browser.refSeq.name);
                 if (sequenceListObject[0].reverse) {
@@ -298,6 +381,96 @@ define( [
                     },
                     errorCallback
                 );
+            },
+
+            /**
+             * Override
+             */
+            _drawHistograms: function( viewArgs, histData ) {
+
+                var maxScore = 'max' in this.config.histograms ? this.config.histograms.max : histData.stats.max;
+
+                // don't do anything if we don't know the score max
+                if( maxScore === undefined ) {
+                    console.warn( 'no stats.max in hist data, not drawing histogram for block '+viewArgs.blockIndex );
+                    return;
+                }
+
+                // don't do anything if we have no hist features
+                var features;
+                if(!( ( features = histData.features )
+                        || histData.bins && ( features = this._histBinsToFeatures( viewArgs, histData ) )
+                    ))
+                    return;
+
+                var block = viewArgs.block;
+                var height = this.config.histograms.height;
+                var scale = viewArgs.scale;
+                var leftBase = viewArgs.leftBase;
+                var minVal = this.config.histograms.min;
+
+                domConstruct.empty( block.domNode );
+                var c = block.featureCanvas =
+                    domConstruct.create(
+                        'canvas',
+                        { height: height,
+                            width:  block.domNode.offsetWidth+1,
+                            style: {
+                                cursor: 'default',
+                                height: height+'px',
+                                position: 'absolute'
+                            },
+                            innerHTML: 'Your web browser cannot display this type of track.',
+                            className: 'canvas-track canvas-track-histograms'
+                        },
+                        block.domNode
+                    );
+                this.heightUpdate( height, viewArgs.blockIndex );
+                var ctx = c.getContext('2d');
+
+                // finally query the various pixel ratios
+                var ratio = Util.getResolution( ctx, this.browser.config.highResolutionMode );
+                // upscale canvas if the two ratios don't match
+                if ( this.browser.config.highResolutionMode != 'disabled' && ratio >= 1 )
+                {
+                    var oldWidth = c.width;
+                    var oldHeight = c.height;
+
+                    c.width = oldWidth * ratio;
+                    c.height = oldHeight * ratio;
+
+                    c.style.width = oldWidth + 'px';
+                    c.style.height = oldHeight + 'px';
+
+                    // now scale the context to counter
+                    // the fact that we've manually scaled
+                    // our canvas element
+                    ctx.scale(ratio, ratio);
+                }
+
+                ctx.fillStyle = this.config.histograms.color;
+                for( var i = 0; i<features.length; i++ ) {
+                    var feature = features[i];
+                    // project feature
+                    feature = ProjectionUtils.projectJSONFeature(feature, this.refSeq.name);
+                    var barHeight = feature.get('score')/maxScore * height;
+                    var barWidth = Math.ceil( ( feature.get('end')-feature.get('start') )*scale );
+                    var barLeft = Math.round(( feature.get('start') - leftBase )*scale );
+                    ctx.fillRect(
+                        barLeft,
+                        height-barHeight,
+                        barWidth,
+                        barHeight
+                    );
+                    if( barHeight > height ) {
+                        ctx.fillStyle = this.config.histograms.clip_marker_color;
+                        ctx.fillRect( barLeft, 0, barWidth, 3 );
+                        ctx.fillStyle = this.config.histograms.color;
+                    }
+                }
+
+                // make the y-axis scale for our histograms
+                this.makeHistogramYScale( height, minVal, maxScore );
             }
         });
     }
