@@ -244,10 +244,10 @@ class JbrowseController {
         String fileName = FilenameUtils.getName(params.path)
         String referer = request.getHeader("Referer")
         String refererLoc = trackService.extractLocation(referer)
-        log.debug "data directory ${dataDirectory} refererLoc = ${refererLoc}"
+        println "data directory ${dataDirectory} refererLoc = ${refererLoc}"
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        log.debug  "fileName ${fileName}"
-        log.debug  "dataFileName ${dataFileName}"
+        println  "fileName ${fileName}"
+        println  "dataFileName ${dataFileName}"
         if (refererLoc.contains("sequenceList")) {
             if (fileName.endsWith("trackData.json") || fileName.startsWith("lf-")) {
 
@@ -332,6 +332,8 @@ class JbrowseController {
 
         File file = new File(dataFileName)
 
+        println "file exists ${file.exists()} for ${dataFileName}"
+
         // see https://github.com/GMOD/Apollo/issues/1448
         if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
             String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
@@ -359,16 +361,20 @@ class JbrowseController {
                     || fileName.endsWith(".conf")
                     || fileName.endsWith(".csv")
             ) {
-                mimeType = "text/plain";
+                mimeType = "text/plain"
             } else if (fileName.endsWith(".tbi")) {
-                mimeType = "application/x-gzip";
+                mimeType = "application/x-gzip"
             } else {
-                log.info("Could not get MIME type of " + fileName + " falling back to text/plain");
-                mimeType = "text/plain";
+                log.info("Could not get MIME type of " + fileName + " falling back to text/plain")
+                mimeType = "text/plain"
             }
             if (fileName.endsWith("jsonz") || fileName.endsWith("txtz")) {
                 response.setHeader 'Content-Encoding', 'x-gzip'
             }
+        }
+
+        if(dataFileName.endsWith("gff3")){
+            println "this data filename: ${dataFileName}"
         }
 
 
@@ -497,7 +503,7 @@ class JbrowseController {
             }
             // handle the sequence text data
             else
-            if (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) {
+            if ( (fileName.endsWith(".txt") && params.path.toString().startsWith("seq")) || mimeType == "text/plain") {
                 response.setContentLength((int) file.length());
 
                 MultiSequenceProjection projection = projectionService.getProjection(refererLoc, currentOrganism)

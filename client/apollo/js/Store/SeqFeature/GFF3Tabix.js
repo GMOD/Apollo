@@ -3,17 +3,21 @@ define([
            'dojo/_base/lang',
            'dojo/_base/array',
            'dojo/Deferred',
+           'JBrowse/Model/XHRBlob',
+           'JBrowse/Store/TabixIndexedFile',
            'WebApollo/Store/SeqFeature/GlobalStatsEstimationMixin',
            'WebApollo/ProjectionUtils',
            'JBrowse/Store/SeqFeature/GFF3/Parser',
            'JBrowse/Store/SeqFeature/GFF3Tabix',
-            'JBrowse/Util/GFF3'
+           'JBrowse/Util/GFF3'
        ],
        function(
            declare,
            lang,
            array,
            Deferred,
+           XHRBlob,
+           TabixIndexedFile,
            GlobalStatsEstimationMixin,
            ProjectionUtils,
            Parser,
@@ -25,6 +29,47 @@ define([
 return declare( [ GlobalStatsEstimationMixin , GFF3Tabix ],
 {
 
+    constructor: function( args ) {
+        var thisB = this;
+
+        var tbiBlob = args.tbi ||
+            new XHRBlob(
+                this.resolveUrl(
+                    this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+                )
+            );
+
+        var fileBlob = args.file ||
+            new XHRBlob(
+                this.resolveUrl( this.getConf('urlTemplate',[]) )
+            );
+
+        this.indexedData = new TabixIndexedFile(
+            {
+                tbi: tbiBlob,
+                file: fileBlob,
+                browser: this.browser,
+                chunkSizeLimit: args.chunkSizeLimit || 1000000
+            });
+
+
+
+
+        this.getHeader()
+            .then( function( header ) {
+                    thisB._deferred.features.resolve({success:true});
+                    thisB._estimateGlobalStats()
+                        .then(
+                            function( stats ) {
+                                thisB.globalStats = stats;
+                                thisB._deferred.stats.resolve( stats );
+                            },
+                            lang.hitch( thisB, '_failAllDeferred' )
+                        );
+                },
+                lang.hitch( thisB, '_failAllDeferred' )
+            );
+    },
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
@@ -116,7 +161,7 @@ return declare( [ GlobalStatsEstimationMixin , GFF3Tabix ],
         };
 
         return featureData;
-    },
+    }
 
 
 
