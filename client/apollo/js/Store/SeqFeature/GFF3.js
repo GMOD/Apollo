@@ -52,8 +52,8 @@ return declare([ GFF3 ],
             var features = [];
             this._getFeatures({
                     ref: sequenceListObject[0].name,
-                    start: unprojectedStart,
-                    end: unprojectedEnd
+                    start: start,
+                    end:end
                 },
                 function( feature ) {
                     features.push(feature);
@@ -142,13 +142,15 @@ return declare([ GFF3 ],
 
                     thisB._deferred.features.resolve( features );
                     console.log('Parse final: ' +features.length);
-                    console.log(features)
                 }
             });
         var fail = lang.hitch( this, '_failAllDeferred' );
         // parse the whole file and store it
         this.data.fetchLines(
             function( line ) {
+                // console.log(line) ;
+                // line = line.split("").reverse().join("").replace(" ","\t").slice(1,-1);
+                // console.log(line) ;
                 try {
                     parser.addLine(line);
                 } catch(e) {
@@ -164,7 +166,6 @@ return declare([ GFF3 ],
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         thisB._deferred.features.then( function() {
-            console.log('got features? ' +thisB._deferred.features);
             thisB._search( query, featureCallback, finishedCallback, errorCallback );
         });
     },

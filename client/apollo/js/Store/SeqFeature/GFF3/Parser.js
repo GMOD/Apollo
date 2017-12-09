@@ -3,7 +3,7 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'dojo/json',
-           'JBrowse/Util/GFF3',
+           'WebApollo/Util/GFF3',
            'JBrowse/Store/SeqFeature/GFF3/Parser'
        ],
        function(
@@ -17,6 +17,36 @@ define([
 
 return declare( [Parser], {
 
+    constructor: function( args ) {
+        lang.mixin( this, {
+            featureCallback:   args.featureCallback || function() {},
+            endCallback:       args.endCallback || function() {},
+            commentCallback:   args.commentCallback || function() {},
+            errorCallback:     args.errorCallback || function(e) { console.error(e); },
+            directiveCallback: args.directiveCallback || function() {},
+
+            // features that we have to keep on hand for now because they
+            // might be referenced by something else
+            under_construction_top_level : [],
+            // index of the above by ID
+            under_construction_by_id : {},
+
+            completed_references: {},
+
+            // features that reference something we have not seen yet
+            // structured as:
+            // {  'some_id' : {
+            //     'Parent' : [ orphans that have a Parent attr referencing it ],
+            //     'Derives_from' : [ orphans that have a Derives_from attr referencing it ],
+            // }
+            under_construction_orphans : {},
+
+            // if this is true, the parser ignores the
+            // rest of the lines in the file.  currently
+            // set when the file switches over to FASTA
+            eof: false
+        });
+    },
 
     addLine: function( line ) {
         var match;
@@ -84,8 +114,8 @@ return declare( [Parser], {
         // much larger than the item_buffer, we swap them and unshift the
         // existing buffer onto it to avoid a big copy.
         array.forEach( this.under_construction_top_level,
-                       this._return_item,
-                       this );
+            this._return_item,
+            this );
 
         this.under_construction_top_level = [];
         this.under_construction_by_id = {};
@@ -139,7 +169,7 @@ return declare( [Parser], {
                 this._resolve_references_to( feature, id );
             }
         },this);
-        
+
         // try to resolve all its references
         this._resolve_references_from( feature || [ feature_line ], { Parent : parents, Derives_from : derives }, ids );
     },
@@ -184,5 +214,6 @@ return declare( [Parser], {
             },this);
         }
     }
+
 });
 });
