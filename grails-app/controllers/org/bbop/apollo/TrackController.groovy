@@ -295,7 +295,7 @@ class TrackController {
 
     def checkPermission(String organismString) {
         Organism organism = preferenceService.getOrganismForToken(organismString)
-        if (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ)) {
+        if (organism && (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ))) {
             return true
         } else {
             // not accessible to the public
