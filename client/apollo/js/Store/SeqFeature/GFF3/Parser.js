@@ -18,6 +18,7 @@ define([
 return declare( [Parser], {
 
     constructor: function( args ) {
+        console.log('using the Apollo parser 2');
         lang.mixin( this, {
             featureCallback:   args.featureCallback || function() {},
             endCallback:       args.endCallback || function() {},

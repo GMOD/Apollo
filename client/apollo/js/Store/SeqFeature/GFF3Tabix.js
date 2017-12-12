@@ -4,10 +4,10 @@ define([
            'dojo/_base/array',
            'dojo/Deferred',
            'JBrowse/Model/XHRBlob',
-           'JBrowse/Store/TabixIndexedFile',
+           'WebApollo/Store/TabixIndexedFile',
            'WebApollo/Store/SeqFeature/GlobalStatsEstimationMixin',
            'WebApollo/ProjectionUtils',
-           'JBrowse/Store/SeqFeature/GFF3/Parser',
+           'WebApollo/Store/SeqFeature/GFF3/Parser',
            'JBrowse/Store/SeqFeature/GFF3Tabix',
            'JBrowse/Util/GFF3'
        ],
@@ -28,6 +28,48 @@ define([
 
 return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
 {
+
+    // constructor: function( args ) {
+    //     var thisB = this;
+    //
+    //     var tbiBlob = args.tbi ||
+    //         new XHRBlob(
+    //             this.resolveUrl(
+    //                 this.getConf('tbiUrlTemplate',[]) || this.getConf('urlTemplate',[])+'.tbi'
+    //             )
+    //         );
+    //
+    //     var fileBlob = args.file ||
+    //         new XHRBlob(
+    //             this.resolveUrl( this.getConf('urlTemplate',[]) )
+    //         );
+    //
+    //     this.indexedData = new TabixIndexedFile(
+    //         {
+    //             tbi: tbiBlob,
+    //             file: fileBlob,
+    //             browser: this.browser,
+    //             chunkSizeLimit: args.chunkSizeLimit || 1000000
+    //         });
+    //
+    //
+    //
+    //
+    //     this.getHeader()
+    //         .then( function( header ) {
+    //                 thisB._deferred.features.resolve({success:true});
+    //                 thisB._estimateGlobalStats()
+    //                     .then(
+    //                         function( stats ) {
+    //                             thisB.globalStats = stats;
+    //                             thisB._deferred.stats.resolve( stats );
+    //                         },
+    //                         lang.hitch( thisB, '_failAllDeferred' )
+    //                     );
+    //             },
+    //             lang.hitch( thisB, '_failAllDeferred' )
+    //         );
+    // },
 
 
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
@@ -71,8 +113,8 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 max,
                 function( line ) {
                     if(ProjectionUtils.isSequenceList(refSeqName)) {
-                        console.log(refSeqName);
-                        console.log(line);
+                        // console.log(refSeqName);
+                        // console.log(line);
                         var unprojectedArray = ProjectionUtils.unProjectCoordinates(refSeqName, line.start, line.end);
                         min = unprojectedArray[0];
                         max = unprojectedArray[1];
@@ -83,8 +125,8 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                         if (reverse) {
                             line.fields[6] = ProjectionUtils.flipStrand(line.fields[6]);
                         }
-                        console.log('- VS -');
-                        console.log(line);
+                        // console.log('- VS -');
+                        // console.log(line);
                     }
 
                     parser._buffer_feature( thisB.lineToFeature(line) );
