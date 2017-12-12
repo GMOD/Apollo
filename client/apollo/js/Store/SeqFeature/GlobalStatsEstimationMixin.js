@@ -8,7 +8,7 @@ define([
            'dojo/_base/declare',
            'dojo/_base/array',
            'dojo/Deferred',
-            'WebApollo/ProjectionUtils',
+           'WebApollo/ProjectionUtils',
            'JBrowse/Errors'
        ],
        function( declare, array, Deferred, ProjectionUtils, Errors ) {

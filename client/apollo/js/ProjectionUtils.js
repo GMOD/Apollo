@@ -65,7 +65,24 @@ define([ 'dojo/_base/declare',
             else{
                 return input ;
             }
-        }
+        };
+
+        ProjectionUtils.flipStrand = function(input){
+            if(input==='+') return '-';
+            if(input==='-') return '+';
+            return input ;
+        };
+
+        ProjectionUtils.unProjectGFF3 = function(refSeqName,line){
+            var returnArray ;
+            returnArray = line.split("\t");
+            // var sequenceListObject = this.parseSequenceList(refSeqName);
+            var coords = this.unProjectCoordinates(refSeqName,returnArray[3],returnArray[4]);
+            returnArray[3] = coords[0];
+            returnArray[4] = coords[1];
+            returnArray[6] = this.flipStrand(returnArray[6]);
+            return returnArray.join("\t")
+        };
 
         /**
          * Unproject the given start and end
