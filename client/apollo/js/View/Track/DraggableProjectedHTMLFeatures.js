@@ -1,7 +1,7 @@
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
-            'JBrowse/View/Track/HTMLFeatures',
+            'WebApollo/View/Track/HTMLFeatures',
             'WebApollo/FeatureSelectionManager',
             'WebApollo/View/Projection/FASTA',
             'dijit/Menu',
@@ -692,9 +692,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
      */
     renderFeature: function(feature, uniqueId, block, scale, labelScale, descriptionScale,
                             containerStart, containerEnd, rclass, clsName ) {
-        console.log('BBBBBB 1');
+        console.log('CCCC 1');
         var featdiv = this.inherited( arguments );
-        console.log('BBBBBB 2');
+        console.log('CCCCC 2');
         if( featdiv )  {  // just in case featDiv doesn't actually get created
 
             var $featdiv = $(featdiv);

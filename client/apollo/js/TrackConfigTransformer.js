@@ -17,6 +17,10 @@ constructor: function( args )  {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
     };
 
+    this.transformers["WebApollo/View/Track/HTMLFeatures"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/DraggableProjectedHTMLFeatures";
+    };
+
     this.transformers["JBrowse/View/Track/CanvasFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
     };
