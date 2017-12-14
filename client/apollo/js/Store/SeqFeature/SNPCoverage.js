@@ -157,7 +157,7 @@ define([
                         // if we are zoomed to base level, try to fetch the
                         // reference sequence for this region and record each
                         // of the bases in the coverage bins
-
+                        query.ref = this.JBrowse.refSeq.name;
                         if( binWidth == 1 ) {
                             var sequence;
                             thisB.browser.getStore(
