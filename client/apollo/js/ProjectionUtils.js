@@ -161,6 +161,9 @@ define([ 'dojo/_base/declare',
             var start = feature.get("start");
             var end = feature.get("end");
             var projectedArray = this.projectCoordinates(refSeqName, start, end);
+            if (!feature.data) {
+                feature.data = {};
+            }
             feature.data._original_start = start;
             feature.data._original_end = end;
             feature.data.start = projectedArray[0];

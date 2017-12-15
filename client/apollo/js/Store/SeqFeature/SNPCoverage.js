@@ -2,24 +2,43 @@ define([
         'dojo/_base/declare',
         'dojo/_base/array',
         'JBrowse/Util',
-        'JBrowse/Store/SeqFeature/SNPCoverage',
+        'WebApollo/ProjectionUtils',
+        'JBrowse/Store/SeqFeature',
         'JBrowse/Model/NestedFrequencyTable',
-        'JBrowse/Model/CoverageFeature'
+        'JBrowse/Model/CoverageFeature',
+        'WebApollo/Store/SeqFeature/_MismatchesMixin'
     ],
     function(
         declare,
         array,
         Util,
-        SNPCoverageStore,
+        ProjectionUtils,
+        SeqFeatureStore,
         NestedFrequencyTable,
-        CoverageFeature
+        CoverageFeature,
+        MismatchesMixin
     ) {
 
-        return declare( SNPCoverageStore, {
+        return declare([ SeqFeatureStore, MismatchesMixin ], {
 
-            /**
-             * Override getFeatures in JBrowse/Store/SeqFeature/SNPCoverage
-             */
+            constructor: function( args ) {
+                this.store = args.store;
+                this.filter = args.filter || function() { return true; };
+            },
+
+            getGlobalStats: function( callback, errorCallback ) {
+                callback( {} );
+            },
+
+            _defaultConfig: function() {
+                return Util.deepUpdate(
+                    dojo.clone( this.inherited(arguments) ),
+                    {
+                        mismatchScale: 1/10
+                    }
+                );
+            },
+
             getFeatures: function( query, featureCallback, finishCallback, errorCallback ) {
                 var thisB = this;
                 var leftBase  = query.start;
@@ -78,11 +97,19 @@ define([
                     }
                 };
 
+                // adding the sequenceList as query.ref since the existing query.ref is not a sequenceList
+                // and we need a sequenceList to query the underlying BAM store
+                query.ref = thisB.browser.refSeq.name;
+
                 thisB.store.getFeatures(
                     query,
                     function( feature ) {
                         if( ! thisB.filter( feature ) )
                             return;
+
+                        if (!feature.isProjected) {
+                            feature = ProjectionUtils.projectJSONFeature(feature, thisB.browser.refSeq.name);
+                        }
 
                         var strand = { '-1': '-', '1': '+' }[ ''+feature.get('strand') ] || 'unstranded';
 
@@ -130,9 +157,7 @@ define([
                         // if we are zoomed to base level, try to fetch the
                         // reference sequence for this region and record each
                         // of the bases in the coverage bins
-
-                        // adjusting query to use sequenceList since are requesting data from the server
-                        query.ref = thisB.browser.refSeq.name;
+                        query.ref = this.JBrowse.refSeq.name;
                         if( binWidth == 1 ) {
                             var sequence;
                             thisB.browser.getStore(
