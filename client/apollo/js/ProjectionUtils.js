@@ -141,8 +141,10 @@ define([ 'dojo/_base/declare',
             if(!feature.isProjected) return feature ;
             feature.data.start = feature.data._original_start ;
             feature.data.end = feature.data._original_end ;
+            feature.data.strand = feature.data._original_strand;
             delete feature.data._original_start;
             delete feature.data._original_end ;
+            delete feature.data._original_strand ;
             feature.isProjected = false;
             if (feature.data.subfeatures) {
                 for (var i = 0; i < feature.data.subfeatures.length; i++) {
@@ -156,18 +158,27 @@ define([ 'dojo/_base/declare',
          * Project a given JSON feature
          */
         ProjectionUtils.projectJSONFeature = function( feature, refSeqName ) {
-            if(feature.isProjected) return feature ;
+            if(feature.isProjected) {
+                consoel.log('already projected');
+                return feature ;
+            }
 
             var start = feature.get("start");
             var end = feature.get("end");
+            var strand = feature.get("strand");
             var projectedArray = this.projectCoordinates(refSeqName, start, end);
             if (!feature.data) {
                 feature.data = {};
             }
             feature.data._original_start = start;
             feature.data._original_end = end;
+            feature.data._original_strand = strand;
+
+
             feature.data.start = projectedArray[0];
             feature.data.end = projectedArray[1];
+            // feature.data.strand = this.flipStrand(feature.data._original_strand);
+            feature.data.strand = this.projectStrand(refSeqName,feature.data.strand);
             feature.isProjected = true;
             if (feature.data.subfeatures) {
                 for (var i = 0; i < feature.data.subfeatures.length; i++) {

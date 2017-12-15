@@ -100,12 +100,15 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 var sequenceListObject = ProjectionUtils.parseSequenceList(refSeqName);
                 chrName = sequenceListObject[0].name ;
                 reverse = sequenceListObject[0].reverse;
+                var unprojectedArray = ProjectionUtils.unProjectCoordinates(refSeqName,query.start,query.end);
+                min = unprojectedArray[0];
+                max = unprojectedArray[1];
             }
             else{
+                min = query.start ;
+                max = query.end ;
                 chrName = query.ref ;
             }
-            min = query.start ;
-            max = query.end ;
 
             // console.log(min + ' ' + max);
 
@@ -114,27 +117,7 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 min,
                 max,
                 function( line ) {
-                    if(ProjectionUtils.isSequenceList(refSeqName)) {
-                        // console.log(refSeqName);
-                        // console.log(line);
-                        var unprojectedArray = ProjectionUtils.unProjectCoordinates(refSeqName, line.start, line.end);
-                        min = unprojectedArray[0];
-                        max = unprojectedArray[1];
-                        line.start = min;
-                        line.end = max;
-                        line.fields[3] = min;
-                        line.fields[4] = max;
-                        if (reverse) {
-                            line.fields[6] = ProjectionUtils.flipStrand(line.fields[6]);
-                        }
-                    }
-                    var bufferFeature = thisB.lineToFeature(line);
-                    if(line.fields.join('').indexOf('GB53498-RA')>=0){
-                        console.log(' -> ');
-                        console.log(line);
-                        console.log(bufferFeature);
-                    }
-                    parser._buffer_feature(  bufferFeature );
+                    parser._buffer_feature(  thisB.lineToFeature(line));
                 },
                 function() {
                     parser.finish();
