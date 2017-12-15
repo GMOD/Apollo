@@ -728,8 +728,82 @@ var draggableTrack = declare( HTMLFeatureTrack,
     renderSubfeature: function( feature, featDiv, subfeature,
                                 displayStart, displayEnd, block )  {
 
-        var subfeatdiv = this.inherited( arguments );
-        console.log('rendering subfeature')
+        console.log('rendering subfeature: DraggableProjectedHTMLFeatures ');
+        console.log(arguments);
+        console.log(feature);
+        // var subfeatdiv = this.inherited( arguments );
+
+        /**
+         * START pulling from JBRowse / HTML
+         */
+        var subStart = subfeature.get('start');
+        var subEnd = subfeature.get('end');
+        var featLength = displayEnd - displayStart;
+        var type = subfeature.get('type');
+        var className;
+        if( this.config.style.subfeatureClasses ) {
+            className = this.config.style.subfeatureClasses[type];
+            // if no class mapping specified for type, default to subfeature.get('type')
+            if (className === undefined) { className = type; }
+            // if subfeatureClasses specifies that subfeature type explicitly maps to null className
+            //     then don't render the feature
+            else if (className === null)  {
+                return null;
+            }
+        }
+        else {
+            // if no config.style.subfeatureClasses to specify subfeature class mapping, default to subfeature.get('type')
+            className = type;
+        }
+
+        // a className of 'hidden' causes things to not even be rendered
+        if( className == 'hidden' )
+            return null;
+
+        var subDiv = document.createElement("div");
+        // used by boolean tracks to do positiocning
+        subDiv.subfeatureEdges = { s: subStart, e: subEnd };
+
+        dojo.addClass(subDiv, "subfeature");
+        // check for className to avoid adding "null", "plus-null", "minus-null"
+        if (className) {
+            switch ( subfeature.get('strand') ) {
+                case 1:
+                case '+':
+                    dojo.addClass(subDiv, "plus-" + className); break;
+                case -1:
+                case '-':
+                    dojo.addClass(subDiv, "minus-" + className); break;
+                default:
+                    dojo.addClass(subDiv, className);
+            }
+        }
+
+        // if the feature has been truncated to where it doesn't cover
+        // this subfeature anymore, just skip this subfeature
+
+        var truncate = false;
+        if (typeof this.config.truncateFeatures !== 'undefined' && this.config.truncateFeatures===true )
+            truncate = true;
+
+        if ( truncate && (subEnd <= displayStart || subStart >= displayEnd) )
+            return null;
+
+        subDiv.style.cssText = "left: " + (100 * ((subStart - displayStart) / featLength)) + "%;"
+            + "width: " + (100 * ((subEnd - subStart) / featLength)) + "%;";
+        featDiv.appendChild(subDiv);
+
+        block.featureNodes[ subfeature.id() ] = subDiv;
+
+
+        var subfeatdiv = subDiv;
+        /**
+         * END pull from JBRowse HTML
+         */
+
+        console.log(subfeatdiv);
+
+        console.log('renderd inherited subfeature: DraggableProjectedHTMLFeatures ');
         if (subfeatdiv)  {  // just in case subFeatDiv doesn't actually get created
             var $subfeatdiv = $(subfeatdiv);
             // adding pointer to track for each subfeatdiv
@@ -889,7 +963,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
     handleSubFeatures: function( feature, featDiv,
                                     displayStart, displayEnd, block )  {
 
+        console.log(feature)
         var subfeats = feature.get('subfeatures');
+        console.log('Draggable Projected HTMLFEatuers, hadnling subfeats: ');
+        console.log(subfeats)
         if (! subfeats)  { return; }
 
         if (! feature.normalized )  {
@@ -903,6 +980,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var slength = subfeats.length;
         var subfeat;
         var subtype;
+
 
         if (wholeCDS) {
             var cdsStart = wholeCDS.get('start');

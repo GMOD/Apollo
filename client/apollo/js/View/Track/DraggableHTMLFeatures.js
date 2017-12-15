@@ -729,7 +729,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                                 displayStart, displayEnd, block )  {
 
         var subfeatdiv = this.inherited( arguments );
-        console.log('rendering subfeature')
+        console.log('rendering subfeature, DraggableHTMLFeatures')
         if (subfeatdiv)  {  // just in case subFeatDiv doesn't actually get created
             var $subfeatdiv = $(subfeatdiv);
             // adding pointer to track for each subfeatdiv

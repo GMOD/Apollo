@@ -127,11 +127,14 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                         if (reverse) {
                             line.fields[6] = ProjectionUtils.flipStrand(line.fields[6]);
                         }
-                        // console.log('- VS -');
-                        // console.log(line);
                     }
-
-                    parser._buffer_feature( thisB.lineToFeature(line) );
+                    var bufferFeature = thisB.lineToFeature(line);
+                    if(line.fields.join('').indexOf('GB53498-RA')>=0){
+                        console.log(' -> ');
+                        console.log(line);
+                        console.log(bufferFeature);
+                    }
+                    parser._buffer_feature(  bufferFeature );
                 },
                 function() {
                     parser.finish();
