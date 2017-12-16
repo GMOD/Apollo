@@ -46,6 +46,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 {
     // so is dragging
     dragging: false,
+    verbose_render: true,
 
     _defaultConfig: function() {
         return Util.deepUpdate(
@@ -993,6 +994,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
         /* WARNING: currently assuming children are ordered by ascending min
          * (so if on minus strand then need to calc frame starting with the last exon)
          */
+
+        if(feature._uniqueID.indexOf('GB53497')==0){
+            console.log('type: '+feature.get('type'));
+            console.log(feature);
+            console.log('slength: '+slength);
+        }
+
         for (var i = 0; i < slength; i++) {
             if (reverse) {
                 subfeat = subfeats[slength-i-1];
@@ -1002,7 +1010,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             var uid = this.getId(subfeat);
             subtype = subfeat.get('type');
-            console.log('subtype: '+subtype)
+            if(feature._uniqueID.indexOf('GB53497')==0) {
+                console.log('subtype: ' + subtype)
+                console.log(subfeat);
+            }
 
             // don't render "wholeCDS" type
             // although if subfeatureClases is properly set up, wholeCDS would also be filtered out in renderFeature?
@@ -1021,6 +1032,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 priorCdsLength = this.renderExonSegments(subfeat, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse);
             }
             if(subtype === 'mRNA'){
+                console.log('handling the subfeature from '+feature._uniqueID + ' into '+subfeat._uniqueID);
                 this.handleSubFeatures(subfeat,subDiv,displayStart,displayEnd,block);
             }
             if (this.verbose_render)  {

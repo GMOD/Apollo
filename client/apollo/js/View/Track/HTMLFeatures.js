@@ -51,6 +51,9 @@ define( [
                 //the feature extends in bp space, including labels
                 //and arrowheads if applicable
 
+                console.log('rendering a feature in HTMLFeatures');
+                console.log(feature);
+
                 var refSeqName = this.refSeq.name ;
                 feature = ProjectionUtils.projectJSONFeature(feature,refSeqName);
 
