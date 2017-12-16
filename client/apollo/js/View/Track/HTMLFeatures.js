@@ -50,7 +50,6 @@ define( [
                 //featureStart and featureEnd indicate how far left or right
                 //the feature extends in bp space, including labels
                 //and arrowheads if applicable
-                console.log('AAAAAAA');
 
                 var refSeqName = this.refSeq.name ;
                 feature = ProjectionUtils.projectJSONFeature(feature,refSeqName);
