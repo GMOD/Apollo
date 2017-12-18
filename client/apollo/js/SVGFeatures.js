@@ -21,6 +21,7 @@ define( [
             'JBrowse/View/Track/_FeatureContextMenusMixin',
             'JBrowse/View/Track/_YScaleMixin',
             'JBrowse/Model/Location',
+            'WebApollo/ProjectionUtils',
             'JBrowse/Model/SimpleFeature'
         ],
         function(
@@ -42,6 +43,7 @@ define( [
             FeatureContextMenuMixin,
             YScaleMixin,
             Location,
+            ProjectionUtils,
             SimpleFeature
         ) {
 
@@ -376,7 +378,7 @@ return declare(
         return this.svgHeight;
     },
     guessGlyphType: function(feature) {
-        return 'JBrowse/View/FeatureGlyph/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript', 'transcript': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
+        return 'WebApollo/View/FeatureGlyph/SVG/'+( {'gene': 'Gene', 'mRNA': 'ProcessedTranscript', 'transcript': 'ProcessedTranscript' }[feature.get('type')] || 'Box' );
     },
 
     fillBlock: function( args ) {
@@ -717,8 +719,9 @@ return declare(
         // (long labels that extend outside the feature's bounds, for
         // example)
         var bpExpansion = Math.round( this.config.maxFeatureGlyphExpansion / scale );
+        var refSeqName = this.refSeq.name ;
 
-        var region = { ref: this.refSeq.name,
+        var region = { ref: refSeqName,
                        start: Math.max( 0, leftBase - bpExpansion ),
                        end: rightBase + bpExpansion
                      };
@@ -730,6 +733,8 @@ return declare(
                                     fRects.push( null ); // put a placeholder in the fRects array
                                     featuresInProgress++;
                                     var rectNumber = fRects.length-1;
+
+                                    feature = ProjectionUtils.projectJSONFeature(feature,refSeqName);
 
                                     // get the appropriate glyph object to render this feature
                                     thisB.getGlyph(
