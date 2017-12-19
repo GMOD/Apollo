@@ -3,7 +3,7 @@ define([
            'dojo/_base/array',
            'dojo/_base/lang',
            'JBrowse/Util/FastPromise',
-           'WebApollo/View/FeatureGlyph',
+           'WebApollo/View/SVGFeatureGlyph',
            './_FeatureLabelMixin'
        ],
        function(
