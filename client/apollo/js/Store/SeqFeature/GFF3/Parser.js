@@ -92,6 +92,8 @@ return declare( [Parser], {
     },
 
     _return_item: function(i) {
+        console.log('returning: ');
+        console.log(i);
         if( i[0] )
             this.featureCallback( i );
         else if( i.directive )
@@ -101,6 +103,7 @@ return declare( [Parser], {
     },
 
     finish: function() {
+        console.log('finishing');
         this._return_all_under_construction_features();
         this.endCallback();
     },

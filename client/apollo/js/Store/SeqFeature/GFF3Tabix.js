@@ -82,6 +82,9 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
                                        var feat = thisB._formatFeature(feature);
+                                       console.log('doing feature callback');
+                                       console.log(feature);
+                                       console.log(feat);
                                        f(feat);
                                    });
                 },
@@ -101,8 +104,10 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 chrName = sequenceListObject[0].name ;
                 reverse = sequenceListObject[0].reverse;
                 var unprojectedArray = ProjectionUtils.unProjectCoordinates(refSeqName,query.start,query.end);
+                console.log('input query: '+ refSeqName + ' ' + query.start + ' ' + query.end);
                 min = unprojectedArray[0];
                 max = unprojectedArray[1];
+                console.log('projected: '+ chrName+ ' ' + min + ' ' + max);
             }
             else{
                 min = query.start ;
@@ -112,66 +117,29 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
 
             // console.log(min + ' ' + max);
 
+            var minLine = -1 ;
+            var maxLine = -1 ;
+
             thisB.indexedData.getLines(
                 chrName,
                 min,
                 max,
                 function( line ) {
+                    minLine = minLine === -1 || line.start < minLine ? line.start : minLine ;
+                    maxLine = maxLine === -1 || line.end > maxLine ? line.end : maxLine ;
                     parser._buffer_feature(  thisB.lineToFeature(line));
                 },
                 function() {
+                    // console.log('wrapup')
+                    // console.log(min + ' A->'+ minLine);
+                    // console.log(max + ' B->'+ maxLine);
+                    // if(minLine >= min  && maxLine <= max){
                     parser.finish();
+                    // }
                 },
                 errorCallback
             );
         }, errorCallback );
-    },
-
-    lineToFeature: function( line ) {
-        var attributes = GFF3.parse_attributes( line.fields[8] );
-        var ref    = line.fields[0];
-        var source = line.fields[1];
-        var type   = line.fields[2];
-        var strand = {'-':-1,'.':0,'+':1}[line.fields[6]];
-        var remove_id;
-        if( !attributes.ID ) {
-            attributes.ID = [line.fields.join('/')];
-            remove_id = true;
-        }
-
-        var refSeqName = this.refSeq.name ;
-        var min, max ;
-        var chrName;
-        if(ProjectionUtils.isSequenceList(refSeqName)){
-            var sequenceListObject = ProjectionUtils.parseSequenceList(refSeqName);
-            chrName = sequenceListObject[0].name ;
-            if(sequenceListObject[0].reverse){
-                strand = ProjectionUtils.flipStrand(strand);
-                // strand = -1 * strand ;
-            }
-            // var unprojectedArray = ProjectionUtils.unProjectCoordinates(refSeqName,line.start,line.end);
-            // min = unprojectedArray[0];
-            // max = unprojectedArray[1];
-        }
-        else{
-            chrName = query.ref ;
-        }
-        min = line.start;
-        max = line.end ;
-
-        var featureData = {
-            start:  min,
-            end:    max,
-            strand: strand,
-            child_features: [],
-            seq_id: chrName,
-            attributes: attributes,
-            type:   type,
-            source: source,
-            remove_id: remove_id
-        };
-
-        return featureData;
     }
 
 
