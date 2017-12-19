@@ -17,6 +17,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.use_cds_for_new_transcripts
     }
 
+    String getTranscriptOverlapper() {
+        return grailsApplication.config.apollo.transcript_overlapper
+    }
+
     TranslationTable getTranslationTable() {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
     }
