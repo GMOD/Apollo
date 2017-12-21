@@ -173,10 +173,14 @@ return declare( CanvasFeaturesTrack,
             start: Math.max( 0, leftBase - bpExpansion ),
             end: rightBase + bpExpansion
         };
+        console.log('getting feature for region ');
+        console.log(region);
 
         this.store.getFeatures( region,
             function( feature ) {
 
+            console.log('returning feature: ');
+            console.log(feature );
 
                 if( thisB.destroyed || ! thisB.filterFeature( feature ) )
                     return;
@@ -185,6 +189,8 @@ return declare( CanvasFeaturesTrack,
                 var rectNumber = fRects.length-1;
 
                 feature = ProjectionUtils.projectJSONFeature(feature,refSeqName);
+                console.log('projected feature: ');
+                console.log(feature );
 
                 // get the appropriate glyph object to render this feature
                 thisB.getGlyph(

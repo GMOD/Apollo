@@ -74,6 +74,7 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
     // },
 
 
+
     _getFeatures: function( query, featureCallback, finishedCallback, errorCallback ) {
         var thisB = this;
         var f=featureCallback;
@@ -82,9 +83,9 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 featureCallback: function(fs) {
                     array.forEach( fs, function( feature ) {
                                        var feat = thisB._formatFeature(feature);
-                                       console.log('doing feature callback');
-                                       console.log(feature);
-                                       console.log(feat);
+                                       // console.log('doing feature callback');
+                                       // console.log(feature);
+                                       // console.log(feat);
                                        f(feat);
                                    });
                 },
@@ -104,10 +105,10 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 chrName = sequenceListObject[0].name ;
                 reverse = sequenceListObject[0].reverse;
                 var unprojectedArray = ProjectionUtils.unProjectCoordinates(refSeqName,query.start,query.end);
-                console.log('input query: '+ refSeqName + ' ' + query.start + ' ' + query.end);
+                // console.log('input query: '+ refSeqName + ' ' + query.start + ' ' + query.end);
                 min = unprojectedArray[0];
                 max = unprojectedArray[1];
-                console.log('projected: '+ chrName+ ' ' + min + ' ' + max);
+                // console.log('projected: '+ chrName+ ' ' + min + ' ' + max);
             }
             else{
                 min = query.start ;
@@ -120,25 +121,37 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
             var minLine = -1 ;
             var maxLine = -1 ;
 
+            var estimabeBlocks = function(line){
+                minLine = minLine === -1 || line.start < minLine ? line.start : minLine ;
+                maxLine = maxLine === -1 || line.end > maxLine ? line.end : maxLine ;
+            };
+
+            var handleLines = function(line){
+                parser._buffer_feature(  thisB.lineToFeature(line));
+            };
+
             thisB.indexedData.getLines(
                 chrName,
                 min,
                 max,
-                function( line ) {
-                    minLine = minLine === -1 || line.start < minLine ? line.start : minLine ;
-                    maxLine = maxLine === -1 || line.end > maxLine ? line.end : maxLine ;
-                    parser._buffer_feature(  thisB.lineToFeature(line));
-                },
+                estimabeBlocks,
                 function() {
-                    // console.log('wrapup')
-                    // console.log(min + ' A->'+ minLine);
-                    // console.log(max + ' B->'+ maxLine);
-                    // if(minLine >= min  && maxLine <= max){
-                    parser.finish();
-                    // }
+                    // parser.finish();
+                    thisB.indexedData.getLines(
+                        chrName,
+                        minLine,
+                        maxLine,
+                        handleLines,
+                        function() {
+                            parser.finish();
+                        },
+                        errorCallback
+                    );
                 },
                 errorCallback
             );
+
+
         }, errorCallback );
     }
 
