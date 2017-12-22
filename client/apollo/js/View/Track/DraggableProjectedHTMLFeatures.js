@@ -1026,14 +1026,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
             // if (subDiv && wholeCDS && (subtype === "exon")) {
             // if (wholeCDS && (subtype === "exon")) {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
 
+            if(subtype === 'mRNA'){
+                console.log('handling the subfeature from '+feature._uniqueID + ' into '+subfeat._uniqueID);
+                this.handleSubFeatures(subfeat,featDiv,displayStart,displayEnd,block);
+            }
+            else
             // CHANGED to call renderExonSegments even if no wholeCDS --
             //     non wholeCDS means undefined cdsMin, which will trigger creation of UTR div for entire exon
             if (subtype === "exon") {   // pass even if subDiv is null (not drawn), in order to correctly calc downstream CDS frame
                 priorCdsLength = this.renderExonSegments(subfeat, subDiv, cdsMin, cdsMax, displayStart, displayEnd, priorCdsLength, reverse);
-            }
-            if(subtype === 'mRNA'){
-                console.log('handling the subfeature from '+feature._uniqueID + ' into '+subfeat._uniqueID);
-                this.handleSubFeatures(subfeat,subDiv,displayStart,displayEnd,block);
             }
             if (this.verbose_render)  {
                 console.log("in DraggableFeatureTrack.handleSubFeatures, subDiv: ");
