@@ -130,26 +130,47 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                 parser._buffer_feature(  thisB.lineToFeature(line));
             };
 
-            thisB.indexedData.getLines(
-                chrName,
-                min,
-                max,
-                estimabeBlocks,
-                function() {
-                    // parser.finish();
-                    thisB.indexedData.getLines(
-                        chrName,
-                        minLine,
-                        maxLine,
-                        handleLines,
-                        function() {
-                            parser.finish();
-                        },
-                        errorCallback
-                    );
-                },
-                errorCallback
-            );
+            var lineCache = this.lineCache = this.lineCache || {};
+            var lineKey = chrName +':' + min + '..' + max ;
+            var line = lineCache[lineKey];
+            if(line){
+                console.log('USING CACHE: '+lineKey);
+                thisB.indexedData.getLines(
+                    chrName,
+                    line.min,
+                    line.max,
+                    handleLines,
+                    function() {
+                        parser.finish();
+                    },
+                    errorCallback
+                );
+            }
+            else{
+                console.log('not USING CACHE: '+lineKey);
+                thisB.indexedData.getLines(
+                    chrName,
+                    min,
+                    max,
+                    estimabeBlocks,
+                    function() {
+                        lineCache[lineKey] = {min:min,max:max,chrName:chrName};
+                        thisB.indexedData.getLines(
+                            chrName,
+                            minLine,
+                            maxLine,
+                            handleLines,
+                            function() {
+                                parser.finish();
+                            },
+                            errorCallback
+                        );
+                    },
+                    errorCallback
+                );
+            }
+
+
 
 
         }, errorCallback );
