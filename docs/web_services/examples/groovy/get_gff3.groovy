@@ -19,10 +19,13 @@ cli.username('username', required: false, args: 1)
 cli.password('password', required: false, args: 1)
 cli.output('output file', required: false, args: 1)
 cli.organism('organism', required: false, args: 1)
+cli.sequences('sequences / chromosomes to export from', required: false, args: 1)
+cli.export_sequence('export raw genome FASTA sequence', required: false)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
 OptionAccessor options
 def admin_username
 def admin_password
+def export_all_sequences = true 
 try {
     options = cli.parse(args)
 
@@ -48,6 +51,13 @@ try {
         admin_password=options.password
         admin_username=options.username
     }
+
+	if(options.sequences){
+		export_all_sequences = false
+	}
+	else{
+		sequences = []
+	}
 } catch (e) {
     println(e)
     return
@@ -63,8 +73,9 @@ def post=[
     password: admin_password,
     format: 'plain',
     type: 'GFF3',
-    exportSequence: false,
-    exportAllSequences: true,
+    exportGff3Fasta: options.export_sequence,
+    exportAllSequences: export_all_sequences,
+    sequences: options.sequences,
     organism: options.organism,
     output:'text'
 ]

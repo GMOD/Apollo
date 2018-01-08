@@ -54,8 +54,7 @@ class TrackController {
     @Transactional
     def clearTrackCache(String organismName, String trackName) {
         if (!checkPermission(organismName)) return
-        int removed = TrackCache.countByOrganismNameAndTrackName(organismName, trackName)
-        TrackCache.deleteAll(TrackCache.findAllByOrganismNameAndTrackName(organismName, trackName))
+        int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName and tc.trackName = :trackName",[commonName:organismName,trackName: trackName])
         render new JSONObject(removed: removed) as JSON
     }
 
@@ -69,8 +68,7 @@ class TrackController {
             log.info "Deleting cache for all organisms"
             JSONArray jsonArray = new JSONArray()
             Organism.all.each { organism ->
-                int removed = TrackCache.countByOrganismName(organism.commonName)
-                TrackCache.deleteAll(TrackCache.findAllByOrganismName(organism.commonName))
+                int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName ",[commonName:organism.commonName])
                 JSONObject jsonObject = new JSONObject(name: organism.commonName, removed: removed) as JSONObject
                 jsonArray.add(jsonObject)
             }
@@ -79,8 +77,7 @@ class TrackController {
         } else {
             log.info "Deleting cache for ${organismName}"
             if (!checkPermission(organismName)) return
-            int removed = TrackCache.countByOrganismName(organismName)
-            TrackCache.deleteAll(TrackCache.findAllByOrganismName(organismName))
+            int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName ",[commonName:organismName])
             render new JSONObject(removed: removed) as JSON
         }
 
@@ -295,7 +292,7 @@ class TrackController {
 
     def checkPermission(String organismString) {
         Organism organism = preferenceService.getOrganismForToken(organismString)
-        if (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ)) {
+        if (organism && (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ))) {
             return true
         } else {
             // not accessible to the public
