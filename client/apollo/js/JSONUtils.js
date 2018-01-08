@@ -245,6 +245,18 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         console.log(jfeature);
     }
 
+    // if specified_type is not 'gene' or 'pseudo-gene' and we find 'gene' or pseudogene, then we need to replace jfeature with the sub-type
+    if(jfeature.get('type')==='gene' || jfeature.get('type')==='pseudogene'){
+        var root_sub_features = jfeature.get('subfeatures');
+        if(root_sub_features.length===1){
+            jfeature = root_sub_features[0];
+        }
+        else{
+            console.log('Problem creating Apollo, wrong number of subfeatures found');
+            console.log(root_sub_features);
+        }
+    }
+
     var afeature = new Object();
     var astrand;
     // Apollo feature strand must be an integer
@@ -312,7 +324,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     // use filteredsubs if present instead of subfeats?
     //    if (jfeature.filteredsubs)  { subfeats = jfeature.filteredsubs; }
     //    else  { subfeats = jfeature.get('subfeatures'); }
-    subfeats = jfeature.get('subfeatures'); 
+    subfeats = jfeature.get('subfeatures');
     if( subfeats && subfeats.length )  {
         afeature.children = [];
         var slength = subfeats.length;
@@ -387,7 +399,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                     foundExons = true;
                 }
                 if (converted_subtype)  {
-                afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ) );
+                    afeature.children.push( JSONUtils.createApolloFeature( subfeat, converted_subtype ) );
                     if (diagnose)  { console.log("    subfeat original type: " + subtype + ", converted type: " + converted_subtype); }
                 }
                 else {
