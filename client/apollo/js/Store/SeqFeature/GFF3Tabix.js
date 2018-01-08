@@ -121,7 +121,7 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
             var minLine = -1 ;
             var maxLine = -1 ;
 
-            var estimabeBlocks = function(line){
+            var estimableBlocks = function(line){
                 minLine = minLine === -1 || line.start < minLine ? line.start : minLine ;
                 maxLine = maxLine === -1 || line.end > maxLine ? line.end : maxLine ;
             };
@@ -152,7 +152,7 @@ return declare( [  GFF3Tabix , GlobalStatsEstimationMixin ],
                     chrName,
                     min,
                     max,
-                    estimabeBlocks,
+                    estimableBlocks,
                     function() {
                         lineCache[lineKey] = {min:min,max:max,chrName:chrName};
                         thisB.indexedData.getLines(
