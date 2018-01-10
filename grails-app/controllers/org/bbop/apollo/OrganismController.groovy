@@ -52,10 +52,18 @@ class OrganismController {
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
             log.debug "deleteOrganism ${organismJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
+            def currentUser = permissionService.getCurrentUser(organismJson)
+            if (permissionService.isUserAdmin(currentUser)) {
 
                 log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
                 Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
+                String creatorMetaData = organism.getMetaData("creator")
+                if (creatorMetaData && currentUser.id != organism.getMetaData("creator")) {
+                    def error = [error: 'User did not create this organism so can not delete it']
+                    log.error(error.error)
+                    render error as JSON
+                    return
+                }
                 if (organism) {
                     UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
                     OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
@@ -238,6 +246,8 @@ class OrganismController {
                         publicMode: requestObject.publicMode ?: false,
                         dataAddedViaWebServices: true
                 ).save(failOnError: true, flush: true, insert: true)
+                def currentUser = permissionService.currentUser
+                organism.addMetaData("creator", currentUser.id.toString())
                 directoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)
                 File directory = new File(directoryName)
 
@@ -806,7 +816,7 @@ class OrganismController {
                 sequenceService.loadRefSeqs(organism)
 
                 preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
-                Boolean returnAllOrganisms = organismJson.returnAllOrganisms ? Boolean.valueOf(organismJson.returnAllOrganisms): true
+                Boolean returnAllOrganisms = organismJson.returnAllOrganisms ? Boolean.valueOf(organismJson.returnAllOrganisms) : true
 
                 render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
 
@@ -1024,19 +1034,19 @@ class OrganismController {
                 Integer sequenceCount = Sequence.countByOrganism(organism)
 
                 JSONObject jsonObject = [
-                        id             : organism.id,
-                        commonName     : organism.commonName,
-                        blatdb         : organism.blatdb,
-                        directory      : organism.directory,
-                        annotationCount: annotationCount,
-                        sequences      : sequenceCount,
-                        genus          : organism.genus,
-                        species        : organism.species,
-                        valid          : organism.valid,
-                        publicMode     : organism.publicMode,
-                        nonDefaultTranslationTable : organism.nonDefaultTranslationTable,
-                        metadata       : organism.metadata,
-                        currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false
+                        id                        : organism.id,
+                        commonName                : organism.commonName,
+                        blatdb                    : organism.blatdb,
+                        directory                 : organism.directory,
+                        annotationCount           : annotationCount,
+                        sequences                 : sequenceCount,
+                        genus                     : organism.genus,
+                        species                   : organism.species,
+                        valid                     : organism.valid,
+                        publicMode                : organism.publicMode,
+                        nonDefaultTranslationTable: organism.nonDefaultTranslationTable,
+                        metadata                  : organism.metadata,
+                        currentOrganism           : defaultOrganismId != null ? organism.id == defaultOrganismId : false
                 ] as JSONObject
                 jsonArray.add(jsonObject)
             }
