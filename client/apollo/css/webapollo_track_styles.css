@@ -49,7 +49,7 @@ div.track_localannot {
     background-color: #DDDDCC;
 }
 
-/* 
+/*
    To support WebApollo with sequence alteration features shown on SequenceTrack, 
    sequence style MUST NOT have a z-index specified 
 */
@@ -189,11 +189,14 @@ div.annot-sequence  {
 *      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
 */
 .container-100pct, 
-.plus-container-100pct, 
+.plus-container-100pct,
+.plus-mRNA,
+.minus-mRNA,
 .minus-container-100pct {
     height: 100%;
     background-color: transparent;
 }
+
 
 .feature-render  {
     position: absolute;
