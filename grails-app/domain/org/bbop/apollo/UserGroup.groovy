@@ -1,6 +1,6 @@
 package org.bbop.apollo
 
-class UserGroup {
+class UserGroup implements JsonMetadata{
 
     static constraints = {
     }
@@ -10,5 +10,6 @@ class UserGroup {
     ]
 
     String name
+    String metadata
     boolean publicGroup = false
 }
