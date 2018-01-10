@@ -354,6 +354,8 @@ class UserController {
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
+            def currentUser = permissionService.currentUser
+            user.addMetaData("creator", currentUser.id.toString())
 
             String roleString = dataObject.role ?: UserService.USER
             Role role = Role.findByName(roleString.toUpperCase())
@@ -390,10 +392,12 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = permissionService.handleInput(request, params)
+
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+
             User user = null
             if (dataObject.has('userId')) {
                 user = User.findById(dataObject.userId)
@@ -402,6 +406,23 @@ class UserController {
             if (!user && dataObject.has("userToDelete")) {
                 user = User.findByUsername(dataObject.userToDelete)
             }
+
+            if (!user) {
+                def error = [error: 'The user does not exist']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
+            def currentUser = permissionService.getCurrentUser(dataObject)
+            String creatorMetaData = user.getMetaData("creator")
+            if (creatorMetaData && currentUser.id != user.getMetaData("creator")) {
+                def error = [error: 'User did not create this user so can not delete it']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
             user.userGroups.each { it ->
                 it.removeFromUsers(user)
             }
