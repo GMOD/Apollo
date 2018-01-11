@@ -123,7 +123,12 @@ class AnnotatorController {
             }
         }
 
-        redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
+        if (queryParamString.contains("http://") || queryParamString.contains("https://") || queryParamString.contains("ftp://")) {
+            redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
+        }
+        else {
+            redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
+        }
 
     }
 

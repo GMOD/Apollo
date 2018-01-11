@@ -78,7 +78,13 @@ class SecurityFilters {
 //                                    paramString = paramString.substring(indexOfLoc)
 //                                }
                                 targetUri = targetUri + paramString
-                                redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
+                                    redirect(uri: "${request.contextPath}/auth/login?targetUri=${targetUri}")
+                                }
+                                else {
+                                    redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                }
+
                                 return false
                             }
                         }

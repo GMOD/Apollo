@@ -63,7 +63,13 @@ class JbrowseController {
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
                 String paramString = ""
                 paramString = paramList.join("&")
-                String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
+                String uriString
+                if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
+                    uriString = createLink(url: "${request.contextPath}/${clientToken}/jbrowse/index.html?${paramString}")
+                }
+                else {
+                    uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
+                }
                 redirect(uri:  uriString)
                 return
             }
