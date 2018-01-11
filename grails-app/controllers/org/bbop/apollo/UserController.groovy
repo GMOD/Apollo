@@ -298,7 +298,7 @@ class UserController {
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
         def currentUser = permissionService.getCurrentUser(dataObject)
         String creatorMetaData = userGroup.getMetaData("creator")
-        if (creatorMetaData && currentUser.id != user.getMetaData("creator")) {
+        if (creatorMetaData && currentUser.id.toString() != creatorMetaData) {
             def error = [error: 'User did not create this group so can not add a user to it']
             log.error(error.error)
             render error as JSON
