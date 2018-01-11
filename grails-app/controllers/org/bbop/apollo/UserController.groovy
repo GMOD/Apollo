@@ -135,7 +135,15 @@ class UserController {
 
                 JSONArray groupsArray = new JSONArray()
                 List<String> groupsForUser = new ArrayList<>()
-                for (group in it.userGroups) {
+                // filter the userGroups to only show that the group that current instructor owned
+                def userGroups = it.userGroups
+                if (!permissionService.isAdmin()) {
+                    userGroups = userGroups.findAll() {
+                        it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String)
+                    }
+                }
+
+                for (group in userGroups) {
                     JSONObject groupJson = new JSONObject()
                     groupsForUser.add(group.name)
                     groupJson.put("name", group.name)
@@ -296,14 +304,6 @@ class UserController {
         log.info "Adding user to group"
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
-        def currentUser = permissionService.getCurrentUser(dataObject)
-        String creatorMetaData = userGroup.getMetaData("creator")
-        if (creatorMetaData && currentUser.id.toString() != creatorMetaData) {
-            def error = [error: 'User did not create this group so can not add a user to it']
-            log.error(error.error)
-            render error as JSON
-            return
-        }
         user.addToUserGroups(userGroup)
         user.save(flush: true)
         log.info "Added user ${user.username} to group ${userGroup.name}"
@@ -431,7 +431,7 @@ class UserController {
 
             def currentUser = permissionService.getCurrentUser(dataObject)
             String creatorMetaData = user.getMetaData("creator")
-            if (creatorMetaData && currentUser.id != user.getMetaData("creator")) {
+            if (creatorMetaData && currentUser.id.toString() != user.getMetaData("creator")) {
                 def error = [error: 'User did not create this user so can not delete it']
                 log.error(error.error)
                 render error as JSON
