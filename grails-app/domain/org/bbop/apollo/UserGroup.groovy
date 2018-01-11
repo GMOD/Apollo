@@ -3,7 +3,7 @@ package org.bbop.apollo
 class UserGroup implements JsonMetadata{
 
     static constraints = {
-        metadata nullable: true
+        metadata(display: false, blank: true,nullable: true)
     }
 
     static hasMany = [
