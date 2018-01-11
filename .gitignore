@@ -21,7 +21,6 @@ tmp
 version.jsp
 update_client.sh
 *.log
-apollo-config.groovy
 gwt-unitCache/**
 web-app/WEB-INF/deploy/**
 web-app/annotator/**
