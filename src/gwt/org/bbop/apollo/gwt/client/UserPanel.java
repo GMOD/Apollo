@@ -119,18 +119,18 @@ public class UserPanel extends Composite {
         if (roleList.getItemCount() == 0) {
             roleList.addItem(GlobalPermissionEnum.USER.getDisplay());
             if(MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
-                Window.alert("adding as instructor");
+                GWT.log("adding as instructor");
                 roleList.addItem(GlobalPermissionEnum.INSTRUCTOR.getDisplay());
             }
             else{
-                Window.alert("not an instructor");
+                GWT.log("not an instructor");
             }
             if(MainPanel.getInstance().isCurrentUserAdmin()){
-                Window.alert("adding as admin");
+                GWT.log("adding as admin");
                 roleList.addItem(GlobalPermissionEnum.ADMIN.getDisplay());
             }
             else{
-                Window.alert("not an admin");
+                GWT.log("not an admin");
             }
         }
 
