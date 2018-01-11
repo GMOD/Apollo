@@ -7,6 +7,7 @@ import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -30,7 +31,7 @@ class PreferenceServiceIntegrationSpec extends AbstractIntegrationSpec {
                 , lastName: 'Test'
                 , passwordHash: passwordHash
         ).save(insert: true, flush: true)
-        def adminRole = Role.findByName(UserService.ADMIN)
+        def adminRole = Role.findByName(GlobalPermissionEnum.ADMIN.name())
         testUser.addToRoles(adminRole)
         testUser.save()
 

@@ -1,6 +1,7 @@
 import org.bbop.apollo.FeatureType
 import org.bbop.apollo.Role
 import org.bbop.apollo.UserService
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 
@@ -37,17 +38,17 @@ class BootStrap {
         }
 
         if(Role.count==0){
-            def userRole = new Role(name: UserService.USER).save()
+            def userRole = new Role(name: GlobalPermissionEnum.USER.name()).save()
             userRole.addToPermissions("*:*")
             userRole.removeFromPermissions("cannedComments:*")
             userRole.removeFromPermissions("availableStatus:*")
             userRole.removeFromPermissions("featureType:*")
-            def instructorRole = new Role(name: UserService.INSTRUCTOR).save()
+            def instructorRole = new Role(name: GlobalPermissionEnum.INSTRUCTOR.name()).save()
             instructorRole.addToPermissions("*:*")
             instructorRole.removeFromPermissions("cannedComments:*")
             instructorRole.removeFromPermissions("availableStatus:*")
             instructorRole.removeFromPermissions("featureType:*")
-            def adminRole = new Role(name: UserService.ADMIN).save()
+            def adminRole = new Role(name: GlobalPermissionEnum.ADMIN.name()).save()
             adminRole.addToPermissions("*:*")
         }
 

@@ -12,6 +12,7 @@ import org.bbop.apollo.UserGroup
 import org.bbop.apollo.UserService
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 
 import javax.servlet.http.HttpServletRequest
 
@@ -63,7 +64,7 @@ class RemoteUserAuthenticatorService implements AuthenticatorService {
                 user.addMetaData(INTERNAL_PASSWORD,randomPassword)
                 user.save(flush: true, failOnError: true, insert: true)
 
-                Role role = Role.findByName(UserService.USER)
+                Role role = Role.findByName(GlobalPermissionEnum.USER.name())
                 log.debug "adding role: ${role}"
                 user.addToRoles(role)
                 role.addToUsers(user)
