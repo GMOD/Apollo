@@ -61,8 +61,7 @@ class JbrowseController {
                 }
                 clientToken = ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
-                String paramString = ""
-                paramString = paramList.join("&")
+                String paramString = paramList.join("&")
                 String uriString
                 if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
                     uriString = createLink(url: "${request.contextPath}/${clientToken}/jbrowse/index.html?${paramString}")
