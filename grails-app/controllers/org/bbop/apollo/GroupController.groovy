@@ -75,19 +75,16 @@ class GroupController {
             }
 
             // restricted groups
-            def userGroups = permissionService.isAdmin() ? UserGroup.all : permissionService.currentUser.getUserGroups()
-
-            def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : userGroups
-
+            def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
+            def filteredGroups =  groups
             // if user is admin, then include all
             // if group has metadata with the creator or no metadata then include
-            def filteredGroups
-            if(permissionService.isAdmin()){
-                filteredGroups = groups
-            }
-            else{
-                filteredGroups = groups.findAll(){ group ->
-                    (group.metadata == null || group.getMetaData("creator")==permissionService.currentUser.id)
+
+            if (!permissionService.isAdmin()) {
+                log.debug "filtering groups"
+
+                filteredGroups = groups.findAll(){
+                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String)
                 }
             }
 
@@ -174,6 +171,10 @@ class GroupController {
         UserGroup group = new UserGroup(
                 name: dataObject.name
         ).save(flush: true)
+        def currentUser = permissionService.currentUser
+
+        group.addMetaData("creator", currentUser.id.toString())
+        log.debug "Add metadata creator: ${currentUser.id.toString()}"
 
         log.info "Added group ${group.name}"
 

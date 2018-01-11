@@ -48,7 +48,13 @@ class UserController {
 
             def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
 
-            List<String> allUserGroups = UserGroup.all.name
+            List<String> allUserGroups = UserGroup.all
+            if (!permissionService.isAdmin()) {
+                allUserGroups = allUserGroups.findAll(){
+                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String)
+                }
+            }
+            List<String> allUserGroupsName = allUserGroups.name
             Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
             List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
@@ -138,7 +144,7 @@ class UserController {
 
 
                 JSONArray availableGroupsArray = new JSONArray()
-                List<String> availableGroups = allUserGroups - groupsForUser
+                List<String> availableGroups = allUserGroupsName - groupsForUser
                 for (group in availableGroups) {
                     JSONObject groupJson = new JSONObject()
                     groupJson.put("name", group)
@@ -289,6 +295,14 @@ class UserController {
         log.info "Adding user to group"
         UserGroup userGroup = UserGroup.findByName(dataObject.group)
         User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = userGroup.getMetaData("creator")
+        if (creatorMetaData && currentUser.id != user.getMetaData("creator")) {
+            def error = [error: 'User did not create this group so can not add a user to it']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
         user.addToUserGroups(userGroup)
         user.save(flush: true)
         log.info "Added user ${user.username} to group ${userGroup.name}"
