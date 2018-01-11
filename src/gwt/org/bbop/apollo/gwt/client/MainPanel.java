@@ -17,6 +17,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
+import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
@@ -39,6 +40,7 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -388,6 +390,12 @@ public class MainPanel extends Composite {
         String globalRole = currentUser.getRole();
         PermissionEnum highestPermission;
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
+        Map<String,UserOrganismPermissionInfo> infoMap = currentUser.getOrganismPermissionMap();
+        for(Map.Entry<String,UserOrganismPermissionInfo> entry : infoMap.entrySet()){
+            String entryKey = "";
+            entryKey += entry.getKey() + " " + entry.getValue().getId() + " " + entry.getValue().getHighestPermission().getDisplay();
+            GWT.log(entryKey);
+        }
         if (globalRole.equals("admin")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
         } else {
@@ -1080,6 +1088,25 @@ public class MainPanel extends Composite {
             this.index = index;
         }
 
+    }
+
+    public boolean isCurrentUserOrganismAdmin() {
+        if(currentUser==null) return false ;
+        if(currentUser.getRole().equals("admin")) return true ;
+
+        UserOrganismPermissionInfo permissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
+        if(permissionInfo!=null){
+            return permissionInfo.getHighestPermission().getRank()>=PermissionEnum.ADMINISTRATE.getRank();
+        }
+
+        return false ;
+    }
+
+    public boolean isCurrentUserInstructorOrBetter() {
+        if(currentUser!=null){
+            return currentUser.getRole().equals("admin") || currentUser.getRole().equals("instructor");
+        }
+        return false ;
     }
 
     public boolean isCurrentUserAdmin() {

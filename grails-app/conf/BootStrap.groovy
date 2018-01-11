@@ -42,6 +42,11 @@ class BootStrap {
             userRole.removeFromPermissions("cannedComments:*")
             userRole.removeFromPermissions("availableStatus:*")
             userRole.removeFromPermissions("featureType:*")
+            def instructorRole = new Role(name: UserService.INSTRUCTOR).save()
+            instructorRole.addToPermissions("*:*")
+            instructorRole.removeFromPermissions("cannedComments:*")
+            instructorRole.removeFromPermissions("availableStatus:*")
+            instructorRole.removeFromPermissions("featureType:*")
             def adminRole = new Role(name: UserService.ADMIN).save()
             adminRole.addToPermissions("*:*")
         }

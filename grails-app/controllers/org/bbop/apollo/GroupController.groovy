@@ -74,9 +74,24 @@ class GroupController {
                 groupOrganismPermissionMap.put(groupOrganismPermission.group.name, groupOrganismPermissionListTemp)
             }
 
+            // restricted groups
+            def userGroups = permissionService.isAdmin() ? UserGroup.all : permissionService.currentUser.getUserGroups()
 
-            def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
-            groups.each {
+            def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : userGroups
+
+            // if user is admin, then include all
+            // if group has metadata with the creator or no metadata then include
+            def filteredGroups
+            if(permissionService.isAdmin()){
+                filteredGroups = groups
+            }
+            else{
+                filteredGroups = groups.findAll(){ group ->
+                    (group.metadata == null || group.getMetaData("creator")==permissionService.currentUser.id)
+                }
+            }
+
+            filteredGroups.each {
                 def groupObject = new JSONObject()
                 groupObject.id = it.id
                 groupObject.name = it.name

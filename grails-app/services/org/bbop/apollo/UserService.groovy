@@ -11,6 +11,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class UserService {
 
     static String USER = "USER"
+    static String INSTRUCTOR = "INSTRUCTOR"
     static String ADMIN = "ADMIN"
 
     // return admin role or user role
