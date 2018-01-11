@@ -41,11 +41,15 @@ class JbrowseController {
 
         def paramList = []
         String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
-        params.each { entry ->
+
+        request.parameterMap.each { entry ->
             if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
-                paramList.add(entry.key + "=" + entry.value)
+                entry.value.each {
+                    paramList.add("${entry.key}=${it}")
+                }
             }
         }
+
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
 //            Organism organism = preferenceService.getOrganismForToken(clientToken)
@@ -58,14 +62,7 @@ class JbrowseController {
                 clientToken = ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
                 String paramString = ""
-                paramList.each {
-                    if(it.toString().startsWith("addStore")){
-                        paramString += URLEncoder.encode(it.toString(),"UTF-8")+"&"
-                    }
-                    else{
-                        paramString += it + "&"
-                    }
-                }
+                paramString = paramList.join("&")
                 String uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
                 redirect(uri:  uriString)
                 return
