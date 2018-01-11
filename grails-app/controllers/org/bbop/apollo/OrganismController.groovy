@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.OrganismSummary
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
@@ -782,7 +783,7 @@ class OrganismController {
         JSONObject organismJson = permissionService.handleInput(request, params)
         String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         try {
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(organismJson))) {
+            if (permissionService.isUserBetterOrEqualRank(permissionService.getCurrentUser(organismJson),GlobalPermissionEnum.INSTRUCTOR)) {
                 if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
                     throw new Exception('empty fields detected')
                 }

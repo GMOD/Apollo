@@ -28,16 +28,20 @@ class PermissionService {
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
 
-    boolean isUserAdmin(User user) {
+
+    boolean isUserBetterOrEqualRank(User user,GlobalPermissionEnum globalPermissionEnum) {
         if (user != null) {
             for (Role role in user.roles) {
-                if (role.name == GlobalPermissionEnum.ADMIN.name()) {
+                if (role.rank >= globalPermissionEnum.rank) {
                     return true
                 }
             }
         }
 
         return false
+    }
+    boolean isUserAdmin(User user) {
+        return isUserBetterOrEqualRank(user,GlobalPermissionEnum.ADMIN)
     }
 
     boolean isAdmin() {

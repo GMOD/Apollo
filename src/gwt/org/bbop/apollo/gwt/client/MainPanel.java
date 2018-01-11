@@ -1091,7 +1091,7 @@ public class MainPanel extends Composite {
 
     public boolean isCurrentUserOrganismAdmin() {
         if(currentUser==null) return false ;
-        if(currentUser.getRole().equals("admin")) return true ;
+        if(currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey())) return true ;
 
         UserOrganismPermissionInfo permissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
         if(permissionInfo!=null){
@@ -1103,13 +1103,13 @@ public class MainPanel extends Composite {
 
     public boolean isCurrentUserInstructorOrBetter() {
         if(currentUser!=null){
-            return currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getDisplay()) || currentUser.getRole().equals(GlobalPermissionEnum.INSTRUCTOR.getDisplay());
+            return currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey()) || currentUser.getRole().equals(GlobalPermissionEnum.INSTRUCTOR.getLookupKey());
         }
         return false ;
     }
 
     public boolean isCurrentUserAdmin() {
-        return (currentUser != null && currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getDisplay()));
+        return (currentUser != null && currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey()));
     }
 
     public UserInfo getCurrentUser() {

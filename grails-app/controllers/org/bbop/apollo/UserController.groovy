@@ -233,7 +233,7 @@ class UserController {
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)) {
+            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserBetterOrEqualRank(currentUser,GlobalPermissionEnum.INSTRUCTOR)) {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)

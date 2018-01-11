@@ -287,16 +287,16 @@ public class OrganismPanel extends Composite {
         createButton.setText("Create Organism");
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
-        cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
-        createButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        createButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
-        createButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        cancelButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        newButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        deleteButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+        createButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        cancelButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        newButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        deleteButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
 
-        setTextEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        setTextEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
     }
 
     @UiHandler("createButton")

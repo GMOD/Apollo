@@ -38,17 +38,17 @@ class BootStrap {
         }
 
         if(Role.count==0){
-            def userRole = new Role(name: GlobalPermissionEnum.USER.name()).save()
+            def userRole = new Role(name: GlobalPermissionEnum.USER.name(),rank: GlobalPermissionEnum.USER.rank).save()
             userRole.addToPermissions("*:*")
             userRole.removeFromPermissions("cannedComments:*")
             userRole.removeFromPermissions("availableStatus:*")
             userRole.removeFromPermissions("featureType:*")
-            def instructorRole = new Role(name: GlobalPermissionEnum.INSTRUCTOR.name()).save()
+            def instructorRole = new Role(name: GlobalPermissionEnum.INSTRUCTOR.name(),rank: GlobalPermissionEnum.INSTRUCTOR.rank).save()
             instructorRole.addToPermissions("*:*")
             instructorRole.removeFromPermissions("cannedComments:*")
             instructorRole.removeFromPermissions("availableStatus:*")
             instructorRole.removeFromPermissions("featureType:*")
-            def adminRole = new Role(name: GlobalPermissionEnum.ADMIN.name()).save()
+            def adminRole = new Role(name: GlobalPermissionEnum.ADMIN.name(),rank: GlobalPermissionEnum.ADMIN.rank).save()
             adminRole.addToPermissions("*:*")
         }
 

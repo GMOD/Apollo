@@ -14,7 +14,7 @@ public enum GlobalPermissionEnum implements Comparable<GlobalPermissionEnum> {
 
     USER("user",10),
     INSTRUCTOR("instructor",50),
-    ADMIN("administrator",100);
+    ADMIN("admin",100);
 
     private String display; // pertains to the 1.0 value
     private Integer rank;
@@ -25,8 +25,12 @@ public enum GlobalPermissionEnum implements Comparable<GlobalPermissionEnum> {
         this.rank = rank;
     }
 
-    public String getDisplay() {
+    public String getLookupKey(){
         return name().toLowerCase();
+    }
+
+    public String getDisplay() {
+        return display;
     }
 
     public static GlobalPermissionEnum getValueForString(String input) {

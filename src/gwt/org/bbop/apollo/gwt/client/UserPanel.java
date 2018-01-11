@@ -1,12 +1,15 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -22,12 +25,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
@@ -38,7 +37,8 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Input;
+import org.gwtbootstrap3.client.ui.Row;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -116,23 +116,6 @@ public class UserPanel extends Composite {
 
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-        if (roleList.getItemCount() == 0) {
-            roleList.addItem(GlobalPermissionEnum.USER.getDisplay());
-            if(MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
-                GWT.log("adding as instructor");
-                roleList.addItem(GlobalPermissionEnum.INSTRUCTOR.getDisplay());
-            }
-            else{
-                GWT.log("not an instructor");
-            }
-            if(MainPanel.getInstance().isCurrentUserAdmin()){
-                GWT.log("adding as admin");
-                roleList.addItem(GlobalPermissionEnum.ADMIN.getDisplay());
-            }
-            else{
-                GWT.log("not an admin");
-            }
-        }
 
 
         TextColumn<UserInfo> firstNameColumn = new TextColumn<UserInfo>() {
@@ -199,10 +182,10 @@ public class UserPanel extends Composite {
                         if (jsonArray != null && jsonArray.size() > 0) {
                             JSONObject jsonObject = jsonArray.get(0).isObject();
                             userCount = (int) jsonObject.get("userCount").isNumber().doubleValue();
-                            if(jsonObject.containsKey("searchName") && jsonObject.get("searchName").isString()!=null){
+                            if (jsonObject.containsKey("searchName") && jsonObject.get("searchName").isString() != null) {
                                 String searchName = jsonObject.get("searchName").isString().stringValue();
-                                if(searchName.trim().length()>0 && !searchName.trim().equals(nameSearchBox.getText().trim())){
-                                    return ;
+                                if (searchName.trim().length() > 0 && !searchName.trim().equals(nameSearchBox.getText().trim())) {
+                                    return;
                                 }
                             }
                         }
@@ -223,7 +206,7 @@ public class UserPanel extends Composite {
                     Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
                     String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "email" : "";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
-                    UserRestService.loadUsers(requestCallback, start, length,nameSearchBox.getText(), searchColumnString, sortNameAscending);
+                    UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending);
                 }
             }
         };
@@ -272,12 +255,12 @@ public class UserPanel extends Composite {
             @Override
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
-                    if(MainPanel.getInstance().isCurrentUserAdmin()) {
+                    if (MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
                         reload();
                     }
-                    return false ;
+                    return false;
                 }
-                return true ;
+                return true;
             }
         }, 100);
     }
@@ -404,9 +387,9 @@ public class UserPanel extends Composite {
         permissionProvider.addDataDisplay(organismPermissionsGrid);
     }
 
-    private Boolean isEmail(String emailString){
-        if(!emailString.contains("@") || !emailString.contains(".")){
-            return false ;
+    private Boolean isEmail(String emailString) {
+        if (!emailString.contains("@") || !emailString.contains(".")) {
+            return false;
         }
         if (emailString.indexOf("@") >= emailString.lastIndexOf(".")) {
             return false;
@@ -417,10 +400,10 @@ public class UserPanel extends Composite {
     private Boolean setCurrentUserInfoFromUI() {
         String emailString = email.getText().trim();
         final MutableBoolean mutableBoolean = new MutableBoolean(true);
-        if(!isEmail(emailString)){
+        if (!isEmail(emailString)) {
             mutableBoolean.setBooleanValue(Window.confirm("'" + emailString + "' does not appear to be a valid email.  Use anyway?"));
         }
-        if(mutableBoolean.getBooleanValue()) {
+        if (mutableBoolean.getBooleanValue()) {
             selectedUserInfo.setEmail(emailString);
             selectedUserInfo.setFirstName(firstName.getText());
             selectedUserInfo.setLastName(lastName.getText());
@@ -443,6 +426,7 @@ public class UserPanel extends Composite {
         cancelButton.setEnabled(true);
         createButton.setEnabled(false);
         passwordRow.setVisible(true);
+        userDetailTab.selectTab(0);
     }
 
     @UiHandler("addGroupButton")
@@ -488,7 +472,7 @@ public class UserPanel extends Composite {
         userIsSame();
     }
 
-    @UiHandler(value = { "roleList"})
+    @UiHandler(value = {"roleList"})
     public void handleRole(ChangeEvent changeEvent) {
         userIsSame();
     }
@@ -500,15 +484,15 @@ public class UserPanel extends Composite {
     }
 
     private void userIsSame() {
-        if(selectedUserInfo == null ){
-            return ;
+        if (selectedUserInfo == null) {
+            return;
         }
-        if(selectedUserInfo.getEmail().equals(email.getText().trim())
+        if (selectedUserInfo.getEmail().equals(email.getText().trim())
                 && selectedUserInfo.getFirstName().equals(firstName.getText().trim())
                 && selectedUserInfo.getLastName().equals(lastName.getText().trim())
                 && selectedUserInfo.getRole().equals(roleList.getSelectedValue())
-                && passwordTextBox.getText().trim().length()==0  // we don't the password back here . . !!
-                ){
+                && passwordTextBox.getText().trim().length() == 0  // we don't the password back here . . !!
+                ) {
             saveButton.setEnabled(false);
             cancelButton.setEnabled(false);
         } else {
@@ -520,21 +504,20 @@ public class UserPanel extends Composite {
     public void updateUser() {
         // assume an edit operation
         if (selectedUserInfo != null) {
-            if(!setCurrentUserInfoFromUI()){
+            if (!setCurrentUserInfoFromUI()) {
                 handleCancel(null);
-                return ;
+                return;
             }
             RequestCallback requestCallback = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
-                    JSONValue v= JSONParser.parseStrict(response.getText());
-                    JSONObject o=v.isObject();
-                    if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                        new ErrorDialog("Error Updating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
-                    }
-                    else{
-                        Bootbox.alert("Saved changes to user "+selectedUserInfo.getName()+"!");
-                        selectedUserInfo = null ;
+                    JSONValue v = JSONParser.parseStrict(response.getText());
+                    JSONObject o = v.isObject();
+                    if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                        new ErrorDialog("Error Updating User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
+                    } else {
+                        Bootbox.alert("Saved changes to user " + selectedUserInfo.getName() + "!");
+                        selectedUserInfo = null;
                         updateUserInfo();
                         saveButton.setEnabled(false);
                         cancelButton.setEnabled(false);
@@ -553,10 +536,9 @@ public class UserPanel extends Composite {
 
     private void saveNewUser() {
         selectedUserInfo = new UserInfo();
-        if(setCurrentUserInfoFromUI()){
+        if (setCurrentUserInfoFromUI()) {
             UserRestService.createUser(userInfoList, selectedUserInfo);
-        }
-        else{
+        } else {
             handleCancel(null);
         }
         createButton.setEnabled(true);
@@ -598,7 +580,7 @@ public class UserPanel extends Composite {
                 roleList.setVisible(true);
                 UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
                 roleList.setSelectedIndex(0);
-                roleList.setEnabled(currentUser.getRole().equalsIgnoreCase(GlobalPermissionEnum.ADMIN.getDisplay()));
+                roleList.setEnabled(currentUser.getRole().equalsIgnoreCase(GlobalPermissionEnum.ADMIN.getLookupKey()));
 
                 userRow1.setVisible(true);
                 userRow2.setVisible(true);
@@ -686,9 +668,21 @@ public class UserPanel extends Composite {
 
     public void reload(Boolean forceReload) {
         if (MainPanel.getInstance().getUserPanel().isVisible() || forceReload) {
+            updateAvailableRoles();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
             dataGrid.redraw();
+        }
+    }
+
+    private void updateAvailableRoles() {
+        roleList.clear();
+        roleList.addItem(GlobalPermissionEnum.USER.getLookupKey());
+        if (MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
+            roleList.addItem(GlobalPermissionEnum.INSTRUCTOR.getLookupKey());
+        }
+        if (MainPanel.getInstance().isCurrentUserAdmin()) {
+            roleList.addItem(GlobalPermissionEnum.ADMIN.getLookupKey());
         }
     }
 
