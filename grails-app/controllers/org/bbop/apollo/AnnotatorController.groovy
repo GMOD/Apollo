@@ -48,7 +48,7 @@ class AnnotatorController {
      * @return
      */
     def loadLink() {
-        log.debug "params: ${params}"
+        log.debug "Parameter for loadLink: ${params} vs ${request.parameterMap}"
         String clientToken
         try {
             if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
