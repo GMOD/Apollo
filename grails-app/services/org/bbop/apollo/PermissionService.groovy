@@ -8,6 +8,7 @@ import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -30,7 +31,7 @@ class PermissionService {
     boolean isUserAdmin(User user) {
         if (user != null) {
             for (Role role in user.roles) {
-                if (role.name == UserService.ADMIN) {
+                if (role.name == GlobalPermissionEnum.ADMIN.name()) {
                     return true
                 }
             }

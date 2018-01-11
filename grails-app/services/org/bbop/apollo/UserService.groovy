@@ -4,14 +4,15 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class UserService {
 
-    static String USER = "USER"
-    static String INSTRUCTOR = "INSTRUCTOR"
+//    static String USER = "USER"
+//    static String INSTRUCTOR = "INSTRUCTOR"
     static String ADMIN = "ADMIN"
 
     // return admin role or user role
@@ -103,7 +104,7 @@ class UserService {
             return ;
         }
 
-        def adminRole = Role.findByName(ADMIN)
+        def adminRole = Role.findByName(GlobalPermissionEnum.ADMIN.name())
 
         User user = new User(
                 username: username

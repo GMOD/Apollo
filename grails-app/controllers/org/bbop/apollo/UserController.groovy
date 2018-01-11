@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -357,10 +358,10 @@ class UserController {
             def currentUser = permissionService.currentUser
             user.addMetaData("creator", currentUser.id.toString())
 
-            String roleString = dataObject.role ?: UserService.USER
+            String roleString = dataObject.role ?: GlobalPermissionEnum.USER.name()
             Role role = Role.findByName(roleString.toUpperCase())
             if (!role) {
-                role = Role.findByName(UserService.USER)
+                role = Role.findByName(GlobalPermissionEnum.USER.name())
             }
             log.debug "adding role: ${role}"
             user.addToRoles(role)

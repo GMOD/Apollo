@@ -37,6 +37,7 @@ import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -105,7 +106,6 @@ public class UserPanel extends Composite {
 
     private AsyncDataProvider<UserInfo> dataProvider;
     private List<UserInfo> userInfoList = new ArrayList<>();
-//    private List<UserInfo> filteredUserInfoList = dataProvider.getList();
     private SingleSelectionModel<UserInfo> selectionModel = new SingleSelectionModel<>();
     private UserInfo selectedUserInfo;
 
@@ -116,10 +116,22 @@ public class UserPanel extends Composite {
 
     public UserPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
-
         if (roleList.getItemCount() == 0) {
-            roleList.addItem("user");
-            roleList.addItem("admin");
+            roleList.addItem(GlobalPermissionEnum.USER.getDisplay());
+            if(MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
+                Window.alert("adding as instructor");
+                roleList.addItem(GlobalPermissionEnum.INSTRUCTOR.getDisplay());
+            }
+            else{
+                Window.alert("not an instructor");
+            }
+            if(MainPanel.getInstance().isCurrentUserAdmin()){
+                Window.alert("adding as admin");
+                roleList.addItem(GlobalPermissionEnum.ADMIN.getDisplay());
+            }
+            else{
+                Window.alert("not an admin");
+            }
         }
 
 
@@ -586,7 +598,7 @@ public class UserPanel extends Composite {
                 roleList.setVisible(true);
                 UserInfo currentUser = MainPanel.getInstance().getCurrentUser();
                 roleList.setSelectedIndex(0);
-                roleList.setEnabled(currentUser.getRole().equalsIgnoreCase("admin"));
+                roleList.setEnabled(currentUser.getRole().equalsIgnoreCase(GlobalPermissionEnum.ADMIN.getDisplay()));
 
                 userRow1.setVisible(true);
                 userRow2.setVisible(true);

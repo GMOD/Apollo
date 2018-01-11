@@ -17,7 +17,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.ListBox;
-import org.bbop.apollo.UserOrganismPermission;
 import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
@@ -28,6 +27,7 @@ import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
@@ -40,7 +40,6 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -1104,13 +1103,13 @@ public class MainPanel extends Composite {
 
     public boolean isCurrentUserInstructorOrBetter() {
         if(currentUser!=null){
-            return currentUser.getRole().equals("admin") || currentUser.getRole().equals("instructor");
+            return currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getDisplay()) || currentUser.getRole().equals(GlobalPermissionEnum.INSTRUCTOR.getDisplay());
         }
         return false ;
     }
 
     public boolean isCurrentUserAdmin() {
-        return (currentUser != null && currentUser.getRole().equals("admin"));
+        return (currentUser != null && currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getDisplay()));
     }
 
     public UserInfo getCurrentUser() {
