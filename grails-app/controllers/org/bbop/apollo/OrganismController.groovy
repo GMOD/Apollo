@@ -801,9 +801,12 @@ class OrganismController {
                 )
                 log.debug "organism ${organism as JSON}"
 
+                organism.addMetaData("creator",permissionService.currentUser.id as String)
+
                 if (checkOrganism(organism)) {
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
+
 
                 // send file using:
 //            curl \
