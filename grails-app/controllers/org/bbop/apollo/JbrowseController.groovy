@@ -42,12 +42,22 @@ class JbrowseController {
         def paramList = []
         String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
 
+        boolean requireRedirect = false
         request.parameterMap.each { entry ->
             if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
                 entry.value.each {
+                    if(entry.key.endsWith("urlTemplate")){
+                        String oldValue = it
+                        it = JBrowseUrlHandler.fixUrlTemplate(it,request.contextPath)
+                        requireRedirect = requireRedirect ?: it!=oldValue
+                    }
                     paramList.add("${entry.key}=${it}")
                 }
             }
+        }
+        String paramString = paramList.join("&")
+        if(requireRedirect){
+            redirect(uri: createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}"))
         }
 
         // case 3 - validated login (just read from preferences, then
@@ -61,9 +71,8 @@ class JbrowseController {
                 }
                 clientToken = ClientTokenGenerator.generateRandomString()
                 preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
-                String paramString = paramList.join("&")
                 String uriString
-                if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
+                if (JBrowseUrlHandler.hasProtocol(paramString)) {
                     uriString = createLink(url: "${request.contextPath}/${clientToken}/jbrowse/index.html?${paramString}")
                 }
                 else {
@@ -466,7 +475,7 @@ class JbrowseController {
 
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
-            println "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
+            log.info "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
             File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
             if (extendedTrackListFile.exists()) {
                 log.debug "augmenting track JSON Object with extendedTrackList.json contents"
