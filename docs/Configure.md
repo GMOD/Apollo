@@ -534,6 +534,34 @@ You should use ```tracklist=1``` to force showing the native tracklist (or use t
 
 Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
 
+
+### Adding tracks via addStores
+
+The [JBrowse Configuration Guide](http://gmod.org/wiki/JBrowse_Configuration_Guide#addStores) describes in detail on how to add tracks to JBrowse using addStores.
+The configuration relies on sending track config JSON through the URL which can be problematic, especially with new versions of Tomcat.
+
+Instead we recommend using the dot notation to add track configuration through the URL.
+
+Thus,
+```
+addStores={"uniqueStoreName":{"type":"JBrowse/Store/SeqFeature/GFF3","urlTemplate":"url/of/my/file.gff3"}}
+```
+
+becomes,
+```
+addStores.uniqueStoreName.type=JBrowse/Store/SeqFeature/GFF3&addStores.uniqueStoreName.urlTemplate=url/of/my/file.gff3
+```
+
+
+Following are a few recommendations for adding tracks via dot notation in Apollo:
+
+- avoid `{dataRoot}` in your `urlTemplate`
+- avoid specifying `data` folder name in your `urlTemplate`
+- avoid specifying `baseUrl`
+
+Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
+
+
 ### Phone Home
 
 In order to determine our usage and the current versions of Apollo being used (which helps us to provide Apollo for free), the server and the client will phone home and to google analytics.
