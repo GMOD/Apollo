@@ -10,6 +10,10 @@ class UserGroup implements JsonMetadata{
             users: User
     ]
 
+    static mapping = {
+        metadata type: "text"
+    }
+
     String name
     String metadata
     boolean publicGroup = false

@@ -12,6 +12,6 @@ class Role {
 
     static constraints = {
         name(nullable: false, blank: false, unique: true)
-        rank(nullable: false, blank: false, unique: true)
+        rank(nullable: true, blank: false, unique: true)
     }
 }
