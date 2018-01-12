@@ -54,12 +54,14 @@ class OrganismController {
             JSONObject organismJson = permissionService.handleInput(request, params)
             log.debug "deleteOrganism ${organismJson}"
             def currentUser = permissionService.getCurrentUser(organismJson)
-            if (permissionService.isUserAdmin(currentUser)) {
-
+            if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
+                println "pass permission check. Deleting organism"
                 log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
                 Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
                 String creatorMetaData = organism.getMetaData("creator")
-                if (creatorMetaData && currentUser.id != organism.getMetaData("creator")) {
+                println "creatorMetaData :${creatorMetaData}"
+                println "currentUser.id :${currentUser.id.toString()}"
+                if (creatorMetaData && currentUser.id.toString() != organism.getMetaData("creator")) {
                     def error = [error: 'User did not create this organism so can not delete it']
                     log.error(error.error)
                     render error as JSON
@@ -782,8 +784,10 @@ class OrganismController {
     def addOrganism() {
         JSONObject organismJson = permissionService.handleInput(request, params)
         String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+        println "adding organism"
         try {
             if (permissionService.isUserBetterOrEqualRank(permissionService.getCurrentUser(organismJson),GlobalPermissionEnum.INSTRUCTOR)) {
+                println "pass the permission check"
                 if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
                     throw new Exception('empty fields detected')
                 }
@@ -802,11 +806,27 @@ class OrganismController {
                 log.debug "organism ${organism as JSON}"
 
                 organism.addMetaData("creator",permissionService.currentUser.id as String)
-
+                println "Adding organism"
                 if (checkOrganism(organism)) {
+                    println "checked and add to database"
                     organism.save(failOnError: true, flush: true, insert: true)
                 }
+                def user = permissionService.currentUser
+                def userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
+                if (!userOrganismPermission) {
+                    log.debug "creating new permissions! "
+                    userOrganismPermission = new UserOrganismPermission(
+                            user: user
+                            , organism: organism
+                            , permissions: "[]"
+                    ).save(insert: true)
+                    log.debug "created new permissions! "
+                }
 
+                JSONArray permissionsArray = new JSONArray()
+                permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
+                userOrganismPermission.permissions = permissionsArray.toString()
+                userOrganismPermission.save(flush: true)
 
                 // send file using:
 //            curl \
@@ -816,7 +836,7 @@ class OrganismController {
                 //  localhost:8080/apollo
 //                if (request.getFile("sequenceData)")) {
 //
-//                }
+//                }W
                 sequenceService.loadRefSeqs(organism)
 
                 preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)

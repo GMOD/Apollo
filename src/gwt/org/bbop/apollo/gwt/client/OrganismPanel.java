@@ -445,7 +445,8 @@ public class OrganismPanel extends Composite {
 
     // Set the button states/visibility depending on whether there is a selection or not
     private void changeButtonSelection(boolean selection) {
-        Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
+        //Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
+        Boolean isAdmin = MainPanel.getInstance().isCurrentUserInstructorOrBetter();
         if (selection) {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);

@@ -21,6 +21,7 @@ class Organism implements JsonMetadata {
         genomeFastaIndex nullable: true
         nonDefaultTranslationTable nullable: true, blank: false
         dataAddedViaWebServices nullable: true
+        metadata(display: false, blank: true,nullable: true)
     }
 
     String abbreviation;
