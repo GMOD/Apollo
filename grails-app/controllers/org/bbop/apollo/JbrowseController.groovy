@@ -58,6 +58,7 @@ class JbrowseController {
         String paramString = paramList.join("&")
         if(requireRedirect){
             redirect(uri: createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}"))
+            return
         }
 
         // case 3 - validated login (just read from preferences, then
