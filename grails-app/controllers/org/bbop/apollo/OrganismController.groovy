@@ -1096,16 +1096,21 @@ class OrganismController {
         })
 
         // global version
-        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
+        OrganismSummary organismSummaryInstance = permissionService.currentUser.roles.first().rank == GlobalPermissionEnum.ADMIN.rank ? reportService.generateAllFeatureSummary() : new OrganismSummary()
+//        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
 
 
-        Organism.listOrderByCommonName().each { organism ->
+//        def organismPermissions = permissionService.getOrganismsWithPermission(permissionService.currentUser)
+        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser,PermissionEnum.ADMINISTRATE)
+
+
+        organisms.each { organism ->
             OrganismSummary thisOrganismSummaryInstance = reportService.generateOrganismSummary(organism)
             organismSummaryListInstance.put(organism, thisOrganismSummaryInstance)
         }
 
 
-        respond organismSummaryInstance, model: [organismSummaries: organismSummaryListInstance]
+        respond organismSummaryInstance, model: [organismSummaries: organismSummaryListInstance,isSuperAdmin:permissionService.isAdmin()]
     }
 
     protected void notFound() {
