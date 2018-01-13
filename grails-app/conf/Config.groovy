@@ -326,19 +326,19 @@ apollo {
 
     // customize admin tab on annotator panel with these links
     administrativePanel = [
-            ['label': "Canned Comments", 'link': "/cannedComment/",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "Canned Key", 'link': "/cannedKey/",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "Canned Values", 'link': "/cannedValue/",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "Feature Types", 'link': "/featureType/",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "Statuses", 'link': "/availableStatus/",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "Proxies", 'link': "/proxy/",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            ['label': "Canned Comments", 'link': "/cannedComment/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Canned Key", 'link': "/cannedKey/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Canned Values", 'link': "/cannedValue/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Feature Types", 'link': "/featureType/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Statuses", 'link': "/availableStatus/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Proxies", 'link': "/proxy/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Report::Organisms", 'link': "/organism/report/", 'type': "report"]
             , ['label': "Report::Sequences", 'link': "/sequence/report/", 'type': "report"]
             , ['label': "Report::Annotator", 'link': "/annotator/report/", 'type': "report"]
             , ['label': "Report::Changes", 'link': "/featureEvent/report/", 'type': "report"]
-            , ['label': "System Info", 'link': "/home/systemInfo/", 'type': "report",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "Performance Metrics", 'link': "/home/metrics/", 'type': "report",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
-            , ['label': "WebServices", 'link': "/WebServices/", 'type': "report",'roleRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "System Info", 'link': "/home/systemInfo/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Performance Metrics", 'link': "/home/metrics/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "WebServices", 'link': "/WebServices/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
     ]
 
     // over-ride in apollo-config.groovy to add extra tabs
