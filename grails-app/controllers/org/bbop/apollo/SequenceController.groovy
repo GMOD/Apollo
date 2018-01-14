@@ -377,4 +377,10 @@ class SequenceController {
         }
 
     }
+
+    def chromosome(){
+        def sequences = Sequence.listOrderByLength([max:20,order:"desc"])
+        [array:sequences as JSON,sequences:sequences]
+//        render Sequence.listOrderByLength([max:20,order:"desc"]) as JSON
+    }
 }
