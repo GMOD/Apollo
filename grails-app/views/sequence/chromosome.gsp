@@ -17,22 +17,22 @@
 %{--<g:layoutHead/>--}%
 %{--</head>--}%
 
-<ul>
-    <g:set var="max" value="${sequences.first()}"/>
-    <g:set var="min" value="${sequences.last()}"/>
-    Max [${max.length}]
-    Min [${min.length}]
-    <g:each in="${sequences}" var="seq">
-        <li>${seq.name}</li>
-    </g:each>
+%{--<ul>--}%
+<g:set var="max" value="${sequences.first()}"/>
+<g:set var="min" value="${sequences.last()}"/>
+%{--Max [${max.length}]--}%
+%{--Min [${min.length}]--}%
+%{--<g:each in="${sequences}" var="seq">--}%
+%{--<li>${seq.name}</li>--}%
+%{--</g:each>--}%
 
-    ${array}
-</ul>
+%{--${array}--}%
+%{--</ul>--}%
 
 <div id="drawing"></div>
 
 <script>
-    var draw = SVG('drawing').size(880, 200);
+    var draw = SVG('drawing').size(880, 400);
     var count = 0
     // var ellipse = draw.ellipse(150, 100).fill('#f06').move(20, 20)
 </script>
@@ -40,20 +40,32 @@
 
 <g:each in="${sequences}" var="seq">
     <script>
-        var maxHeight = 100 ;
+        var maxHeight = 250;
         var radius = 10;
         var rectWidth = 20;
         var spacing = 80;
 
         var label = draw.text('${seq.name}');
-        // console.log(label.length)
-        label.move(count * spacing  + spacing / 2.0,maxHeight+10).font({ fill: 'gray', family: 'Arial',size:12 });
+
+        var textLength = label.length();
+        var textMove = textLength < (rectWidth + spacing) ? (textLength - 0.5 * (rectWidth + spacing)) : 0;
+        label.move(count * spacing + spacing / 2.0 - textMove, maxHeight + 40).font({
+            fill: 'gray',
+            family: 'Arial',
+            size: 12
+        });
+        label.transform({rotation: -90});
+        // label.move(10);
 
         var height = (maxHeight * ${seq.length /  max.length});
         var rect = draw.rect(rectWidth, height);
         rect.radius(radius);
-        rect.move(count * spacing + spacing/2.0, maxHeight - height);
-        count += 1 ;
+        rect.move(count * spacing + spacing / 2.0, maxHeight - height);
+        rect.fill({
+            color: 'white'
+        }).stroke({ color:'black'});
+
+        count += 1;
 
     </script>
 </g:each>
