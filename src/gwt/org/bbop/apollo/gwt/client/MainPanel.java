@@ -395,7 +395,7 @@ public class MainPanel extends Composite {
             entryKey += entry.getKey() + " " + entry.getValue().getId() + " " + entry.getValue().getHighestPermission().getDisplay();
             GWT.log(entryKey);
         }
-        if (globalRole.equals("admin")) {
+        if (globalRole.equals("admin") || globalRole.equals("instructor")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
         } else {
             highestPermission = PermissionEnum.NONE;
