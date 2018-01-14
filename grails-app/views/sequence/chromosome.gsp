@@ -32,7 +32,7 @@
 <div id="drawing"></div>
 
 <script>
-    var draw = SVG('drawing').size(300, 130)
+    var draw = SVG('drawing').size(880, 200);
     var count = 0
     // var ellipse = draw.ellipse(150, 100).fill('#f06').move(20, 20)
 </script>
@@ -40,9 +40,20 @@
 
 <g:each in="${sequences}" var="seq">
     <script>
-        var rect = draw.rect(20 , 100);
-        rect.radius(10);
-        rect.move(count * 30);
+        var maxHeight = 100 ;
+        var radius = 10;
+        var rectWidth = 20;
+        var spacing = 80;
+
+        var label = draw.text('${seq.name}');
+        // console.log(label.length)
+        label.move(count * spacing  + spacing / 2.0,maxHeight+10).font({ fill: 'gray', family: 'Arial',size:12 });
+
+        var height = (maxHeight * ${seq.length /  max.length});
+        var rect = draw.rect(rectWidth, height);
+        rect.radius(radius);
+        rect.move(count * spacing + spacing/2.0, maxHeight - height);
         count += 1 ;
+
     </script>
 </g:each>
