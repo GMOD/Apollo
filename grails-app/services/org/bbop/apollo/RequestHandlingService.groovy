@@ -2357,4 +2357,46 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+    def associateTranscriptToGene(JSONObject inputObject) {
+        log.debug "associateTranscriptToGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        String transcriptUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
+        Transcript transcript = Transcript.findByUniqueName(transcriptUniqueName)
+        Gene gene = Gene.findByUniqueName(geneUniqueName)
+        log.debug "transcript: ${transcript}"
+        log.debug "gene: ${gene}"
+        transcript = featureService.associateTranscriptToGene(transcript, gene)
+
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer, sequence: transcript.featureLocation.sequence,
+                operation: AnnotationEvent.Operation.UPDATE
+        )
+        fireAnnotationEvent(annotationEvent)
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
+    def dissociateTranscriptFromGene(JSONObject inputObject) {
+        log.debug "dissociateTranscriptFromGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        String uniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        Transcript transcript = Transcript.findByUniqueName(uniqueName)
+        log.debug "transcript: ${transcript}"
+        transcript = featureService.dissociateTranscriptFromGene(transcript)
+
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer, sequence: transcript.featureLocation.sequence,
+                operation: AnnotationEvent.Operation.UPDATE
+        )
+        fireAnnotationEvent(annotationEvent)
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
 }

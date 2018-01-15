@@ -414,6 +414,16 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     return afeature;
 };
 
+JSONUtils.overlaps = function(feat1, feat2) {
+    var leftFmin = feat1.get("start");
+    var leftFmax = feat1.get("end");
+    var rightFmin = feat2.get("start");
+    var rightFmax = feat2.get("end");
+
+    return (leftFmin <= rightFmin && leftFmax > rightFmin ||
+        leftFmin >= rightFmin && leftFmin < rightFmax);
+};
+
 // experimenting with forcing export of JSONUtils into global namespace...
 window.JSONUtils = JSONUtils;
 

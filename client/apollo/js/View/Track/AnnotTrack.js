@@ -1527,6 +1527,65 @@ define([
                 this.mergeAnnotations(selected);
             },
 
+            associateTranscriptToGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var transcriptUniqueName;
+                var geneUniqueName;
+                if (selected[0].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    transcriptUniqueName = parent.afeature.uniquename;
+                    console.log("first selected has a parent: ", selected[0].feature.parent());
+                }
+                else {
+                    transcriptUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                if (selected[1].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[1].feature.parent();
+                    geneUniqueName = parent.afeature.parent_id;
+                }
+                else {
+                    geneUniqueName = selected[1].feature.afeature.parent_id;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: transcriptUniqueName }, { uniquename: geneUniqueName }],
+                    operation: 'associate_transcript_to_gene'
+                };
+                console.log("postData: ", postData);
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+            dissociateTranscriptFromGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var transcriptUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    transcriptUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    transcriptUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: transcriptUniqueName }],
+                    operation: 'dissociate_transcript_from_gene'
+                };
+                console.log(postData);
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
             mergeAnnotations: function (selection) {
                 var track = this;
                 var annots = [];
@@ -4656,8 +4715,30 @@ define([
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
+
+                    //
+                    var associateTranscriptToGeneItem = new dijit.MenuItem({
+                        label: "Associate Transcript to Gene",
+                        onClick: function () {
+                            thisB.associateTranscriptToGene();
+                        }
+                    });
+                    annot_context_menu.addChild(associateTranscriptToGeneItem);
+                    contextMenuItems["associate_transcript_to_gene"] = index++;
+
+                    var dissociateTranscriptToGeneItem = new dijit.MenuItem({
+                        label: "Dissociate Transcript from Gene",
+                        onClick: function () {
+                            thisB.dissociateTranscriptFromGene();
+                        }
+                    });
+                    annot_context_menu.addChild(dissociateTranscriptToGeneItem);
+                    contextMenuItems["dissociate_transcript_from_gene"] = index++;
+                    //
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
@@ -5053,6 +5134,8 @@ define([
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
                 this.updateSetLongestOrfMenuItem();
+                this.updateAssociateTranscriptToGeneItem();
+                this.updateDissociateTranscriptFromGeneItem();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -5075,6 +5158,41 @@ define([
 
             closeMenu: function() {
                 dijit.popup.close(this.annot_context_menu);
+            },
+
+            updateAssociateTranscriptToGeneItem: function() {
+                var menuItem = this.getMenuItem("associate_transcript_to_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+                if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
+                    menuItem.set("disabled", false);
+                }
+                else {
+                    menuItem.set("disabled", true);
+                }
+            },
+
+            updateDissociateTranscriptFromGeneItem: function() {
+                var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (!this.canEdit(selected[0].feature)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                menuItem.set("disabled", false);
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {

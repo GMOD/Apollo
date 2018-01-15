@@ -32,6 +32,8 @@ class FeatureService {
     def organismService
     def sessionFactory
 
+    public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
+    public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
     public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
     @Timed
@@ -2190,6 +2192,58 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
         return transcriptsToUpdate
+    }
+
+    def associateTranscriptToGene(Transcript transcript, Gene gene) {
+        log.debug "associateTranscriptToGene: ${transcript.name} -> ${gene.name}"
+        Gene originalGene = transcriptService.getGene(transcript)
+        log.debug "removing transcript ${transcript.name} from its own gene: ${originalGene.name}"
+        featureRelationshipService.removeFeatureRelationship(originalGene, transcript)
+        addTranscriptToGene(gene, transcript)
+        transcript.name = nameService.generateUniqueName(transcript, gene.name)
+        // check if original gene has any additional isoforms; if not then delete original gene
+        if (transcriptService.getTranscripts(originalGene).size() == 0) {
+            deleteFeature(originalGene)
+        }
+
+        featurePropertyService.addComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
+        return transcript
+    }
+
+    def dissociateTranscriptFromGene(Transcript transcript) {
+        Gene gene = transcriptService.getGene(transcript)
+        log.debug "dissociateTranscriptFromGene: ${transcript.name} -> ${gene.name}"
+        featureRelationshipService.removeFeatureRelationship(gene, transcript)
+        Gene newGene = new Gene(
+                uniqueName: nameService.generateUniqueName(),
+                name: nameService.generateUniqueName(gene)
+        ).save()
+        log.debug "New gene name: ${newGene.name}"
+        transcript.owners.each {
+            newGene.addToOwners(it)
+        }
+
+        FeatureLocation newGeneFeatureLocation = new FeatureLocation(
+                feature: newGene,
+                fmin: transcript.fmin,
+                fmax: transcript.fmax,
+                strand: transcript.strand,
+                sequence: transcript.featureLocation.sequence,
+                residueInfo: transcript.featureLocation.residueInfo,
+                locgroup: transcript.featureLocation.locgroup,
+                rank: transcript.featureLocation.rank
+        ).save(flush: true)
+        newGene.addToFeatureLocations(newGeneFeatureLocation)
+        addTranscriptToGene(newGene, transcript)
+        transcript.name = nameService.generateUniqueName(transcript, newGene.name)
+
+        if (transcriptService.getTranscripts(gene).size() == 0) {
+            // check if original gene has any additional isoforms; if not then delete original gene
+            deleteFeature(gene)
+        }
+
+        featurePropertyService.addComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
+        return transcript
     }
 
     def getOverlappingTranscripts(Transcript transcript) {
