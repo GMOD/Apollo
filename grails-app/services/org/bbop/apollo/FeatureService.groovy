@@ -183,8 +183,15 @@ class FeatureService {
                 it instanceof Gene
             }
 
-            log.debug "overlapping features: ${overlappingFeatures.size()}"
-            for (Feature eachFeature : overlappingFeatures) {
+            log.debug "overlapping features: ${overlappingFeatures.name}"
+            List<Feature> overlappingFeaturesToCheck = new ArrayList<Feature>()
+            overlappingFeatures.each {
+                if (!checkForComment(it, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(it, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                    overlappingFeaturesToCheck.add(it)
+                }
+            }
+
+            for (Feature eachFeature : overlappingFeaturesToCheck) {
                 // get the proper object instead of its proxy, due to lazy loading
                 Feature feature = Feature.get(eachFeature.id)
                 log.debug "evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
@@ -2094,23 +2101,34 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax ?: a.name <=> b.name
             }
         }
+
+        // remove exceptions
+        List<Transcript> allSortedTranscriptsToCheck = new ArrayList<Transcript>()
+
+        allSortedTranscripts.each {
+            boolean safe = true
+            if (!checkForComment(it, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(it, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                allSortedTranscriptsToCheck.add(it)
+            }
+        }
+
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should
         // be merged to the 5' most transcript's gene.
         // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be
         // given a new, de-novo gene.
-        log.debug "allSortedTranscripts:${allSortedTranscripts.name}"
-        Transcript fivePrimeTranscript = allSortedTranscripts.get(0)
+        log.debug "all sorted transcripts: ${allSortedTranscriptsToCheck.name}"
+        Transcript fivePrimeTranscript = allSortedTranscriptsToCheck.get(0)
         Gene fivePrimeGene = transcriptService.getGene(fivePrimeTranscript)
         log.debug "5' Transcript: ${fivePrimeTranscript.name}"
         log.debug "5' Gene: ${fivePrimeGene.name}"
-        allSortedTranscripts.remove(0)
+        allSortedTranscriptsToCheck.remove(0)
         ArrayList<Transcript> transcriptsToAssociate = new ArrayList<Transcript>()
         ArrayList<Gene> genesToMerge = new ArrayList<Gene>()
         ArrayList<Transcript> transcriptsToDissociate = new ArrayList<Transcript>()
         ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
 
-        for (Transcript eachTranscript : allSortedTranscripts) {
+        for (Transcript eachTranscript : allSortedTranscriptsToCheck) {
             if (eachTranscript && fivePrimeGene && overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
                 if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
                     transcriptsToAssociate.add(eachTranscript)
@@ -2123,13 +2141,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-        log.debug "Transcripts to Associate: ${transcriptsToAssociate}"
-        log.debug "Transcripts to Dissociate: ${transcriptsToDissociate}"
+        log.debug "[FeatureService][handleDynamicIsoformOverlap] Transcripts to Associate: ${transcriptsToAssociate.name}"
+        log.debug "[FeatureService][handleDynamicIsoformOverlap] Transcripts to Dissociate: ${transcriptsToDissociate.name}"
         transcriptsToUpdate.addAll(transcriptsToAssociate)
         transcriptsToUpdate.addAll(transcriptsToDissociate)
 
         if (transcriptsToAssociate) {
             Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
+            log.debug "[FeatureService][handleDynamicIsoformOverlap] mergedGene: ${mergedGene.name}"
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
                 featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
@@ -2234,6 +2253,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 rank: transcript.featureLocation.rank
         ).save(flush: true)
         newGene.addToFeatureLocations(newGeneFeatureLocation)
+        featurePropertyService.addComment(newGene, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
+
         addTranscriptToGene(newGene, transcript)
         transcript.name = nameService.generateUniqueName(transcript, newGene.name)
 
@@ -3027,5 +3048,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         ).save()
         featurePropertyService.addProperty(feature, featureProperty)
         feature.save()
+    }
+
+    def checkForComment(Feature feature, String value) {
+        def comments = featurePropertyService.getComments(feature)
+        for(FeatureProperty comment : comments) {
+            if (comment.value == value) {
+                return true
+            }
+        }
+
+        return false
     }
 }

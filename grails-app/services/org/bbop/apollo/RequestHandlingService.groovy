@@ -2389,8 +2389,9 @@ class RequestHandlingService {
                     sequence: sequence,
                     operation: AnnotationEvent.Operation.UPDATE
             )
+            fireAnnotationEvent(annotationEvent)
         }
-        fireAnnotationEvent(annotationEvent)
+
         log.debug "Return object: ${updateFeatureContainer.toString()}"
         return updateFeatureContainer
     }
@@ -2425,9 +2426,11 @@ class RequestHandlingService {
                     sequence: sequence,
                     operation: AnnotationEvent.Operation.UPDATE
             )
+            fireAnnotationEvent(annotationEvent)
         }
-        fireAnnotationEvent(annotationEvent)
+
         log.debug "Return object: ${updateFeatureContainer.toString()}"
         return updateFeatureContainer
     }
+
 }
