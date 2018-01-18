@@ -535,6 +535,15 @@ You should use ```tracklist=1``` to force showing the native tracklist (or use t
 Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
 
 
+### Setting default track list behavior
+
+By default the native tracklist is off, but can be added.  For new users if you want the default to be on, you can add this to the apollo-config.groovy:
+
+    apollo{
+       native_track_selector_default_on = true
+    }
+
+
 ### Adding tracks via addStores
 
 The [JBrowse Configuration Guide](http://gmod.org/wiki/JBrowse_Configuration_Guide#addStores) describes in detail on how to add tracks to JBrowse using addStores.
