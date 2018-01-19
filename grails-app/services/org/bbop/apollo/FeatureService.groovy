@@ -2250,10 +2250,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Gene gene = transcriptService.getGene(transcript)
         log.debug "dissociateTranscriptFromGene: ${transcript.name} -> ${gene.name}"
         featureRelationshipService.removeFeatureRelationship(gene, transcript)
-        Gene newGene = new Gene(
-                uniqueName: nameService.generateUniqueName(),
-                name: nameService.generateUniqueName(gene)
-        ).save()
+        Gene newGene
+        if (gene.cvTerm == Pseudogene.cvTerm) {
+            newGene = new Pseudogene(
+                    uniqueName: nameService.generateUniqueName(),
+                    name: nameService.generateUniqueName(gene)
+            ).save()
+        }
+        else {
+            newGene = new Gene(
+                    uniqueName: nameService.generateUniqueName(),
+                    name: nameService.generateUniqueName(gene)
+            ).save()
+        }
+
         log.debug "New gene name: ${newGene.name}"
         transcript.owners.each {
             newGene.addToOwners(it)
