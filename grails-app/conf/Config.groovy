@@ -369,6 +369,8 @@ apollo {
         bucketPrefix = "apollo-usage-"
         fileName = "ping.json"
     }
+
+    native_track_selector_default_on = false
 }
 
 
