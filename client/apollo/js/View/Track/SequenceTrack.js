@@ -650,7 +650,22 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 aaResidues = SequenceTrack.nbsp + aaResidues;
             }
         }
-        container.appendChild( document.createTextNode( aaResidues ) );
+
+		var stopSplits = aaResidues.stopSplit('\*');
+		for(stopSplit in stopSplits){
+			container.appendChild( document.createTextNode( stopSplits[stopSplit] ) );
+			if(stopSplit < stopSplits.length-1){
+				var stopDiv = document.createElement('div');
+				stopDiv.style.backgroundColor = 'red';
+				stopDiv.style.margin = 0; 
+				stopDiv.style.buffer = 0; 
+				stopDiv.style.padding = 0; 
+				stopDiv.style.display = 'inline'; 
+				stopDiv.appendChild(document.createTextNode('*')) ;
+				container.appendChild( stopDiv );
+			}
+		}
+        // container.appendChild( document.createTextNode( aaResidues ) );
         return container;
     },
 
