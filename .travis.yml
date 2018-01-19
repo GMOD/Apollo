@@ -1,8 +1,10 @@
 sudo: required
 dist: trusty
-group: deprecated-2017Q4
 
-language: groovy
+language: java
+jdk:
+  - openjdk8
+
 node_js:
   - "iojs"
 
