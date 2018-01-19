@@ -1538,7 +1538,6 @@ define([
                     // selected is an exon, get its parent
                     var parent = selected[0].feature.parent();
                     transcriptUniqueName = parent.afeature.uniquename;
-                    console.log("first selected has a parent: ", selected[0].feature.parent());
                 }
                 else {
                     transcriptUniqueName = selected[0].feature.afeature.uniquename;
@@ -1558,7 +1557,6 @@ define([
                     features: [{ uniquename: transcriptUniqueName }, { uniquename: geneUniqueName }],
                     operation: 'associate_transcript_to_gene'
                 };
-                console.log("postData: ", postData);
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
@@ -1582,7 +1580,6 @@ define([
                     features: [{ uniquename: transcriptUniqueName }],
                     operation: 'dissociate_transcript_from_gene'
                 };
-                console.log(postData);
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
@@ -1711,7 +1708,6 @@ define([
                 // var coordinate = this.gview.getGenomeCoord(event);
 // var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
                 var coordinate = this.getGenomeCoord(event);
-                console.log("called setTranslationStartInCDS to: " + coordinate);
 
                 var setStart = annot.parent() ? !annot.parent().get("manuallySetTranslationStart") : !annot.get("manuallySetTranslationStart");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
@@ -1738,7 +1734,6 @@ define([
                 // var coordinate = this.gview.getGenomeCoord(event);
 // var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
                 var coordinate = this.getGenomeCoord(event);
-                console.log("called setTranslationEndInCDS to: " + coordinate);
 
                 var setEnd = annot.parent() ? !annot.parent().get("manuallySetTranslationEnd") : !annot.get("manuallySetTranslationEnd");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
@@ -2334,69 +2329,6 @@ define([
                     'class': "annotation_info_editor_button"
                 }, commentButtons);
 
-                //var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
-                //var replacementLabel = dojo.create("div", {
-                //    'class': "annotation_info_editor_section_header",
-                //    innerHTML: "Replace model(s)"
-                //}, replacementDiv);
-                //
-                //
-                //var replacementsTable = dojo.create("div", {
-                //    'class': "replacement",
-                //    id: "replacement_" + (selector ? "child" : "parent")
-                //}, replacementDiv);
-                //var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
-                //var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
-                //var addreplacementButton = dojo.create("button", {
-                //    innerHTML: "Add",
-                //    'class': "annotation_info_editor_button"
-                //}, replacementButtons);
-                //var deletereplacementButton = dojo.create("button", {
-                //    innerHTML: "Delete",
-                //    'class': "annotation_info_editor_button"
-                //}, replacementButtons);
-                //
-                //
-                //var trackNames = Object.keys(JBrowse.trackConfigsByName);
-                //var replacements = new Select({
-                //    name: "replacementSelection",
-                //    options: array.map(trackNames, function(trackName) {
-                //        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
-                //    })
-                //});
-                //
-                //
-                //replacements.placeAt(replacementDiv).startup();
-                //track.featureReplace = track.featureReplace ||new Select({
-                //    name: "featureSelection",
-                //    options: []
-                //});
-                //on(replacements, "change", function(selection) {
-                //    console.log(track.browser.trackConfigsByName,selection,replacements);
-                //    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
-                //        console.log("Received store",store);
-                //        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
-                //            console.log(track.featureReplace.options,f);
-                //            if(f) {
-                //                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
-                //                track.featureReplace.placeAt(replacementDiv).startup();
-                //            }
-                //        })
-                //    });
-                //});
-                //
-                //on(track.featureReplace, "change", function(selection) {
-                //    console.log(uniqueName);
-                //    track.executeUpdateOperation(JSON.stringify({ "features": [{
-                //            non_reserved_properties: [{
-                //                tag: "replace",
-                //                value: selection
-                //            }],
-                //            uniquename: uniqueName
-                //        }],
-                //        operation: "add_non_reserved_properties"
-                //    }))
-                //});
 
 
                 if (!hasWritePermission) {
@@ -2466,7 +2398,7 @@ define([
 
                         }
                     });
-                };
+                }
 
                 function initTable(domNode, tableNode, table, timeout) {
                     var id = dojo.attr(tableNode, "id");
