@@ -664,7 +664,7 @@ define([
                         connectId: featDiv,
                         label: label,
                         position: ["above"],
-                        showDelay: 0
+                        showDelay: 400
                     });
                 }
 
