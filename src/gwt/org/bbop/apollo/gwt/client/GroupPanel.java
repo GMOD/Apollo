@@ -189,7 +189,7 @@ public class GroupPanel extends Composite {
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
 //        Window.alert("Has current user: " + (MainPanel.getInstance().getCurrentUser()==null ? "is null " : "exists"));
-                    if(MainPanel.getInstance().isCurrentUserAdmin()) {
+                    if(MainPanel.getInstance().isCurrentUserInstructorOrBetter())  {
                         GroupRestService.loadGroups(groupInfoList);
                         UserRestService.loadUsers(allUsersList);
                     }

@@ -102,7 +102,6 @@ class GroupController {
                     userObject.email = user.username
                     userObject.firstName = user.firstName
                     userObject.lastName = user.lastName
-
                     userArray.add(userObject)
                 }
                 groupObject.users = userArray
@@ -141,7 +140,6 @@ class GroupController {
                 groupObject.organismPermissions = organismPermissionsArray
                 returnArray.put(groupObject)
             }
-
             render returnArray as JSON
         }
         catch (Exception e) {
@@ -370,7 +368,6 @@ class GroupController {
 
         List<User> usersToAdd = newUsers - oldUsers
         List<User> usersToRemove = oldUsers - newUsers
-
         usersToAdd.each {
             groupInstance.addToUsers(it)
             it.addToUserGroups(groupInstance)
@@ -387,7 +384,7 @@ class GroupController {
 
         log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
 
-        render loadGroups() as JSON
+        loadGroups()
     }
 
 }
