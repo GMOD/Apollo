@@ -431,7 +431,7 @@ class UserController {
 
             def currentUser = permissionService.getCurrentUser(dataObject)
             String creatorMetaData = user.getMetaData("creator")
-            if (creatorMetaData && currentUser.id.toString() != user.getMetaData("creator")) {
+            if (!permissionService.isAdmin() && creatorMetaData && currentUser.id.toString() != user.getMetaData("creator")) {
                 def error = [error: 'User did not create this user so can not delete it']
                 log.error(error.error)
                 render error as JSON

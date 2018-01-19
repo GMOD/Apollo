@@ -55,13 +55,12 @@ class OrganismController {
             log.debug "deleteOrganism ${organismJson}"
             def currentUser = permissionService.getCurrentUser(organismJson)
             if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
-                println "pass permission check. Deleting organism"
                 log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
                 Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
                 String creatorMetaData = organism.getMetaData("creator")
                 println "creatorMetaData :${creatorMetaData}"
                 println "currentUser.id :${currentUser.id.toString()}"
-                if (creatorMetaData && currentUser.id.toString() != organism.getMetaData("creator")) {
+                if (!permissionService.isAdmin() && creatorMetaData && currentUser.id.toString() != organism.getMetaData("creator")) {
                     def error = [error: 'User did not create this organism so can not delete it']
                     log.error(error.error)
                     render error as JSON
