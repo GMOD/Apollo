@@ -2242,6 +2242,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             originalGene.delete()
         }
 
+        if (checkForComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+            featurePropertyService.deleteComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
+        }
+
         featurePropertyService.addComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
         return transcript
     }
@@ -2280,6 +2284,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 rank: transcript.featureLocation.rank
         ).save(flush: true)
         newGene.addToFeatureLocations(newGeneFeatureLocation)
+
+        if (checkForComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)) {
+            featurePropertyService.deleteComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
+        }
+
         featurePropertyService.addComment(newGene, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
 
         addTranscriptToGene(newGene, transcript)
