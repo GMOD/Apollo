@@ -1,6 +1,6 @@
 sudo: required
 dist: trusty
-group: deprecated
+group: deprecated-2017Q4
 
 language: groovy
 node_js:
