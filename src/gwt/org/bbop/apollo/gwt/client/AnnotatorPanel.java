@@ -220,6 +220,10 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
+                            if(annotationInfoList.size()==1){
+                                selectedAnnotationInfo = annotationInfoList.get(0);
+                                toggleOpen(1,selectedAnnotationInfo);
+                            }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
