@@ -32,6 +32,8 @@ class FeatureService {
     def organismService
     def sessionFactory
 
+    public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
+    public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final def rnaFeatureTypes = [MRNA.alternateCvTerm,MiRNA.alternateCvTerm,NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
     public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
     @Timed
@@ -132,6 +134,7 @@ class FeatureService {
     @Timed
     @Transactional
     def generateTranscript(JSONObject jsonTranscript, Sequence sequence, boolean suppressHistory, boolean useCDS = configWrapperService.useCDS(), boolean useName = false) {
+        log.debug "jsonTranscript: ${jsonTranscript.toString()}"
         Gene gene = jsonTranscript.has(FeatureStringEnum.PARENT_ID.value) ? (Gene) Feature.findByUniqueName(jsonTranscript.getString(FeatureStringEnum.PARENT_ID.value)) : null;
         Transcript transcript = null
         boolean readThroughStopCodon = false
@@ -174,137 +177,160 @@ class FeatureService {
                 transcript.name = jsonTranscript.get(FeatureStringEnum.NAME.value)
             }
         } else {
-            // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
-            FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
-            Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
-                it = Feature.get(it.id)
-                it instanceof Gene
+
+            boolean createGeneFromJSON = false
+            if (jsonTranscript.containsKey(FeatureStringEnum.PARENT.value) && jsonTranscript.containsKey(FeatureStringEnum.PROPERTIES.value)) {
+                for (JSONObject property : jsonTranscript.getJSONArray(FeatureStringEnum.PROPERTIES.value)) {
+                    if (property.containsKey(FeatureStringEnum.NAME.value)
+                            && property.get(FeatureStringEnum.NAME.value) == FeatureStringEnum.COMMENT.value
+                            && property.get(FeatureStringEnum.VALUE.value) == MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE) {
+                        createGeneFromJSON = true
+                        break
+                    }
+                }
             }
 
-            log.debug "overlapping features: ${overlappingFeatures.size()}"
-            for (Feature eachFeature : overlappingFeatures) {
-                // get the proper object instead of its proxy, due to lazy loading
-                Feature feature = Feature.get(eachFeature.id)
-                log.debug "evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
+            if (!createGeneFromJSON) {
+                log.debug "Gene from parent_id doesn't exist; trying to find overlapping isoform"
+                // Scenario II - find an overlapping isoform and if present, add current transcript to its gene
+                FeatureLocation featureLocation = convertJSONToFeatureLocation(jsonTranscript.getJSONObject(FeatureStringEnum.LOCATION.value), sequence)
+                Collection<Feature> overlappingFeatures = getOverlappingFeatures(featureLocation).findAll() {
+                    it = Feature.get(it.id)
+                    it instanceof Gene
+                }
 
-                if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
-                    Gene tmpGene = (Gene) feature;
-                    log.debug "found an overlapping gene ${tmpGene}"
-                    // removing name from transcript JSON since its naming will be based off of the overlapping gene
-                    Transcript tmpTranscript
-                    if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
-                        String originalName = jsonTranscript.get(FeatureStringEnum.NAME.value)
-                        jsonTranscript.remove(FeatureStringEnum.NAME.value)
-                        tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
-                        jsonTranscript.put(FeatureStringEnum.NAME.value, originalName)
-                        updateNewGsolFeatureAttributes(tmpTranscript)
+                log.debug "overlapping genes: ${overlappingFeatures.name}"
+                List<Feature> overlappingFeaturesToCheck = new ArrayList<Feature>()
+                overlappingFeatures.each {
+                    if (!checkForComment(it, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(it, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                        overlappingFeaturesToCheck.add(it)
                     }
-                    else {
-                        tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
-                        updateNewGsolFeatureAttributes(tmpTranscript)
-                    }
+                }
 
-                    if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
-                        throw new AnnotationException("Feature cannot have negative coordinates");
-                    }
+                for (Feature eachFeature : overlappingFeaturesToCheck) {
+                    // get the proper object instead of its proxy, due to lazy loading
+                    Feature feature = Feature.get(eachFeature.id)
+                    log.debug "evaluating overlap of feature ${feature.name} of class ${feature.class.name}"
 
-                    //this one is working, but was marked as needing improvement
-                    setOwner(tmpTranscript, owner);
-
-                    CDS cds = transcriptService.getCDS(tmpTranscript)
-                    if (cds) {
-                        readThroughStopCodon = cdsService.getStopCodonReadThrough(cds) ? true : false
-                    }
-
-                    if (!useCDS || cds == null) {
-                        calculateCDS(tmpTranscript, readThroughStopCodon)
-                    }
-                    else {
-                        // if there are any sequence alterations that overlaps this transcript then
-                        // recalculate the CDS to account for these changes
-                        def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
-                        if (sequenceAlterations.size() > 0) {
-                            calculateCDS(tmpTranscript)
+                    if (!gene && feature instanceof Gene && !(feature instanceof Pseudogene)) {
+                        Gene tmpGene = (Gene) feature;
+                        log.debug "found an overlapping gene ${tmpGene}"
+                        // removing name from transcript JSON since its naming will be based off of the overlapping gene
+                        Transcript tmpTranscript
+                        if (jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+                            String originalName = jsonTranscript.get(FeatureStringEnum.NAME.value)
+                            jsonTranscript.remove(FeatureStringEnum.NAME.value)
+                            tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
+                            jsonTranscript.put(FeatureStringEnum.NAME.value, originalName)
+                            updateNewGsolFeatureAttributes(tmpTranscript)
                         }
-                    }
+                        else {
+                            tmpTranscript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
+                            updateNewGsolFeatureAttributes(tmpTranscript)
+                        }
 
-                    if (!suppressHistory) {
-                        tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
-                    }
+                        if (tmpTranscript.getFmin() < 0 || tmpTranscript.getFmax() < 0) {
+                            throw new AnnotationException("Feature cannot have negative coordinates");
+                        }
 
-                    // setting back the original name for transcript
-                    if (useName && jsonTranscript.has(FeatureStringEnum.NAME.value)) {
-                        tmpTranscript.name = jsonTranscript.get(FeatureStringEnum.NAME.value)
-                    }
+                        //this one is working, but was marked as needing improvement
+                        setOwner(tmpTranscript, owner);
 
-                    if (tmpTranscript && tmpGene && overlapperService.overlaps(tmpTranscript, tmpGene)) {
-                        log.debug "There is an overlap, adding to an existing gene"
-                        transcript = tmpTranscript;
-                        gene = tmpGene;
-                        addTranscriptToGene(gene, transcript)
-                        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
-                        transcript.save()
+                        CDS cds = transcriptService.getCDS(tmpTranscript)
+                        if (cds) {
+                            readThroughStopCodon = cdsService.getStopCodonReadThrough(cds) ? true : false
+                        }
 
-                        if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
-                            // use metadata of incoming transcript's gene
-                            JSONObject jsonGene = jsonTranscript.getJSONObject(FeatureStringEnum.PARENT.value)
-                            if (jsonGene.has(FeatureStringEnum.DBXREFS.value)) {
-                                // parse dbxrefs
-                                JSONArray dbxrefs = jsonGene.getJSONArray(FeatureStringEnum.DBXREFS.value)
-                                for (JSONObject dbxref : dbxrefs) {
-                                    String dbString = dbxref.get(FeatureStringEnum.DB.value).name
-                                    String accessionString = dbxref.get(FeatureStringEnum.ACCESSION.value)
-                                    // TODO: needs improvement
-                                    boolean exists = false
-                                    tmpGene.featureDBXrefs.each {
-                                        if (it.db.name == dbString && it.accession == accessionString) {
-                                            exists = true
-                                        }
-                                    }
-                                    if (!exists) {
-                                        addNonPrimaryDbxrefs(tmpGene, dbString, accessionString)
-                                    }
-                                }
+                        if (!useCDS || cds == null) {
+                            calculateCDS(tmpTranscript, readThroughStopCodon)
+                        }
+                        else {
+                            // if there are any sequence alterations that overlaps this transcript then
+                            // recalculate the CDS to account for these changes
+                            def sequenceAlterations = getSequenceAlterationsForFeature(tmpTranscript)
+                            if (sequenceAlterations.size() > 0) {
+                                calculateCDS(tmpTranscript)
                             }
-                            tmpGene.save()
+                        }
 
-                            if (jsonGene.has(FeatureStringEnum.PROPERTIES.value)) {
-                                // parse properties
-                                JSONArray featureProperties = jsonGene.getJSONArray(FeatureStringEnum.PROPERTIES.value)
-                                for (JSONObject featureProperty : featureProperties) {
-                                    String tagString = featureProperty.get(FeatureStringEnum.TYPE.value).name
-                                    String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
-                                    // TODO: needs improvement
-                                    boolean exists = false
-                                    tmpGene.featureProperties.each {
-                                        if (it instanceof Comment) {
-                                            exists = true
+                        if (!suppressHistory) {
+                            tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                        }
+
+                        // setting back the original name for transcript
+                        if (useName && jsonTranscript.has(FeatureStringEnum.NAME.value)) {
+                            tmpTranscript.name = jsonTranscript.get(FeatureStringEnum.NAME.value)
+                        }
+
+                        if (tmpTranscript && tmpGene && overlapperService.overlaps(tmpTranscript, tmpGene)) {
+                            log.debug "There is an overlap, adding to an existing gene"
+                            transcript = tmpTranscript;
+                            gene = tmpGene;
+                            addTranscriptToGene(gene, transcript)
+                            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript);
+                            transcript.save()
+
+                            if (jsonTranscript.has(FeatureStringEnum.PARENT.value)) {
+                                // use metadata of incoming transcript's gene
+                                JSONObject jsonGene = jsonTranscript.getJSONObject(FeatureStringEnum.PARENT.value)
+                                if (jsonGene.has(FeatureStringEnum.DBXREFS.value)) {
+                                    // parse dbxrefs
+                                    JSONArray dbxrefs = jsonGene.getJSONArray(FeatureStringEnum.DBXREFS.value)
+                                    for (JSONObject dbxref : dbxrefs) {
+                                        String dbString = dbxref.get(FeatureStringEnum.DB.value).name
+                                        String accessionString = dbxref.get(FeatureStringEnum.ACCESSION.value)
+                                        // TODO: needs improvement
+                                        boolean exists = false
+                                        tmpGene.featureDBXrefs.each {
+                                            if (it.db.name == dbString && it.accession == accessionString) {
+                                                exists = true
+                                            }
                                         }
-                                        else if (it.tag == tagString && it.value == valueString) {
-                                            exists = true
-                                        }
-                                    }
-                                    if (!exists) {
-                                        if (tagString == FeatureStringEnum.COMMENT.value) {
-                                            // if FeatureProperty is a comment
-                                            featurePropertyService.addComment(tmpGene, valueString)
-                                        }
-                                        else {
-                                            addNonReservedProperties(tmpGene, tagString, valueString)
+                                        if (!exists) {
+                                            addNonPrimaryDbxrefs(tmpGene, dbString, accessionString)
                                         }
                                     }
                                 }
+                                tmpGene.save()
+
+                                if (jsonGene.has(FeatureStringEnum.PROPERTIES.value)) {
+                                    // parse properties
+                                    JSONArray featureProperties = jsonGene.getJSONArray(FeatureStringEnum.PROPERTIES.value)
+                                    for (JSONObject featureProperty : featureProperties) {
+                                        String tagString = featureProperty.get(FeatureStringEnum.TYPE.value).name
+                                        String valueString = featureProperty.get(FeatureStringEnum.VALUE.value)
+                                        // TODO: needs improvement
+                                        boolean exists = false
+                                        tmpGene.featureProperties.each {
+                                            if (it instanceof Comment) {
+                                                exists = true
+                                            }
+                                            else if (it.tag == tagString && it.value == valueString) {
+                                                exists = true
+                                            }
+                                        }
+                                        if (!exists) {
+                                            if (tagString == FeatureStringEnum.COMMENT.value) {
+                                                // if FeatureProperty is a comment
+                                                featurePropertyService.addComment(tmpGene, valueString)
+                                            }
+                                            else {
+                                                addNonReservedProperties(tmpGene, tagString, valueString)
+                                            }
+                                        }
+                                    }
+                                }
+                                tmpGene.save()
                             }
-                            tmpGene.save()
+                            gene.save(insert: false, flush: true)
+                            break;
+                        } else {
+                            featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
+                            log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
                         }
-                        gene.save(insert: false, flush: true)
-                        break;
                     } else {
-                        featureRelationshipService.deleteFeatureAndChildren(tmpTranscript)
-                        log.debug "There is no overlap, we are going to return a NULL gene and a NULL transcript "
+                        log.error "Feature is not an instance of a gene or is a pseudogene"
                     }
-                } else {
-                    log.error "Feature is not an instance of a gene or is a pseudogene"
                 }
             }
         }
@@ -2077,7 +2103,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def handleDynamicIsoformOverlap(Transcript transcript) {
         // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
-        List<Transcript> allOverlappingTranscripts = getTranscriptsWithOverlappingOrf(transcript)
+        List<Transcript> allOverlappingTranscripts = getOverlappingTranscripts(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
         List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
         List<Transcript> allSortedTranscripts
@@ -2092,23 +2118,34 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 b.strand <=> a.strand ?: b.featureLocation.fmax <=> a.featureLocation.fmax ?: a.name <=> b.name
             }
         }
+
+        // remove exceptions
+        List<Transcript> allSortedTranscriptsToCheck = new ArrayList<Transcript>()
+
+        allSortedTranscripts.each {
+            boolean safe = true
+            if (!checkForComment(it, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE) && !checkForComment(it, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                allSortedTranscriptsToCheck.add(it)
+            }
+        }
+
         // In a normal scenario, all sorted transcripts should have the same parent indicating no changes to be made.
         // If there are transcripts that do overlap but do not have the same parent gene then these transcripts should
         // be merged to the 5' most transcript's gene.
         // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be
         // given a new, de-novo gene.
-        log.debug "allSortedTranscripts:${allSortedTranscripts.name}"
-        Transcript fivePrimeTranscript = allSortedTranscripts.get(0)
+        log.debug "all sorted transcripts: ${allSortedTranscriptsToCheck.name}"
+        Transcript fivePrimeTranscript = allSortedTranscriptsToCheck.get(0)
         Gene fivePrimeGene = transcriptService.getGene(fivePrimeTranscript)
         log.debug "5' Transcript: ${fivePrimeTranscript.name}"
         log.debug "5' Gene: ${fivePrimeGene.name}"
-        allSortedTranscripts.remove(0)
+        allSortedTranscriptsToCheck.remove(0)
         ArrayList<Transcript> transcriptsToAssociate = new ArrayList<Transcript>()
         ArrayList<Gene> genesToMerge = new ArrayList<Gene>()
         ArrayList<Transcript> transcriptsToDissociate = new ArrayList<Transcript>()
         ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
 
-        for (Transcript eachTranscript : allSortedTranscripts) {
+        for (Transcript eachTranscript : allSortedTranscriptsToCheck) {
             if (eachTranscript && fivePrimeGene && overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
                 if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
                     transcriptsToAssociate.add(eachTranscript)
@@ -2121,13 +2158,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-        log.debug "Transcripts to Associate: ${transcriptsToAssociate}"
-        log.debug "Transcripts to Dissociate: ${transcriptsToDissociate}"
+        log.debug "[FeatureService][handleDynamicIsoformOverlap] Transcripts to Associate: ${transcriptsToAssociate.name}"
+        log.debug "[FeatureService][handleDynamicIsoformOverlap] Transcripts to Dissociate: ${transcriptsToDissociate.name}"
         transcriptsToUpdate.addAll(transcriptsToAssociate)
         transcriptsToUpdate.addAll(transcriptsToDissociate)
 
         if (transcriptsToAssociate) {
             Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
+            log.debug "[FeatureService][handleDynamicIsoformOverlap] mergedGene: ${mergedGene.name}"
             for (Transcript eachTranscript in transcriptsToAssociate) {
                 Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
                 featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
@@ -2192,16 +2230,89 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return transcriptsToUpdate
     }
 
-    def getTranscriptsWithOverlappingOrf(Transcript transcript) {
+    def associateTranscriptToGene(Transcript transcript, Gene gene) {
+        log.debug "associateTranscriptToGene: ${transcript.name} -> ${gene.name}"
+        Gene originalGene = transcriptService.getGene(transcript)
+        log.debug "removing transcript ${transcript.name} from its own gene: ${originalGene.name}"
+        featureRelationshipService.removeFeatureRelationship(originalGene, transcript)
+        addTranscriptToGene(gene, transcript)
+        transcript.name = nameService.generateUniqueName(transcript, gene.name)
+        // check if original gene has any additional isoforms; if not then delete original gene
+        if (transcriptService.getTranscripts(originalGene).size() == 0) {
+            originalGene.delete()
+        }
+
+        if (checkForComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+            featurePropertyService.deleteComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
+        }
+
+        featurePropertyService.addComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
+        return transcript
+    }
+
+    def dissociateTranscriptFromGene(Transcript transcript) {
+        Gene gene = transcriptService.getGene(transcript)
+        log.debug "dissociateTranscriptFromGene: ${transcript.name} -> ${gene.name}"
+        featureRelationshipService.removeFeatureRelationship(gene, transcript)
+        Gene newGene
+        if (gene.cvTerm == Pseudogene.cvTerm) {
+            newGene = new Pseudogene(
+                    uniqueName: nameService.generateUniqueName(),
+                    name: nameService.generateUniqueName(gene)
+            ).save()
+        }
+        else {
+            newGene = new Gene(
+                    uniqueName: nameService.generateUniqueName(),
+                    name: nameService.generateUniqueName(gene)
+            ).save()
+        }
+
+        log.debug "New gene name: ${newGene.name}"
+        transcript.owners.each {
+            newGene.addToOwners(it)
+        }
+
+        FeatureLocation newGeneFeatureLocation = new FeatureLocation(
+                feature: newGene,
+                fmin: transcript.fmin,
+                fmax: transcript.fmax,
+                strand: transcript.strand,
+                sequence: transcript.featureLocation.sequence,
+                residueInfo: transcript.featureLocation.residueInfo,
+                locgroup: transcript.featureLocation.locgroup,
+                rank: transcript.featureLocation.rank
+        ).save(flush: true)
+        newGene.addToFeatureLocations(newGeneFeatureLocation)
+
+        if (checkForComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)) {
+            featurePropertyService.deleteComment(transcript, MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
+        }
+
+        featurePropertyService.addComment(newGene, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
+
+        addTranscriptToGene(newGene, transcript)
+        transcript.name = nameService.generateUniqueName(transcript, newGene.name)
+
+        if (transcriptService.getTranscripts(gene).size() == 0) {
+            // check if original gene has any additional isoforms; if not then delete original gene
+            deleteFeature(gene)
+        }
+
+        featurePropertyService.addComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
+        return transcript
+    }
+
+    def getOverlappingTranscripts(Transcript transcript) {
         ArrayList<Transcript> overlappingTranscripts = getOverlappingTranscripts(transcript.featureLocation)
         overlappingTranscripts.remove(transcript) // removing itself
-        ArrayList<Transcript> transcriptsWithOverlappingOrf = new ArrayList<Transcript>()
+        ArrayList<Transcript> transcriptsWithOverlapCriteria = new ArrayList<Transcript>()
         for (Transcript eachTranscript in overlappingTranscripts) {
             if (eachTranscript && transcript && overlapperService.overlaps(eachTranscript, transcript)) {
-                transcriptsWithOverlappingOrf.add(eachTranscript)
+                transcriptsWithOverlapCriteria.add(eachTranscript)
             }
         }
-        return transcriptsWithOverlappingOrf
+        return transcriptsWithOverlapCriteria
     }
 
     @Transactional
@@ -2973,5 +3084,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         ).save()
         featurePropertyService.addProperty(feature, featureProperty)
         feature.save()
+    }
+
+    def checkForComment(Feature feature, String value) {
+        def comments = featurePropertyService.getComments(feature)
+        for(FeatureProperty comment : comments) {
+            if (comment.value == value) {
+                return true
+            }
+        }
+
+        return false
     }
 }
