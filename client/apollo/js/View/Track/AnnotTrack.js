@@ -5173,6 +5173,18 @@ define([
                         return;
                     }
                 }
+
+                if (AnnotTrack.getTopLevelAnnotation(selected[0].feature).data.parent_id === AnnotTrack.getTopLevelAnnotation(selected[1].feature).data.parent_id) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
+                    || JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[1].feature), JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
                 if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
                     menuItem.set("disabled", false);
                 }
@@ -5192,6 +5204,11 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
                 menuItem.set("disabled", false);
             },
 
