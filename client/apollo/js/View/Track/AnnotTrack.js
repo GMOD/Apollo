@@ -664,7 +664,7 @@ define([
                         connectId: featDiv,
                         label: label,
                         position: ["above"],
-                        showDelay: 600
+                        showDelay: 400
                     });
                 }
 
@@ -4543,6 +4543,33 @@ define([
                     }
                 }));
                 contextMenuItems["zoom_to_base_level"] = index++;
+
+                annot_context_menu.addChild(new dijit.MenuItem({
+                    label: "View in Annotator Panel",
+                    onClick: function (event) {
+                        var selected = thisB.selectionManager.getSelection();
+                        var selectedFeature = selected[0].feature;
+                        var selectedFeatureDetails = selectedFeature.afeature;
+                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene'];
+                        while(selectedFeature  ){
+                            if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                                thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
+                                return ;
+                            }
+                            else
+                            if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
+                                thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_name);
+                                return ;
+                            }
+                            selectedFeature = selectedFeature._parent ;
+                            selectedFeatureDetails = selectedFeature.afeature ;
+                        }
+                        alert('Unable to focus on object');
+                    }
+                }));
+                contextMenuItems["view_in_annotator_panel"] = index++;
+
+
                 if (!(permission & Permission.WRITE)) {
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
