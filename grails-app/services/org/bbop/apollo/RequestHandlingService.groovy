@@ -621,7 +621,7 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
 
-        log.info "addTranscript ${inputObject?.size()}"
+        log.info "addTranscript ${inputObject.toString()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
@@ -2411,10 +2411,20 @@ class RequestHandlingService {
         transcript = featureService.dissociateTranscriptFromGene(transcript)
         JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(transcript)
 
+        JSONObject jsonObject = featureService.convertFeatureToJSON(transcriptService.getGene(transcript))
+        JSONObject mrnaObject = jsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value).getJSONObject(0)
+        JSONObject parentObject = new JSONObject()
+        jsonObject.keySet().each { key ->
+            if (key != FeatureStringEnum.CHILDREN.value) {
+                parentObject.put(key, jsonObject.get(key))
+            }
+        }
+        mrnaObject.put(FeatureStringEnum.PARENT.value, parentObject)
+
         JSONArray oldFeaturesJsonArray = new JSONArray()
         JSONArray newFeaturesJsonArray = new JSONArray()
         oldFeaturesJsonArray.add(originalFeatureJsonObject)
-        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        newFeaturesJsonArray.add(mrnaObject)
         featureEventService.addNewFeatureEvent(FeatureOperation.DISSOCIATE_TRANSCRIPT_FROM_GENE, transcript.name,
                 uniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
 
