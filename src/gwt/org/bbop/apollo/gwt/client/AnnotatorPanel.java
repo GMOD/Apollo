@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -222,7 +223,10 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowData(start, annotationInfoList);
                             if(annotationInfoList.size()==1){
                                 selectedAnnotationInfo = annotationInfoList.get(0);
-                                toggleOpen(1,selectedAnnotationInfo);
+                                String type = selectedAnnotationInfo.getType();
+                                if(!type.equals("repeat_region") && !type.equals("transposable_element") ){
+                                    toggleOpen(1,selectedAnnotationInfo);
+                                }
                             }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
