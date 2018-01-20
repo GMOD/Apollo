@@ -126,4 +126,8 @@ class ConfigWrapperService {
     boolean getOnlyOwnersDelete(){
         return grailsApplication.config.apollo.only_owners_delete
     }
+
+    boolean getNativeTrackSelectorDefaultOn(){
+        return grailsApplication.config.apollo.native_track_selector_default_on
+    }
 }

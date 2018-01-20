@@ -220,6 +220,10 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
+                            if(annotationInfoList.size()==1){
+                                selectedAnnotationInfo = annotationInfoList.get(0);
+                                toggleOpen(1,selectedAnnotationInfo);
+                            }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
@@ -615,7 +619,6 @@ public class AnnotatorPanel extends Composite {
 
     public void reload(Boolean forceReload) {
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
-//            updateAnnotationInfo(null);
             hideDetailPanels();
             pager.setPageStart(0);
             dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
@@ -639,6 +642,7 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("showAllSequences")
     public void setShowAllSequences(ClickEvent clickEvent) {
+        nameSearchBox.setText("");
         sequenceList.setText("");
         reload();
     }
