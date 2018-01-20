@@ -220,9 +220,13 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
-                            if(annotationInfoList.size()==1){
+                            if (annotationInfoList.size() == 1) {
                                 selectedAnnotationInfo = annotationInfoList.get(0);
-                                toggleOpen(1,selectedAnnotationInfo);
+                                String type = selectedAnnotationInfo.getType();
+                                if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
+                                    toggleOpen(1, selectedAnnotationInfo);
+                                }
+
                             }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -417,8 +421,8 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void updateAnnotationInfo(AnnotationInfo annotationInfo) {
-        if(annotationInfo==null){
-            return ;
+        if (annotationInfo == null) {
+            return;
         }
         String type = annotationInfo.getType();
         GWT.log("annotation type: " + type);
@@ -432,7 +436,7 @@ public class AnnotatorPanel extends Composite {
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
-                exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
+                exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 break;
             case "mRNA":
             case "miRNA":
@@ -443,7 +447,7 @@ public class AnnotatorPanel extends Composite {
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
-                exonDetailPanel.updateData(annotationInfo,selectedAnnotationInfo);
+                exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 break;
             case "transposable_element":
             case "repeat_region":
@@ -503,10 +507,9 @@ public class AnnotatorPanel extends Composite {
             public String getValue(AnnotationInfo annotationInfo) {
                 if (annotationInfo.getType().equals("gene") || annotationInfo.getType().equals("pseudogene")) {
                     SafeHtmlBuilder sb = new SafeHtmlBuilder();
-                    if(showingTranscripts.contains(annotationInfo.getUniqueName())){
+                    if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
                         sb.appendHtmlConstant(COLLAPSE_ICON_UNICODE);
-                    }
-                    else{
+                    } else {
                         sb.appendHtmlConstant(EXPAND_ICON_UNICODE);
                     }
 
@@ -652,7 +655,7 @@ public class AnnotatorPanel extends Composite {
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
 
@@ -690,7 +693,7 @@ public class AnnotatorPanel extends Composite {
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
     // also used by javascript function
@@ -699,15 +702,14 @@ public class AnnotatorPanel extends Composite {
         String type = annotationInfo.getType();
         if (type.equals("transposable_element") || type.equals("repeat_region")) {
             // do nothing
-        }
-        else {
+        } else {
             exonDetailPanel.updateData(annotationInfo);
         }
         gotoAnnotation.setEnabled(true);
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false,false);
+        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
@@ -760,8 +762,7 @@ public class AnnotatorPanel extends Composite {
                 String type = rowValue.getType();
                 if (type.equals("gene") || type.equals("pseudogene")) {
                     renderCell(td, createContext(0), nameColumn, rowValue);
-                }
-                else {
+                } else {
                     // handles singleton features
                     String featureStyle = "color: #800080;";
                     HTML html = new HTML("<a style='" + featureStyle + "' ondblclick=\"displayFeature(" + absRowIndex + ")\");\">" + rowValue.getName() + "</a>");
