@@ -175,7 +175,7 @@ As well, translation tables can be set per organism using the _'Details'_ panel 
 
 Apollo, by default, uses a `CDS` overlapper which treats two overlapping transcripts as isoforms of each other if and only if they share the same in-frame CDS.
 
-You can also configure Apollo to use an Exon overlapper, which would treat two overlapping transcripts as isoforms of each other if one or more exon overlaps with each other they share the same splice acceptor and splice donor sites.
+You can also configure Apollo to use an `exon` overlapper, which would treat two overlapping transcripts as isoforms of each other if one or more exon overlaps with each other they share the same splice acceptor and splice donor sites.
 
 ```
 apollo {
