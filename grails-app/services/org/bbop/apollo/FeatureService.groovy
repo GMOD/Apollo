@@ -2300,7 +2300,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         if (transcriptService.getTranscripts(gene).size() == 0) {
             // check if original gene has any additional isoforms; if not then delete original gene
-            deleteFeature(gene)
+            gene.delete()
         }
 
         featurePropertyService.addComment(transcript, MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)
