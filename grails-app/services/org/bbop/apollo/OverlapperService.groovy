@@ -55,19 +55,16 @@ class OverlapperService implements Overlapper{
         def exons1 = transcriptService.getSortedExons(transcript1, true)
         def exons2 = transcriptService.getSortedExons(transcript2, true)
 
-        long start = System.currentTimeMillis()
         boolean isOverlap = false
         for (int i = 0; i < exons1.size(); i++) {
             for (int j = 0; j < exons2.size(); j++) {
-                if (overlaps(exons1[i], exons2[j])) {
+                if (exactOverlap(exons1[i], exons2[j])) {
                     isOverlap = true
                     break
                 }
             }
-            if (isOverlap) break
         }
-        long end = System.currentTimeMillis()
-        log.debug "time taken for comparison: ${end - start} ms"
+
         return isOverlap
     }
 
@@ -215,5 +212,11 @@ class OverlapperService implements Overlapper{
                         leftFmin >= rightFmin && leftFmin < rightFmax)
     }
 
+    boolean exactOverlap(Feature feature1, Feature feature2) {
+        if (feature1.fmin == feature2.fmin && feature1.fmax == feature2.fmax) {
+            return true
+        }
+        return false
+    }
 
 }
