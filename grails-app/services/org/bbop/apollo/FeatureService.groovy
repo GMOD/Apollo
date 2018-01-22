@@ -2103,6 +2103,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def handleDynamicIsoformOverlap(Transcript transcript) {
         // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
+        ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
         List<Transcript> allOverlappingTranscripts = getOverlappingTranscripts(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
         List<Transcript> allTranscripts = (allOverlappingTranscripts + allTranscriptsForCurrentGene).unique()
@@ -2135,98 +2136,101 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         // If there are transcripts that do not overlap but have the same parent gene then these transcripts should be
         // given a new, de-novo gene.
         log.debug "all sorted transcripts: ${allSortedTranscriptsToCheck.name}"
-        Transcript fivePrimeTranscript = allSortedTranscriptsToCheck.get(0)
-        Gene fivePrimeGene = transcriptService.getGene(fivePrimeTranscript)
-        log.debug "5' Transcript: ${fivePrimeTranscript.name}"
-        log.debug "5' Gene: ${fivePrimeGene.name}"
-        allSortedTranscriptsToCheck.remove(0)
-        ArrayList<Transcript> transcriptsToAssociate = new ArrayList<Transcript>()
-        ArrayList<Gene> genesToMerge = new ArrayList<Gene>()
-        ArrayList<Transcript> transcriptsToDissociate = new ArrayList<Transcript>()
-        ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
 
-        for (Transcript eachTranscript : allSortedTranscriptsToCheck) {
-            if (eachTranscript && fivePrimeGene && overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
-                if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
-                    transcriptsToAssociate.add(eachTranscript)
-                    genesToMerge.add(transcriptService.getGene(eachTranscript))
-                }
-            } else {
-                if (transcriptService.getGene(eachTranscript).uniqueName == fivePrimeGene.uniqueName) {
-                    transcriptsToDissociate.add(eachTranscript)
-                }
-            }
-        }
+        if (allSortedTranscriptsToCheck.size() > 0) {
+            Transcript fivePrimeTranscript = allSortedTranscriptsToCheck.get(0)
+            Gene fivePrimeGene = transcriptService.getGene(fivePrimeTranscript)
+            log.debug "5' Transcript: ${fivePrimeTranscript.name}"
+            log.debug "5' Gene: ${fivePrimeGene.name}"
+            allSortedTranscriptsToCheck.remove(0)
+            ArrayList<Transcript> transcriptsToAssociate = new ArrayList<Transcript>()
+            ArrayList<Gene> genesToMerge = new ArrayList<Gene>()
+            ArrayList<Transcript> transcriptsToDissociate = new ArrayList<Transcript>()
 
-        log.debug "[FeatureService][handleDynamicIsoformOverlap] Transcripts to Associate: ${transcriptsToAssociate.name}"
-        log.debug "[FeatureService][handleDynamicIsoformOverlap] Transcripts to Dissociate: ${transcriptsToDissociate.name}"
-        transcriptsToUpdate.addAll(transcriptsToAssociate)
-        transcriptsToUpdate.addAll(transcriptsToDissociate)
-
-        if (transcriptsToAssociate) {
-            Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
-            log.debug "[FeatureService][handleDynamicIsoformOverlap] mergedGene: ${mergedGene.name}"
-            for (Transcript eachTranscript in transcriptsToAssociate) {
-                Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
-                featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
-                addTranscriptToGene(mergedGene, eachTranscript)
-                eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
-                eachTranscript.save()
-                if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
-                    ArrayList<FeatureProperty> featureProperties = eachTranscriptParent.featureProperties
-                    for (FeatureProperty fp : featureProperties) {
-                        featurePropertyService.deleteProperty(eachTranscriptParent, fp)
+            for (Transcript eachTranscript : allSortedTranscriptsToCheck) {
+                if (eachTranscript && fivePrimeGene && overlapperService.overlaps(eachTranscript, fivePrimeGene)) {
+                    if (transcriptService.getGene(eachTranscript).uniqueName != fivePrimeGene.uniqueName) {
+                        transcriptsToAssociate.add(eachTranscript)
+                        genesToMerge.add(transcriptService.getGene(eachTranscript))
                     }
-                    //eachTranscriptParent.delete()
-                    // replace a direct delete with the standard method
-                    Feature topLevelFeature = featureService.getTopLevelFeature(eachTranscriptParent)
-                    featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
-                }
-            }
-        }
-
-        if (transcriptsToDissociate) {
-            Transcript firstTranscript = null
-            for (Transcript eachTranscript in transcriptsToDissociate) {
-                if (firstTranscript == null) {
-                    firstTranscript = eachTranscript
-                    Gene newGene = new Gene(
-                            uniqueName: nameService.generateUniqueName(),
-                            name: nameService.generateUniqueName(fivePrimeGene)
-                    )
-
-                    firstTranscript.owners.each {
-                        newGene.addToOwners(it)
-                    }
-                    newGene.save(flush: true)
-
-                    FeatureLocation newGeneFeatureLocation = new FeatureLocation(
-                            feature: newGene,
-                            fmin: firstTranscript.fmin,
-                            fmax: firstTranscript.fmax,
-                            strand: firstTranscript.strand,
-                            sequence: firstTranscript.featureLocation.sequence,
-                            residueInfo: firstTranscript.featureLocation.residueInfo,
-                            locgroup: firstTranscript.featureLocation.locgroup,
-                            rank: firstTranscript.featureLocation.rank
-                    ).save(flush: true)
-                    newGene.addToFeatureLocations(newGeneFeatureLocation)
-                    featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
-                    addTranscriptToGene(newGene, firstTranscript)
-                    firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
-                    firstTranscript.save(flush: true)
-                    continue
-                }
-                if (eachTranscript && firstTranscript && overlapperService.overlaps(eachTranscript, firstTranscript)) {
-                    featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
-                    addTranscriptToGene(transcriptService.getGene(firstTranscript), eachTranscript)
-                    firstTranscript.name = nameService.generateUniqueName(firstTranscript, transcriptService.getGene(firstTranscript).name)
-                    firstTranscript.save(flush: true)
                 } else {
-                    throw new AnnotationException("Left behind transcript that doesn't overlap with any other transcripts")
+                    if (transcriptService.getGene(eachTranscript).uniqueName == fivePrimeGene.uniqueName) {
+                        transcriptsToDissociate.add(eachTranscript)
+                    }
+                }
+            }
+
+            log.debug "Transcripts to Associate: ${transcriptsToAssociate.name}"
+            log.debug "Transcripts to Dissociate: ${transcriptsToDissociate.name}"
+            transcriptsToUpdate.addAll(transcriptsToAssociate)
+            transcriptsToUpdate.addAll(transcriptsToDissociate)
+
+            if (transcriptsToAssociate) {
+                Gene mergedGene = mergeGeneEntities(fivePrimeGene, genesToMerge.unique())
+                log.debug "mergedGene: ${mergedGene.name}"
+                for (Transcript eachTranscript in transcriptsToAssociate) {
+                    Gene eachTranscriptParent = transcriptService.getGene(eachTranscript)
+                    featureRelationshipService.removeFeatureRelationship(eachTranscriptParent, eachTranscript)
+                    addTranscriptToGene(mergedGene, eachTranscript)
+                    eachTranscript.name = nameService.generateUniqueName(eachTranscript, mergedGene.name)
+                    eachTranscript.save()
+                    if (eachTranscriptParent.parentFeatureRelationships.size() == 0) {
+                        ArrayList<FeatureProperty> featureProperties = eachTranscriptParent.featureProperties
+                        for (FeatureProperty fp : featureProperties) {
+                            featurePropertyService.deleteProperty(eachTranscriptParent, fp)
+                        }
+                        //eachTranscriptParent.delete()
+                        // replace a direct delete with the standard method
+                        Feature topLevelFeature = featureService.getTopLevelFeature(eachTranscriptParent)
+                        featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
+                    }
+                }
+            }
+
+            if (transcriptsToDissociate) {
+                Transcript firstTranscript = null
+                for (Transcript eachTranscript in transcriptsToDissociate) {
+                    if (firstTranscript == null) {
+                        firstTranscript = eachTranscript
+                        Gene newGene = new Gene(
+                                uniqueName: nameService.generateUniqueName(),
+                                name: nameService.generateUniqueName(fivePrimeGene)
+                        )
+
+                        firstTranscript.owners.each {
+                            newGene.addToOwners(it)
+                        }
+                        newGene.save(flush: true)
+
+                        FeatureLocation newGeneFeatureLocation = new FeatureLocation(
+                                feature: newGene,
+                                fmin: firstTranscript.fmin,
+                                fmax: firstTranscript.fmax,
+                                strand: firstTranscript.strand,
+                                sequence: firstTranscript.featureLocation.sequence,
+                                residueInfo: firstTranscript.featureLocation.residueInfo,
+                                locgroup: firstTranscript.featureLocation.locgroup,
+                                rank: firstTranscript.featureLocation.rank
+                        ).save(flush: true)
+                        newGene.addToFeatureLocations(newGeneFeatureLocation)
+                        featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(firstTranscript), firstTranscript)
+                        addTranscriptToGene(newGene, firstTranscript)
+                        firstTranscript.name = nameService.generateUniqueName(firstTranscript, newGene.name)
+                        firstTranscript.save(flush: true)
+                        continue
+                    }
+                    if (eachTranscript && firstTranscript && overlapperService.overlaps(eachTranscript, firstTranscript)) {
+                        featureRelationshipService.removeFeatureRelationship(transcriptService.getGene(eachTranscript), eachTranscript)
+                        addTranscriptToGene(transcriptService.getGene(firstTranscript), eachTranscript)
+                        firstTranscript.name = nameService.generateUniqueName(firstTranscript, transcriptService.getGene(firstTranscript).name)
+                        firstTranscript.save(flush: true)
+                    } else {
+                        throw new AnnotationException("Left behind transcript that doesn't overlap with any other transcripts")
+                    }
                 }
             }
         }
+
         return transcriptsToUpdate
     }
 
