@@ -394,7 +394,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                                 var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength,false, scale==charSize.width);
                                 // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
                                 //    otherwise use more muted "frame" styling
-                                $(transProtein).addClass("cds-frame" + frame);
+								if(scale ==  charSize.width){
+									$(transProtein).addClass("cds-frame" + frame);
+								}
+								else{
+									$(transProtein).addClass("obscured-cds-frame" + frame);
+								}
                                 framedivs[frame] = transProtein;
                             }
                             for (var i=2; i>=0; i--) {
@@ -480,10 +485,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                                 });
                             }
                         }
-						else
-                        if(scale < charSize.width) {
-							// do nothing?
-                        }
 
                         if (track.show_protein_translation && track.show_reverse_strand) {
 							if(scale ==  charSize.width){
@@ -500,7 +501,6 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 									framedivs[frame] = transProtein;
 								}
 								for (var i=2; i>=0; i--) {
-								// for (var i=0; i<3; i++) {
 									var transProtein = framedivs[i];
 									seqNode.appendChild(transProtein);
 									$(transProtein).bind("mousedown", track.residuesMouseDown);
@@ -517,11 +517,10 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 									var frame = (transStart % 3 + 3) % 3;
 									frame = (frame + offset )% 3;
 									var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true, false);
-									$(transProtein).addClass("neg-cds-frame" + frame);
+									$(transProtein).addClass("obscured-neg-cds-frame" + frame);
 									framedivs[frame] = transProtein;
 								}
 								for (var i=2; i>=0; i--) {
-								// for (var i=0; i<3; i++) {
 									var transProtein = framedivs[i];
 									seqNode.appendChild(transProtein);
 									blockHeight += proteinHeight;
