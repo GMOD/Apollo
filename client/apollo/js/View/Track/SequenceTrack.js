@@ -103,7 +103,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
         this.trackPadding = 10;
         this.SHOW_IF_FEATURES = true;
-        this.ALWAYS_SHOW = false;
+        this.ALWAYS_SHOW = true ;
         // this.setLoaded();
         //        this.initContextMenu();
 
@@ -340,7 +340,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }
         var blockHeight = 0;
 
-        if (this.shown) {
+        if (true || this.shown) {
             // make a div to contain the sequences
             var seqNode = document.createElement("div");
             seqNode.className = "wa-sequence";
@@ -360,7 +360,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var dnaHeight     = charSize.height;
             var proteinHeight = charSize.height;
 
-            if ( scale == charSize.width ) {
+            if ( true || scale == charSize.width ) {
                 this.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
                     function( seq ) {
@@ -404,75 +404,79 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                         }
 
                         // add a div for the forward strand
-                        var forwardDNA = track.renderResidues( blockResidues );
-                        $(forwardDNA).addClass("forward-strand");
-                        seqNode.appendChild( forwardDNA );
+                        if(scale == charSize.width) {
+                            var forwardDNA = track.renderResidues(blockResidues);
+                            $(forwardDNA).addClass("forward-strand");
+                            seqNode.appendChild(forwardDNA);
 
 
-                        track.residues_context_menu.bindDomNode(forwardDNA);
-                        $(forwardDNA).bind("mousedown", track.residuesMouseDown);
-                        blockHeight += dnaHeight;
-
-                        if (track.show_reverse_strand) {
-                            // and one for the reverse strand
-                            // var reverseDNA = track.renderResidues( start, end, track.complement(seq) );
-                            var reverseDNA = track.renderResidues( track.complement(blockResidues) );
-                            $(reverseDNA).addClass("reverse-strand");
-                            seqNode.appendChild( reverseDNA );
-                            // dnaContainer.appendChild(reverseDNA);
-                            track.residues_context_menu.bindDomNode(reverseDNA);
-                            $(reverseDNA).bind("mousedown", track.residuesMouseDown);
+                            track.residues_context_menu.bindDomNode(forwardDNA);
+                            $(forwardDNA).bind("mousedown", track.residuesMouseDown);
                             blockHeight += dnaHeight;
-                        }
 
-                        // set up highlighting of base pair underneath mouse
-                        $(forwardDNA).bind("mouseleave", function(event) {
-                            track.removeTextHighlight(forwardDNA);
-                            if (reverseDNA) { track.removeTextHighlight(reverseDNA); }
-                            track.last_dna_coord = undefined;
-                        } );
-                        $(forwardDNA).bind("mousemove", function(event) {
-                            var gcoord = track.getGenomeCoord(event);
-                            if (gcoord >= 0 && ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord))) {
-                                var blockCoord = gcoord - leftBase;
-                                track.last_dna_coord = gcoord;
-                                track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
-                                if (!track.freezeHighlightedBases) {
-                                    track.lastHighlightedForwardDNA = forwardDNA;
-                                }
-                                if (reverseDNA)  {
-                                    track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
-                                    if (!track.freezeHighlightedBases) {
-                                        track.lastHighlightedReverseDNA = reverseDNA;
-                                    }
-                                }
+                            if (track.show_reverse_strand) {
+                                // and one for the reverse strand
+                                // var reverseDNA = track.renderResidues( start, end, track.complement(seq) );
+                                var reverseDNA = track.renderResidues(track.complement(blockResidues));
+                                $(reverseDNA).addClass("reverse-strand");
+                                seqNode.appendChild(reverseDNA);
+                                // dnaContainer.appendChild(reverseDNA);
+                                track.residues_context_menu.bindDomNode(reverseDNA);
+                                $(reverseDNA).bind("mousedown", track.residuesMouseDown);
+                                blockHeight += dnaHeight;
                             }
-                            else if (gcoord < 0) {
-                                track.clearHighlightedBases();
-                            }
-                        } );
-                        if (reverseDNA) {
-                            $(reverseDNA).bind("mouseleave", function(event) {
+
+                            // set up highlighting of base pair underneath mouse
+                            $(forwardDNA).bind("mouseleave", function (event) {
                                 track.removeTextHighlight(forwardDNA);
-                                track.removeTextHighlight(reverseDNA);
+                                if (reverseDNA) {
+                                    track.removeTextHighlight(reverseDNA);
+                                }
                                 track.last_dna_coord = undefined;
-                            } );
-                            $(reverseDNA).bind("mousemove", function(event) {
+                            });
+                            $(forwardDNA).bind("mousemove", function (event) {
                                 var gcoord = track.getGenomeCoord(event);
                                 if (gcoord >= 0 && ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord))) {
                                     var blockCoord = gcoord - leftBase;
                                     track.last_dna_coord = gcoord;
                                     track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
-                                    track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
                                     if (!track.freezeHighlightedBases) {
                                         track.lastHighlightedForwardDNA = forwardDNA;
-                                        track.lastHighlightedReverseDNA = reverseDNA;
+                                    }
+                                    if (reverseDNA) {
+                                        track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
+                                        if (!track.freezeHighlightedBases) {
+                                            track.lastHighlightedReverseDNA = reverseDNA;
+                                        }
                                     }
                                 }
                                 else if (gcoord < 0) {
                                     track.clearHighlightedBases();
                                 }
-                            } );
+                            });
+                            if (reverseDNA) {
+                                $(reverseDNA).bind("mouseleave", function (event) {
+                                    track.removeTextHighlight(forwardDNA);
+                                    track.removeTextHighlight(reverseDNA);
+                                    track.last_dna_coord = undefined;
+                                });
+                                $(reverseDNA).bind("mousemove", function (event) {
+                                    var gcoord = track.getGenomeCoord(event);
+                                    if (gcoord >= 0 && ((!track.last_dna_coord) || (gcoord !== track.last_dna_coord))) {
+                                        var blockCoord = gcoord - leftBase;
+                                        track.last_dna_coord = gcoord;
+                                        track.setTextHighlight(forwardDNA, blockCoord, blockCoord, "dna-highlighted");
+                                        track.setTextHighlight(reverseDNA, blockCoord, blockCoord, "dna-highlighted");
+                                        if (!track.freezeHighlightedBases) {
+                                            track.lastHighlightedForwardDNA = forwardDNA;
+                                            track.lastHighlightedReverseDNA = reverseDNA;
+                                        }
+                                    }
+                                    else if (gcoord < 0) {
+                                        track.clearHighlightedBases();
+                                    }
+                                });
+                            }
                         }
 
                         if (track.show_protein_translation && track.show_reverse_strand) {
@@ -1260,11 +1264,15 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
     },
 
     hide: function() {
-        this.inherited(arguments);
-        var annotTrack = this.getAnnotTrack();
-        if (annotTrack && !annotTrack.isLoggedIn()) {
-            dojo.style(this.genomeView.pinUnderlay, "display", "none");
-        }
+        // this.inherited(arguments);
+
+        //  hide elements with classes reverse-strand and forward-strand
+
+
+        // var annotTrack = this.getAnnotTrack();
+        // if (annotTrack && !annotTrack.isLoggedIn()) {
+        //     dojo.style(this.genomeView.pinUnderlay, "display", "none");
+        // }
     }
 
 });
