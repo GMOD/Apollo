@@ -435,7 +435,7 @@ class TranscriptService {
                 log.debug "Gene1 != Gene2; merging genes together"
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
                 if (gene2Transcripts) {
-                    gene2Transcripts.retainAll(featureService.getTranscriptsWithOverlappingOrf(transcript1))
+                    gene2Transcripts.retainAll(featureService.getOverlappingTranscripts(transcript1))
 
                     for (Transcript transcript : gene2Transcripts) {
                         // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted

@@ -171,6 +171,19 @@ apollo {
 As well, translation tables can be set per organism using the _'Details'_ panel located in the _'Organism'_ tab of the Annotator panel in the Apollo window: to replace the translation table (default or set by admin) for any given organism, use the field labeled as _'Non-default Translation Table'_ to enter a different table identifier as needed. 
 
 
+### Configuring Transcript Overlapper
+
+Apollo, by default, uses a `CDS` overlapper which treats two overlapping transcripts as isoforms of each other if and only if they share the same in-frame CDS.
+
+You can also configure Apollo to use an `exon` overlapper, which would treat two overlapping transcripts as isoforms of each other if one or more exon overlaps with each other they share the same splice acceptor and splice donor sites.
+
+```
+apollo {
+    transcript_overlapper = "exon"
+}
+```
+
+
 ### Logging configuration
 
 To over-ride the default logging, you can look at the logging configurations from

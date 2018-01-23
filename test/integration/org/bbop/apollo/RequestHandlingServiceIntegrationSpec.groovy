@@ -3896,4 +3896,367 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert gene1MRNA.fmax == Gene.first().fmax
 
     }
+
+    void "disassociate transcript should yield a separate gene for the transcript"() {
+
+        given: "GB40804-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":190047},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":190714,\"fmax\":190834},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191151,\"fmax\":191271},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191354,\"fmax\":191649},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191735,\"fmax\":192254},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192344,\"fmax\":192529},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192598,\"fmax\":192765},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192828,\"fmax\":193580},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":193076},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40804-RA\",\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":193580},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String dissociateTranscriptFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_transcript_from_gene\"}"
+
+        when: "we add transcript thrice"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+
+        when: "we get GB40804-RA-00003 and dissociate it from its parent"
+        MRNA mrna = MRNA.findByName("GB40804-RA-00003")
+        Gene gene = transcriptService.getGene(mrna)
+        assert mrna != null
+
+        requestHandlingService.dissociateTranscriptFromGene(JSON.parse(dissociateTranscriptFromGeneString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see 2 genes and that the transcript is dissociated from its original gene"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        Gene newGene = transcriptService.getGene(mrna)
+        assert newGene != gene
+
+        then: "we should also see feature property assigned to the transcript and its new gene"
+        assert newGene.featureProperties.size() == 1
+        assert newGene.featureProperties.first() instanceof Comment
+        assert newGene.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+    }
+
+    void "associate an out-of-frame transcript to an overlapping transcript's gene"() {
+
+        given: "GB40805-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":199844},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199954,\"fmax\":200239},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200317,\"fmax\":200676},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200841,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":200062}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String associateTranscriptToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_transcript_to_gene\"}"
+
+        when: "we add transcript thrice"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+
+        when: "we set translation start on GB40805-RA-00003"
+        MRNA mrna = MRNA.findByName("GB40805-RA-00003")
+        Gene originalGene = transcriptService.getGene(mrna)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we see that mrna is not an isoform of gene GB40805-RA due to a change in its CDS"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        assert transcriptService.getGene(mrna) != originalGene
+
+        when: "we associate the transcript to its original gene"
+        requestHandlingService.associateTranscriptToGene(JSON.parse(associateTranscriptToGeneString.replace("@UNIQUENAME1@", mrna.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+
+        then: "we should see the transcript associated with the original gene"
+        assert transcriptService.getGene(mrna) == originalGene
+
+        then: "we should also see feature property assigned to the transcript"
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
+    }
+
+    void "associate a non coding RNA type to an overlapping coding transcript's gene"() {
+
+        given: "GB40810-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":336120},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336248,\"fmax\":336302},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336923,\"fmax\":336954},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":337080,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336018,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40810-RA\",\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addFeatureString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"GB40810-RA\",\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"ncRNA\"}}],\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String associateTranscriptToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_transcript_to_gene\"}"
+
+        when: "we add transcript GB40810-RA twice and a non coding RNA"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addFeatureString) as JSONObject)
+
+        then: "we should see 2 genes and 2 mRNAs and 1 ncRNA"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert NcRNA.count == 1
+        Gene codingGene = transcriptService.getGene(MRNA.all.first())
+        NcRNA ncRNA = NcRNA.all.first()
+
+        when: "we associate the ncRNA to an overlapping MRNA's gene"
+        requestHandlingService.associateTranscriptToGene(JSON.parse(associateTranscriptToGeneString.replace("@UNIQUENAME1@", ncRNA.uniqueName).replace("@UNIQUENAME2@", codingGene.uniqueName)) as JSONObject)
+
+        then: "we should see 1 gene, 2 mRNAs and 1 ncRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert NcRNA.count == 1
+
+        then: "we should see the coding gene as the parent of the ncRNA"
+        assert transcriptService.getGene(ncRNA) == codingGene
+
+        then: "we should also see feature property assigned to the ncRNA"
+        assert ncRNA.featureProperties.size() == 1
+        assert ncRNA.featureProperties.first() instanceof Comment
+        assert ncRNA.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
+    }
+
+    void "dissociate an isoform from its gene and then associate it back"() {
+
+        given: "GB40756-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":582938,\"fmax\":583599},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":584441,\"fmax\":584564},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":584624,\"fmax\":584831},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":584936,\"fmax\":584967},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":587466,\"fmax\":587766},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":588643,\"fmax\":588668},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":584719,\"fmax\":587536},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40756-RA\",\"location\":{\"strand\":-1,\"fmin\":582938,\"fmax\":588668},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String dissociateTranscriptFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_transcript_from_gene\"}"
+        String associateTranscriptToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_transcript_to_gene\"}"
+
+        when: "we add transcript GB40756-RA thrice"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we see 1 gene and 3 mRNAs"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+
+        when: "we get GB40756-RA-00003 and dissociate it from its parent"
+        MRNA mrna = MRNA.findByName("GB40756-RA-00003")
+        Gene originalGene = transcriptService.getGene(mrna)
+        assert mrna != null
+
+        requestHandlingService.dissociateTranscriptFromGene(JSON.parse(dissociateTranscriptFromGeneString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see 2 genes and that the transcript is dissociated from its original gene"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        Gene newGene = transcriptService.getGene(mrna)
+        assert newGene != originalGene
+
+        then: "we should also see feature property assigned to the transcript and its new gene"
+        assert newGene.featureProperties.size() == 1
+        assert newGene.featureProperties.first() instanceof Comment
+        assert newGene.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        when: "we associate the transcript to its original gene"
+        requestHandlingService.associateTranscriptToGene(JSON.parse(associateTranscriptToGeneString.replace("@UNIQUENAME1@", mrna.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+
+        then: "we should see the transcript associated with the original gene"
+        assert transcriptService.getGene(mrna) == originalGene
+
+        then: "we should also see feature property assigned to the transcript"
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
+
+    }
+
+    void "associate an transcript to an overlapping isoform's gene and then dissociate it back"() {
+
+        given: "GB40805-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":199844},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199954,\"fmax\":200239},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200317,\"fmax\":200676},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200841,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":200062}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String associateTranscriptToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_transcript_to_gene\"}"
+        String dissociateTranscriptFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_transcript_from_gene\"}"
+
+        when: "we add transcript thrice"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+
+        when: "we set translation start on GB40805-RA-00003"
+        MRNA mrna = MRNA.findByName("GB40805-RA-00003")
+        Gene originalGene = transcriptService.getGene(mrna)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we see that mrna is not an isoform of gene GB40805-RA due to a change in its CDS"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        assert transcriptService.getGene(mrna) != originalGene
+
+        when: "we associate the transcript to its original gene"
+        requestHandlingService.associateTranscriptToGene(JSON.parse(associateTranscriptToGeneString.replace("@UNIQUENAME1@", mrna.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+
+        then: "we should see the transcript associated with the original gene"
+        assert transcriptService.getGene(mrna) == originalGene
+
+        then: "we should also see feature property assigned to the transcript"
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
+
+        when: "we dissociate the transcript from its original gene"
+        requestHandlingService.dissociateTranscriptFromGene(JSON.parse(dissociateTranscriptFromGeneString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see the transcript dissociated from its original gene"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        Gene gene2 = transcriptService.getGene(mrna)
+
+        assert gene2.featureProperties.size() == 1
+        assert gene2.featureProperties.first() instanceof Comment
+        assert gene2.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        assert transcriptService.getGene(mrna) != originalGene
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+    }
+
+    void "disassociate transcript from its gene, undo and redo"() {
+
+        given: "GB40804-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":190047},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":190714,\"fmax\":190834},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191151,\"fmax\":191271},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191354,\"fmax\":191649},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191735,\"fmax\":192254},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192344,\"fmax\":192529},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192598,\"fmax\":192765},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192828,\"fmax\":193580},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":193076},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40804-RA\",\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":193580},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String dissociateTranscriptFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_transcript_from_gene\"}"
+        String undoOperationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
+
+        when: "we add transcript thrice"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+
+        then: "we should see 1 gene and 3 transcripts"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+
+        when: "we get GB40804-RA-00003 and dissociate it from its parent"
+        MRNA mrna = MRNA.findByName("GB40804-RA-00003")
+        Gene originalGene = transcriptService.getGene(mrna)
+        assert mrna != null
+
+        requestHandlingService.dissociateTranscriptFromGene(JSON.parse(dissociateTranscriptFromGeneString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see 2 genes and that the transcript is dissociated from its original gene"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        Gene newGene = transcriptService.getGene(mrna)
+        assert newGene != originalGene
+
+        then: "we should also see feature property assigned to the transcript and its new gene"
+        assert newGene.featureProperties.size() == 1
+        assert newGene.featureProperties.first() instanceof Comment
+        assert newGene.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        assert mrna.featureProperties.size() == 1
+        assert mrna.featureProperties.first() instanceof Comment
+        assert mrna.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        when: "we undo the Dissociate transcript from gene operation"
+        requestHandlingService.undo(JSON.parse(undoOperationString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see 1 gene and 3 transcripts again"
+        assert Gene.count == 1
+        assert MRNA.count == 3
+
+        MRNA mrnaAfterUndo = MRNA.findByName("GB40804-RA-00003")
+        assert transcriptService.getGene(mrnaAfterUndo) == originalGene
+        assert mrnaAfterUndo.featureProperties == null
+
+        when: "we redo the Dissociate transcript from gene operation"
+        requestHandlingService.redo(JSON.parse(redoOperationString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+
+        then: "we should see 2 genes and 3 transcripts"
+        assert Gene.count == 2
+        assert MRNA.count == 3
+
+        MRNA mrnaAfterRedo = MRNA.findByName("GB40804-RAa-00001")
+        Gene geneAfterRedo = transcriptService.getGene(mrnaAfterRedo)
+        assert geneAfterRedo != originalGene
+
+        assert geneAfterRedo.featureProperties.size() == 1
+        assert geneAfterRedo.featureProperties.first() instanceof Comment
+        assert geneAfterRedo.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+        assert mrnaAfterRedo.featureProperties.size() == 1
+        assert mrnaAfterRedo.featureProperties.first() instanceof Comment
+        assert mrnaAfterRedo.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+
+    }
+
+    void "associate a non coding RNA type to an overlapping coding transcript's gene"() {
+
+        given: "GB40810-RA"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":336120},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336248,\"fmax\":336302},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336923,\"fmax\":336954},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":337080,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336018,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40810-RA\",\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addFeatureString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"GB40810-RA\",\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"ncRNA\"}}],\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String associateTranscriptToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_transcript_to_gene\"}"
+        String undoOperationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
+        String redoOperationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
+
+        when: "we add transcript GB40810-RA twice and a non coding RNA"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addFeatureString) as JSONObject)
+
+        then: "we should see 2 genes and 2 mRNAs and 1 ncRNA"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert NcRNA.count == 1
+        Gene codingGene = transcriptService.getGene(MRNA.all.first())
+        NcRNA ncRNA = NcRNA.all.first()
+        Gene originalGene = transcriptService.getGene(ncRNA)
+
+        when: "we associate the ncRNA to an overlapping MRNA's gene"
+        requestHandlingService.associateTranscriptToGene(JSON.parse(associateTranscriptToGeneString.replace("@UNIQUENAME1@", ncRNA.uniqueName).replace("@UNIQUENAME2@", codingGene.uniqueName)) as JSONObject)
+
+        then: "we should see 1 gene, 2 mRNAs and 1 ncRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert NcRNA.count == 1
+
+        then: "we should see the coding gene as the parent of the ncRNA"
+        assert transcriptService.getGene(ncRNA) == codingGene
+
+        then: "we should also see feature property assigned to the ncRNA"
+        assert ncRNA.featureProperties.size() == 1
+        assert ncRNA.featureProperties.first() instanceof Comment
+        assert ncRNA.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
+
+        when: "we undo the associate transcript to gene operation"
+        requestHandlingService.undo(JSON.parse(undoOperationString.replace("@UNIQUENAME@", ncRNA.uniqueName)) as JSONObject)
+
+        then: "we should see 2 gene, 2 mRNAs and 1 ncRNA again"
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert NcRNA.count == 1
+
+        NcRNA ncrnaAfterUndo = NcRNA.all.first()
+        assert transcriptService.getGene(ncrnaAfterUndo).name == originalGene.name
+        assert ncrnaAfterUndo.featureProperties == null
+
+        when: "we redo the associate transcript to gene operation"
+        requestHandlingService.redo(JSON.parse(redoOperationString.replace("@UNIQUENAME@", ncrnaAfterUndo.uniqueName)) as JSONObject)
+
+        then: "we should see 1 gene, 2 mRNAs and 1 ncRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+
+        NcRNA ncrnaAfterRedo = NcRNA.all.first()
+        Gene geneAfterRedo = transcriptService.getGene(ncrnaAfterRedo)
+        assert geneAfterRedo == codingGene
+
+        assert ncrnaAfterRedo.featureProperties.size() == 1
+        assert ncrnaAfterRedo.featureProperties.first() instanceof Comment
+        assert ncrnaAfterRedo.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
+
+    }
 }
