@@ -340,7 +340,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }
         var blockHeight = 0;
 
-        if (true || this.shown) {
+        if (this.shown) {
             // make a div to contain the sequences
             var seqNode = document.createElement("div");
             seqNode.className = "wa-sequence";
@@ -360,7 +360,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var dnaHeight     = charSize.height;
             var proteinHeight = charSize.height;
 
-            if ( true || scale == charSize.width ) {
+			console.log(scale + ' vs  ' + charSize.width) ; 
+
+            if ( scale <= charSize.width ) {
                 this.sequenceStore.getReferenceSequence(
                     { ref: this.refSeq.name, start: leftExtended, end: rightExtended },
                     function( seq ) {
@@ -389,7 +391,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             for (var i=0; i<3; i++) {
                                 var tstart = blockStart + i;
                                 var frame = tstart % 3;
-                                var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength);
+                                var transProtein = track.renderTranslation( extendedEndResidues, i, blockLength,false, scale==charSize.width);
                                 // if coloring CDS in feature tracks by frame, use same "cds-frame" styling,
                                 //    otherwise use more muted "frame" styling
                                 $(transProtein).addClass("cds-frame" + frame);
@@ -478,27 +480,53 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                                 });
                             }
                         }
+						else
+                        if(scale < charSize.width) {
+							// do nothing?
+                        }
 
                         if (track.show_protein_translation && track.show_reverse_strand) {
-                            var extendedReverseComp = track.reverseComplement(extendedStartResidues);
-                            if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
-                            var framedivs = [];
-                            var offset = ( 2 - (track.refSeq.length  % 3)  )  ;
-                            for (var i=2; i>=0; i--) {
-                                var transStart = blockStart + 1 - i;
-                                var frame = (transStart % 3 + 3) % 3;
-                                frame = (frame + offset )% 3;
-                                var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                $(transProtein).addClass("neg-cds-frame" + frame);
-                                framedivs[frame] = transProtein;
-                            }
-                            for (var i=2; i>=0; i--) {
-                            // for (var i=0; i<3; i++) {
-                                var transProtein = framedivs[i];
-                                seqNode.appendChild(transProtein);
-                                $(transProtein).bind("mousedown", track.residuesMouseDown);
-                                blockHeight += proteinHeight;
-                            }
+							if(scale ==  charSize.width){
+								var extendedReverseComp = track.reverseComplement(extendedStartResidues);
+								if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
+								var framedivs = [];
+								var offset = ( 2 - (track.refSeq.length  % 3)  )  ;
+								for (var i=2; i>=0; i--) {
+									var transStart = blockStart + 1 - i;
+									var frame = (transStart % 3 + 3) % 3;
+									frame = (frame + offset )% 3;
+									var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true,true);
+									$(transProtein).addClass("neg-cds-frame" + frame);
+									framedivs[frame] = transProtein;
+								}
+								for (var i=2; i>=0; i--) {
+								// for (var i=0; i<3; i++) {
+									var transProtein = framedivs[i];
+									seqNode.appendChild(transProtein);
+									$(transProtein).bind("mousedown", track.residuesMouseDown);
+									blockHeight += proteinHeight;
+								}
+							}
+							else{
+								var extendedReverseComp = track.reverseComplement(extendedStartResidues);
+								if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
+								var framedivs = [];
+								var offset = ( 2 - (track.refSeq.length  % 3)  )  ;
+								for (var i=2; i>=0; i--) {
+									var transStart = blockStart + 1 - i;
+									var frame = (transStart % 3 + 3) % 3;
+									frame = (frame + offset )% 3;
+									var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true, false);
+									$(transProtein).addClass("neg-cds-frame" + frame);
+									framedivs[frame] = transProtein;
+								}
+								for (var i=2; i>=0; i--) {
+								// for (var i=0; i<3; i++) {
+									var transProtein = framedivs[i];
+									seqNode.appendChild(transProtein);
+									blockHeight += proteinHeight;
+								}
+							}
                         }
                         track.inherited("fillBlock", fillArgs);
                         blockHeight += 5;  // a little extra padding below (track.trackPadding used for top padding)
@@ -609,7 +637,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
     },
 
     // end is ignored, assume all of seq is translated (except any extra bases at end)
-    renderTranslation: function ( input_seq, offset, blockLength, reverse) {
+    renderTranslation: function ( input_seq, offset, blockLength, reverse,showLetters) {
             var CodonTable = this.translationTable;
         var verbose = false;
         // sequence of diagnostic block
@@ -673,17 +701,17 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     residueString = '';
                     if (startProtein.indexOf(residue) >= 0) {
                         var startDiv = dojo.create('div',{ className: 'sequence-start-protein'});
-                        startDiv.appendChild(document.createTextNode(residue));
+                        startDiv.appendChild(document.createTextNode(showLetters ? residue : SequenceTrack.nbsp ));
                         container.appendChild(startDiv);
                     }
                     else if (stopProtein.indexOf(residue) >= 0) {
                         var stopDiv = dojo.create('div',{ className: 'sequence-stop-protein'});
-                        stopDiv.appendChild(document.createTextNode(residue));
+                        stopDiv.appendChild(document.createTextNode( showLetters ? residue : SequenceTrack.nbsp ));
                         container.appendChild(stopDiv);
                     }
                 }
                 else {
-                    residueString += residue;
+                    residueString += showLetters ? residue : SequenceTrack.nbsp  ;
                 }
             }
             container.appendChild(document.createTextNode(residueString));
