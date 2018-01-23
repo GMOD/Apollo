@@ -7,7 +7,6 @@ import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
-import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
@@ -152,7 +151,20 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         for (Map.Entry<String, String> t : translationTable.getTranslationTable().entrySet()) {
             ttable.put(t.getKey(), t.getValue())
         }
+
+        JSONArray startProteins = new JSONArray()
+        JSONArray stopProteins = new JSONArray()
+
+        for(String startCodon in translationTable.getStartCodons()){
+            startProteins.add(translationTable.getTranslationTable().get(startCodon))
+        }
+        for(String stopCodon in translationTable.getStopCodons()){
+            stopProteins.add(translationTable.getTranslationTable().get(stopCodon))
+        }
+
         returnObject.put(REST_TRANSLATION_TABLE, ttable)
+        returnObject.put(REST_START_PROTEINS, startProteins.unique())
+        returnObject.put(REST_STOP_PROTEINS, stopProteins.unique())
         render returnObject
     }
 
