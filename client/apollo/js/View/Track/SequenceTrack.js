@@ -651,6 +651,47 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             }
         }
 
+        // var track = this;
+        // console.log(track.translationTable)
+
+        // true for eukoryotes
+        var startProtein = ['M'];
+        var stopProtein= ['\*'];
+
+        var residueString = '';
+        for(var residueIndex in aaResidues){
+            var residue = aaResidues[residueIndex];
+            if(startProtein.indexOf(residue)>=0 || stopProtein.indexOf(residue)>=0){
+                container.appendChild( document.createTextNode( residueString ) );
+                residueString = '';
+                if(startProtein.indexOf(residue)>=0){
+                    var startDiv = document.createElement('div');
+                    startDiv.style.backgroundColor = 'green';
+                    startDiv.style.margin = 0;
+                    startDiv.style.buffer = 0;
+                    startDiv.style.padding = 0;
+                    startDiv.style.display = 'inline';
+                    startDiv.appendChild(document.createTextNode(residue)) ;
+                    container.appendChild( startDiv );
+                }
+                else
+                if(stopProtein.indexOf(residue)>=0){
+                    var stopDiv = document.createElement('div');
+                    stopDiv.style.backgroundColor = 'red';
+                    stopDiv.style.margin = 0;
+                    stopDiv.style.buffer = 0;
+                    stopDiv.style.padding = 0;
+                    stopDiv.style.display = 'inline';
+                    stopDiv.appendChild(document.createTextNode(residue)) ;
+                    container.appendChild( stopDiv );
+                }
+            }
+            else{
+                residueString += residue;
+            }
+        }
+        container.appendChild( document.createTextNode( residueString ) );
+
 		var stopSplits = aaResidues.split('\*');
 		for(var stopSplit in stopSplits){
 			container.appendChild( document.createTextNode( stopSplits[stopSplit] ) );
