@@ -651,7 +651,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             }
         }
 
-		var stopSplits = aaResidues.stopSplit('\*');
+		var stopSplits = aaResidues.split('\*');
 		for(var stopSplit in stopSplits){
 			container.appendChild( document.createTextNode( stopSplits[stopSplit] ) );
 			if(stopSplit < stopSplits.length-1){
