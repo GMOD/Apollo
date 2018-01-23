@@ -583,14 +583,44 @@ div.annot-sequence  {
 
 .colorCds .neg-cds-frame0 {
     background-color: #8080FF;
+	z-index: 5 ;
 }
 
 .colorCds .neg-cds-frame1 {
     background-color: #80FF80;
+	z-index: 5 ;
 }
 
 .colorCds .neg-cds-frame2 {
     background-color: #FF8080;
+	z-index: 5 ;
+}
+
+.colorCds .obscured-cds-frame0 {
+    background-color: #FBD8D1;
+}
+
+.colorCds .obscured-cds-frame1 {
+    background-color: #D3FBD1;
+}
+
+.colorCds .obscured-cds-frame2 {
+    background-color: #DFD1FB;
+}
+
+.colorCds .obscured-neg-cds-frame0 {
+    background-color: #DFD1FB;
+	z-index: 5 ;
+}
+
+.colorCds .obscured-neg-cds-frame1 {
+    background-color: #D3FBD1;
+	z-index: 5 ;
+}
+
+.colorCds .obscured-neg-cds-frame2 {
+    background-color: #FBD8D1;
+	z-index: 5 ;
 }
 
 
@@ -878,5 +908,21 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     outline-style: solid;
     outline-color: blue;
     outline-width: 3px;
+}
+
+.sequence-start-protein{
+    background-color: green;
+    margin : 0;
+    buffer : 0;
+    padding : 0;
+    display: inline ;
+}
+
+.sequence-stop-protein{
+    background-color: red;
+    margin : 0;
+    buffer : 0;
+    padding : 0;
+    display: inline ;
 }
 
