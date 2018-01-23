@@ -668,22 +668,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     container.appendChild(document.createTextNode(residueString));
                     residueString = '';
                     if (startProtein.indexOf(residue) >= 0) {
-                        var startDiv = document.createElement('div');
-                        startDiv.style.backgroundColor = 'green';
-                        startDiv.style.margin = 0;
-                        startDiv.style.buffer = 0;
-                        startDiv.style.padding = 0;
-                        startDiv.style.display = 'inline';
+                        var startDiv = dojo.create('div',{ className: 'sequence-start-protein'});
                         startDiv.appendChild(document.createTextNode(residue));
                         container.appendChild(startDiv);
                     }
                     else if (stopProtein.indexOf(residue) >= 0) {
-                        var stopDiv = document.createElement('div');
-                        stopDiv.style.backgroundColor = 'red';
-                        stopDiv.style.margin = 0;
-                        stopDiv.style.buffer = 0;
-                        stopDiv.style.padding = 0;
-                        stopDiv.style.display = 'inline';
+                        var stopDiv = dojo.create('div',{ className: 'sequence-stop-protein'});
                         stopDiv.appendChild(document.createTextNode(residue));
                         container.appendChild(stopDiv);
                     }

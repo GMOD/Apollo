@@ -880,3 +880,19 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     outline-width: 3px;
 }
 
+.sequence-start-protein{
+    background-color: green;
+    margin : 0;
+    buffer : 0;
+    padding : 0;
+    display: inline ;
+}
+
+.sequence-stop-protein{
+    background-color: red;
+    margin : 0;
+    buffer : 0;
+    padding : 0;
+    display: inline ;
+}
+
