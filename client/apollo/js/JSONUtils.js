@@ -11,6 +11,9 @@ function JSONUtils() {
 
 JSONUtils.verbose_conversion = false;
 
+JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene";
+JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene";
+
 /**
 *  creates a feature in JBrowse JSON format
 *  takes as arguments:
@@ -414,6 +417,27 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     return afeature;
 };
 
+JSONUtils.overlaps = function(feat1, feat2) {
+    var leftFmin = feat1.get("start");
+    var leftFmax = feat1.get("end");
+    var rightFmin = feat2.get("start");
+    var rightFmax = feat2.get("end");
+
+    return (leftFmin <= rightFmin && leftFmax > rightFmin ||
+        leftFmin >= rightFmin && leftFmin < rightFmax);
+};
+
+JSONUtils.checkForComment = function(feature, value) {
+    for (var i = 0; i < feature.data.properties.length; i++) {
+        var property = feature.data.properties[i];
+        if (property.name && property.name === "comment") {
+            if (property.value && property.value === value) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 // experimenting with forcing export of JSONUtils into global namespace...
 window.JSONUtils = JSONUtils;
 
