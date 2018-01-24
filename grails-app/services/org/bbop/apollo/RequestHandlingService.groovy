@@ -2147,9 +2147,15 @@ class RequestHandlingService {
         List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
             a.fmin <=> b.fmin ?: a.fmax <=> b.fmax ?: a.name <=> b.name
         }
+
         if (transcript1.strand == Strand.NEGATIVE.value) {
             sortedTranscripts.reverse(true)
         }
+
+        if (sortedTranscripts.get(0).alternateCvTerm == Transcript.alternateCvTerm && sortedTranscripts.get(1).alternateCvTerm != Transcript.alternateCvTerm) {
+            sortedTranscripts.reverse(true)
+        }
+
         transcript1 = sortedTranscripts.get(0)
         transcript2 = sortedTranscripts.get(1)
         Gene gene1 = transcriptService.getGene(transcript1)
