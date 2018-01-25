@@ -184,7 +184,9 @@ elif [[ $1 == "watchman" ]]; then
     if ! [ -x "$watchman_executable" ] ; then
         echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
     fi
-    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
+    if [ -x "$watchman_executable" ]; then
+		$watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.*s' -- scripts/copy_client.sh; 
+	fi;
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then

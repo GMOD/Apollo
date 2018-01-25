@@ -18,6 +18,8 @@ abstract class AbstractApolloController {
     public static REST_KEY = "key"
     public static REST_OPTIONS = "options"
     public static REST_TRANSLATION_TABLE = "translation_table"
+    public static REST_START_PROTEINS = "start_proteins"
+    public static REST_STOP_PROTEINS = "stop_proteins"
 
     protected String underscoreToCamelCase(String underscore) {
         if (!underscore || underscore.isAllWhitespace()) {

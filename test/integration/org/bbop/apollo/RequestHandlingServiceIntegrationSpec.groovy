@@ -4259,4 +4259,34 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert ncrnaAfterRedo.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE
 
     }
+
+    void "When merging mRNA to a transcript, merge the transcript into the mRNA and get remove its parent pseudogene"() {
+
+        given: "a mRNA and a transcript"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336923,\"fmax\":336954},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":337080,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"GB40810-RA\",\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String addFeatureString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":336120},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336248,\"fmax\":336302},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336471,\"fmax\":336855},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336923,\"fmax\":336954},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":337080,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":336018,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40810-RA\",\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"transcript\"}}],\"location\":{\"strand\":1,\"fmin\":335756,\"fmax\":337187},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"pseudogene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String mergeTranscriptString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"merge_transcripts\"}"
+
+        when: "we add mRNA and transcript"
+        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addFeatureString) as JSONObject)
+
+        then: "we see 1 gene, 1 mRNA, 1 pseudogene and 1 transcript"
+        assert Gene.count == 2
+        assert Pseudogene.count == 1
+        assert MRNA.count == 1
+        assert Transcript.count == 2
+
+        when: "we merge mRNA to transcript"
+        MRNA mrna = MRNA.findByName("GB40810-RA-00001")
+        Transcript transcript = Transcript.findByName("GB40810-RAa-00001")
+
+        requestHandlingService.mergeTranscripts(JSON.parse(mergeTranscriptString.replace("@UNIQUENAME1@", mrna.uniqueName).replace("@UNIQUENAME2@", transcript.uniqueName)) as JSONObject)
+
+        then: "we should see 1 gene and 1 mRNA instead of 1 pseudogene and 1 transcript"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert Pseudogene.count == 0
+
+    }
 }

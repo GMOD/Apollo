@@ -177,6 +177,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }).then(function(response) { //
             track.translationTable = {};
             var ttable = response.translation_table;
+            track.startProteins = response.start_proteins;
+            track.stopProteins = response.stop_proteins;
             for (var codon in ttable) {
                 // looping through codon table, make sure not hitting generic properties...
                 if (ttable.hasOwnProperty(codon)) {
@@ -650,7 +652,41 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 aaResidues = SequenceTrack.nbsp + aaResidues;
             }
         }
-        container.appendChild( document.createTextNode( aaResidues ) );
+
+        var track = this;
+
+        var startProtein = track.startProteins;
+        var stopProtein= track.stopProteins;
+
+
+        if(startProtein && stopProtein && aaResidues) {
+
+            var residueString = '';
+            for (var residueIndex in aaResidues) {
+                var residue = aaResidues[residueIndex];
+                if (startProtein.indexOf(residue) >= 0 || stopProtein.indexOf(residue) >= 0) {
+                    container.appendChild(document.createTextNode(residueString));
+                    residueString = '';
+                    if (startProtein.indexOf(residue) >= 0) {
+                        var startDiv = dojo.create('div',{ className: 'sequence-start-protein'});
+                        startDiv.appendChild(document.createTextNode(residue));
+                        container.appendChild(startDiv);
+                    }
+                    else if (stopProtein.indexOf(residue) >= 0) {
+                        var stopDiv = dojo.create('div',{ className: 'sequence-stop-protein'});
+                        stopDiv.appendChild(document.createTextNode(residue));
+                        container.appendChild(stopDiv);
+                    }
+                }
+                else {
+                    residueString += residue;
+                }
+            }
+            container.appendChild(document.createTextNode(residueString));
+        }
+        else{
+            container.appendChild( document.createTextNode( aaResidues ) );
+        }
         return container;
     },
 
