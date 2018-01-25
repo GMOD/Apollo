@@ -2433,6 +2433,38 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "the previous gene of transcript2 doesn't exist as it is deleted when it has no connected child features"
         Gene.count == 1
+
+
+        when: "we set the proper translation end"
+//        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+
+
+        then: "it should use the translation end on the CDS"
+
+
+
+
+        when: "we attempt to add a bad start location on transcript 1"
+//        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
+
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        thrown AnnotationException
+        AnnotationException ex = thrown()
+        ex.message.contains("upstream")
+
+
+
+        when: "we attempt to add a bad end location on transcript 1"
+//        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+
+
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        ex = thrown(AnnotationException)
+//        ex = thrown()
+        ex.message.contains("upstream")
+
     }
 
     void "when a setTranslationEnd action is performed on a transcript, there should be a check for overlapping isoforms"() {
@@ -2495,6 +2527,32 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "the previous gene of transcript2 doesn't exist as it is deleted when it has no connected child features"
         Gene.count == 1
+
+
+        when: "we attempt to add a bad start location on transcript 1"
+//        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
+
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        thrown AnnotationException
+        AnnotationException ex = thrown()
+        ex.message.contains("downstream")
+
+
+
+
+        when: "we attempt to add a bad end location on transcript 1"
+//        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+
+
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        thrown AnnotationException
+        ex = thrown()
+        ex.message.contains("downstream")
+
+
+
     }
 
     void "when a setExonBoundaries action is performed on a transcript, there should be a check for overlapping isoforms"() {
