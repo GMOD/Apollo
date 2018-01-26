@@ -744,15 +744,15 @@ class FeatureService {
             featureRelationshipService.addChildFeature(transcript, cds)
 //            transcript.setCDS(cds);
         }
-        // if the start is set, then we make sure we are going to set a legal coordinate
-        if (cdsService.isManuallySetTranslationStart(cds)) {
+        // if the end is set, then we make sure we are going to set a legal coordinate
+        if (cdsService.isManuallySetTranslationEnd(cds)) {
             if (transcript.strand == Strand.NEGATIVE.value) {
-                if (cds.featureLocation.fmax <= translationStart) {
-                    throw new AnnotationException("Translation end ${cds.featureLocation.fmax } must be downstream of the start ${translationStart}")
+                if (translationStart <= cds.featureLocation.fmax) {
+                    throw new AnnotationException("Translation start ${translationStart} must be upstream of the end ${cds.featureLocation.fmax} (larger)")
                 }
             } else {
-                if (cds.featureLocation.fmax >= translationStart) {
-                    throw new AnnotationException("Translation end ${cds.featureLocation.fmax } must be downstream of the start ${translationStart}")
+                if (translationStart >= cds.featureLocation.fmax) {
+                    throw new AnnotationException("Translation start ${translationStart} must be upstream of the end ${cds.featureLocation.fmax} (smaller) ")
                 }
             }
         }
@@ -898,12 +898,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (cdsService.isManuallySetTranslationStart(cds)) {
             println "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
             if (transcript.strand == Strand.NEGATIVE.value) {
-                if (cds.featureLocation.fmin <= translationEnd) {
-                    throw new AnnotationException("Translation end ${cds.featureLocation.fmin} must be upstream of the end ${translationEnd}")
+                if (translationEnd  >= cds.featureLocation.fmin ) {
+//                    throw new AnnotationException("Translation end ${cds.featureLocation.fmin} must be upstream of the end ${translationEnd}")
+                    throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmin} (smaller)")
                 }
             } else {
-                if (cds.featureLocation.fmin >= translationEnd) {
-                    throw new AnnotationException("Translation end ${cds.featureLocation.fmax} must be upstream of the end ${translationEnd}")
+                if (translationEnd <= cds.featureLocation.fmin ) {
+//                    throw new AnnotationException("Translation end ${cds.featureLocation.fmax} must be upstream of the end ${translationEnd}")
+                    throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmin} (larger)")
                 }
             }
         }

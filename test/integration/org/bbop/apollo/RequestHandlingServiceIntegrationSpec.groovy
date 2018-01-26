@@ -2433,7 +2433,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-//    @IgnoreRest
+    @IgnoreRest
     void "test translation start and end validation for negative strand"(){
 
         given: "Two transcripts having separate parent gene"
@@ -2482,7 +2482,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.setTranslationStart(JSON.parse(setTranslationBadStartForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
 //        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
-//        throw new AnnotationException("upstream")
+//        throw new AnnotationException("")
 
 
         then: "we expect a failure and the CDS to remain in the same spot"
@@ -2497,7 +2497,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-//        throw new AnnotationException("upstream")
 //        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
 
 
@@ -2511,15 +2510,14 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
     }
 
-//    @IgnoreRest
     void "set translation start and end for positive strand"() {
 
         given: "two transcripts having separate parent gene"
         String transcript1 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":592678,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":588910},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":592526,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":592678},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40820-RA\",\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        String setTranslationStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":593550}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
-        String setTranslationEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":593579}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
-        String setTranslationBadEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":959280}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
-        String setTranslationBadStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":959230}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":592550}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":592650}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+        String setTranslationBadStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":592660}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationBadEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":592460}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
 
         when: "we add transcript1"
         JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
@@ -2541,19 +2539,22 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
         int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
         assert initialCDSLength != alteredCDSLength
+        alteredCDS.fmin == 592550
+        alteredCDS.fmax == 592651
 
         when: "we attempt to add a bad start location on transcript 1"
 //        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
         setTranslationBadStartForTranscript1 = setTranslationBadStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationStart(JSON.parse(setTranslationBadStartForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-//        throw new AnnotationException("downstream")
 
 
         then: "we expect a failure and the CDS to remain in the same spot"
         AnnotationException ex = thrown(AnnotationException)
-        ex.message.contains("downstream")
-
+        println ex.message
+        ex.message.contains("Translation start 592660 must be upstream of the end 592651")
+        alteredCDS.fmin == 592550
+        alteredCDS.fmax == 592651
 
 
 
@@ -2562,13 +2563,15 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
-//        throw new AnnotationException("downstream")
 
 
 
         then: "we expect a failure and the CDS to remain in the same spot"
         ex = thrown(AnnotationException)
-        ex.message.contains("downstream")
+        println ex.message
+        ex.message.contains("Translation end 592460 must be downstream of the start 592550")
+        alteredCDS.fmin == 592550
+        alteredCDS.fmax == 592651
 
 
     }
