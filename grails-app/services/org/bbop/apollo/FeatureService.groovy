@@ -747,8 +747,8 @@ class FeatureService {
         // if the end is set, then we make sure we are going to set a legal coordinate
         if (cdsService.isManuallySetTranslationEnd(cds)) {
             if (transcript.strand == Strand.NEGATIVE.value) {
-                if (translationStart <= cds.featureLocation.fmax) {
-                    throw new AnnotationException("Translation start ${translationStart} must be upstream of the end ${cds.featureLocation.fmax} (larger)")
+                if (translationStart <= cds.featureLocation.fmin) {
+                    throw new AnnotationException("Translation start ${translationStart} must be upstream of the end ${cds.featureLocation.fmin} (larger)")
                 }
             } else {
                 if (translationStart >= cds.featureLocation.fmax) {
@@ -758,17 +758,17 @@ class FeatureService {
         }
         FeatureLocation transcriptFeatureLocation = FeatureLocation.findByFeature(transcript)
         if (transcriptFeatureLocation.strand == Strand.NEGATIVE.value) {
-            setFmax(cds, translationStart + 1);
+            setFmax(cds, translationStart + 1)
         } else {
-            setFmin(cds, translationStart);
+            setFmin(cds, translationStart)
         }
         cdsService.setManuallySetTranslationStart(cds, true);
 //        cds.deleteStopCodonReadThrough();
-        cdsService.deleteStopCodonReadThrough(cds);
+        cdsService.deleteStopCodonReadThrough(cds)
 //        featureRelationshipService.deleteRelationships()
 
         if (setTranslationEnd && translationTable != null) {
-            String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
+            String mrna = getResiduesWithAlterationsAndFrameshifts(transcript)
             if (mrna == null || mrna.equals("null")) {
                 return;
             }
@@ -898,13 +898,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (cdsService.isManuallySetTranslationStart(cds)) {
             println "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
             if (transcript.strand == Strand.NEGATIVE.value) {
-                if (translationEnd  >= cds.featureLocation.fmin ) {
-//                    throw new AnnotationException("Translation end ${cds.featureLocation.fmin} must be upstream of the end ${translationEnd}")
-                    throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmin} (smaller)")
+                if (translationEnd  >= cds.featureLocation.fmax ) {
+                    throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmax} (smaller)")
                 }
             } else {
                 if (translationEnd <= cds.featureLocation.fmin ) {
-//                    throw new AnnotationException("Translation end ${cds.featureLocation.fmax} must be upstream of the end ${translationEnd}")
                     throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmin} (larger)")
                 }
             }
