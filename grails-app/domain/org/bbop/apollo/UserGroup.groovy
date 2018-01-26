@@ -7,7 +7,8 @@ class UserGroup implements JsonMetadata{
     }
 
     static hasMany = [
-            users: User
+            users: User,
+            admin: User
     ]
 
     static mapping = {
