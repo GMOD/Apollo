@@ -2140,6 +2140,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     }
 
     // TODO
+
     void "when exons from three isoforms, genes should merge on overlap and split on separation"() {
 
         given: "Three exons we are turning into three transcripts using Group 1.10 GB40782-RA"
@@ -2431,8 +2432,143 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "Name for transcript2 should have changed, in light of the new CDS overlap"
         assert transcript2Name != transcript2ModifiedName
 
+    }
+
+    void "test translation start and end validation for negative strand"(){
+
+        given: "Two transcripts having separate parent gene"
+        String transcript1 = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":953072,\"fmax\":953075},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":950737},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":950830},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":951050,\"fmax\":951116},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":951349,\"fmax\":951703},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":952162,\"fmax\":952606},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":952865,\"fmax\":953075},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":958639,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":950737,\"fmax\":953072},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40735-RA\",\"location\":{\"strand\":-1,\"fmin\":949590,\"fmax\":959315},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":959200}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":959100}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+        String setTranslationBadStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":959090}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationBadEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":959210}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+
+        when: "we add transcript1"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+
+        then: "we should have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+
+        when: "we set translation start for transcript1"
+        setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject).get("features")
+
+        then: "we should see a difference in CDS length for transcript1"
+        CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        assert initialCDSLength != alteredCDSLength
+
+
         then: "the previous gene of transcript2 doesn't exist as it is deleted when it has no connected child features"
         Gene.count == 1
+        alteredCDS.fmin == 958925
+        alteredCDS.fmax == 959201
+
+
+        when: "we set the proper translation end"
+        setTranslationEndForTranscript1 = setTranslationEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+        alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+
+        then: "it should use the translation end on the CDS"
+        alteredCDS.fmin == 959100
+        alteredCDS.fmax == 959201
+
+
+        when: "we attempt to add a bad start location on transcript 1"
+        setTranslationBadStartForTranscript1 = setTranslationBadStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationBadStartForTranscript1) as JSONObject)
+        alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        AnnotationException ex = thrown(AnnotationException)
+        ex.message.contains("Translation start 959090 must be upstream of the end 959100 (larger)")
+        alteredCDS.fmin == 959100
+        alteredCDS.fmax == 959201
+
+
+
+        when: "we attempt to add a bad end location on transcript 1"
+        setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
+        alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        ex = thrown(AnnotationException)
+        ex.message.contains("Translation end 959210 must be downstream of the start 959201 (smaller)")
+        alteredCDS.fmin == 959100
+        alteredCDS.fmax == 959201
+
+    }
+
+    void "set translation start and end for positive strand"() {
+
+        given: "two transcripts having separate parent gene"
+        String transcript1 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":592678,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":588910},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":592526,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":592678},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40820-RA\",\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String setTranslationStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":592550}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":592650}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+        String setTranslationBadStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":592660}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationBadEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":592460}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+
+        when: "we add transcript1"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript1) as JSONObject).get("features")
+
+        then: "we should have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+        CDS initialCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int initialCDSLength = initialCDS.featureLocation.fmax - initialCDS.featureLocation.fmin
+
+        when: "we set translation start and end for transcript1"
+        setTranslationStartForTranscript1 = setTranslationStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        setTranslationEndForTranscript1 = setTranslationEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
+        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+
+        then: "we should see a difference in CDS length for transcript 1"
+        CDS alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+        int alteredCDSLength = alteredCDS.featureLocation.fmax - alteredCDS.featureLocation.fmin
+        assert initialCDSLength != alteredCDSLength
+        alteredCDS.fmin == 592550
+        alteredCDS.fmax == 592651
+
+        when: "we attempt to add a bad start location on transcript 1"
+//        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
+        setTranslationBadStartForTranscript1 = setTranslationBadStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationStart(JSON.parse(setTranslationBadStartForTranscript1) as JSONObject)
+        alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        AnnotationException ex = thrown(AnnotationException)
+        println ex.message
+        ex.message.contains("Translation start 592660 must be upstream of the end 592651")
+        alteredCDS.fmin == 592550
+        alteredCDS.fmax == 592651
+
+
+
+        when: "we attempt to add a bad end location on transcript 1"
+//        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
+        setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
+        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
+        alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+
+
+
+        then: "we expect a failure and the CDS to remain in the same spot"
+        ex = thrown(AnnotationException)
+        println ex.message
+        ex.message.contains("Translation end 592460 must be downstream of the start 592550")
+        alteredCDS.fmin == 592550
+        alteredCDS.fmax == 592651
+
+
     }
 
     void "when a setTranslationEnd action is performed on a transcript, there should be a check for overlapping isoforms"() {
@@ -2441,6 +2577,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         String transcript1 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":592678,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":588910},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":592526,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":592678},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40820-RA\",\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String setTranslationStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":593550}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
         String setTranslationEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":593579}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_end\"}"
+        String setTranslationBadEndForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmax\":959280}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
+        String setTranslationBadStartForTranscript1 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":959230}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
 
         String transcript2 = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":593733},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"au8.g307.t1\",\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":593733},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String setTranslationStartForTranscript2 = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"location\":{\"fmin\":593508}}],\"track\":\"Group1.10\",\"operation\":\"set_translation_start\"}"
@@ -2495,6 +2633,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "the previous gene of transcript2 doesn't exist as it is deleted when it has no connected child features"
         Gene.count == 1
+
+
     }
 
     void "when a setExonBoundaries action is performed on a transcript, there should be a check for overlapping isoforms"() {
