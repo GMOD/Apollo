@@ -55,6 +55,14 @@ class PermissionService {
         return false
     }
 
+    boolean isGroupAdmin(UserGroup group, User user) {
+        for (User u in group.admin) {
+            if (user.id == u.id)
+                return true
+        }
+        return false
+    }
+
     List<Organism> getOrganisms(User user) {
         if (isUserAdmin(user)) {
             return Organism.listOrderByCommonName()
