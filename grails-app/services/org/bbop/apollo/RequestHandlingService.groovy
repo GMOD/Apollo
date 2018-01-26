@@ -685,7 +685,7 @@ class RequestHandlingService {
      * @param inputObject
      */
     @Timed
-    JSONObject setTranslationStart(JSONObject inputObject) {
+    JSONObject setTranslationStart(JSONObject inputObject) throws AnnotationException{
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 

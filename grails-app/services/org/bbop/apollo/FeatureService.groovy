@@ -620,7 +620,7 @@ class FeatureService {
  * @param setTranslationEnd - if set to true, will search for the nearest in frame stop codon
  */
     @Transactional
-    void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) {
+    void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd) throws AnnotationException{
         log.debug "setTranslationStart(transcript,translationStart,translationEnd)"
         setTranslationStart(transcript, translationStart, setTranslationEnd, false);
     }
@@ -635,7 +635,7 @@ class FeatureService {
  * @param readThroughStopCodon - if set to true, will read through the first stop codon to the next
  */
     @Transactional
-    void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) {
+    void setTranslationStart(Transcript transcript, int translationStart, boolean setTranslationEnd, boolean readThroughStopCodon) throws AnnotationException{
         log.debug "setTranslationStart(transcript,translationStart,translationEnd,readThroughStopCodon)"
         setTranslationStart(transcript, translationStart, setTranslationEnd, setTranslationEnd ? organismService.getTranslationTable(transcript.featureLocation.sequence.organism) : null, readThroughStopCodon);
     }
@@ -859,7 +859,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param translationEnd - Coordinate of the end of translation
  */
     @Transactional
-    void setTranslationEnd(Transcript transcript, int translationEnd) {
+    void setTranslationEnd(Transcript transcript, int translationEnd) throws AnnotationException{
         setTranslationEnd(transcript, translationEnd, false);
     }
 
@@ -872,7 +872,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
  * @param setTranslationStart - if set to true, will search for the nearest in frame start
  */
     @Transactional
-    void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) {
+    void setTranslationEnd(Transcript transcript, int translationEnd, boolean setTranslationStart) throws AnnotationException{
         setTranslationEnd(transcript, translationEnd, setTranslationStart,
                 setTranslationStart ? organismService.getTranslationTable(transcript.featureLocation.sequence.organism) : null
         );
@@ -896,13 +896,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         // if the start is set, then we make sure we are going to set a legal coordinate
         if (cdsService.isManuallySetTranslationStart(cds)) {
+            println "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
             if (transcript.strand == Strand.NEGATIVE.value) {
                 if (cds.featureLocation.fmin <= translationEnd) {
-                    throw new AnnotationException("Translation start ${cds.featureLocation.fmin} must be upstream of the end ${translationEnd}")
+                    throw new AnnotationException("Translation end ${cds.featureLocation.fmin} must be upstream of the end ${translationEnd}")
                 }
             } else {
                 if (cds.featureLocation.fmin >= translationEnd) {
-                    throw new AnnotationException("Translation start ${cds.featureLocation.fmax} must be upstream of the end ${translationEnd}")
+                    throw new AnnotationException("Translation end ${cds.featureLocation.fmax} must be upstream of the end ${translationEnd}")
                 }
             }
         }
