@@ -52,7 +52,7 @@ class UserController {
             List<String> allUserGroups = UserGroup.all
             if (!permissionService.isAdmin()) {
                 allUserGroups = allUserGroups.findAll(){
-                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String)
+                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
                 }
             }
             List<String> allUserGroupsName = allUserGroups.name
@@ -139,7 +139,7 @@ class UserController {
                 def userGroups = it.userGroups
                 if (!permissionService.isAdmin()) {
                     userGroups = userGroups.findAll() {
-                        it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String)
+                        it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
                     }
                 }
 
