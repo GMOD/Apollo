@@ -2482,6 +2482,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.setTranslationStart(JSON.parse(setTranslationBadStartForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
 //        requestHandlingService.setTranslationStart(JSON.parse(setTranslationStartForTranscript1) as JSONObject)
+//        throw new AnnotationException("upstream")
 
 
         then: "we expect a failure and the CDS to remain in the same spot"
@@ -2496,6 +2497,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+//        throw new AnnotationException("upstream")
 //        requestHandlingService.setTranslationEnd(JSON.parse(setTranslationEndForTranscript1) as JSONObject)
 
 
@@ -2545,6 +2547,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         setTranslationBadStartForTranscript1 = setTranslationBadStartForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationStart(JSON.parse(setTranslationBadStartForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+//        throw new AnnotationException("downstream")
 
 
         then: "we expect a failure and the CDS to remain in the same spot"
@@ -2559,6 +2562,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         setTranslationBadEndForTranscript1 = setTranslationBadEndForTranscript1.replace("@UNIQUENAME@", transcript1UniqueName)
         requestHandlingService.setTranslationEnd(JSON.parse(setTranslationBadEndForTranscript1) as JSONObject)
         alteredCDS = transcriptService.getCDS(MRNA.findByUniqueName(transcript1UniqueName))
+//        throw new AnnotationException("downstream")
 
 
 
