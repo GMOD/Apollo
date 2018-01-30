@@ -108,7 +108,7 @@ public class GroupPanel extends Composite {
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
         availableUsers.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
-        //availableGroupAdmin.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
+        availableGroupAdmin.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
 
         TextColumn<GroupInfo> firstNameColumn = new TextColumn<GroupInfo>() {
             @Override

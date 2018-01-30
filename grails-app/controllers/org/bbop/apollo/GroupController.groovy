@@ -54,11 +54,12 @@ class GroupController {
     def loadGroups() {
         try {
             log.debug "loadGroups"
-            JSONObject dataObject = permissionService.handleInput(request, params)
-           /* if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            /*if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }*/
+            JSONObject dataObject = permissionService.handleInput(request, params)
+
             JSONArray returnArray = new JSONArray()
             def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
@@ -396,8 +397,8 @@ class GroupController {
         }
 
         groupInstance.save(flush: true)
-        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
 
+        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
         loadGroups()
     }
 
@@ -428,9 +429,13 @@ class GroupController {
         List<User> usersToRemove = oldUsers - newUsers
         usersToAdd.each {
             groupInstance.addToAdmin(it)
+            it.addToGroupAdmins(groupInstance)
+            it.save()
         }
         usersToRemove.each {
             groupInstance.removeFromAdmin(it)
+            it.removeFromGroupAdmins(groupInstance)
+            it.save()
         }
 
         groupInstance.save(flush: true)

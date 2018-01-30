@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.util.mop.Use
 
 /**
  * Maps to CVTerm Owner, no Ontology term
@@ -21,11 +22,13 @@ class User implements Ontological, JsonMetadata{
     static String cvTerm = "Owner"
     static String ontologyId = "Owner"
 
-    static hasMany = [roles: Role, userGroups: UserGroup]
+    static hasMany = [roles: Role, userGroups: UserGroup, groupAdmins: UserGroup]
 
     static belongsTo = [
             UserGroup
     ]
+
+    static mappedBy = [userGroups: "users", groupAdmins: "admin"]
 
 
     static constraints = {
