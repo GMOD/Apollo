@@ -19,12 +19,12 @@ class CdsService {
     def sequenceService
     def overlapperService
     
-    public void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
+    void setManuallySetTranslationStart(CDS cds, boolean manuallySetTranslationStart) {
         if (manuallySetTranslationStart && isManuallySetTranslationStart(cds)) {
-            return;
+            return
         }
         if (!manuallySetTranslationStart && !isManuallySetTranslationStart(cds)) {
-            return;
+            return
         }
         if (manuallySetTranslationStart) {
             featurePropertyService.addComment(cds, MANUALLY_SET_TRANSLATION_START)
@@ -34,32 +34,32 @@ class CdsService {
         }
     }
 
-    public boolean isManuallySetTranslationStart(CDS cds) {
+    boolean isManuallySetTranslationStart(CDS cds) {
         for (Comment comment : featurePropertyService.getComments(cds)) {
             if (comment.value.equals(MANUALLY_SET_TRANSLATION_START)) {
-                return true;
+                return true
             }
         }
-        return false;
+        return false
     }
 
 
-    public boolean isManuallySetTranslationEnd(CDS cds) {
+    boolean isManuallySetTranslationEnd(CDS cds) {
 
         for (Comment comment : featurePropertyService.getComments(cds)) {
             if (comment.value.equals(MANUALLY_SET_TRANSLATION_END)) {
-                return true;
+                return true
             }
         }
-        return false;
+        return false
     }
 
-    public void setManuallySetTranslationEnd(CDS cds, boolean manuallySetTranslationEnd) {
+    void setManuallySetTranslationEnd(CDS cds, boolean manuallySetTranslationEnd) {
         if (manuallySetTranslationEnd && isManuallySetTranslationEnd(cds)) {
-            return;
+            return
         }
         if (!manuallySetTranslationEnd && !isManuallySetTranslationEnd(cds)) {
-            return;
+            return
         }
         if (manuallySetTranslationEnd) {
             featurePropertyService.addComment(cds, MANUALLY_SET_TRANSLATION_END)
@@ -95,7 +95,7 @@ class CdsService {
         return featureRelationshipService.getChildrenForFeatureAndTypes(cds,StopCodonReadThrough.ontologyId)
     }
 
-    public StopCodonReadThrough createStopCodonReadThrough(CDS cds) {
+    StopCodonReadThrough createStopCodonReadThrough(CDS cds) {
         String uniqueName = cds.getUniqueName() + FeatureStringEnum.STOP_CODON_READHTHROUGH_SUFFIX.value;
         StopCodonReadThrough stopCodonReadThrough = new StopCodonReadThrough(
                 uniqueName: uniqueName
