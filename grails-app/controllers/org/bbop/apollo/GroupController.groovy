@@ -54,10 +54,6 @@ class GroupController {
     def loadGroups() {
         try {
             log.debug "loadGroups"
-            /*if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
-                render status: HttpStatus.UNAUTHORIZED
-                return
-            }*/
             JSONObject dataObject = permissionService.handleInput(request, params)
 
             JSONArray returnArray = new JSONArray()

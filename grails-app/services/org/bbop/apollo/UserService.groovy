@@ -11,10 +11,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 @Transactional
 class UserService {
 
-//    static String USER = "USER"
-//    static String INSTRUCTOR = "INSTRUCTOR"
-    static String ADMIN = "ADMIN"
-
     // return admin role or user role
     Role getHighestRole(User user){
         for(Role role in user.roles.sort(){ a,b -> b.name<=>a.name }){

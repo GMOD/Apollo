@@ -194,7 +194,6 @@ public class GroupPanel extends Composite {
             @Override
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
-//        Window.alert("Has current user: " + (MainPanel.getInstance().getCurrentUser()==null ? "is null " : "exists"));
                     if(MainPanel.getInstance().isCurrentUserInstructorOrBetter())  {
                         GroupRestService.loadGroups(groupInfoList);
                         UserRestService.loadUsers(allUsersList);
@@ -382,11 +381,8 @@ public class GroupPanel extends Composite {
             List<String> optionsList = new ArrayList<>();
             for (UserInfo userInfo : selectedGroupInfo.getUserInfoList()) {
                 Option option = new Option();
-                //Option option2 = new Option();
                 option.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
-                //option2.setText(userInfo.getName() + " (" + userInfo.getEmail() + ")");
                 optionsList.add(option.getValue());
-                //adminOptionsList.add(option2.getValue());
             }
 
             List<String> adminOptionsList = new ArrayList<>();
@@ -408,9 +404,7 @@ public class GroupPanel extends Composite {
             }
 
 
-//            Option[] options = optionsList.toArray(new Option[optionsList.size()]);
             availableUsers.setValue(optionsList);
-//            availableUsers.setValues(options);
             availableUsers.refresh();
             availableGroupAdmin.setValue(adminOptionsList);
             availableGroupAdmin.refresh();
@@ -436,7 +430,6 @@ public class GroupPanel extends Composite {
         } else {
             name.setText("");
             deleteButton.setVisible(false);
-//            userData.removeAllRows();
             userDetailTab.setVisible(false);
         }
     }
@@ -446,7 +439,6 @@ public class GroupPanel extends Composite {
         if (MainPanel.getInstance().getCurrentUser() != null) {
             GroupRestService.loadGroups(groupInfoList);
         }
-//        dataGrid.redraw();
     }
 
 
