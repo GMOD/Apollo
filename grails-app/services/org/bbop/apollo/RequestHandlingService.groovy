@@ -621,7 +621,7 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject returnObject = createJSONFeatureContainer()
 
-        log.info "addTranscript ${inputObject?.size()}"
+        log.info "addTranscript ${inputObject.toString()}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         log.debug "sequence: ${sequence}"
         log.debug "organism: ${sequence.organism}"
@@ -685,7 +685,7 @@ class RequestHandlingService {
      * @param inputObject
      */
     @Timed
-    JSONObject setTranslationStart(JSONObject inputObject) {
+    JSONObject setTranslationStart(JSONObject inputObject) throws AnnotationException{
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
@@ -2147,9 +2147,15 @@ class RequestHandlingService {
         List<Transcript> sortedTranscripts = [transcript1, transcript2].sort { a, b ->
             a.fmin <=> b.fmin ?: a.fmax <=> b.fmax ?: a.name <=> b.name
         }
+
         if (transcript1.strand == Strand.NEGATIVE.value) {
             sortedTranscripts.reverse(true)
         }
+
+        if (sortedTranscripts.get(0).alternateCvTerm == Transcript.alternateCvTerm && sortedTranscripts.get(1).alternateCvTerm != Transcript.alternateCvTerm) {
+            sortedTranscripts.reverse(true)
+        }
+
         transcript1 = sortedTranscripts.get(0)
         transcript2 = sortedTranscripts.get(1)
         Gene gene1 = transcriptService.getGene(transcript1)
@@ -2357,4 +2363,90 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+    def associateTranscriptToGene(JSONObject inputObject) {
+        log.debug "associateTranscriptToGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        String transcriptUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
+        Transcript transcript = Transcript.findByUniqueName(transcriptUniqueName)
+        Gene gene = Gene.findByUniqueName(geneUniqueName)
+        log.debug "transcript: ${transcript}"
+        log.debug "gene: ${gene}"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(transcript)
+        transcript = featureService.associateTranscriptToGene(transcript, gene)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(transcript)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        featureEventService.addNewFeatureEvent(FeatureOperation.ASSOCIATE_TRANSCRIPT_TO_GENE, transcript.name,
+                transcriptUniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
+    def dissociateTranscriptFromGene(JSONObject inputObject) {
+        log.debug "dissociateTranscriptFromGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        String uniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        Transcript transcript = Transcript.findByUniqueName(uniqueName)
+        log.debug "transcript: ${transcript}"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(transcript)
+        transcript = featureService.dissociateTranscriptFromGene(transcript)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(transcript)
+
+        JSONObject jsonObject = featureService.convertFeatureToJSON(transcriptService.getGene(transcript))
+        JSONObject mrnaObject = jsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value).getJSONObject(0)
+        JSONObject parentObject = new JSONObject()
+        jsonObject.keySet().each { key ->
+            if (key != FeatureStringEnum.CHILDREN.value) {
+                parentObject.put(key, jsonObject.get(key))
+            }
+        }
+        mrnaObject.put(FeatureStringEnum.PARENT.value, parentObject)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        newFeaturesJsonArray.add(mrnaObject)
+        featureEventService.addNewFeatureEvent(FeatureOperation.DISSOCIATE_TRANSCRIPT_FROM_GENE, transcript.name,
+                uniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
 }

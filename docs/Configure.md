@@ -171,6 +171,19 @@ apollo {
 As well, translation tables can be set per organism using the _'Details'_ panel located in the _'Organism'_ tab of the Annotator panel in the Apollo window: to replace the translation table (default or set by admin) for any given organism, use the field labeled as _'Non-default Translation Table'_ to enter a different table identifier as needed. 
 
 
+### Configuring Transcript Overlapper
+
+Apollo, by default, uses a `CDS` overlapper which treats two overlapping transcripts as isoforms of each other if and only if they share the same in-frame CDS.
+
+You can also configure Apollo to use an `exon` overlapper, which would treat two overlapping transcripts as isoforms of each other if one or more exon overlaps with each other they share the same splice acceptor and splice donor sites.
+
+```
+apollo {
+    transcript_overlapper = "exon"
+}
+```
+
+
 ### Logging configuration
 
 To over-ride the default logging, you can look at the logging configurations from
@@ -533,6 +546,43 @@ You should be able to pass in most JBrowse URL modifications to the ```loadLink`
 You should use ```tracklist=1``` to force showing the native tracklist (or use the checkbox in the Track Tab in the Annotator Panel).
 
 Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
+
+
+### Setting default track list behavior
+
+By default the native tracklist is off, but can be added.  For new users if you want the default to be on, you can add this to the apollo-config.groovy:
+
+    apollo{
+       native_track_selector_default_on = true
+    }
+
+
+### Adding tracks via addStores
+
+The [JBrowse Configuration Guide](http://gmod.org/wiki/JBrowse_Configuration_Guide#addStores) describes in detail on how to add tracks to JBrowse using addStores.
+The configuration relies on sending track config JSON through the URL which can be problematic, especially with new versions of Tomcat.
+
+Instead we recommend using the dot notation to add track configuration through the URL.
+
+Thus,
+```
+addStores={"uniqueStoreName":{"type":"JBrowse/Store/SeqFeature/GFF3","urlTemplate":"url/of/my/file.gff3"}}
+```
+
+becomes,
+```
+addStores.uniqueStoreName.type=JBrowse/Store/SeqFeature/GFF3&addStores.uniqueStoreName.urlTemplate=url/of/my/file.gff3
+```
+
+
+Following are a few recommendations for adding tracks via dot notation in Apollo:
+
+- avoid `{dataRoot}` in your `urlTemplate`
+- avoid specifying `data` folder name in your `urlTemplate`
+- avoid specifying `baseUrl`
+
+Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
+
 
 ### Phone Home
 

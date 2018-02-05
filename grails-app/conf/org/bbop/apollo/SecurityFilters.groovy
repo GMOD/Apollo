@@ -51,12 +51,10 @@ class SecurityFilters {
                                 log.warn "Authentication failed"
                                 def targetUri = "/${controllerName}/${actionName}"
                                 int paramCount = 0
-                                def paramString = ""
-                                for(p in params){
+                                def paramString = "?"
+                                for(p in request.parameterMap){
                                     if(p.key!="controller" && p.key!="action"){
-                                        paramString += paramCount==0 ? "?" : "&"
                                         String key = p.key
-                                        String value = p.value
                                         // the ?loc is incorrect
                                         // https://github.com/GMOD/Apollo/issues/1371
                                         // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
@@ -64,12 +62,9 @@ class SecurityFilters {
                                             def lastIndex = p.key.lastIndexOf("loc")
                                             key = p.key.substring(lastIndex)
                                         }
-                                        else
-                                        if(p.key.startsWith("addStores")){
-                                            value = URLEncoder.encode(value,"UTF-8")
+                                        p.value.each {
+                                            paramString += "&${key}=${it}"
                                         }
-                                        paramString += key +"="+ value
-                                        ++paramCount
                                     }
 
                                 }
@@ -83,7 +78,13 @@ class SecurityFilters {
 //                                    paramString = paramString.substring(indexOfLoc)
 //                                }
                                 targetUri = targetUri + paramString
-                                redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
+                                    redirect(uri: "${request.contextPath}/auth/login?targetUri=${targetUri}")
+                                }
+                                else {
+                                    redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                }
+
                                 return false
                             }
                         }

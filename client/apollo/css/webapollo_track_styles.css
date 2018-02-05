@@ -880,3 +880,17 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     outline-width: 3px;
 }
 
+.sequence-start-protein {
+    background-color: yellow;
+    font-weight: bolder;
+	color: black;
+    display: inline ;
+}
+
+.sequence-stop-protein {
+    background-color: #3b4a20;
+    font-weight: bolder;
+	color: white;
+    display: inline ;
+}
+

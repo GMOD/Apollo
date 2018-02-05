@@ -15,6 +15,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 class PreferenceService {
 
     def permissionService
+    def configWrapperService
 
     final Integer PREFERENCE_SAVE_DELAY_SECONDS = 5  // saves every 30 seconds
     // enqueue to store save
@@ -184,6 +185,7 @@ class PreferenceService {
                         , clientToken: clientToken
                         , sequence: existingPreference.sequence
                         , currentOrganism: true
+                        , nativeTrackList: configWrapperService.getNativeTrackSelectorDefaultOn()
                         , startbp: existingPreference.startbp
                         , endbp: existingPreference.endbp
                 )
@@ -199,6 +201,7 @@ class PreferenceService {
                         , clientToken: clientToken
                         , sequence: sequence
                         , currentOrganism: true
+                        , nativeTrackList: configWrapperService.getNativeTrackSelectorDefaultOn()
                         , startbp: 0
                         , endbp: sequence.end
                 )
@@ -312,6 +315,7 @@ class PreferenceService {
                     , organism: sequence.organism
                     , clientToken: clientToken
                     , sequence: sequence
+                    , nativeTrackList: configWrapperService.getNativeTrackSelectorDefaultOn()
                     , currentOrganism: true
                     , startbp: 0
                     , endbp: sequence.end
@@ -353,6 +357,7 @@ class PreferenceService {
                     , organism: organism
                     , currentOrganism: true
                     , sequence: sequence
+                    , nativeTrackList: configWrapperService.getNativeTrackSelectorDefaultOn()
                     , clientToken: clientToken
             ).save(flush: true, insert: true)
         } else if (!userOrganismPreference.currentOrganism) {
@@ -671,6 +676,7 @@ class PreferenceService {
                     , sequence: sequence
                     , startbp: userOrganismPreference.startbp
                     , endbp: userOrganismPreference.endbp
+                    , nativeTrackList: configWrapperService.getNativeTrackSelectorDefaultOn()
                     , clientToken: clientToken
             ).save(insert: true, flush: true)
             return newPreference
@@ -702,6 +708,7 @@ class PreferenceService {
                     , organism: organism
                     , currentOrganism: true
                     , sequence: sequence
+                    , nativeTrackList: configWrapperService.getNativeTrackSelectorDefaultOn()
                     , clientToken: clientToken
             )
             if (sequence) {

@@ -199,6 +199,7 @@ apollo {
     overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
     track_name_comparator = "/config/track_name_comparator.js"
     use_cds_for_new_transcripts = false
+    transcript_overlapper = "CDS"
     feature_has_dbxrefs = true
     feature_has_attributes = true
     feature_has_pubmed_ids = true
@@ -369,6 +370,8 @@ apollo {
         bucketPrefix = "apollo-usage-"
         fileName = "ping.json"
     }
+
+    native_track_selector_default_on = false
 }
 
 

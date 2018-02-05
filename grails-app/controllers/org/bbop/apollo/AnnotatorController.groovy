@@ -48,6 +48,7 @@ class AnnotatorController {
      * @return
      */
     def loadLink() {
+        log.debug "Parameter for loadLink: ${params} vs ${request.parameterMap}"
         String clientToken
         try {
             if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
@@ -113,23 +114,19 @@ class AnnotatorController {
         String queryParamString = ""
         def keyList = []
         // this fixes a bug in addStores being duplicated or processed incorrectly
-        for (p in params) {
-            // if "addStores is not being processed correclty, this will fix it
-            if (p.key.startsWith("addStores=")) {
-                if (!p.value) {
-                    queryParamString += "&" + p.key
-                    keyList << "addStores"
+        for (p in request.parameterMap) {
+            if (!reservedList.contains(p.key) && !keyList.contains(p.key)) {
+                p.value.each {
+                    queryParamString += "&${p.key}=${it}"
                 }
-            } else if (!reservedList.contains(p.key) && !keyList.contains(p.key)) {
-                queryParamString += "&" + p
                 keyList << p.key
             }
         }
 
-        // for some reason the addTracks requires the context path, which seems to be an obscure bug in grails
-        if (queryParamString.contains("addTracks")) {
+        if (queryParamString.contains("http://") || queryParamString.contains("https://") || queryParamString.contains("ftp://")) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-        } else {
+        }
+        else {
             redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
         }
 

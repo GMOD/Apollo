@@ -1045,6 +1045,25 @@ public class MainPanel extends Composite {
         return currentOrganism.toJSON().toString();
     }
 
+    /**
+     * Features array handed in
+     *
+     * @param parentName
+     */
+    public static Boolean viewInAnnotationPanel(String parentName) {
+        try {
+            annotatorPanel.sequenceList.setText("");
+            annotatorPanel.nameSearchBox.setText(parentName);
+            annotatorPanel.reload();
+            detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+            return true ;
+        } catch (Exception e) {
+            Bootbox.alert("Problem viewing annotation");
+            GWT.log("Problem viewing annotation "+parentName+ " "+ e.fillInStackTrace().toString());
+            return false ;
+        }
+    }
+
     @UiHandler("trackListToggle")
     public void trackListToggleButtonHandler(ClickEvent event) {
         useNativeTracklist = !trackListToggle.isActive();
@@ -1065,11 +1084,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentOrganism = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentOrganismAsJson());
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
-        $wnd.getEmbeddedVersion = $entry(
-            function apolloEmbeddedVersion() {
-                return 'ApolloGwt-2.0';
-            }
-        );
+        $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
     }-*/;
 
     private enum TabPanelIndex {
@@ -1082,6 +1097,10 @@ public class MainPanel extends Composite {
         PREFERENCES(6),;
 
         private int index;
+
+        public int getIndex() {
+            return index;
+        }
 
         TabPanelIndex(int index) {
             this.index = index;

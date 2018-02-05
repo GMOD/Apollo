@@ -17,6 +17,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.use_cds_for_new_transcripts
     }
 
+    String getTranscriptOverlapper() {
+        return grailsApplication.config.apollo.transcript_overlapper
+    }
+
     TranslationTable getTranslationTable() {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
     }
@@ -125,5 +129,9 @@ class ConfigWrapperService {
 
     boolean getOnlyOwnersDelete(){
         return grailsApplication.config.apollo.only_owners_delete
+    }
+
+    boolean getNativeTrackSelectorDefaultOn(){
+        return grailsApplication.config.apollo.native_track_selector_default_on
     }
 }
