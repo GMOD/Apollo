@@ -239,8 +239,10 @@ class SequenceController {
             sequenceInstanceList.add(reportService.generateSequenceSummary(it))
         }
 
+        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser,PermissionEnum.ADMINISTRATE)
+
         int sequenceInstanceCount = Sequence.countByOrganism(organism)
-        render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
+        render view: "report", model: [sequenceInstanceList: sequenceInstanceList, organisms: organisms, organism: organism, sequenceInstanceCount: sequenceInstanceCount]
     }
 
     @RestApiMethod(description = "Get sequence data within a range", path = "/sequence/<organism name>/<sequence name>:<fmin>..<fmax>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)

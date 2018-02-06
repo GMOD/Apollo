@@ -22,7 +22,7 @@
         <div class="col-lg-4 lead">${organism.commonName} Sequences</div>
 
         <g:select id="organism" class="input-lg" name="organism"
-                  from="${org.bbop.apollo.Organism.listOrderByCommonName()}" optionValue="commonName" optionKey="id"
+                  from="${organisms}" optionValue="commonName" optionKey="id"
                   value="${organism.id}"
                   onchange=" changeOrganism(); "/>
     </div>

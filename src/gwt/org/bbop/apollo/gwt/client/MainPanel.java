@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
@@ -388,7 +389,13 @@ public class MainPanel extends Composite {
         String globalRole = currentUser.getRole();
         PermissionEnum highestPermission;
         UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
-        if (globalRole.equals("admin")) {
+        Map<String,UserOrganismPermissionInfo> infoMap = currentUser.getOrganismPermissionMap();
+        for(Map.Entry<String,UserOrganismPermissionInfo> entry : infoMap.entrySet()){
+            String entryKey = "";
+            entryKey += entry.getKey() + " " + entry.getValue().getId() + " " + entry.getValue().getHighestPermission().getDisplay();
+            GWT.log(entryKey);
+        }
+        if (globalRole.equals("admin") || globalRole.equals("instructor")) {
             highestPermission = PermissionEnum.ADMINISTRATE;
         } else {
             highestPermission = PermissionEnum.NONE;
@@ -1101,8 +1108,27 @@ public class MainPanel extends Composite {
 
     }
 
+    public boolean isCurrentUserOrganismAdmin() {
+        if(currentUser==null) return false ;
+        if(currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey())) return true ;
+
+        UserOrganismPermissionInfo permissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
+        if(permissionInfo!=null){
+            return permissionInfo.getHighestPermission().getRank()>=PermissionEnum.ADMINISTRATE.getRank();
+        }
+
+        return false ;
+    }
+
+    public boolean isCurrentUserInstructorOrBetter() {
+        if(currentUser!=null){
+            return currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey()) || currentUser.getRole().equals(GlobalPermissionEnum.INSTRUCTOR.getLookupKey());
+        }
+        return false ;
+    }
+
     public boolean isCurrentUserAdmin() {
-        return (currentUser != null && currentUser.getRole().equals("admin"));
+        return (currentUser != null && currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey()));
     }
 
     public UserInfo getCurrentUser() {

@@ -4,6 +4,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ public class UserInfoConverter {
     public static UserInfo convertToUserInfoFromJSON(JSONObject object){
         UserInfo userInfo = new UserInfo();
 
-        userInfo.setUserId((long) object.get("userId").isNumber().doubleValue());
+        userInfo.setUserId((long) object.get(FeatureStringEnum.USER_ID.getValue()).isNumber().doubleValue());
         userInfo.setFirstName(object.get("firstName").isString().stringValue());
         userInfo.setLastName(object.get("lastName").isString().stringValue());
         userInfo.setEmail(object.get("username").isString().stringValue());
@@ -70,8 +71,8 @@ public class UserInfoConverter {
                 if (organismPermissionJsonObject.get("id") != null) {
                     userOrganismPermissionInfo.setId((long) organismPermissionJsonObject.get("id").isNumber().doubleValue());
                 }
-                if (organismPermissionJsonObject.get("userId") != null) {
-                    userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get("userId").isNumber().doubleValue());
+                if (organismPermissionJsonObject.get(FeatureStringEnum.USER_ID.getValue()) != null) {
+                    userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get(FeatureStringEnum.USER_ID.getValue()).isNumber().doubleValue());
                 }
 //                if (organismPermissionJsonObject.get("groupId") != null) {
 //                    userOrganismPermissionInfo.setUserId((long) organismPermissionJsonObject.get("userId").isNumber().doubleValue());

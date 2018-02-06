@@ -8,6 +8,7 @@ import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -27,16 +28,20 @@ class PermissionService {
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
 
-    boolean isUserAdmin(User user) {
+
+    boolean isUserBetterOrEqualRank(User user,GlobalPermissionEnum globalPermissionEnum) {
         if (user != null) {
             for (Role role in user.roles) {
-                if (role.name == UserService.ADMIN) {
+                if (role.rank >= globalPermissionEnum.rank) {
                     return true
                 }
             }
         }
 
         return false
+    }
+    boolean isUserAdmin(User user) {
+        return isUserBetterOrEqualRank(user,GlobalPermissionEnum.ADMIN)
     }
 
     boolean isAdmin() {
@@ -46,6 +51,14 @@ class PermissionService {
             if (isUserAdmin(researcher)) {
                 return true
             }
+        }
+        return false
+    }
+
+    boolean isGroupAdmin(UserGroup group, User user) {
+        for (User u in group.admin) {
+            if (user.id == u.id)
+                return true
         }
         return false
     }
@@ -69,6 +82,52 @@ class PermissionService {
         }
 
         return returnOrganismList
+    }
+
+    List<Organism> getOrganismsWithMinimumPermission(User user,PermissionEnum permissionEnum) {
+        if (isUserAdmin(user)) {
+            return Organism.listOrderByCommonName()
+        }
+        Set<Organism> organismList = new HashSet<>()
+        for (UserOrganismPermission userPermission in UserOrganismPermission.findAllByUser(user)) {
+            if (userPermission.permissions) {
+                organismList.add(userPermission.organism)
+            }
+        }
+        for (UserGroup userGroup in user?.userGroups) {
+            organismList.addAll(getOrganismsForGroup(userGroup))
+        }
+        List<Organism> returnOrganismList = []
+        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
+            PermissionEnum highestPermission = getOrganismPermissionsForUser(organism,currentUser).sort(){ a,b -> a.rank <=> b.rank }.first()
+            if(highestPermission.rank>=permissionEnum.rank){
+                returnOrganismList.add(organism)
+            }
+        }
+
+        return returnOrganismList
+    }
+
+    Map<Organism,PermissionEnum> getOrganismsWithPermission(User user) {
+        if (isUserAdmin(user)) {
+            return Organism.listOrderByCommonName()
+        }
+        Set<Organism> organismList = new HashSet<>()
+        for (UserOrganismPermission userPermission in UserOrganismPermission.findAllByUser(user)) {
+            if (userPermission.permissions) {
+                organismList.add(userPermission.organism)
+            }
+        }
+        for (UserGroup userGroup in user?.userGroups) {
+            organismList.addAll(getOrganismsForGroup(userGroup))
+        }
+        Map<Organism,PermissionEnum> returnOrganismMap= [:]
+        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
+            PermissionEnum highestPermission = getOrganismPermissionsForUser(organism,currentUser).sort(){ a,b -> a.rank <=> b.rank }.first()
+            returnOrganismMap.put(organism,highestPermission)
+        }
+
+        return returnOrganismMap
     }
 
     List<Organism> getOrganismsForGroup(UserGroup group) {

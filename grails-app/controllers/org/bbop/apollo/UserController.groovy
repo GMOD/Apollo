@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -48,7 +49,13 @@ class UserController {
 
             def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
 
-            List<String> allUserGroups = UserGroup.all.name
+            List<String> allUserGroups = UserGroup.all
+            if (!permissionService.isAdmin()) {
+                allUserGroups = allUserGroups.findAll(){
+                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                }
+            }
+            List<String> allUserGroupsName = allUserGroups.name
             Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
             List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
@@ -128,7 +135,15 @@ class UserController {
 
                 JSONArray groupsArray = new JSONArray()
                 List<String> groupsForUser = new ArrayList<>()
-                for (group in it.userGroups) {
+                // filter the userGroups to only show that the group that current instructor owned
+                def userGroups = it.userGroups
+                if (!permissionService.isAdmin()) {
+                    userGroups = userGroups.findAll() {
+                        it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                    }
+                }
+
+                for (group in userGroups) {
                     JSONObject groupJson = new JSONObject()
                     groupsForUser.add(group.name)
                     groupJson.put("name", group.name)
@@ -138,7 +153,7 @@ class UserController {
 
 
                 JSONArray availableGroupsArray = new JSONArray()
-                List<String> availableGroups = allUserGroups - groupsForUser
+                List<String> availableGroups = allUserGroupsName - groupsForUser
                 for (group in availableGroups) {
                     JSONObject groupJson = new JSONObject()
                     groupJson.put("name", group)
@@ -232,7 +247,7 @@ class UserController {
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)) {
+            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserBetterOrEqualRank(currentUser,GlobalPermissionEnum.INSTRUCTOR)) {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
@@ -354,11 +369,13 @@ class UserController {
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
+            def currentUser = permissionService.currentUser
+            user.addMetaData("creator", currentUser.id.toString())
 
-            String roleString = dataObject.role ?: UserService.USER
+            String roleString = dataObject.role ?: GlobalPermissionEnum.USER.name()
             Role role = Role.findByName(roleString.toUpperCase())
             if (!role) {
-                role = Role.findByName(UserService.USER)
+                role = Role.findByName(GlobalPermissionEnum.USER.name())
             }
             log.debug "adding role: ${role}"
             user.addToRoles(role)
@@ -390,10 +407,12 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = permissionService.handleInput(request, params)
+
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+
             User user = null
             if (dataObject.has('userId')) {
                 user = User.findById(dataObject.userId)
@@ -402,6 +421,23 @@ class UserController {
             if (!user && dataObject.has("userToDelete")) {
                 user = User.findByUsername(dataObject.userToDelete)
             }
+
+            if (!user) {
+                def error = [error: 'The user does not exist']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
+            def currentUser = permissionService.getCurrentUser(dataObject)
+            String creatorMetaData = user.getMetaData("creator")
+            if (!permissionService.isAdmin() && creatorMetaData && currentUser.id.toString() != user.getMetaData("creator")) {
+                def error = [error: 'User did not create this user so can not delete it']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
             user.userGroups.each { it ->
                 it.removeFromUsers(user)
             }

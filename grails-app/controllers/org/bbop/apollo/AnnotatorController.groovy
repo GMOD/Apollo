@@ -152,8 +152,11 @@ class AnnotatorController {
     @NotTransactional
     def adminPanel() {
         if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            Integer highestGlobalRoleRank = permissionService.currentUser.roles.sort(){ a,b -> a.rank <=> b.rank}.first().rank // should return the highest either way
+//            permissionService.getPermissionsForUser(permissionService.currentUser)
+
             def administativePanel = grailsApplication.config.apollo.administrativePanel
-            [links: administativePanel]
+            [links: administativePanel,highestRank:highestGlobalRoleRank,roles:Role.all]
         } else {
             render text: "Unauthorized"
         }
