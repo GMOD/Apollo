@@ -1,9 +1,5 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
-import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.util.mop.Use
-
 /**
  * Maps to CVTerm Owner, no Ontology term
  */
