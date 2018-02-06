@@ -484,6 +484,33 @@ class AnnotatorController {
         render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
+    def instructorReport() {
+        // restricted groups
+        def groups = UserGroup.all
+        def filteredGroups =  groups
+        // if user is admin, then include all
+        // if group has metadata with the creator or no metadata then include
+
+        if (!permissionService.isAdmin()) {
+            log.debug "filtering groups"
+
+            filteredGroups = groups.findAll(){
+                it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+            }
+        }
+        def annotatorsOfGroup = new JSONObject()
+        filteredGroups.each {
+            List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+            def annotators = it.users
+            annotators.each {
+                annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
+            }
+            annotatorsOfGroup.put(it.id, annotatorSummaryList)
+        }
+        render view: "instructorReport", model: [userGroups: filteredGroups, annotatorInstanceList: annotatorsOfGroup, annotatorInstanceCount: User.count]
+
+    }
+
     def detail(User user) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
