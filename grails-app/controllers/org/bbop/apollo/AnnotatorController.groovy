@@ -498,16 +498,23 @@ class AnnotatorController {
                 it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
             }
         }
-        def annotatorsOfGroup = new JSONObject()
-        filteredGroups.each {
-            List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
-            def annotators = it.users
+        def annotatorGroupList = new JSONObject()
+        filteredGroups.each { group->
+            println "group = ${group}"
+            def annotatorSummaryList = new JSONObject()
+            def annotators = group.users
+            println "annotators = ${annotators}"
+            List<Organism> organisms = permissionService.getOrganismsForGroup(group)
+            println "organisms for the group = ${organisms}"
             annotators.each {
-                annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
+                println "get annotatorsummary"
+               // println "${reportService.generateAnnotatorSummary2(it, organisms, false)}"
+                annotatorSummaryList.put(it, reportService.generateAnnotatorSummary2(it, organisms, false))
             }
-            annotatorsOfGroup.put(it.id, annotatorSummaryList)
+            annotatorGroupList.put(group, annotatorSummaryList)
         }
-        render view: "instructorReport", model: [userGroups: filteredGroups, annotatorInstanceList: annotatorsOfGroup, annotatorInstanceCount: User.count]
+
+        render view: "instructorReport", model: [userGroups: filteredGroups, permissionService: permissionService, annotatorGroupList: annotatorGroupList, annotatorInstanceCount: User.count]
 
     }
 

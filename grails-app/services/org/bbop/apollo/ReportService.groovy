@@ -9,6 +9,7 @@ import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
+import org.json.JSONObject
 
 @Transactional
 class ReportService {
@@ -182,6 +183,99 @@ class ReportService {
 
         return annotatorSummary
     }
+
+    Map<Organism, AnnotatorSummary> generateAnnotatorSummary2(User owner, List<Organism> organisms, boolean includePermissions = false) {
+        Map<Organism, AnnotatorSummary> summaryMap = new HashMap<>()
+        //List<AnnotatorSummary> summaries = new ArrayList<>()
+        // get features created by the annotator
+        def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
+        def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])
+        def repeatRegion = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])
+        def exons = TransposableElement.executeQuery("select distinct g from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])
+        def transcripts = Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner])
+        organisms.each { organism ->
+            AnnotatorSummary annotatorSummary = new AnnotatorSummary()
+            annotatorSummary.annotator = owner
+            //get the gene on the current organism
+            def currentGenes = genes.findAll() {
+                it.featureLocations.sequence.organism.id.iterator().next() == organism.id
+            }
+            def currentTE = transposableElement.findAll() {
+                it.featureLocations.sequence.organism.id.iterator().next() == organism.id
+            }
+            def currentRR = repeatRegion.findAll() {
+                it.featureLocations.sequence.organism.id.iterator().next() == organism.id
+            }
+            def currentExons = exons.findAll() {
+                it.featureLocations.sequence.organism.id.iterator().next() == organism.id
+            }
+            def currentTranscripts = transcripts.findAll() {
+                it.featureLocations.sequence.organism.id.iterator().next() == organism.id
+            }
+            annotatorSummary.geneCount = (int) currentGenes.size()
+            annotatorSummary.transposableElementCount = (int) currentTE.size()
+            annotatorSummary.repeatRegionCount = (int) currentRR.size()
+            annotatorSummary.exonCount = (int) currentExons.size()
+
+            Map<String, Integer> transcriptMap = new TreeMap<>()
+            currentTranscripts.each {
+                String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
+                Integer count = transcriptMap.get(className) ?: 0
+                transcriptMap.put(className, ++count)
+            }
+            annotatorSummary.transcriptTypeCount = transcriptMap
+            if (transcriptMap) {
+                annotatorSummary.transcriptCount = transcriptMap.values()?.sum()
+            } else {
+                annotatorSummary.transcriptCount = 0
+            }
+
+            if (includePermissions && !permissionService.isUserAdmin(owner)) {
+
+                List<OrganismPermissionSummary> userOrganismPermissionList = new ArrayList<>()
+                if (permissionService.isUserAdmin(owner)) {
+                    Organism.listOrderByCommonName().each {
+                        OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
+                        UserOrganismPermission userOrganismPermission = new UserOrganismPermission()
+                        userOrganismPermission.permissions = [PermissionEnum.ADMINISTRATE, PermissionEnum.EXPORT, PermissionEnum.READ, PermissionEnum.WRITE]
+                        userOrganismPermission.organism = it
+                        organismPermissionSummary.userOrganismPermission = userOrganismPermission
+                        copyProperties(generateOrganismSummary(it), organismPermissionSummary)
+                        userOrganismPermissionList.add(organismPermissionSummary)
+                    }
+                } else {
+                    UserOrganismPermission.findAllByUser(owner).each {
+                        OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
+                        organismPermissionSummary.userOrganismPermission = it
+                        copyProperties(generateOrganismSummary(it.organism), organismPermissionSummary)
+
+                        userOrganismPermissionList.add(organismPermissionSummary)
+                    }
+                }
+
+                owner.userGroups.each { group ->
+                    for (GroupOrganismPermission groupPermission in GroupOrganismPermission.findAllByGroup(group)) {
+                        // minimally, you should have at least one permission
+                        if (groupPermission.permissions) {
+                            OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
+                            UserOrganismPermission userOrganismPermission = new UserOrganismPermission()
+                            userOrganismPermission.permissions = groupPermission.permissions
+                            userOrganismPermission.organism = groupPermission.organism
+                            organismPermissionSummary.userOrganismPermission = userOrganismPermission
+                            copyProperties(generateOrganismSummary(groupPermission.organism), organismPermissionSummary)
+                            userOrganismPermissionList.add(organismPermissionSummary)
+                        }
+                    }
+
+                }
+
+                annotatorSummary.userOrganismPermissionList = mergePermissions(userOrganismPermissionList)
+            }
+            summaryMap.put(organism, annotatorSummary)
+        }
+        return summaryMap
+    }
+
 
     List<OrganismPermissionSummary> mergePermissions(ArrayList<OrganismPermissionSummary> organismPermissionSummaries) {
         Map<String,OrganismPermissionSummary> map = new TreeMap<>()

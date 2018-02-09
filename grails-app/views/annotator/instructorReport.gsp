@@ -1,4 +1,5 @@
 <%@ page import="org.bbop.apollo.gwt.shared.PermissionEnum; org.bbop.apollo.Feature" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,35 +18,42 @@
     </g:if>
     <g:each in="${userGroups}" var="userGroup">
         Group: ${userGroup.name}
-    <table>
-        <thead>
-
-        <tr>
+        <g:set var="annotatorsInstance" value="${annotatorGroupList.get(userGroup)}" />
+            <g:set var="annotators" value="${userGroup.users}" />
+            <g:set var="organisms" value="${permissionService.getOrganismsForGroup(userGroup)}" />
+            <g:set var="organismsNum" value="${organisms.size()}" />
+            <table>
+                <thead>
+                <tr>
             <g:sortableColumn property="username" title="Username"/>
             <g:sortableColumn property="firstName" title="First Name"/>
             <g:sortableColumn property="lastName" title="Last Name"/>
+            <th>Organism</th>
             <th>Top Level Features</th>
             <th>Genes</th>
             <th>Transcripts</th>
             <th>Exons</th>
             <th>TE</th>
             <th>RR</th>
-        </tr>
-        </thead>
-        <tbody>
-        <g:each in="${annotatorInstanceList.get(userGroup.id)}" status="i" var="annotatorInstance">
-            <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
-                <td>
+            </tr>
+            </thead>
+            <tbody>
+
+
+            <g:each in="${annotators}" var="annotator">
+                <g:set var="annotatorInstance" value="${annotatorsInstance.get(annotator)}" />
+                <tr>
+                <td rowspan="${organismsNum}">
                     <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator"
-                                                                             id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>'
+                                                                             id="${annotator.id}">${annotator.username}</g:createLink>'
                        class="btn btn-default">
-                        ${annotatorInstance.username}
+                        ${annotator.username}
                     </a>
                     <br/>
-                    <perms:isUserAdmin user="${annotatorInstance.annotator}">
+                    <perms:isUserAdmin user="${annotator}">
                         <span class="label label-default">Admin</span>
                     </perms:isUserAdmin>
-                    <perms:isUserNotAdmin user="${annotatorInstance.annotator}">
+                    <perms:isUserNotAdmin user="${annotator}">
                         <g:if test="${annotatorInstance.userOrganismPermissionList}">
                             <g:each in="${annotatorInstance.userOrganismPermissionList}" var="permission">
                                 <g:if test="${permission.userOrganismPermission.permissionValues}">
@@ -63,50 +71,64 @@
                         </g:if>
                     </perms:isUserNotAdmin>
                 </td>
-                <td style="text-align: left;">
-                    ${annotatorInstance.firstName}
+                <td style="text-align: left;" rowspan="${organismsNum}">
+                    ${annotator.firstName}
                 </td>
-                <td>
-                    ${annotatorInstance.lastName}
+                <td rowspan="${organismsNum}">
+                    ${annotator.lastName}
                 </td>
-                <td>
-                    ${annotatorInstance.totalFeatureCount}
-                </td>
-                <td>${annotatorInstance.geneCount}</td>
-                <td>
-                    <g:if test="${annotatorInstance.transcriptCount}">
-                        <div class="info-border">
-                            Total
-                            <span class="badge">${annotatorInstance.transcriptCount}</span>
-                        </div>
+                    <g:set var="num" value="${1}" />
+                    <g:each in="${organisms}" var="organism">
+                        <g:if test="${num++ > 1}">
+                        <tr>
+                        </g:if>
+                        <td>
+                            ${organism.commonName}
+                        </td>
+                        <g:set var="annotatorOrganismInstance" value="${annotatorInstance.get(organism)}" />
+                            <td>
+                                ${annotatorOrganismInstance.totalFeatureCount}
+                            </td>
+                            <td>${annotatorOrganismInstance.geneCount}</td>
+                            <td>
+                                <g:if test="${annotatorOrganismInstance.transcriptCount}">
+                                    <div class="info-border">
+                                        Total
+                                        <span class="badge">${annotatorOrganismInstance.transcriptCount}</span>
+                                    </div>
 
-                        <div class="info-border">
-                            Protein encoding
-                            <span class="badge"><g:formatNumber
-                                    number="${annotatorInstance.proteinCodingTranscriptPercent}" type="percent"/></span>
-                        </div>
+                                    <div class="info-border">
+                                        Protein encoding
+                                        <span class="badge"><g:formatNumber
+                                                number="${annotatorOrganismInstance.proteinCodingTranscriptPercent}" type="percent"/></span>
+                                    </div>
 
-                        <div class="info-border">
-                            Exons / transcript
-                            <span class="badge"><g:formatNumber number="${annotatorInstance.exonsPerTranscript}"
-                                                                type="number"/></span>
-                        </div>
+                                    <div class="info-border">
+                                        Exons / transcript
+                                        <span class="badge"><g:formatNumber number="${annotatorOrganismInstance.exonsPerTranscript}"
+                                                                            type="number"/></span>
+                                    </div>
 
-                        <g:each in="${annotatorInstance.transcriptTypeCount}" var="trans">
-                            <div class="info-border">
-                                ${trans.key}
-                                <span class="badge">
-                                    ${trans.value}
-                                </span>
-                            </div>
-                        </g:each>
-                    </g:if>
-                    <g:else>0</g:else>
-                </td>
-                <td>${annotatorInstance.exonCount}</td>
-                <td>${annotatorInstance.transposableElementCount}</td>
-                <td>${annotatorInstance.repeatRegionCount}</td>
-            </tr>
+                                    <g:each in="${annotatorOrganismInstance.transcriptTypeCount}" var="trans">
+                                        <div class="info-border">
+                                            ${trans.key}
+                                            <span class="badge">
+                                                ${trans.value}
+                                            </span>
+                                        </div>
+                                    </g:each>
+                                </g:if>
+                                <g:else>0</g:else>
+                            </td>
+                            <td>${annotatorOrganismInstance.exonCount}</td>
+                            <td>${annotatorOrganismInstance.transposableElementCount}</td>
+                            <td>${annotatorOrganismInstance.repeatRegionCount}</td>
+                        <g:if test="${num > 1}">
+                        </tr>
+                        </g:if>
+
+                </g:each>
+                </tr>
         </g:each>
         </tbody>
     </table>
