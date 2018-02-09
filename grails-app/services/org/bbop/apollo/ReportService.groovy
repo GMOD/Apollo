@@ -117,7 +117,7 @@ class ReportService {
     AnnotatorSummary generateAnnotatorSummary(User owner, boolean includePermissions = false) {
         AnnotatorSummary annotatorSummary = new AnnotatorSummary()
         annotatorSummary.annotator = owner
-        annotatorSummary.geneCount = (int) Gene.executeQuery("select count(distinct g) from Gene g join g.owners owner where owner = :owner ", [owner: owner]).iterator().next()
+        annotatorSummary.geneCount = (int) Gene.executeQuery("select count(distinct g.name) from Gene g join g.owners owner where owner = :owner ", [owner: owner]).iterator().next()
         annotatorSummary.transposableElementCount = (int) TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.owners owner where owner = :owner", [owner: owner]).iterator().next()
         annotatorSummary.repeatRegionCount = (int) TransposableElement.executeQuery("select count(distinct g) from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner]).iterator().next()
         annotatorSummary.exonCount = (int) TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner]).iterator().next()
