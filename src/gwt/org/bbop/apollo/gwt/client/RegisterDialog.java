@@ -7,6 +7,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -107,9 +108,6 @@ public class RegisterDialog extends DialogBox {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                Window.alert(response.getStatusCode()+"");
-//                Window.alert(response.getStatusText());
-//                Window.alert(response.getText());
                 if (response.getStatusCode() < 200 || response.getStatusCode() > 299) {
                     setError("Problem during registration");
                 }
@@ -126,7 +124,7 @@ public class RegisterDialog extends DialogBox {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("operation", new JSONString("register"));
         jsonObject.put("username", new JSONString(username));
-        jsonObject.put("password", new JSONString(password));
+        jsonObject.put("password", new JSONString(URL.encodeQueryString(password)));
         jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
         jsonObject.put("firstName", new JSONString(firstName));
         jsonObject.put("lastName", new JSONString(lastName));
