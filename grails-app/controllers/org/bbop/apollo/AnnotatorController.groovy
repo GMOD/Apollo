@@ -524,7 +524,7 @@ class AnnotatorController {
             redirect(uri: "/auth/login")
             return
         }
-        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
+        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user, true)]
     }
 
     def ping() {
