@@ -40,9 +40,9 @@
             <tbody>
 
 
-            <g:each in="${annotators}" var="annotator">
+            <g:each in="${annotators}" var="annotator" status="i">
                 <g:set var="annotatorInstance" value="${annotatorsInstance.get(annotator)}" />
-                <tr>
+                <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td rowspan="${organismsNum}">
                     <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator"
                                                                              id="${annotator.id}">${annotator.username}</g:createLink>'
@@ -80,7 +80,7 @@
                     <g:set var="num" value="${1}" />
                     <g:each in="${organisms}" var="organism">
                         <g:if test="${num++ > 1}">
-                        <tr>
+                        <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                         </g:if>
                         <td>
                             ${organism.commonName}
@@ -128,9 +128,9 @@
                         </g:if>
 
                 </g:each>
-                </tr>
-        </g:each>
-        </tbody>
+               </tr>
+            </g:each>
+            </tbody>
     </table>
     </g:each>
     <div class="pagination">
