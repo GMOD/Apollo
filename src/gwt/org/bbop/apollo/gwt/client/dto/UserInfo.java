@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
@@ -164,7 +165,7 @@ public class UserInfo implements HasJSON {
         jsonObject.put("availableGroups", availableGroupArray);
 
         if (password != null) {
-            jsonObject.put("newPassword", new JSONString(password));
+            jsonObject.put("newPassword", new JSONString(URL.encodeQueryString(password)));
         }
 
         JSONArray organismPermissions = new JSONArray();
