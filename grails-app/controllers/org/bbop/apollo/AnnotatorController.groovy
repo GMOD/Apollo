@@ -484,6 +484,9 @@ class AnnotatorController {
         render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
+    /**
+     * report annotation summary that is grouped by userGroups
+     */
     def instructorReport() {
         // restricted groups
         def groups = UserGroup.all
@@ -500,16 +503,10 @@ class AnnotatorController {
         }
         def annotatorGroupList = new JSONObject()
         filteredGroups.each { group->
-            println "group = ${group}"
-            def annotatorSummaryList = new JSONObject()
+            List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
             def annotators = group.users
-            println "annotators = ${annotators}"
-            List<Organism> organisms = permissionService.getOrganismsForGroup(group)
-            println "organisms for the group = ${organisms}"
             annotators.each {
-                println "get annotatorsummary"
-               // println "${reportService.generateAnnotatorSummary2(it, organisms, false)}"
-                annotatorSummaryList.put(it, reportService.generateAnnotatorSummary2(it, organisms, false))
+                annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
             }
             annotatorGroupList.put(group, annotatorSummaryList)
         }
