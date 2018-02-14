@@ -16,10 +16,12 @@ public class GroupInfo implements HasJSON{
 
     private String name;
     private Integer numberOfUsers;
+    private Integer numberOfAdmin;
     private Integer numberOrganisms;
     private Integer numberSequences;
     private Long id;
     private List<UserInfo> userInfoList;
+    private List<UserInfo> adminInfoList;
     private Map<String, GroupOrganismPermissionInfo> organismPermissionMap = new HashMap<>();
 
 //    public GroupInfo(String name){
@@ -29,12 +31,14 @@ public class GroupInfo implements HasJSON{
 //        this.numberSequences = (int) Math.round(Math.random()*100);
 //    }
 
-    public Integer getNumberOfUsers() {
-        return numberOfUsers;
-    }
+    public Integer getNumberOfUsers() { return numberOfUsers; }
+    public Integer getNumberofAdmin() { return numberOfAdmin; }
 
     public void setNumberOfUsers(Integer numberOfUsers) {
         this.numberOfUsers = numberOfUsers;
+    }
+    public void setNumberOfAdmin(Integer numberOfAdmin) {
+        this.numberOfAdmin = numberOfAdmin;
     }
 
     public String getName() {
@@ -73,9 +77,14 @@ public class GroupInfo implements HasJSON{
         return userInfoList;
     }
 
+    public List<UserInfo> getAdminInfoList() {
+        return adminInfoList;
+    }
+
     public void setUserInfoList(List<UserInfo> userInfoList) {
         this.userInfoList = userInfoList;
     }
+    public void setAdminInfoList(List<UserInfo> adminInfoList) { this.adminInfoList = adminInfoList; }
 
     public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
@@ -89,11 +98,21 @@ public class GroupInfo implements HasJSON{
             jsonObject.put("numberOfUsers", new JSONNumber(numberOfUsers));
         }
 
+        if (numberOfAdmin != null) {
+            jsonObject.put("numberOfAdmin", new JSONNumber(numberOfAdmin));
+        }
+
         JSONArray userInfoArray = new JSONArray();
         for (int i = 0; userInfoList != null && i < userInfoList.size(); i++) {
             userInfoArray.set(i,userInfoList.get(i).toJSON());
         }
         jsonObject.put("users",userInfoArray);
+
+        JSONArray adminInfoArray = new JSONArray();
+        for (int i = 0; adminInfoList != null && i < adminInfoList.size(); i++) {
+            adminInfoArray.set(i,adminInfoList.get(i).toJSON());
+        }
+        jsonObject.put("admin",adminInfoArray);
 
         JSONArray organismPermissions = new JSONArray();
         int index = 0 ;

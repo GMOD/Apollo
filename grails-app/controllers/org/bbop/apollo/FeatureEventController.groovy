@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApiMethod
@@ -83,6 +84,7 @@ class FeatureEventController {
     def report(Integer max) {
 
         params.max = Math.min(max ?: 15, 100)
+        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser,PermissionEnum.ADMINISTRATE)
 
         def c = Feature.createCriteria()
 
@@ -131,6 +133,15 @@ class FeatureEventController {
                     sequence {
                         organism {
                             eq('commonName', params.organismName)
+                        }
+                    }
+                }
+            }
+            else{
+                featureLocations {
+                    sequence {
+                        organism {
+                            inList('commonName', organisms.commonName as List)
                         }
                     }
                 }
@@ -204,7 +215,8 @@ class FeatureEventController {
         Date dateCreatedBeforeDate = params.dateCreatedBeforeDate ?: today
         Date dateCreatedAfterDate = params.dateCreatedAfterDate ?: veryOldDate
 
-        render view: "report", model: [dateCreatedAfterDate: dateCreatedAfterDate, dateCreatedBeforeDate: dateCreatedBeforeDate,afterDate: afterDate, beforeDate: beforeDate, sequenceName: params.sequenceName, features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes: featureTypes, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+
+        render view: "report", model: [organisms: organisms,dateCreatedAfterDate: dateCreatedAfterDate, dateCreatedBeforeDate: dateCreatedBeforeDate,afterDate: afterDate, beforeDate: beforeDate, sequenceName: params.sequenceName, features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes: featureTypes, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
     }
 
     def index(Integer max) {

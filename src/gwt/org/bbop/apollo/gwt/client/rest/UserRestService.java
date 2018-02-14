@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.*;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -65,10 +66,12 @@ public class UserRestService {
                 Bootbox.alert("Error loading organisms");
             }
         };
+
+        String passwordString = URL.encodeQueryString(password);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("operation", new JSONString("login"));
         jsonObject.put("username", new JSONString(username));
-        jsonObject.put("password", new JSONString(password));
+        jsonObject.put("password", new JSONString(passwordString));
         jsonObject.put("rememberMe", JSONBoolean.getInstance(rememberMe));
         login(requestCallback, jsonObject);
     }

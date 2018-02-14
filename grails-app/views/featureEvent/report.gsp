@@ -42,7 +42,7 @@
             <div class="col-sm-2  form-group">
                 <g:select name='organismName' value="${organismName}"
                           noSelection="${[null: 'Select Organism ...']}"
-                          from='${Organism.listOrderByCommonName()}'
+                          from='${organisms}'
                           optionKey="commonName" optionValue="commonName" onchange="doSearch();"/>
             </div>
             <div class="col-sm-2  form-group">

@@ -2,8 +2,9 @@ package org.bbop.apollo
 
 
 import groovy.transform.EqualsAndHashCode
+
 @EqualsAndHashCode
-class Organism {
+class Organism implements JsonMetadata {
 
     static auditable = true
 
@@ -18,8 +19,9 @@ class Organism {
         commonName nullable: false
         genomeFasta nullable: true
         genomeFastaIndex nullable: true
-        nonDefaultTranslationTable nullable: true,blank: false
+        nonDefaultTranslationTable nullable: true, blank: false
         dataAddedViaWebServices nullable: true
+        metadata(display: false, blank: true,nullable: true)
     }
 
     String abbreviation;

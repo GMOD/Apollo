@@ -27,7 +27,9 @@
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <g:render template="summaryEntry" model="[summaryData: organismSummaryInstance]"/>
+    <g:if test="${isSuperAdmin}">
+        <g:render template="summaryEntry" model="[summaryData: organismSummaryInstance]"/>
+    </g:if>
     <g:each in="${organismSummaries}" var="organismSummaryInstance">
         <g:render template="summaryEntry"
                   model="[organism: organismSummaryInstance.key, summaryData: organismSummaryInstance.value]"/>
