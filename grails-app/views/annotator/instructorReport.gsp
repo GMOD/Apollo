@@ -3,8 +3,8 @@
 <html>
 <head>
     <meta name="layout" content="report">
+    <export:resource />
     <title>Annotators</title>
-
 </head>
 
 <body>
@@ -114,6 +114,9 @@
     <div class="pagination">
         <g:paginate total="${annotatorInstanceCount ?: 0}"/>
     </div>
+    <p>
+        <export:formats formats="['csv', 'excel', 'ods', 'pdf', 'rtf', 'xml']" action="export" params="[userGroups: userGroups]"> </export:formats>
+    </p>
 </div>
 
 </body>
