@@ -11,6 +11,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.parser.JSONParser
 import org.json.JSONObject
 
+
 @Transactional
 class ReportService {
 
@@ -124,6 +125,29 @@ class ReportService {
         thisFeatureSummaryInstance.sequenceCount = Sequence.countByOrganism(organism)
         thisFeatureSummaryInstance.organismId = organism.id
 
+        def ownedFeatures = Feature.createCriteria().list {
+
+            owners {
+                ilike('username', '%' + owner.username + '%')
+            }
+        }
+
+        List<Feature> list = []
+        ownedFeatures.each {
+            if (owner in it.owners) {
+                it.featureLocations.each { location ->
+                    if (location.sequence.organism.commonName == organism.commonName) {
+                        list.add(it)
+                    }
+                }
+            }
+        }
+
+        if (list.size()) {
+            list.sort{a,b-> b.lastUpdated<=>a.lastUpdated}
+            thisFeatureSummaryInstance.lastUpdated = list[0].lastUpdated
+        }
+
         return thisFeatureSummaryInstance
 
     }
@@ -197,6 +221,7 @@ class ReportService {
         } else {
             annotatorSummary.transcriptCount = 0
         }
+
 
         if (includePermissions && !permissionService.isUserAdmin(owner)) {
 

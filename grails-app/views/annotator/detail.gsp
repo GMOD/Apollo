@@ -81,10 +81,11 @@
         <th>Permissions</th>
         <th>Top Level Features</th>
         <th>Genes</th>
-        <th>Exons</th>
         <th>Transcripts</th>
+        <th>Exons</th>
         <th>Transposable Elements</th>
         <th>Repeat Regions</th>
+        <th>Last Updated</th>
         </thead>
         <tbody>
         <g:each in="${annotatorInstance.userOrganismPermissionList}" var="userOrganismPermission">
@@ -145,6 +146,9 @@
                 <td>${userOrganismPermission.exonCount}</td>
                 <td>${userOrganismPermission.transposableElementCount}</td>
                 <td>${userOrganismPermission.repeatRegionCount}</td>
+                <td>
+                <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${userOrganismPermission.lastUpdated}"/>
+                </td>
             </tr>
         </g:each>
         </tbody>

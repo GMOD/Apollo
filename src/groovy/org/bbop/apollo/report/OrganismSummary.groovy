@@ -14,6 +14,7 @@ class OrganismSummary {
     int sequenceCount
     long organismId
     List<User> annotators
+    Date lastUpdated
 
     Map<String, Integer> transcriptTypeCount
     Map<String, Integer> geneTypeCount
