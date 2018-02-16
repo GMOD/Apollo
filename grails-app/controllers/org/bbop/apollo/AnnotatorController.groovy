@@ -543,12 +543,13 @@ class AnnotatorController {
         if(!params.max) params.max = 10
         response.contentType = grailsApplication.config.grails.mime.types[params.format]
         response.setHeader("Content-disposition", "attachment; filename=annotators.${params.extension}")
-        List fields = ["username", "firstname", "lastname", "usergroup", "organism", "totalfeaturecount", "genecount", "transcripts", "exons", "te", "rr"]
-        Map labels = ["username": "Username", "firstname": "First Name", "lastname": "Last Name", "usergroup": "User Group", "organism": "Organism", "totalfeaturecount": "Top Level Features", "genecount": "Genes", "transcripts": "Transcripts", "exons": "Exons", "te": "Transposable Elements", "rr": "Repeat Regions"]
+        List fields = ["username", "firstname", "lastname", "usergroup", "organism", "totalfeaturecount", "genecount", "transcripts", "exons", "te", "rr", "lastupdated"]
+        Map labels = ["username": "Username", "firstname": "First Name", "lastname": "Last Name", "usergroup": "User Group", "organism": "Organism", "totalfeaturecount": "Top Level Features", "genecount": "Genes", "transcripts": "Transcripts", "exons": "Exons", "te": "Transposable Elements", "rr": "Repeat Regions", "lastupdated": "Last Updated"]
         Map formatters = [:]
         Map parameters = [title: "Annotators Summary"]
 
-        List<String> groups = params.userGroups
+        List<String> groups = []
+        groups.addAll(params.userGroups)
         def annotatorGroupList = [] as List
         groups.each { group ->
             def groupid = group.split(":")[-1].trim()
@@ -557,18 +558,21 @@ class AnnotatorController {
             annotators.each { annotator ->
                 def annotatorSummary = reportService.generateAnnotatorSummary(annotator, true)
                 annotatorSummary.userOrganismPermissionList.each {
+                    Organism organism = it.userOrganismPermission.organism
+
                     LinkedHashMap row = new LinkedHashMap()
                     row.put("username", annotator.username)
                     row.put("firstname", annotator.firstName)
                     row.put("lastname", annotator.lastName)
                     row.put("usergroup", userGroup.name)
-                    row.put("organism", it.userOrganismPermission.organism.commonName)
+                    row.put("organism", organism.commonName)
                     row.put("totalfeaturecount", it.totalFeatureCount)
                     row.put("genecount", it.geneCount)
                     row.put("transcripts", it.transcriptCount)
                     row.put("exons", it.exonCount)
                     row.put("te", it.transposableElementCount)
                     row.put("rr", it.repeatRegionCount)
+                    row.put("lastupdated", it.lastUpdated)
                     annotatorGroupList.add(row)
                 }
 
