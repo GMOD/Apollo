@@ -642,8 +642,28 @@ a.skip {
     left: -9999px;
 }
 
-.report-header{
+.report-header {
     /*margin-left: 10px;*/
     padding-left: 20px;
 }
+
+.reportTable th{
+    padding: 5px;
+}
+
+.groupHeader {
+    padding-left: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: #396494;
+    display: inline-block;
+    float: left;
+    width: 100%;
+
+}
+
+
+
+
 

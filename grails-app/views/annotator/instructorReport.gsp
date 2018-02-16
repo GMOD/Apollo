@@ -16,11 +16,14 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
     <g:each in="${userGroups}" var="userGroup">
-        Group: ${userGroup.name}
+        <div class="groupHeader">
+            <p>Group: ${userGroup.name}</p>
+        </div>
+        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroup]"> </export:formats>
+        </p>
         <g:set var="annotatorInstanceList" value="${annotatorGroupList.get(userGroup)}" />
-        <table>
+        <table class="reportTable">
         <thead>
-        <tr>
             <g:sortableColumn property="username" title="Username"/>
             <g:sortableColumn property="firstName" title="First Name"/>
             <g:sortableColumn property="lastName" title="Last Name"/>
@@ -28,8 +31,8 @@
             <th>Genes</th>
             <th>Transcripts</th>
             <th>Exons</th>
-            <th>TE</th>
-            <th>RR</th>
+            <th>Transposable Elements</th>
+            <th>Repeat Regions</th>
         </tr>
         </thead>
         <tbody>
@@ -114,9 +117,10 @@
     <div class="pagination">
         <g:paginate total="${annotatorInstanceCount ?: 0}"/>
     </div>
-    <p>
-        <export:formats formats="['csv', 'excel', 'ods', 'pdf', 'rtf', 'xml']" action="export" params="[userGroups: userGroups]"> </export:formats>
-    </p>
+    <div>
+        <p class="groupHeader">Export All Groups</p>
+        <export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroupsIds]"> </export:formats>
+    </div>
 </div>
 
 </body>
