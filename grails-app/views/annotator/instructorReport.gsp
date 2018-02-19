@@ -54,7 +54,7 @@
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator"
+                    <a style="margin: 2px;padding: 4px; box-shadow: 2px 2px 1px 1px darkgray;" href='<g:createLink action="detail" controller="annotator"
                                                                              id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>'
                        class="btn btn-default">
                         ${annotatorInstance.username}
@@ -134,9 +134,9 @@
         </div>
     </g:if>
     <div>
-        <p class="groupHeader">Export All Groups</p>
+        <div class="groupHeader"><p>Export All Groups</p></div>
         <g:set var="userGroupsIds" value="${userGroups.collect{it.id}}" />
-        <export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroupsIds]"> </export:formats>
+        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroupsIds]"> </export:formats></p>
     </div>
 </div>
 

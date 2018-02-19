@@ -33,7 +33,7 @@
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator"
+                    <a style="margin: 2px;padding: 2px; box-shadow: 2px 2px 1px 1px darkgray;" href='<g:createLink action="detail" controller="annotator"
                                                                              id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>'
                        class="btn btn-default">
                         ${annotatorInstance.username}
