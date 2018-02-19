@@ -19,7 +19,7 @@
         <div class="groupHeader">
             <p>Group: ${userGroup.name}</p>
         </div>
-        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroup]"> </export:formats>
+        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroup.id]"> </export:formats>
         </p>
         <g:set var="annotatorInstanceList" value="${annotatorGroupList.get(userGroup)}" />
         <table class="reportTable">
@@ -119,6 +119,7 @@
     </div>
     <div>
         <p class="groupHeader">Export All Groups</p>
+        <g:set var="userGroupsIds" value="${userGroups.collect{it.id}}" />
         <export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroupsIds]"> </export:formats>
     </div>
 </div>

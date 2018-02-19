@@ -552,8 +552,7 @@ class AnnotatorController {
         groups.addAll(params.userGroups)
         def annotatorGroupList = [] as List
         groups.each { group ->
-            def groupid = group.split(":")[-1].trim()
-            def userGroup = UserGroup.findById(groupid)
+            def userGroup = UserGroup.findById(group)
             def annotators = userGroup.users
             annotators.each { annotator ->
                 def annotatorSummary = reportService.generateAnnotatorSummary(annotator, true)
@@ -579,6 +578,54 @@ class AnnotatorController {
             }
         }
         exportService.export(params.format, response.outputStream, annotatorGroupList, fields, labels, formatters, parameters)
+    }
+
+    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ]
+    )
+    def getAnnotatorsReportForGroup(){
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+        log.info "get annotators report for group"
+        def group
+        if (!dataObject.id && !dataObject.name) {
+            def userGroups = UserGroup.all
+            def groupList = userGroups.findAll(){
+                it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+            }
+            group = groupList.collect{it.id}
+        }
+        if (!group && dataObject.id) {
+            def userGroup = UserGroup.findById(dataObject.id)
+            if (userGroup) {
+                group = userGroup.id
+            }
+        }
+        if (!group && dataObject.name) {
+            def userGroup = UserGroup.findByName(dataObject.name)
+            if (userGroup) {
+                group = userGroup.id
+            }
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to get report for the group")
+            render jsonObject as JSON
+            return
+        }
+        params.format = 'csv'
+        params.extension = 'csv'
+        params.userGroups = []
+        params.userGroups.addAll(group)
+        export()
     }
 
 }
