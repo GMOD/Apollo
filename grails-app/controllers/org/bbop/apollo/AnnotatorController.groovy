@@ -505,6 +505,11 @@ class AnnotatorController {
                 it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
             }
         }
+        if (!filteredGroups) {
+            def error = [error: "no authorized groups"]
+            render error as JSON
+            return
+        }
         userGroup = userGroup?:filteredGroups.first()
 
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
