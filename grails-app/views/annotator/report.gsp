@@ -107,10 +107,11 @@
         </g:each>
         </tbody>
     </table>
-
-    <div class="pagination">
-        <g:paginate total="${annotatorInstanceCount ?: 0}"/>
-    </div>
+    <g:if test="${annotatorInstanceCount > params.max}">
+        <div class="pagination">
+            <g:paginate total="${annotatorInstanceCount ?: 0}"/>
+        </div>
+    </g:if>
 </div>
 
 </body>

@@ -490,7 +490,8 @@ class AnnotatorController {
     /**
      * report annotation summary that is grouped by userGroups
      */
-    def instructorReport() {
+    def instructorReport(UserGroup userGroup, Integer max) {
+        params.max = Math.min(max ?: 20, 100)
         // restricted groups
         def groups = UserGroup.all
         def filteredGroups =  groups
@@ -504,17 +505,16 @@ class AnnotatorController {
                 it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
             }
         }
-        def annotatorGroupList = new JSONObject()
-        filteredGroups.each { group->
-            List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
-            def annotators = group.users
-            annotators.each {
-                annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
-            }
-            annotatorGroupList.put(group, annotatorSummaryList)
+        userGroup = userGroup?:filteredGroups.first()
+
+        List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+        List<User> annotators = User.findAll("from User as u where :userGroup in elements(u.userGroups)", [userGroup: userGroup], params)
+        def annotatorInstanceCount = userGroup.users.size()
+        annotators.each {
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
         }
 
-        render view: "instructorReport", model: [userGroups: filteredGroups, permissionService: permissionService, annotatorGroupList: annotatorGroupList, annotatorInstanceCount: User.count]
+        render view: "instructorReport", model: [userGroups: filteredGroups, userGroup: userGroup, permissionService: permissionService, annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: annotatorInstanceCount]
 
     }
 

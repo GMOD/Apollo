@@ -5,6 +5,13 @@
     <meta name="layout" content="report">
     <export:resource />
     <title>Annotators</title>
+
+    <script>
+        function changeUserGroup() {
+            var name = $("#userGroup option:selected").val();
+            window.location.href = "${createLink(action: 'instructorReport')}/" + name;
+        }
+    </script>
 </head>
 
 <body>
@@ -12,16 +19,24 @@
 <g:render template="../layouts/reportHeader"/>
 
 <div id="list-track" class="form-group report-header content scaffold-list" role="main">
+    <div class="row form-group">
+        <div class="col-lg-4 lead">Group ${userGroup.name}</div>
+
+        <g:select id="userGroup" class="input-lg" name="userGroup"
+                  from="${userGroups}" optionValue="name" optionKey="id"
+                  value="${userGroup.id}"
+                  onchange=" changeUserGroup(); "/>
+    </div>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <g:each in="${userGroups}" var="userGroup">
+
         <div class="groupHeader">
             <p>Group: ${userGroup.name}</p>
         </div>
         <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroup.id]"> </export:formats>
         </p>
-        <g:set var="annotatorInstanceList" value="${annotatorGroupList.get(userGroup)}" />
+
         <table class="reportTable">
         <thead>
             <g:sortableColumn property="username" title="Username"/>
@@ -113,10 +128,11 @@
         </g:each>
         </tbody>
     </table>
-    </g:each>
-    <div class="pagination">
-        <g:paginate total="${annotatorInstanceCount ?: 0}"/>
-    </div>
+    <g:if test="${annotatorInstanceCount > params.max}">
+        <div class="pagination">
+            <g:paginate total="${annotatorInstanceCount ?: 0}" params="[id: userGroup.id]"/>
+        </div>
+    </g:if>
     <div>
         <p class="groupHeader">Export All Groups</p>
         <g:set var="userGroupsIds" value="${userGroups.collect{it.id}}" />
