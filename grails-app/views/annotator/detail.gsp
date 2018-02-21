@@ -21,10 +21,10 @@
         <div class="message" role="status">${flash.message}</div>
     </g:if>
     <div>
-        <i class="glyphicon glyphicon-cog" title="Administrate privileges" style="margin-right: 30px"> ADMINISTRATE</i>
-        <i class="glyphicon glyphicon-edit" title="Edit privileges" style="margin-right: 30px"> WRITE</i>
-        <i class="glyphicon glyphicon-download-alt" title="Export privileges" style="margin-right: 30px"> EXPORT</i>
-        <i class="glyphicon glyphicon-search" title="Read privileges" style="margin-right: 30px"> READ</i>
+        <i class="glyphicon glyphicon-cog" title="Administrate privileges"></i><span style="margin: 10px">ADMINISTRATE</span>
+        <i class="glyphicon glyphicon-edit" title="Edit privileges"></i><span style="margin: 10px">WRITE</span>
+        <i class="glyphicon glyphicon-download-alt" title="Export privileges"></i><span style="margin: 10px">EXPORT</span>
+        <i class="glyphicon glyphicon-search" title="Read privileges"></i><span style="margin: 10px">READ</span>
     </div>
 
     <h3>Total</h3>

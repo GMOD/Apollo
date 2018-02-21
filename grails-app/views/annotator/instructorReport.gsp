@@ -39,9 +39,9 @@
 
         <table class="reportTable">
         <thead>
-            <g:sortableColumn property="username" title="Username"/>
-            <g:sortableColumn property="firstName" title="First Name"/>
-            <g:sortableColumn property="lastName" title="Last Name"/>
+            <g:sortableColumn property="username" title="Username" class="sortableColumn"/>
+            <g:sortableColumn property="firstName" title="First Name" class="sortableColumn"/>
+            <g:sortableColumn property="lastName" title="Last Name" class="sortableColumn"/>
             <th>Top Level Features</th>
             <th>Genes</th>
             <th>Transcripts</th>
@@ -133,11 +133,7 @@
             <g:paginate total="${annotatorInstanceCount ?: 0}" params="[id: userGroup.id]"/>
         </div>
     </g:if>
-    <div>
-        <div class="groupHeader"><p>Export All Groups</p></div>
-        <g:set var="userGroupsIds" value="${userGroups.collect{it.id}}" />
-        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroupsIds]"> </export:formats></p>
-    </div>
+
 </div>
 
 </body>

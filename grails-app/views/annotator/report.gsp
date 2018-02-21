@@ -15,18 +15,18 @@
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <table>
+    <table class="reportTable">
         <thead>
         <tr>
-            <g:sortableColumn property="username" title="Username"/>
-            <g:sortableColumn property="firstName" title="First Name"/>
-            <g:sortableColumn property="lastName" title="Last Name"/>
+            <g:sortableColumn property="username" title="Username" class="sortableColumn"/>
+            <g:sortableColumn property="firstName" title="First Name" class="sortableColumn"/>
+            <g:sortableColumn property="lastName" title="Last Name" class="sortableColumn"/>
             <th>Top Level Features</th>
             <th>Genes</th>
             <th>Transcripts</th>
             <th>Exons</th>
-            <th>TE</th>
-            <th>RR</th>
+            <th>Transposable Elements</th>
+            <th>Repeat Regions</th>
         </tr>
         </thead>
         <tbody>

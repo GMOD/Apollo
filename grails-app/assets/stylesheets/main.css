@@ -644,11 +644,11 @@ a.skip {
 
 .report-header {
     /*margin-left: 10px;*/
-    padding-left: 20px;
+    padding-left: 20px; 
 }
 
-.reportTable th{
-    padding: 5px;
+.reportTable th {
+    padding-right: 15px;
 }
 
 .groupHeader {
@@ -662,6 +662,13 @@ a.skip {
     width: 100%;
 
 }
+
+.sortableColumn a{
+    background-image: url("../images/glyphicons-404-sorting.png");
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 
 
 
