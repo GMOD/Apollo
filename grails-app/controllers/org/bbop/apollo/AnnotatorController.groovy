@@ -513,7 +513,11 @@ class AnnotatorController {
         userGroup = userGroup?:filteredGroups.first()
 
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
-        List<User> annotators = User.findAll("from User as u where :userGroup in elements(u.userGroups)", [userGroup: userGroup], params)
+        List<User> allUsers = User.list(params)
+        List<User> annotators = allUsers.findAll(){
+            it.userGroups.contains(userGroup)
+        }
+
         def annotatorInstanceCount = userGroup.users.size()
         annotators.each {
             annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
