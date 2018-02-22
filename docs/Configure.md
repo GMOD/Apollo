@@ -346,6 +346,9 @@ For example, specifying `ncRNA` as the default type:
 }
 ```
 
+If you specify `auto` instead then it will automatically try to infer by the given type.
+
+
 ### Apache / Nginx configuration
 
 Oftentimes, admins will put use Apache or Nginx as a reverse proxy so that the requests to a main server can be
