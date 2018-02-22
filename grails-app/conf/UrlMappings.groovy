@@ -7,6 +7,17 @@ class UrlMappings {
             }
         }
 
+        //known bug for export plugin because grails is convention over configuration
+        // https://stackoverflow.com/questions/22882691/grails-2-3-x-get-the-value-of-url-parameters
+        "/$controller/$action?/$id?" {
+            constraints {
+                // apply constraints here
+                action(validator: { return it == 'export'})
+            }
+        }
+
+
+     //  "/annotator/export/"(controller: "annotator", action:"export")
 
         "/"(redirect: '/annotator/index')
         "500"(view: '/error')

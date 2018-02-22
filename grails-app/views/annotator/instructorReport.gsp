@@ -3,8 +3,15 @@
 <html>
 <head>
     <meta name="layout" content="report">
+    <export:resource />
     <title>Annotators</title>
 
+    <script>
+        function changeUserGroup() {
+            var name = $("#userGroup option:selected").val();
+            window.location.href = "${createLink(action: 'instructorReport')}/" + name;
+        }
+    </script>
 </head>
 
 <body>
@@ -12,12 +19,26 @@
 <g:render template="../layouts/reportHeader"/>
 
 <div id="list-track" class="form-group report-header content scaffold-list" role="main">
+    <div class="row form-group">
+        <div class="col-lg-4 lead">Group ${userGroup.name}</div>
+
+        <g:select id="userGroup" class="input-lg" name="userGroup"
+                  from="${userGroups}" optionValue="name" optionKey="id"
+                  value="${userGroup.id}"
+                  onchange=" changeUserGroup(); "/>
+    </div>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <table class="reportTable">
+
+        <div class="groupHeader">
+            <p>Group: ${userGroup.name}</p>
+        </div>
+        <p><export:formats formats="['csv', 'excel', 'xml']" action="export" params="[userGroups: userGroup.id]"> </export:formats>
+        </p>
+
+        <table class="reportTable">
         <thead>
-        <tr>
             <g:sortableColumn property="username" title="Username" class="sortableColumn"/>
             <g:sortableColumn property="firstName" title="First Name" class="sortableColumn"/>
             <g:sortableColumn property="lastName" title="Last Name" class="sortableColumn"/>
@@ -33,7 +54,7 @@
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <a style="margin: 2px;padding: 2px; box-shadow: 2px 2px 1px 1px darkgray;" href='<g:createLink action="detail" controller="annotator"
+                    <a style="margin: 2px;padding: 4px; box-shadow: 2px 2px 1px 1px darkgray;" href='<g:createLink action="detail" controller="annotator"
                                                                              id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>'
                        class="btn btn-default">
                         ${annotatorInstance.username}
@@ -109,9 +130,10 @@
     </table>
     <g:if test="${annotatorInstanceCount > params.max}">
         <div class="pagination">
-            <g:paginate total="${annotatorInstanceCount ?: 0}"/>
+            <g:paginate total="${annotatorInstanceCount ?: 0}" params="[id: userGroup.id]"/>
         </div>
     </g:if>
+
 </div>
 
 </body>

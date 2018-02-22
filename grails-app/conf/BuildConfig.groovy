@@ -56,6 +56,7 @@ grails.project.dependency.resolution = {
         grailsCentral()
         mavenCentral()
 
+        mavenRepo "http://repo.grails.org/grails/core"
         // uncomment these (or add new ones) to enable remote dependency resolution from public Maven repositories
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
@@ -81,6 +82,7 @@ grails.project.dependency.resolution = {
 
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
+        compile 'commons-beanutils:commons-beanutils:1.8.3'
         //compile 'asm:asm:3.1'
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'
@@ -151,7 +153,7 @@ grails.project.dependency.resolution = {
         //}
         compile ":yammer-metrics:3.0.1-2"
         compile "org.grails.plugins:quartz2:2.1.6.2"
-
+        compile "org.grails.plugins:export:1.6"
 
         //compile ":joda-time:1.4"
         // TODO: re-add when ready to install functional tests

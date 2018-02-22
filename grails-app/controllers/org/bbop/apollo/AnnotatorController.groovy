@@ -32,6 +32,8 @@ class AnnotatorController {
     def reportService
     def featureRelationshipService
     def configWrapperService
+    def exportService
+    def grailsApplication
 
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
@@ -39,6 +41,7 @@ class AnnotatorController {
                                          "action",
                                          "controller",
                                          "format"]
+
 
     /**
      * This is a public method, but is really used only internally.
@@ -484,13 +487,53 @@ class AnnotatorController {
         render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
+    /**
+     * report annotation summary that is grouped by userGroups
+     */
+    def instructorReport(UserGroup userGroup, Integer max) {
+        params.max = Math.min(max ?: 20, 100)
+        // restricted groups
+        def groups = UserGroup.all
+        def filteredGroups =  groups
+        // if user is admin, then include all
+        // if group has metadata with the creator or no metadata then include
+
+        if (!permissionService.isAdmin()) {
+            log.debug "filtering groups"
+
+            filteredGroups = groups.findAll(){
+                it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+            }
+        }
+        if (!filteredGroups) {
+            def error = [error: "no authorized groups"]
+            render error as JSON
+            return
+        }
+        userGroup = userGroup?:filteredGroups.first()
+
+        List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+        List<User> allUsers = User.list(params)
+        List<User> annotators = allUsers.findAll(){
+            it.userGroups.contains(userGroup)
+        }
+
+        def annotatorInstanceCount = userGroup.users.size()
+        annotators.each {
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
+        }
+
+        render view: "instructorReport", model: [userGroups: filteredGroups, userGroup: userGroup, permissionService: permissionService, annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: annotatorInstanceCount]
+
+    }
+
     def detail(User user) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
             redirect(uri: "/auth/login")
             return
         }
-        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
+        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user, true)]
     }
 
     def ping() {
@@ -504,4 +547,94 @@ class AnnotatorController {
             redirect(uri: "/auth/login")
         }
     }
+
+    def export() {
+        if(!params.max) params.max = 10
+        response.contentType = grailsApplication.config.grails.mime.types[params.format]
+        response.setHeader("Content-disposition", "attachment; filename=annotators.${params.extension}")
+        List fields = ["username", "firstname", "lastname", "usergroup", "organism", "totalfeaturecount", "genecount", "transcripts", "exons", "te", "rr", "lastupdated"]
+        Map labels = ["username": "Username", "firstname": "First Name", "lastname": "Last Name", "usergroup": "User Group", "organism": "Organism", "totalfeaturecount": "Top Level Features", "genecount": "Genes", "transcripts": "Transcripts", "exons": "Exons", "te": "Transposable Elements", "rr": "Repeat Regions", "lastupdated": "Last Updated"]
+        Map formatters = [:]
+        Map parameters = [title: "Annotators Summary"]
+
+        List<String> groups = []
+        groups.addAll(params.userGroups)
+        def annotatorGroupList = [] as List
+        groups.each { group ->
+            def userGroup = UserGroup.findById(group)
+            def annotators = userGroup.users
+            annotators.each { annotator ->
+                def annotatorSummary = reportService.generateAnnotatorSummary(annotator, true)
+                annotatorSummary.userOrganismPermissionList.each {
+                    Organism organism = it.userOrganismPermission.organism
+
+                    LinkedHashMap row = new LinkedHashMap()
+                    row.put("username", annotator.username)
+                    row.put("firstname", annotator.firstName)
+                    row.put("lastname", annotator.lastName)
+                    row.put("usergroup", userGroup.name)
+                    row.put("organism", organism.commonName)
+                    row.put("totalfeaturecount", it.totalFeatureCount)
+                    row.put("genecount", it.geneCount)
+                    row.put("transcripts", it.transcriptCount)
+                    row.put("exons", it.exonCount)
+                    row.put("te", it.transposableElementCount)
+                    row.put("rr", it.repeatRegionCount)
+                    row.put("lastupdated", it.lastUpdated)
+                    annotatorGroupList.add(row)
+                }
+
+            }
+        }
+        exportService.export(params.format, response.outputStream, annotatorGroupList, fields, labels, formatters, parameters)
+    }
+
+    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ]
+    )
+    def getAnnotatorsReportForGroup(){
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+        log.info "get annotators report for group"
+        def group
+        if (!dataObject.id && !dataObject.name) {
+            def userGroups = UserGroup.all
+            def groupList = userGroups.findAll(){
+                it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+            }
+            group = groupList.collect{it.id}
+        }
+        if (!group && dataObject.id) {
+            def userGroup = UserGroup.findById(dataObject.id)
+            if (userGroup) {
+                group = userGroup.id
+            }
+        }
+        if (!group && dataObject.name) {
+            def userGroup = UserGroup.findByName(dataObject.name)
+            if (userGroup) {
+                group = userGroup.id
+            }
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to get report for the group")
+            render jsonObject as JSON
+            return
+        }
+        params.format = 'csv'
+        params.extension = 'csv'
+        params.userGroups = []
+        params.userGroups.addAll(group)
+        export()
+    }
+
 }
