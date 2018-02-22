@@ -1116,7 +1116,12 @@ define([
 
                     if (fmin) featureToAdd.set("start", fmin);
                     if (fmax) featureToAdd.set("end", fmax);
-                    var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
+
+
+                    var default_biotype = selection_records[0].track.config.default_biotype;
+                    var biotype = default_biotype ? default_biotype  : 'mRNA' ;
+
+                    var afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
                     featuresToAdd.push(afeat);
 
                     var postData = {
