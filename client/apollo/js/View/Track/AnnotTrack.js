@@ -1130,7 +1130,7 @@ define([
                         "operation": "add_transcript"
                     };
                     target_track.executeUpdateOperation(JSON.stringify(postData));
-                };
+                }
 
                 console.log('process: ' + strand);
                 if (strand == -2) {
