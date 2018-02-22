@@ -1123,7 +1123,6 @@ define([
                     var biotype = default_biotype ? default_biotype  : 'mRNA' ;
                     if(biotype === 'auto' ){
                         biotype = featureToAdd.get('type');
-                        // console.log('inferring auto biotype: '+ biotype);
                     }
 
                     var afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
