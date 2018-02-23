@@ -5,7 +5,7 @@ class MRNA extends Transcript{
     static constraints = {
     }
 
-    static String cvTerm =  "MRNA"
+    static String cvTerm =  "mRNA"
     static String ontologyId = "SO:0000234"
-    static String alternateCvTerm = "mRNA"
+    static String alternateCvTerm = "MRNA"
 }
