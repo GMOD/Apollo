@@ -1125,8 +1125,17 @@ define([
                         biotype = featureToAdd.get('type');
                     }
 
-                    var afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
-                    featuresToAdd.push(afeat);
+                    var afeat ;
+                    if(biotype === 'mRNA'){
+                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
+                        featuresToAdd.push(afeat);
+                    }
+                    else if (biotype.endsWith('RNA')){
+                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
+                    }
+                    else {
+                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , true );
+                    }
 
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
