@@ -1201,7 +1201,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
-                atrack.createAnnotations(selection);
+                atrack.createAnnotations(selection,true);
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {

@@ -1005,7 +1005,7 @@ define([
                             if (target_track.verbose_drop) {
                                 console.log("draggable dropped on AnnotTrack");
                             }
-                            target_track.createAnnotations(dropped_feats);
+                            target_track.createAnnotations(dropped_feats,false);
                         }
                         // making sure annot_under_mouse is cleared
                         // (should do this in the drop? but need to make sure _not_ null
@@ -1019,8 +1019,7 @@ define([
                 }
             },
 
-            createAnnotations: function (selection_records) {
-                console.log('createAnnotations');
+            createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
                 var featuresToAdd = new Array();
                 var parentFeatures = new Object();
@@ -1118,11 +1117,16 @@ define([
                     if (fmax) featureToAdd.set("end", fmax);
 
 
-                    var default_biotype = selection_records[0].track.config.default_biotype;
-
-                    var biotype = default_biotype ? default_biotype  : 'mRNA' ;
-                    if(biotype === 'auto' ){
+                    var biotype ;
+                    if(force_type) {
                         biotype = featureToAdd.get('type');
+                    }
+                    else{
+                        var default_biotype = selection_records[0].track.config.default_biotype;
+                        biotype = default_biotype ? default_biotype  : 'mRNA' ;
+                        if(biotype === 'auto'){
+                            biotype = featureToAdd.get('type');
+                        }
                     }
 
                     var afeat ;

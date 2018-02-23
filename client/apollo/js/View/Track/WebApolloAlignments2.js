@@ -48,7 +48,7 @@ define( [
                             "label": "gene",
                             "action":  function() {
                                 var atrack = thisB.webapollo.getAnnotTrack();
-                                atrack.createAnnotations({selection: {feature: this.feature}});
+                                atrack.createAnnotations({selection: {feature: this.feature}},true);
                             }
                         },
                         {
