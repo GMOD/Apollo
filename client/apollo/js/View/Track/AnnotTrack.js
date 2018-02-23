@@ -1005,7 +1005,7 @@ define([
                             if (target_track.verbose_drop) {
                                 console.log("draggable dropped on AnnotTrack");
                             }
-                            target_track.createAnnotations(dropped_feats);
+                            target_track.createAnnotations(dropped_feats,false);
                         }
                         // making sure annot_under_mouse is cleared
                         // (should do this in the drop? but need to make sure _not_ null
@@ -1019,8 +1019,7 @@ define([
                 }
             },
 
-            createAnnotations: function (selection_records) {
-                console.log('createAnnotations');
+            createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
                 var featuresToAdd = new Array();
                 var parentFeatures = new Object();
@@ -1116,8 +1115,31 @@ define([
 
                     if (fmin) featureToAdd.set("start", fmin);
                     if (fmax) featureToAdd.set("end", fmax);
-                    var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
-                    featuresToAdd.push(afeat);
+
+
+                    var biotype ;
+                    if(force_type) {
+                        biotype = featureToAdd.get('type');
+                    }
+                    else{
+                        var default_biotype = selection_records[0].track.config.default_biotype;
+                        biotype = default_biotype ? default_biotype  : 'mRNA' ;
+                        if(biotype === 'auto'){
+                            biotype = featureToAdd.get('type');
+                        }
+                    }
+
+                    var afeat ;
+                    if(biotype === 'mRNA'){
+                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
+                        featuresToAdd.push(afeat);
+                    }
+                    else if (biotype.endsWith('RNA')){
+                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
+                    }
+                    else {
+                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , true );
+                    }
 
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
@@ -1125,7 +1147,7 @@ define([
                         "operation": "add_transcript"
                     };
                     target_track.executeUpdateOperation(JSON.stringify(postData));
-                };
+                }
 
                 console.log('process: ' + strand);
                 if (strand == -2) {
