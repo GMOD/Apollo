@@ -333,7 +333,7 @@ the following "higher level" types (from the Sequence Ontology):
 
 ### Set the default biotype for dragging up evidence
 
-By default dragged up evidence is `mRNA`.   However, you can specify the default_biotype within the trackList.json in order to specify default types for tracks.
+By default dragged up evidence is treated as `mRNA`. However, you can specify the default biotype within `trackList.json` in order to specify default types for tracks.
 
 For example, specifying `ncRNA` as the default type:
 
@@ -341,12 +341,14 @@ For example, specifying `ncRNA` as the default type:
 {
     'key' : 'Official Gene Set v3.2 Canvas',
     'storeClass' : 'JBrowse/Store/SeqFeature/NCList',
-     'urlTemplate' : 'tracks/Official Gene Set v3.2/{refseq}/trackData.json',
-     'default_biotype':'ncRNA'
+    'urlTemplate' : 'tracks/Official Gene Set v3.2/{refseq}/trackData.json',
+    'default_biotype':'ncRNA'
 }
 ```
 
-If you specify `auto` instead then it will automatically try to infer by the given type.  Other non-transcript types `repeat_region` and `transposable_element`.
+If you specify `auto` instead then it will automatically try to infer based on a feature's type.
+
+Other non-transcript types `repeat_region` and `transposable_element` are also supported.
 
 
 ### Apache / Nginx configuration
