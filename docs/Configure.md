@@ -342,11 +342,11 @@ For example, specifying `ncRNA` as the default type:
     'key' : 'Official Gene Set v3.2 Canvas',
     'storeClass' : 'JBrowse/Store/SeqFeature/NCList',
      'urlTemplate' : 'tracks/Official Gene Set v3.2/{refseq}/trackData.json',
-      default_biotype':'ncRNA'
+     'default_biotype':'ncRNA'
 }
 ```
 
-If you specify `auto` instead then it will automatically try to infer by the given type.
+If you specify `auto` instead then it will automatically try to infer by the given type.  Other non-transcript types `repeat_region` and `transposable_element`.
 
 
 ### Apache / Nginx configuration
