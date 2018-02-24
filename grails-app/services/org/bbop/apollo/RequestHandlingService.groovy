@@ -1704,7 +1704,8 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             useName = jsonFeature.has(FeatureStringEnum.USE_NAME.value) ? jsonFeature.get(FeatureStringEnum.USE_NAME.value) : false
-            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name in [Gene.cvTerm,Pseudogene.cvTerm] ) {
+            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.cvTerm ||
+                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.cvTerm) {
                 // if jsonFeature is of type gene or pseudogene
                 JSONObject jsonGene = JSON.parse(jsonFeature.toString())
                 jsonGene.remove(FeatureStringEnum.CHILDREN.value)

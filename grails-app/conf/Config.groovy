@@ -398,7 +398,7 @@ jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
 //        branch = "master"
-        tag = "4e6a4448dc4fc2267d28a2b147b6d3f02e0eecf3"
+        tag = "aa6127349b6cf7b59619154e72d025cc7567a0ef"
         alwaysPull = false
         alwaysRecheck = false
     }

@@ -1419,10 +1419,20 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return gsolFeature;
     }
 
+
+    String getCvTermFromFeature(Feature feature) {
+        String cvTerm = feature.cvTerm
+        return cvTerm
+    }
+
     boolean isJsonTranscript(JSONObject jsonObject) {
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
-        return typeString == MRNA.cvTerm
+        if (typeString == MRNA.cvTerm) {
+            return true
+        } else {
+            return false
+        }
     }
 
     // TODO: (perform on client side, slightly ugly)
@@ -3040,7 +3050,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             setOwner(feature, user);
             feature.save(insert: true, flush: true)
-            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name in [Gene.cvTerm,Pseudogene.cvTerm] ) {
+            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.cvTerm ||
+                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.cvTerm) {
                 Transcript transcript = transcriptService.getTranscripts(feature).iterator().next()
                 setOwner(transcript, user);
                 removeExonOverlapsAndAdjacencies(transcript)
