@@ -7,9 +7,9 @@ class Deletion extends SequenceAlteration{
     static constraints = {
     }
 
-    static String cvTerm  = "Deletion"
+    static String cvTerm = "deletion"
     static String ontologyId = "SO:0000159"
-    static String alternateCvTerm = "deletion"
+    static String alternateCvTerm = "Deletion"
 
     @Override
     int getOffset() {

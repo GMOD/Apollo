@@ -10,10 +10,9 @@ class Gene extends BiologicalRegion{
     static constraints = {
     }
 
-
+    static String cvTerm = "gene"
     static String ontologyId = "SO:0000704"// XX:NNNNNNN
-    static String cvTerm = "Gene"// may have a link
-    static String alternateCvTerm = "gene"
+    static String alternateCvTerm = "Gene"
 
 
 }

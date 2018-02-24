@@ -8,7 +8,9 @@ abstract class Frameshift extends TranscriptAttribute{
     static constraints = {
     }
 
+    static String cvTerm = "frameshift"
     static String ontologyId = "SO:0000865"// XX:NNNNNNN
+    static String alternateCvTerm = "Frameshift"
 
     // add convenience methods
     /** Get the coordinate for the frameshift.

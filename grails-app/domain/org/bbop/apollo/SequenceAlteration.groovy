@@ -10,8 +10,9 @@ class SequenceAlteration extends SequenceFeature{
 
     String alterationResidue
 
-    static String cvTerm  = "SequenceAlteration"
+    static String cvTerm  = "sequence_alteration"
     static String ontologyId = "SO:0001059"
+    static String alternateCvTerm = "SequenceAlteration"
 
     /** Get the offset added by the sequence alteration.
      *
