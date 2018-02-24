@@ -209,7 +209,7 @@ public class Gff3HandlerService {
         //log.debug "converting feature to ${feature.name} entry of # of entries ${gffEntries.size()}"
 
         String seqId = feature.featureLocation.sequence.name
-        String type = featureService.getCvTermFromFeature(feature);
+        String type = feature.cvTerm
         int start = feature.getFmin() + 1;
         int end = feature.getFmax().equals(feature.getFmin()) ? feature.getFmax() + 1 : feature.getFmax();
         String score = ".";
