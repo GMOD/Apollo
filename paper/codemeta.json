@@ -42,25 +42,25 @@
     {
             "@type": "Person",
             "name": "Christine Elsik",
-            "name":"elsikc@missouri.edu",
+            "email":"elsikc@missouri.edu",
 	    	"affiliation": "University of Missouri, Columbia"
     },
     {
             "@id": "http://orcid.org/0000-0002-8343-612X",
             "@type": "Person",
             "name": "Suzanna Lewis",
-            "email" "selewis@lbl.gov",
+            "email":"selewis@lbl.gov",
 			"affiliation": "Lawrence Berkeley National Lab"
     },
   ],
-  "identifier": "http://dx.doi.org/10.5281/zenodo.59904",
+  "identifier": "https://zenodo.org/record/1063658",
   "codeRepository": "https://github.com/GMOD/Apollo",
-  "datePublished": "2016-08-30",
-  "dateModified": "2016-08-30",
-  "dateCreated": "2016-08-30",
+  "datePublished": "2017-11-20",
+  "dateModified": "2017-11-20",
+  "dateCreated": "2017-11-20",
   "description": "Genome annotation editor with a Java Server backend and a Javascript client that runs in a web browser as a JBrowse plugin. http://genomearchitect.org ",
   "keywords": "bioinformatics, biocuration, genome annotation",
   "license": "BSD",
   "title": "Apollo",
-  "version": "2.0.4"
+  "version": "2.0.8"
 }
