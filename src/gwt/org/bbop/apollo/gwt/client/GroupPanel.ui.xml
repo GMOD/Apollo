@@ -66,7 +66,14 @@
             </b:Container>
         </gwt:north>
         <gwt:center>
-            <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}"/>
+            <gwt:DockLayoutPanel>
+                <gwt:north size="25">
+                    <wa:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
+                </gwt:north>
+                <gwt:center>
+                    <cellview:DataGrid ui:field="dataGrid" styleName="{style.trackTable}"/>
+                </gwt:center>
+            </gwt:DockLayoutPanel>
         </gwt:center>
         <gwt:south size="300">
             <gwt:TabLayoutPanel barHeight="35" ui:field="userDetailTab" visible="false">
@@ -113,18 +120,50 @@
                     <gwt:header>Users</gwt:header>
                     <b:Container fluid="true" width="100%">
                         <b:Row>
-                            <b:Column size="MD_8">
-                                <select:Select width="100%" title="Membership" multiple="true"
-                                               selectedTextFormat="count > 2" visibleSize="5" ui:field="availableUsers"
-                                               liveSearch="true">
-                                </select:Select>
+                           <!-- <b:Column size="MD_6">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Available users"/>
                             </b:Column>
+                            <b:Column size="MD_2">
+                                <gwt:HTML styleName="{style.tableKeyName}" text="Role"/>
+                            </b:Column>-->
+                            <b:Column size="MD_8">
+                                <select:MultipleSelect width="100%" title="Membership"  selectedTextFormat="COUNT"
+                                                       countSelectedTextFormat="2"
+                                                       ui:field="availableUsers"
+                                                       liveSearch="true">
+                                </select:MultipleSelect>
+                                <!--<select:Select width="100%" title="Membership" multiple="true"-->
+                                               <!--selectedTextFormat="count > 2" visibleSize="5" ui:field="availableUsers"-->
+                                               <!--liveSearch="true">-->
+                                <!--</select:Select>-->
+                            </b:Column>
+                            <!--<b:Column size="MD_2">
+                                <b:ListBox ui:field="groupRoleList" />
+                            </b:Column>-->
                             <b:Column size="MD_2">
                                 <b:Button ui:field="updateUsers" icon="SAVE" type="PRIMARY">Update Membership</b:Button>
                             </b:Column>
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
+                <gwt:tab>
+                    <gwt:header>Group Admin</gwt:header>
+                    <b:Container fluid="true" width="100%">
+                        <b:Row>
+                            <b:Column size="MD_8">
+                                <select:MultipleSelect width="100%" title="Membership"  selectedTextFormat="COUNT"
+                                                       countSelectedTextFormat="2"
+                                                       ui:field="availableGroupAdmin"
+                                                       liveSearch="true">
+                                </select:MultipleSelect>
+                            </b:Column>
+                            <b:Column size="MD_2">
+                                <b:Button ui:field="updateGroupAdmin" icon="SAVE" type="PRIMARY">Update Group Admin</b:Button>
+                            </b:Column>
+                        </b:Row>
+                    </b:Container>
+                </gwt:tab>
+
             </gwt:TabLayoutPanel>
         </gwt:south>
 

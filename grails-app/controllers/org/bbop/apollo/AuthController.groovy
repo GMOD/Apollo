@@ -10,10 +10,12 @@ class AuthController {
 
 
     def permissionService
+    def preferenceService
 
     def index = { redirect(action: "login", params: params) }
 
     def login = {
+        WebUtils.saveRequest(request)
         return [ username: params.username, rememberMe: (params.rememberMe != null), targetUri: params.targetUri ]
     }
 
@@ -32,9 +34,14 @@ class AuthController {
         // Handle requests saved by Shiro filters.
         SavedRequest savedRequest = WebUtils.getSavedRequest(request)
         if (savedRequest) {
-            targetUri = savedRequest.requestURI - request.contextPath
-            if (savedRequest.queryString) {
-                targetUri = targetUri + '?' + savedRequest.queryString
+            if(savedRequest.queryString && savedRequest.queryString.startsWith("targetUri=")){
+                targetUri = savedRequest.queryString.substring("targetUri=".size())
+            }
+            else{
+                targetUri = savedRequest.requestURI - request.contextPath
+                if (savedRequest.queryString) {
+                    targetUri = targetUri + '?' + savedRequest.queryString
+                }
             }
         }
         
@@ -44,14 +51,15 @@ class AuthController {
             // password is incorrect.
             permissionService.authenticateWithToken(authToken,request)
 //            SecurityUtils.subject.login(authToken)
-            if(targetUri){
-                log.info "Redirecting to '${targetUri}'."
+            if(targetUri) {
+                if (targetUri.contains("http://") || targetUri.contains("https://") || targetUri.contains("ftp://")) {
+                    redirect(uri: "${request.contextPath}${targetUri}")
+                }
+                else {
+                    redirect(uri: targetUri)
+                }
 
-//                if(!targetUri.startsWith(request.contextPath)){
-//                    targetUri = request.contextPath + targetUri
-//                }
-
-                redirect(uri: targetUri)
+                return
             }
         }
         catch (AuthenticationException ex){
@@ -78,6 +86,7 @@ class AuthController {
     }
 
     def signOut = {
+        preferenceService.evaluateSaves(true)
         // Log the user out of the application.
         SecurityUtils.subject?.logout()
         webRequest.getCurrentRequest().session = null

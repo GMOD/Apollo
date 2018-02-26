@@ -4,14 +4,12 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class UserService {
-
-    static String USER = "USER"
-    static String ADMIN = "ADMIN"
 
     // return admin role or user role
     Role getHighestRole(User user){
@@ -36,6 +34,7 @@ class UserService {
             JSONObject organismJSON = new JSONObject()
             organismJSON.put("organism", userOrganismPermission.organism.commonName)
             organismJSON.put("permissions", userOrganismPermission.permissions)
+            organismJSON.put("permissionArray", userOrganismPermission.permissionValues)
             organismJSON.put("userId", userOrganismPermission.userId)
             organismJSON.put("id", userOrganismPermission.id)
 
@@ -101,7 +100,7 @@ class UserService {
             return ;
         }
 
-        def adminRole = Role.findByName(ADMIN)
+        def adminRole = Role.findByName(GlobalPermissionEnum.ADMIN.name())
 
         User user = new User(
                 username: username

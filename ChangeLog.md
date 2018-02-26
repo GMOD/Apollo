@@ -1,3 +1,156 @@
+
+
+## 2.0.8
+
+Features
+
+- Added the ability to annotate from high performance [Alignments2](http://gmod.org/wiki/JBrowse_Configuration_Guide#Alignments2) BAM reads [#1789](https://github.com/GMOD/Apollo/pull/1789)
+- Added support for indexed FASTA to be used as reference sequence. [#1791](https://github.com/GMOD/Apollo/pull/1791)
+- Added sequence API [#1799](https://github.com/GMOD/Apollo/pull/1799)
+
+Bugfixes 
+
+- Fixed bug when flipping strand fails to flip the strand of the owning gene [#1769](https://github.com/GMOD/Apollo/issues/1769)
+- Fixes to track services to allow remote jbrowse tracks and jsonz [#1767](https://github.com/GMOD/Apollo/issues/1767)
+- Fixes to track services to return 404 when bad URL is given [#1768](https://github.com/GMOD/Apollo/issues/1768)
+- Fixed CORS issues [#1760](https://github.com/GMOD/Apollo/issues/1760)
+- Fixed bug where gene positions are sometimes wrong when a longer isoform is deleted from a gene [#1770](https://github.com/GMOD/Apollo/issues/1770)
+- Fixed permissions for REMOTE_USER when using web services [#1759](https://github.com/GMOD/Apollo/issues/1759)
+- Fixes build issues [#1756](https://github.com/GMOD/Apollo/issues/1756) [#1752](https://github.com/GMOD/Apollo/issues/1752) [#1773](https://github.com/GMOD/Apollo/issues/1773)
+- Fixes error in SQL query for listing alterations [#1754](https://github.com/GMOD/Apollo/issues/1754)
+- Minimum node version is version 6
+- Fix UserPanel for a large number of users [#1800](https://github.com/GMOD/Apollo/pull/1800)
+- Fixes recalculated gene positions for some delete exon operations [#1808](https://github.com/GMOD/Apollo/issues/1808)
+- Fix big when updating organism via web-service [#1804](https://github.com/GMOD/Apollo/issues/1804)
+
+
+## 2.0.7
+
+Features
+
+- Add the ability to upload organism sequence data and track data to a remote Apollo instance via Apollo Web Services [#1670](https://github.com/GMOD/Apollo/pull/1670).
+- Allow setting of alternate translation table per organism using the _Details_ panel under the _Organism_ tab in the Annotator panel. [#95](https://github.com/GMOD/Apollo/issues/95)
+- Draggable BAM tracks now support coloring by strand. Reads aligned to forward strand are colored blue, while those in the reverse strand are red.  [#412](https://github.com/GMOD/Apollo/issues/412)
+- The list of _Tracks_ in the Annotator panel now allows for the separation of data types into categories. [#536](https://github.com/GMOD/Apollo/issues/536)
+- Tracks in a category can be added or removed all at once. [#1733](https://github.com/GMOD/Apollo/pull/1733)
+- When applicable, warnings now alert users of insufficient permissions to perform certain functions. [#553](https://github.com/GMOD/Apollo/issues/553)
+- Restrictions are now in place to prevent users from modifying or deleting annotations that they did not create. [#1260](https://github.com/GMOD/Apollo/issues/1260)
+- Updated settings for the ability to filter by organism when applying metadata. For instance, admin may now apply canned comments, keys and values, only to a subset of organisms in their server. As well, statuses can be retrieved per type of genomic element, per organism, etc. [#1676](https://github.com/GMOD/Apollo/pull/1676)
+- Admins can now build public URLs to hyperlink directly to a specific genomic element. [#1482](https://github.com/GMOD/Apollo/pull/1482)
+- It is now possible to set _Statuses_ as well as adding or editing _Canned elements_ using our Web Service (REST) API. [#1538](https://github.com/GMOD/Apollo/pull/1538)
+- In the absence of ```Name``` attribute in GFF3 file, Apollo uses ```ID``` attribute to name the annotation in JSON. [#1639](https://github.com/GMOD/Apollo/pull/1639)
+- A number of other improvements to performance have been made, such as fetching preferences from session. [#1604](https://github.com/GMOD/Apollo/pull/1604) [#1725](https://github.com/GMOD/Apollo/pull/1725)
+- Added date created field to changes report. [#1728](https://github.com/GMOD/Apollo/pull/1728)
+- Removal of bower in favor of npm to install JBrowse. [#1691](https://github.com/GMOD/Apollo/pull/1691)
+- Added documentation for a Web Service wrapper for Python, PHP, etc. See [Web Services API documentation](http://genomearchitect.readthedocs.io/en/latest/Web_services.html).
+
+Bugfixes
+
+- Fixed bug in which ```add_transcripts_from_gff3_to_annotations.pl``` replaced valid mRNA name with gene name. [#1475](https://github.com/GMOD/Apollo/issues/1475)
+- Fixed bug in which ```REMOTE_USER``` was not cached everywhere and was being ignored on ping request. [#1492](https://github.com/GMOD/Apollo/pull/1492)
+- Added warning to Production pre-requisites: if using gradle and gradlew, admins should define ```JAVA_HOME``` to avoid build fails. See documentation [here](http://genomearchitect.readthedocs.io/en/latest/Setup.html#production-pre-requisites).
+- Fixed sorting bug on the dropdown list of organisms. [#1497](https://github.com/GMOD/Apollo/issues/1497)
+- Fixed a bug in which the absence of an organism created downstream issues such as errors listing groups of users in Annotator panel. (Feature for admins). [#1504](https://github.com/GMOD/Apollo/pull/1504)
+- Fixed a bug in which creating a user via Web Service API generated an error message. [#1510](https://github.com/GMOD/Apollo/pull/1510)
+- Fixed import script ```add_transcripts_from_gff3_to_annotations.pl``` to introduce correct handling of sequence alterations and read-through stop codons. [#1524](https://github.com/GMOD/Apollo/pull/1524)
+- Fixed bug that now allows leading start non-M codons in organisms with non-standard code to be translated as Methionine (M). [#1544](https://github.com/GMOD/Apollo/issues/1544)
+- Updated GWT code to fix a bug that prevented Apollo from generating URLs appropriately - pipes were not being encoded. [#1606](https://github.com/GMOD/Apollo/pull/1606)
+- Fixed bug in the calculation of open reading frames for the negative strand for the purpose of coloring each exon according to the CDS. Exported sequences had been - and remain - correctly generated. [#1629](https://github.com/GMOD/Apollo/issues/1629)
+- Fixed bug that delayed propagation of updates when boundaries for an annotation's parent element were changed. [#1631](https://github.com/GMOD/Apollo/issues/1631) 
+- Restored _'Pin to top'_ and _'Delete track'_ functionality for tracks with ```HTMLFeatures```. [#1632](https://github.com/GMOD/Apollo/issues/1632)
+- Fixed cascade bug when changing annotation type for an annotation that has a read-through stop codon. [#1717](https://github.com/GMOD/Apollo/pull/1717)
+- Apollo client being initialized twice in some instances. [#1742](https://github.com/GMOD/Apollo/issues/1742)
+
+
+
+## 2.0.6
+
+Features
+
++ Moved the native track panel button to the main window #1398
++ Add new 'default_group' param for remote_user auth #1445
++ Added icon to toggle view of native JBrowse tracks that is always visible #1452
+
+Bugfixes
+
++ Failure to load tracks when switching organisms with identical Sequence IDs #1391
++ Unable to add organism from script without a pre-existing organism #1388
++ When logged in, clicking on JBrowse would not load the Annotator Panel #1395
++ ```server_data``` may lock some times in dev mode #1419
++ Intron persists in tracks if a single exon if neat features enabled #1417
++ Authentication error with galaxy tools + remote_user #1423
++ When logged in as non-admin user, the show track panel button does not look or work properly #1429
++ When deleting an organism from the interface, should instantly update the organism list similar to add organism #1431
++ 404 errors on CSV metadata in some cases #1448
++ Problems loading list of Tracks when switching organisms on slower connection #1434
++ Setting exon details in details panel fails to set transcript boundaries properly #1428
++ Error opening on double-click for annotations listed in the second page of the annotation panel #1459
++ Transcripts of pseudogenes should NOT have the word 'transcript' or other type in the name #1451
++ Issue with gene names when performing undo and redo right after changing annotation type #1464
++ Interface freezes if right-clicking an unselected annotation #1465
++ Fixed issue where double-click on transcript navigates and then closes the transcript / gene #1467
++ Remote_user not authorized properly everywhere #1468
++ Fixes the small problem with the sticky tracks from loadLinks #1474
++ Bumped default JBrowse version
+
+
+## 2.0.5
+
+Features 
+
++ Increase UI and performance by calling setCurrentSequenceLocation less aggressively #1007
++ Various performance improvements #1272,#1276
++ Added ability for Apollo to call home to track server usage #1339
++ Allow multiple calls to google analytics to support users internally #1340
++ Numerous annotator tab user interface improvements #1343,#333
++ Updated 'changes' report page for more detail and better filtering #806
++ Added URL option to open and close the track panels #1332
++ Adds a findChanges web-services method #1316
++ Importing features should be able to optionally include metadata #52
++ Make organism, groups, users tabs more consistent #622
++ Convert javascript "alert" to something more appealing visually #630
++ Using Bootstrap in all panels #847
++ Improved report login window look and feel #1103
++ Upgraded to Java 8  #1327
++ Upgraded to Gwt 2.8.0 and Gwt-Bootstrap 0.9.4 #1075
++ Delete expired preferences #1368
++ Location URLs are now encapsulated in links #1361
++ Bumped default JBrowse version 
+
+
+Bugfixes
+
++ Web-service method 'getUserPermissionsForUser' #1230
++ UI glitch with more than ten groups #1242
++ Error going between full-screen and annotator panel when stored are loaded in the URL #1156,#1214,#1271,#1330,#1331, #1008, #1371
++ 'use_cds_for_new_transcripts' was not being picked up properly #1297
++ Client interprets 5'UTR and 3'UTR features as exons #1308
++ Flag when 3' end or 5' end are missing, still calculate longest ORF #1302
++ Limit Chado export to admins #1322
++ Improved security of non-public genomes #861
++ Adding transcripts via the load transcripts script added preferences #1277
++ Was not validating scaffold against organism on import #1173
++ Sequence display with annotation did not update automatically when moved to opposed strand #645
++ Needed to update the coding detail panel when changing transcript details #379
++ Warn user when making an intron is not possible #1331
++ Load script was returning the wrong error when the wrong password was given #1275
++ use_cds_for_new_transcripts is not being picked up properly #1297
++ Improve merging of functional annotations data during merge operation #646
++ Annotator panel calls the official set exon boundaries method #653
++ Pinstripes disappear in small scaffolds. #709
++ Spring to splice site functionality works once only #735
++ Genomic insertion coordinates: start is greater than end in gff3 output from Reference Sequence tab #747
++ Remove errant bootstrap calls #746
++ Remove Environment.TEST from code #655
++ No glyphs for sequence alterations #908
++ getUserPermissionsForUser is non-standard #1230
++ Fixed case in Webservices docs #1244
++ UI glitch on Groups tab when more than ten groups #1242
++ Fixed error with setting upstream donor failing #1379
++ NCBI Pubmed upgraded to use https form discontinued http #1377
++ Updating exon details in annotator panel fails #1375
+
+
 ## 2.0.4
 
 Features

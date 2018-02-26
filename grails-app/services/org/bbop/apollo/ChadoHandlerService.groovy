@@ -36,8 +36,8 @@ class ChadoHandlerService {
     private static final String SEQUENCE_ONTOLOGY = "sequence"
     private static final String RELATIONSHIP_ONTOLOGY = "relationship"
     private static final String FEATURE_PROPERTY = "feature_property"
-    private static final def topLevelFeatureTypes = [Gene.alternateCvTerm, Pseudogene.alternateCvTerm, TransposableElement.alternateCvTerm, RepeatRegion.alternateCvTerm,
-                                                     Insertion.alternateCvTerm, Deletion.alternateCvTerm, Substitution.alternateCvTerm]
+    private static final def topLevelFeatureTypes = [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm,
+                                                     Insertion.cvTerm, Deletion.cvTerm, Substitution.cvTerm]
     private static final ontologyDb = ["SO", "GO", "RO"]
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();
@@ -159,7 +159,7 @@ class ChadoHandlerService {
                     createChadoFeatureRelationship(organism, chadoFeature, featureRelationship)
                 }
 
-                def exons = transcriptService.getSortedExons(transcript)
+                def exons = transcriptService.getSortedExons(transcript,false)
                 /*
                 In GMOD Chado Best Practices, it is noted that exons can be part_of more than one mRNA and that
                 no two distinct exon rows should have exact same featureloc coordinates (this would indicate they are the same exon).
@@ -309,7 +309,7 @@ class ChadoHandlerService {
      */
     def createChadoFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Feature feature) {
         long startTime, endTime
-        String type = feature.hasProperty('alternateCvTerm') ? feature.alternateCvTerm : feature.cvTerm
+        String type = feature.cvTerm
 
         // feature
         startTime = System.currentTimeMillis()

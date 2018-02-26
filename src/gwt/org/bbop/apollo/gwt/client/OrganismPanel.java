@@ -25,7 +25,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.WebApolloSimplePager;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
@@ -77,6 +76,8 @@ public class OrganismPanel extends Composite {
     Button deleteButton;
     @UiField(provided = true)
     WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
+    @UiField
+    TextBox nonDefaultTranslationTable;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -225,6 +226,9 @@ public class OrganismPanel extends Composite {
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
 
+        nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
+        nonDefaultTranslationTable.setEnabled(isEditable);
+
         deleteButton.setVisible(isEditable);
         deleteButton.setEnabled(isEditable);
     }
@@ -262,6 +266,7 @@ public class OrganismPanel extends Composite {
                 setNoSelection();
                 changeButtonSelection(false);
                 loadingDialog.hide();
+                Window.Location.reload();
             }
         }
 
@@ -282,16 +287,16 @@ public class OrganismPanel extends Composite {
         createButton.setText("Create Organism");
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
-        cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
-        createButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        createButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
-        createButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        cancelButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        newButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        deleteButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+        createButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        cancelButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        newButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
+        deleteButton.setVisible(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
 
-        setTextEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        setTextEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
     }
 
     @UiHandler("createButton")
@@ -309,6 +314,7 @@ public class OrganismPanel extends Composite {
         organismInfo.setGenus(genus.getText());
         organismInfo.setSpecies(species.getText());
         organismInfo.setBlatDb(blatdb.getText());
+        organismInfo.setNonDefaultTranslationTable(nonDefaultTranslationTable.getText());
         organismInfo.setPublicMode(publicMode.getValue());
 
         createButton.setEnabled(false);
@@ -368,6 +374,14 @@ public class OrganismPanel extends Composite {
         }
     }
 
+    @UiHandler("nonDefaultTranslationTable")
+    public void handleNonDefaultTranslationTable(ChangeEvent changeEvent) {
+        if (singleSelectionModel.getSelectedObject() != null) {
+            singleSelectionModel.getSelectedObject().setNonDefaultTranslationTable(nonDefaultTranslationTable.getText());
+            updateOrganismInfo();
+        }
+    }
+
     @UiHandler("publicMode")
     public void handlePublicModeChange(ChangeEvent changeEvent) {
         GWT.log("Handling mode change " + publicMode.getValue());
@@ -403,7 +417,6 @@ public class OrganismPanel extends Composite {
         }
     }
 
-
     private void updateOrganismInfo() {
         updateOrganismInfo(false);
     }
@@ -426,13 +439,14 @@ public class OrganismPanel extends Composite {
         deleteButton.setVisible(false);
     }
 
-    public void changeButtonSelection() {
+    private void changeButtonSelection() {
         changeButtonSelection(singleSelectionModel.getSelectedObject() != null);
     }
 
     // Set the button states/visibility depending on whether there is a selection or not
-    public void changeButtonSelection(boolean selection) {
-        Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
+    private void changeButtonSelection(boolean selection) {
+        //Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
+        Boolean isAdmin = MainPanel.getInstance().isCurrentUserInstructorOrBetter();
         if (selection) {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
@@ -449,22 +463,24 @@ public class OrganismPanel extends Composite {
     }
 
     //Utility function for toggling the textboxes (gray out)
-    public void setTextEnabled(boolean enabled) {
+    private void setTextEnabled(boolean enabled) {
         sequenceFile.setEnabled(enabled);
         organismName.setEnabled(enabled);
         genus.setEnabled(enabled);
         species.setEnabled(enabled);
         blatdb.setEnabled(enabled);
+        nonDefaultTranslationTable.setEnabled(enabled);
         publicMode.setEnabled(enabled);
     }
 
     //Utility function for clearing the textboxes ("")
-    public void clearTextBoxes() {
+    private void clearTextBoxes() {
         organismName.setText("");
         sequenceFile.setText("");
         genus.setText("");
         species.setText("");
         blatdb.setText("");
+        nonDefaultTranslationTable.setText("");
         publicMode.setValue(false);
     }
 

@@ -3,15 +3,14 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import grails.util.Environment
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.session.Session
 import org.apache.shiro.subject.Subject
-import org.bbop.apollo.authenticator.AuthenticatorService
-import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.preference.UserOrganismPreferenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsParameterMap
@@ -29,16 +28,20 @@ class PermissionService {
     def remoteUserAuthenticatorService
     def usernamePasswordAuthenticatorService
 
-    boolean isUserAdmin(User user) {
+
+    boolean isUserBetterOrEqualRank(User user,GlobalPermissionEnum globalPermissionEnum) {
         if (user != null) {
             for (Role role in user.roles) {
-                if (role.name == UserService.ADMIN) {
+                if (role.rank >= globalPermissionEnum.rank) {
                     return true
                 }
             }
         }
 
         return false
+    }
+    boolean isUserAdmin(User user) {
+        return isUserBetterOrEqualRank(user,GlobalPermissionEnum.ADMIN)
     }
 
     boolean isAdmin() {
@@ -52,7 +55,15 @@ class PermissionService {
         return false
     }
 
-    Set<Organism> getOrganisms(User user) {
+    boolean isGroupAdmin(UserGroup group, User user) {
+        for (User u in group.admin) {
+            if (user.id == u.id)
+                return true
+        }
+        return false
+    }
+
+    List<Organism> getOrganisms(User user) {
         if (isUserAdmin(user)) {
             return Organism.listOrderByCommonName()
         }
@@ -65,7 +76,58 @@ class PermissionService {
         for (UserGroup userGroup in user?.userGroups) {
             organismList.addAll(getOrganismsForGroup(userGroup))
         }
-        return organismList
+        List<Organism> returnOrganismList = []
+        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
+            returnOrganismList.add(organism)
+        }
+
+        return returnOrganismList
+    }
+
+    List<Organism> getOrganismsWithMinimumPermission(User user,PermissionEnum permissionEnum) {
+        if (isUserAdmin(user)) {
+            return Organism.listOrderByCommonName()
+        }
+        Set<Organism> organismList = new HashSet<>()
+        for (UserOrganismPermission userPermission in UserOrganismPermission.findAllByUser(user)) {
+            if (userPermission.permissions) {
+                organismList.add(userPermission.organism)
+            }
+        }
+        for (UserGroup userGroup in user?.userGroups) {
+            organismList.addAll(getOrganismsForGroup(userGroup))
+        }
+        List<Organism> returnOrganismList = []
+        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
+            PermissionEnum highestPermission = getOrganismPermissionsForUser(organism,currentUser).sort(){ a,b -> a.rank <=> b.rank }.first()
+            if(highestPermission.rank>=permissionEnum.rank){
+                returnOrganismList.add(organism)
+            }
+        }
+
+        return returnOrganismList
+    }
+
+    Map<Organism,PermissionEnum> getOrganismsWithPermission(User user) {
+        if (isUserAdmin(user)) {
+            return Organism.listOrderByCommonName()
+        }
+        Set<Organism> organismList = new HashSet<>()
+        for (UserOrganismPermission userPermission in UserOrganismPermission.findAllByUser(user)) {
+            if (userPermission.permissions) {
+                organismList.add(userPermission.organism)
+            }
+        }
+        for (UserGroup userGroup in user?.userGroups) {
+            organismList.addAll(getOrganismsForGroup(userGroup))
+        }
+        Map<Organism,PermissionEnum> returnOrganismMap= [:]
+        for (Organism organism in organismList.sort() { a, b -> a.commonName <=> b.commonName }) {
+            PermissionEnum highestPermission = getOrganismPermissionsForUser(organism,currentUser).sort(){ a,b -> a.rank <=> b.rank }.first()
+            returnOrganismMap.put(organism,highestPermission)
+        }
+
+        return returnOrganismMap
     }
 
     List<Organism> getOrganismsForGroup(UserGroup group) {
@@ -143,7 +205,7 @@ class PermissionService {
 
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findByOrganismAndUser(organism, user)
         if (!userOrganismPermission) {
-            userOrganismPermission = new UserOrganismPermission(
+            new UserOrganismPermission(
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , user: user
@@ -160,7 +222,7 @@ class PermissionService {
 
         GroupOrganismPermission groupOrganismPermission = GroupOrganismPermission.findByOrganismAndGroup(organism, group)
         if (!groupOrganismPermission) {
-            groupOrganismPermission = new GroupOrganismPermission(
+            new GroupOrganismPermission(
                     organism: organism
                     , permissions: generatePermissionString(permissions)
                     , group: group
@@ -172,7 +234,7 @@ class PermissionService {
         }
     }
 
-    private String generatePermissionString(List<PermissionEnum> permissionEnums) {
+    private static String generatePermissionString(List<PermissionEnum> permissionEnums) {
         JSONArray jsonArray = new JSONArray()
         for (PermissionEnum permissionEnum in permissionEnums) {
             jsonArray.add(permissionEnum.name())
@@ -248,7 +310,7 @@ class PermissionService {
         return []
     }
 
-    public static String getSequenceNameFromInput(JSONObject inputObject) {
+    static String getSequenceNameFromInput(JSONObject inputObject) {
         String trackName = null
         if (inputObject.has(FeatureStringEnum.SEQUENCE.value)) {
             trackName = inputObject.sequence
@@ -261,7 +323,7 @@ class PermissionService {
 
     // get current user from session or input object
     User getCurrentUser(JSONObject inputObject = new JSONObject()) {
-        String username
+        String username = null
         if (inputObject?.has(FeatureStringEnum.USERNAME.value)) {
             username = inputObject.getString(FeatureStringEnum.USERNAME.value)
         }
@@ -269,7 +331,7 @@ class PermissionService {
             username = SecurityUtils.subject.principal
         }
         if (!username) {
-            return null;
+            return null
         }
 
         User user = User.findByUsername(username)
@@ -282,20 +344,7 @@ class PermissionService {
 
         if (inputObject.has(FeatureStringEnum.ORGANISM.value)) {
             String organismString = inputObject.getString(FeatureStringEnum.ORGANISM.value)
-            Organism organism = Organism.findByCommonNameIlike(organismString)
-            if (organism) {
-                log.debug "return organism ${organism} by name ${organismString}"
-                return organism
-            }
-            if (!organism) {
-                organism = Organism.findById(organismString as Long);
-            }
-            if (organism) {
-                log.debug "return organism ${organism} by ID ${organismString}"
-                return organism
-            } else {
-                log.info "organism not found ${organismString}"
-            }
+            return preferenceService.getOrganismForTokenInDB(organismString)
         }
         return null
     }
@@ -309,20 +358,28 @@ class PermissionService {
      */
     Sequence checkPermissions(JSONObject inputObject, PermissionEnum requiredPermissionEnum) {
         Organism organism
-        String trackName = getSequenceNameFromInput(inputObject)
+        String sequenceName = getSequenceNameFromInput(inputObject)
 
         User user = getCurrentUser(inputObject)
         organism = getOrganismFromInput(inputObject)
 
         if (!organism) {
-            organism = preferenceService.getOrganismFromPreferences(user, trackName, inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            String clientToken = inputObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
+            UserOrganismPreferenceDTO preferenceDTO = preferenceService.getCurrentOrganismPreference(user, sequenceName, clientToken)
+            log.debug "Permission service found DTO: ${preferenceDTO as JSON}"
+            if (preferenceDTO) {
+                organism = Organism.findById(preferenceDTO.organism.id)
+            }
         }
 
         Sequence sequence
-        if (!trackName) {
-            sequence = UserOrganismPreference.findByClientTokenAndOrganism(trackName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
+        if (!sequenceName) {
+            sequence = UserOrganismPreference.findByClientTokenAndOrganism(sequenceName, organism, [max: 1, sort: "lastUpdated", order: "desc"])?.sequence
         } else {
-            sequence = Sequence.findByNameAndOrganism(trackName, organism)
+            sequence = Sequence.findByNameAndOrganism(sequenceName, organism)
+            if (!sequence) {
+                throw new AnnotationException("No sequence found for name '${sequenceName}' and organism '${organism?.commonName}'")
+            }
         }
 
         if (!sequence && organism) {
@@ -346,7 +403,12 @@ class PermissionService {
         try {
             Session session = SecurityUtils.subject.getSession(false)
             if (session) {
-                Map<String, Integer> permissions = session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue());
+                Map<String, Integer> permissions = (Map<String, Integer>) session.getAttribute(FeatureStringEnum.PERMISSIONS.getValue())
+                // permissions not always on session if they come through a web-service, see #1759
+                if(!permissions){
+                    User user = User.findByUsername(SecurityUtils.subject.principal.toString())
+                    permissions = getPermissionsForUser(user)
+                }
                 if (permissions) {
                     Integer permission = permissions.get(SecurityUtils.subject.principal)
                     PermissionEnum sessionPermissionsEnum = isAdmin() ? PermissionEnum.ADMINISTRATE : PermissionEnum.getValueForOldInteger(permission)
@@ -407,23 +469,27 @@ class PermissionService {
         if (!session) {
             // login with jsonObject tokens
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
-            if(!jsonObject.username){
-                log.debug "Username not supplied so can not authenticate."
-                return false
+            if (!jsonObject.username) {
+                log.error "Username not supplied so can not authenticate."
+                jsonObject.error_message = "Username not supplied so can not authenticate."
+                return jsonObject
             }
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             try {
-                Subject subject = SecurityUtils.getSubject();
-                session = subject.getSession(true);
+                Subject subject = SecurityUtils.getSubject()
+                subject.getSession(true)
+//                session = subject.getSession(true)
 
                 subject.login(authToken)
                 if (!subject.authenticated) {
                     log.warn "Failed to authenticate user ${jsonObject.username}"
-                    return false
+                    jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
+                    return jsonObject
                 }
             } catch (Exception ae) {
                 log.error("Problem authenticating: " + ae.fillInStackTrace())
-                return false
+                jsonObject.error_message = "Problem authenticating: " + ae.fillInStackTrace()
+                return jsonObject
             }
         } else if (!jsonObject.username && SecurityUtils?.subject?.principal) {
             jsonObject.username = SecurityUtils?.subject?.principal
@@ -443,10 +509,16 @@ class PermissionService {
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
-            log.error("User ${jsonObject.username} for ${jsonObject as JSON} does not exist in the database.")
+            log.error("User ${jsonObject.username} does not exist in the database.")
             return false
         }
-        if (permissionEnum.rank > PermissionEnum.ADMINISTRATE.rank) {
+        if (jsonObject.error_message) {
+            log.error("Error with user permissions ${user.username}:  ${jsonObject.error_message}")
+            return false
+        }
+
+        // if the rank required is less than administrator than ask if they are an administrator
+        if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank) {
             return isUserAdmin(user)
         }
         return true
@@ -454,31 +526,16 @@ class PermissionService {
 
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
         if (!hasGlobalPermissions(jsonObject, permissionEnum)) {
-            log.info("User for ${jsonObject} lacks permissions ${permissionEnum.display}")
+            log.info("User lacks permissions ${permissionEnum.display}")
             return false
         }
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
 
-        Organism organism = preferenceService.getCurrentOrganismPreference(clientToken)?.organism
-        log.debug "passing in an organism ${jsonObject.organism}"
-        if (jsonObject.organism) {
-            Organism thisOrganism = null
-            try {
-                thisOrganism = Organism.findById(jsonObject.organism as Long)
-            } catch (npe) {
-                // obviously not a long type
-            }
-            if (!thisOrganism) {
-                thisOrganism = Organism.findByCommonNameIlike(jsonObject.organism)
-            }
-            if (!thisOrganism) {
-                thisOrganism = Organism.findByAbbreviation(jsonObject.organism)
-            }
-            if (organism.id != thisOrganism.id) {
-                log.debug "switching organism from ${organism.commonName} -> ${thisOrganism.commonName}"
-                organism = thisOrganism
-            }
-            log.debug "final organism ${organism.commonName}"
+        Organism organism = getOrganismFromInput(jsonObject)
+
+        organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
+        // don't set the preferences if it is coming off a script
+        if (clientToken != FeatureStringEnum.IGNORE.value) {
             preferenceService.setCurrentOrganism(getCurrentUser(), organism, clientToken)
         }
 
@@ -519,37 +576,52 @@ class PermissionService {
         return highestEnum
     }
 
+    Map<Organism, Boolean> userHasOrganismPermissions(PermissionEnum permissionEnum) {
+        Map<Organism, Boolean> organismUserMap = [:]
+        UserOrganismPermission.findAllByUser(currentUser).each { permission ->
+            PermissionEnum highestPermssion = findHighestOrganismPermissionForCurrentUser(permission.organism)
+            organismUserMap.put(permission.organism, highestPermssion?.rank >= permissionEnum?.rank)
+        }
+
+        return organismUserMap
+    }
+
     Boolean userHasOrganismPermission(Organism organism, PermissionEnum permissionEnum) {
         return findHighestOrganismPermissionForCurrentUser(organism).rank >= permissionEnum.rank
     }
 
-    def authenticateWithToken(UsernamePasswordToken usernamePasswordToken, HttpServletRequest request) {
+    def authenticateWithToken(UsernamePasswordToken usernamePasswordToken = null, HttpServletRequest request) {
 
         def authentications = configWrapperService.authentications
+
         for (auth in authentications) {
             if (auth.active) {
                 log.info "Authenticating with ${auth.className}"
                 def authenticationService
-                if("remoteUserAuthenticatorService" == auth.className ){
+                if ("remoteUserAuthenticatorService" == auth.className) {
                     authenticationService = remoteUserAuthenticatorService
-                }
-                else
-                if("usernamePasswordAuthenticatorService" == auth.className ){
+                    if (auth?.params?.containsKey("default_group")) {
+                        authenticationService.setDefaultGroup(auth.params.get("default_group"))
+                    }
+                } else if ("usernamePasswordAuthenticatorService" == auth.className) {
                     authenticationService = usernamePasswordAuthenticatorService
-                }
-                else{
+                } else {
                     log.error("No authentication service for ${auth.className}")
                     // better to return false if mis-configured
                     return false
                 }
 
-                if(usernamePasswordToken){
-                    if (authenticationService.authenticate(usernamePasswordToken, request)) {
-                        log.info "Authenticated user ${usernamePasswordToken.username} using ${auth.name}"
+                if (authenticationService.requiresToken()) {
+                    def req = handleInput(request, request.parameterMap)
+                    def authToken = usernamePasswordToken ?: null
+                    if (!authToken && req.username) {
+                        authToken = new UsernamePasswordToken(req.username as String, req.password as String)
+                    }
+                    if (authenticationService.authenticate(authToken, request)) {
+                        log.info "Authenticated user ${authToken.username} using ${auth.name}"
                         return true
                     }
-                }
-                else{
+                } else {
                     if (authenticationService.authenticate(request)) {
                         log.info "Authenticated user ${auth.name}"
                         return true
@@ -595,14 +667,29 @@ class PermissionService {
         }
     }
 
+    /**
+     * we prefer the param over the dataObject one I guess
+     * @param params
+     * @param dataObject
+     * @return
+     */
     @NotTransactional
     String handleToken(GrailsParameterMap params, JSONObject dataObject) {
+        // replace the dataObject either way
         if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
             dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, params.get(FeatureStringEnum.CLIENT_TOKEN.value))
-        } else {
-            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
         }
-        return dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        // if the dataObject doesn't contain nor does the param, then we create it
+        if (!dataObject.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
+            // client should generate token, not server
+//            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value,ClientTokenGenerator.generateRandomString())
+            dataObject.put(FeatureStringEnum.CLIENT_TOKEN.value, FeatureStringEnum.IGNORE.value)
+        }
+        String clientToken = dataObject.get(FeatureStringEnum.CLIENT_TOKEN.value)
+        if (!dataObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
+            log.debug("dataObject does not contain organism (may not be needed)")
+        }
+        return clientToken
     }
 
     @NotTransactional
@@ -621,4 +708,21 @@ class PermissionService {
         handleToken(params, payloadJson)
         return payloadJson
     }
+
+    JSONObject handleInput(HttpServletRequest request, Map params) {
+        JSONObject payloadJson = new JSONObject()
+        if (request.JSON) {
+            payloadJson = request.JSON as JSONObject
+        }
+        else {
+            params.keySet().each { key ->
+                // TODO: what about this?
+                payloadJson.put(key, params.get(key)[0])
+
+            }
+        }
+        return payloadJson
+    }
+
+
 }

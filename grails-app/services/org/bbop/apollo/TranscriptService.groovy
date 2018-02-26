@@ -46,10 +46,10 @@ class TranscriptService {
         return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
-    public Collection<Exon> getSortedExons(Transcript transcript) {
+    public Collection<Exon> getSortedExons(Transcript transcript, boolean sortByStrand ) {
         Collection<Exon> exons = getExons(transcript)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
-        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(false))
+        Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand))
         return sortedExons
     }
 
@@ -283,7 +283,7 @@ class TranscriptService {
 
     @Transactional
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
-        List<Exon> exons = exonService.getSortedExons(transcript)
+        List<Exon> exons = getSortedExons(transcript,true)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
@@ -435,7 +435,7 @@ class TranscriptService {
                 log.debug "Gene1 != Gene2; merging genes together"
                 List<Transcript> gene2Transcripts = getTranscripts(gene2)
                 if (gene2Transcripts) {
-                    gene2Transcripts.retainAll(featureService.getTranscriptsWithOverlappingOrf(transcript1))
+                    gene2Transcripts.retainAll(featureService.getOverlappingTranscripts(transcript1))
 
                     for (Transcript transcript : gene2Transcripts) {
                         // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted
@@ -474,51 +474,22 @@ class TranscriptService {
     @Transactional
     Transcript flipTranscriptStrand(Transcript oldTranscript) {
         Gene oldGene = getGene(oldTranscript)
-        boolean isPseudogene = oldGene instanceof Pseudogene
-//        featureRelationshipService.removeFeatureRelationship(oldGene, oldTranscript)
-
-//        if (getTranscripts(oldGene)?.size() == 0) {
-//            featureService.deleteFeature(oldGene)
-//        }
-        oldTranscript = featureService.flipStrand(oldTranscript)
-        oldTranscript.save()
+        if(oldGene.parentFeatureRelationships.size()==1){
+            oldGene = featureService.flipStrand(oldGene)
+            oldGene.save()
+        }
+        else{
+            oldTranscript = featureService.flipStrand(oldTranscript)
+            oldTranscript.save()
+        }
         nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(oldTranscript)
         oldTranscript.save()
 
-//        String oldGeneName = oldGene.name
-//        String oldTranscriptName = oldTranscript.name
-//        JSONObject jsonTranscript = featureService.convertFeatureToJSON(oldTranscript, false)
-//        JSONObject requestJSONObject = requestHandlingService.createJSONFeatureContainer(jsonTranscript)
-//        requestJSONObject.put(FeatureStringEnum.TRACK.value,oldTranscript.featureLocation.sequence.name)
-
-//        String sequenceName = oldTranscript.featureLocation.sequence.name
-//        Transcript newTranscript = featureService.generateTranscript(jsonTranscript,sequenceName)
-//        newTranscript.name = oldTranscriptName
-//        newTranscript.save()
-
-//        JSONObject newJsonTranscript = requestHandlingService.addTranscript(requestJSONObject)
-//        if (getTranscripts(oldGene).size() == 0) {
-//            oldGene.delete(flush: true)
-//        } else {
-//            oldGene.save(flush: true )
-//        }
-//        deleteTranscript(oldGene,oldTranscript)
-//        oldTranscript.delete(flush: true )
-//        writeFeatureToStore(editor, dataStore, getTopLevelFeatureForTranscript(newTranscript), track);
-//        if (historyStore != null) {
-//            Transaction transaction = new Transaction(Transaction.Operation.FLIP_STRAND, newTranscript.getUniqueName(), username);
-//            transaction.addNewFeature(newTranscript);
-//            writeHistoryToStore(historyStore, transaction);
-//        }
-//        JSONArray features = newJsonTranscript.getJSONArray(FeatureStringEnum.FEATURES.value)
-//        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value)
-//        Transcript newTranscript = Transcript.findByUniqueName(uniqueName)
-
-        return oldTranscript;
+        return oldTranscript
     }
 
     String getResiduesFromTranscript(Transcript transcript) {
-        def exons = exonService.getSortedExons(transcript)
+        def exons = getSortedExons(transcript,true)
         if (!exons) {
             return null
         }

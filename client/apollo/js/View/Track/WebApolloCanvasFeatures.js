@@ -53,7 +53,7 @@ return declare( CanvasFeaturesTrack,
                   "label" : "gene",
                   "action":  function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
-                     atrack.createAnnotations({x1:{feature:this.feature}});
+                     atrack.createAnnotations({x1:{feature:this.feature}},true);
                   }
                 },
                 {

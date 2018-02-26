@@ -8,6 +8,7 @@ import org.apache.shiro.subject.Subject
 import org.apache.shiro.util.ThreadContext
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -25,8 +26,8 @@ class AbstractIntegrationSpec extends IntegrationSpec{
         setupDefaultUserOrg()
     }
 
-    String getTestCredentials(){
-        "\"${FeatureStringEnum.CLIENT_TOKEN.value}\":\"1231232\",\"${FeatureStringEnum.USERNAME.value}\":\"test@test.com\","
+    String getTestCredentials(String clientToken = "1231232"){
+        "\"${FeatureStringEnum.CLIENT_TOKEN.value}\":\"${clientToken}\",\"${FeatureStringEnum.USERNAME.value}\":\"test@test.com\","
     }
 
     def setupDefaultUserOrg(){
@@ -40,7 +41,7 @@ class AbstractIntegrationSpec extends IntegrationSpec{
                 ,lastName: 'Test'
                 ,passwordHash: passwordHash
         ).save(insert: true,flush: true)
-        def adminRole = Role.findByName(UserService.ADMIN)
+        def adminRole = Role.findByName(GlobalPermissionEnum.ADMIN.name())
         testUser.addToRoles(adminRole)
         testUser.save()
 

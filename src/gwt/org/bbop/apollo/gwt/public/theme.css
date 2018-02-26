@@ -10,3 +10,57 @@
 .btn {
     font-size: 12px !important;
 }
+
+.snackbarRight {
+    position: fixed;
+    right: 10px;
+    top :48%;
+    z-index: 1000;
+    opacity: 80;
+    /*rotation: 90deg;*/
+    /*background-color: black;*/
+    /*color: yellowgreen;*/
+}
+
+.track-link {
+    width: 5px;
+    /*display: inline !important;*/
+    /*cursor: pointer;*/
+    /*font-size: small;*/
+    /*margin-left: 5px;*/
+    /*padding-left: 5px;*/
+}
+
+.track-link:hover {
+    /*display: inline !important;*/
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.track-slider {
+    /*display: inline ;*/
+    /*margin-right: 5px;*/
+    /*padding-right: 5px;*/
+}
+
+.track-entry {
+    padding-top: 1px !important;
+    padding-bottom: 5px !important;
+}
+.track-header {
+    display: inline;
+    cursor: pointer;
+    font-size: medium;
+}
+
+.text-left {
+    text-align: left !important;
+    background-color: white !important;
+}
+
+.panel-select {
+    background-color: #f5f5f5 !important; 
+    border: none !important;
+    padding: 0 0 0 5px !important;
+}

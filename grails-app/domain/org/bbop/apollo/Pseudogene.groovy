@@ -9,8 +9,7 @@ class Pseudogene extends Gene{
     static constraints = {
     }
 
+    static String cvTerm = "pseudogene"
     static String ontologyId = "SO:0000336"// XX:NNNNNNN
-    static String cvTerm = "Pseudogene"// may have a link
-
-    static String alternateCvTerm = "pseudogene"
+    static String alternateCvTerm = "Pseudogene"
 }

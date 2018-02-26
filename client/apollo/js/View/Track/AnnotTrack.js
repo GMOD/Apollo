@@ -272,21 +272,15 @@ define([
             },
 
             getClientToken: function () {
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    var token = window.parent.getClientToken();
-                    //alert("AnnotTrack have to get client token in AnnotTrack.js using GWT function: "+token);
-                    return token ;
+                if (this.runningApollo()) {
+                    return this.getApollo().getClientToken();
                 }
                 else{
                     var returnItem = window.sessionStorage.getItem("clientToken");
                     if (!returnItem) {
                         var randomNumber = this.generateRandomNumber(20);
-                        //alert('AnnotTrack generating and storing random number: '+randomNumber);
                         window.sessionStorage.setItem("clientToken", randomNumber);
                     }
-                    //else{
-                    //    alert("AnnotTrack found client token: "+returnItem);
-                    //}
                     return window.sessionStorage.getItem("clientToken");
                 }
             },
@@ -310,108 +304,123 @@ define([
                 var client = this.client;
                 var track = this;
                 var browser = this.gview.browser;
+                var apolloMainPanel = this.getApollo();
 
-                if (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') {
-                    console.log('Registering embedded system with ApolloGwt-2.0.');
+                console.log('Registering Apollo listeners.');
 
-                    browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
-                        window.parent.handleNavigationEvent(JSON.stringify(currRegion));
-                    }));
+                browser.subscribe("/jbrowse/v1/n/navigate", dojo.hitch(this, function (currRegion) {
+                    apolloMainPanel.handleNavigationEvent(JSON.stringify(currRegion));
+                }));
 
+                var navigateToLocation = function(urlObject) {
+                    if(urlObject.exact){
+                        browser.callLocation(urlObject.url);
+                    }
+                    else{
+                        var location = Util.parseLocString( urlObject.url);
+                        browser.showRegion(location);
+                    }
+                };
 
-                    var sendTracks = function (trackList, visibleTrackNames, showLabels) {
-                        var filteredTrackList = [];
-                        for (var trackConfigIndex in trackList) {
-                            var filteredTrack = {};
-                            var trackConfig = trackList[trackConfigIndex];
-                            var visible = visibleTrackNames.indexOf(trackConfig.label) >= 0 || showLabels.indexOf(trackConfig.label) >= 0;
-                            filteredTrack.label = trackConfig.label;
-                            filteredTrack.key = trackConfig.key;
-                            filteredTrack.name = trackConfig.name;
-                            filteredTrack.type = trackConfig.type;
-                            filteredTrack.urlTemplate = trackConfig.urlTemplate;
-                            filteredTrack.visible = visible;
-                            filteredTrackList.push(filteredTrack);
-                        }
+                var sendTracks = function (trackList, visibleTrackNames, showLabels) {
+                    var filteredTrackList = [];
+                    for (var trackConfigIndex in trackList) {
+                        var filteredTrack = {};
+                        var trackConfig = trackList[trackConfigIndex];
+                        var visible = visibleTrackNames.indexOf(trackConfig.label) >= 0 || showLabels.indexOf(trackConfig.label) >= 0;
+                        filteredTrack.label = trackConfig.label;
+                        filteredTrack.key = trackConfig.key;
+                        filteredTrack.name = trackConfig.name;
+                        filteredTrack.type = trackConfig.type;
+                        filteredTrack.category = trackConfig.category;
+                        filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                        filteredTrack.visible = visible;
+                        filteredTrackList.push(filteredTrack);
+                    }
 
-                        // if for some reason this method is called in the wrong place, we catch the error
-                        if(window.parent){
-                            window.parent.loadTracks(JSON.stringify(filteredTrackList));
-                        }
-                    };
-
-                    var handleTrackVisibility = function (trackInfo) {
-                        var command = trackInfo.command;
-                        if (command == "show") {
-                            browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
-                        }
-                        else if (command == "hide") {
-                            browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
-                        }
-                        else if (command == "list") {
-                            var trackList = browser.trackConfigsByName;
-                            var visibleTrackNames = browser.view.visibleTrackNames();
-                            var showLabels = array.map(trackInfo.labels, function (track) {
-                                return track.label;
-                            });
-                            sendTracks(trackList, visibleTrackNames, showLabels);
-                        }
-                        else {
-                            console.log('unknown command: ' + command);
-                        }
-                    };
-                    browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
-                        console.log("show update");
-                        handleTrackVisibility({command: "list", labels: labels});
-                    });
-                    browser.subscribe('/jbrowse/v1/c/tracks/hide', function () {
-                        console.log("hide update");
-                        handleTrackVisibility({command: "list"});
-                    });
-                    window.parent.registerFunction("handleTrackVisibility", handleTrackVisibility);
+                    // if for some reason this method is called in the wrong place, we catch the error
+                    if(apolloMainPanel){
+                        apolloMainPanel.loadTracks(JSON.stringify(filteredTrackList));
+                    }
+                };
 
 
 
-                    client.connect({}, function () {
-                        // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
-                        var organism = JSON.parse(window.parent.getCurrentOrganism());
-                        var sequence = JSON.parse(window.parent.getCurrentSequence());
-                        var user = JSON.parse(window.parent.getCurrentUser());
-                        client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
-                        client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
-                    });
-                    console.log('connection established');
+                var handleTrackVisibility = function (trackInfo) {
+                    var command = trackInfo.command;
+                    if (command == "show") {
+                        browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
+                    }
+                    else if (command == "hide") {
+                        browser.publish('/jbrowse/v1/v/tracks/hide', [browser.trackConfigsByName[trackInfo.label]]);
+                    }
+                    else if (command == "list") {
+                        var trackList = browser.trackConfigsByName;
+                        var visibleTrackNames = browser.view.visibleTrackNames();
+                        var showLabels = array.map(trackInfo.labels, function (track) {
+                            return track.label;
+                        });
+                        sendTracks(trackList, visibleTrackNames, showLabels);
+                    }
+                    else {
+                        console.error('unknown command: ' + command);
+                    }
+                };
+                browser.subscribe('/jbrowse/v1/c/tracks/show', function (labels) {
+                    console.log("show update");
+                    handleTrackVisibility({command: "list", labels: labels});
+                });
+                browser.subscribe('/jbrowse/v1/c/tracks/hide', function () {
+                    console.log("hide update");
+                    handleTrackVisibility({command: "list"});
+                });
+
+                function handleMessage(event){
+                    var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
+                    var hostUrl = window.location.protocol +"//" + window.location.hostname ;
+
+                    // if non-80 or non-specified
+                    if(window.location.port && window.location.port!= "" && window.location.port != "80"){
+                        hostUrl = hostUrl + ":" + window.location.port;
+                    }
+                    if (origin !== hostUrl){
+                        console.error("Bad Host Origin: "+origin );
+                        return;
+                    }
+
+                    if(event.data.description === "navigateToLocation"){
+                        navigateToLocation(event.data);
+                    }
+                    else
+                    if(event.data.description === "handleTrackVisibility"){
+                        handleTrackVisibility(event.data);
+                    }
+                    else{
+                        console.log("Unknown command: "+event.data.description);
+                    }
                 }
-                else
-                // TODO: note this code will likely be removed with an error that it has to be wrapped
-                {
-                    console.log('No embedded server is present.');
-                    client.connect({}, function () {
+                window.addEventListener("message",handleMessage,true);
 
-                        var request = {
-                            "name": track.refSeq.name,
-                            "organism": track.webapollo.organism,
-                            "clientToken": track.getClientToken()
-                        };
 
-                        xhr.post(context_path + "/sequence/lookupSequenceByNameAndOrganism/", {
-                            data: JSON.stringify(request),
-                            handleAs: "json"
-                        }).then(function (response) {
-                                if (response.error) {
-                                    alert("Failed to subscribe to websocket, no seq/org id available");
-                                    return;
-                                }
-                                if (typeof track.webapollo.organism == 'undefined') {
-                                    track.webapollo.organism = response.organismId;
-                                }
-                                client.subscribe("/topic/AnnotationNotification/" + track.webapollo.organism + "/" + response.id, dojo.hitch(track, 'annotationNotification'));
-                                client.subscribe("/topic/AnnotationNotification/user/" + track.username, dojo.hitch(track, 'annotationNotification'));
-                            },
-                            function () {
-                                console.log("Received error in organism lookup, anonymous mode jbrowse");
-                            });
-                    });
+                client.connect({}, function () {
+                    // TODO: at some point enable "user" to websockets for chat, private notes, notify @someuser, etc.
+                    var organism = JSON.parse(apolloMainPanel.getCurrentOrganism());
+                    var sequence = JSON.parse(apolloMainPanel.getCurrentSequence());
+                    var user = JSON.parse(apolloMainPanel.getCurrentUser());
+                    client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
+                    client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
+                });
+                console.log('connection established');
+            },
+            // TODO: need a better function and to not have it be double-encoded
+            isJSON: function(str) {
+                if(!str) return false ;
+                try{
+                    JSON.parse(str);
+                    return true
+                }
+                catch(e){
+                    return false
                 }
             },
             annotationNotification: function (message) {
@@ -419,7 +428,19 @@ define([
                 var changeData;
 
                 try {
-                    changeData = JSON.parse(JSON.parse(message.body));
+                    if (track.verbose_server_notification) {
+                        console.log(message.body);
+                    }
+
+                    if(this.isJSON(message.body)){
+                        changeData = JSON.parse(message.body);
+                    }
+                    else{
+                        changeData = {} ;
+                        changeData.operation = 'ERROR';
+                        changeData.username = track.username ;
+                        changeData.error_message = message.body ;
+                    }
 
                     if (track.verbose_server_notification) {
                         console.log(changeData.operation + " command from server: ");
@@ -432,7 +453,7 @@ define([
                         }
                         else{
                             alert("You have been logged out or your session has expired");
-                            if (window.parent) {
+                            if (this.getApollo()) {
                                 parent.location.reload();
                             }
                             else {
@@ -443,8 +464,11 @@ define([
                     }
 
                     if (changeData.operation == "ERROR" && changeData.username == track.username) {
-                        alert(changeData.error_message);
-                        console.log(changeData.error_message);
+                        var myDialog = new dijit.Dialog({
+                            title: "Error Performing Operation",
+                            content: changeData.error_message,
+                            style: "width: 300px"
+                        }).show();
                         return;
                     }
 
@@ -455,7 +479,7 @@ define([
                         else {
                             track.annotationsAddedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureAdded(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureAdded(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "DELETE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -464,7 +488,7 @@ define([
                         else {
                             track.annotationsDeletedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
                     }
                     else if (changeData.operation == "UPDATE") {
                         if (changeData.sequenceAlterationEvent) {
@@ -473,7 +497,38 @@ define([
                         else {
                             track.annotationsUpdatedNotification(changeData.features);
                         }
-                        if (typeof window.parent.getEmbeddedVersion == 'function') window.parent.handleFeatureDeleted(JSON.stringify(changeData.features));
+
+                        // changes are not propagated to the selection, so we are doing that here and the re-adding
+                        // see: https://github.com/GMOD/Apollo/issues/645
+                        var selections = track.selectionManager.getSelection();
+                        for(var sin in selections){
+                            // track.selectionRemoved(selections[sin],track.selectionManager);
+                            var selection = selections[sin];
+                            var uniqueId = selection.feature._uniqueID;
+                            for(var featureIndex in changeData.features){
+                                var changedFeature = changeData.features[featureIndex];
+                                // if they are both transcripts
+                                if(changedFeature.uniquename===uniqueId){
+                                    selection.feature.data.strand = changedFeature.location.strand;
+                                }
+                                else
+                                    // if we select an exon, then let's see what happens here
+                                if(!selection.feature.data.parent_type || selection.feature.data.parent_type.indexOf('gene')<0){
+                                    // we want the uniqueId to be the parent
+                                    if(selection.feature._parent._uniqueID==changedFeature.uniquename){
+                                        selection.feature._parent.strand = changedFeature.location.strand ;
+                                        selection.feature._parent.data.strand = changedFeature.location.strand ;
+                                        selection.feature.data.strand = changedFeature.location.strand ;
+                                    }
+                                }
+                            }
+                            track.selectionAdded(selection,track.selectionManager);
+                        }
+
+                        if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
+
+
+
                     }
                     else {
                         console.log('unknown command: ', changeData.operation);
@@ -482,7 +537,6 @@ define([
                     track.changed();
                 } catch (e) {
                     console.log(e);
-                    console.log('Processing: ', message.body);
                 }
             },
 
@@ -610,7 +664,7 @@ define([
                         connectId: featDiv,
                         label: label,
                         position: ["above"],
-                        showDelay: 600
+                        showDelay: 400
                     });
                 }
 
@@ -951,7 +1005,7 @@ define([
                             if (target_track.verbose_drop) {
                                 console.log("draggable dropped on AnnotTrack");
                             }
-                            target_track.createAnnotations(dropped_feats);
+                            target_track.createAnnotations(dropped_feats,false);
                         }
                         // making sure annot_under_mouse is cleared
                         // (should do this in the drop? but need to make sure _not_ null
@@ -965,8 +1019,7 @@ define([
                 }
             },
 
-            createAnnotations: function (selection_records) {
-                console.log('createAnnotations');
+            createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
                 var featuresToAdd = new Array();
                 var parentFeatures = new Object();
@@ -1062,8 +1115,31 @@ define([
 
                     if (fmin) featureToAdd.set("start", fmin);
                     if (fmax) featureToAdd.set("end", fmax);
-                    var afeat = JSONUtils.createApolloFeature(featureToAdd, "mRNA", true);
-                    featuresToAdd.push(afeat);
+
+
+                    var biotype ;
+                    if(force_type) {
+                        biotype = featureToAdd.get('type');
+                    }
+                    else{
+                        var default_biotype = selection_records[0].track.config.default_biotype;
+                        biotype = default_biotype ? default_biotype  : 'mRNA' ;
+                        if(biotype === 'auto'){
+                            biotype = featureToAdd.get('type');
+                        }
+                    }
+
+                    var afeat ;
+                    if(biotype === 'mRNA'){
+                        afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
+                        featuresToAdd.push(afeat);
+                    }
+                    else if (biotype.endsWith('RNA')){
+                        target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
+                    }
+                    else {
+                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , true );
+                    }
 
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
@@ -1071,7 +1147,7 @@ define([
                         "operation": "add_transcript"
                     };
                     target_track.executeUpdateOperation(JSON.stringify(postData));
-                };
+                }
 
                 console.log('process: ' + strand);
                 if (strand == -2) {
@@ -1371,6 +1447,14 @@ define([
                 this.deleteAnnotations(selected);
             },
 
+            getApollo: function(){
+                return window.parent;
+            },
+
+            runningApollo: function(){
+                return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+            },
+
             deleteAnnotations: function (records) {
                 var track = this;
                 var features = '"features": [';
@@ -1463,6 +1547,62 @@ define([
                 var selected = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
                 this.mergeAnnotations(selected);
+            },
+
+            associateTranscriptToGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var transcriptUniqueName;
+                var geneUniqueName;
+                if (selected[0].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    transcriptUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    transcriptUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                if (selected[1].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[1].feature.parent();
+                    geneUniqueName = parent.afeature.parent_id;
+                }
+                else {
+                    geneUniqueName = selected[1].feature.afeature.parent_id;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: transcriptUniqueName }, { uniquename: geneUniqueName }],
+                    operation: 'associate_transcript_to_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+            dissociateTranscriptFromGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var transcriptUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    transcriptUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    transcriptUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: transcriptUniqueName }],
+                    operation: 'dissociate_transcript_from_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
             },
 
             mergeAnnotations: function (selection) {
@@ -1590,7 +1730,6 @@ define([
                 // var coordinate = this.gview.getGenomeCoord(event);
 // var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
                 var coordinate = this.getGenomeCoord(event);
-                console.log("called setTranslationStartInCDS to: " + coordinate);
 
                 var setStart = annot.parent() ? !annot.parent().get("manuallySetTranslationStart") : !annot.get("manuallySetTranslationStart");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
@@ -1617,7 +1756,6 @@ define([
                 // var coordinate = this.gview.getGenomeCoord(event);
 // var coordinate = Math.floor(this.gview.absXtoBp(event.pageX));
                 var coordinate = this.getGenomeCoord(event);
-                console.log("called setTranslationEndInCDS to: " + coordinate);
 
                 var setEnd = annot.parent() ? !annot.parent().get("manuallySetTranslationEnd") : !annot.get("manuallySetTranslationEnd");
                 var uid = annot.parent() ? annot.parent().id() : annot.id();
@@ -2097,7 +2235,7 @@ define([
                     innerHTML: "Status"
                 }, statusDiv);
                 var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
-                var statusRadios = new Object();
+                var statusRadios = [];
 
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var dbxrefsLabel = dojo.create("div", {
@@ -2213,69 +2351,6 @@ define([
                     'class': "annotation_info_editor_button"
                 }, commentButtons);
 
-                //var replacementDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
-                //var replacementLabel = dojo.create("div", {
-                //    'class': "annotation_info_editor_section_header",
-                //    innerHTML: "Replace model(s)"
-                //}, replacementDiv);
-                //
-                //
-                //var replacementsTable = dojo.create("div", {
-                //    'class': "replacement",
-                //    id: "replacement_" + (selector ? "child" : "parent")
-                //}, replacementDiv);
-                //var replacementButtonsContainer = dojo.create("div", {style: "text-align: center;"}, replacementDiv);
-                //var replacementButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, replacementButtonsContainer);
-                //var addreplacementButton = dojo.create("button", {
-                //    innerHTML: "Add",
-                //    'class': "annotation_info_editor_button"
-                //}, replacementButtons);
-                //var deletereplacementButton = dojo.create("button", {
-                //    innerHTML: "Delete",
-                //    'class': "annotation_info_editor_button"
-                //}, replacementButtons);
-                //
-                //
-                //var trackNames = Object.keys(JBrowse.trackConfigsByName);
-                //var replacements = new Select({
-                //    name: "replacementSelection",
-                //    options: array.map(trackNames, function(trackName) {
-                //        return {value: track.browser.trackConfigsByName[trackName].label, label: track.browser.trackConfigsByName[trackName].key}
-                //    })
-                //});
-                //
-                //
-                //replacements.placeAt(replacementDiv).startup();
-                //track.featureReplace = track.featureReplace ||new Select({
-                //    name: "featureSelection",
-                //    options: []
-                //});
-                //on(replacements, "change", function(selection) {
-                //    console.log(track.browser.trackConfigsByName,selection,replacements);
-                //    track.browser.getStore(track.browser.trackConfigsByName[selection].store, function(store) {
-                //        console.log("Received store",store);
-                //        store.getFeatures({ref: feature.afeature.sequence, start: feature.get('start'), end: feature.get('end')}, function(f) {
-                //            console.log(track.featureReplace.options,f);
-                //            if(f) {
-                //                track.featureReplace.options.push({value: f.get('id'), label: f.get('name')});
-                //                track.featureReplace.placeAt(replacementDiv).startup();
-                //            }
-                //        })
-                //    });
-                //});
-                //
-                //on(track.featureReplace, "change", function(selection) {
-                //    console.log(uniqueName);
-                //    track.executeUpdateOperation(JSON.stringify({ "features": [{
-                //            non_reserved_properties: [{
-                //                tag: "replace",
-                //                value: selection
-                //            }],
-                //            uniquename: uniqueName
-                //        }],
-                //        operation: "add_non_reserved_properties"
-                //    }))
-                //});
 
 
                 if (!hasWritePermission) {
@@ -2335,7 +2410,8 @@ define([
                             initSymbol(feature);
                             initDescription(feature);
                             initDates(feature);
-                            initStatus(feature, config);
+                            // initStatus(feature, config);
+                            initStatus(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -2344,7 +2420,7 @@ define([
 
                         }
                     });
-                };
+                }
 
                 function initTable(domNode, tableNode, table, timeout) {
                     var id = dojo.attr(tableNode, "id");
@@ -2426,9 +2502,9 @@ define([
                     }
                 };
 
-                var initStatus = function (feature, config) {
+                var initStatus = function (feature) {
                     var maxLength = 0;
-                    var status = config.status;
+                    var status = feature.available_statuses;
                     if (status) {
                         for (var i = 0; i < status.length; ++i) {
                             if (status[i].length > maxLength) {
@@ -2438,7 +2514,7 @@ define([
                         for (var i = 0; i < status.length; ++i) {
                             var statusRadioDiv = dojo.create("span", {
                                 'class': "annotation_info_editor_radio",
-                                style: "width:" + (maxLength * 0.75) + "em;"
+                                style: "width:" + (maxLength * 0.75) + "em; display: inline;"
                             }, statusFlags);
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
@@ -3470,6 +3546,12 @@ define([
                     if (div.style.visibility) {
                         div.style.visibility = null;
                     }
+
+                    // if feature-render annot-render ,
+                    // remove and add: gray-center-10pct
+                    if(div.className.indexOf("feature-render")>=0 &&  div.className.indexOf("annot-render")>=0 ){
+                        div.className = "gray-center-10pct";
+                    }
 // annot_context_menu.unBindDomNode(div);
                     $(div).unbind();
                     for (var i = 0; i < div.childNodes.length; ++i) {
@@ -4293,8 +4375,12 @@ define([
                     timeout: 5 * 1000, // Time in milliseconds
                     // The LOAD function will be called on a successful response.
                     load: function (response, ioArgs) { //
-                        if (window.parent) window.parent.location.reload();
-                        else window.location.reload();
+                        if (this.getApollo()) {
+                            this.getApollo().location.reload();
+                        }
+                        else {
+                            window.location.reload();
+                        }
                     },
                     error: function (response, ioArgs) { //
                         console.log('Failed to log out cleanly.  May already be logged out.');
@@ -4302,29 +4388,57 @@ define([
                 });
             },
 
-            login: function () {
-                var track = this;
-                dojo.xhrGet({
-                    url: context_path + "/Login",
-                    handleAs: "text",
-                    timeout: 5 * 60,
-                    load: function (response, ioArgs) {
-                        var dialog = new dojoxDialogSimple({
-                            preventCache: true,
-                            refreshOnShow: true,
-                            executeScripts: true
-
-                        });
-                        if (track.browser.config.disableJBrowseMode) {
-                            dialog.hide = function () {
-                            };
-                        }
-                        dialog.startup();
-                        dialog.set("title", "Login");
-                        dialog.set("content", response);
-                        dialog.show();
+            showAnnotatorPanel: function(){
+                // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
+                // to
+                // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
+                var hrefString = window.location.href;
+                var hrefTokens = hrefString.split("\/");
+                var organism ;
+                for(var h in hrefTokens){
+                    // alert(hrefTokens[h]);
+                    if(hrefTokens[h]=="jbrowse"){
+                        organism = hrefTokens[h-1] ;
                     }
-                });
+                }
+
+                // NOTE: Here is where you customize your view into Apollo, by adding / changing parameters
+
+                var jbrowseString = "/jbrowse/index.html?";
+                var jbrowseIndex = hrefString.indexOf(jbrowseString);
+                var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
+                params = params.replace("tracklist=1","tracklist=0");
+                var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
+                if(params.indexOf("&clientToken=")<0){
+                    finalString += "&clientToken="+this.getClientToken();
+                }
+                window.location.href = finalString;
+            },
+
+            login: function () {
+                this.showAnnotatorPanel();
+                // var track = this;
+                // dojo.xhrGet({
+                //     url: context_path + "/Login",
+                //     handleAs: "text",
+                //     timeout: 5 * 60,
+                //     load: function (response, ioArgs) {
+                //         var dialog = new dojoxDialogSimple({
+                //             preventCache: true,
+                //             refreshOnShow: true,
+                //             executeScripts: true
+                //
+                //         });
+                //         if (track.browser.config.disableJBrowseMode) {
+                //             dialog.hide = function () {
+                //             };
+                //         }
+                //         dialog.startup();
+                //         dialog.set("title", "Login");
+                //         dialog.set("content", response);
+                //         dialog.show();
+                //     }
+                // });
             },
 
             initLoginMenu: function () {
@@ -4360,8 +4474,12 @@ define([
                                     // will be called on a
                                     // successful response.
                                     load: function (response, ioArgs) { //
-                                        if (window.parent) window.parent.location.reload();
-                                        else window.location.reload();
+                                        if (this.getApollo()){
+                                          this.getApollo().location.reload();
+                                        }
+                                        else {
+                                            window.location.reload();
+                                        }
                                     },
                                     error: function (response, ioArgs) { //
                                         alert('Failed to log out cleanly!  Please refresh your browser.');
@@ -4438,6 +4556,33 @@ define([
                     }
                 }));
                 contextMenuItems["zoom_to_base_level"] = index++;
+
+                annot_context_menu.addChild(new dijit.MenuItem({
+                    label: "View in Annotator Panel",
+                    onClick: function (event) {
+                        var selected = thisB.selectionManager.getSelection();
+                        var selectedFeature = selected[0].feature;
+                        var selectedFeatureDetails = selectedFeature.afeature;
+                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene'];
+                        while(selectedFeature  ){
+                            if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                                thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
+                                return ;
+                            }
+                            else
+                            if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
+                                thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_name);
+                                return ;
+                            }
+                            selectedFeature = selectedFeature._parent ;
+                            selectedFeatureDetails = selectedFeature.afeature ;
+                        }
+                        alert('Unable to focus on object');
+                    }
+                }));
+                contextMenuItems["view_in_annotator_panel"] = index++;
+
+
                 if (!(permission & Permission.WRITE)) {
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -4551,8 +4696,30 @@ define([
                         this.updateChangeAnnotationTypeMenu(changeAnnotationMenu);
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
+
+                    //
+                    var associateTranscriptToGeneItem = new dijit.MenuItem({
+                        label: "Associate Transcript to Gene",
+                        onClick: function () {
+                            thisB.associateTranscriptToGene();
+                        }
+                    });
+                    annot_context_menu.addChild(associateTranscriptToGeneItem);
+                    contextMenuItems["associate_transcript_to_gene"] = index++;
+
+                    var dissociateTranscriptToGeneItem = new dijit.MenuItem({
+                        label: "Dissociate Transcript from Gene",
+                        onClick: function () {
+                            thisB.dissociateTranscriptFromGene();
+                        }
+                    });
+                    annot_context_menu.addChild(dissociateTranscriptToGeneItem);
+                    contextMenuItems["dissociate_transcript_from_gene"] = index++;
+                    //
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Delete",
                         onClick: function () {
@@ -4733,20 +4900,27 @@ define([
                     // keeping track of mousedown event that triggered annot_context_menu popup
                     // because need mouse position of that event for some actions
                     thisB.annot_context_mousedown = thisB.last_mousedown_event;
-                    if (thisB.permission & Permission.WRITE) {
-                        thisB.updateMenu();
+                    var selected = thisB.selectionManager.getSelection();
+                    if (selected.length == 0) {
+                        // if there is no selection then close the menu
+                        thisB.closeMenu();
                     }
-                    dojo.forEach(this.getChildren(), function (item, idx, arr) {
-                        if (item instanceof dijit.MenuItem) {
-                            item._setSelected(false);
-                            // check for _onUnhover, since latest
-                            // dijit.MenuItem does not have _onUnhover()
-                            // method
-                            if (item._onUnhover) {
-                                item._onUnhover();
-                            }
+                    else {
+                        if (thisB.permission & Permission.WRITE) {
+                            thisB.updateMenu();
                         }
-                    });
+                        dojo.forEach(this.getChildren(), function (item, idx, arr) {
+                            if (item instanceof dijit.MenuItem) {
+                                item._setSelected(false);
+                                // check for _onUnhover, since latest
+                                // dijit.MenuItem does not have _onUnhover()
+                                // method
+                                if (item._onUnhover) {
+                                    item._onUnhover();
+                                }
+                            }
+                        });
+                    }
                 };
 
                 annot_context_menu.startup();
@@ -4842,6 +5016,17 @@ define([
                 }
             },
 
+            _trackMenuOptions: function() {
+                var thisB = this;
+                var browser = this.browser;
+                var clabel = this.name + "-collapsed";
+                var options = this.inherited(arguments) || [];
+                // specifically removing these two options for AnnotTrack
+                options = this.webapollo.removeItemWithLabel(options, "Pin to top");
+                options = this.webapollo.removeItemWithLabel(options, "Delete track");
+                return options;
+            },
+
             getPermission: function (callback) {
                 var thisB = this;
                 var loadCallback = callback;
@@ -4930,6 +5115,8 @@ define([
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
                 this.updateSetLongestOrfMenuItem();
+                this.updateAssociateTranscriptToGeneItem();
+                this.updateDissociateTranscriptFromGeneItem();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -4948,6 +5135,62 @@ define([
                 this.updateSetPreviousDonorMenuItem();
                 this.updateSetNextAcceptorMenuItem();
                 this.updateSetPreviousAcceptorMenuItem();
+            },
+
+            closeMenu: function() {
+                dijit.popup.close(this.annot_context_menu);
+            },
+
+            updateAssociateTranscriptToGeneItem: function() {
+                var menuItem = this.getMenuItem("associate_transcript_to_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                if (AnnotTrack.getTopLevelAnnotation(selected[0].feature).data.parent_id === AnnotTrack.getTopLevelAnnotation(selected[1].feature).data.parent_id) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)
+                    || JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[1].feature), JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
+                    menuItem.set("disabled", false);
+                }
+                else {
+                    menuItem.set("disabled", true);
+                }
+            },
+
+            updateDissociateTranscriptFromGeneItem: function() {
+                var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (!this.canEdit(selected[0].feature)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                menuItem.set("disabled", false);
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
@@ -5730,7 +5973,7 @@ define([
             },
 
             executeUpdateOperation: function (postData, loadCallback) {
-                if(postData.search('clientToken')<0){
+                if(!postData.hasOwnProperty('clientToken')){
                     var postObject = JSON.parse(postData);
                     postObject.clientToken = this.getClientToken();
                     postData = JSON.stringify(postObject);
@@ -5783,7 +6026,6 @@ define([
                             break;
                     }
                 }
-
             }
 
         });

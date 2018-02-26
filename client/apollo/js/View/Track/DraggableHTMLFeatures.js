@@ -31,7 +31,7 @@ define( [
         SimpleFeature,
         SeqOnto ) {
 
-var debugFrame = false;
+var debugFrame = false ;
 
 var draggableTrack = declare( HTMLFeatureTrack,
 
@@ -46,7 +46,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 style: {
             // className: "{type}",   // feature classname gets set to feature.get('type')
                     className: "container-16px", 
-                    renderClassName: "gray-center-30pct", 
+                    renderClassName: "gray-center-30pct annot-apollo",
                     arrowheadClass: "webapollo-arrowhead", 
                     subfeatureClasses: {
                         UTR: "webapollo-UTR",   
@@ -571,6 +571,19 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
    },
 
+    handleReverseStrandOffset: function(inputFrame){
+        var offset = ( 2 - (this.refSeq.length  % 3)  )  ;
+        inputFrame = (inputFrame + offset )% 3;
+        if(inputFrame==2){
+            inputFrame=0
+        }
+        else
+        if(inputFrame==0){
+            inputFrame=2
+        }
+        return inputFrame ;
+    },
+
    /**
     *  TODO: still need to factor in truncation based on displayStart and displayEnd???
 
@@ -599,9 +612,9 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //    if can't find, then default to parent feature class + "-UTR" or "-CDS"
         if( render ) {  // subfeatureClases defaults set in this._defaultConfig
             if (!UTRclass) {
-                UTRclass = this.config.style.subfeatureClasses["UTR"];  
+                UTRclass = this.config.style.subfeatureClasses["UTR"];
             }
-            CDSclass = this.config.style.subfeatureClasses["CDS"];  
+            CDSclass = this.config.style.subfeatureClasses["CDS"];
         }
 
         //    if ((subEnd <= displayStart) || (subStart >= displayEnd))  { return undefined; }
@@ -634,12 +647,13 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // whole exon is translated
         else if (cdsMin <= subStart && cdsMax >= subEnd) {
             var overhang = priorCdsLength % 3;  // number of bases overhanging from previous CDS
+            var absFrame, cdsFrame, initFrame
             var relFrame = (3 - (priorCdsLength % 3)) % 3;
-            var absFrame, cdsFrame, initFrame;
             if (reverse)  {
-                initFrame = (cdsMax - 1) % 3;
-                absFrame = (subEnd - 1) % 3;
-                cdsFrame = (3 + absFrame - relFrame) % 3;
+                initFrame = (cdsMax  ) % 3;
+                absFrame = (subEnd ) % 3;
+                cdsFrame = ( (absFrame - relFrame) + 3 ) % 3;
+                cdsFrame = this.handleReverseStrandOffset(cdsFrame);
             }
             else  {
                 initFrame = cdsMin % 3;
@@ -676,10 +690,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
             if (priorCdsLength > 0)  {
                 var relFrame = (3 - (priorCdsLength % 3)) % 3;
                 if (reverse)  {
-                    //      cdsFrame = ((subEnd-1) + ((3 - (priorCdsLength % 3)) % 3)) % 3; }
-                    initFrame = (cdsMax - 1) % 3;
-                    absFrame = (subEnd - 1) % 3;
+                    initFrame = (cdsMax) % 3;
+                    absFrame = (subEnd ) % 3;
                     cdsFrame = (3 + absFrame - relFrame) % 3;
+                    cdsFrame = this.handleReverseStrandOffset(cdsFrame);
                 }
                 else  {
                     // cdsFrame = (subStart + ((3 - (priorCdsLength % 3)) % 3)) % 3;
@@ -693,7 +707,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
             }
             else  {  // actually shouldn't need this? -- if priorCdsLength = 0, then above conditional collapses down to same calc...
                 if (reverse) {
-                    cdsFrame = (cdsMax-1) % 3; // console.log("rendering reverse frame");
+                    cdsFrame = (cdsMax) % 3;
+                    cdsFrame = this.handleReverseStrandOffset(cdsFrame);
                 }
                 else  {
                     cdsFrame = cdsMin % 3;
@@ -827,8 +842,27 @@ var draggableTrack = declare( HTMLFeatureTrack,
            }
        }
        else if (event.altKey) {
+           if (already_selected) {
+               // select entire feature
+               selman.addToSelection({ feature: feat.parent(), track: this}, false);
+           }
+           else if (parent_selected) {
+               // do nothing
+           }
+           else {
+               selman.addToSelection({ feature: feat.parent(), track: this}, false);
+           }
        }
        else if (event.ctrlKey) {
+           if (already_selected) {
+               // do nothing
+           }
+           else if (parent_selected) {
+               // do nothing
+           }
+           else {
+               selman.addToSelection({ feature: feat, track: this}, false);
+           }
        }
        else if (event.metaKey) {
        }
@@ -1167,7 +1201,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
-                atrack.createAnnotations(selection);
+                atrack.createAnnotations(selection,true);
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
@@ -1289,8 +1323,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var browser = this.browser;
         var clabel = this.name + "-collapsed";
         var options = this.inherited(arguments) || [];
-        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
-        options = this.webapollo.removeItemWithLabel(options, "Delete track");
 
         options.push({
             label: "Collapsed view",

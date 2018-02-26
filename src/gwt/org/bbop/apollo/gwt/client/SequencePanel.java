@@ -1,12 +1,15 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.event.dom.client.*;
-import com.google.gwt.http.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -14,32 +17,32 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfoConverter;
-import org.bbop.apollo.gwt.client.event.*;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
+import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.html.Paragraph;
-import org.gwtbootstrap3.client.ui.html.Span;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
-import org.gwtbootstrap3.extras.select.client.ui.Select;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 
 /**
  * Created by ndunn on 12/17/14.
@@ -69,7 +72,7 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportSelectedButton;
     @UiField
-    Select selectedSequenceDisplay;
+    MultipleSelect selectedSequenceDisplay;
     @UiField
     Button clearSelectionButton;
     @UiField
@@ -96,7 +99,7 @@ public class SequencePanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         dataGrid.setWidth("100%");
-        getChadoExportStatus();
+
         TextColumn<SequenceInfo> nameColumn = new TextColumn<SequenceInfo>() {
             @Override
             public String getValue(SequenceInfo employee) {
@@ -163,7 +166,7 @@ public class SequencePanel extends Composite {
                     public void onResponseReceived(Request request, Response response) {
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
                         Integer sequenceCount = 0;
-                        if (jsonArray!=null && jsonArray.size() > 0) {
+                        if (jsonArray != null && jsonArray.size() > 0) {
                             JSONObject jsonObject = jsonArray.get(0).isObject();
                             sequenceCount = (int) jsonObject.get("sequenceCount").isNumber().doubleValue();
                         }
@@ -210,9 +213,12 @@ public class SequencePanel extends Composite {
                     RequestCallback requestCallback = new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
-                            if (sequenceInfo != null) {
-                                OrganismRestService.switchSequenceById(sequenceInfo.getId().toString());
-                            }
+                            JSONObject sequenceInfoJson = JSONParser.parseStrict(response.getText()).isObject();
+                            MainPanel mainPanel = MainPanel.getInstance();
+                            SequenceInfo currentSequence = mainPanel.setCurrentSequenceAndEnds(SequenceInfoConverter.convertFromJson(sequenceInfoJson));
+                            mainPanel.sequenceSuggestBox.setText(currentSequence.getName());
+                            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),mainPanel.getCurrentOrganism().getName()));
+                            MainPanel.updateGenomicViewerForLocation(currentSequence.getName(),currentSequence.getStartBp(),currentSequence.getEndBp(),true,false);
                         }
 
                         @Override
@@ -229,7 +235,7 @@ public class SequencePanel extends Composite {
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS)) {
+                if (organismChangeEvent.getAction().equals(OrganismChangeEvent.Action.LOADED_ORGANISMS) && (organismChangeEvent.getCurrentOrganism() == null || !organismChangeEvent.getCurrentOrganism().equals(MainPanel.getInstance().getCurrentOrganism().getName()))) {
                     Scheduler.get().scheduleDeferred(new Command() {
                         @Override
                         public void execute() {
@@ -240,8 +246,6 @@ public class SequencePanel extends Composite {
                             reload();
                         }
                     });
-                } else {
-                    GWT.log("Unable to handle organism action " + organismChangeEvent.getAction());
                 }
             }
         });
@@ -274,6 +278,22 @@ public class SequencePanel extends Composite {
                 }
         );
 
+        Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if(MainPanel.getInstance().getCurrentUser()!=null) {
+                    if (MainPanel.getInstance().isCurrentUserAdmin()) {
+                        exportChadoButton.setVisible(true);
+                        getChadoExportStatus();
+                    } else {
+                        exportChadoButton.setVisible(false);
+                    }
+                    return false ;
+                }
+                return true ;
+            }
+        },100);
+
     }
 
     private void updatedExportSelectedButton() {
@@ -303,7 +323,7 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportFastaButton","exportChadoButton"})
+    @UiHandler(value = {"exportGff3Button", "exportFastaButton", "exportChadoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
@@ -359,16 +379,13 @@ public class SequencePanel extends Composite {
         String type = null;
         if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportGff3Button.getText();
-        }
-        else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportFastaButton.getText();
-        }
-        else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportChadoButton.getText();
         }
-//        GWT.log("Type selected is " + type);
 
-        ExportPanel exportPanel = new ExportPanel(organismInfo,type,exportAll,sequenceInfoList);
+        ExportPanel exportPanel = new ExportPanel(organismInfo, type, exportAll, sequenceInfoList);
         exportPanel.show();
     }
 
@@ -396,8 +413,7 @@ public class SequencePanel extends Composite {
         selectedSequenceDisplay.clear();
         if (selectedSequenceInfoList.size() == 0) {
             selectedSequenceDisplay.setEnabled(false);
-        }
-        else {
+        } else {
             selectedSequenceDisplay.setEnabled(true);
             for (SequenceInfo s : selectedSequenceInfoList) {
                 Option option = new Option();
@@ -415,9 +431,15 @@ public class SequencePanel extends Composite {
     }
 
     public void reload() {
-        pager.setPageStart(0);
-        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-        dataGrid.redraw();
+        reload(false);
+    }
+
+    public void reload(Boolean forceReload) {
+        if (MainPanel.getInstance().getSequencePanel().isVisible() || forceReload) {
+            pager.setPageStart(0);
+            dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+            dataGrid.redraw();
+        }
     }
 
     public void getChadoExportStatus() {

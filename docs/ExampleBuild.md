@@ -11,13 +11,12 @@ documentation for additional information.
 
 ```
 # Install prereqs
-apt-get install tomcat8 git ant openjdk-7-jdk nodejs
+apt-get install tomcat8 git ant openjdk-8-jdk nodejs
 # Upped tomcat memory per Apollo devs instructions:
 echo "export CATALINA_OPTS="-Xms512m -Xmx1g \
               -XX:+CMSClassUnloadingEnabled \
               -XX:+CMSPermGenSweepingEnabled \
-              -XX:+UseConcMarkSweepGC \
-              -XX:MaxPermSize=256m" >> /etc/default/tomcat8
+              -XX:+UseConcMarkSweepGC" >> /etc/default/tomcat8
 
 # Download and extract their tarball
 npm install -g bower

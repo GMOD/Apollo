@@ -19,5 +19,5 @@ if [[ ! -n "$url" || ! -n "$username" || ! -n "$password" || ! -n "$organism" ||
     exit
 fi
 
-echo curl -i -H \"Content-type: application/json\" -X POST http://localhost:8090/apollo/annotationEditor/addComments -d \"{\"operation\":\"add_comments\",\"username\":\"${username}\", \"password\":\"${password}\", \"features\":[{\"uniquename\":\"${uniqueName}\",\"comments\":[\'${comment}\']}],\"track\":\"${trackName}\", \"organism\":\"${organism}\"}\"
-curl -i -H "Content-type: application/json" -X POST http://localhost:8090/apollo/annotationEditor/addComments -d "{"operation":"add_comments","username":"${username}", "password":"${password}", "features":[{"uniquename":"${uniqueName}","comments":['${comment}']}],"track":"${trackName}", "organism":"${organism}"}"
+echo curl -i -H 'Content-type: application/json' -X POST ${url}/annotationEditor/addComments -d "{'operation': 'add_comments', 'username': '${username}', 'password': '${password}', 'features':[{'uniquename': '${uniqueName}','comments':['${comment}']}], 'track':'${trackName}', 'organism': '${organism}'}"
+curl -i -H 'Content-type: application/json' -X POST ${url}/annotationEditor/addComments -d "{'operation': 'add_comments', 'username': '${username}', 'password': '${password}', 'features':[{'uniquename': '${uniqueName}','comments':['${comment}']}], 'track':'${trackName}', 'organism': '${organism}'}"

@@ -9,7 +9,7 @@ class Intron extends TranscriptRegion{
     }
 
 
+    static String cvTerm = "intron"
     static String ontologyId = "SO:0000188"// XX:NNNNNNN
-//    static String cvTerm = "Match"// may have a link
-    static String cvTerm = "Intron"
+    static String alternateCvTerm = "Intron"
 }

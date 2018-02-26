@@ -34,16 +34,33 @@ fi
 
 function deploy_message(){
    echo "***************************************"
-   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://genomearchitect.readthedocs.io/en/latest/Troubleshooting/#tomcat-memory"
+   echo "NOTE: Please set the memory for your servlet container (tomcat, jetty, etc.) or Apollo may not start correctly: http://genomearchitect.readthedocs.io/en/latest/Troubleshooting.html#suggested-tomcat-memory-settings"
    echo "***************************************"
 }
 
 function check_rest_api(){
-	if [ ! -f web-app/js/restapidoc/restapidoc.json ]; then 
-		$grails_executable rest-api-doc 
+	if [ ! -d target ]; then
+		$grails_executable doc
 	fi
 }
 
+function check_java(){
+    javac_version=`javac -version 2>&1 | grep ^javac`
+    echo "$javac_version found";
+    if [[ $javac_version == javac*  ]]; then
+        echo "javac installed";
+        minor_version=`echo $javac_version  | cut -d\. -f2 `
+        if [[ "$minor_version" != '8' ]] ; then
+            echo "You must install JDK 1.8"
+            exit 1 ;
+        else
+            echo "JDK 1.8 found: $javac_version"
+        fi
+    else
+       echo "javac not installed.  Please install JDK 1.8."
+       exit 1 ;
+    fi
+}
 
 function check_node(){
     node_executable=$(which node)
@@ -53,23 +70,31 @@ function check_node(){
             echo "You must install 'Node JS' to do a release of Apollo."
             exit 1 ;
         else
-            echo "Creating an alias 'node' for 'nodejs'"
-            alias node="nodejs"
+            echo "STOPPING BUILD: You need to create a symlink from 'node' to 'nodejs'"
+            echo "e.g., sudo ln -s $nodejs_executable /usr/bin/node"
+            exit 0
         fi
     fi
+    NODE_VERSION=`$node_executable -v | cut -d\. -f1`
+    if [[ $NODE_VERSION == v* ]]; then
+        NODE_VERSION=${NODE_VERSION:1}
+    fi
+    echo "Node Version: $NODE_VERSION"
+    if [ $NODE_VERSION -lt 6 ]; then
+        echo "node version 6 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+        exit 1
+    fi
+
+
     npm_executable=$(which npm)
+    NPM_VERSION=`$npm_executable -v | cut -d\. -f1`
+    echo "Npm Version: $NPM_VERSION"
+    if [ $NPM_VERSION -lt 3 ]; then
+        echo "npm version 3 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
+        exit 1
+    fi
 }
 
-function check_bower(){
-    bower_executable=$(which bower)
-    if ! [ -x "$bower_executable" ] ; then
-        $npm_executable install -g bower
-        if ! [ -x "$bower_executable" ] ; then
-            echo "You must install 'Bower' to do a release of Apollo.  sudo ${npm_executable} install -g bower"
-            exit 1 ;
-        fi
-    fi
-}
 
 function check_perldependencies(){
     perl -e 'use Text::Markdown'
@@ -96,6 +121,7 @@ function check_configs(){
     if ! [ -x "$grails_executable" ] ; then
         if [ -f 'grailsw' ]; then
             echo "Grails not found using grailsw";
+           : "${JAVA_HOME?:Need to set JAVA_HOME}"
             grails_executable="./grailsw"
         else
            echo "You must install 'grails' to install Apollo."
@@ -105,6 +131,7 @@ function check_configs(){
     if ! [ -x "$gradle_executable" ] ; then
        if [ -f 'gradlew' ]; then
            echo "Gradle not found using gradlew";
+           : "${JAVA_HOME?:Need to set JAVA_HOME}"
            gradle_executable="./gradlew"
        else
            echo "You must install 'gradle' to install Apollo."
@@ -117,7 +144,7 @@ function check_configs(){
     fi
 
     check_node
-    check_bower
+    check_java
 }
 
 function copy_configs(){
@@ -157,7 +184,9 @@ elif [[ $1 == "watchman" ]]; then
     if ! [ -x "$watchman_executable" ] ; then
         echo "Watchman not found. Install watchman to automatically update the client side plugins for apollo development modes"
     fi
-    if [ -x "$watchman_executable" ]; then $watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.js' -- scripts/copy_client.sh; fi;
+    if [ -x "$watchman_executable" ]; then
+		$watchman_executable -- trigger $(PWD) jsfilescopy 'client/apollo/**/*.*s' -- scripts/copy_client.sh; 
+	fi;
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
@@ -179,9 +208,9 @@ elif [[ $1 == "debug" ]];then
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
-    $gradle_executable handleJBrowse 
+    $gradle_executable handleJBrowse
     check_rest_api
-	$grails_executable test-app 
+	$grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     check_configs
     copy_configs
@@ -203,7 +232,7 @@ elif [[ $1 == "compile" ]];then
     $gradle_executable gwtc && $grails_executable compile
 elif [[ $1 == "create-rest-doc" ]];then
     check_configs
-    $grails_executable compile && $grails_executable rest-api-doc && cp restapidoc.json web-app/js/restapidoc/
+    $grails_executable compile && $grails_executable rest-api-doc && mv -f restapidoc.json web-app/js/restapidoc/
 elif [[ $1 == "clean-all" ]];then
     clean_all
 elif [[ $1 == "clean" ]];then
@@ -215,4 +244,3 @@ elif [[ $1 == "jbrowse" ]];then
 else
     usage
 fi
-

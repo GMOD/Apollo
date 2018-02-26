@@ -1,7 +1,9 @@
 package org.bbop.apollo
 
-import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.PermissionEnum
+
+import static org.springframework.http.HttpStatus.*
 
 @Transactional(readOnly = true)
 class ProxyController {
@@ -12,8 +14,8 @@ class ProxyController {
     def proxyService
 
     def beforeInterceptor = {
-        if(actionName!="request" && !permissionService.isAdmin()){
-            forward action: "notAuthorized" ,controller: "annotator"
+        if (actionName != "request" && !permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            forward action: "notAuthorized", controller: "annotator"
             return
         }
     }
@@ -40,7 +42,7 @@ class ProxyController {
         // only a logged-in user can use the proxy
         User currentUser = permissionService.currentUser
         if (!currentUser) {
-            log.warn "Attempting to proxy ${url} without a logged-in user with params ${params}"
+            log.warn "Attempting to proxy ${url} without a logged-in user"
             render status: UNAUTHORIZED
             return
         }
@@ -48,7 +50,7 @@ class ProxyController {
         Proxy proxy = proxyService.findProxyForUrl(referenceUrl)
 
 
-        if(!proxy){
+        if (!proxy) {
             log.error "Proxy not found for ${referenceUrl}.  Please add a proxy (see the config guide)."
             render status: NOT_FOUND
             return
@@ -58,7 +60,7 @@ class ProxyController {
 
         String targetUrl = proxy ? proxy.targetUrl : referenceUrl
 
-        targetUrl += "?"+request.queryString
+        targetUrl += "?" + request.queryString
         log.debug "target url: ${targetUrl}"
         URL returnUrl = new URL(targetUrl)
 

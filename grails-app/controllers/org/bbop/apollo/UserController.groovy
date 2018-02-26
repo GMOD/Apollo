@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.crypto.hash.Sha256Hash
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -29,12 +30,17 @@ class UserController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId")
+            , @RestApiParam(name = "userId", type = "long / string", paramType = RestApiParamType.QUERY, description = "Optionally only user a specific userId as an integer database id or a username string")
+            , @RestApiParam(name = "start", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result start / offset")
+            , @RestApiParam(name = "length", type = "long / string", paramType = RestApiParamType.QUERY, description = "(optional) Result length")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Search name")
+            , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column, default 'name'")
+            , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true (default false)")
+            , @RestApiParam(name = "omitEmptyOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Omits empty organism permissions from return (default false)")
     ])
     def loadUsers() {
         try {
-            JSONObject dataObject = (request.JSON ?: (JSON.parse(params.data ?: "{}"))) as JSONObject
-            permissionService.handleToken(params,dataObject)
+            JSONObject dataObject = permissionService.handleInput(request, params)
             JSONArray returnArray = new JSONArray()
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
@@ -43,7 +49,13 @@ class UserController {
 
             def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
 
-            List<String> allUserGroups = UserGroup.all.name
+            List<String> allUserGroups = UserGroup.all
+            if (!permissionService.isAdmin()) {
+                allUserGroups = allUserGroups.findAll(){
+                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                }
+            }
+            List<String> allUserGroupsName = allUserGroups.name
             Map<String, List<UserOrganismPermission>> userOrganismPermissionMap = new HashMap<>()
             List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByOrganismInList(allowableOrganisms as List)
             for (UserOrganismPermission userOrganismPermission in userOrganismPermissionList) {
@@ -56,16 +68,60 @@ class UserController {
             }
 
             def c = User.createCriteria()
-            def users = c.list() {
+            def offset = dataObject.start ?: 0
+            def maxResults = dataObject.length ?: Integer.MAX_VALUE
+            def searchName = dataObject.name ?: null
+            def sortName = dataObject.sortColumn ?: 'name'
+            def sortAscending = dataObject.sortAscending ?: true
+            def omitEmptyOrganisms = dataObject.omitEmptyOrganisms!=null ? dataObject.omitEmptyOrganisms : false
+
+            def users = c.list(max: maxResults, offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
                     eq('id', (Long) dataObject.userId)
                 }
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
-            }.unique{ a, b ->
+                if (searchName) {
+                    or {
+                        ilike('firstName', '%' + searchName + '%')
+                        ilike('lastName', '%' + searchName + '%')
+                        ilike('username', '%' + searchName + '%')
+                    }
+                }
+                if(sortName){
+                    switch(sortName){
+                        case "name":
+                            order('firstName', sortAscending?"asc":"desc")
+                            order('lastName', sortAscending?"asc":"desc")
+                            break
+                        case "email":
+                            order('username', sortAscending?"asc":"desc")
+                            break
+                    }
+                }
+            }.unique { a, b ->
                 a.id <=> b.id
             }
+
+            int userCount = User.withCriteria{
+                if (dataObject.userId && dataObject.userId in Integer) {
+                    eq('id', (Long) dataObject.userId)
+                }
+                if (dataObject.userId && dataObject.userId in String) {
+                    eq('username', dataObject.userId)
+                }
+                if (searchName) {
+                    or {
+                        ilike('firstName', '%' + searchName + '%')
+                        ilike('lastName', '%' + searchName + '%')
+                        ilike('username', '%' + searchName + '%')
+                    }
+                }
+            }.unique { a, b ->
+                a.id <=> b.id
+            }.size()
+
             users.each {
                 def userObject = new JSONObject()
 
@@ -79,7 +135,15 @@ class UserController {
 
                 JSONArray groupsArray = new JSONArray()
                 List<String> groupsForUser = new ArrayList<>()
-                for (group in it.userGroups) {
+                // filter the userGroups to only show that the group that current instructor owned
+                def userGroups = it.userGroups
+                if (!permissionService.isAdmin()) {
+                    userGroups = userGroups.findAll() {
+                        it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                    }
+                }
+
+                for (group in userGroups) {
                     JSONObject groupJson = new JSONObject()
                     groupsForUser.add(group.name)
                     groupJson.put("name", group.name)
@@ -89,7 +153,7 @@ class UserController {
 
 
                 JSONArray availableGroupsArray = new JSONArray()
-                List<String> availableGroups = allUserGroups - groupsForUser
+                List<String> availableGroups = allUserGroupsName - groupsForUser
                 for (group in availableGroups) {
                     JSONObject groupJson = new JSONObject()
                     groupJson.put("name", group)
@@ -107,6 +171,7 @@ class UserController {
                         JSONObject organismJSON = new JSONObject()
                         organismJSON.put("organism", userOrganismPermission.organism.commonName)
                         organismJSON.put("permissions", userOrganismPermission.permissions)
+                        organismJSON.put("permissionArray", userOrganismPermission.permissionValues)
                         organismJSON.put("userId", userOrganismPermission.userId)
                         organismJSON.put("id", userOrganismPermission.id)
                         organismPermissionsArray.add(organismJSON)
@@ -119,16 +184,23 @@ class UserController {
                     !organismsWithPermissions.contains(it.id)
                 }
 
-                for (Organism organism in organismList) {
-                    JSONObject organismJSON = new JSONObject()
-                    organismJSON.put("organism", organism.commonName)
-                    organismJSON.put("permissions", "[]")
-                    organismJSON.put("userId", it.id)
-                    organismPermissionsArray.add(organismJSON)
+                if(!omitEmptyOrganisms){
+                    for (Organism organism in organismList) {
+                        JSONObject organismJSON = new JSONObject()
+                        organismJSON.put("organism", organism.commonName)
+                        organismJSON.put("permissions", "[]")
+                        organismJSON.put("permissionArray", new JSONArray())
+                        organismJSON.put("userId", it.id)
+                        organismPermissionsArray.add(organismJSON)
+                    }
                 }
 
 
                 userObject.organismPermissions = organismPermissionsArray
+
+                // could probably be done in a separate object
+                userObject.userCount = userCount
+                userObject.searchName = searchName
 
                 returnArray.put(userObject)
             }
@@ -146,21 +218,20 @@ class UserController {
     @Transactional
     def checkLogin() {
         def currentUser = permissionService.currentUser
-
+        preferenceService.evaluateSaves(true)
 
         // grab from session
-        if(!currentUser){
-            def authToken  = null
-            if(request.getParameter("username")){
+        if (!currentUser) {
+            def authToken = null
+            if (request.getParameter("username")) {
                 String username = request.getParameter("username")
                 String password = request.getParameter("password")
                 authToken = new UsernamePasswordToken(username, password)
             }
 
-            if(permissionService.authenticateWithToken(authToken,request)){
+            if (permissionService.authenticateWithToken(request)) {
                 currentUser = permissionService.currentUser
-            }
-            else{
+            } else {
                 log.error("Failed to authenticate")
             }
         }
@@ -169,14 +240,14 @@ class UserController {
             UserOrganismPreference userOrganismPreference
             try {
                 // sets it by default
-                userOrganismPreference = preferenceService.getCurrentOrganismPreference(params[FeatureStringEnum.CLIENT_TOKEN.value])
+                userOrganismPreference = preferenceService.getCurrentOrganismPreferenceInDB(params[FeatureStringEnum.CLIENT_TOKEN.value])
             } catch (e) {
                 log.error(e)
             }
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserAdmin(currentUser)) {
+            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserBetterOrEqualRank(currentUser,GlobalPermissionEnum.INSTRUCTOR)) {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
@@ -201,7 +272,7 @@ class UserController {
             }
             log.info "updateTrackListPreference"
 
-            UserOrganismPreference uop = preferenceService.getCurrentOrganismPreference(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
+            UserOrganismPreference uop = preferenceService.getCurrentOrganismPreferenceInDB(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
             uop.nativeTrackList = dataObject.get("tracklist")
             uop.save(flush: true)
@@ -271,6 +342,7 @@ class UserController {
             , @RestApiParam(name = "firstName", type = "string", paramType = RestApiParamType.QUERY, description = "First name of user to add")
             , @RestApiParam(name = "lastName", type = "string", paramType = RestApiParamType.QUERY, description = "Last name of user to add")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "User metadata (optional)")
+            , @RestApiParam(name = "role", type = "string", paramType = RestApiParamType.QUERY, description = "User role USER / ADMIN (optional: default USER) ")
             , @RestApiParam(name = "newPassword", type = "string", paramType = RestApiParamType.QUERY, description = "Password of user to add")
     ])
     @Transactional
@@ -297,9 +369,14 @@ class UserController {
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
+            def currentUser = permissionService.currentUser
+            user.addMetaData("creator", currentUser.id.toString())
 
-            String roleString = dataObject.role
+            String roleString = dataObject.role ?: GlobalPermissionEnum.USER.name()
             Role role = Role.findByName(roleString.toUpperCase())
+            if (!role) {
+                role = Role.findByName(GlobalPermissionEnum.USER.name())
+            }
             log.debug "adding role: ${role}"
             user.addToRoles(role)
             role.addToUsers(user)
@@ -330,10 +407,12 @@ class UserController {
         try {
             log.info "Removing user"
             JSONObject dataObject = permissionService.handleInput(request, params)
+
             if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+
             User user = null
             if (dataObject.has('userId')) {
                 user = User.findById(dataObject.userId)
@@ -342,9 +421,27 @@ class UserController {
             if (!user && dataObject.has("userToDelete")) {
                 user = User.findByUsername(dataObject.userToDelete)
             }
+
+            if (!user) {
+                def error = [error: 'The user does not exist']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
+            def currentUser = permissionService.getCurrentUser(dataObject)
+            String creatorMetaData = user.getMetaData("creator")
+            if (!permissionService.isAdmin() && creatorMetaData && currentUser.id.toString() != user.getMetaData("creator")) {
+                def error = [error: 'User did not create this user so can not delete it']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
             user.userGroups.each { it ->
                 it.removeFromUsers(user)
             }
+            FeatureEvent.deleteAll(FeatureEvent.findAllByEditor(user))
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
             UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))
@@ -378,7 +475,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.sameUser(dataObject,request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject, request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -443,10 +540,10 @@ class UserController {
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism to update")
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Permission ID to update (can get from userId/organism instead)")
 
-            , @RestApiParam(name = "administrate", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative (including user/group) privileges for the organism")
-            , @RestApiParam(name = "write", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write privileges for the organism")
-            , @RestApiParam(name = "export", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export privileges for the organism")
-            , @RestApiParam(name = "read", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read privileges for the organism")
+            , @RestApiParam(name = "ADMINISTRATE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has administrative and all lesser (including user/group) privileges for the organism")
+            , @RestApiParam(name = "WRITE", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has write and all lesser privileges for the organism")
+            , @RestApiParam(name = "EXPORT", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has export and all lesser privileges for the organism")
+            , @RestApiParam(name = "READ", type = "boolean", paramType = RestApiParamType.QUERY, description = "Indicate if user has read and all lesser privileges for the organism")
     ])
     @Transactional
     def updateOrganismPermission() {
@@ -458,9 +555,18 @@ class UserController {
         }
         UserOrganismPermission userOrganismPermission = UserOrganismPermission.findById(dataObject.id)
 
-        User user = dataObject.userId ? User.findById(dataObject.userId) : User.findByUsername(dataObject.user)
+        User user = dataObject.userId ? User.findById(dataObject.userId as Long) : User.findByUsername(dataObject.user)
 
-        Organism organism = Organism.findByCommonName(dataObject.organism)
+        log.debug "Finding organism by ${dataObject.organism}"
+        Organism organism = preferenceService.getOrganismForTokenInDB(dataObject.organism)
+        if (!organism) {
+            render([(FeatureStringEnum.ERROR.value): "Failed to find organism with ${dataObject.organism}"] as JSON)
+            return
+        }
+        if (!user) {
+            log.error("Failed to find user with ${dataObject.userId} OR ${dataObject.user}")
+            render([(FeatureStringEnum.ERROR.value): "Failed to find user with ${dataObject.userId} OR ${dataObject.user}"] as JSON)
+        }
         log.debug "found ${userOrganismPermission}"
         if (!userOrganismPermission) {
             userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
@@ -470,7 +576,7 @@ class UserController {
             log.debug "creating new permissions! "
             userOrganismPermission = new UserOrganismPermission(
                     user: user
-                    , organism: Organism.findByCommonName(dataObject.organism)
+                    , organism: organism
                     , permissions: "[]"
             ).save(insert: true)
             log.debug "created new permissions! "
@@ -491,7 +597,7 @@ class UserController {
             permissionsArray.add(PermissionEnum.READ.name())
         }
 
-        if(permissionsArray.size()==0){
+        if (permissionsArray.size() == 0) {
             userOrganismPermission.delete(flush: true)
             render userOrganismPermission as JSON
             return

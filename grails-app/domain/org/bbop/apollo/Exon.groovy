@@ -8,9 +8,8 @@ class Exon extends TranscriptRegion{
     static constraints = {
     }
 
-
+    static String cvTerm = "exon"
     static String ontologyId = "SO:0000147"// XX:NNNNNNN
-    static String cvTerm = "Exon"
-    static String alternateCvTerm = "exon"
+    static String alternateCvTerm = "Exon"
 
 }

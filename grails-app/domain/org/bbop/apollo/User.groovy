@@ -3,7 +3,7 @@ package org.bbop.apollo
 /**
  * Maps to CVTerm Owner, no Ontology term
  */
-class User implements Ontological {
+class User implements Ontological, JsonMetadata{
 
 
     static auditable = true
@@ -13,16 +13,18 @@ class User implements Ontological {
     String passwordHash
     String firstName
     String lastName
-    String metadata
+    String metadata // this is JSON metadata
 
     static String cvTerm = "Owner"
     static String ontologyId = "Owner"
 
-    static hasMany = [roles: Role, userGroups: UserGroup]
+    static hasMany = [roles: Role, userGroups: UserGroup, groupAdmins: UserGroup]
 
     static belongsTo = [
             UserGroup
     ]
+
+    static mappedBy = [userGroups: "users", groupAdmins: "admin"]
 
 
     static constraints = {
@@ -33,6 +35,5 @@ class User implements Ontological {
 
     static mapping = {
         table "grails_user"
-//        password column: "grails_password"
     }
 }

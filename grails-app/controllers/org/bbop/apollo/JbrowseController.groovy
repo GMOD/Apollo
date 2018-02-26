@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import liquibase.util.file.FilenameUtils
+import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Range
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -22,8 +24,10 @@ class JbrowseController {
     def sequenceService
     def permissionService
     def preferenceService
+    def jbrowseService
     def servletContext
-
+    def configWrapperService
+    def trackService
 
     def chooseOrganismForJbrowse() {
         [organisms: Organism.findAllByPublicMode(true, [sort: 'commonName', order: 'asc']), flash: [message: params.error]]
@@ -37,20 +41,55 @@ class JbrowseController {
 
         def paramList = []
         String clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
-        params.each { entry ->
+
+        boolean requireRedirect = false
+        request.parameterMap.each { entry ->
             if (entry.key != "action" && entry.key != "controller" && entry.key != "organism") {
-                paramList.add(entry.key + "=" + entry.value)
+                entry.value.each {
+                    if(entry.key.endsWith("urlTemplate")){
+                        String oldValue = it
+                        it = JBrowseUrlHandler.fixUrlTemplate(it,request.contextPath)
+                        requireRedirect = requireRedirect ?: it!=oldValue
+                    }
+                    paramList.add("${entry.key}=${it}")
+                }
             }
         }
+        String paramString = paramList.join("&")
+        if(requireRedirect){
+            redirect(uri: createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}"))
+            return
+        }
+
         // case 3 - validated login (just read from preferences, then
         if (permissionService.currentUser && clientToken) {
-            Organism organism = preferenceService.getOrganismForToken(clientToken)
-            organism = organism ?: preferenceService.getOrganismFromPreferences(clientToken)
+//            Organism organism = preferenceService.getOrganismForToken(clientToken)
+            Organism organism = preferenceService.getOrganismForTokenInDB(clientToken)
+            if(organism){
+                // we need to generate a client_token and do a redirection
+                paramList = paramList.findAll(){
+                    !it.startsWith(FeatureStringEnum.CLIENT_TOKEN.value)
+                }
+                clientToken = ClientTokenGenerator.generateRandomString()
+                preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
+                String uriString
+                if (JBrowseUrlHandler.hasProtocol(paramString)) {
+                    uriString = createLink(url: "${request.contextPath}/${clientToken}/jbrowse/index.html?${paramString}")
+                }
+                else {
+                    uriString = createLink(url: "/${clientToken}/jbrowse/index.html?${paramString}")
+                }
+                redirect(uri:  uriString)
+                return
+            }
+            else{
+                organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+            }
             def availableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
             if(!availableOrganisms){
                 String urlString = "/jbrowse/index.html?${paramList.join("&")}"
                 String username = permissionService.currentUser.username
-                org.apache.shiro.SecurityUtils.subject.logout()
+                SecurityUtils.subject.logout()
                 forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "User '${username}' lacks permissions to view or edit the annotations of any organism."])
                 return
             }
@@ -76,14 +115,17 @@ class JbrowseController {
                     forward(controller: "jbrowse", action: "chooseOrganismForJbrowse", params: [urlString: urlString, error: "Unable to find organism for '${clientToken}'"])
                     return
                 }
-                def session = request.getSession(true)
-                session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
-                session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
-                session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
-                // create an anonymous login
-                File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
-                render file.text
-                return
+                // only show if public, otherwise will go to the end and force a login
+                if(organism.publicMode) {
+                    def session = request.getSession(true)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organism.directory)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_ID.value, organism.id)
+                    session.setAttribute(FeatureStringEnum.ORGANISM_NAME.value, organism.commonName)
+                    // create an anonymous login
+                    File file = new File(servletContext.getRealPath("/jbrowse/index.html") as String)
+                    render file.text
+                    return
+                }
             }
 
 
@@ -138,7 +180,7 @@ class JbrowseController {
                 if (organism.sequences) {
                     User user = permissionService.currentUser
                     UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndOrganism(user, organism, [max: 1, sort: "lastUpdated", order: "desc"])
-                    Sequence sequence = organism?.sequences?.first()
+                    Sequence sequence =  Sequence.findAllByOrganism(organism,[sort:"end",order:"desc",max: 1]).first()
                     if (userOrganismPreference == null) {
                         userOrganismPreference = new UserOrganismPreference(
                                 user: user
@@ -173,14 +215,36 @@ class JbrowseController {
         String dataFileName = dataDirectory + "/" + params.path
         dataFileName += params.fileType ? ".${params.fileType}" : ""
         String fileName = FilenameUtils.getName(params.path)
-        File file = new File(dataFileName);
+        File file = new File(dataFileName)
 
-        if (!file.exists()) {
-            log.warn("File not found: " + dataFileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+        // see https://github.com/GMOD/Apollo/issues/1448
+        if (!file.exists() && jbrowseService.hasOverlappingDirectory(dataDirectory,params.path)) {
+            log.debug "params.path: ${params.path} directory ${dataDirectory}"
+            String newPath = jbrowseService.fixOverlappingPath(dataDirectory,params.path)
+            dataFileName = newPath
+            dataFileName += params.fileType ? ".${params.fileType}" : ""
+            file = new File(dataFileName)
         }
 
+        if (!file.exists()) {
+            Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+
+            if (extendedOrganismDataDirectory.exists()) {
+                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
+                dataFileName = newPath
+                dataFileName += params.fileType ? ".${params.fileType}" : ""
+                file = new File(dataFileName)
+                log.debug"data file name: ${dataFileName}"
+            }
+
+            if (!file.exists()) {
+                log.error("File not found: " + dataFileName)
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                return
+            }
+        }
 
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -193,6 +257,7 @@ class JbrowseController {
                     || fileName.endsWith(".bw")
                     || fileName.endsWith(".bai")
                     || fileName.endsWith(".conf")
+                    || fileName.endsWith(".csv")
             ) {
                 mimeType = "text/plain";
             } else if (fileName.endsWith(".tbi")) {
@@ -320,6 +385,7 @@ class JbrowseController {
 
     }
 
+
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
         log.debug "track list client token: ${clientToken}"
@@ -340,6 +406,7 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
@@ -363,7 +430,6 @@ class JbrowseController {
 
         if (list.size() == 0) {
             JSONObject organismObject = new JSONObject()
-//            organismObject.put("name", Organism.findById(id).commonName)
             organismObject.put("name", currentOrganism.commonName)
             organismObject.put("url", "#")
             organismObjectContainer.put(id, organismObject)
@@ -406,12 +472,25 @@ class JbrowseController {
             }
         }
 
+        trackService.removeIncludedPlugins(jsonObject.plugins)
+
+        // add extendedTrackList.json, if available
+        if (!currentOrganism.dataAddedViaWebServices) {
+            log.info "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
+            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            if (extendedTrackListFile.exists()) {
+                log.debug "augmenting track JSON Object with extendedTrackList.json contents"
+                JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
+                jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
+            }
+        }
+
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
     }
 
     private static boolean isCacheableFile(String fileName) {
-        if (fileName.endsWith(".txt") || fileName.endsWith("txtz")) {
+        if (fileName.endsWith(".txt") || fileName.endsWith("txtz") || fileName.endsWith("csv")) {
             return true;
         }
         if (fileName.endsWith(".json") || fileName.endsWith("jsonz")) {
@@ -459,9 +538,22 @@ class JbrowseController {
         File file = new File(servletContext.getRealPath(dataFileName))
 
         if (!file.exists()) {
-            log.warn("File not found: " + dataFileName);
-            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            if (extendedOrganismDataDirectory.exists()) {
+                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
+                dataFileName = newPath
+                dataFileName += params.fileType ? ".${params.fileType}" : ""
+                file = new File(dataFileName)
+                log.debug"data file name: ${dataFileName}"
+            }
+
+            if (!file.exists()) {
+                log.error("File not found: " + dataFileName)
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND)
+                return
+            }
         }
 
         String mimeType = getServletContext().getMimeType(fileName);
@@ -475,9 +567,6 @@ class JbrowseController {
 //        }
         
         response.setContentType(mimeType);
-//        // Set content size
-//        response << file.text
-//        response.flushBuffer()
         // Set content size
         response.setContentLength((int) file.length());
 
@@ -487,11 +576,12 @@ class JbrowseController {
 
         // Copy the contents of the file to the output stream
         byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
-        int count = 0;
+        int count = 0
         while ((count = inputStream.read(buf)) >= 0) {
-            out.write(buf, 0, count);
+            out.write(buf, 0, count)
         }
-        inputStream.close();
-        out.close();
+        inputStream.close()
+        out.close()
     }
+
 }

@@ -17,6 +17,14 @@ script to output to the data directory.
 bin/prepare-refseqs.pl --fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
 ```
 
+If you want to use an indexed FASTA genome then you can run prepare-refseqs.pl as follows:
+
+```
+bin/prepare-refseqs.pl --indexed_fasta pyu_data/scf1117875582023.fa --out /opt/apollo/data
+```
+
+The script will copy the genome FASTA and its FAI index into the output folder.
+
 Note: the output directory is used later when we load the organism into the browser with the "Create organism" form
 
 ### flatfile-to-json.pl
@@ -203,11 +211,11 @@ the genome browser, for example:
 
 #### GFF3
 
-You can use the `tools/data/add_transcripts_from_gff3_to_annotations.pl` script to bulk load GFF3 files with transcripts
+You can use the `tools/data/add_features_from_gff3_to_annotations.pl` script to bulk load GFF3 files with transcripts
 to the user annotation track. Let's say we want to load our `maker.gff` transcripts.
 
 ``` 
-    tools/data/add_transcripts_from_gff3_to_annotations.pl \
+    tools/data/add_features_from_gff3_to_annotations.pl \
         -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
         -i scf1117875582023.gff -t mRNA -o "name of organism"
 ```
@@ -220,17 +228,23 @@ Let's say we want to load `match` and `match_part` features as transcripts and e
 `blastn.gff` file as an example.
 
 ``` 
-    tools/data/add_transcripts_from_gff3_to_annotations.pl \
+    tools/data/add_features_from_gff3_to_annotations.pl \
        -U localhost:8080/Apollo -u web_apollo_admin -p web_apollo_admin \
        -i cf1117875582023.gff -t match -e match_part -o "name of organism"
 ```
 
 
-You can view the add_transcripts_from_gff3_to_annotations.pl help (`-h`) option for all available options.
+You can view the add_features_from_gff3_to_annotations.pl help (`-h`) option for all available options.
 
 **Note:** Apollo makes a clear distinction between a transcript and an mRNA. Genes that have mRNA as its child feature
 are treated as protein coding annotations and Genes that have transcript as its child feature are treated as non-coding
 annotations, specifically a pseudogene.
+
+**Note:** In order to create meaningful names from your evidence when creating manual annotations, the GFF3 should 
+provide the `Name` attribute in column 9 of the [GFF3 spec](https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md) as shown in this example:
+
+    NC_000001.11    BestRefSeq      gene    11874   14409   .       +       .       ID=gene1;Name=DDX11L1;Dbxref=GeneID:100287102,HGNC:37102;description=DEAD%2FH %28Asp-Glu-Ala-Asp%2FHis%29 box helicase 11 like 1;gbkey=Gene;gene=DDX11L1;pseudo=true
+
 
 If you would like to look at a compatible representative GFF3, export annotations from Apollo via GFF3 export.
 

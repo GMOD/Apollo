@@ -17,6 +17,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.use_cds_for_new_transcripts
     }
 
+    String getTranscriptOverlapper() {
+        return grailsApplication.config.apollo.transcript_overlapper
+    }
+
     TranslationTable getTranslationTable() {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
     }
@@ -69,6 +73,10 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.export_subfeature_attrs
     }
 
+    def getCommonDataDirectory() {
+        return grailsApplication.config.apollo.common_data_directory
+    }
+
     def hasChadoDataSource() {
         if (grailsApplication.config.dataSource_chado) {
             return true
@@ -95,5 +103,35 @@ class ConfigWrapperService {
 
     def getAuthentications() {
         grailsApplication.config.apollo.authentications
+    }
+
+    def getPingUrl() {
+        Boolean phoneHome =  grailsApplication.config.apollo.phone.phoneHome
+        if(phoneHome){
+            String urlString = grailsApplication.config.apollo.phone.url
+            urlString += grailsApplication.config.apollo.phone.bucketPrefix
+            urlString += grailsApplication.metadata['app.version']
+            urlString += "/"
+            urlString += grailsApplication.config.apollo.phone.fileName
+            urlString = urlString.toLowerCase()
+            return urlString
+        }
+        return null
+    }
+
+    Boolean getPhoneHome() {
+        return grailsApplication.config.apollo.phone.phoneHome
+    }
+
+    def getExtraTabs(){
+        return grailsApplication.config.apollo.extraTabs
+    }
+
+    boolean getOnlyOwnersDelete(){
+        return grailsApplication.config.apollo.only_owners_delete
+    }
+
+    boolean getNativeTrackSelectorDefaultOn(){
+        return grailsApplication.config.apollo.native_track_selector_default_on
     }
 }

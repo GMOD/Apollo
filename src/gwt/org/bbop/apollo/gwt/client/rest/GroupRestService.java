@@ -14,6 +14,7 @@ import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.event.GroupChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +36,22 @@ public class GroupRestService {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
 
-                for (int i = 0; array!=null && i < array.size(); i++) {
+                for (int i = 0; array != null && i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
 
                     GroupInfo groupInfo = new GroupInfo();
                     groupInfo.setId((long) object.get("id").isNumber().doubleValue());
                     groupInfo.setName(object.get("name").isString().stringValue());
                     groupInfo.setNumberOfUsers((int) object.get("numberOfUsers").isNumber().doubleValue());
+                    Integer numberOfAdmin = 0;
+                    if (object.get("numberOfAdmin") != null) {
+                        numberOfAdmin = (int) object.get("numberOfAdmin").isNumber().doubleValue();
+                    }
+
+                    groupInfo.setNumberOfAdmin(numberOfAdmin);
 
                     List<UserInfo> userInfoList = new ArrayList<>();
-
+                    List<UserInfo> adminInfoList = new ArrayList<>();
 
                     if (object.get("users") != null) {
                         JSONArray usersArray = object.get("users").isArray();
@@ -57,6 +64,19 @@ public class GroupRestService {
 
 
                     groupInfo.setUserInfoList(userInfoList);
+
+                    if (object.get("admin") != null) {
+                        JSONArray adminArray = object.get("admin").isArray();
+                        for (int j = 0; j < adminArray.size(); j++) {
+                            JSONObject userObject = adminArray.get(j).isObject();
+                            UserInfo adminInfo = new UserInfo(userObject);
+                            adminInfoList.add(adminInfo);
+                        }
+                    }
+
+
+                    groupInfo.setAdminInfoList(adminInfoList);
+
 
 
                     // TODO: use shared permission enums
@@ -89,7 +109,7 @@ public class GroupRestService {
                                         break;
 
                                     default:
-                                        Bootbox.alert("Unsure how to handle this permission '" + permission+"'");
+                                        Bootbox.alert("Unsure how to handle this permission '" + permission + "'");
                                 }
                             }
                         }
@@ -175,18 +195,32 @@ public class GroupRestService {
         RestService.sendRequest(requestCallback, "group/updateOrganismPermission", "data=" + object.toJSON());
     }
 
-    public static void updateUserGroups(RequestCallback requestCallback, GroupInfo selectedGroupInfo, List<String> selectedValues) {
+    public static void updateUserGroups(RequestCallback requestCallback, GroupInfo selectedGroupInfo, List<Option> selectedValues) {
 //        RestService.sendRequest(requestCallback, "group/updateMembership", "data=" + object.toJSON());
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("groupId", new JSONNumber(selectedGroupInfo.getId()));
         JSONArray userArray = new JSONArray();
-        for (String userData : selectedValues) {
-            String emailValue = userData.split("\\(")[1].trim();
+        for (Option userData : selectedValues) {
+            String emailValue = userData.getValue().split("\\(")[1].trim();
             emailValue = emailValue.substring(0, emailValue.length() - 1);
             userArray.set(userArray.size(), new JSONString(emailValue));
         }
         jsonObject.put("users", userArray);
-
         RestService.sendRequest(requestCallback, "group/updateMembership", "data=" + jsonObject);
     }
+
+    public static void updateGroupAdmin(RequestCallback requestCallback, GroupInfo selectedGroupInfo, List<Option> selectedValues) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("groupId", new JSONNumber(selectedGroupInfo.getId()));
+        JSONArray userArray = new JSONArray();
+        for (Option userData : selectedValues) {
+            String emailValue = userData.getValue().split("\\(")[1].trim();
+            emailValue = emailValue.substring(0, emailValue.length() - 1);
+            userArray.set(userArray.size(), new JSONString(emailValue));
+        }
+        jsonObject.put("users", userArray);
+        RestService.sendRequest(requestCallback, "group/updateGroupAdmin", "data=" + jsonObject);
+    }
 }
+
+

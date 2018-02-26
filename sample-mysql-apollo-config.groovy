@@ -60,20 +60,28 @@ environments {
     }
 }
 
+// Uncomment to change the default memory configurations
+//grails.project.fork = [
+//        test   : false,
+//        // configure settings for the run-app JVM
+//        run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+//        // configure settings for the run-war JVM
+//        war    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+//        // configure settings for the Console UI JVM
+//        console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
+//]
+
 // Uncomment to make changes
 //
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.12.2-apollo"
+//         tag = "9d765aecaee02a41844fed11a241fdb4c35fc9f8"
 ////        branch = "master"
 //        alwaysPull = true
 //        alwaysRecheck = true
 //    }
 //    plugins {
-//        WebApollo{
-//            included = true
-//        }
 //        NeatHTMLFeatures{
 //            included = true
 //        }

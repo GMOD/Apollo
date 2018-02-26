@@ -18,6 +18,7 @@ environments {
             gff3.source = "testing"
         }
         dataSource {
+            // NOTE: this is in memory, so it will be deleted.
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
         }
@@ -34,9 +35,8 @@ environments {
         dataSource {
             dbCreate = "update"
             //NOTE: production mode uses file instead of mem database
-            //Please specify the appropriate file path, otherwise /tmp/prodDb will be used.
-            //url = "jdbc:h2:/opt/apollo/h2/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
-            url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            //NOTE: Please specify the appropriate file path, otherwise /tmp/prodDb will be used.
+            url = "jdbc:h2:/opt/apollo/h2/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             properties {
                // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
                jmxEnabled = true
@@ -61,20 +61,28 @@ environments {
     }
 }
 
+// Uncomment to change the default memory configurations
+//grails.project.fork = [
+//        test   : false,
+//        // configure settings for the run-app JVM
+//        run    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+//        // configure settings for the run-war JVM
+//        war    : [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024, forkReserve: false],
+//        // configure settings for the Console UI JVM
+//        console: [maxMemory: 2048, minMemory: 64, debug: false, maxPerm: 1024]
+//]
+
 // Uncomment to make changes
 //
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.12.2-apollo"
+//         tag = "9d765aecaee02a41844fed11a241fdb4c35fc9f8"
 ////        branch = "master"
 //        alwaysPull = true
 //        alwaysRecheck = true
 //    }
 //    plugins {
-//        WebApollo{
-//            included = true
-//        }
 //        NeatHTMLFeatures{
 //            included = true
 //        }

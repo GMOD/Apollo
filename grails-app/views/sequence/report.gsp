@@ -22,18 +22,18 @@
         <div class="col-lg-4 lead">${organism.commonName} Sequences</div>
 
         <g:select id="organism" class="input-lg" name="organism"
-                  from="${org.bbop.apollo.Organism.listOrderByCommonName()}" optionValue="commonName" optionKey="id"
+                  from="${organisms}" optionValue="commonName" optionKey="id"
                   value="${organism.id}"
                   onchange=" changeOrganism(); "/>
     </div>
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <table>
+    <table class="reportTable">
         <thead>
         <tr>
-            <g:sortableColumn property="name" title="Name"/>
-            <g:sortableColumn property="length" title="Length"/>
+            <g:sortableColumn property="name" title="Name" class="sortableColumn"/>
+            <g:sortableColumn property="length" title="Length" class="sortableColumn"/>
             <th>Annotators</th>
             <th>Top Level Features</th>
             <th>Genes</th>

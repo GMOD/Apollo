@@ -31,6 +31,11 @@ grails.mime.types = [ // the first one is the default format
                       atom         : 'application/atom+xml',
                       css          : 'text/css',
                       csv          : 'text/csv',
+                      pdf          : 'application/pdf',
+                      rtf          : 'application/rtf',
+                      excel        : 'application/vnd.ms-excel',
+                      ods          : 'application/vnd.oasis.opendocument.spreadsheet',
+                      all          : '*/*',
                       form         : 'application/x-www-form-urlencoded',
                       html         : ['text/html', 'application/xhtml+xml'],
                       js           : 'text/javascript',
@@ -99,7 +104,7 @@ grails.hibernate.osiv.readonly = false
 grails.cache.config = {
     // avoid ehcache naming conflict to run multiple WA instances
     provider {
-        name "ehcache-apollo-"+(new Date().format("yyyyMMddHHmmss"))
+        name "ehcache-apollo-" + (new Date().format("yyyyMMddHHmmss"))
     }
     cache {
         enabled = true
@@ -162,9 +167,8 @@ log4j.main = {
             'org.hibernate',
             'net.sf.ehcache.hibernate'
 
-
     // enable logging of our webapollo instance (uncomment debug for extensive output)
-	warn 'grails.app'
+    warn 'grails.app'
 //    debug 'grails.app'
 //    debug 'liquibase'
 //    debug 'org.bbop.apollo'
@@ -199,7 +203,8 @@ apollo {
     history_size = 0
     overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
     track_name_comparator = "/config/track_name_comparator.js"
-    use_cds_for_new_transcripts = true
+    use_cds_for_new_transcripts = false
+    transcript_overlapper = "CDS"
     feature_has_dbxrefs = true
     feature_has_attributes = true
     feature_has_pubmed_ids = true
@@ -211,12 +216,16 @@ apollo {
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
 
+    // used for uploading
+    common_data_directory = "/opt/apollo"
+
     // settings for Chado export
     // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database
     // Note: Enabling this feature can be memory intensive
     chado_export_fasta_for_sequence = false
     // set chado_export_fasta_for_cds if you want the CDS FASTA to be exported into the database
     chado_export_fasta_for_cds = false
+    only_owners_delete = false
 
     // this is the default
     // other translation codes are of the form ncbi_KEY_translation_table.txt
@@ -225,92 +234,91 @@ apollo {
     get_translation_code = 1
     proxies = [
             [
-                    referenceUrl: 'http://golr.geneontology.org/select',
-                    targetUrl   : 'http://golr.geneontology.org/select',
-                    active      : true,
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.geneontology.org/select',
+                    active       : true,
                     fallbackOrder: 0,
-                    replace: false
+                    replace      : false
             ]
             ,
             [
-                    referenceUrl: 'http://golr.geneontology.org/select',
-                    targetUrl   : 'http://golr.berkeleybop.org/select',
-                    active      : false,
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.berkeleybop.org/select',
+                    active       : false,
                     fallbackOrder: 1,
-                    replace: false
+                    replace      : false
             ]
             ,
             [
-                    referenceUrl: 'http://golr.geneontology.org/select',
-                    targetUrl   : 'http://golr.berkeleybop.org/solr/select',
-                    active      : false,
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.berkeleybop.org/solr/select',
+                    active       : false,
                     fallbackOrder: 2,
-                    replace: false
+                    replace      : false
             ]
     ]
     sequence_search_tools = [
-        blat_nuc: [
-            search_exe: "/usr/local/bin/blat",
-            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
-            name: "Blat nucleotide",
-            params: ""
-        ],
-        blat_prot: [
-            search_exe: "/usr/local/bin/blat",
-            search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
-            name: "Blat protein",
-            params: ""
-            //tmp_dir: "/opt/apollo/tmp" optional param
-        ]
+            blat_nuc : [
+                    search_exe  : "/usr/local/bin/blat",
+                    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+                    name        : "Blat nucleotide",
+                    params      : ""
+            ],
+            blat_prot: [
+                    search_exe  : "/usr/local/bin/blat",
+                    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+                    name        : "Blat protein",
+                    params      : ""
+                    //tmp_dir: "/opt/apollo/tmp" optional param
+            ]
     ]
     data_adapters = [[
-        permission: 1,
-        key: "GFF3",
-        data_adapters: [[
-            permission: 1,
-            key: "Only GFF3",
-            options: "output=file&format=gzip&type=GFF3&exportGff3Fasta=false"
-        ],
-        [
-            permission: 1,
-            key: "GFF3 with FASTA",
-            options: "output=file&format=gzip&type=GFF3&exportGff3Fasta=true"
-        ]]
-    ],
-    [
-        permission: 1,
-        key : "FASTA",
-        data_adapters :[[
-            permission : 1,
-            key : "peptide",
-            options : "output=file&format=gzip&type=FASTA&seqType=peptide"
-        ],
-        [
-            permission : 1,
-            key : "cDNA",
-            options : "output=file&format=gzip&type=FASTA&seqType=cdna"
-        ]
-        ,
-        [
-            permission : 1,
-            key : "CDS",
-            options : "output=file&format=gzip&type=FASTA&seqType=cds"
-        ]
-        ,
-        [
-                permission : 1,
-                key : "highlighted region",
-                options : "output=file&format=gzip&type=FASTA&seqType=genomic"
-        ]
-        ]
+                             permission   : 1,
+                             key          : "GFF3",
+                             data_adapters: [[
+                                                     permission: 1,
+                                                     key       : "Only GFF3",
+                                                     options   : "output=file&format=gzip&type=GFF3&exportGff3Fasta=false"
+                                             ],
+                                             [
+                                                     permission: 1,
+                                                     key       : "GFF3 with FASTA",
+                                                     options   : "output=file&format=gzip&type=GFF3&exportGff3Fasta=true"
+                                             ]]
+                     ],
+                     [
+                             permission   : 1,
+                             key          : "FASTA",
+                             data_adapters: [[
+                                                     permission: 1,
+                                                     key       : "peptide",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=peptide"
+                                             ],
+                                             [
+                                                     permission: 1,
+                                                     key       : "cDNA",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=cdna"
+                                             ]
+                                             ,
+                                             [
+                                                     permission: 1,
+                                                     key       : "CDS",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=cds"
+                                             ]
+                                             ,
+                                             [
+                                                     permission: 1,
+                                                     key       : "highlighted region",
+                                                     options   : "output=file&format=gzip&type=FASTA&seqType=genomic"
+                                             ]
+                             ]
 
-    ]]
-    
+                     ]]
 
     // TODO: should come from config or via preferences database
     splice_donor_sites = ["GT"]
     splice_acceptor_sites = ["AG"]
-    gff3.source= "."
+    gff3.source = "."
     bootstrap = false
 
     info_editor = {
@@ -324,40 +332,52 @@ apollo {
 
     // customize admin tab on annotator panel with these links
     administrativePanel = [
-            ['label': "Canned Comments", 'link': "/cannedComment/"]
-            ,['label': "Canned Key", 'link': "/cannedKey/"]
-            ,['label': "Canned Values", 'link': "/cannedValue/"]
-            ,['label': "Feature Types", 'link': "/featureType/"]
-            ,['label': "Statuses", 'link': "/availableStatus/"]
-            ,['label': "Proxies", 'link': "/proxy/"]
-            ,['label': "Report::Organisms", 'link': "/organism/report/",'type':"report"]
-            ,['label': "Report::Sequences", 'link': "/sequence/report/",'type':"report"]
-            ,['label': "Report::Annotator", 'link': "/annotator/report/",'type':"report"]
-            ,['label': "Report::Changes", 'link': "/featureEvent/report/",'type':"report"]
-            ,['label': "System Info", 'link': "/home/systemInfo/",'type':"report"]
-            ,['label': "Performance Metrics", 'link': "/home/metrics/",'type':"report"]
-            ,['label': "WebServices", 'link': "/WebServices/",'type':"report"]
+            ['label': "Canned Comments", 'link': "/cannedComment/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Canned Key", 'link': "/cannedKey/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Canned Values", 'link': "/cannedValue/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Feature Types", 'link': "/featureType/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Statuses", 'link': "/availableStatus/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Proxies", 'link': "/proxy/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Report::Organisms", 'link': "/organism/report/", 'type': "report"]
+            , ['label': "Report::Sequences", 'link': "/sequence/report/", 'type': "report"]
+            , ['label': "Report::Annotator", 'link': "/annotator/report/", 'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Report::Instructor", 'link': "/annotator/instructorReport/", 'type': "report"]
+            , ['label': "Report::Changes", 'link': "/featureEvent/report/", 'type': "report"]
+            , ['label': "System Info", 'link': "/home/systemInfo/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Performance Metrics", 'link': "/home/metrics/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "WebServices", 'link': "/WebServices/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
     ]
 
-    // customize new tabs on the annotator panel with these links
-    customPanel = [
-            //['name':'GenSas2','link':'http://localhost/gensas2']
+    // over-ride in apollo-config.groovy to add extra tabs
+    extraTabs = [
+//            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
+//            ['title': 'extra2', 'content': '<b>Some content</b><a href="http://google.com" target="_blank">Google</a>']
+    ]
+
+
+    authentications = [
+            ["name"     : "Username Password Authenticator",
+             "className": "usernamePasswordAuthenticatorService",
+             "active"   : true,
+            ]
+            ,
+            ["name"     : "Remote User Authenticator",
+             "className": "remoteUserAuthenticatorService",
+             "active"   : false,
+            ]
     ]
 
     // comment out if you don't want this to be reported
-    google_analytics = "UA-62921593-1"
+    google_analytics = ["UA-62921593-1"]
 
-    authentications = [
-        ["name":"Username Password Authenticator",
-         "className":"usernamePasswordAuthenticatorService",
-         "active":true,
-        ]
-        ,
-        ["name":"Remote User Authenticator",
-         "className":"remoteUserAuthenticatorService",
-         "active":false,
-        ]
-    ]
+    phone {
+        phoneHome = true
+        url = "https://s3.amazonaws.com/"
+        bucketPrefix = "apollo-usage-"
+        fileName = "ping.json"
+    }
+
+    native_track_selector_default_on = false
 }
 
 
@@ -373,14 +393,12 @@ auditLog {
 
 }
 
-
-
-// Default JBrowse configuration 
+// Default JBrowse configuration
 jbrowse {
     git {
-        url= "https://github.com/gmod/jbrowse"
-		tag = "1.12.2-apollo"
+        url = "https://github.com/gmod/jbrowse"
 //        branch = "master"
+        tag = "aa6127349b6cf7b59619154e72d025cc7567a0ef"
         alwaysPull = false
         alwaysRecheck = false
     }
@@ -390,8 +408,11 @@ jbrowse {
 //        type ="zip"
 //        fileName = "JBrowse-1.12.0-dev"
 //    }
+//
+//	// Warning: We are still testing the performance of the NeatFeatures plugins in combination with Apollo.
+//	// We advise caution if enabling these plugins with Apollo until this process is finalized.
     plugins {
-        WebApollo{
+        WebApollo {
             included = true
         }
 //        NeatHTMLFeatures{
@@ -401,10 +422,10 @@ jbrowse {
 //        NeatCanvasFeatures{
 //            included = true
 //        }
-        RegexSequenceSearch{
+        RegexSequenceSearch {
             included = true
         }
-        HideTrackLabels{
+        HideTrackLabels {
             included = true
         }
 //        MyVariantInfo {

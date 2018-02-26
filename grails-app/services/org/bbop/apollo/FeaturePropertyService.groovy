@@ -6,7 +6,7 @@ import grails.transaction.NotTransactional
 class FeaturePropertyService {
 
 
-    public static List<String> nonReservedClasses = ["Comment","Owner","Description","Symbol","Status","ReadthroughStopCodon"]
+    public static List<String> nonReservedClasses = ["Comment","Owner","Description","Symbol","Status",StopCodonReadThrough.cvTerm]
 
 
 /** Get comments for this feature.

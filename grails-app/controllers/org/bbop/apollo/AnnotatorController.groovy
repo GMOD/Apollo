@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
@@ -30,6 +31,9 @@ class AnnotatorController {
     def preferenceService
     def reportService
     def featureRelationshipService
+    def configWrapperService
+    def exportService
+    def grailsApplication
 
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
@@ -46,30 +50,35 @@ class AnnotatorController {
      * @return
      */
     def loadLink() {
+        log.debug "Parameter for loadLink: ${params} vs ${request.parameterMap}"
         String clientToken
         try {
             if (params.containsKey(FeatureStringEnum.CLIENT_TOKEN.value)) {
                 clientToken = params[FeatureStringEnum.CLIENT_TOKEN.value]
             } else {
                 clientToken = ClientTokenGenerator.generateRandomString()
-                println 'generating client token on the backend: ' + clientToken
+                log.debug 'generating client token on the backend: ' + clientToken
             }
             Organism organism
             // check organism first
-            if(params.containsKey(FeatureStringEnum.ORGANISM.value)){
-                String organismString =  params[FeatureStringEnum.ORGANISM.value]
-                organism = preferenceService.getOrganismForToken(organismString)
+            if (params.containsKey(FeatureStringEnum.ORGANISM.value)) {
+                String organismString = params[FeatureStringEnum.ORGANISM.value]
+                organism = preferenceService.getOrganismForTokenInDB(organismString)
             }
-            if(!organism){
-                organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-            }
+            organism = organism ?: preferenceService.getCurrentOrganismForCurrentUser(clientToken)
             def allowedOrganisms = permissionService.getOrganisms(permissionService.currentUser)
-            if(!allowedOrganisms){
+            if (!allowedOrganisms) {
                 throw new RuntimeException("User does have permissions to access any organisms.")
             }
 
+            if(params.uuid){
+                Feature feature = Feature.findByUniqueName(params.uuid)
+                FeatureLocation featureLocation = feature.featureLocation
+                params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin +".." + featureLocation.fmax
+                organism = featureLocation.sequence.organism
+            }
 
-            if(!allowedOrganisms.contains(organism)){
+            if (!allowedOrganisms.contains(organism)) {
                 log.error("Can not load organism ${organism?.commonName} so loading ${allowedOrganisms.first().commonName} instead.")
                 params.loc = null
                 organism = allowedOrganisms.first()
@@ -105,21 +114,30 @@ class AnnotatorController {
         }
 
         String queryParamString = ""
-        for (p in params) {
-            if (!reservedList.contains(p.key)) {
-                queryParamString += "&" + p
+        def keyList = []
+        // this fixes a bug in addStores being duplicated or processed incorrectly
+        for (p in request.parameterMap) {
+            if (!reservedList.contains(p.key) && !keyList.contains(p.key)) {
+                p.value.each {
+                    queryParamString += "&${p.key}=${it}"
+                }
+                keyList << p.key
             }
         }
 
-//        String uri = "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-        String uri = "/annotator/index?clientToken=" + clientToken + queryParamString
+        if (queryParamString.contains("http://") || queryParamString.contains("https://") || queryParamString.contains("ftp://")) {
+            redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
+        }
+        else {
+            redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
+        }
 
-        redirect uri: uri
     }
 
     /**
      * Loads the main annotator panel.
      */
+    @NotTransactional
     def index() {
         log.debug "loading the index"
         String uuid = UUID.randomUUID().toString()
@@ -127,11 +145,20 @@ class AnnotatorController {
         [userKey: uuid, clientToken: clientToken]
     }
 
+    @NotTransactional
+    def getExtraTabs(){
+        def extraTabs = configWrapperService.extraTabs
+        render extraTabs as JSON
+    }
 
+    @NotTransactional
     def adminPanel() {
         if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
+            Integer highestGlobalRoleRank = permissionService.currentUser.roles.sort(){ a,b -> a.rank <=> b.rank}.first().rank // should return the highest either way
+//            permissionService.getPermissionsForUser(permissionService.currentUser)
+
             def administativePanel = grailsApplication.config.apollo.administrativePanel
-            [links: administativePanel]
+            [links: administativePanel,highestRank:highestGlobalRoleRank,roles:Role.all]
         } else {
             render text: "Unauthorized"
         }
@@ -193,46 +220,42 @@ class AnnotatorController {
     }
 
 
-    @RestApiMethod(description = "Update feature location", path = "/annotator/updateFeatureLocation", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update exon boundaries", path = "/annotator/setExonBoundaries", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
-            , @RestApiParam(name = "fmin", type = "int", paramType = RestApiParamType.QUERY, description = "fmin for Feature Location")
-            , @RestApiParam(name = "fmax", type = "int", paramType = RestApiParamType.QUERY, description = "fmax for Feature Location")
+            , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the exon we are editing")
+            , @RestApiParam(name = "fmin", type = "int", paramType = RestApiParamType.QUERY, description = "fmin for Exon Location")
+            , @RestApiParam(name = "fmax", type = "int", paramType = RestApiParamType.QUERY, description = "fmax for Exon Location")
             , @RestApiParam(name = "strand", type = "int", paramType = RestApiParamType.QUERY, description = "strand for Feature Location 1 or -1")
     ]
     )
-    def updateFeatureLocation() {
-        log.info "updateFeatureLocation ${params.data}"
+    def setExonBoundaries() {
         JSONObject data = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(data, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        Feature feature = Feature.findByUniqueName(data.uniquename)
-        feature.featureLocation.fmin = data.fmin
-        feature.featureLocation.fmax = data.fmax
-        feature.featureLocation.strand = data.strand
-        feature.save(flush: true, failOnError: true)
 
-        // need to grant the parent feature to force a redraw
-        Feature parentFeature = featureRelationshipService.getParentForFeature(feature)
+        JSONObject jsonObject = new JSONObject()
+        JSONObject featureObject = new JSONObject()
+        JSONArray featuresArray = new JSONArray()
+        featureObject.put(FeatureStringEnum.UNIQUENAME.value, data.uniquename)
+        JSONObject featureLocationObject = new JSONObject()
+        featureLocationObject.put(FeatureStringEnum.FMIN.value, data.fmin)
+        featureLocationObject.put(FeatureStringEnum.FMAX.value, data.fmax)
+        featureLocationObject.put(FeatureStringEnum.STRAND.value, data.strand)
+        featureObject.put(FeatureStringEnum.LOCATION.value, featureLocationObject)
 
-        JSONObject jsonFeature = featureService.convertFeatureToJSON(parentFeature, false)
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
-        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(jsonFeature)
+        featuresArray.add(featureObject)
 
-        Sequence sequence = feature?.featureLocation?.sequence
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                features: updateFeatureContainer
-                , sequence: sequence
-                , operation: AnnotationEvent.Operation.UPDATE
-                , sequenceAlterationEvent: false
-        )
-        requestHandlingService.fireAnnotationEvent(annotationEvent)
+        jsonObject.put("features", featuresArray)
+        jsonObject.put(FeatureStringEnum.CLIENT_TOKEN.value, data.clientToken)
+        jsonObject.put(FeatureStringEnum.TRACK.value, data.track)
+        jsonObject.put("operation", "set_exon_boundaries")
+        jsonObject.put(FeatureStringEnum.USERNAME.value, data.username)
 
-        render updateFeatureContainer
+        return requestHandlingService.setExonBoundaries(jsonObject)
     }
 
     private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
@@ -404,6 +427,7 @@ class AnnotatorController {
      */
     @Transactional
     def getAppState() {
+        preferenceService.evaluateSaves(true)
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
@@ -412,7 +436,7 @@ class AnnotatorController {
     @Transactional
     def setCurrentOrganism(Organism organismInstance) {
         // set the current organism
-        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance, params[FeatureStringEnum.CLIENT_TOKEN.value])
+        preferenceService.setCurrentOrganism(permissionService.currentUser, organismInstance, params[FeatureStringEnum.CLIENT_TOKEN.value] as String)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, organismInstance.directory)
 
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
@@ -421,7 +445,7 @@ class AnnotatorController {
             return
         }
 
-        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value]) as JSON
+        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value] as String) as JSON
     }
 
     /**
@@ -434,10 +458,10 @@ class AnnotatorController {
             return
         }
         // set the current organism and sequence Id (if both)
-        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance, params[FeatureStringEnum.CLIENT_TOKEN.value])
+        preferenceService.setCurrentSequence(permissionService.currentUser, sequenceInstance, params[FeatureStringEnum.CLIENT_TOKEN.value] as String)
         session.setAttribute(FeatureStringEnum.ORGANISM_JBROWSE_DIRECTORY.value, sequenceInstance.organism.directory)
 
-        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value]) as JSON
+        render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value] as String) as JSON
     }
 
     def notAuthorized() {
@@ -462,23 +486,154 @@ class AnnotatorController {
         render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
+    /**
+     * report annotation summary that is grouped by userGroups
+     */
+    def instructorReport(UserGroup userGroup, Integer max) {
+        params.max = Math.min(max ?: 20, 100)
+        // restricted groups
+        def groups = UserGroup.all
+        def filteredGroups =  groups
+        // if user is admin, then include all
+        // if group has metadata with the creator or no metadata then include
+
+        if (!permissionService.isAdmin()) {
+            log.debug "filtering groups"
+
+            filteredGroups = groups.findAll(){
+                it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+            }
+        }
+        if (!filteredGroups) {
+            def error = [error: "no authorized groups"]
+            render error as JSON
+            return
+        }
+        userGroup = userGroup?:filteredGroups.first()
+
+        List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
+        List<User> allUsers = User.list(params)
+        List<User> annotators = allUsers.findAll(){
+            it.userGroups.contains(userGroup)
+        }
+
+        def annotatorInstanceCount = userGroup.users.size()
+        annotators.each {
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
+        }
+
+        render view: "instructorReport", model: [userGroups: filteredGroups, userGroup: userGroup, permissionService: permissionService, annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: annotatorInstanceCount]
+
+    }
+
     def detail(User user) {
         if (!permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
             flash.message = permissionService.getInsufficientPermissionMessage(PermissionEnum.ADMINISTRATE)
             redirect(uri: "/auth/login")
             return
         }
-        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
+        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user, true)]
     }
 
-    def ping(){
+    def ping() {
+        log.debug "Ping: Evaluating Saves"
+        preferenceService.evaluateSaves()
         if (permissionService.checkPermissions(PermissionEnum.READ)) {
             log.debug("permissions checked and alive")
             render new JSONObject() as JSON
-        }
-        else{
+        } else {
             log.error("User does not have permissions for the site")
             redirect(uri: "/auth/login")
         }
     }
+
+    def export() {
+        if(!params.max) params.max = 10
+        response.contentType = grailsApplication.config.grails.mime.types[params.format]
+        response.setHeader("Content-disposition", "attachment; filename=annotators.${params.extension}")
+        List fields = ["username", "firstname", "lastname", "usergroup", "organism", "totalfeaturecount", "genecount", "transcripts", "exons", "te", "rr", "lastupdated"]
+        Map labels = ["username": "Username", "firstname": "First Name", "lastname": "Last Name", "usergroup": "User Group", "organism": "Organism", "totalfeaturecount": "Top Level Features", "genecount": "Genes", "transcripts": "Transcripts", "exons": "Exons", "te": "Transposable Elements", "rr": "Repeat Regions", "lastupdated": "Last Updated"]
+        Map formatters = [:]
+        Map parameters = [title: "Annotators Summary"]
+
+        List<String> groups = []
+        groups.addAll(params.userGroups)
+        def annotatorGroupList = [] as List
+        groups.each { group ->
+            def userGroup = UserGroup.findById(group)
+            def annotators = userGroup.users
+            annotators.each { annotator ->
+                def annotatorSummary = reportService.generateAnnotatorSummary(annotator, true)
+                annotatorSummary.userOrganismPermissionList.each {
+                    Organism organism = it.userOrganismPermission.organism
+
+                    LinkedHashMap row = new LinkedHashMap()
+                    row.put("username", annotator.username)
+                    row.put("firstname", annotator.firstName)
+                    row.put("lastname", annotator.lastName)
+                    row.put("usergroup", userGroup.name)
+                    row.put("organism", organism.commonName)
+                    row.put("totalfeaturecount", it.totalFeatureCount)
+                    row.put("genecount", it.geneCount)
+                    row.put("transcripts", it.transcriptCount)
+                    row.put("exons", it.exonCount)
+                    row.put("te", it.transposableElementCount)
+                    row.put("rr", it.repeatRegionCount)
+                    row.put("lastupdated", it.lastUpdated)
+                    annotatorGroupList.add(row)
+                }
+
+            }
+        }
+        exportService.export(params.format, response.outputStream, annotatorGroupList, fields, labels, formatters, parameters)
+    }
+
+    @RestApiMethod(description = "Get annotators report for group", path = "/group/getAnnotatorsReportForGroup", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID (or specify the name)")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ]
+    )
+    def getAnnotatorsReportForGroup(){
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+        log.info "get annotators report for group"
+        def group
+        if (!dataObject.id && !dataObject.name) {
+            def userGroups = UserGroup.all
+            def groupList = userGroups.findAll(){
+                it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+            }
+            group = groupList.collect{it.id}
+        }
+        if (!group && dataObject.id) {
+            def userGroup = UserGroup.findById(dataObject.id)
+            if (userGroup) {
+                group = userGroup.id
+            }
+        }
+        if (!group && dataObject.name) {
+            def userGroup = UserGroup.findByName(dataObject.name)
+            if (userGroup) {
+                group = userGroup.id
+            }
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to get report for the group")
+            render jsonObject as JSON
+            return
+        }
+        params.format = 'csv'
+        params.extension = 'csv'
+        params.userGroups = []
+        params.userGroups.addAll(group)
+        export()
+    }
+
 }

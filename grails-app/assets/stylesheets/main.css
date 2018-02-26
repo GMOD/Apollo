@@ -495,10 +495,18 @@ th.sortable a {
 
 th.asc a {
     background-image: url(../images/skin/sorted_asc.gif);
+    background-color: lightcoral;
+    border-radius: 10px;
+    background-position-x: 5px;
+    text-indent: 15px;
 }
 
 th.desc a {
     background-image: url(../images/skin/sorted_desc.gif);
+    background-color: lightblue;
+    border-radius: 10px;
+    background-position-x: 5px;
+    text-indent: 15px;
 }
 
 .odd {
@@ -634,8 +642,39 @@ a.skip {
     left: -9999px;
 }
 
-.report-header{
+.report-header {
     /*margin-left: 10px;*/
     padding-left: 20px;
 }
+
+.reportTable th {
+    padding-right: 15px;
+}
+
+.groupHeader {
+    padding-left: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: #396494;
+    display: inline-block;
+    float: left;
+    width: 100%;
+
+}
+
+.sortableColumn a{
+    background-image: url("../images/glyphicons-404-sorting.png");
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+span.legend-icon {
+    margin-right: 20px;
+    margin-left: 10px;
+}
+
+
+
+
 

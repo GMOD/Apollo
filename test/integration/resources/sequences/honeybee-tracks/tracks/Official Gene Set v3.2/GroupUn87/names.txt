@@ -1,0 +1,4 @@
+[["GB53496-RA","GB53496-RA"],"Official Gene Set v3.2","GB53496-RA","GroupUn87",9966,10179]
+[["GB53497-RA","GB53497-RA"],"Official Gene Set v3.2","GB53497-RA","GroupUn87",10511,26719]
+[["GB53498-RA","GB53498-RA"],"Official Gene Set v3.2","GB53498-RA","GroupUn87",29396,30329]
+[["GB53499-RA","GB53499-RA"],"Official Gene Set v3.2","GB53499-RA","GroupUn87",45455,45575]

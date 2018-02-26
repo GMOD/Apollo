@@ -2,8 +2,9 @@ package org.bbop.apollo
 
 
 import groovy.transform.EqualsAndHashCode
+
 @EqualsAndHashCode
-class Organism {
+class Organism implements JsonMetadata {
 
     static auditable = true
 
@@ -16,6 +17,11 @@ class Organism {
         blatdb nullable: true
         metadata nullable: true
         commonName nullable: false
+        genomeFasta nullable: true
+        genomeFastaIndex nullable: true
+        nonDefaultTranslationTable nullable: true, blank: false
+        dataAddedViaWebServices nullable: true
+        metadata(display: false, blank: true,nullable: true)
     }
 
     String abbreviation;
@@ -27,8 +33,11 @@ class Organism {
     boolean publicMode;
     String blatdb;
     String directory
-
+    String genomeFasta
+    String genomeFastaIndex
+    String nonDefaultTranslationTable
     String metadata
+    Boolean dataAddedViaWebServices
 
     static hasMany = [
             organismProperties: OrganismProperty
@@ -38,7 +47,7 @@ class Organism {
             , groupPermissions: GroupOrganismPermission
     ]
 
-    public String getTrackList() {
+    String getTrackList() {
         if (!directory) {
             return null
         } else {
@@ -46,12 +55,20 @@ class Organism {
         }
     }
 
-    public String getRefseqFile() {
+    String getRefseqFile() {
         if (!directory) {
             return null
         } else {
             return directory + "/seq/refSeqs.json"
         }
+    }
+
+    String getGenomeFastaFileName() {
+        return genomeFasta ? directory + File.separator + genomeFasta : null
+    }
+
+    String getGenomeFastaIndexFileName() {
+        return genomeFastaIndex ? directory + File.separator + genomeFastaIndex : null
     }
 
     static mapping = {

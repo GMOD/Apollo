@@ -27,6 +27,7 @@ apollo {
   translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
   is_partial_translation_allowed = false // unused so far
   get_translation_code = 1
+  only_owners_delete = false
   sequence_search_tools = [
     blat_nuc: [
       search_exe: "/usr/local/bin/blat",
@@ -39,7 +40,6 @@ apollo {
       search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
       name: "Blat protein",
       params: ""
-      tmp_dir: "/opt/apollo/tmp" //optional param, uses system tmp dir by default
     ]
   ]    
       
@@ -47,7 +47,8 @@ apollo {
 
   splice_donor_sites = [ "GT" ]
   splice_acceptor_sites = [ "AG"]
-  gff3.source= "." bootstrap = false
+  gff3.source= "." 
+  bootstrap = false
 
   info_editor = {
     feature_types = "default"
@@ -89,6 +90,7 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
+__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances.  We are still in the process of testing and improving their performance in combination with the Apollo plugin. Until we finalize this process, we strongly advise caution if enabling them for use in your Apollo instances.
 
 ```
 jbrowse {
@@ -142,26 +144,22 @@ jbrowse {
 
 The default translation table is [1](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi#SG1) 
 
-To use [one of the others](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi) set the number in the ```apollo-config.groovy``` file as:
+To use a different table from [this list of NCBI translation tables](http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi) set the number in the ```apollo-config.groovy``` file as:
 
 ```
 apollo {
 ...
   get_translation_code = "11"
 }
-```
+```   
 
-These correspond to the NCBI translation tables.   
-
-To add a custom translation table, you can add it to to the ```web-app/translation_tables``` directory as:
+You may also add a custom translation table in the ```web-app/translation_tables``` directory as follows:
 
 ```
 web-app/translation_tables/ncbi_customname_translation_table.txt
 ```
 
-and specify the ```customname``` as:
-
-In apollo-config.groovy:
+Specify the ```customname``` in apollo-config.groovy as follows:
 
 ```
 apollo {
@@ -169,6 +167,22 @@ apollo {
   get_translation_code = "customname"
 }
 ```
+
+As well, translation tables can be set per organism using the _'Details'_ panel located in the _'Organism'_ tab of the Annotator panel in the Apollo window: to replace the translation table (default or set by admin) for any given organism, use the field labeled as _'Non-default Translation Table'_ to enter a different table identifier as needed. 
+
+
+### Configuring Transcript Overlapper
+
+Apollo, by default, uses a `CDS` overlapper which treats two overlapping transcripts as isoforms of each other if and only if they share the same in-frame CDS.
+
+You can also configure Apollo to use an `exon` overlapper, which would treat two overlapping transcripts as isoforms of each other if one or more exon overlaps with each other they share the same splice acceptor and splice donor sites.
+
+```
+apollo {
+    transcript_overlapper = "exon"
+}
+```
+
 
 ### Logging configuration
 
@@ -193,41 +207,48 @@ Additional links for log4j:
 - Grails log4j guide: http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging
 
 
-### Canned comments
+### Canned Elements
 
 
-Canned comments are configured via the admin panel on the web interface, so they are not currently configured via the
-config files.
+Canned comments, canned keys (tags), and canned values are configured using the Admin tab from the Annotator Panel on the web interface; these can no longer be created or edited using the configuration files. For more details on how to create and edit Canned Elements see [Canned Elements](CannedElements.md).
 
-View your instances page for more details e.g. http://localhost:8080/apollo/cannedComment/
+View your instances page for more details. For example 
+- http://localhost:8080/apollo/cannedComment/  
+- http://localhost:8080/apollo/cannedKey/ 
+- http://localhost:8080/apollo/cannedValue/
 
 
 ### Search tools
 
 Apollo can be configured to work with various sequence search tools. UCSC's BLAT tool is configured by default and you
-can customize it as follows:
+can customize it as follows by making modifications in the ```apollo-config.groovy``` file.  Here we replace blat with blast 
+(there is an existing wrapper for Blast).  The database for each file will be passed in via params (globally) or using the 
+```Blat database``` field in the organism tab.  For blast the database will be the root name of the blast database files 
+without the suffix.
 
 ``` 
-sequence_search_tools = [
-  blat_nuc: [
-    search_exe: "/usr/local/bin/blat",
-    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
-    name: "Blat nucleotide",
-    params: ""
-  ],
-  blat_prot: [
-    search_exe: "/usr/local/bin/blat",
-    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
-    name: "Blat protein",
-    params: "",
-    tmp_dir: "/opt/apollo/tmp" //optional, uses system tmp dir by default
-  ]
-  your_custom_search_tool: [
-    search_exe: "/usr/local/customtool",
-    search_class: "org.your.custom.Class",
-    name: "Custom search"
-  ]
-]
+apollo{
+	sequence_search_tools {
+        blat_nuc {
+            search_exe = "/usr/local/bin/blastn"
+            search_class = "org.bbop.apollo.sequence.search.blast.BlastCommandLine"
+            name = "Blast nucleotide"
+            params = ""
+        }
+        blat_prot {
+            search_exe = "/usr/local/bin/tblastn"
+            search_class = "org.bbop.apollo.sequence.search.blast.BlastCommandLine"
+            name = "Blast protein to translated nucleotide"
+            params = ""
+            //tmp_dir: "/opt/apollo/tmp" optional param
+        }
+        your_custom_search_tool {
+          search_exe = "/usr/local/customtool"
+          search_class = "org.your.custom.Class"
+          name: "Custom search"
+        }
+    }
+}
 
 ```
 
@@ -310,11 +331,30 @@ the following "higher level" types (from the Sequence Ontology):
 * sequence:repeat_region
 * sequence:transposable_element
 
+### Set the default biotype for dragging up evidence
+
+By default dragged up evidence is treated as `mRNA`. However, you can specify the default biotype within `trackList.json` in order to specify default types for tracks.
+
+For example, specifying `ncRNA` as the default type:
+
+```
+{
+    'key' : 'Official Gene Set v3.2 Canvas',
+    'storeClass' : 'JBrowse/Store/SeqFeature/NCList',
+    'urlTemplate' : 'tracks/Official Gene Set v3.2/{refseq}/trackData.json',
+    'default_biotype':'ncRNA'
+}
+```
+
+If you specify `auto` instead then it will automatically try to infer based on a feature's type.
+
+Other non-transcript types `repeat_region` and `transposable_element` are also supported.
+
 
 ### Apache / Nginx configuration
 
 Oftentimes, admins will put use Apache or Nginx as a reverse proxy so that the requests to a main server can be
-forwarded to the tomcat server.  This setup is not necessary, but it is a very standard configuration.  
+forwarded to the tomcat server.  This setup is not necessary, but it is a very standard configuration as is making modification to iptables.  
 
 Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since
 websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded
@@ -377,7 +417,6 @@ http://nginx.org/en/docs/http/websocket.html
         ''      close;
     }
     
-    
     server {
         # Main
         listen   80; server_name  myserver;
@@ -390,6 +429,18 @@ http://nginx.org/en/docs/http/websocket.html
             proxy_pass      http://127.0.0.1:8080;
         }
     }
+```
+
+### Adding extra tabs
+
+Extra tabs can be added to the side panel by over-riding the apollo configuration extraTabs:
+
+```
+    extraTabs = [
+            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
+            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="http://genomearchitect.org" target="_blank">linked here</a>']
+    ]
+
 ```
 
 
@@ -507,5 +558,70 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
         ]
     }
 
+### URL modifications
+
+You should be able to pass in most JBrowse URL modifications to the ```loadLink``` URL. 
+
+You should use ```tracklist=1``` to force showing the native tracklist (or use the checkbox in the Track Tab in the Annotator Panel).
+
+Use ```openAnnotatorPanel=0``` to close the Annotator Panel explicitly on startup. 
 
 
+### Setting default track list behavior
+
+By default the native tracklist is off, but can be added.  For new users if you want the default to be on, you can add this to the apollo-config.groovy:
+
+    apollo{
+       native_track_selector_default_on = true
+    }
+
+
+### Adding tracks via addStores
+
+The [JBrowse Configuration Guide](http://gmod.org/wiki/JBrowse_Configuration_Guide#addStores) describes in detail on how to add tracks to JBrowse using addStores.
+The configuration relies on sending track config JSON through the URL which can be problematic, especially with new versions of Tomcat.
+
+Instead we recommend using the dot notation to add track configuration through the URL.
+
+Thus,
+```
+addStores={"uniqueStoreName":{"type":"JBrowse/Store/SeqFeature/GFF3","urlTemplate":"url/of/my/file.gff3"}}
+```
+
+becomes,
+```
+addStores.uniqueStoreName.type=JBrowse/Store/SeqFeature/GFF3&addStores.uniqueStoreName.urlTemplate=url/of/my/file.gff3
+```
+
+
+Following are a few recommendations for adding tracks via dot notation in Apollo:
+
+- avoid `{dataRoot}` in your `urlTemplate`
+- avoid specifying `data` folder name in your `urlTemplate`
+- avoid specifying `baseUrl`
+
+Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
+
+
+### Phone Home
+
+In order to determine our usage and the current versions of Apollo being used (which helps us to provide Apollo for free), the server and the client will phone home and to google analytics.
+
+To turn off the server phone home set the configuration this way.
+    
+    apollo.phone.phoneHome = false
+    
+To add your own google analytics code set the code up this way:
+
+    google_analytics = ["UA-62921593-1","Your Google Analytics ID"]
+    
+If you don't want any reporting set:
+    
+    google_analytics = []
+
+
+### Only owners can edit
+
+Restricts deletion and reverting to original editor or admin user by setting:
+
+    apollo.only_owners_delete = true

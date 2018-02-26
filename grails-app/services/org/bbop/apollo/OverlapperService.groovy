@@ -10,20 +10,20 @@ class OverlapperService implements Overlapper{
 
     def transcriptService
     def exonService 
-    def configWrapperService 
+    def configWrapperService
 
     @Override
     boolean overlaps(Transcript transcript, Gene gene) {
-        return overlapsOrf(transcript,gene)
+        return checkForOverlap(transcript,gene)
     }
 
     @Override
     boolean overlaps(Transcript transcript1, Transcript transcript2) {
-        return overlapsOrf(transcript1,transcript2)
+        return checkForOverlap(transcript1,transcript2)
     }
 
 
-    boolean overlapsOrf(Transcript transcript, Gene gene) {
+    boolean checkForOverlap(Transcript transcript, Gene gene) {
         long start = System.currentTimeMillis();
         for (Transcript geneTranscript : transcriptService.getTranscripts(gene)) {
             if (transcript.uniqueName == geneTranscript.uniqueName) {
@@ -31,7 +31,7 @@ class OverlapperService implements Overlapper{
                 // to avoid false positive
                 continue
             }
-            if (overlapsOrf(transcript, geneTranscript)) {
+            if (checkForOverlap(transcript, geneTranscript)) {
                 log.debug "@Duration for cdsOverlap: ${System.currentTimeMillis() - start}"
                 return true;
             }
@@ -40,16 +40,47 @@ class OverlapperService implements Overlapper{
         return false;
     }
 
+    boolean checkForOverlap(Transcript transcript1, Transcript transcript2) {
+        if (configWrapperService.transcriptOverlapper == "exon") {
+            // two transcripts are said to be isoforms of each other if they share exons
+            return checkForExonOverlap(transcript1, transcript2)
+        }
+        else {
+            // two transcripts are said to be isoforms of each other if they share the same ORF
+            return checkForCdsOverlap(transcript1, transcript2)
+        }
+    }
+
+    boolean checkForExonOverlap(Transcript transcript1, Transcript transcript2) {
+        def exons1 = transcriptService.getSortedExons(transcript1, true)
+        def exons2 = transcriptService.getSortedExons(transcript2, true)
+
+        boolean isOverlap = false
+        for (int i = 0; i < exons1.size(); i++) {
+            for (int j = 0; j < exons2.size(); j++) {
+                if (exactOverlap(exons1[i], exons2[j])) {
+                    isOverlap = true
+                    break
+                }
+            }
+        }
+
+        return isOverlap
+    }
+
+    boolean checkForCdsOverlap(Transcript transcript1, Transcript transcript2) {
+        return overlapsOrf(transcript1, transcript2)
+    }
+
     boolean overlapsOrf(Transcript transcript1, Transcript transcript2) {
-//        log.debug("overlapsOrf(Transcript transcript1, Transcript transcript2) ")
         if ((transcriptService.isProteinCoding(transcript1) && transcriptService.isProteinCoding(transcript2))
                 && ((transcriptService.getGene(transcript1) == null || transcriptService.getGene(transcript2) == null) || (!(transcriptService.getGene(transcript1) instanceof Pseudogene) && !(transcriptService.getGene(transcript2) instanceof Pseudogene)))) {
 
             CDS cds = transcriptService.getCDS(transcript1);
-
-            if (overlaps(cds,transcriptService.getCDS(transcript2)) &&  (overlaps(transcriptService.getCDS(transcript2),cds)))  {
-                List<Exon> exons1 = exonService.getSortedExons(transcript1);
-                List<Exon> exons2 = exonService.getSortedExons(transcript2);
+            CDS cds2 = transcriptService.getCDS(transcript2)
+            if (cds2 && cds && overlaps(cds,cds2) &&  (overlaps(cds2,cds)))  {
+                List<Exon> exons1 = transcriptService.getSortedExons(transcript1,true);
+                List<Exon> exons2 = transcriptService.getSortedExons(transcript2,true);
                 return cdsOverlap(exons1, exons2, true);
             }
         }
@@ -181,5 +212,11 @@ class OverlapperService implements Overlapper{
                         leftFmin >= rightFmin && leftFmin < rightFmax)
     }
 
+    boolean exactOverlap(Feature feature1, Feature feature2) {
+        if (feature1.fmin == feature2.fmin && feature1.fmax == feature2.fmax) {
+            return true
+        }
+        return false
+    }
 
 }

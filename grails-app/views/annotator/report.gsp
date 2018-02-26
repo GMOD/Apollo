@@ -15,25 +15,25 @@
     <g:if test="${flash.message}">
         <div class="message" role="status">${flash.message}</div>
     </g:if>
-    <table>
+    <table class="reportTable">
         <thead>
         <tr>
-            <g:sortableColumn property="username" title="Username"/>
-            <g:sortableColumn property="firstName" title="First Name"/>
-            <g:sortableColumn property="lastName" title="Last Name"/>
+            <g:sortableColumn property="username" title="Username" class="sortableColumn"/>
+            <g:sortableColumn property="firstName" title="First Name" class="sortableColumn"/>
+            <g:sortableColumn property="lastName" title="Last Name" class="sortableColumn"/>
             <th>Top Level Features</th>
             <th>Genes</th>
             <th>Transcripts</th>
             <th>Exons</th>
-            <th>TE</th>
-            <th>RR</th>
+            <th>Transposable Elements</th>
+            <th>Repeat Regions</th>
         </tr>
         </thead>
         <tbody>
         <g:each in="${annotatorInstanceList}" status="i" var="annotatorInstance">
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
-                    <a style="margin: 2px;padding: 2px;" href='<g:createLink action="detail" controller="annotator"
+                    <a style="margin: 2px;padding: 2px; box-shadow: 2px 2px 1px 1px darkgray;" href='<g:createLink action="detail" controller="annotator"
                                                                              id="${annotatorInstance.annotator.id}">${annotatorInstance.username}</g:createLink>'
                        class="btn btn-default">
                         ${annotatorInstance.username}
@@ -107,10 +107,11 @@
         </g:each>
         </tbody>
     </table>
-
-    <div class="pagination">
-        <g:paginate total="${annotatorInstanceCount ?: 0}"/>
-    </div>
+    <g:if test="${annotatorInstanceCount > params.max}">
+        <div class="pagination">
+            <g:paginate total="${annotatorInstanceCount ?: 0}"/>
+        </div>
+    </g:if>
 </div>
 
 </body>

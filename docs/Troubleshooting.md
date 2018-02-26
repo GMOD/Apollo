@@ -13,8 +13,7 @@ PermGen size as a starting point.
 export CATALINA_OPTS="-Xms512m -Xmx1g \
         -XX:+CMSClassUnloadingEnabled \
         -XX:+CMSPermGenSweepingEnabled \
-        -XX:+UseConcMarkSweepGC \
-        -XX:MaxPermSize=256m"
+        -XX:+UseConcMarkSweepGC"
 ```
 
 
@@ -24,8 +23,6 @@ over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffo
 
 ``` 
 export CATALINA_OPTS="-Xmx12288m -Xms8192m \
-        -XX:PermSize=256m \
-        -XX:MaxPermSize=1024m \
         -XX:ReservedCodeCacheSize=64m \
         -XX:+UseG1GC \
         -XX:+CMSClassUnloadingEnabled \
@@ -46,7 +43,7 @@ Your CATALINA_OPTS settings from setenv.sh can be confirmed with a tool like jvi
 `ps` tool.  e.g. `ps -ef | grep java`  should yield something like the following allowing you to confirm that your memory settings have been picked up.
 
 ```
-root      9848     1  0 Oct22 ?        00:36:44 /usr/lib/jvm/java-7-openjdk-amd64/bin/java -Djava.util.logging.config.file=/usr/local/tomcat/current/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms1g -Xmx2g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Dj
+root      9848     1  0 Oct22 ?        00:36:44 /usr/lib/jvm/java-7-openjdk-amd64/bin/java -Djava.util.logging.config.file=/usr/local/tomcat/current/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms1g -Xmx2g -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:+UseConcMarkSweepGC -Dj
 ```
 
 #### Re-install after changing settings

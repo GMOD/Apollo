@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use FindBin qw($RealBin);
-use lib "$RealBin/../../src/perl5";
+use lib "$RealBin/../../jbrowse-download/src/perl5";
 use JBlibs;
 
 use File::Basename;
@@ -32,6 +32,7 @@ my $annotation_track_prefix = "";
 my $property_ontology = "feature_property";
 my $comment_type_out = "comment";
 my $property_type_out = "feature_property";
+my $disable_cds_recalculation = 0;
 my $organism;
 my $in = \*STDIN;
 my $username;
@@ -40,6 +41,7 @@ my $url;
 my $session_id;
 my $name_attributes="Name";
 my $test = 0;
+my $use_name_for_feature = 0;
 
 my $success_log;
 my $error_log;
@@ -65,7 +67,8 @@ my %ignored_properties = (  owner               => 1,
 $| = 1;
 
 parse_options();
-process_gff();
+print_deprecation_note();
+exit();
 
 sub parse_options {
     my $help;
@@ -94,12 +97,14 @@ sub parse_options {
            "comment_type_out|C=s"   => \$comment_type_out,
            "property_type_out|S=s"  => \$property_type_out,
            "track_prefix|P=s"       => \$annotation_track_prefix,
+           "disable_cds_recalculation|X"   => \$disable_cds_recalculation,
            "success_log|l=s"        => \$success_log_file,
            "error_log|L=s"      => \$error_log_file,
            "skip|s=s"           => \$skip_file,
            "test|x"           => \$test,
            "help|h"         => \$help,
-           "name_attributes=s"   => \$name_attributes);
+           "name_attributes=s"   => \$name_attributes,
+           "use_name_for_feature|a" => \$use_name_for_feature);
 
     print_usage() if $help;
     $in = new IO::File($input_file) or die "Error reading $input_file: $!\n"
@@ -121,8 +126,10 @@ sub parse_options {
 }
 
 sub print_usage {
+    print_deprecation_note();
     my $progname = basename($0);
     die << "END";
+
 usage: $progname
     --url|-U <URL to Apollo instance>
     --username|-u <username>
@@ -143,6 +150,7 @@ usage: $progname
     [--comment_type_out|-C <comment type used in server>]
     [--property_type_out|-S <feature property type used in server>]
     [--track_prefix|-P <annotation track prefix>]
+    [--disable_cds_recalculation|-X]
     [--input|-i <GFF3 file>]
     [--organism|-o <the name field used for your organism in WA2>]
     [--success_log|-l <success log file>]
@@ -151,6 +159,7 @@ usage: $progname
     [--test|-x]
     [--help|-h]
     [--name_attributes <feature attribute to be used as name, first found used>]
+    [--use_name_for_feature|-a]
 
     U: URL to Apollo instance
     u: username to access Apollo
@@ -187,15 +196,26 @@ usage: $progname
        [default: "$property_type_out"]
     P: annotation track prefix
        [default: "$annotation_track_prefix"]
+    X: disable the recalculation of CDS by Apollo for protein coding features
     i: input GFF3 file
        [default: STDIN]
     o: organism common name in Apollo instance
+    a: preserve feature names, as-is, in Apollo
     l: log file for ids that were successfully processed
     L: log file for ids that were erroneously processed
     s: file with ids to skip
     x: test mode
     h: this help screen
 END
+}
+
+sub print_deprecation_note {
+    print "\n\n";
+    print "*********************************************************************************************\n";
+    print "* This script has been deprecated and replaced by add_features_from_gff3_to_annotations.pl, *\n";
+    print "* which supports importing all types of annotations that are currently supported by Apollo. *\n";
+    print "*********************************************************************************************\n";
+    print "\n\n";
 }
 
 sub process_gff {
@@ -522,6 +542,9 @@ sub process_gene {
     else {
         $gene = convert_feature($features, $gene_type_out, $name_attributes);
     }
+    if ($use_name_for_feature) {
+        $gene->{use_name} = "true";
+    }
     my $subfeatures = get_subfeatures($features);
     foreach my $subfeature (@{$subfeatures}) {
         my $type = get_type($subfeature);
@@ -542,6 +565,10 @@ sub process_transcript {
     }
     else {
         $transcript = convert_feature($features, $mrna_type_out, $name_attributes);
+    }
+
+    if ($use_name_for_feature) {
+        $transcript->{use_name} = "true";
     }
     my $cds_feature = undef;
     my $subfeatures = get_subfeatures($features);
@@ -663,6 +690,12 @@ sub convert_mrna_feature {
     my $gene_json_feature = shift;
     my $cds_feature = undef;
     my $mrna_json_feature = convert_feature($features, $mrna_type_out, $name_attributes);
+    if ($disable_cds_recalculation) {
+        $mrna_json_feature->{use_cds} = "true";
+    }
+    if ($use_name_for_feature) {
+        $mrna_json_feature->{use_name} = "true";
+    }
     $mrna_json_feature->{parent} = $gene_json_feature;
     my $subfeatures = get_subfeatures($features);
 

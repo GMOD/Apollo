@@ -40,6 +40,7 @@
         .dropdown-display:focus {
             background-color: gray;
         }
+
         .dropdown-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -54,6 +55,7 @@
         .lookup-display:focus {
             background-color: gray;
         }
+
         .lookup-display {
             margin-left: 5px;
             margin-right: 5px;
@@ -80,6 +82,14 @@
         .buffer {
             margin-top: 5px;
         }
+        .trackButton{
+            outline:none !important;
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
     </ui:style>
     <gwt:SplitLayoutPanel ui:field="mainSplitPanel">
         <gwt:center>
@@ -89,7 +99,7 @@
             <gwt:DockLayoutPanel ui:field="eastDockPanel">
                 <gwt:north size="25">
                     <gwt:FlowPanel styleName="{style.details-header}">
-                        <b:Button icon="CARET_RIGHT" ui:field="dockOpenClose"
+                        <b:Button icon="CHEVRON_RIGHT" ui:field="dockOpenClose"
                                   styleName="{style.details-button}"/>
                         <b:Button icon="LINK" ui:field="generateLink" styleName="{style.details-button}"/>
                         <gwt:ListBox ui:field="organismListBox" styleName="{style.dropdown-display}"/>
@@ -138,8 +148,9 @@
                         </b:Modal>
                     </gwt:FlowPanel>
                 </gwt:north>
-                <gwt:west size="20">
+                <gwt:west size="25">
                     <gwt:FlowPanel ui:field="westPanel" styleName="{style.emptyPanel}">
+                            <b:Button icon="LIST_UL" ui:field="trackListToggle" dataToggle="BUTTON" title="Show JBrowse Track Selector" addStyleNames="{style.trackButton}"/>
                     </gwt:FlowPanel>
                 </gwt:west>
                 <gwt:center>

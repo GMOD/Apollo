@@ -1,43 +1,86 @@
 package org.bbop.apollo
 
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import org.hibernate.Hibernate
-import org.hibernate.Session
+import org.bbop.apollo.sequence.SequenceTranslationHandler
+import org.bbop.apollo.sequence.TranslationTable
+
+import java.nio.file.FileSystemException
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
 
 @Transactional
 class OrganismService {
+
     def featureService
+    def configWrapperService
 
-    def deleteAllFeaturesForOrganism(Organism organism) {
-        def list=Feature.withCriteria() {
-            featureLocations {
-                sequence {
-                    eq("organism",organism)
+    int TRANSACTION_SIZE = 30
+
+    @NotTransactional
+    deleteAllFeaturesForOrganism(Organism organism) {
+
+        def featurePairs = Feature.executeQuery("select f.id,f.uniqueName from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o=:organism", [organism: organism])
+        // maximum transaction size  30
+        log.debug "feature sublists created ${featurePairs.size()}"
+        def featureSubLists = featurePairs.collate(TRANSACTION_SIZE)
+        if (!featureSubLists) {
+            log.warn("Nothing to delete for ${organism?.commonName}")
+            return
+        }
+        log.debug "sublists size ${featureSubLists.size()}"
+        int count = 0
+        long startTime = System.currentTimeMillis()
+        long endTime
+        double totalTime
+        featureSubLists.each { featureList ->
+            if (featureList) {
+                def ids = featureList.collect() {
+                    it[0]
                 }
+                log.info"ids ${ids.size()}"
+                def uniqueNames = featureList.collect() {
+                    it[1]
+                }
+                log.debug "uniqueNames ${uniqueNames.size()}"
+                Feature.withNewTransaction{
+                    def features = Feature.findAllByIdInList(ids)
+                    features.each { f ->
+                        f.delete()
+                    }
+                    def featureEvents = FeatureEvent.findAllByUniqueNameInList(uniqueNames)
+                    featureEvents.each { fe ->
+                        fe.delete()
+                    }
+                    organism.save(flush: true)
+                    count += featureList.size()
+                    log.info "${count} / ${featurePairs.size()}  =  ${100 * count / featurePairs.size()}% "
+                }
+                log.info "deleted ${featurePairs.size()}"
             }
+            endTime = System.currentTimeMillis()
+            totalTime = (endTime - startTime) / 1000.0f
+            startTime = System.currentTimeMillis()
+            double rate = featureList.size() / totalTime
+            log.info "Deleted ${rate} features / sec"
+        }
+        return featurePairs.size()
+    }
+
+
+    TranslationTable getTranslationTable(Organism organism) {
+        if(organism?.nonDefaultTranslationTable){
+            log.debug "overriding default translation table for ${organism.commonName} with ${organism.nonDefaultTranslationTable}"
+            return SequenceTranslationHandler.getTranslationTableForGeneticCode(organism.nonDefaultTranslationTable)
+        }
+        // just use the default
+        else{
+            log.debug "using the default translation table"
+            return  configWrapperService.getTranslationTable()
         }
 
-
-        def uniqueNames=list.collect {
-            it.uniqueName
-        }
-
-        list.each {
-            it.delete();
-        }
-
-
-        def events=FeatureEvent.withCriteria() {
-            'in'("uniqueName",uniqueNames)
-        }
-
-
-        events.each {
-            it.delete()
-        }
-
-
-        organism.save(flush: true )
-        return list.size()
     }
 }

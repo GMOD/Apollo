@@ -11,6 +11,9 @@ function JSONUtils() {
 
 JSONUtils.verbose_conversion = false;
 
+JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene";
+JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene";
+
 /**
 *  creates a feature in JBrowse JSON format
 *  takes as arguments:
@@ -235,7 +238,6 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 *    currently, for features with lazy-loaded children, ignores children 
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  { 
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type); 
@@ -280,9 +282,15 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     afeature.type.name = typename;
     }
 
+    // if (useName && name) {
+    //     afeature.name = name;
+    // }
+
+    var id = jfeature.get('id');
     var name = jfeature.get('name');
-    if (useName && name) {
-        afeature.name = name;
+    if (useName) {
+        // using 'id' attribute in the absence of 'name' attribute
+        name !== undefined ? afeature.name = name : afeature.name = id;
     }
     
     /*
@@ -364,12 +372,10 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                         // introns -- filter out?  leave unchanged?
                         converted_subtype = null;  // filter out
                     }
-                    /*
                     else if (SeqOnto.utrTerms[subtype]) {
                         // filter out UTR
                         converted_subtype = null;
                     }
-                    */
                     else  { 
                         // convert everything else to exon???
                         // need to do this since server only creates exons for "exon" and descendant terms
@@ -411,6 +417,27 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     return afeature;
 };
 
+JSONUtils.overlaps = function(feat1, feat2) {
+    var leftFmin = feat1.get("start");
+    var leftFmax = feat1.get("end");
+    var rightFmin = feat2.get("start");
+    var rightFmax = feat2.get("end");
+
+    return (leftFmin <= rightFmin && leftFmax > rightFmin ||
+        leftFmin >= rightFmin && leftFmin < rightFmax);
+};
+
+JSONUtils.checkForComment = function(feature, value) {
+    for (var i = 0; i < feature.data.properties.length; i++) {
+        var property = feature.data.properties[i];
+        if (property.name && property.name === "comment") {
+            if (property.value && property.value === value) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 // experimenting with forcing export of JSONUtils into global namespace...
 window.JSONUtils = JSONUtils;
 

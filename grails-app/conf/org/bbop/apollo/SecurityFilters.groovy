@@ -4,8 +4,6 @@ import grails.converters.JSON
 import org.apache.shiro.SecurityUtils
 import org.apache.shiro.authc.UsernamePasswordToken
 import org.apache.shiro.subject.Subject
-import org.apache.shiro.web.util.SavedRequest
-import org.apache.shiro.web.util.WebUtils
 
 class SecurityFilters {
 
@@ -32,6 +30,9 @@ class SecurityFilters {
                         || controllerName == "cannedKey"
                         || controllerName == "cannedValue"
                         || controllerName == "cannedComment"
+                        || controllerName == "availableStatus"
+                        || controllerName == "proxy"
+                        || controllerName == "featureType"
                         || actionName == "report"
                         || actionName == "loadLink"
                 ) {
@@ -39,10 +40,10 @@ class SecurityFilters {
                         log.debug "apollo filter ${controllerName}::${actionName}"
                         Subject subject = SecurityUtils.getSubject();
                         if (!subject.isAuthenticated()) {
-                            def req = request.JSON
-                            def authToken = req.username ? new UsernamePasswordToken(req.username, req.password) : null  // we don't try to add this here
-                            if(authToken && permissionService.authenticateWithToken(authToken,request)){
-                                if(params.targetUri){
+
+                            // we don't try to add this here
+                            if (permissionService.authenticateWithToken(request)) {
+                                if (params.targetUri) {
                                     redirect(uri: params.targetUri)
                                 }
                                 return true
@@ -50,16 +51,40 @@ class SecurityFilters {
                                 log.warn "Authentication failed"
                                 def targetUri = "/${controllerName}/${actionName}"
                                 int paramCount = 0
-                                def paramString = ""
-                                for(p in params){
-                                    if(p.key!="controller" || p.key!="action"){
-                                        paramString += paramCount==0 ? "?" : "&"
-                                        paramString += p.key +"="+ p.value
-                                        ++paramCount
+                                def paramString = "?"
+                                for(p in request.parameterMap){
+                                    if(p.key!="controller" && p.key!="action"){
+                                        String key = p.key
+                                        // the ?loc is incorrect
+                                        // https://github.com/GMOD/Apollo/issues/1371
+                                        // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
+                                        if(p.key.contains("?loc")){
+                                            def lastIndex = p.key.lastIndexOf("loc")
+                                            key = p.key.substring(lastIndex)
+                                        }
+                                        p.value.each {
+                                            paramString += "&${key}=${it}"
+                                        }
                                     }
+
                                 }
-                                targetUri = targetUri + (paramString ? URLEncoder.encode(paramString,"UTF-8") :"")
-                                redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                // https://github.com/GMOD/Apollo/issues/1371
+                                // ?ov/Apollo-staging/someanimal/jbrowse/?loc= -> ?loc=
+                                // if it contains two question marks with no equals in-between, then fix it
+                                // paramString seems to be getting extra data on it via the paramString
+//                                int indexOfLoc = paramString.indexOf("?loc=")
+//                                int numberOfStartParams = paramString.findAll("\\?").size()
+//                                if (indexOfLoc > 0 && numberOfStartParams>1) {
+//                                    paramString = paramString.substring(indexOfLoc)
+//                                }
+                                targetUri = targetUri + paramString
+                                if (paramString.contains("http://") || paramString.contains("https://") || paramString.contains("ftp://")) {
+                                    redirect(uri: "${request.contextPath}/auth/login?targetUri=${targetUri}")
+                                }
+                                else {
+                                    redirect(uri: "/auth/login?targetUri=${targetUri}")
+                                }
+
                                 return false
                             }
                         }

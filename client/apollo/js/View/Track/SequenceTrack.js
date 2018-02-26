@@ -1,8 +1,8 @@
 define( [
     'dojo/_base/declare',
     'dojo/request/xhr',
-    'JBrowse/Store/Sequence/StaticChunked', 
-    'WebApollo/Store/SeqFeature/ScratchPad', 
+    'JBrowse/Store/Sequence/StaticChunked',
+    'WebApollo/Store/SeqFeature/ScratchPad',
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
@@ -56,7 +56,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         //        this.charWidth = this.charSize.charWidth;
         //        this.seqHeight = this.charSize.seqHeight;
 
-        // splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible 
+        // splitting seqHeight into residuesHeight and translationHeight, so future iteration may be possible
         //    for DNA residues and protein translation to be different styles
         //        this.dnaHeight = this.seqHeight;
         //        this.proteinHeight = this.seqHeight;
@@ -72,7 +72,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             this.store = annotStore;
             annotStoreConfig.name = this.store.name;
             this.browser._storeCache[this.store.name] = {
-                refCount: 1, 
+                refCount: 1,
                 store: this.store
             };
         }
@@ -82,12 +82,12 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             seqStoreConfig.type = "JBrowse/Store/Sequence/StaticChunked";
             // old style, using residuesUrlTemplate
             if (this.config.residuesUrlTemplate) {
-                seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;                        
+                seqStoreConfig.urlTemplate = this.config.residuesUrlTemplate;
             }
 
             var inner_config = dojo.clone(seqStoreConfig);
-            // need a seqStoreConfig.config, 
-            //   since in StaticChunked constructor seqStoreConfig.baseUrl is ignored, 
+            // need a seqStoreConfig.config,
+            //   since in StaticChunked constructor seqStoreConfig.baseUrl is ignored,
             //   and seqStoreConfig.config.baseUrl is used instead (as of JBrowse 1.9.8+)
             seqStoreConfig.config = inner_config;
             // must add browser and refseq _after_ cloning, otherwise get Browser errors
@@ -96,7 +96,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
             this.sequenceStore = new StaticChunked(seqStoreConfig);
             this.browser._storeCache[ 'refseqs'] = {
-                refCount: 1, 
+                refCount: 1,
                 store: this.sequenceStore
             };
         }
@@ -109,11 +109,11 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
 
         /*
         var atrack = this.getAnnotTrack();
-        if (atrack)  { 
-            this.setAnnotTrack(atrack); 
-        }  
+        if (atrack)  {
+            this.setAnnotTrack(atrack);
+        }
         */
-        
+
         this.translationTable = {};
 
         var initAnnotTrack = dojo.hitch(this, function() {
@@ -126,7 +126,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             }
         });
         initAnnotTrack();
- 
+
     },
 
 // annotSelectionManager is class variable (shared by all AnnotTrack instances)
@@ -154,7 +154,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         return thisConfig;
     },
 
-    /** removing "Pin to top" menuitem, so SequenceTrack is always pinned 
+    /** removing "Pin to top" menuitem, so SequenceTrack is always pinned
      *    and "Delete track" menuitem, so can't be deleted
      *   (very hacky since depends on label property of menuitem config)
      */
@@ -163,8 +163,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
        options = this.webapollo.removeItemWithLabel(options, "Pin to top");
        options = this.webapollo.removeItemWithLabel(options, "Delete track");
        return options;
-   }, 
-   
+   },
+
     loadTranslationTable: function() {
         var track = this;
         var query={
@@ -177,6 +177,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }).then(function(response) { //
             track.translationTable = {};
             var ttable = response.translation_table;
+            track.startProteins = response.start_proteins;
+            track.stopProteins = response.stop_proteins;
             for (var codon in ttable) {
                 // looping through codon table, make sure not hitting generic properties...
                 if (ttable.hasOwnProperty(codon)) {
@@ -302,13 +304,13 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             this.standby.show();
         }
     },
-    
+
     stopStandby: function() {
         if (this.standby != null) {
             this.standby.hide();
         }
     },
-    
+
     fillBlock: function( args ) {
         var blockIndex = args.blockIndex;
         var block = args.block;
@@ -321,13 +323,13 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var verbose = false;
         var fillArgs = arguments;
         var track = this;
-        
+
         var finishCallback = args.finishCallback;
             args.finishCallback = function() {
                 finishCallback();
                 track.stopStandby();
             };
-        
+
         var charSize = this.webapollo.getSequenceCharacterSize();
         if ((scale == charSize.width) ||
                 this.ALWAYS_SHOW || (this.SHOW_IF_FEATURES && this.featureCount > 0) ) {
@@ -477,18 +479,17 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             var extendedReverseComp = track.reverseComplement(extendedStartResidues);
                             if (verbose)  { console.log("extendedReverseComp: " + extendedReverseComp); }
                             var framedivs = [];
-                            for (var i=0; i<3; i++) {
-                                var tstart = blockStart + i;
-                                // var frame = tstart % 3;
-                                var frame = (track.refSeq.length - blockEnd + i) % 3;
-                                // frame = (frame + (3 - (track.refSeq.length % 3))) % 3;
-                                frame = (Math.abs(frame - 2) + (track.refSeq.length % 3)) % 3;
+                            var offset = ( 2 - (track.refSeq.length  % 3)  )  ;
+                            for (var i=2; i>=0; i--) {
+                                var transStart = blockStart + 1 - i;
+                                var frame = (transStart % 3 + 3) % 3;
+                                frame = (frame + offset )% 3;
                                 var transProtein = track.renderTranslation( extendedStartResidues, i, blockLength, true);
-                                $(transProtein).addClass("cds-frame" + frame);
+                                $(transProtein).addClass("neg-cds-frame" + frame);
                                 framedivs[frame] = transProtein;
                             }
-                            // for (var i=2; i>=0; i--) {
-                            for (var i=0; i<3; i++) {
+                            for (var i=2; i>=0; i--) {
+                            // for (var i=0; i<3; i++) {
                                 var transProtein = framedivs[i];
                                 seqNode.appendChild(transProtein);
                                 $(transProtein).bind("mousedown", track.residuesMouseDown);
@@ -514,7 +515,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }
     },
 
-    addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
+    addFeatureToBlock: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                                  containerStart, containerEnd ) {
         var featDiv =
         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
@@ -563,7 +564,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
     /**
      *  overriding renderFeature to add event handling right-click context menu
      */
-    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale, 
+    renderFeature: function( feature, uniqueId, block, scale, labelScale, descriptionScale,
                              containerStart, containerEnd ) {
         var featDiv = this.inherited( arguments );
 
@@ -651,7 +652,41 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 aaResidues = SequenceTrack.nbsp + aaResidues;
             }
         }
-        container.appendChild( document.createTextNode( aaResidues ) );
+
+        var track = this;
+
+        var startProtein = track.startProteins;
+        var stopProtein= track.stopProteins;
+
+
+        if(startProtein && stopProtein && aaResidues) {
+
+            var residueString = '';
+            for (var residueIndex in aaResidues) {
+                var residue = aaResidues[residueIndex];
+                if (startProtein.indexOf(residue) >= 0 || stopProtein.indexOf(residue) >= 0) {
+                    container.appendChild(document.createTextNode(residueString));
+                    residueString = '';
+                    if (startProtein.indexOf(residue) >= 0) {
+                        var startDiv = dojo.create('div',{ className: 'sequence-start-protein'});
+                        startDiv.appendChild(document.createTextNode(residue));
+                        container.appendChild(startDiv);
+                    }
+                    else if (stopProtein.indexOf(residue) >= 0) {
+                        var stopDiv = dojo.create('div',{ className: 'sequence-stop-protein'});
+                        stopDiv.appendChild(document.createTextNode(residue));
+                        container.appendChild(stopDiv);
+                    }
+                }
+                else {
+                    residueString += residue;
+                }
+            }
+            container.appendChild(document.createTextNode(residueString));
+        }
+        else{
+            container.appendChild( document.createTextNode( aaResidues ) );
+        }
         return container;
     },
 
@@ -895,7 +930,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         this.annotationsDeletedNotification(annots);
         this.annotationAddedNotification(annots);
     },
-    
+
     storedFeatureCount: function(start, end)  {
         // get accurate count of features loaded (should do this within the XHR.load() function
         var track = this;
@@ -909,9 +944,9 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }
         var count = 0;
         track.store.getFeatures({ ref: track.refSeq.name, start: start, end: end}, function() { count++; });
-        
+
         return count;
-    }, 
+    },
 
     createAddSequenceAlterationPanel: function(type, gcoord) {
         var track = this;
@@ -933,8 +968,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 else {
                     var newchar = String.fromCharCode(unicode);
                     // only allow numeric chars and backspace
-                    if (! (newchar.match(/[0-9]/) || isBackspace))  {  
-                        return false; 
+                    if (! (newchar.match(/[0-9]/) || isBackspace))  {
+                        return false;
                     }
                 }
             });
@@ -962,16 +997,16 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     var newchar = String.fromCharCode(unicode);
                     // only allow acgtnACGTN and backspace
                     //    (and acgtn are transformed to uppercase in CSS)
-                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {  
-                        // can't synchronize scroll position of two input elements, 
+                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {
+                        // can't synchronize scroll position of two input elements,
                         // see http://stackoverflow.com/questions/10197194/keep-text-input-scrolling-synchronized
                         // but, if scrolling triggered (or potentially triggered), can hide other strand input element
                         // scrolling only triggered when length of input text exceeds character size of input element
                         if (isBackspace)  {
-                            minusField.value = track.complement(curval.substring(0,curval.length-1));  
+                            minusField.value = track.complement(curval.substring(0,curval.length-1));
                         }
                         else {
-                            minusField.value = track.complement(curval + newchar);  
+                            minusField.value = track.complement(curval + newchar);
                         }
                         if (curval.length > charWidth) {
                             $(minusDiv).hide();
@@ -996,16 +1031,16 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     var newchar = String.fromCharCode(unicode);
                     // only allow acgtnACGTN and backspace
                     //    (and acgtn are transformed to uppercase in CSS)
-                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {  
-                        // can't synchronize scroll position of two input elements, 
+                    if (newchar.match(/[acgtnACGTN]/) || isBackspace)  {
+                        // can't synchronize scroll position of two input elements,
                         // see http://stackoverflow.com/questions/10197194/keep-text-input-scrolling-synchronized
                         // but, if scrolling triggered (or potentially triggered), can hide other strand input element
                         // scrolling only triggered when length of input text exceeds character size of input element
                         if (isBackspace)  {
-                            plusField.value = track.complement(curval.substring(0,curval.length-1));  
+                            plusField.value = track.complement(curval.substring(0,curval.length-1));
                         }
                         else {
-                            plusField.value = track.complement(curval + newchar);  
+                            plusField.value = track.complement(curval + newchar);
                         }
                         if (curval.length > charWidth) {
                             $(plusDiv).hide();
@@ -1073,21 +1108,43 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     alert("Cannot create overlapping sequence alterations");
                 }
                 else {
-                    var feature = '"location": { "fmin": ' + fmin + ', "fmax": ' + fmax + ', "strand": 1 }, "type": {"name": "' + type + '", "cv": { "name":"sequence" } }';
+                    var feature = {
+                        location: {
+                            fmin: fmin,
+                            fmax: fmax,
+                            strand: 1
+                        },
+                        type: {
+                            name: type,
+                            cv: {
+                                name: "sequence"
+                            }
+                        }
+                    };
                     if (type != "deletion") {
-                        feature += ', "residues": "' + input + '"';
+                        feature.residues = input;
                     }
                     if (commentFieldValue.length != 0) {
-                        feature += ', "non_reserved_properties": [{"tag": "justification", "value": "' + commentFieldValue + '" }]';
+                        feature.non_reserved_properties = [
+                            {
+                                tag: "justification",
+                                value: commentFieldValue
+                            }
+                        ];
                     }
-                    var features = '[ { ' + feature + ' } ]';
-                    var postData = '{ "track": "' + track.annotTrack.getUniqueTrackName() + '", "features": ' + features + ', "operation": "add_sequence_alteration" }';
-                    track.annotTrack.executeUpdateOperation(postData);
+                    var features = [feature];
+                    var postData = {
+                        "track": track.annotTrack.getUniqueTrackName(),
+                        "features": features,
+                        "operation": "add_sequence_alteration",
+                        "clientToken": track.annotTrack.getClientToken()
+                    };
+                    track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
                     track.annotTrack.closeDialog();
                 }
             }
         };
-        
+
         dojo.connect(addButton, "onclick", null, function() {
                 addSequenceAlteration();
         });
@@ -1182,7 +1239,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         if (this.lastHighlightedReverseDNA) {
             this.removeTextHighlight(this.lastHighlightedReverseDNA);
         }
-    }, 
+    },
 
     getAnnotTrack: function()  {
         if (this.annotTrack)  {
@@ -1201,7 +1258,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         }
         return this.annotTrack;
     },
-    
+
     hide: function() {
         this.inherited(arguments);
         var annotTrack = this.getAnnotTrack();

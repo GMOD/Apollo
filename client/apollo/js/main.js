@@ -97,9 +97,17 @@ return declare( [JBPlugin, HelpMixin],
         if (browser.cookie("Scheme")=="Dark") {
             domClass.add(win.body(), "Dark");
         }
+
+        browser.cookie("colorCdsByFrame",browser.cookie("colorCdsByFrame")==null?!browser.config.overrideColorCdsByFrameTrue:browser.cookie("colorCdsByFrame"));
+
         if (browser.cookie("colorCdsByFrame")=="true") {
             domClass.add(win.body(), "colorCds");
         }
+
+        if (browser.cookie("Scheme-Flat")=="Flat") {
+            domClass.add(win.body(), "Flat");
+        }
+
         if(!browser.config.overrideApolloStyles) {
             domClass.add(win.body(), "Apollo");
         }
@@ -243,7 +251,7 @@ return declare( [JBPlugin, HelpMixin],
                                         view.oldOnResize();
                                     }
                             };
-            
+
 
         });
         this.monkeyPatchRegexPlugin();
@@ -387,11 +395,46 @@ return declare( [JBPlugin, HelpMixin],
         this.searchMenuInitialized = true;
     },
 
+    showAnnotatorPanel: function(){
+        // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
+        // to
+        // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
+        var hrefString = window.location.href;
+        var hrefTokens = hrefString.split("\/");
+        var organism ;
+        for(var h in hrefTokens){
+            // alert(hrefTokens[h]);
+            if(hrefTokens[h]=="jbrowse"){
+                organism = hrefTokens[h-1] ;
+            }
+        }
+
+        // NOTE: Here is where you customize your view into Apollo, by adding / changing parameters
+
+        var jbrowseString = "/jbrowse/index.html?";
+        var jbrowseIndex = hrefString.indexOf(jbrowseString);
+        var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
+        params = params.replace("tracklist=1","tracklist=0");
+        var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
+        // if(params.indexOf("&clientToken=")<0){
+        //     finalString += "&clientToken="+this.getClientToken();
+        // }
+        window.location.href = finalString;
+    },
+
+    isEmbedded: function(){
+        return (typeof window.parent.getEmbeddedVersion == 'function' && window.parent.getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+    },
 
     initLoginMenu: function(username) {
         var webapollo = this;
         var loginButton;
         if (username)  {   // permission only set if permission request succeeded
+            // if we are logged in with JBrowse mode, then disallow and go straight to the annotator
+            if(!webapollo.isEmbedded()){
+                webapollo.showAnnotatorPanel();
+                return ;
+            }
             this.browser.addGlobalMenuItem( 'user',
                             new dijitMenuItem(
                                             {
@@ -414,42 +457,19 @@ return declare( [JBPlugin, HelpMixin],
                             { className: 'login',
                                     innerHTML: "Login",
                                     onClick: function()  {
-                                            webapollo.getAnnotTrack().login();
+                                           webapollo.getAnnotTrack().showAnnotatorPanel();
                                     }
                             });
         }
 
-        if (typeof window.parent.getEmbeddedVersion == 'undefined') {
-            var annotatorButton = new dijitButton(
-                {
-                    innerHTML: "Show Annotator Panel",
-                    onClick: function () {
-                        // http://asdfasfasdf/asfsdf/asdfasdf/apollo/<organism ID / client token>/jbrowse/index.html?loc=Group9.10%3A501752..501878&highlight=&tracklist=1&tracks=DNA%2CAnnotations&nav=1&overview=1
-                        // to
-                        // /apollo/annotator/loadLink?loc=Group9.10:501765..501858&organism=16&tracks=&clientToken=1315746673267340807380563276
-                        var hrefString = window.location.href;
-                        var hrefTokens = hrefString.split("\/");
-                        var organism ;
-                        for(var h in hrefTokens){
-                            // alert(hrefTokens[h]);
-                            if(hrefTokens[h]=="jbrowse"){
-                                organism = hrefTokens[h-1] ;
-                            }
-                        }
-
-                        var jbrowseString = "/jbrowse/index.html?";
-                        var jbrowseIndex = hrefString.indexOf(jbrowseString);
-                        var params = hrefString.substring(jbrowseIndex + jbrowseString.length);
-                        params = params.replace("tracklist=1","tracklist=0");
-                        var finalString =  "../../annotator/loadLink?"+params + "&organism=" + organism ;
-                        if(params.indexOf("&clientToken=")<0){
-                            finalString += "&clientToken="+webapollo.getAnnotTrack().getClientToken();
-                        }
-                        window.location.href = finalString;
-                    }
-                });
-            this.browser.menuBar.appendChild( annotatorButton.domNode );
-        }
+        // get all toplinks and hide the one that says 'Full-screen view'
+        $('.topLink').each(function(index){
+            var innerHtml = $( this ).text();
+            if(innerHtml.indexOf("Full-screen view")>=0){
+                $( this ).hide();
+            }
+            // console.log( index + ": " + $( this ).text() );
+        });
 
         this.browser.menuBar.appendChild( loginButton.domNode );
         this.loginMenuInitialized = true;
@@ -629,6 +649,28 @@ return declare( [JBPlugin, HelpMixin],
                     onClick: function (event) {
                         browser.cookie("Scheme","Dark");
                         domClass.add(win.body(), "Dark");
+                    }
+                }
+            )
+        );
+
+        css_frame_menu.addChild(new dijitMenuSeparator());
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "Grid",
+                    onClick: function (event) {
+                        browser.cookie("Scheme-Flat","");
+                        domClass.remove(win.body(), "Flat");
+                    }
+                }
+            )
+        );
+        css_frame_menu.addChild(
+            new dijitMenuItem({
+                    label: "No Grid",
+                    onClick: function (event) {
+                        browser.cookie("Scheme-Flat","Flat");
+                        domClass.add(win.body(), "Flat");
                     }
                 }
             )

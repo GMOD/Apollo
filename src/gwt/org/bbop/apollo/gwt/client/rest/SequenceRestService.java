@@ -11,6 +11,7 @@ import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.SequencePanel;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -24,6 +25,9 @@ public class SequenceRestService {
         RestService.sendRequest(requestCallback, "sequence/setCurrentSequence/" + sequenceInfo.getId());
     }
 
+    public static void setCurrentSequenceForString(RequestCallback requestCallback, String sequenceName, OrganismInfo organismInfo) {
+        RestService.sendRequest(requestCallback, "sequence/setCurrentSequenceForNameAndOrganism/" +organismInfo.getId() +"?sequenceName="+sequenceName);
+    }
 
     public static void generateLink(final ExportPanel exportPanel) {
         JSONObject jsonObject = new JSONObject();

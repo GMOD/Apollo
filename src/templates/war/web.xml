@@ -17,6 +17,16 @@
         <param-value>@grails.project.key@</param-value>
     </context-param>
 
+    <!-- configuration to increase buffer size for requests sent to Tomcat -->
+    <context-param>
+        <param-name>org.apache.tomcat.websocket.textBufferSize</param-name>
+        <param-value>10000000</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.apache.tomcat.websocket.binaryBufferSize</param-name>
+        <param-value>10000000</param-value>
+    </context-param>
+
     <filter>
         <filter-name>charEncodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
