@@ -29,8 +29,7 @@ bibliography:
 
 # Summary
 
-
-## A summary describing the high-level functionality and purpose of the software for a diverse, non-specialist audience
+[](A summary describing the high-level functionality and purpose of the software for a diverse, non-specialist audience)
 
 [](Something about google docs and genome editing for folks who don't know anything about biology)
 
@@ -52,7 +51,7 @@ as a plugin.  All of these interact with the backend through a combination of RE
 STOMP protocol.  These web-services, in turn are available to the users scripting integration with other systems.
 
 
-## A clear statement of need that illustrates the purpose of the software
+[](A clear statement of need that illustrates the purpose of the software)
 
 Apollo fulfills two key needs in this space:
 
@@ -63,16 +62,27 @@ Apollo fulfills two key needs in this space:
 2 - In sharp contrast to every other genome annotation tool, Apollo is web-based and real-time collaborative.   
 
 
+Features:
+- Revertible visual history, including merges and splits
+- Changeable feature type
+- Application side-panel with administrative reports
+- Fine-grained permissions for users, instructors., etc..
+
+These features have also allowed Apollo to thrive as an educational tool as well.
 
 
-## Mentions (if applicable) of any ongoing research projects using the software or recent scholarly publications enabled by it
+[](Mentions if applicable of any ongoing research projects using the software or recent scholarly publications enabled by it)
 
 Apollo is currently being used in over one hundred genome annotation projects around the world, ranging from annotation
 of a single species to lineage-specific efforts supporting the annotation of dozens of species at a time.
 
+
+[](Add educational uses her as well)
+
 Educational users:  
 - DNA Subway
 - On-Ramp
+- TAMU-CPT
 
 Genome Projects:
 - i5K
@@ -85,6 +95,8 @@ Key Galaxy Platform Integrations:
 - ??
 - GenSAS
 
+[](Figure of Screenshot shared on figshare)
+
 
 Citations to entries in paper.bib should be in
 [rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
@@ -94,13 +106,12 @@ This is an example citation [@figshare_archive].
 
 Figures can be included like this: ![Fidgit deposited in figshare.](figshare_article.png)
 
-## A list of key references including a link to the software archive
+[](A list of key references including a link to the software archive, maybe this goes in codemetata.json)
 
-Software Links:
-* [Software archive](https://github.com/gmod/apollo/)
-* Apollo 2.0.8 Release [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1063658.svg)](https://doi.org/10.5281/zenodo.1063658)
+* [Software repository](https://github.com/gmod/apollo/)
+* [![Software archive](https://zenodo.org/badge/DOI/10.5281/zenodo.1063658.svg)](https://doi.org/10.5281/zenodo.1063658)
 
-Documentation:
+### References
 
 * http://genomearchitect.org  
 * Lee E, Helt GA, Reese JT, Munoz-Torres MC, Childers CP, Buels RM, Stein L, Holmes IH, Elsik CG, Lewis SE. 2013. Apollo: a web-based genomic annotation editing platform. [Genome Biol 14:R93](http://genomebiology.com/2013/14/8/R93/abstract)
