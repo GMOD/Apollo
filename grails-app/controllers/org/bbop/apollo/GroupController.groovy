@@ -55,7 +55,10 @@ class GroupController {
         try {
             log.debug "loadGroups"
             JSONObject dataObject = permissionService.handleInput(request, params)
-
+            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
             JSONArray returnArray = new JSONArray()
             def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
 
@@ -74,14 +77,14 @@ class GroupController {
             // restricted groups
             def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
             def filteredGroups =  groups
+            def currentUser = User.findByUsername(dataObject.username)
             // if user is admin, then include all
             // if group has metadata with the creator or no metadata then include
-
-            if (!permissionService.isAdmin()) {
+            if (!permissionService.isUserAdmin(currentUser)) {
                 log.debug "filtering groups"
 
                 filteredGroups = groups.findAll(){
-                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                    it.metadata == null || it.getMetaData("creator") == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                 }
             }
 
@@ -177,7 +180,7 @@ class GroupController {
         UserGroup group = new UserGroup(
                 name: dataObject.name
         ).save(flush: true)
-        def currentUser = permissionService.currentUser
+        def currentUser = User.findByUsername(dataObject.username)
 
         group.addMetaData("creator", currentUser.id.toString())
         log.debug "Add metadata creator: ${currentUser.id.toString()}"
