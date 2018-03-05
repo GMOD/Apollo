@@ -140,7 +140,17 @@ public enum FeatureStringEnum {
         URL_TEMPLATE("urlTemplate"),
         TRACK_DATA("trackData"),
         TRACK_CONFIG("trackConfig"),
-        TRACK_LABEL("trackLabel")
+        TRACK_LABEL("trackLabel"),
+        START,
+        END,
+        SCORE,
+        NUMBER,
+        FILTER,
+        VALUES,
+        META,
+        REFERENCE_ALLELE,
+        ALTERNATIVE_ALLELES,
+        GENOTYPES
         ;
 
 
