@@ -28,6 +28,6 @@
   },
   "homepage": "https://github.com/GMOD/Apollo#readme",
   "dependencies": {
-    "jbrowse": "github:gmod/jbrowse#15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
+    "@gmod/jbrowse": "github:gmod/jbrowse#15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
   }
 }

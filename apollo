@@ -163,6 +163,8 @@ function clean_all(){
     rm -rf jbrowse-download
     rm -rf JBrowse-dev
     rm -rf web-app/jbrowse
+    rm -rf extlib
+    rm -rf node_modules
     rm -f *.zip
     clean_code
 }
