@@ -53,7 +53,7 @@ class TrackController {
     ])
     @Transactional
     def clearTrackCache(String organismName, String trackName) {
-        if (!checkPermission(organismName)) return
+        if (!trackService.checkPermission(request, response, organismName)) return
         int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName and tc.trackName = :trackName",[commonName:organismName,trackName: trackName])
         render new JSONObject(removed: removed) as JSON
     }
@@ -76,7 +76,7 @@ class TrackController {
             render jsonArray as JSON
         } else {
             log.info "Deleting cache for ${organismName}"
-            if (!checkPermission(organismName)) return
+            if (!trackService.checkPermission(request, response, organismName)) return
             int removed = TrackCache.executeUpdate("delete from TrackCache tc where tc.organismName = :commonName ",[commonName:organismName])
             render new JSONObject(removed: removed) as JSON
         }
@@ -96,7 +96,7 @@ class TrackController {
     ])
     @Transactional
     def featuresByName(String organismString, String trackName, String sequence, String featureName, String type) {
-        if (!checkPermission(organismString)) return
+        if (!trackService.checkPermission(request, response, organismString)) return
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         Map paramMap = new TreeMap<>()
@@ -191,7 +191,7 @@ class TrackController {
     ])
     @Transactional
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
-        if (!checkPermission(organismString)) return
+        if (!trackService.checkPermission(request, response, organismString)) return
 
         Set<String> nameSet = getNames(params.name ? params.name : "")
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
@@ -267,7 +267,7 @@ class TrackController {
     }
 
     def biolink(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
-        if (!checkPermission(organismString)) return
+        if (!trackService.checkPermission(request, response, organismString)) return
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
         JSONObject renderdObject = trackService.getNCListAsBioLink(filteredList)
         render renderdObject as JSON
@@ -285,22 +285,9 @@ class TrackController {
 // TODO: this is just for debuggin
 // track < organism ID or name > / <track name > /  < sequence name > / min / max
     def nclist(String organismString, String trackName, String sequence, Long fmin, Long fmax) {
-        if (!checkPermission(organismString)) return
+        if (!trackService.checkPermission(request, response, organismString)) return
         JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
         render filteredList as JSON
-    }
-
-    def checkPermission(String organismString) {
-        Organism organism = preferenceService.getOrganismForToken(organismString)
-        if (organism && (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ))) {
-            return true
-        } else {
-            // not accessible to the public
-            response.status = HttpServletResponse.SC_FORBIDDEN
-            render ""
-            return false
-        }
-
     }
 
 }
