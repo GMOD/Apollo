@@ -479,7 +479,21 @@ class UserController {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
-            User user = User.findById(dataObject.userId)
+            User user = null
+            if (dataObject.has('userId')) {
+                user = User.findById(dataObject.userId)
+            }
+            // to support the webservice
+            if (!user && dataObject.has("email")) {
+                user = User.findByUsername(dataObject.email)
+            }
+            if (!user) {
+                def error = [error: 'The user does not exist']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
             user.firstName = dataObject.firstName
             user.lastName = dataObject.lastName
             user.username = dataObject.email
@@ -488,17 +502,19 @@ class UserController {
             if (dataObject.newPassword) {
                 user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
             }
-
-            String roleString = dataObject.role
+            String roleString = null
+            if (dataObject.has('role')) {
+                roleString = dataObject.role
+            }
             Role currentRole = userService.getHighestRole(user)
-
-            if (!currentRole || !roleString.equalsIgnoreCase(currentRole.name)) {
+            if (!currentRole && roleString || (currentRole && roleString && !roleString.equalsIgnoreCase(currentRole.name))) {
                 if (currentRole) {
                     user.removeFromRoles(currentRole)
                 }
                 Role role = Role.findByName(roleString.toUpperCase())
                 user.addToRoles(role)
             }
+
             log.info "Updated user"
             user.save(flush: true)
             render new JSONObject() as JSON
