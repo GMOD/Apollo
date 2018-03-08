@@ -1,3 +1,5 @@
+const $ = require('jquery')
+
 define( [
     'dojo/_base/declare',
     'dojo/request/xhr',
@@ -7,7 +9,6 @@ define( [
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
     'dojox/widget/Standby',
-    'jquery/jquery'
      ],
 function( declare,
     xhr,
@@ -17,7 +18,6 @@ function( declare,
     JSONUtils,
     Permission,
     Standby,
-    $
 ) {
 
 var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,

@@ -1,14 +1,13 @@
+const $ = require('jquery');
+const jui = require('jqueryui');
+const {draggable,droppable,resizable,autocomplete,dialog} = $.ui;
+
+
 define([
         'dojo/_base/declare',
         'dojo/_base/array',
         'dojo/on',
         'dojo/request',
-        'jquery',
-        'jqueryui/draggable',
-        'jqueryui/droppable',
-        'jqueryui/resizable',
-        'jqueryui/autocomplete',
-        'jqueryui/dialog',
         'dijit/registry',
         'dijit/Menu',
         'dijit/MenuItem',
@@ -49,12 +48,8 @@ define([
               array,
               on,
               request,
-              $,
-              draggable,
-              droppable,
-              resizable,
-              autocomplete,
-              dialog,
+
+
               registry,
               dijitMenu,
               dijitMenuItem,
