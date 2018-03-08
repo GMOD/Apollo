@@ -110,7 +110,8 @@ class VcfService {
         // changing one-based start to zero-based start
         int start = variantContext.getStart()
         int end = variantContext.getEnd()
-        jsonFeature.put("sequence", sequenceName)
+        // Note: the use of 'seqId' doesn't match Apollo's default JSON format; might need revisions in the future
+        jsonFeature.put("seqId", sequenceName)
         jsonFeature.put(FeatureStringEnum.FMIN.value, start - 1)
         jsonFeature.put(FeatureStringEnum.FMAX.value, end)
         jsonFeature.put(FeatureStringEnum.TYPE.value, type)
