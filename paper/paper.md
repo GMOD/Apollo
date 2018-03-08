@@ -29,7 +29,13 @@ bibliography:
 
 # Summary
 
-[](A summary describing the high-level functionality and purpose of the software for a diverse, non-specialist audience)
+[] (Add note about Community developers, users, feedback.)
+[] (Add note about using standard tools on the backend that allow to scalability of hundreds of users and genomes with rich permission structure.)
+[] (Software adds ability to get up and running and add integrations relatively easily.)
+
+
+
+[](JOSS Note: A summary describing the high-level functionality and purpose of the software for a diverse, non-specialist audience)
 
 [](Something about google docs and genome editing for folks who don't know anything about biology)
 
@@ -51,7 +57,7 @@ as a plugin.  All of these interact with the backend through a combination of RE
 STOMP protocol.  These web-services, in turn are available to the users scripting integration with other systems.
 
 
-[](A clear statement of need that illustrates the purpose of the software)
+[](JOSS Note: A clear statement of need that illustrates the purpose of the software)
 
 Apollo fulfills two key needs in this space:
 
@@ -71,7 +77,7 @@ Features:
 These features have also allowed Apollo to thrive as an educational tool as well.
 
 
-[](Mentions if applicable of any ongoing research projects using the software or recent scholarly publications enabled by it)
+[](JOSS Note: Mentions if applicable of any ongoing research projects using the software or recent scholarly publications enabled by it)
 
 Apollo is currently being used in over one hundred genome annotation projects around the world, ranging from annotation
 of a single species to lineage-specific efforts supporting the annotation of dozens of species at a time.
