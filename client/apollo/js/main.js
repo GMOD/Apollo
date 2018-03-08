@@ -1,13 +1,4 @@
-require({
-           packages: [
-               { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
-               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
-           ]
-       },
-       [],
-       function() {
-
-define.amd.jQuery = true;
+const $ = require('jquery')
 
 define([
            'dojo/_base/declare',
@@ -38,8 +29,6 @@ define([
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
            'dojo/io-query',
-           'jquery/jquery',
-           'lazyload/lazyload'
        ],
     function( declare,
             lang,
@@ -69,8 +58,7 @@ define([
             GFF3Driver,
             CodonTable,
             ioQuery,
-            $,
-            LazyLoad ) {
+            ) {
 
 return declare( [JBPlugin, HelpMixin],
 {
@@ -746,8 +734,6 @@ return declare( [JBPlugin, HelpMixin],
         this.updateLabels();
     }
 
-
-});
 
 });
 

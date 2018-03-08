@@ -1,9 +1,10 @@
- define( ['dojo/_base/declare',
-          'jquery',
+const $ = require('jquery')
+
+define( ['dojo/_base/declare',
           'WebApollo/View/Track/DraggableHTMLFeatures',
           'WebApollo/View/Track/AnnotTrack'
          ],
-        function( declare, $, DraggableFeatureTrack, AnnotTrack ) {
+        function( declare, DraggableFeatureTrack, AnnotTrack ) {
 
 var FeatureEdgeMatchManager = declare( null,
                                        

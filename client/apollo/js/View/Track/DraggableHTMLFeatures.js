@@ -1,3 +1,7 @@
+const $ = require('jquery')
+require('jqueryui')
+const { draggable } = $.ui;
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
@@ -9,8 +13,6 @@ define( [
             'dijit/MenuSeparator',
             'dijit/PopupMenuItem',
             'dijit/Dialog',
-            'jquery',
-            'jqueryui/draggable',
             'JBrowse/Util', 
             'JBrowse/Model/SimpleFeature', 
             'WebApollo/SequenceOntologyUtils'
@@ -25,8 +27,6 @@ define( [
         dijitMenuSeparator,
         dijitPopupMenuItem,
         dijitDialog,
-        $,
-        draggable,
         Util, 
         SimpleFeature,
         SeqOnto ) {
