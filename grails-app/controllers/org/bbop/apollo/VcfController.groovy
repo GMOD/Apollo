@@ -31,6 +31,15 @@ class VcfController {
             }
         }
 
+        Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
+        if (!ignoreCache) {
+            String responseString = trackService.checkCache(organismString, trackName, sequence, fmin, fmax, type, null)
+            if (responseString) {
+                render JSON.parse(responseString) as JSON
+                return
+            }
+        }
+
         File file = new File(organism.directory + File.separator + trackUrlTemplate)
         try {
             VCFFileReader vcfFileReader = new VCFFileReader(file)
@@ -40,17 +49,8 @@ class VcfController {
             log.error(e.stackTrace)
         }
 
-        // TODO
-//        if(type == "json") {
-//            render featuresArray as JSON
-//        }
-//        else if(type == "svg") {
-//            String xmlString = svgService.renderSVGFromJSONArray(featuresArray)
-//            render xmlString
-//        }
-
+        trackService.cacheRequest(featuresArray.toString(), organismString, trackName, sequence, fmin, fmax, type, null)
         render featuresArray as JSON
-
     }
 
 }

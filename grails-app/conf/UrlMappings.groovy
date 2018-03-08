@@ -34,7 +34,6 @@ class UrlMappings {
         "/track/cache/clear/${organismName}"(controller: "track", action: "clearOrganismCache")
 
         "/vcf/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.${type}"(controller: "vcf", action: "featuresByLocation",[params:params])
-        "/vcf/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.${type}&includeGenotypes=${includeGenotypes}"(controller: "vcf", action: "featuresByLocation",[params:params])
 
         "/sequence/${organismString}/?loc=${sequenceName}:${fmin}..${fmax}"(controller: "sequence", action: "sequenceByLocation",[params:params])
         "/sequence/${organismString}/${sequenceName}:${fmin}..${fmax}"(controller: "sequence", action: "sequenceByLocation",[params:params])
