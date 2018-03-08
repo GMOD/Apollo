@@ -1119,7 +1119,7 @@ define([
 
                     // TODO: pull from the server at some point
                     var recognizedBioType = [
-                        'mRNA','miRNA','NcRNA','RRNA','SnRNA','SnoRNA','TRNA','Transcript' ,'RepeatRegion','TransposableElement'
+                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element'
                     ];
 
                     if(force_type) {
