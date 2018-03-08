@@ -972,14 +972,12 @@ define([
                         if (target_track.verbose_drop) {
                             console.log("droppable entered AnnotTrack")
                         }
-                        ;
                     },
                     out: function (event, ui) {
                         target_track.track_under_mouse_drag = false;
                         if (target_track.verbose_drop) {
                             console.log("droppable exited AnnotTrack")
                         }
-                        ;
                     },
                     deactivate: function (event, ui) {
                         // console.log("trackdiv droppable detected: draggable
@@ -1021,8 +1019,8 @@ define([
 
             createAnnotations: function (selection_records,force_type) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
@@ -1039,10 +1037,10 @@ define([
                     var parentId = parent.id();
                     parentFeatures[parentId] = parent;
 
-                    if (strand == undefined) {
+                    if (strand === undefined) {
                         strand = dragfeat.get("strand");
                     }
-                    else if (strand != dragfeat.get("strand")) {
+                    else if (strand !== dragfeat.get("strand")) {
                         strand = -2;
                     }
 
@@ -1071,7 +1069,7 @@ define([
 
                 function process() {
                     var keys = Object.keys(parentFeatures);
-                    var singleParent = keys.length == 1;
+                    var singleParent = keys.length === 1;
                     var featureToAdd;
                     if (singleParent) {
                         featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
@@ -1085,7 +1083,7 @@ define([
                     featureToAdd.set("strand", strand);
                     var fmin;
                     var fmax;
-                    featureToAdd.set('subfeatures', new Array());
+                    featureToAdd.set('subfeatures', []);
                     array.forEach(subfeatures, function (subfeature) {
                         if (!singleParent && SequenceOntologyUtils.cdsTerms[subfeature.get("type")]) {
                             return;
@@ -1118,8 +1116,18 @@ define([
 
 
                     var biotype ;
+
+                    // TODO: pull from the server at some point
+                    var recognizedBioType = [
+                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element'
+                    ];
+
                     if(force_type) {
                         biotype = featureToAdd.get('type');
+                        if(!recognizedBioType[biotype]){
+                            console.log('biotype not found ['+biotype + '] converting to mRNA');
+                            biotype = 'mRNA';
+                        }
                     }
                     else{
                         var default_biotype = selection_records[0].track.config.default_biotype;
@@ -1149,7 +1157,6 @@ define([
                     target_track.executeUpdateOperation(JSON.stringify(postData));
                 }
 
-                console.log('process: ' + strand);
                 if (strand == -2) {
                     var content = dojo.create("div");
                     var message = dojo.create("div", {
@@ -1197,8 +1204,8 @@ define([
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
                 var target_track = this;
-                var featuresToAdd = new Array();
-                var parentFeatures = new Object();
+                var featuresToAdd = [];
+                var parentFeatures = {};
                 for (var i in feats) {
                     var dragfeat = feats[i];
 
