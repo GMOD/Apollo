@@ -52,6 +52,12 @@ class VcfService {
         log.info "querying with ${sequenceName} ${start + 1} ${end}"
         // casting start and end to int since query() method doesn't support long data type for coordinates
         def queryResults = vcfFileReader.query(sequenceName, (int) start + 1, (int) end)
+
+        // we want to be generous with the sequence name lookup
+        if(!queryResults && sequenceName.toLowerCase().startsWith("chr")){
+            String filteredName = sequenceName.substring("chr".length())
+            queryResults = vcfFileReader.query(filteredName, (int) start + 1, (int) end)
+        }
         vcfEntries.addAll(queryResults.toList())
         log.info "result size: ${vcfEntries.size()}"
         processedFeaturesArray = processVcfRecords(vcfHeader, vcfEntries, sequenceName, includeGenotypes)
@@ -70,8 +76,7 @@ class VcfService {
     def processVcfRecords(VCFHeader vcfHeader, def vcfEntries, String sequenceName, boolean includeGenotypes = false) {
         JSONArray featuresArray = new JSONArray()
         for(VariantContext vc : vcfEntries) {
-            JSONObject jsonFeature = new JSONObject()
-            jsonFeature = processVcfRecord(vcfHeader, vc, sequenceName, includeGenotypes)
+            JSONObject jsonFeature = processVcfRecord(vcfHeader, vc, sequenceName, includeGenotypes)
             featuresArray.add(jsonFeature)
         }
 
