@@ -8,7 +8,7 @@ define( [
     'WebApollo/View/Track/DraggableHTMLFeatures',
     'WebApollo/JSONUtils',
     'WebApollo/Permission',
-    'dojox/widget/Standby',
+    'dojox/widget/Standby'
      ],
 function( declare,
     xhr,
@@ -17,7 +17,7 @@ function( declare,
     DraggableFeatureTrack,
     JSONUtils,
     Permission,
-    Standby,
+    Standby
 ) {
 
 var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,

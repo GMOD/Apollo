@@ -11,7 +11,7 @@ define( [
         array,
         domConstruct,
         domAttr,
-        dom,
+        dom
         ) {
 
 return declare(null, {

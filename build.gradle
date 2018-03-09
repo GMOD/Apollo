@@ -313,6 +313,10 @@ def cloneRepoNpm(String url, String directory, String branch){
         logger.quiet "Using npm to install: ${finalUrl}"
         commandLine "npm","install",finalUrl,"--ignore-scripts"
     }
+    println "CURRENT DIRECTORY"
+    println new File(".").absolutePath
+    commandLine "npm","install",finalUrl,"--ignore-scripts"
+
 
     File npmDirectory = new File('node_modules')
     if(finalUrl.contains("#") && (finalUrl.endsWith("jbrowse") || finalUrl.split("#")[0].endsWith("jbrowse"))) {

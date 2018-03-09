@@ -57,7 +57,7 @@ define([
             HelpMixin,
             GFF3Driver,
             CodonTable,
-            ioQuery,
+            ioQuery
             ) {
 
 return declare( [JBPlugin, HelpMixin],
