@@ -431,15 +431,30 @@ class TrackService {
 
     @Transactional
     def cacheRequest(String responseString, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, String type, Map paramMap) {
-        TrackCache trackCache = new TrackCache(
-                response: responseString
-                , organismName: organismString
-                , trackName: trackName
-                , sequenceName: sequenceName
-                , fmin: fmin
-                , fmax: fmax
-                , type: type
+
+        TrackCache trackCache = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndType(
+                organismString,
+                trackName,
+                sequenceName,
+                fmin,
+                fmax,
+                type
         )
+
+        if(trackCache){
+            trackCache.response = responseString
+        }
+        else{
+            trackCache =  new TrackCache(
+                    response: responseString
+                    , organismName: organismString
+                    , trackName: trackName
+                    , sequenceName: sequenceName
+                    , fmin: fmin
+                    , fmax: fmax
+                    , type: type
+            )
+        }
         if (paramMap) {
             trackCache.paramMap = (paramMap as JSON).toString()
         }
