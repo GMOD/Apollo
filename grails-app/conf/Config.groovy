@@ -397,10 +397,10 @@ auditLog {
 jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
-//        branch = "master"
-        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
-        alwaysPull = false
-        alwaysRecheck = false
+        branch = "dev"
+//        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
+        alwaysPull = true
+        alwaysRecheck = true
     }
 //    url {
 //        // always use dev for apollo
