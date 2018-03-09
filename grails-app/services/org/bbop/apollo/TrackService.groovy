@@ -3,12 +3,14 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.gwt.shared.track.TrackIndex
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONElement
 import org.codehaus.groovy.grails.web.json.JSONObject
 
+import javax.servlet.http.HttpServletResponse
 import java.util.zip.GZIPInputStream
 
 @Transactional
@@ -16,6 +18,7 @@ class TrackService {
 
     def preferenceService
     def trackMapperService
+    def permissionService
 
     public static String TRACK_NAME_SPLITTER = "::"
 
@@ -428,15 +431,30 @@ class TrackService {
 
     @Transactional
     def cacheRequest(String responseString, String organismString, String trackName, String sequenceName, Long fmin, Long fmax, String type, Map paramMap) {
-        TrackCache trackCache = new TrackCache(
-                response: responseString
-                , organismName: organismString
-                , trackName: trackName
-                , sequenceName: sequenceName
-                , fmin: fmin
-                , fmax: fmax
-                , type: type
+
+        TrackCache trackCache = TrackCache.findByOrganismNameAndTrackNameAndSequenceNameAndFminAndFmaxAndType(
+                organismString,
+                trackName,
+                sequenceName,
+                fmin,
+                fmax,
+                type
         )
+
+        if(trackCache){
+            trackCache.response = responseString
+        }
+        else{
+            trackCache =  new TrackCache(
+                    response: responseString
+                    , organismName: organismString
+                    , trackName: trackName
+                    , sequenceName: sequenceName
+                    , fmin: fmin
+                    , fmax: fmax
+                    , type: type
+            )
+        }
         if (paramMap) {
             trackCache.paramMap = (paramMap as JSON).toString()
         }
@@ -555,4 +573,14 @@ class TrackService {
         return geneChildren
     }
 
+    def checkPermission(def request, def response, String organismString) {
+        Organism organism = preferenceService.getOrganismForToken(organismString)
+        if (organism && (organism.publicMode || permissionService.checkPermissions(PermissionEnum.READ))) {
+            return true
+        } else {
+            // not accessible to the public
+            response.status = HttpServletResponse.SC_FORBIDDEN
+            return false
+        }
+    }
 }
