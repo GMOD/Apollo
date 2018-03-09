@@ -315,7 +315,7 @@ def cloneRepoNpm(String url, String directory, String branch){
     }
     println "CURRENT DIRECTORY"
     println new File(".").absolutePath
-    commandLine "npm","install",finalUrl,"--ignore-scripts"
+//    commandLine "npm","install",finalUrl,"--ignore-scripts"
 
 
     File npmDirectory = new File('node_modules')
