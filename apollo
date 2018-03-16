@@ -6,8 +6,8 @@ function usage(){
     echo "";
     echo "Production Commands:";
     echo "";
-    echo "deploy:           Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "release:          Builds in release mode (minimized javascript). (beta)";
+    echo "deploy:           Builds war file (no processing of javascript) into the target directory.";
+    echo "install-tools:    Installs JBrowse tools in the ./bin directory if not preset."
     echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
     echo "help:             This message.";
     echo "";
@@ -174,6 +174,10 @@ if [[ $1 == "devmode" ]];then
     check_configs
     $gradle_executable handleJBrowse copyResourcesDev devmode &
     $grails_executable -reloading run-app
+elif [[ $1 == "install-jbrowse-tools" ]];then
+    check_configs
+    check_perldependencies
+    $gradle_executable installJBrowseLocal
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
@@ -221,13 +225,6 @@ elif [[ $1 == "deploy" ]];then
     check_configs
     copy_configs
     $gradle_executable handleJBrowse copy-resources gwtc &&  $grails_executable war
-    deploy_message
-elif [[ $1 == "release" ]];then
-    check_configs
-    check_configs_for_release
-    copy_configs
-    clean_all
-    $gradle_executable handleJBrowse release gwtc && $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
