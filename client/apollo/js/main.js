@@ -377,9 +377,15 @@ return declare( [JBPlugin, HelpMixin],
         }
 
         // move Tool menu in front of Help menu
-        var toolsMenu = dijit.byId('dropdownbutton_tools');
-        var helpMenu = dijit.byId('dropdownbutton_help');
-        domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
+        var intervalFunction  = function(){
+            var toolsMenu = dijit.byId('dropdownbutton_tools');
+            var helpMenu = dijit.byId('dropdownbutton_help');
+            if(toolsMenu && helpMenu){
+                domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
+                clearInterval(intervalID); // Will clear the timer.
+            }
+        };
+        var intervalID = setInterval(intervalFunction, 1000); // Will alert every second.
         this.searchMenuInitialized = true;
     },
 
