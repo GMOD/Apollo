@@ -385,7 +385,7 @@ return declare( [JBPlugin, HelpMixin],
                 clearInterval(intervalID); // Will clear the timer.
             }
         };
-        var intervalID = setInterval(intervalFunction, 1000); // Will alert every second.
+        var intervalID = setInterval(intervalFunction, 100); // Will alert every second.
         this.searchMenuInitialized = true;
     },
 
