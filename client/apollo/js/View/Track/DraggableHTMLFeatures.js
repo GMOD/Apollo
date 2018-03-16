@@ -1039,8 +1039,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 //     for more explanation of event handling changes in JQuery 1.7
 
                 // _mouseDown(event) triggering boostrapping of feature drag 
-                // $featdiv.data("draggable")._mouseDown(event);  
-                $featdiv.draggable().data("draggable")._mouseDown(event);
+                // $featdiv.data("draggable")._mouseDown(event);
+                // $featdiv.draggable().data("draggable")._mouseDown(event);
                 // $featdiv.trigger(event);
             }
         }
