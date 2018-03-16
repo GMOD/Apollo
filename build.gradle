@@ -295,7 +295,7 @@ def cloneRepoShell(String url, String directory, String branch, Integer depth) {
         fetchTags(new File(directory))
     }
     checkoutBranch(new File(directory), branch)
-    tasks.installJBrowseScript.execute()
+//    tasks.installJBrowseScript.execute()
 }
 
 def cloneRepoNpm(String url, String directory, String branch){
@@ -322,7 +322,7 @@ def cloneRepoNpm(String url, String directory, String branch){
     if(finalUrl.contains("#") && (finalUrl.endsWith("jbrowse") || finalUrl.split("#")[0].endsWith("jbrowse"))) {
         logger.quiet "Moving JBrowse into position ${finalUrl}"
         tasks.moveNodeModulesJBrowse.execute()
-        tasks.installJBrowseScript.execute()
+//        tasks.installJBrowseScript.execute()
     }
     else{
         npmDirectory.eachDir {
@@ -343,13 +343,20 @@ task removeJBrowseDownload(type:Delete){
 }
 
 task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
-    doLast {
+    doLast {'build'
         file("jbrowse-download").deleteDir() // dependency handles this
         file("node_modules/@gmod/jbrowse").renameTo(file("jbrowse-download"))
         file("node_modules/*").renameTo(file("jbrowse-download/src"))
         file("node_modules").deleteDir()
 //        file("jbrowse-download/node_modules").deleteDir()
     }
+}
+
+task compileJBrowse(type:Exec) {
+    logger.quiet "Setting up JBrowse... "
+    workingDir jbrowseDirectory
+    commandLine 'npm','install'
+    commandLine 'npm','run','build'
 }
 
 task installJBrowseScript(type:Exec) {

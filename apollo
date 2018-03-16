@@ -15,7 +15,7 @@ function usage(){
     echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
     echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
-    echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
+    echo "debug:            Runs from cuurent directory in debug mode (non-minimized javascript).";
     echo "watchman:         Creates watchman daemon to autocopy plugin files (non-minimized javascript).";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
@@ -169,6 +169,16 @@ function clean_all(){
     clean_code
 }
 
+function installJBrowse(){
+     git clone https://github.com/GMOD/jbrowse --branch dev --single-branch jbrowse
+#     npm install @gmod/jbrowse
+     rm -rf web-app/jbrowse
+     cp -r jbrowse web-app/jbrowse
+     cp -r client/apollo web-app/jbrowse/plugins/WebApollo
+     cd web-app/jbrowse
+     npm install
+     npm run build
+}
 
 if [[ $1 == "devmode" ]];then
     check_configs
@@ -181,9 +191,11 @@ elif [[ $1 == "install-jbrowse-tools" ]];then
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources copyResourcesDev gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copy-resources copyResourcesDev compileJBrowse gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources copyResourcesDev gwtc && $grails_executable run-app
+#        $gradle_executable handleJBrowse copy-resources copyResourcesDev compileJBrowse gwtc && $grails_executable run-app
+        installJBrowse
+        $gradle_executable gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "watchman" ]]; then
     watchman_executable=$(which watchman)
@@ -196,9 +208,9 @@ elif [[ $1 == "watchman" ]]; then
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable run-app
+        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
