@@ -1040,7 +1040,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
                 // _mouseDown(event) triggering boostrapping of feature drag 
                 // $featdiv.data("draggable")._mouseDown(event);
-                // $featdiv.draggable().data("draggable")._mouseDown(event);
+                $featdiv.draggable().data("draggable")._mouseDown(event);
                 // $featdiv.trigger(event);
             }
         }
