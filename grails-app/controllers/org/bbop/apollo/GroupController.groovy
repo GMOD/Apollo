@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -168,7 +169,7 @@ class GroupController {
     @Transactional
     def createGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -199,7 +200,7 @@ class GroupController {
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -244,7 +245,7 @@ class GroupController {
     def updateGroup() {
         log.info "Updating group"
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -366,7 +367,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
 
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
 
             render status: HttpStatus.UNAUTHORIZED.value()
             return
@@ -411,7 +412,7 @@ class GroupController {
         JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
 
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }

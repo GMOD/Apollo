@@ -3,6 +3,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
@@ -172,7 +173,7 @@ class CannedKeyController {
     def createKey() {
         JSONObject keyJson = permissionService.handleInput(request, params)
         try {
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(keyJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(keyJson))) {
                 if (!keyJson.key) {
                     throw new Exception('empty fields detected')
                 }
@@ -216,7 +217,7 @@ class CannedKeyController {
         try {
             JSONObject keyJson = permissionService.handleInput(request, params)
             log.debug "Updating canned key ${keyJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(keyJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(keyJson))) {
 
                 log.debug "Canned key ID: ${keyJson.id}"
                 CannedKey key = CannedKey.findById(keyJson.id) ?: CannedKey.findByLabel(keyJson.old_key)
@@ -263,7 +264,7 @@ class CannedKeyController {
         try {
             JSONObject keyJson = permissionService.handleInput(request, params)
             log.debug "Deleting canned key ${keyJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(keyJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(keyJson))) {
 
                 CannedKey key = CannedKey.findById(keyJson.id) ?: CannedKey.findByLabel(keyJson.key)
 
@@ -303,7 +304,7 @@ class CannedKeyController {
         try {
             JSONObject keyJson = permissionService.handleInput(request, params)
             log.debug "Showing canned key ${keyJson}"
-            if (!permissionService.hasGlobalPermissions(keyJson, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(keyJson, GlobalPermissionEnum.ADMIN)) {
                 render status: UNAUTHORIZED
                 return
             }

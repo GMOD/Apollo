@@ -102,7 +102,7 @@ class OrganismController {
         log.debug "deleteOrganism ${requestObject}"
 
         try {
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(requestObject))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
                 Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
                 if (organism) {
                     boolean dataAddedViaWebServices = organism.dataAddedViaWebServices == null ? false : organism.dataAddedViaWebServices
@@ -236,7 +236,7 @@ class OrganismController {
         }
 
         try {
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(requestObject))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
                 log.debug "User is admin"
                 def organism = new Organism(
                         commonName: requestObject.get(FeatureStringEnum.ORGANISM_NAME.value),
