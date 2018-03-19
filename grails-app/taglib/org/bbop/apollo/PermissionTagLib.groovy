@@ -10,13 +10,13 @@ class PermissionTagLib {
     def permissionService
 
     def isUserAdmin = { attrs, body ->
-        if (permissionService.isUserAdmin(attrs.user)) {
+        if (permissionService.isUserGlobalAdmin(attrs.user)) {
             out << body()
         }
     }
 
     def isUserNotAdmin = { attrs, body ->
-        if (!permissionService.isUserAdmin(attrs.user)) {
+        if (!permissionService.isUserGlobalAdmin(attrs.user)) {
             out << body()
         }
     }

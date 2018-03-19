@@ -42,7 +42,7 @@ class UserController {
         try {
             JSONObject dataObject = permissionService.handleInput(request, params)
             JSONArray returnArray = new JSONArray()
-            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -300,7 +300,7 @@ class UserController {
     @Transactional
     def addUserToGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -324,7 +324,7 @@ class UserController {
     @Transactional
     def removeUserFromGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
@@ -353,7 +353,7 @@ class UserController {
         try {
             log.info "Creating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -412,7 +412,7 @@ class UserController {
             log.info "Removing user"
             JSONObject dataObject = permissionService.handleInput(request, params)
 
-            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -480,7 +480,7 @@ class UserController {
         try {
             log.info "Updating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.sameUser(dataObject, request) && !permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.sameUser(dataObject, request) && !permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
