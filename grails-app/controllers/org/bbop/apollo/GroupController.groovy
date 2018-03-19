@@ -84,7 +84,7 @@ class GroupController {
             // if user is admin, then include all
             // if group has metadata with the creator or no metadata then include
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
-            if (!permissionService.isUserAdmin(currentUser)) {
+            if (!permissionService.isUserGlobalAdmin(currentUser)) {
                 log.debug "filtering groups"
 
                 filteredGroups = groups.findAll(){
@@ -176,21 +176,28 @@ class GroupController {
     @Transactional
     def createGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+        // allow instructor to create Group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
         log.info "Creating group"
-
-        UserGroup group = new UserGroup(
-                name: dataObject.name
-        ).save(flush: true)
         // permissionService.currentUser is None when accessing by webservice
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
+        UserGroup group = new UserGroup(
+                name: dataObject.name,
+                // add metadata from webservice
+                metadata: dataObject.metadata ? dataObject.metadata.toString() : null
+        )
+        group.save(flush: true)
+        // allow specify the metadata creator through webservice, if not specified, take current user as the creator
+        if (!group.getMetaData(FeatureStringEnum.CREATOR.value)) {
+            log.debug "creator does not exist, set current user as the creator"
+            group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
+        }
 
-        group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
-        log.debug "Add metadata creator: ${currentUser.id.toString()}"
+        log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
 
         log.info "Added group ${group.name}"
 
