@@ -140,7 +140,8 @@ public enum FeatureStringEnum {
         URL_TEMPLATE("urlTemplate"),
         TRACK_DATA("trackData"),
         TRACK_CONFIG("trackConfig"),
-        TRACK_LABEL("trackLabel")
+        TRACK_LABEL("trackLabel"),
+        CREATOR("creator")
         ;
 
 

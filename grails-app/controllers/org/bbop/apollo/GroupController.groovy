@@ -59,8 +59,10 @@ class GroupController {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
             JSONArray returnArray = new JSONArray()
-            def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
+            def allowableOrganisms = permissionService.getOrganisms((User) currentUser)
 
             Map<String, List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 
@@ -77,8 +79,7 @@ class GroupController {
             // restricted groups
             def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
             def filteredGroups =  groups
-            // to support webservice, get current user from dataObject
-            def currentUser = User.findByUsername(dataObject.username)
+
             // if user is admin, then include all
             // if group has metadata with the creator or no metadata then include
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
@@ -87,7 +88,7 @@ class GroupController {
 
                 filteredGroups = groups.findAll(){
                     // permissionService.currentUser is None when accessing by webservice
-                    it.metadata == null || it.getMetaData("creator") == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
+                    it.metadata == null || it.getMetaData(FeatureStringEnum.CREATOR.value) == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                 }
             }
 
@@ -184,10 +185,10 @@ class GroupController {
                 name: dataObject.name
         ).save(flush: true)
         // permissionService.currentUser is None when accessing by webservice
-        // to support webservice, get current user from dataObject
-        def currentUser = User.findByUsername(dataObject.username)
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
 
-        group.addMetaData("creator", currentUser.id.toString())
+        group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
         log.debug "Add metadata creator: ${currentUser.id.toString()}"
 
         log.info "Added group ${group.name}"
@@ -373,8 +374,9 @@ class GroupController {
     def updateMembership() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
-
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
             render status: HttpStatus.UNAUTHORIZED.value()
             return
@@ -418,8 +420,9 @@ class GroupController {
     def updateGroupAdmin() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
-
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }

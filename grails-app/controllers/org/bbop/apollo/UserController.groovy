@@ -46,13 +46,16 @@ class UserController {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
-
-            def allowableOrganisms = permissionService.getOrganisms(permissionService.currentUser)
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
+            def allowableOrganisms = permissionService.getOrganisms(currentUser)
 
             List<String> allUserGroups = UserGroup.all
-            if (!permissionService.isAdmin()) {
+
+            // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
+            if (!permissionService.isUserAdmin(currentUser)) {
                 allUserGroups = allUserGroups.findAll(){
-                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                    it.metadata == null || it.getMetaData(FeatureStringEnum.CREATOR.value) == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                 }
             }
             List<String> allUserGroupsName = allUserGroups.name
@@ -137,9 +140,9 @@ class UserController {
                 List<String> groupsForUser = new ArrayList<>()
                 // filter the userGroups to only show that the group that current instructor owned
                 def userGroups = it.userGroups
-                if (!permissionService.isAdmin()) {
+                if (!permissionService.isUserAdmin(currentUser)) {
                     userGroups = userGroups.findAll() {
-                        it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                        it.metadata == null || it.getMetaData(FeatureStringEnum.CREATOR.value) == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                     }
                 }
 
@@ -369,8 +372,9 @@ class UserController {
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
-            def currentUser = permissionService.currentUser
-            user.addMetaData("creator", currentUser.id.toString())
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
+            user.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
 
             String roleString = dataObject.role ?: GlobalPermissionEnum.USER.name()
             Role role = Role.findByName(roleString.toUpperCase())
@@ -430,8 +434,9 @@ class UserController {
             }
 
             def currentUser = permissionService.getCurrentUser(dataObject)
-            String creatorMetaData = user.getMetaData("creator")
-            if (!permissionService.isAdmin() && creatorMetaData && currentUser.id.toString() != user.getMetaData("creator")) {
+            String creatorMetaData = user.getMetaData(FeatureStringEnum.CREATOR.value)
+            // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
+            if (!permissionService.isUserAdmin(currentUser) && creatorMetaData && currentUser.id.toString() != user.getMetaData(FeatureStringEnum.CREATOR)) {
                 def error = [error: 'User did not create this user so can not delete it']
                 log.error(error.error)
                 render error as JSON
@@ -538,8 +543,9 @@ class UserController {
     ])
     def getOrganismPermissionsForUser() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        User user = User.findById(dataObject.userId)
-
+       // User user = User.findById(dataObject.userId)
+        // to support webservice using either userId or username
+        User user = dataObject.userId ? User.findById(dataObject.userId as Long) : User.findByUsername(dataObject.username)
         List<UserOrganismPermission> userOrganismPermissionList = UserOrganismPermission.findAllByUser(user)
 
         render userOrganismPermissionList as JSON
