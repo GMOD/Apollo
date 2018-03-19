@@ -2,6 +2,9 @@ package org.bbop.apollo
 
 
 import grails.converters.JSON
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
+
 import static org.springframework.http.HttpStatus.*
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -169,7 +172,7 @@ class CannedValueController {
     def createValue() {
         JSONObject valueJson = permissionService.handleInput(request, params)
         try {
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(valueJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(valueJson))) {
                 if (!valueJson.value) {
                     throw new Exception('empty fields detected')
                 }
@@ -213,7 +216,7 @@ class CannedValueController {
         try {
             JSONObject valueJson = permissionService.handleInput(request, params)
             log.debug "Updating canned value ${valueJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(valueJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(valueJson))) {
 
                 log.debug "Canned value ID: ${valueJson.id}"
                 CannedValue value = CannedValue.findById(valueJson.id) ?: CannedValue.findByLabel(valueJson.old_value)
@@ -260,7 +263,7 @@ class CannedValueController {
         try {
             JSONObject valueJson = permissionService.handleInput(request, params)
             log.debug "Deleting canned value ${valueJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(valueJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(valueJson))) {
 
                 CannedValue value = CannedValue.findById(valueJson.id) ?: CannedValue.findByLabel(valueJson.value)
 
@@ -300,7 +303,7 @@ class CannedValueController {
         try {
             JSONObject valueJson = permissionService.handleInput(request, params)
             log.debug "Showing canned value ${valueJson}"
-            if (!permissionService.hasGlobalPermissions(valueJson, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(valueJson, GlobalPermissionEnum.ADMIN)) {
                 render status: UNAUTHORIZED
                 return
             }

@@ -40,7 +40,7 @@ class PermissionService {
 
         return false
     }
-    boolean isUserAdmin(User user) {
+    boolean isUserGlobalAdmin(User user) {
         return isUserBetterOrEqualRank(user,GlobalPermissionEnum.ADMIN)
     }
 
@@ -48,7 +48,7 @@ class PermissionService {
         String currentUserName = SecurityUtils.subject.principal
         if (currentUserName) {
             User researcher = User.findByUsername(currentUserName)
-            if (isUserAdmin(researcher)) {
+            if (isUserGlobalAdmin(researcher)) {
                 return true
             }
         }
@@ -64,7 +64,7 @@ class PermissionService {
     }
 
     List<Organism> getOrganisms(User user) {
-        if (isUserAdmin(user)) {
+        if (isUserGlobalAdmin(user)) {
             return Organism.listOrderByCommonName()
         }
         Set<Organism> organismList = new HashSet<>()
@@ -85,7 +85,7 @@ class PermissionService {
     }
 
     List<Organism> getOrganismsWithMinimumPermission(User user,PermissionEnum permissionEnum) {
-        if (isUserAdmin(user)) {
+        if (isUserGlobalAdmin(user)) {
             return Organism.listOrderByCommonName()
         }
         Set<Organism> organismList = new HashSet<>()
@@ -109,7 +109,7 @@ class PermissionService {
     }
 
     Map<Organism,PermissionEnum> getOrganismsWithPermission(User user) {
-        if (isUserAdmin(user)) {
+        if (isUserGlobalAdmin(user)) {
             return Organism.listOrderByCommonName()
         }
         Set<Organism> organismList = new HashSet<>()
@@ -159,7 +159,7 @@ class PermissionService {
 
     List<PermissionEnum> getOrganismPermissionsForUser(Organism organism, User user) {
         Set<PermissionEnum> permissions = new HashSet<>()
-        if (isUserAdmin(user)) {
+        if (isUserGlobalAdmin(user)) {
             permissions.addAll(PermissionEnum.ADMINISTRATE as List)
         }
 
@@ -387,7 +387,7 @@ class PermissionService {
         }
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+        PermissionEnum highestValue = isUserGlobalAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
             log.debug "highest value ${highestValue}"
@@ -448,7 +448,7 @@ class PermissionService {
         User user = User.findByUsername(username)
 
         List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
-        PermissionEnum highestValue = isUserAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
+        PermissionEnum highestValue = isUserGlobalAdmin(user) ? PermissionEnum.ADMINISTRATE : findHighestEnum(permissionEnums)
 
         if (highestValue.rank < requiredPermissionEnum.rank) {
             //return false
@@ -499,13 +499,38 @@ class PermissionService {
         return jsonObject
     }
 
+    Boolean hasGlobalPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+
+        GlobalPermissionEnum globalPermissionEnum = mapLocalPermissionToGlobal(permissionEnum)
+
+        return hasGlobalPermissions(jsonObject,globalPermissionEnum)
+    }
+
     /**
+     * Find the next highest global permission.
+     * In this case I've set it to the next highest rank.  So a local ADMINISTRATOR should map to a GLOBAL administrator?!?
+     *
+     * @param permissionEnum
+     * @return
+     */
+    GlobalPermissionEnum mapLocalPermissionToGlobal(PermissionEnum permissionEnum) {
+        int rank = permissionEnum.rank
+
+        for(gpe in GlobalPermissionEnum.values().sort(){ a,b -> a.rank <=> b.rank }){
+            if(gpe.rank>=rank){
+                return gpe
+            }
+        }
+        return null
+
+    }
+/**
      * If a user exists and is a admin (not just for organism), then check, otherwise a regular user is still a valid user.
      * @param jsonObject
      * @param permissionEnum
      * @return
      */
-    Boolean hasGlobalPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+    Boolean hasGlobalPermissions(JSONObject jsonObject, GlobalPermissionEnum permissionEnum) {
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
@@ -517,11 +542,12 @@ class PermissionService {
             return false
         }
 
+        return isUserBetterOrEqualRank(user,permissionEnum)
         // if the rank required is less than administrator than ask if they are an administrator
-        if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank) {
-            return isUserAdmin(user)
-        }
-        return true
+//        if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank) {
+//            return isUserGlobalAdmin(user)
+//        }
+//        return true
     }
 
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
