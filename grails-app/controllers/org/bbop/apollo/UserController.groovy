@@ -479,11 +479,11 @@ class UserController {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            // to support webservice, which either provides userId or email. Sometimes only email is provided.
             User user = null
             if (dataObject.has('userId')) {
                 user = User.findById(dataObject.userId)
             }
-            // to support the webservice
             if (!user && dataObject.has("email")) {
                 user = User.findByUsername(dataObject.email)
             }
@@ -502,11 +502,14 @@ class UserController {
             if (dataObject.newPassword) {
                 user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
             }
+            // allow accessing from webservice
+            // role may be not provided through webservice, so dataObject doesn't have 'role'
             String roleString = null
             if (dataObject.has('role')) {
                 roleString = dataObject.role
             }
             Role currentRole = userService.getHighestRole(user)
+            // if currentRole doesn't exist and roleString is not null, or currentRole is different than roleString
             if (!currentRole && roleString || (currentRole && roleString && !roleString.equalsIgnoreCase(currentRole.name))) {
                 if (currentRole) {
                     user.removeFromRoles(currentRole)

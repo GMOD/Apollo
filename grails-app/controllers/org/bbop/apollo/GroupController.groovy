@@ -77,13 +77,16 @@ class GroupController {
             // restricted groups
             def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
             def filteredGroups =  groups
+            // to support webservice, get current user from dataObject
             def currentUser = User.findByUsername(dataObject.username)
             // if user is admin, then include all
             // if group has metadata with the creator or no metadata then include
+            // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
             if (!permissionService.isUserAdmin(currentUser)) {
                 log.debug "filtering groups"
 
                 filteredGroups = groups.findAll(){
+                    // permissionService.currentUser is None when accessing by webservice
                     it.metadata == null || it.getMetaData("creator") == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                 }
             }
@@ -180,6 +183,8 @@ class GroupController {
         UserGroup group = new UserGroup(
                 name: dataObject.name
         ).save(flush: true)
+        // permissionService.currentUser is None when accessing by webservice
+        // to support webservice, get current user from dataObject
         def currentUser = User.findByUsername(dataObject.username)
 
         group.addMetaData("creator", currentUser.id.toString())
