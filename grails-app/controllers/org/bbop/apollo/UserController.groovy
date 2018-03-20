@@ -435,9 +435,12 @@ class UserController {
                 return
             }
             String creatorMetaData = user.getMetaData(FeatureStringEnum.CREATOR.value)
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
+
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
             // allow delete a user if the current user is global admin or the current user is the creator of the user
-            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && user.id.toString() == creatorMetaData)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
