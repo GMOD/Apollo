@@ -56,7 +56,8 @@ class GroupController {
         try {
             log.debug "loadGroups"
             JSONObject dataObject = permissionService.handleInput(request, params)
-            if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+            // allow instructor to view groups
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
@@ -216,11 +217,6 @@ class GroupController {
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
-            render status: HttpStatus.UNAUTHORIZED.value()
-            return
-        }
-        log.info "Removing group"
         UserGroup group = UserGroup.findById(dataObject.id)
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
@@ -231,6 +227,16 @@ class GroupController {
             render jsonObject as JSON
             return
         }
+        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        // only allow global admin or group creator to delete the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
+            render status: HttpStatus.UNAUTHORIZED.value()
+            return
+        }
+        log.info "Removing group"
+
         List<User> users = group.users as List
         users.each { it ->
             it.removeFromUserGroups(group)
@@ -261,15 +267,30 @@ class GroupController {
     def updateGroup() {
         log.info "Updating group"
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+        UserGroup group = UserGroup.findById(dataObject.id)
+        if (!group) {
+            group = UserGroup.findByName(dataObject.name)
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
+            render jsonObject as JSON
+            return
+        }
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && permissionService.isGroupAdmin(group, currentUser)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
-        UserGroup group = UserGroup.findById(dataObject.id)
+
         // the only thing that can really change
         log.info "Updated group ${group.name} to use name ${dataObject.name}"
         group.name = dataObject.name
-
+        // also allow update metadata
+        group.metadata = dataObject.metadata?dataObject.metadata.toString():group.metadata
         group.save(flush: true)
     }
 
@@ -384,7 +405,9 @@ class GroupController {
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
+        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group membership
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
             render status: HttpStatus.UNAUTHORIZED.value()
             return
@@ -430,7 +453,9 @@ class GroupController {
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
+        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group membership
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
             render status: HttpStatus.UNAUTHORIZED.value()
             return
