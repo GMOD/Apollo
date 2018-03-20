@@ -37,7 +37,6 @@ class PermissionService {
                 }
             }
         }
-
         return false
     }
     boolean isUserGlobalAdmin(User user) {
@@ -495,6 +494,16 @@ class PermissionService {
             jsonObject.username = SecurityUtils?.subject?.principal
         } else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
+        } else if (jsonObject.username) {
+            // check the authentication of the username and password passed by webservice
+            def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
+            Subject subject = SecurityUtils.getSubject()
+            subject.getSession(true)
+            subject.login(authToken)
+            if (!subject.authenticated) {
+                jsonObject.error_message = "Failed to authenticate user ${jsonObject.username}"
+                return jsonObject
+            }
         }
         return jsonObject
     }
@@ -502,7 +511,6 @@ class PermissionService {
     Boolean hasGlobalPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
 
         GlobalPermissionEnum globalPermissionEnum = mapLocalPermissionToGlobal(permissionEnum)
-
         return hasGlobalPermissions(jsonObject,globalPermissionEnum)
     }
 
@@ -531,6 +539,7 @@ class PermissionService {
      * @return
      */
     Boolean hasGlobalPermissions(JSONObject jsonObject, GlobalPermissionEnum permissionEnum) {
+        // check the authentication
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {
@@ -541,7 +550,6 @@ class PermissionService {
             log.error("Error with user permissions ${user.username}:  ${jsonObject.error_message}")
             return false
         }
-
         return isUserBetterOrEqualRank(user,permissionEnum)
         // if the rank required is less than administrator than ask if they are an administrator
 //        if (PermissionEnum.ADMINISTRATE.rank < permissionEnum.rank) {
@@ -551,12 +559,16 @@ class PermissionService {
     }
 
     Boolean hasPermissions(JSONObject jsonObject, PermissionEnum permissionEnum) {
+        // no need to check the global permission, just need to check the organism permission
+        /*
         if (!hasGlobalPermissions(jsonObject, permissionEnum)) {
             log.info("User lacks permissions ${permissionEnum.display}")
             return false
         }
+        */
         String clientToken = jsonObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-
+        // use validateSessionForJsonObject to get the username of the current user into jsonObject, which is needed for checkPermissions
+        jsonObject = validateSessionForJsonObject(jsonObject)
         Organism organism = getOrganismFromInput(jsonObject)
 
         organism = organism ?: preferenceService.getCurrentOrganismPreferenceInDB(clientToken)?.organism
