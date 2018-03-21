@@ -232,7 +232,10 @@ class GroupController {
         def currentUser = permissionService.getCurrentUser(dataObject)
         // only allow global admin or group creator to delete the group
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
-            render status: HttpStatus.UNAUTHORIZED.value()
+            //render status: HttpStatus.UNAUTHORIZED.value()
+            def error = [error: 'not authorized to delete the group']
+            log.error(error.error)
+            render error as JSON
             return
         }
         log.info "Removing group"
@@ -281,7 +284,7 @@ class GroupController {
         def currentUser = permissionService.getCurrentUser(dataObject)
         String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
         // allow global admin, group creator, and group admin to update the group
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && permissionService.isGroupAdmin(group, currentUser)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }

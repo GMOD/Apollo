@@ -16,6 +16,7 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
+import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import javax.servlet.http.HttpServletResponse
@@ -53,33 +54,33 @@ class OrganismController {
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
             log.debug "deleteOrganism ${organismJson}"
+            //if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
+            log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
+            Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
+            if (!organism) {
+                def error = [error: "Organism ${organismJson.organism} not found"]
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+            // to support webservice, get current user from session or input object
             def currentUser = permissionService.getCurrentUser(organismJson)
-            if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
-                log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
-                Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
-                String creatorMetaData = organism.getMetaData("creator")
-                println "creatorMetaData :${creatorMetaData}"
-                println "currentUser.id :${currentUser.id.toString()}"
-                if (!permissionService.isAdmin() && creatorMetaData && currentUser.id.toString() != organism.getMetaData("creator")) {
-                    def error = [error: 'User did not create this organism so can not delete it']
-                    log.error(error.error)
-                    render error as JSON
-                    return
-                }
-                if (organism) {
-                    UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
-                    OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
-                    organism.delete()
-                    log.info "Success deleting organism: ${organismJson.organism}"
-                } else {
-                    log.error "Organism ${organismJson.organism} not found"
-                }
-                render findAllOrganisms()
-            } else {
+            String creatorMetaData = organism.getMetaData(FeatureStringEnum.CREATOR.value)
+            // only allow global admin or organism creator to delete the organism
+            if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
                 def error = [error: 'not authorized to delete organism']
                 log.error(error.error)
                 render error as JSON
+                return
             }
+
+            UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByOrganism(organism))
+            OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
+            organism.delete()
+            log.info "Success deleting organism: ${organismJson.organism}"
+
+            render findAllOrganisms()
+
         }
         catch (Exception e) {
             def error = [error: 'problem deleting organism: ' + e]
@@ -102,7 +103,9 @@ class OrganismController {
         log.debug "deleteOrganism ${requestObject}"
 
         try {
-            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
+            //if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
+            // use hasGolbalPermssions instead, which can validate the authentication
+            if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
                 Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
                 if (organism) {
                     boolean dataAddedViaWebServices = organism.dataAddedViaWebServices == null ? false : organism.dataAddedViaWebServices
@@ -783,71 +786,76 @@ class OrganismController {
     def addOrganism() {
         JSONObject organismJson = permissionService.handleInput(request, params)
         String clientToken = organismJson.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-        println "adding organism"
         try {
-            if (permissionService.isUserBetterOrEqualRank(permissionService.getCurrentUser(organismJson),GlobalPermissionEnum.INSTRUCTOR)) {
-                println "pass the permission check"
-                if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
-                    throw new Exception('empty fields detected')
-                }
-
-                log.debug "Adding ${organismJson.publicMode}"
-                Organism organism = new Organism(
-                        commonName: organismJson.commonName
-                        , directory: organismJson.directory
-                        , blatdb: organismJson.blatdb
-                        , species: organismJson.species
-                        , genus: organismJson.genus
-                        , metadata: organismJson.metadata
-                        , nonDefaultTranslationTable: organismJson.nonDefaultTranslationTable ?: null
-                        , publicMode: organismJson.publicMode ?: false
-                )
-                log.debug "organism ${organism as JSON}"
-
-                organism.addMetaData("creator",permissionService.currentUser.id as String)
-                println "Adding organism"
-                if (checkOrganism(organism)) {
-                    println "checked and add to database"
-                    organism.save(failOnError: true, flush: true, insert: true)
-                }
-                def user = permissionService.currentUser
-                def userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
-                if (!userOrganismPermission) {
-                    log.debug "creating new permissions! "
-                    userOrganismPermission = new UserOrganismPermission(
-                            user: user
-                            , organism: organism
-                            , permissions: "[]"
-                    ).save(insert: true)
-                    log.debug "created new permissions! "
-                }
-
-                JSONArray permissionsArray = new JSONArray()
-                permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
-                userOrganismPermission.permissions = permissionsArray.toString()
-                userOrganismPermission.save(flush: true)
-
-                // send file using:
-//            curl \
-                //  -F "userid=1" \
-                //  -F "filecomment=This is an image file" \
-                //  -F "sequenceData=@/home/user1/Desktop/jbrowse/sample/seq.zip" \
-                //  localhost:8080/apollo
-//                if (request.getFile("sequenceData)")) {
-//
-//                }W
-                sequenceService.loadRefSeqs(organism)
-
-                preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
-                Boolean returnAllOrganisms = organismJson.returnAllOrganisms ? Boolean.valueOf(organismJson.returnAllOrganisms) : true
-
-                render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
-
-            } else {
+            // use permissionService.hasGlobalPermissions to check both authentication and authorization
+            if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.INSTRUCTOR)) {
                 def error = [error: 'not authorized to add organism']
                 render error as JSON
                 log.error(error.error)
+                return
             }
+
+            if (organismJson.get("commonName") == "" || organismJson.get("directory") == "") {
+                throw new Exception('empty fields detected')
+            }
+
+            log.debug "Adding ${organismJson.publicMode}"
+            Organism organism = new Organism(
+                    commonName: organismJson.commonName
+                    , directory: organismJson.directory
+                    , blatdb: organismJson.blatdb
+                    , species: organismJson.species
+                    , genus: organismJson.genus
+                    , metadata: organismJson.metadata?organismJson.metadata.toString(): null
+                    , nonDefaultTranslationTable: organismJson.nonDefaultTranslationTable ?: null
+                    , publicMode: organismJson.publicMode ?: false
+            )
+            log.debug "organism ${organism as JSON}"
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(organismJson)
+            // allow specify the metadata creator through webservice, if not specified, take current user as the creator
+            if (!organism.getMetaData(FeatureStringEnum.CREATOR.value)) {
+                log.debug "creator does not exist, set current user as the creator"
+                organism.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id as String)
+            }
+
+            if (checkOrganism(organism)) {
+                organism.save(failOnError: true, flush: true, insert: true)
+            }
+            def user = permissionService.currentUser
+            def userOrganismPermission = UserOrganismPermission.findByUserAndOrganism(user, organism)
+            if (!userOrganismPermission) {
+                log.debug "creating new permissions! "
+                userOrganismPermission = new UserOrganismPermission(
+                        user: user
+                        , organism: organism
+                        , permissions: "[]"
+                ).save(insert: true)
+                log.debug "created new permissions! "
+            }
+
+            JSONArray permissionsArray = new JSONArray()
+            permissionsArray.add(PermissionEnum.ADMINISTRATE.name())
+            userOrganismPermission.permissions = permissionsArray.toString()
+            userOrganismPermission.save(flush: true)
+
+            // send file using:
+//            curl \
+            //  -F "userid=1" \
+            //  -F "filecomment=This is an image file" \
+            //  -F "sequenceData=@/home/user1/Desktop/jbrowse/sample/seq.zip" \
+            //  localhost:8080/apollo
+//                if (request.getFile("sequenceData)")) {
+//
+//                }W
+            sequenceService.loadRefSeqs(organism)
+
+            preferenceService.setCurrentOrganism(permissionService.getCurrentUser(organismJson), organism, clientToken)
+            Boolean returnAllOrganisms = organismJson.returnAllOrganisms ? Boolean.valueOf(organismJson.returnAllOrganisms) : true
+
+            render returnAllOrganisms ? findAllOrganisms() : new JSONArray()
+
+
         } catch (e) {
             def error = [error: 'problem saving organism: ' + e]
             render error as JSON
@@ -946,7 +954,8 @@ class OrganismController {
                 organism.blatdb = organismJson.blatdb ?: null
                 organism.species = organismJson.species ?: null
                 organism.genus = organismJson.genus ?: null
-                organism.metadata = organismJson.metadata ?: null
+                //if the organismJson.metadata is null, remain the old metadata
+                organism.metadata = organismJson.metadata ?organismJson.metadata.toString():organism.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
@@ -1008,7 +1017,6 @@ class OrganismController {
         try {
             JSONObject requestObject = permissionService.handleInput(request, params)
             List<Organism> organismList = []
-
             if (requestObject.organism) {
                 log.debug "finding info for specific organism"
                 Organism organism = Organism.findByCommonName(requestObject.organism)
@@ -1023,7 +1031,8 @@ class OrganismController {
                 }
             } else {
                 log.debug "finding all info"
-                if (permissionService.isAdmin()) {
+                //if (permissionService.isAdmin()) {
+                if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
                     organismList = Organism.all
                 } else {
                     organismList = permissionService.getOrganismsForCurrentUser(requestObject)
