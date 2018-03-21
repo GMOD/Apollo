@@ -466,14 +466,16 @@ class PermissionService {
         // not sure if permissions with translate through or not
         Session session = SecurityUtils.subject.getSession(false)
         if (!session) {
-            // login with jsonObject tokens
+            // login with jsonObject username and password
             log.debug "creating session with found json object ${jsonObject.username}, ${jsonObject.password as String}"
             if (!jsonObject.username) {
                 log.error "Username not supplied so can not authenticate."
                 jsonObject.error_message = "Username not supplied so can not authenticate."
                 return jsonObject
             }
+
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
+
             try {
                 Subject subject = SecurityUtils.getSubject()
                 subject.getSession(true)
@@ -494,7 +496,7 @@ class PermissionService {
             jsonObject.username = SecurityUtils?.subject?.principal
         } else if (!jsonObject.username && session.attributeKeys.contains(FeatureStringEnum.USERNAME.value)) {
             jsonObject.username = session.getAttribute(FeatureStringEnum.USERNAME.value)
-        } else if (jsonObject.username) {
+        } else if (jsonObject.password && jsonObject.username) {
             // check the authentication of the username and password passed by webservice
             def authToken = new UsernamePasswordToken(jsonObject.username, jsonObject.password as String)
             Subject subject = SecurityUtils.getSubject()
