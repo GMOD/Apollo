@@ -55,7 +55,7 @@ class UserController {
 
             // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
             if (!permissionService.isUserGlobalAdmin(currentUser)) {
-                allUserGroups = allUserGroups.findAll(){
+                allUserGroups = allUserGroups.findAll() {
                     it.metadata == null || it.getMetaData(FeatureStringEnum.CREATOR.value) == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                 }
             }
@@ -77,7 +77,7 @@ class UserController {
             def searchName = dataObject.name ?: null
             def sortName = dataObject.sortColumn ?: 'name'
             def sortAscending = dataObject.sortAscending ?: true
-            def omitEmptyOrganisms = dataObject.omitEmptyOrganisms!=null ? dataObject.omitEmptyOrganisms : false
+            def omitEmptyOrganisms = dataObject.omitEmptyOrganisms != null ? dataObject.omitEmptyOrganisms : false
 
             def users = c.list(max: maxResults, offset: offset) {
                 if (dataObject.userId && dataObject.userId in Integer) {
@@ -93,14 +93,14 @@ class UserController {
                         ilike('username', '%' + searchName + '%')
                     }
                 }
-                if(sortName){
-                    switch(sortName){
+                if (sortName) {
+                    switch (sortName) {
                         case "name":
-                            order('firstName', sortAscending?"asc":"desc")
-                            order('lastName', sortAscending?"asc":"desc")
+                            order('firstName', sortAscending ? "asc" : "desc")
+                            order('lastName', sortAscending ? "asc" : "desc")
                             break
                         case "email":
-                            order('username', sortAscending?"asc":"desc")
+                            order('username', sortAscending ? "asc" : "desc")
                             break
                     }
                 }
@@ -108,7 +108,7 @@ class UserController {
                 a.id <=> b.id
             }
 
-            int userCount = User.withCriteria{
+            int userCount = User.withCriteria {
                 if (dataObject.userId && dataObject.userId in Integer) {
                     eq('id', (Long) dataObject.userId)
                 }
@@ -188,7 +188,7 @@ class UserController {
                     !organismsWithPermissions.contains(it.id)
                 }
 
-                if(!omitEmptyOrganisms){
+                if (!omitEmptyOrganisms) {
                     for (Organism organism in organismList) {
                         JSONObject organismJSON = new JSONObject()
                         organismJSON.put("organism", organism.commonName)
@@ -251,7 +251,7 @@ class UserController {
 
             def userObject = userService.convertUserToJson(currentUser)
 
-            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserBetterOrEqualRank(currentUser,GlobalPermissionEnum.INSTRUCTOR)) {
+            if ((!userOrganismPreference || !permissionService.hasAnyPermissions(currentUser)) && !permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)) {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
@@ -373,7 +373,7 @@ class UserController {
                     , lastName: dataObject.lastName
                     , username: dataObject.email
                     // set metadata got from dataObject, need to convert to String
-                    , metadata: dataObject.metadata?dataObject.metadata.toString() : null
+                    , metadata: dataObject.metadata ? dataObject.metadata.toString() : null
                     , passwordHash: new Sha256Hash(dataObject.newPassword ?: dataObject.password).toHex()
             )
             user.save(insert: true)
@@ -517,7 +517,7 @@ class UserController {
             user.lastName = dataObject.lastName
             user.username = dataObject.email
             // if dataObject doesn't have metadata, then do not update the user metadata
-            user.metadata = dataObject.metadata ? dataObject.metadata.toString(): user.metadata
+            user.metadata = dataObject.metadata ? dataObject.metadata.toString() : user.metadata
 
             if (dataObject.newPassword) {
                 user.passwordHash = new Sha256Hash(dataObject.newPassword).toHex()
@@ -647,6 +647,33 @@ class UserController {
         log.info "Updated organism permissions for user ${user.username} and organism ${organism.commonName} and permissions ${permissionsArray.toString()}"
         render userOrganismPermission as JSON
 
+
+    }
+
+    @RestApiMethod(description = "Get creator metadata for user, returns creator userId as JSONObject", path = "/user/getUserCreator", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "email", type = "email", paramType = RestApiParamType.QUERY, description = "Email of the user")
+    ])
+    def getUserCreator() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        User user = User.findByUsername(dataObject.email)
+        if (!user) {
+            def error = [error: 'The user does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONObject metaData = new JSONObject()
+        metaData.creator = user.getMetaData(FeatureStringEnum.CREATOR.value)
+        render metaData as JSON
 
     }
 

@@ -1007,6 +1007,33 @@ class OrganismController {
         }
     }
 
+    @RestApiMethod(description = "Get creator metadata for organism, returns userId as String", path = "/organism/getOrganismCreator", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
+    ])
+    def getOrganismCreator() {
+        JSONObject organismJson = permissionService.handleInput(request, params)
+        if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        Organism organism = preferenceService.getOrganismForTokenInDB(organismJson.organism)
+        if (!organism) {
+            def error = [error: 'The organism does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONObject metaData = new JSONObject()
+        metaData.creator = organism.getMetaData(FeatureStringEnum.CREATOR.value)
+        render metaData as JSON
+
+    }
+
     @RestApiMethod(description = "Returns a JSON array of all organisms, or optionally, gets information about a specific organism", path = "/organism/findAllOrganisms", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)

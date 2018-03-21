@@ -487,5 +487,71 @@ class GroupController {
         loadGroups()
     }
 
+    @RestApiMethod(description = "Get group admins, returns group admins as JSONArray", path = "/group/getGroupAdmin", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ])
+    def getGroupAdmin() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        println "data: ${dataObject}"
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        UserGroup groupInstance = UserGroup.findByName(dataObject.name)
+        if (!groupInstance) {
+            def error = [error: 'The group does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONArray returnArray = new JSONArray()
+        def adminList = groupInstance.admin
+        println "admin = ${adminList}"
+        adminList.each {
+            JSONObject user = new JSONObject()
+            user.id = it.id
+            user.firstName = it.firstName
+            user.lastName = it.lastName
+            user.username = it.username
+            returnArray.put(user)
+        }
+
+        render returnArray as JSON
+
+    }
+
+    @RestApiMethod(description = "Get creator metadata for group, returns userId as JSONObject", path = "/group/getGroupCreator", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ])
+    def getGroupCreator() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        println "data: ${dataObject}"
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        UserGroup groupInstance = UserGroup.findByName(dataObject.name)
+        if (!groupInstance) {
+            def error = [error: 'The group does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONObject metaData = new JSONObject()
+        metaData.creator = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        render metaData as JSON
+
+    }
+
 
 }
