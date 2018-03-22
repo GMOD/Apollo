@@ -197,7 +197,10 @@ class GroupController {
             log.debug "creator does not exist, set current user as the creator"
             group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
         }
-
+        // assign group creator as group admin
+        def creatorId = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        User creator = User.findById(creatorId)
+        group.addToAdmin(creator)
         log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
 
         log.info "Added group ${group.name}"
