@@ -222,16 +222,16 @@ class GroupController {
             group = UserGroup.findByName(dataObject.name)
         }
         if (!group) {
-            JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
-            render jsonObject as JSON
+            def error = [error: "Group ${dataObject.name} not found"]
+            log.error(error.error)
+            render error as JSON
             return
         }
         String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
-        // only allow global admin or group creator to delete the group
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
+        // only allow global admin or group creator, or group admin to delete the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
             //render status: HttpStatus.UNAUTHORIZED.value()
             def error = [error: 'not authorized to delete the group']
             log.error(error.error)

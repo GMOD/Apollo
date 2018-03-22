@@ -66,8 +66,8 @@ class OrganismController {
             // to support webservice, get current user from session or input object
             def currentUser = permissionService.getCurrentUser(organismJson)
             String creatorMetaData = organism.getMetaData(FeatureStringEnum.CREATOR.value)
-            // only allow global admin or organism creator to delete the organism
-            if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
+            // only allow global admin or organism creator or organism administrative to delete the organism
+            if (!permissionService.hasGlobalPermissions(organismJson, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.checkPermissions(organismJson, organism, PermissionEnum.ADMINISTRATE)) {
                 def error = [error: 'not authorized to delete organism']
                 log.error(error.error)
                 render error as JSON
