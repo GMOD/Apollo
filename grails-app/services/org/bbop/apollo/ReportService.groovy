@@ -8,9 +8,6 @@ import org.bbop.apollo.report.OrganismPermissionSummary
 import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.report.SequenceSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.parser.JSONParser
-import org.json.JSONObject
-
 
 @Transactional
 class ReportService {
@@ -223,10 +220,10 @@ class ReportService {
         }
 
 
-        if (includePermissions && !permissionService.isUserAdmin(owner)) {
+        if (includePermissions && !permissionService.isUserGlobalAdmin(owner)) {
 
             List<OrganismPermissionSummary> userOrganismPermissionList = new ArrayList<>()
-            if (permissionService.isUserAdmin(owner)) {
+            if (permissionService.isUserGlobalAdmin(owner)) {
                 Organism.listOrderByCommonName().each {
                     OrganismPermissionSummary organismPermissionSummary = new OrganismPermissionSummary()
                     UserOrganismPermission userOrganismPermission = new UserOrganismPermission()

@@ -141,6 +141,7 @@ public enum FeatureStringEnum {
         TRACK_DATA("trackData"),
         TRACK_CONFIG("trackConfig"),
         TRACK_LABEL("trackLabel"),
+        CREATOR("creator"),
         START,
         END,
         SCORE,

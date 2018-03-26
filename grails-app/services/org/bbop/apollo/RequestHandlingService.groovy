@@ -1964,7 +1964,7 @@ class RequestHandlingService {
     def checkOwnersDelete(Feature feature, JSONObject inputObject) {
         if (configWrapperService.onlyOwnersDelete) {
             def currentUser = permissionService.getCurrentUser(inputObject)
-            def isAdmin = permissionService.isUserAdmin(currentUser)
+            def isAdmin = permissionService.isUserGlobalAdmin(currentUser)
             def owners = findOwners(feature)
             if (!isAdmin && !(currentUser in owners)) {
                 throw new AnnotationException("Only feature owner or admin may delete, change type, or revert annotation to an earlier state")
