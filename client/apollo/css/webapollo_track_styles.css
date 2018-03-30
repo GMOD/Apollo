@@ -512,9 +512,9 @@ div.annot-sequence  {
        (div.sequence .dna-residues.forward-strand) and 
        (div.sequence .dna-residues.reverse-strand) styles
 */
-.Apollo .sequence-alteration.deletion, 
-.Apollo .sequence-alteration.plus-deletion,
-.Apollo .sequence-alteration.minus-deletion {
+.Apollo .sequence-alteration-artifact.deletion_artifact,
+.Apollo .sequence-alteration-artifact.plus-deletion_artifact,
+.Apollo .sequence-alteration-artifact.minus-deletion_artifact {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -523,9 +523,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.Apollo .sequence-alteration.insertion, 
-.Apollo .sequence-alteration.plus-insertion,
-.Apollo .sequence-alteration.minus-insertion {
+.Apollo .sequence-alteration-artifact.insertion_artifact,
+.Apollo .sequence-alteration-artifact.plus-insertion_artifact,
+.Apollo .sequence-alteration-artifact.minus-insertion_artifact {
     border-style: solid;
     border-color: green;
     border-width: 1px;
@@ -534,9 +534,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.Apollo .sequence-alteration.substitution, 
-.Apollo .sequence-alteration.plus-substitution,
-.Apollo .sequence-alteration.minus-substitution {
+.Apollo .sequence-alteration-artifact.substitution_artifact,
+.Apollo .sequence-alteration-artifact.plus-substitution_artifact,
+.Apollo .sequence-alteration-artifact.minus-substitution_artifact {
     border-style: solid;
     border-color: blue;
     border-width: 1px;

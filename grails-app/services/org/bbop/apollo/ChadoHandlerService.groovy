@@ -37,7 +37,7 @@ class ChadoHandlerService {
     private static final String RELATIONSHIP_ONTOLOGY = "relationship"
     private static final String FEATURE_PROPERTY = "feature_property"
     private static final def topLevelFeatureTypes = [Gene.alternateCvTerm, Pseudogene.alternateCvTerm, TransposableElement.alternateCvTerm, RepeatRegion.alternateCvTerm,
-                                                     Insertion.alternateCvTerm, Deletion.alternateCvTerm, Substitution.alternateCvTerm]
+                                                     InsertionArtifact.alternateCvTerm, DeletionArtifact.alternateCvTerm, SubstitutionArtifact.alternateCvTerm]
     private static final ontologyDb = ["SO", "GO", "RO"]
     Map<String, org.gmod.chado.Organism> chadoOrganismsMap = new HashMap<String, org.gmod.chado.Organism>()
     Map<String, Integer> exportStatisticsMap = new HashMap<String, Integer>();

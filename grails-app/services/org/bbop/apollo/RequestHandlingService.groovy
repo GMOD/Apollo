@@ -64,6 +64,9 @@ class RequestHandlingService {
     ]
 
     public static final List<String> viewableAlterations = [
+            DeletionArtifact.class.name,
+            InsertionArtifact.class.name,
+            SubstitutionArtifact.class.name,
             Deletion.class.name,
             Insertion.class.name,
             Substitution.class.name
@@ -1198,7 +1201,7 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
-            SequenceAlteration sequenceAlteration = SequenceAlteration.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            SequenceAlterationArtifact sequenceAlteration = SequenceAlterationArtifact.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
             FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
             deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
             FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
@@ -1252,7 +1255,7 @@ class RequestHandlingService {
                 // found an overlapping sequence alteration
                 throw new AnnotationException("Cannot create an overlapping sequence alteration");
             }
-            SequenceAlteration sequenceAlteration = (SequenceAlteration) featureService.convertJSONToFeature(jsonFeature, sequence)
+            SequenceAlterationArtifact sequenceAlteration = (SequenceAlterationArtifact) featureService.convertJSONToFeature(jsonFeature, sequence)
             if (activeUser) {
                 featureService.setOwner(sequenceAlteration, activeUser)
             } else {

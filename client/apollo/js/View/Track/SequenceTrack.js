@@ -519,7 +519,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                                  containerStart, containerEnd ) {
         var featDiv =
         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
-        $(featDiv).addClass("sequence-alteration");
+        $(featDiv).addClass("sequence-alteration-artifact");
 
         var charSize = this.webapollo.getSequenceCharacterSize();
 
@@ -527,10 +527,10 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         featDiv.style.top = "0px";
         var ftype = feature.get("type");
         if (ftype) {
-            if (ftype == "deletion") {
+            if (ftype == "deletion_artifact") {
 
             }
-            else if (ftype == "insertion") {
+            else if (ftype == "insertion_artifact") {
                 if ( scale == charSize.width ) {
                     var container  = document.createElement("div");
                     var residues = feature.get("residues");
@@ -543,7 +543,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     featDiv.appendChild(container);
                 }
             }
-            else if ((ftype == "substitution")) {
+            else if ((ftype == "substitution_artifact")) {
                 if ( scale == charSize.width ) {
                     var container  = document.createElement("div");
                     var residues = feature.get("residues");
@@ -952,7 +952,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var track = this;
         var content = dojo.create("div");
         var charWidth = 15;
-        if (type == "deletion") {
+        if (type == "deletion_artifact") {
             var deleteDiv = dojo.create("div", { }, content);
             var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "sequence_alteration_input_label" }, deleteDiv);
             var deleteField = dojo.create("input", { type: "text", size: 10, className: "sequence_alteration_input_field" }, deleteDiv);
@@ -1061,7 +1061,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var ok = true;
             var inputField;
             var commentField = comField;
-            var inputField = ((type == "deletion") ? deleteField : plusField);
+            var inputField = ((type == "deletion_artifact") ? deleteField : plusField);
             // if (type == "deletion") { inputField = deleteField; }
             // else  { inputField = plusField; }
             var input = inputField.value.toUpperCase();
@@ -1072,7 +1072,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             }
             if (ok) {
                 var input = inputField.value.toUpperCase();
-                if (type == "deletion") {
+                if (type == "deletion_artifact") {
                     if (input.match(/\D/)) {
                         alert("The length must be a number");
                         ok = false;
@@ -1095,13 +1095,13 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             if (ok) {
                 var fmin = gcoord;
                 var fmax;
-                if (type == "insertion") {
+                if (type == "insertion_artifact") {
                     fmax = gcoord;
                 }
-                else if (type == "deletion") {
+                else if (type == "deletion_artifact") {
                     fmax = gcoord + parseInt(input);
                 }
-                else if (type == "substitution") {
+                else if (type == "substitution_artifact") {
                     fmax = gcoord + input.length;
                 }
                 if (track.storedFeatureCount(fmin, fmax == fmin ? fmin + 1 : fmax) > 0) {
@@ -1121,7 +1121,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                             }
                         }
                     };
-                    if (type != "deletion") {
+                    if (type != "deletion_artifact") {
                         feature.residues = input;
                     }
                     if (commentFieldValue.length != 0) {
