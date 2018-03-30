@@ -35,8 +35,8 @@ class FeatureService {
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final
-    def rnaFeatureTypes = [MRNA.alternateCvTerm, MiRNA.alternateCvTerm, NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
-    public static final def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
+    def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
+    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm]
 
     @Timed
     @Transactional
@@ -1421,14 +1421,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
 
     String getCvTermFromFeature(Feature feature) {
-        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
+        String cvTerm = feature.cvTerm
         return cvTerm
     }
 
     boolean isJsonTranscript(JSONObject jsonObject) {
         JSONObject typeObject = jsonObject.getJSONObject(FeatureStringEnum.TYPE.value)
         String typeString = typeObject.getString(FeatureStringEnum.NAME.value)
-        if (typeString == MRNA.cvTerm || typeString == MRNA.alternateCvTerm) {
+        if (typeString == MRNA.cvTerm) {
             return true
         } else {
             return false
@@ -1928,7 +1928,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (ontologyId == null) return null;
         JSONObject jsonObject = new JSONObject();
         def feature = generateFeatureForType(ontologyId)
-        String cvTerm = feature.hasProperty(FeatureStringEnum.ALTERNATECVTERM.value) ? feature.getProperty(FeatureStringEnum.ALTERNATECVTERM.value) : feature.cvTerm
+        String cvTerm = feature.cvTerm
 
         jsonObject.put(FeatureStringEnum.NAME.value, cvTerm)
 
@@ -2792,17 +2792,17 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
     def changeAnnotationType(JSONObject inputObject, Feature feature, Sequence sequence, User user, String type) {
         String uniqueName = feature.uniqueName
-        String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
+        String originalType = feature.cvTerm
         JSONObject currentFeatureJsonObject = convertFeatureToJSON(feature)
         Feature newFeature = null
 
         String topLevelFeatureType = null
-        if (type == Transcript.alternateCvTerm) {
-            topLevelFeatureType = Pseudogene.alternateCvTerm
+        if (type == Transcript.cvTerm) {
+            topLevelFeatureType = Pseudogene.cvTerm
         } else if (singletonFeatureTypes.contains(type)) {
             topLevelFeatureType = type
         } else {
-            topLevelFeatureType = Gene.alternateCvTerm
+            topLevelFeatureType = Gene.cvTerm
         }
 
         Gene parentGene = null
@@ -2856,7 +2856,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             log.debug "Converting ${originalType} to ${type}"
             Transcript transcript = null
-            if (type == MRNA.alternateCvTerm) {
+            if (type == MRNA.cvTerm) {
                 // *RNA to mRNA
                 transcript = generateTranscript(currentFeatureJsonObject, sequence, true)
                 setLongestORF(transcript)
@@ -2970,7 +2970,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     // Scenario IIIb - use the current mRNA's featurelocation for gene
                     jsonGene.put(FeatureStringEnum.CHILDREN.value, new JSONArray().put(jsonFeature))
                     jsonGene.put(FeatureStringEnum.LOCATION.value, jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value))
-                    String cvTermString = jsonFeature.get(FeatureStringEnum.TYPE.value).name == Transcript.alternateCvTerm ? Pseudogene.alternateCvTerm : Gene.alternateCvTerm
+                    String cvTermString = jsonFeature.get(FeatureStringEnum.TYPE.value).name == Transcript.cvTerm ? Pseudogene.cvTerm : Gene.cvTerm
                     jsonGene.put(FeatureStringEnum.TYPE.value, convertCVTermToJSON(FeatureStringEnum.CV.value, cvTermString))
                 }
 
@@ -3056,8 +3056,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             setOwner(feature, user);
             feature.save(insert: true, flush: true)
-            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
-                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
+            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.cvTerm ||
+                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.cvTerm) {
                 Transcript transcript = transcriptService.getTranscripts(feature).iterator().next()
                 setOwner(transcript, user);
                 removeExonOverlapsAndAdjacencies(transcript)

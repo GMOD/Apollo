@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApi
@@ -171,7 +172,7 @@ class CannedCommentController {
     def createComment() {
         JSONObject commentJson = permissionService.handleInput(request, params)
         try {
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(commentJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(commentJson))) {
                 if (!commentJson.comment) {
                     throw new Exception('empty fields detected')
                 }
@@ -215,7 +216,7 @@ class CannedCommentController {
         try {
             JSONObject commentJson = permissionService.handleInput(request, params)
             log.debug "Updating canned comment ${commentJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(commentJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(commentJson))) {
 
                 log.debug "Canned comment ID: ${commentJson.id}"
                 CannedComment comment = CannedComment.findById(commentJson.id) ?: CannedComment.findByComment(commentJson.old_comment)
@@ -262,7 +263,7 @@ class CannedCommentController {
         try {
             JSONObject commentJson = permissionService.handleInput(request, params)
             log.debug "Deleting canned comment ${commentJson}"
-            if (permissionService.isUserAdmin(permissionService.getCurrentUser(commentJson))) {
+            if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(commentJson))) {
 
                 CannedComment comment = CannedComment.findById(commentJson.id) ?: CannedComment.findByComment(commentJson.comment)
 
@@ -302,7 +303,7 @@ class CannedCommentController {
         try {
             JSONObject commentJson = permissionService.handleInput(request, params)
             log.debug "Showing canned comment ${commentJson}"
-            if (!permissionService.hasGlobalPermissions(commentJson, PermissionEnum.ADMINISTRATE)) {
+            if (!permissionService.hasGlobalPermissions(commentJson, GlobalPermissionEnum.ADMIN)) {
                 render status: UNAUTHORIZED
                 return
             }

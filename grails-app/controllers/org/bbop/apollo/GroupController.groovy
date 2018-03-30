@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -55,9 +56,15 @@ class GroupController {
         try {
             log.debug "loadGroups"
             JSONObject dataObject = permissionService.handleInput(request, params)
-
+            // allow instructor to view groups
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
+                render status: HttpStatus.UNAUTHORIZED
+                return
+            }
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
             JSONArray returnArray = new JSONArray()
-            def allowableOrganisms = permissionService.getOrganisms((User) permissionService.currentUser)
+            def allowableOrganisms = permissionService.getOrganisms((User) currentUser)
 
             Map<String, List<GroupOrganismPermission>> groupOrganismPermissionMap = new HashMap<>()
 
@@ -74,14 +81,16 @@ class GroupController {
             // restricted groups
             def groups = dataObject.groupId ? [UserGroup.findById(dataObject.groupId)] : UserGroup.all
             def filteredGroups =  groups
+
             // if user is admin, then include all
             // if group has metadata with the creator or no metadata then include
-
-            if (!permissionService.isAdmin()) {
+            // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
+            if (!permissionService.isUserGlobalAdmin(currentUser)) {
                 log.debug "filtering groups"
 
                 filteredGroups = groups.findAll(){
-                    it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
+                    // permissionService.currentUser is None when accessing by webservice
+                    it.metadata == null || it.getMetaData(FeatureStringEnum.CREATOR.value) == (currentUser.id as String) || permissionService.isGroupAdmin(it, currentUser)
                 }
             }
 
@@ -168,19 +177,31 @@ class GroupController {
     @Transactional
     def createGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        // allow instructor to create Group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
         log.info "Creating group"
-
+        // permissionService.currentUser is None when accessing by webservice
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
         UserGroup group = new UserGroup(
-                name: dataObject.name
-        ).save(flush: true)
-        def currentUser = permissionService.currentUser
-
-        group.addMetaData("creator", currentUser.id.toString())
-        log.debug "Add metadata creator: ${currentUser.id.toString()}"
+                name: dataObject.name,
+                // add metadata from webservice
+                metadata: dataObject.metadata ? dataObject.metadata.toString() : null
+        )
+        group.save(flush: true)
+        // allow specify the metadata creator through webservice, if not specified, take current user as the creator
+        if (!group.getMetaData(FeatureStringEnum.CREATOR.value)) {
+            log.debug "creator does not exist, set current user as the creator"
+            group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
+        }
+        // assign group creator as group admin
+        def creatorId = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        User creator = User.findById(creatorId)
+        group.addToAdmin(creator)
+        log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
 
         log.info "Added group ${group.name}"
 
@@ -199,21 +220,29 @@ class GroupController {
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
-            render status: HttpStatus.UNAUTHORIZED.value()
-            return
-        }
-        log.info "Removing group"
         UserGroup group = UserGroup.findById(dataObject.id)
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
         }
         if (!group) {
-            JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
-            render jsonObject as JSON
+            def error = [error: "Group ${dataObject.name} not found"]
+            log.error(error.error)
+            render error as JSON
             return
         }
+        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        // only allow global admin or group creator, or group admin to delete the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
+            //render status: HttpStatus.UNAUTHORIZED.value()
+            def error = [error: 'not authorized to delete the group']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        log.info "Removing group"
+
         List<User> users = group.users as List
         users.each { it ->
             it.removeFromUserGroups(group)
@@ -244,15 +273,30 @@ class GroupController {
     def updateGroup() {
         log.info "Updating group"
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        UserGroup group = UserGroup.findById(dataObject.id)
+        if (!group) {
+            group = UserGroup.findByName(dataObject.name)
+        }
+        if (!group) {
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the group")
+            render jsonObject as JSON
+            return
+        }
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
-        UserGroup group = UserGroup.findById(dataObject.id)
+
         // the only thing that can really change
         log.info "Updated group ${group.name} to use name ${dataObject.name}"
         group.name = dataObject.name
-
+        // also allow update metadata
+        group.metadata = dataObject.metadata?dataObject.metadata.toString():group.metadata
         group.save(flush: true)
     }
 
@@ -365,8 +409,11 @@ class GroupController {
     def updateMembership() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
-
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group membership
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
             render status: HttpStatus.UNAUTHORIZED.value()
             return
@@ -410,8 +457,12 @@ class GroupController {
     def updateGroupAdmin() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
+        // to support webservice, get current user from session or input object
+        def currentUser = permissionService.getCurrentUser(dataObject)
+        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group membership
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE) && !permissionService.isGroupAdmin(groupInstance, permissionService.currentUser)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }
@@ -437,6 +488,72 @@ class GroupController {
         groupInstance.save(flush: true)
         log.info "Updated group ${groupInstance.name} admin ${newUsers.join(' ')}"
         loadGroups()
+    }
+
+    @RestApiMethod(description = "Get group admins, returns group admins as JSONArray", path = "/group/getGroupAdmin", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ])
+    def getGroupAdmin() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        println "data: ${dataObject}"
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        UserGroup groupInstance = UserGroup.findByName(dataObject.name)
+        if (!groupInstance) {
+            def error = [error: 'The group does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONArray returnArray = new JSONArray()
+        def adminList = groupInstance.admin
+        println "admin = ${adminList}"
+        adminList.each {
+            JSONObject user = new JSONObject()
+            user.id = it.id
+            user.firstName = it.firstName
+            user.lastName = it.lastName
+            user.username = it.username
+            returnArray.put(user)
+        }
+
+        render returnArray as JSON
+
+    }
+
+    @RestApiMethod(description = "Get creator metadata for group, returns userId as JSONObject", path = "/group/getGroupCreator", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
+    ])
+    def getGroupCreator() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        println "data: ${dataObject}"
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
+            def error = [error: 'not authorized to view the metadata']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        UserGroup groupInstance = UserGroup.findByName(dataObject.name)
+        if (!groupInstance) {
+            def error = [error: 'The group does not exist']
+            log.error(error.error)
+            render error as JSON
+            return
+        }
+        JSONObject metaData = new JSONObject()
+        metaData.creator = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        render metaData as JSON
+
     }
 
 

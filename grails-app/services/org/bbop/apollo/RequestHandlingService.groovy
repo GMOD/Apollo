@@ -1707,8 +1707,8 @@ class RequestHandlingService {
         for (int i = 0; i < featuresArray.size(); i++) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             useName = jsonFeature.has(FeatureStringEnum.USE_NAME.value) ? jsonFeature.get(FeatureStringEnum.USE_NAME.value) : false
-            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.alternateCvTerm ||
-                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.alternateCvTerm) {
+            if (jsonFeature.get(FeatureStringEnum.TYPE.value).name == Gene.cvTerm ||
+                    jsonFeature.get(FeatureStringEnum.TYPE.value).name == Pseudogene.cvTerm) {
                 // if jsonFeature is of type gene or pseudogene
                 JSONObject jsonGene = JSON.parse(jsonFeature.toString())
                 jsonGene.remove(FeatureStringEnum.CHILDREN.value)
@@ -1967,7 +1967,7 @@ class RequestHandlingService {
     def checkOwnersDelete(Feature feature, JSONObject inputObject) {
         if (configWrapperService.onlyOwnersDelete) {
             def currentUser = permissionService.getCurrentUser(inputObject)
-            def isAdmin = permissionService.isUserAdmin(currentUser)
+            def isAdmin = permissionService.isUserGlobalAdmin(currentUser)
             def owners = findOwners(feature)
             if (!isAdmin && !(currentUser in owners)) {
                 throw new AnnotationException("Only feature owner or admin may delete, change type, or revert annotation to an earlier state")
@@ -2155,7 +2155,7 @@ class RequestHandlingService {
             sortedTranscripts.reverse(true)
         }
 
-        if (sortedTranscripts.get(0).alternateCvTerm == Transcript.alternateCvTerm && sortedTranscripts.get(1).alternateCvTerm != Transcript.alternateCvTerm) {
+        if (sortedTranscripts.get(0).cvTerm == Transcript.cvTerm && sortedTranscripts.get(1).cvTerm != Transcript.cvTerm) {
             sortedTranscripts.reverse(true)
         }
 
@@ -2314,8 +2314,8 @@ class RequestHandlingService {
         User user = permissionService.getCurrentUser(inputObject)
         JSONObject featureContainer = createJSONFeatureContainer()
 
-        def singletonFeatureTypes = [RepeatRegion.alternateCvTerm, TransposableElement.alternateCvTerm]
-        def rnaFeatureTypes = [MRNA.alternateCvTerm, MiRNA.alternateCvTerm, NcRNA.alternateCvTerm, RRNA.alternateCvTerm, SnRNA.alternateCvTerm, SnoRNA.alternateCvTerm, TRNA.alternateCvTerm, Transcript.alternateCvTerm]
+        def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm]
+        def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
 
         for (int i = 0; i < features.length(); i++) {
             String type = features.get(i).type
@@ -2325,7 +2325,7 @@ class RequestHandlingService {
             FeatureEvent currentFeatureEvent = featureEventService.findCurrentFeatureEvent(feature.uniqueName).get(0)
             JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             JSONObject originalFeatureJsonObject = JSON.parse(currentFeatureEvent.newFeaturesJsonArray) as JSONObject
-            String originalType = feature.alternateCvTerm ? feature.alternateCvTerm : feature.cvTerm
+            String originalType = feature.cvTerm
 
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."

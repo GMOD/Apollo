@@ -309,7 +309,7 @@ class ChadoHandlerService {
      */
     def createChadoFeature(org.bbop.apollo.Organism organism, org.bbop.apollo.Feature feature) {
         long startTime, endTime
-        String type = feature.hasProperty('alternateCvTerm') ? feature.alternateCvTerm : feature.cvTerm
+        String type = feature.cvTerm
 
         // feature
         startTime = System.currentTimeMillis()

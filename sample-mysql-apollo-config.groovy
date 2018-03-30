@@ -76,7 +76,7 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//         tag = "9d765aecaee02a41844fed11a241fdb4c35fc9f8"
+//         tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
 ////        branch = "master"
 //        alwaysPull = true
 //        alwaysRecheck = true
