@@ -86,7 +86,7 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlterationArtifact> sequenceAlterationList = SequenceAlteration.withCriteria {
+        List<SequenceAlterationArtifact> sequenceAlterationList = SequenceAlterationArtifact.withCriteria {
             createAlias('featureLocations', 'fl', JoinType.INNER_JOIN)
             createAlias('fl.sequence', 's', JoinType.INNER_JOIN)
             and {
