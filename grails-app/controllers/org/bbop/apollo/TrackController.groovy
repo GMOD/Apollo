@@ -83,6 +83,16 @@ class TrackController {
 
     }
 
+    @RestApiMethod(description = "List all tracks for an organism", path = "/track/list/<organism name>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organismName", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name (required)")
+    ])
+    @Transactional
+    def getTracks(String organismName) {
+        if (!trackService.checkPermission(request, response, organismName)) return
+        render trackService.getAllTracks(organismName) as JSON
+    }
+
 
     @RestApiMethod(description = "Get track data as an JSON within but only for the selected name", path = "/track/<organism name>/<track name>/<sequence name>/<feature name>.<type>?ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
