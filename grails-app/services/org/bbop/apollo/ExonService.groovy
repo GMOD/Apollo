@@ -263,7 +263,7 @@ class ExonService {
             }
             String seq = residues.substring(coordinate, coordinate + 2);
 
-            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq.toLowerCase())) {
                 if (exon.getFeatureLocation().getStrand() == -1) {
                     setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFeatureLocation().getFmax())
                 } else {
@@ -292,7 +292,7 @@ class ExonService {
             String seq = residues.substring(coordinate, coordinate + 2);
 
 //            log.debug "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
-            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq.toLowerCase())) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 1, exon.getFmax());
                 } else {
@@ -334,7 +334,7 @@ class ExonService {
                 throw new AnnotationException("Cannot set to upstream acceptor - will overlap previous exon");
             }
             String seq = residues.substring(coordinate, coordinate + 2);
-            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq.toLowerCase())) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) - 1);
                 } else {
@@ -360,7 +360,7 @@ class ExonService {
                 throw new AnnotationException("Cannot set to downstream acceptor - will remove exon");
             }
             String seq = residues.substring(coordinate, coordinate + 2);
-            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq.toLowerCase())) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) - 1);
                 } else {

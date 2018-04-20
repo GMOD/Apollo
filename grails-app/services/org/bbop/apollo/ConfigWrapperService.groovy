@@ -50,11 +50,19 @@ class ConfigWrapperService {
     }
 
     List<String> getSpliceDonorSites(){
-        return grailsApplication.config.apollo.splice_donor_sites
+        List<String> sites = new ArrayList<String>()
+        grailsApplication.config.apollo.splice_donor_sites.each {
+            sites.add(it.toLowerCase())
+        }
+        return sites
     }
 
     List<String> getSpliceAcceptorSites(){
-        return grailsApplication.config.apollo.splice_acceptor_sites
+        List<String> sites = new ArrayList<String>()
+        grailsApplication.config.apollo.splice_acceptor_sites.each {
+            sites.add(it.toLowerCase())
+        }
+        return sites
     }
 
     int getDefaultMinimumIntronSize() {
