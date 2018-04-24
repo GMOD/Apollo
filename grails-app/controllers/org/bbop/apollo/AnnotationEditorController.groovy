@@ -1032,6 +1032,53 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             newFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, feature.lastUpdated.time);
             newFeature.put(FeatureStringEnum.TYPE.value, featureService.generateJSONFeatureStringForType(feature.ontologyId));
 
+            if (feature instanceof SequenceAlteration) {
+                newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
+
+                JSONArray alternateAllelesArray = new JSONArray()
+                println("Features has altAlleles: ${feature.alleles}")
+                for (Allele allele : feature.alleles) {
+                    JSONObject alleleObject = new JSONObject()
+                    alleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
+//                    if (allele.alleleFrequency) {
+//                        alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
+//                    }
+//                    if (allele.provenance) {
+//                        alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance)
+//                    }
+                    if (allele.alleleInfo) {
+                        JSONArray alleleInfoArray = new JSONArray()
+                        allele.alleleInfo.each { alleleInfo ->
+                            JSONObject alleleInfoObject = new JSONObject()
+                            alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
+                            alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
+                            alleleInfoArray.add(alleleInfoObject)
+                        }
+                        alleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
+                    }
+
+                    if (allele.isReference) {
+                        newFeature.put(FeatureStringEnum.REFERENCE_ALLELE.value, alleleObject)
+                    }
+                    else {
+                        alternateAllelesArray.add(alleleObject)
+                    }
+                }
+                newFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray)
+
+                if (feature.variantInfo) {
+                    JSONArray variantInfoArray = new JSONArray()
+                    for (VariantInfo variantInfo : feature.variantInfo) {
+                        JSONObject variantInfoObject = new JSONObject()
+                        variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
+                        variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
+                        variantInfoArray.add(variantInfoObject)
+                    }
+                    newFeature.put(FeatureStringEnum.VARIANT_INFO.value, variantInfoArray)
+                }
+
+            }
+
             if (feature.featureLocation) {
                 newFeature.put(FeatureStringEnum.SEQUENCE.value, feature.featureLocation.sequence.name);
             }

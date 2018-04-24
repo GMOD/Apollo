@@ -149,9 +149,23 @@ public enum FeatureStringEnum {
         FILTER,
         VALUES,
         META,
+        BASES,
         REFERENCE_ALLELE,
         ALTERNATIVE_ALLELES,
-        GENOTYPES
+        GENOTYPES,
+        ALTERNATE_ALLELES,
+        OLD_ALTERNATE_ALLELES,
+        NEW_ALTERNATE_ALLELES,
+        ALLELE_FREQUENCY("allele_frequency"),
+        ALLELE_FREQUENCY_TAG("AF"),
+        PROVENANCE,
+        ALLELE,
+        ALLELE_INFO,
+        NEW_ALLELE_INFO,
+        OLD_ALLELE_INFO,
+        VARIANT_INFO,
+        OLD_VARIANT_INFO,
+        NEW_VARIANT_INFO,
         ;
 
 

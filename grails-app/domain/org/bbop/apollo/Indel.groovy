@@ -8,4 +8,10 @@ class Indel extends SequenceAlteration {
     static String cvTerm = "indel"
     static String ontologyId = "SO:0001059"
     static String alternateCvTerm = "indel"
+    Allele referenceAllele
+
+    static hasMany = [
+            alternateAlleles: Allele
+    ]
+
 }

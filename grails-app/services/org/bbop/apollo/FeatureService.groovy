@@ -1282,7 +1282,52 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.deletionLength = deletionLength
             }
 
-            gsolFeature.save(failOnError: true)
+            if (gsolFeature instanceof SequenceAlteration) {
+                if (jsonFeature.has(FeatureStringEnum.REFERENCE_ALLELE.value)) {
+                    Allele allele = new Allele(bases: jsonFeature.getString(FeatureStringEnum.REFERENCE_ALLELE.value), isReference: true)
+                    allele.save()
+                    gsolFeature.addToAlleles(allele)
+                    gsolFeature.save(failOnError: true)
+                    allele.variant = gsolFeature
+                    allele.save()
+                }
+                if (jsonFeature.has(FeatureStringEnum.ALTERNATE_ALLELES.value)) {
+                    JSONArray alternateAllelesArray = jsonFeature.getJSONArray(FeatureStringEnum.ALTERNATE_ALLELES.value)
+                    for (int i = 0; i < alternateAllelesArray.length(); i++) {
+                        JSONObject alternateAlleleJsonObject = alternateAllelesArray.getJSONObject(i)
+                        String bases = alternateAlleleJsonObject.getString(FeatureStringEnum.BASES.value)
+                        Allele allele = new Allele(bases: bases, variant: gsolFeature)
+                        allele.save()
+
+                        // Processing properties of an Allele
+                        if (alternateAllelesArray.getJSONObject(i).has(FeatureStringEnum.ALLELE_INFO.value)) {
+                            JSONArray alleleInfoArray = alternateAllelesArray.getJSONObject(i).getJSONArray(FeatureStringEnum.ALLELE_INFO.value)
+                            for (int j = 0; j < alleleInfoArray.length(); j++) {
+                                JSONObject info = alleleInfoArray.getJSONObject(j)
+                                String tag = info.getString(FeatureStringEnum.TAG.value)
+                                String value = info.getString(FeatureStringEnum.VALUE.value)
+                                AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value).save()
+                                allele.addToAlleleInfo(alleleInfo)
+                            }
+                        }
+
+                        gsolFeature.addToAlleles(allele)
+                    }
+                }
+                gsolFeature.save(flush: true)
+
+                // Processing proerties of a variant
+                if (jsonFeature.has(FeatureStringEnum.VARIANT_INFO.value)) {
+                    JSONArray variantInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.VARIANT_INFO.value)
+                    for (int i = 0; i < variantInfoArray.size(); i++) {
+                        JSONObject variantInfoObject = variantInfoArray.get(i)
+                        VariantInfo variantInfo = new VariantInfo(tag: variantInfoObject.get(FeatureStringEnum.TAG.value), value: variantInfoObject.get(FeatureStringEnum.VALUE.value))
+                        variantInfo.save()
+                        gsolFeature.addToVariantInfo(variantInfo)
+                    }
+                }
+            }
+
 
 
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
@@ -1462,6 +1507,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case NonCanonicalFivePrimeSpliceSite.ontologyId: return new NonCanonicalFivePrimeSpliceSite()
             case NonCanonicalThreePrimeSpliceSite.ontologyId: return new NonCanonicalThreePrimeSpliceSite()
             case StopCodonReadThrough.ontologyId: return new StopCodonReadThrough()
+            case SNV.ontologyId: return new SNV()
+            case SNP.ontologyId: return new SNP()
+            case MNV.ontologyId: return new MNV()
+            case MNP.ontologyId: return new MNP()
+            case Indel.ontologyId: return new Indel()
             default:
                 log.error("No feature type exists for ${ontologyId}")
                 return null
@@ -1503,6 +1553,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case NonCanonicalThreePrimeSpliceSite.cvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
                 case NonCanonicalFivePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalFivePrimeSpliceSite.ontologyId
                 case NonCanonicalThreePrimeSpliceSite.alternateCvTerm.toUpperCase(): return NonCanonicalThreePrimeSpliceSite.ontologyId
+                case SNV.cvTerm.toUpperCase(): return SNV.ontologyId
+                case SNP.cvTerm.toUpperCase(): return SNP.ontologyId
+                case MNV.cvTerm.toUpperCase(): return MNV.ontologyId
+                case MNP.cvTerm.toUpperCase(): return MNP.ontologyId
+                case Indel.cvTerm.toUpperCase(): return Indel.ontologyId
                 default:
                     log.error("CV Term not known ${cvTermString} for CV ${FeatureStringEnum.SEQUENCE}")
                     return null
@@ -1849,6 +1904,48 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         durationInMilliseconds = System.currentTimeMillis() - start;
         //log.debug "featloc ${durationInMilliseconds}"
 
+        if (gsolFeature instanceof SequenceAlteration) {
+            JSONArray alternateAllelesArray = new JSONArray()
+            gsolFeature.alleles.each { allele ->
+                JSONObject alleleObject = new JSONObject()
+                alleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
+//                if (allele.alleleFrequency) {
+//                    alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
+//                }
+//                if (allele.provenance) {
+//                    alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance);
+//                }
+                if (allele.alleleInfo) {
+                    JSONArray alleleInfoArray = new JSONArray()
+                    allele.alleleInfo.each { alleleInfo ->
+                        JSONObject alleleInfoObject = new JSONObject()
+                        alleleInfoObject.put(FeatureStringEnum.TAG.value, alleleInfo.tag)
+                        alleleInfoObject.put(FeatureStringEnum.VALUE.value, alleleInfo.value)
+                        alleleInfoArray.add(alleleInfoObject)
+                    }
+                    alleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
+                }
+                if(allele.isReference) {
+                    jsonFeature.put(FeatureStringEnum.REFERENCE_ALLELE.value, alleleObject)
+                }
+                else {
+                    alternateAllelesArray.add(alleleObject)
+                }
+            }
+
+            jsonFeature.put(FeatureStringEnum.ALTERNATE_ALLELES.value, alternateAllelesArray)
+
+            if (gsolFeature.variantInfo) {
+                JSONArray variantInfoArray = new JSONArray()
+                gsolFeature.variantInfo.each { variantInfo ->
+                    JSONObject variantInfoObject = new JSONObject()
+                    variantInfoObject.put(FeatureStringEnum.TAG.value, variantInfo.tag)
+                    variantInfoObject.put(FeatureStringEnum.VALUE.value, variantInfo.value)
+                    variantInfoArray.add(variantInfoObject)
+                }
+                jsonFeature.put(FeatureStringEnum.VARIANT_INFO.value, variantInfoArray)
+            }
+        }
 
         if (gsolFeature instanceof SequenceAlterationArtifact) {
             SequenceAlterationArtifact sequenceAlteration = (SequenceAlterationArtifact) gsolFeature
