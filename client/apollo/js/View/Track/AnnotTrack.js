@@ -7128,6 +7128,8 @@ define([
             },
 
             updateMenu: function () {
+                this.updateGetSequenceMenuItem();
+                this.updateGetGff3MenuItem();
                 this.updateDeleteMenuItem();
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
@@ -7161,7 +7163,12 @@ define([
             updateAssociateTranscriptToGeneItem: function() {
                 var menuItem = this.getMenuItem("associate_transcript_to_gene");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7194,7 +7201,12 @@ define([
             updateDissociateTranscriptFromGeneItem: function() {
                 var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7257,9 +7269,36 @@ define([
                             menuItems[i].setDisabled(true);
                         }
                     }
+                    else if (selectedType == "SNV") {
+                        menuItems[i].setDisabled(true);
+                    }
                     else {
                         menuItems[i].setDisabled(false);
                     }
+                }
+            },
+
+            updateGetSequenceMenuItem: function() {
+                var menuItem = this.getMenuItem("get_sequence");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
+                }
+            },
+
+            updateGetGff3MenuItem: function() {
+                var menuItem = this.getMenuItem("get_gff3");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
                 }
             },
 
