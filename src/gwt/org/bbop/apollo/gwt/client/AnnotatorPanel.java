@@ -104,6 +104,14 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static RepeatRegionDetailPanel repeatRegionDetailPanel;
     @UiField
+    static VariantDetailPanel variantDetailPanel;
+    @UiField
+    static VariantAllelesPanel variantAllelesPanel;
+    @UiField
+    static VariantInfoPanel variantInfoPanel;
+    @UiField
+    static AlleleInfoPanel alleleInfoPanel;
+    @UiField
     static TabLayoutPanel tabPanel;
     @UiField
     ListBox userField;
@@ -318,7 +326,20 @@ public class AnnotatorPanel extends Composite {
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                exonDetailPanel.redrawExonTable();
+                switch(event.getSelectedItem()) {
+                    case 0:
+                        break;
+                    case 1:
+                        exonDetailPanel.redrawExonTable();
+                        break;
+                    case 2:
+                        variantAllelesPanel.redrawTable();
+                        break;
+                    case 3:
+                        variantInfoPanel.redrawTable();
+                    case 4:
+                        alleleInfoPanel.redrawTable();
+                }
             }
         });
 
@@ -432,12 +453,21 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
             case "mRNA":
             case "miRNA":
@@ -447,13 +477,36 @@ public class AnnotatorPanel extends Composite {
             case "snoRNA":
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
             case "transposable_element":
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
+                break;
+            case "SNV":
+            case "SNP":
+            case "MNV":
+            case "MNP":
+            case "indel":
+                variantDetailPanel.updateData(annotationInfo);
+                variantAllelesPanel.updateData(annotationInfo);
+                variantInfoPanel.updateData(annotationInfo);
+                alleleInfoPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(true);
+                tabPanel.getTabWidget(3).getParent().setVisible(true);
+                tabPanel.getTabWidget(4).getParent().setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);

@@ -3194,7 +3194,6 @@ define([
 
                 // initialize Allele Info
                 var initAlleleInfo = function (feature) {
-                    console.log("[initAlleleInfo] feature: ", feature);
                     var oldAlleleSelection;
                     var oldTag;
                     var oldValue;
@@ -3209,14 +3208,15 @@ define([
                     if (feature.alternate_alleles) {
                         for (var i = 0; i < feature.alternate_alleles.length; ++i) {
                             alleleOpts.push(feature.alternate_alleles[i].bases);
-                            for (var j = 0; j < feature.alternate_alleles[i].allele_info.length; ++j) {
-                                var alleleInfo = feature.alternate_alleles[i].allele_info[j];
-                                console.log("aI: ", alleleInfo);
-                                alleleInfoStore.newItem({allele: feature.alternate_alleles[i].bases, tag: alleleInfo.tag, value: alleleInfo.value});
+                            if (feature.alternate_alleles[i].allele_info) {
+                                for (var j = 0; j < feature.alternate_alleles[i].allele_info.length; ++j) {
+                                    var alleleInfo = feature.alternate_alleles[i].allele_info[j];
+                                    console.log("aI: ", alleleInfo);
+                                    alleleInfoStore.newItem({allele: feature.alternate_alleles[i].bases, tag: alleleInfo.tag, value: alleleInfo.value});
+                                }
                             }
                         }
                     }
-                    console.log("ALLELE INFO STORE: ", alleleInfoStore);
 
                     var tableLayout = [{
                         cells: [
@@ -6580,7 +6580,7 @@ define([
                         var selected = thisB.selectionManager.getSelection();
                         var selectedFeature = selected[0].feature;
                         var selectedFeatureDetails = selectedFeature.afeature;
-                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene'];
+                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel'];
                         while(selectedFeature  ){
                             if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
                                 thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
