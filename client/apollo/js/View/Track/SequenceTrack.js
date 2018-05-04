@@ -928,18 +928,16 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
      */
     annotationsUpdatedNotification: function(annots)  {
         this.annotationsDeletedNotification(annots);
-        this.annotationAddedNotification(annots);
+        this.annotationsAddedNotification(annots);
     },
 
     storedFeatureCount: function(start, end)  {
         // get accurate count of features loaded (should do this within the XHR.load() function
         var track = this;
-        if (start == undefined) {
-            //            start = 0;
+        if (start === undefined) {
             start = track.refSeq.start;
         }
-        if (end == undefined) {
-            //            end = track.refSeq.length;
+        if (end === undefined) {
             end = track.refSeq.end;
         }
         var count = 0;
@@ -952,7 +950,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
         var track = this;
         var content = dojo.create("div");
         var charWidth = 15;
-        if (type == "deletion") {
+        if (type === "deletion") {
             var deleteDiv = dojo.create("div", { }, content);
             var deleteLabel = dojo.create("label", { innerHTML: "Length", className: "sequence_alteration_input_label" }, deleteDiv);
             var deleteField = dojo.create("input", { type: "text", size: 10, className: "sequence_alteration_input_field" }, deleteDiv);
@@ -961,8 +959,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             var comField = dojo.create("input", { type: "text", size: charWidth, className: "sequence_alteration_comment_field" }, comment);
             $(deleteField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
-                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
-                if (unicode == 13) {  // 13 = ENTER/RETURN
+                var isBackspace = (unicode === 8);  // 8 = BACKSPACE
+                if (unicode === 13) {  // 13 = ENTER/RETURN
                     addSequenceAlteration();
                 }
                 else {
@@ -988,8 +986,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             $(plusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
-                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
-                if (unicode == 13) {  // 13 = ENTER/RETURN
+                var isBackspace = (unicode === 8);  // 8 = BACKSPACE
+                if (unicode === 13) {  // 13 = ENTER/RETURN
                     addSequenceAlteration();
                 }
                 else {
@@ -1022,8 +1020,8 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             $(minusField).keydown(function(e) {
                 var unicode = e.charCode || e.keyCode;
                 // ignoring delete key, doesn't do anything in input elements?
-                var isBackspace = (unicode == 8);  // 8 = BACKSPACE
-                if (unicode == 13) {  // 13 = ENTER
+                var isBackspace = (unicode === 8);  // 8 = BACKSPACE
+                if (unicode === 13) {  // 13 = ENTER
                     addSequenceAlteration();
                 }
                 else {
@@ -1072,7 +1070,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             }
             if (ok) {
                 var input = inputField.value.toUpperCase();
-                if (type == "deletion") {
+                if (type === "deletion") {
                     if (input.match(/\D/)) {
                         alert("The length must be a number");
                         ok = false;
@@ -1087,7 +1085,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                 }
                 else {
                     if (input.match(/[^ACGTN]/)) {
-                        alert("The sequence should only containg A, C, G, T, N");
+                        alert("The sequence should only containing A, C, G, T, N");
                         ok = false;
                     }
                 }
@@ -1095,53 +1093,48 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
             if (ok) {
                 var fmin = gcoord;
                 var fmax;
-                if (type == "insertion") {
+                if (type === "insertion") {
                     fmax = gcoord;
                 }
-                else if (type == "deletion") {
+                else if (type === "deletion") {
                     fmax = gcoord + parseInt(input);
                 }
-                else if (type == "substitution") {
+                else if (type === "substitution") {
                     fmax = gcoord + input.length;
                 }
-                if (track.storedFeatureCount(fmin, fmax == fmin ? fmin + 1 : fmax) > 0) {
-                    alert("Cannot create overlapping sequence alterations");
-                }
-                else {
-                    var feature = {
-                        location: {
-                            fmin: fmin,
-                            fmax: fmax,
-                            strand: 1
-                        },
-                        type: {
-                            name: type,
-                            cv: {
-                                name: "sequence"
-                            }
+                var feature = {
+                    location: {
+                        fmin: fmin,
+                        fmax: fmax,
+                        strand: 1
+                    },
+                    type: {
+                        name: type,
+                        cv: {
+                            name: "sequence"
                         }
-                    };
-                    if (type != "deletion") {
-                        feature.residues = input;
                     }
-                    if (commentFieldValue.length != 0) {
-                        feature.non_reserved_properties = [
-                            {
-                                tag: "justification",
-                                value: commentFieldValue
-                            }
-                        ];
-                    }
-                    var features = [feature];
-                    var postData = {
-                        "track": track.annotTrack.getUniqueTrackName(),
-                        "features": features,
-                        "operation": "add_sequence_alteration",
-                        "clientToken": track.annotTrack.getClientToken()
-                    };
-                    track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
-                    track.annotTrack.closeDialog();
+                };
+                if (type !== "deletion") {
+                    feature.residues = input;
                 }
+                if (commentFieldValue.length !== 0) {
+                    feature.non_reserved_properties = [
+                        {
+                            tag: "justification",
+                            value: commentFieldValue
+                        }
+                    ];
+                }
+                var features = [feature];
+                var postData = {
+                    "track": track.annotTrack.getUniqueTrackName(),
+                    "features": features,
+                    "operation": "add_sequence_alteration",
+                    "clientToken": track.annotTrack.getClientToken()
+                };
+                track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
+                track.annotTrack.closeDialog();
             }
         };
 
