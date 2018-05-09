@@ -238,6 +238,7 @@ class SequenceService {
         IndexedFastaSequenceFile indexedFastaSequenceFile = new IndexedFastaSequenceFile(genomeFastaFile, new FastaSequenceIndex(genomeFastaIndexFile))
         // using fmin + 1 since getSubsequenceAt uses 1-based start and ends
         sequenceString = indexedFastaSequenceFile.getSubsequenceAt(sequence.name, (long) fmin + 1, (long) fmax).getBaseString()
+        indexedFastaSequenceFile.close()
         return sequenceString
     }
 
