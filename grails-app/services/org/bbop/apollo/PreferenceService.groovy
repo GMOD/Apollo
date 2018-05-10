@@ -143,7 +143,9 @@ class PreferenceService {
             return Organism.findById(Long.parseLong(token))
         } else {
             log.debug "is NOT long "
-            return Organism.findByCommonNameIlike(token)
+            // Cannot use findByCommonNameIlike, because it will fail to update the permission of an organism named orgam
+            // if an organism named Orgam exist. findByCommonNameIlike ignores the case.
+            return Organism.findByCommonName(token)
         }
     }
 

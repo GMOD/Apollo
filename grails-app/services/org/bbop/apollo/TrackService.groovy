@@ -77,6 +77,12 @@ class TrackService {
         }
     }
 
+    JSONObject getAllTracks(String organism) throws FileNotFoundException {
+        String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
+        JSONObject trackObject = getTrackList(jbrowseDirectory)
+        return trackObject
+    }
+
     JSONObject getTrackData(String trackName, String organism, String sequence) throws FileNotFoundException {
         String jbrowseDirectory = preferenceService.getOrganismForToken(organism)?.directory
         String trackDataFilePath = getTrackDataFile(jbrowseDirectory, trackName, sequence)

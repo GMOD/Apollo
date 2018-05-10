@@ -220,8 +220,8 @@ public class TrackPanel extends Composite {
             inputGroup.add(inputGroupButton);
 
             InputGroupAddon label = new InputGroupAddon();
+            label.add(new HTML(trackInfo.getName()));
             label.addStyleName("text-left");
-            label.setText(trackInfo.getName());
             inputGroup.add(label);
 
             add(inputGroup);
