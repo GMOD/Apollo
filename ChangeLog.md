@@ -1,4 +1,26 @@
 
+## 2.0.9
+
+Features
+
+- Indicate start / stop codons with color [#1852](https://github.com/GMOD/Apollo/pull/1852)
+- Set the default biotype on track [#1861](https://github.com/GMOD/Apollo/issues/1861)
+- Allow forced assignment of transcript to a gene [1851](https://github.com/GMOD/Apollo/pull/1851)
+- Focus annotator panel on the current transcript [#1846](https://github.com/GMOD/Apollo/issues/1846)
+- Added proper Instructor and Organism Admin permission level [#1178](https://github.com/GMOD/Apollo/issues/1178)
+- Allow fetching variant data from evidence tracks via web service [#1867](https://github.com/GMOD/Apollo/pull/1867)
+- Recognized dot notation from JBrowse / Apollo [#1839](https://github.com/GMOD/Apollo/issues/1839)
+- Allow setting default native track to true [#1848](https://github.com/GMOD/Apollo/pull/1848)
+- Provide [sample data](https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md#adding-sample-data) (and links in doc)[#1817](https://github.com/GMOD/Apollo/pull/1817) 
+
+Bugfixes 
+
+- Fixed descriptor leak when loading bulk loading GFF3 [#1187](https://github.com/GMOD/Apollo/pull/1887)
+- Fixed adding ability to create sequence alterations of unever length [#1883](https://github.com/GMOD/Apollo/issues/1883)
+- Fixed problem where canonical splice-sites were not recognized if sequence was being shown in lower-case [#1879](https://github.com/GMOD/Apollo/issues/1879)
+- Prevents setting bad translation starts and ends [#1838](https://github.com/GMOD/Apollo/issues/1838)
+- Improved performance of cache deletion code [#1824](https://github.com/GMOD/Apollo/pull/1824)
+- Allow more special characters in the password [#1859](https://github.com/GMOD/Apollo/issues/1859)
 
 ## 2.0.8
 
