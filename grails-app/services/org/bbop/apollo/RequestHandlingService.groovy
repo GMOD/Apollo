@@ -1117,6 +1117,9 @@ class RequestHandlingService {
                 throw new AnnotationException("Feature cannot have negative coordinates");
             }
             Feature feature = Feature.findByUniqueName(oldJsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+            if (feature instanceof SequenceAlteration) {
+                continue
+            }
 //            editor.setBoundaries(feature, fmin, fmax);
             FeatureLocation featureLocation = FeatureLocation.findByFeature(feature)
 
