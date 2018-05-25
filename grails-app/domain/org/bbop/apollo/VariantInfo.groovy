@@ -4,6 +4,7 @@ class VariantInfo {
 
     String tag;
     String value;
+    SequenceAlteration variant;
 
     static constraints = {
     }

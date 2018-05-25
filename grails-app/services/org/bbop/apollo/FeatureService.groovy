@@ -1306,7 +1306,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                                 JSONObject info = alleleInfoArray.getJSONObject(j)
                                 String tag = info.getString(FeatureStringEnum.TAG.value)
                                 String value = info.getString(FeatureStringEnum.VALUE.value)
-                                AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value).save()
+                                AlleleInfo alleleInfo = new AlleleInfo(tag: tag, value: value, allele: allele).save()
                                 allele.addToAlleleInfo(alleleInfo)
                             }
                         }
@@ -1322,6 +1322,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     for (int i = 0; i < variantInfoArray.size(); i++) {
                         JSONObject variantInfoObject = variantInfoArray.get(i)
                         VariantInfo variantInfo = new VariantInfo(tag: variantInfoObject.get(FeatureStringEnum.TAG.value), value: variantInfoObject.get(FeatureStringEnum.VALUE.value))
+                        variantInfo.variant = gsolFeature
                         variantInfo.save()
                         gsolFeature.addToVariantInfo(variantInfo)
                     }

@@ -96,64 +96,20 @@ class VariantService {
             JSONObject newAlternateAlleleObject = newAlternateAlleleArray.getJSONObject(i)
             String oldAltAlleleBases = oldAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
             String newAltAlleleBases = newAlternateAlleleObject.getString(FeatureStringEnum.BASES.value).toUpperCase()
-            Float oldAltAlleleFrequency
-            Float newAltAlleleFrequency
-            if (oldAlternateAlleleObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && oldAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)){
-                oldAltAlleleFrequency = Float.parseFloat(oldAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
-            }
-            if (newAlternateAlleleObject.has(FeatureStringEnum.ALLELE_FREQUENCY.value) && newAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value)) {
-                newAltAlleleFrequency = Float.parseFloat(newAlternateAlleleObject.getString(FeatureStringEnum.ALLELE_FREQUENCY.value))
-            }
 
-            String oldProvenance
-            String newProvenance
-            if (oldAlternateAlleleObject.has(FeatureStringEnum.PROVENANCE.value) && oldAlternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)) {
-                oldProvenance = oldAlternateAlleleObject.get(FeatureStringEnum.PROVENANCE.value)
-            }
-            if (newAlternateAlleleObject.has(FeatureStringEnum.PROVENANCE.value) && newAlternateAlleleObject.getString(FeatureStringEnum.PROVENANCE.value)) {
-                newProvenance = newAlternateAlleleObject.get(FeatureStringEnum.PROVENANCE.value)
-            }
-
-            def alternateAlleles
-            if (oldAltAlleleBases) {
-                alternateAlleles = Allele.executeQuery(
-                        "SELECT DISTINCT a FROM Allele a WHERE a.bases = :queryBases",
-                        [queryBases: oldAltAlleleBases])
-            }
-            else if (oldAltAlleleBases && oldAltAlleleFrequency) {
-                alternateAlleles = Allele.executeQuery(
-                        "SELECT DISTINCT a FROM Allele a WHERE a.bases = :queryBases AND a.alleleFrequency = :queryAlleleFrequency",
-                        [queryBases: oldAltAlleleBases, queryAlleleFrequency: oldAltAlleleFrequency])
-            }
-            else if (oldAltAlleleBases && oldAltAlleleFrequency && oldProvenance) {
-                alternateAlleles = Allele.executeQuery(
-                        "SELECT DISTINCT a FROM Allele a WHERE a.bases = :queryBases AND a.alleleFrequency = :queryAlleleFrequency AND a.provenance = :queryProvenance",
-                        [queryBases: oldAltAlleleBases, queryAlleleFrequency: oldAltAlleleFrequency, queryProvenance: oldProvenance])
-            }
+            def alternateAlleles = Allele.executeQuery(
+                    "SELECT DISTINCT a FROM Allele a WHERE a.bases = :queryBases AND a.variant = :variant",
+                    [queryBases: oldAltAlleleBases, variant: feature])
             if (alternateAlleles.size() == 0) {
                 log.error "Cannot find alternate allele ${oldAltAlleleBases} with AF: ${oldAltAlleleFrequency} and provenance: ${oldProvenance}"
             }
             else if (alternateAlleles.size() == 1) {
                 Allele allele = alternateAlleles.iterator().next()
                 allele.bases = newAltAlleleBases
-                if (newAltAlleleFrequency) {
-                    if (newAltAlleleFrequency >= 0 && newAltAlleleFrequency <= 1) {
-                        if (newAltAlleleFrequency && newProvenance) {
-                            allele.alleleFrequency = newAltAlleleFrequency
-                            allele.provenance = newProvenance
-                        }
-                        else {
-                            log.error "Rejecting alleleFrequency for Allele: ${newAltAlleleBases} as no provenance is provided"
-                        }
-                    }
-                    else {
-                        log.error "Unexpected Alternate Allele Frequency value of ${newAltAlleleFrequency} with provenance: ${newProvenance}"
-                    }
-                }
                 allele.save()
             }
             else {
-                log.error "More than one alternate allele ${oldAltAlleleBases} found with  AF: ${oldAltAlleleFrequency} and provenance: ${oldProvenance}"
+                log.error "More than one alternate allele ${oldAltAlleleBases} found for variant: ${uniqueName}"
             }
         }
 
@@ -211,11 +167,11 @@ class VariantService {
             String newTag = newVariantInfoObject.getString(FeatureStringEnum.TAG.value)
             String newValue = newVariantInfoObject.getString(FeatureStringEnum.VALUE.value)
 
-            FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(oldTag, oldValue, feature)
-            if (featureProperty) {
-                featureProperty.tag = newTag
-                featureProperty.value = newValue
-                featureProperty.save()
+            VariantInfo variantInfo = VariantInfo.findByTagAndValueAndVariant(oldTag, oldValue, feature)
+            if (variantInfo) {
+                variantInfo.tag = newTag
+                variantInfo.value = newValue
+                variantInfo.save()
             }
             else {
                 log.error "Could not find feature property ${oldVariantInfoObject.toString()} to update for variant: ${feature}"
@@ -267,37 +223,33 @@ class VariantService {
 
     def updateAlleleInfo(JSONObject jsonFeature) {
         Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+        String alleleBases = jsonFeature.getJSONObject(FeatureStringEnum.ALLELE.value).getString(FeatureStringEnum.BASES.value)
         JSONArray oldAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALLELE_INFO.value)
         JSONArray newAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALLELE_INFO.value)
+        Allele allele
+        feature.alleles.each {
+            if (it.bases == alleleBases) {
+                allele = it
+                return
+            }
+        }
 
         for (int i = 0; i < oldAlleleInfoArray.size(); i++) {
             JSONObject oldAlleleInfoObject = oldAlleleInfoArray.getJSONObject(i)
             JSONObject newAlleleInfoObject = newAlleleInfoArray.getJSONObject(i)
-            String oldAlleleBase = oldAlleleInfoObject.getString(FeatureStringEnum.ALLELE.value)
-            Allele oldAllele = getAlleleForVariant(feature.uniqueName, oldAlleleBase)
-            String newAlleleBase = newAlleleInfoObject.getString(FeatureStringEnum.ALLELE.value)
-            Allele newAllele = getAlleleForVariant(feature.uniqueName, newAlleleBase)
             String oldTag = oldAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String oldValue = oldAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             String newTag = newAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String newValue = newAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
 
-            AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(oldAllele, oldTag, oldValue)
+            AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, oldTag, oldValue)
             if (oldAlleleInfo) {
-                if (oldAlleleBase != newAlleleBase) {
-                    oldAllele.removeFromAlleleInfo(oldAlleleInfo)
-                    oldAllele.save()
-                    newAllele.addToAlleleInfo(new AlleleInfo(tag: newTag, value: newValue, allele: newAllele).save())
-                    newAllele.save()
-                }
-                else {
-                    oldAlleleInfo.tag = newTag
-                    oldAlleleInfo.value = newValue
-                    oldAlleleInfo.save()
-                }
+                oldAlleleInfo.tag = newTag
+                oldAlleleInfo.value = newValue
+                oldAlleleInfo.save()
             }
             else {
-                log.error "Cannot find AlleleInfo ${tag}:${value} for Allele: ${oldAlleleBase}"
+                log.error "Cannot find AlleleInfo ${oldTag}:${oldValue} for Allele: ${oldAlleleBase}"
             }
 
         }

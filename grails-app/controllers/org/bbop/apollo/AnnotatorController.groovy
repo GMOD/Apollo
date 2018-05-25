@@ -435,6 +435,25 @@ class AnnotatorController {
         render updateFeatureContainer
     }
 
+    def updateAlleleInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.updateAlleleInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
+    }
+
     def updateVariantInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()

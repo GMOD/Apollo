@@ -3973,7 +3973,7 @@ define([
                     oldValue = escapeString(oldValue);
                     newTag = escapeString(newTag);
                     newValue = escapeString(newValue);
-                    var features = [ {uniquename: uniqueName, old_allele_info: [{allele: oldAllele, tag: oldTag, value: oldValue}], new_allele_info: [{allele: newAllele, tag: newTag, value: newValue}] } ];
+                    var features = [ {uniquename: uniqueName, old_allele_info: [{bases: oldAllele, tag: oldTag, value: oldValue}], new_allele_info: [{bases: newAllele, tag: newTag, value: newValue}] } ];
                     var operation= "update_allele_info";
                     var postData = {
                         track: trackName,
