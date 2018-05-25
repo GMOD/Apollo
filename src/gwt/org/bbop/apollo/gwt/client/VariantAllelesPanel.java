@@ -104,7 +104,7 @@ public class VariantAllelesPanel extends Composite {
     }
 
     public void initializeTable() {
-        EditTextCell basesCell = new EditTextCell();
+        TextCell basesCell = new TextCell();
         basesColumn = new Column<AlternateAlleleInfo, String>(basesCell) {
             @Override
             public String getValue(AlternateAlleleInfo object) {

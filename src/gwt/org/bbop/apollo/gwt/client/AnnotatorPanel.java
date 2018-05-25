@@ -433,6 +433,7 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("Pseudogene");
         typeList.addItem("Transposable Element", "transposable_element");
         typeList.addItem("Repeat Region", "repeat_region");
+        typeList.addItem("Variant", "sequence_alteration");
     }
 
     private static void hideDetailPanels() {
