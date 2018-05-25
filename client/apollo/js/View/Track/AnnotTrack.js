@@ -7488,6 +7488,7 @@ define([
             updateMakeIntronMenuItem: function () {
                 var menuItem = this.getMenuItem("make_intron");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
                     return;
@@ -7502,6 +7503,14 @@ define([
                 }
                 if (SequenceOntologyUtils.neverHasExons[selected[0].feature.get("type")]) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
@@ -7539,12 +7548,21 @@ define([
             updateUndoMenuItem: function () {
                 var menuItem = this.getMenuItem("undo");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
                     return;
                 }
                 if (!this.canEdit(selected[0].feature)) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
@@ -7553,12 +7571,21 @@ define([
             updateRedoMenuItem: function () {
                 var menuItem = this.getMenuItem("redo");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
                     return;
                 }
                 if (!this.canEdit(selected[0].feature)) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
@@ -7568,8 +7595,17 @@ define([
             updateHistoryMenuItem: function () {
                 var menuItem = this.getMenuItem("history");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
