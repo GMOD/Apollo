@@ -2,7 +2,6 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
-import org.bbop.apollo.Allele;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 public class AllelePropertyInfo {

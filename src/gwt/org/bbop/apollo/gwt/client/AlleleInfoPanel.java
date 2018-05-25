@@ -206,6 +206,9 @@ public class AlleleInfoPanel extends Composite {
             JSONObject featureObject = new JSONObject();
             String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
             featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
+            JSONObject alleleObject = new JSONObject();
+            alleleObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(this.bases));
+            featureObject.put(FeatureStringEnum.ALLELE.getValue(), alleleObject);
 
             JSONArray oldAlleleInfoJsonArray = new JSONArray();
             JSONObject oldAlleleInfoJsonObject = new JSONObject();
