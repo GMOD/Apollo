@@ -18,6 +18,11 @@ class SequenceAlteration extends SequenceFeature{
         variantInfo cascade: 'all-delete-orphan'
     }
 
+    static hasMany = [
+            alleles: Allele,
+            variantInfo: VariantInfo
+    ]
+
     /** Get the offset added by the sequence alteration.
      *
      * @return Offset added by the sequence alteration
