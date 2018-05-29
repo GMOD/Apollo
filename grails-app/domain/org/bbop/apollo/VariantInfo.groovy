@@ -9,6 +9,10 @@ class VariantInfo {
     static constraints = {
     }
 
+    static mapping = {
+        value type: 'text'
+    }
+
     static belongsTo = [
             SequenceAlteration
     ]

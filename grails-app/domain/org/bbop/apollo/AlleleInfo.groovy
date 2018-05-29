@@ -9,6 +9,10 @@ class AlleleInfo {
     static constraints = {
     }
 
+    static mapping = {
+        value type: 'text'
+    }
+
     static belongsTo = [
             Allele
     ]
