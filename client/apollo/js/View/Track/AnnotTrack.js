@@ -2388,14 +2388,14 @@ define([
                 }, altAllelesDiv);
                 var altAlleleButtonsContainer = dojo.create("div", {style: "text-align: center;"}, altAllelesDiv);
                 var altAlleleButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, altAlleleButtonsContainer);
-                var addAltAlleleButton = dojo.create("button", {
-                    innerHTML: "Add",
-                    'class': "annotation_info_editor_button"
-                }, altAlleleButtons);
-                var deleteAltAlleleButton = dojo.create("button", {
-                    innerHTML: "Delete",
-                    'class': "annotation_info_editor_button"
-                }, altAlleleButtons);
+//                var addAltAlleleButton = dojo.create("button", {
+//                    innerHTML: "Add",
+//                    'class': "annotation_info_editor_button"
+//                }, altAlleleButtons);
+//                var deleteAltAlleleButton = dojo.create("button", {
+//                    innerHTML: "Delete",
+//                    'class': "annotation_info_editor_button"
+//                }, altAlleleButtons);
                 //var altAlleleTooltipString = "Use this field to enter all observed alternate alleles for the variant";
                 //new Tooltip({
                 //    connectId: altAllelesDiv,
@@ -2555,8 +2555,8 @@ define([
                     dateLastModifiedField.set("disabled", true);
                     dojo.attr(addDbxrefButton, "disabled", true);
                     dojo.attr(deleteDbxrefButton, "disabled", true);
-                    dojo.attr(addAltAlleleButton, "disabled", true);
-                    dojo.attr(deleteAltAlleleButton, "disabled", true);
+//                    dojo.attr(addAltAlleleButton, "disabled", true);
+//                    dojo.attr(deleteAltAlleleButton, "disabled", true);
                     dojo.attr(addPubmedIdButton, "disabled", true);
                     dojo.attr(deletePubmedIdButton, "disabled", true);
                     //dojo.attr(addGoIdButton, "disabled", true);
@@ -2933,24 +2933,24 @@ define([
                         }
                     });
 
-                    dojo.connect(addAltAlleleButton, "onclick", function() {
-                        altAlleleTable.store.newItem({bases: "", allele_frequency: "", provenance: ""});
-                        altAlleleTable.scrollToRow(altAlleleTable.rowCount);
-                    });
-
-                    dojo.connect(deleteAltAlleleButton, "onclick", function() {
-                        var toBeDeleted = new Array();
-                        var selected = altAlleleTable.selection.getSelected();
-                        for (var i = 0; i < selected.length; ++i) {
-                            var item = selected[i];
-                            var altBases = altAlleleTable.store.getValue(item, "bases");
-                            //var altAlleleFrequency = altAlleleTable.store.getValue(item, "allele_frequency");
-                            //var provenance = altAlleleTable.store.getValue(item, "provenance");
-                            toBeDeleted.push({bases: altBases, allele_frequency: altAlleleFrequency, provenance: provenance});
-                        }
-                        altAlleleTable.removeSelectedRows();
-                        deleteAltAlleles(toBeDeleted);
-                    });
+//                    dojo.connect(addAltAlleleButton, "onclick", function() {
+//                        altAlleleTable.store.newItem({bases: "", allele_frequency: "", provenance: ""});
+//                        altAlleleTable.scrollToRow(altAlleleTable.rowCount);
+//                    });
+//
+//                    dojo.connect(deleteAltAlleleButton, "onclick", function() {
+//                        var toBeDeleted = new Array();
+//                        var selected = altAlleleTable.selection.getSelected();
+//                        for (var i = 0; i < selected.length; ++i) {
+//                            var item = selected[i];
+//                            var altBases = altAlleleTable.store.getValue(item, "bases");
+//                            //var altAlleleFrequency = altAlleleTable.store.getValue(item, "allele_frequency");
+//                            //var provenance = altAlleleTable.store.getValue(item, "provenance");
+//                            toBeDeleted.push({bases: altBases, allele_frequency: altAlleleFrequency, provenance: provenance});
+//                        }
+//                        altAlleleTable.removeSelectedRows();
+//                        deleteAltAlleles(toBeDeleted);
+//                    });
                 };
 
                 // initialize Dbxref
