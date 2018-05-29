@@ -5,7 +5,7 @@ Features
 
 - Indicate start / stop codons with color [#1852](https://github.com/GMOD/Apollo/pull/1852)
 - Set the default biotype on track [#1861](https://github.com/GMOD/Apollo/issues/1861)
-- Allow forced assignment of transcript to a gene [1851](https://github.com/GMOD/Apollo/pull/1851)
+- Allow forced assignment of transcript to a gene [#1851](https://github.com/GMOD/Apollo/pull/1851)
 - Focus annotator panel on the current transcript [#1846](https://github.com/GMOD/Apollo/issues/1846)
 - Added proper Instructor and Organism Admin permission level [#1178](https://github.com/GMOD/Apollo/issues/1178)
 - Allow fetching variant data from evidence tracks via web service [#1867](https://github.com/GMOD/Apollo/pull/1867)
@@ -29,6 +29,7 @@ Features
 - Added the ability to annotate from high performance [Alignments2](http://gmod.org/wiki/JBrowse_Configuration_Guide#Alignments2) BAM reads [#1789](https://github.com/GMOD/Apollo/pull/1789)
 - Added support for indexed FASTA to be used as reference sequence. [#1791](https://github.com/GMOD/Apollo/pull/1791)
 - Added sequence API [#1799](https://github.com/GMOD/Apollo/pull/1799)
+- Added ability to remove gridlines from the view menu in both light and dark themes [#1547](https://github.com/GMOD/Apollo/pull/1547)
 
 Bugfixes 
 
