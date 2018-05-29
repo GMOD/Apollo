@@ -4,12 +4,14 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.FocusEvent;
 import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -23,6 +25,9 @@ import org.bbop.apollo.gwt.client.dto.VariantPropertyInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.ListBox;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -54,17 +59,33 @@ public class VariantInfoPanel extends Composite {
     private Column<VariantPropertyInfo, String> tagColumn;
     private Column<VariantPropertyInfo, String> valueColumn;
 
+    @UiField
+    TextBox tagInputBox;
+    @UiField
+    TextBox valueInputBox;
+    @UiField
+    Button addVariantInfoButton = new Button();
+    @UiField
+    Button deleteVariantInfoButton = new Button();
+
     public VariantInfoPanel() {
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
+        tagInputBox = new TextBox();
+        valueInputBox = new TextBox();
+
+        selectionModel.clear();
+        deleteVariantInfoButton.setEnabled(false);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                 if (selectionModel.getSelectedSet().isEmpty()) {
+                    deleteVariantInfoButton.setEnabled(false);
                 } else {
                     updateVariantInfoData(selectionModel.getSelectedObject());
+                    deleteVariantInfoButton.setEnabled(true);
                 }
             }
         });
@@ -234,5 +255,129 @@ public class VariantInfoPanel extends Composite {
 
     public void redrawTable() {
         this.dataGrid.redraw();
+    }
+
+    @UiHandler("addVariantInfoButton")
+    public void addVariantInfoButton(ClickEvent ce) {
+        String tag = tagInputBox.getText();
+        String value = valueInputBox.getText();
+
+        boolean tagValidated = false;
+        boolean valueValidated = false;
+
+        if (this.tag != null && !this.tag.isEmpty()) {
+            tagValidated = true;
+        }
+        if (this.value != null && !this.value.isEmpty()) {
+            valueValidated = true;
+        }
+
+        if (tagValidated && valueValidated) {
+            this.tagInputBox.clear();
+            this.valueInputBox.clear();
+            String url = Annotator.getRootUrl() + "annotator/addVariantInfo";
+            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+            builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+            StringBuilder sb = new StringBuilder();
+            JSONArray featuresArray = new JSONArray();
+            JSONObject featureObject = new JSONObject();
+            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
+            featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
+
+            JSONArray variantInfoJsonArray = new JSONArray();
+            JSONObject variantInfoJsonObject = new JSONObject();
+            variantInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(tag));
+            variantInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(value));
+            variantInfoJsonArray.set(0, variantInfoJsonObject);
+            featureObject.put(FeatureStringEnum.VARIANT_INFO.getValue(), variantInfoJsonArray);
+
+            featuresArray.set(0, featureObject);
+
+            JSONObject requestObject = new JSONObject();
+            requestObject.put("operation", new JSONString("add_variant_info"));
+            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
+            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
+            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+            sb.append("data=" + requestObject.toString());
+
+            final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
+            builder.setRequestData(sb.toString());
+            RequestCallback requestCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                    redrawTable();
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error adding variant info property: " + exception);
+                    redrawTable();
+                }
+            };
+
+            try {
+                builder.setCallback(requestCallBack);
+                builder.send();
+            } catch(RequestException e) {
+                Bootbox.alert("RequestException: " + e.getMessage());
+            }
+        }
+    }
+
+    @UiHandler("deleteVariantInfoButton")
+    public void deleteVariantInfo(ClickEvent ce) {
+
+        if (this.internalVariantPropertyInfo != null) {
+            String url = Annotator.getRootUrl() + "annotator/deleteVariantInfo";
+            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+            builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+            StringBuilder sb = new StringBuilder();
+            JSONArray featuresArray = new JSONArray();
+            JSONObject featureObject = new JSONObject();
+            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
+            featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
+
+            JSONArray variantInfoJsonArray = new JSONArray();
+            JSONObject variantInfoJsonObject = new JSONObject();
+            variantInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(tag));
+            variantInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(value));
+            variantInfoJsonArray.set(0, variantInfoJsonObject);
+            featureObject.put(FeatureStringEnum.VARIANT_INFO.getValue(), variantInfoJsonArray);
+
+            featuresArray.set(0, featureObject);
+
+            JSONObject requestObject = new JSONObject();
+            requestObject.put("operation", new JSONString("delete_variant_info"));
+            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
+            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
+            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+            sb.append("data=" + requestObject.toString());
+
+            final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
+            builder.setRequestData(sb.toString());
+            RequestCallback requestCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                    redrawTable();
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error deleting variant info property: " + exception);
+                    redrawTable();
+                }
+            };
+
+            try {
+                builder.setCallback(requestCallBack);
+                builder.send();
+            } catch(RequestException e) {
+                Bootbox.alert("RequestException: " + e.getMessage());
+            }
+        }
     }
 }

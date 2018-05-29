@@ -12,11 +12,35 @@
         .dataGrid td {
         word-wrap: break-word;
         }
+
+        .widgetBox {
+        display: inline;
+        margin: 5px;
+        width: 100px;
+        }
     </ui:style>
 
     <gwt:SplitLayoutPanel>
         <gwt:center size="250">
             <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
         </gwt:center>
+        <gwt:east size="150">
+            <b:Container fluid="true">
+                <b:Row>
+                    <b:TextBox placeholder="Property Name" ui:field="tagInputBox" styleName="{style.widgetBox}"/>
+                </b:Row>
+                <b:Row>
+                    <b:TextBox placeholder="Property Value" ui:field="valueInputBox" styleName="{style.widgetBox}"/>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_1">
+                        <b:Button text="Add" ui:field="addVariantInfoButton"/>
+                    </b:Column>
+                    <b:Column size="MD_1">
+                        <b:Button text="Delete" ui:field="deleteVariantInfoButton"/>
+                    </b:Column>
+                </b:Row>
+            </b:Container>
+        </gwt:east>
     </gwt:SplitLayoutPanel>
 </ui:UiBinder>

@@ -126,7 +126,7 @@ class VariantService {
             JSONObject variantInfoObject = variantInfoArray.getJSONObject(j)
             String tag = variantInfoObject.get(FeatureStringEnum.TAG.value)
             String value = variantInfoObject.get(FeatureStringEnum.VALUE.value)
-            featureService.addNonReservedProperties(feature, tag, value)
+            createVariantInfo(feature, tag, value);
         }
         feature.save(flush: true, failOnError: true)
         return feature
@@ -140,14 +140,12 @@ class VariantService {
             JSONObject property = properties.getJSONObject(j)
             String tag = property.get(FeatureStringEnum.TAG.value)
             String value = property.get(FeatureStringEnum.VALUE.value)
-            FeatureProperty featureProperty = FeatureProperty.findByTagAndValueAndFeature(tag, value, feature)
-            if (featureProperty) {
-                feature.removeFromFeatureProperties(featureProperty)
-                feature.save()
-                featureProperty.delete(flush: true)
+            VariantInfo variantInfo = VariantInfo.findByTagAndValueAndVariant(tag, value, feature)
+            if (variantInfo) {
+                variantInfo.delete()
             }
             else {
-                log.error "Could not find feature property ${property.toString()} to delete for variant: ${feature}"
+                log.error "Could not find VariantInfo ${property.toString()} to delete for variant: ${feature}"
             }
         }
         feature.save(flush: true, failOnError: true)
@@ -257,13 +255,37 @@ class VariantService {
         return feature
     }
 
+    def createVariantInfo(SequenceAlteration variant, String tag, String value) {
+        def results = VariantInfo.executeQuery(
+                "SELECT DISTINCT v from VariantInfo v WHERE v.variant = :queryVariant AND v.tag = :queryTag AND v.value = :queryValue",
+                [queryVariant: variant, queryTag: tag, queryValue: value]
+        )
+        if (results.size() > 0) {
+            throw new AnnotationException("A variant property with the same tag and value pair exists for the given variant")
+        }
+        else {
+            VariantInfo variantInfo = new VariantInfo(
+                    variant: variant,
+                    tag: tag,
+                    value: value
+            ).save()
+        }
+    }
+
     def createAlleleInfo(Allele allele, String tag, String value) {
-        // TODO: Check if tag-value pair for this allele already exists
-        AlleleInfo alleleInfo = new AlleleInfo(
-                tag: tag,
-                value: value,
-                allele: allele
-        ).save()
+        def results = AlleleInfo.executeQuery(
+                "SELECT DISTINCT a FROM AlleleInfo a WHERE a.allele = :queryAllele AND a.tag = :queryTag AND a.value = :queryValue",
+                [queryAllele: allele, queryTag: tag, queryValue: value])
+        if (results.size() > 0) {
+            throw new AnnotationException("An allele property with the same tag and value pair exists for the given allele");
+        }
+        else {
+            AlleleInfo alleleInfo = new AlleleInfo(
+                    tag: tag,
+                    value: value,
+                    allele: allele
+            ).save()
+        }
     }
 
     def getAlleleFrequencyFromJsonObject(String alleleFrequencyString) {
