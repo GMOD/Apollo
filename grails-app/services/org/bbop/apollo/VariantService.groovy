@@ -221,34 +221,42 @@ class VariantService {
 
     def updateAlleleInfo(JSONObject jsonFeature) {
         Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
-        String alleleBases = jsonFeature.getJSONObject(FeatureStringEnum.ALLELE.value).getString(FeatureStringEnum.BASES.value)
         JSONArray oldAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.OLD_ALLELE_INFO.value)
         JSONArray newAlleleInfoArray = jsonFeature.getJSONArray(FeatureStringEnum.NEW_ALLELE_INFO.value)
-        Allele allele
-        feature.alleles.each {
-            if (it.bases == alleleBases) {
-                allele = it
-                return
-            }
-        }
 
         for (int i = 0; i < oldAlleleInfoArray.size(); i++) {
             JSONObject oldAlleleInfoObject = oldAlleleInfoArray.getJSONObject(i)
             JSONObject newAlleleInfoObject = newAlleleInfoArray.getJSONObject(i)
+            String oldAlleleBases = oldAlleleInfoObject.getString(FeatureStringEnum.BASES.value)
+            String newAlleleBases = newAlleleInfoObject.getString(FeatureStringEnum.BASES.value)
             String oldTag = oldAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String oldValue = oldAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
             String newTag = newAlleleInfoObject.getString(FeatureStringEnum.TAG.value)
             String newValue = newAlleleInfoObject.getString(FeatureStringEnum.VALUE.value)
-
-            AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, oldTag, oldValue)
-            if (oldAlleleInfo) {
-                oldAlleleInfo.tag = newTag
-                oldAlleleInfo.value = newValue
-                oldAlleleInfo.save()
+            if (oldAlleleBases != newAlleleBases) {
+                Allele oldAllele = Allele.findByVariantAndBases(feature, oldAlleleBases)
+                Allele newAllele = Allele.findByVariantAndBases(feature, newAlleleBases)
+                AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(oldAllele, oldTag, oldValue)
+                oldAlleleInfo.delete()
+                AlleleInfo newAlleleInfo = new AlleleInfo(
+                        allele: newAllele,
+                        tag: newTag,
+                        value: newValue
+                ).save()
             }
             else {
-                log.error "Cannot find AlleleInfo ${oldTag}:${oldValue} for Allele: ${oldAlleleBase}"
+                Allele allele = Allele.findByVariantAndBases(feature, oldAlleleBases)
+                AlleleInfo oldAlleleInfo = AlleleInfo.findByAlleleAndTagAndValue(allele, oldTag, oldValue)
+                if (oldAlleleInfo) {
+                    oldAlleleInfo.tag = newTag
+                    oldAlleleInfo.value = newValue
+                    oldAlleleInfo.save()
+                }
+                else {
+                    log.error "Cannot find AlleleInfo ${oldTag}:${oldValue} for Allele: ${oldAlleleBases}"
+                }
             }
+
 
         }
         feature.save(flush: true, failOnError: true)
