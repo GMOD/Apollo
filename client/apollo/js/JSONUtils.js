@@ -446,7 +446,6 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     var fmin = feat.get('start');
     var fmax = feat.get('end');
     var alternativeAlleles = feat.get('alternative_alleles').values.split(',');
-    console.log("alternate alleles array: ", alternativeAlleles);
 
     afeature.location = {
         fmin: fmin,
@@ -485,11 +484,9 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     var allele_specific_metadata = [];
     for (var property in feat.data) {
         if (feat.data.hasOwnProperty(property)) {
-            console.log("> ", property);
             if (! ['description', 'score', 'start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
                 var entry = feat.get(property);
                 if (entry) {
-                    console.log('Got ', feat.get(property));
                     if (entry.meta) {
                         if (entry.meta.number == "A") {
                             allele_specific_metadata.push(feat.get(property));

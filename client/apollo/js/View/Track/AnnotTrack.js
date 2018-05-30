@@ -3241,7 +3241,6 @@ define([
                             if (feature.alternate_alleles[i].allele_info) {
                                 for (var j = 0; j < feature.alternate_alleles[i].allele_info.length; ++j) {
                                     var alleleInfo = feature.alternate_alleles[i].allele_info[j];
-                                    console.log("aI: ", alleleInfo);
                                     alleleInfoStore.newItem({allele: feature.alternate_alleles[i].bases, tag: alleleInfo.tag, value: alleleInfo.value});
                                 }
                             }
