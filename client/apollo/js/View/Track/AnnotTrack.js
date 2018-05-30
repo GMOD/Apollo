@@ -2282,7 +2282,7 @@ define([
                     connectId: nameDiv,
                     label: nameLabelToolTipString,
                     position: ["above"],
-                    showDelay: 600
+                    showDelay: 1200
                 });
 
                 // Position field
@@ -2304,7 +2304,7 @@ define([
                 dojo.place(refBasesField.domNode, refBasesDiv);
                 new Tooltip({
                     connectId: refBasesDiv,
-                    label: "Reference nucleotide w.r.t. the forward (+) strand",
+                    label: "Reference nucleotide with respect to the forward (+) strand",
                     position: ["above"],
                     showDelay: 600
                 });
@@ -2589,12 +2589,19 @@ define([
                     dojo.attr(deletePubmedIdButton, "disabled", true);
                     //dojo.attr(addGoIdButton, "disabled", true);
                     //dojo.attr(deleteGoIdButton, "disabled", true);
+                    dojo.attr(addAlleleInfoButton, "disabled", true);
+                    dojo.attr(deleteAlleleInfoButton, "disabled", true);
+                    dojo.attr(addVariantInfoButton, "disabled", true);
+                    dojo.attr(deleteVariantInfoButton, "disabled", true);
+                    dojo.attr(addPhenotypeOntologyButton, "disabled", true);
+                    dojo.attr(deletePhenotypeOntologyButton, "disabled", true);
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
                 }
 
                 var pubmedIdDb = "PMID";
                 var goIdDb = "GO";
+                var hpoIdDb = "HP";
                 var cannedComments;
                 var cannedKeys;
                 var cannedValues;
@@ -2850,7 +2857,8 @@ define([
                                     }
                                     return alt;
                                 },
-                                editable: false
+                                editable: false,
+                                cellStyles: "text-align: center"
                             },
 //                            {
 //                                name: 'AF',
@@ -2995,7 +3003,7 @@ define([
                         });
                         for (var i = 0; i < feature.dbxrefs.length; ++i) {
                             var dbxref = feature.dbxrefs[i];
-                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb) {
+                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb && dbxref.db != hpoIdDb) {
                                 dbxrefs.newItem({db: dbxref.db, accession: dbxref.accession});
                             }
                         }
@@ -3011,7 +3019,8 @@ define([
                                         }
                                         return db;
                                     },
-                                    editable: hasWritePermission
+                                    editable: hasWritePermission,
+                                    cellStyles: "text-align: center"
                                 },
                                 {
                                     name: 'Accession',
@@ -3023,7 +3032,8 @@ define([
                                         }
                                         return accession;
                                     },
-                                    editable: hasWritePermission
+                                    editable: hasWritePermission,
+                                    cellStyles: "text-align: center"
                                 }
                             ]
                         }];
@@ -3262,7 +3272,8 @@ define([
                                     }
                                     return allele;
                                 },
-                                editable: hasWritePermission
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
                             },
                             {
                                 name: 'Tag',
@@ -3274,7 +3285,8 @@ define([
                                     }
                                     return tag;
                                 },
-                                editable: hasWritePermission
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
                             },
                             {
                                 name: 'Value',
@@ -3286,7 +3298,8 @@ define([
                                     }
                                     return value;
                                 },
-                                editable: hasWritePermission
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
                             }
                         ]
                     }];
@@ -3391,7 +3404,8 @@ define([
                                     }
                                     return tag;
                                 },
-                                editable: hasWritePermission
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
                             },
                             {
                                 name: 'Value',
@@ -3404,7 +3418,8 @@ define([
                                     }
                                     return value;
                                 },
-                                editable: hasWritePermission
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
                             }
                         ]
                     }];
@@ -3484,7 +3499,7 @@ define([
                     });
                     for (var i = 0; i < feature.dbxrefs.length; i++) {
                         var dbxref = feature.dbxrefs[i];
-                        if (dbxref.db === 'HP') {
+                        if (dbxref.db == hpoIdDb) {
                             phenotypeOntologyIds.newItem({phenotype_ontology_id: dbxref.db + ":" + dbxref.accession});
                         }
                     }
@@ -3500,7 +3515,8 @@ define([
                                     }
                                     return phenotypeOntologyId;
                                 },
-                                editable: hasWritePermission
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
                             }
                         ]
                     }];
@@ -3587,7 +3603,8 @@ define([
                                         }
                                         return pubmedId;
                                     },
-                                    editable: hasWritePermission
+                                    editable: hasWritePermission,
+                                    cellStyles: "text-align: center"
                                 }
                             ]
                         }];
@@ -4786,7 +4803,7 @@ define([
                         });
                         for (var i = 0; i < feature.dbxrefs.length; ++i) {
                             var dbxref = feature.dbxrefs[i];
-                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb && dbxref.db != 'HP') {
+                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb) {
                                 dbxrefs.newItem({db: dbxref.db, accession: dbxref.accession});
                             }
                         }
@@ -6782,7 +6799,7 @@ define([
                         var selected = thisB.selectionManager.getSelection();
                         var selectedFeature = selected[0].feature;
                         var selectedFeatureDetails = selectedFeature.afeature;
-                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel'];
+                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion'];
                         while(selectedFeature  ){
                             if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
                                 thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
