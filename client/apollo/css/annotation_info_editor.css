@@ -59,6 +59,14 @@
     border-color: lightgray;
 }
 
+.phenotype_ontology_ids {
+    min-width: 100%;
+    min-height: 7em;
+    border: solid;
+    border-width: 1px;
+    border-color: lightgray;
+}
+
 .attributes {
 	min-width: 100%;
 	min-height: 7em;
@@ -130,7 +138,8 @@
 
 .comments .dojoxGridHeader,
 .pubmed_ids .dojoxGridHeader,
-.go_ids .dojoxGridHeader {
+.go_ids .dojoxGridHeader,
+.phenotype_ontology_ids .dojoxGridHeader {
 	display: none;
 }
 

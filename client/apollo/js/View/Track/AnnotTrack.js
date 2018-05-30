@@ -2474,6 +2474,34 @@ define([
                     showDelay: 600
                 });
 
+                // Phenotype Ontology field
+                var phenotypeOntologyIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var phenotypeOntologyIdsLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Phenotype Ontology"
+                }, phenotypeOntologyIdsDiv);
+                var phenotypeOntologyIdsTable = dojo.create("div", {
+                    'class': "phenotype_ontology_ids",
+                    id: "phenotype_ontology_ids_" + (selector ? "child" : "parent")
+                }, phenotypeOntologyIdsDiv);
+                var phenotypeOntologyButtonsContainer = dojo.create("div", {style: "text-align: center;"}, phenotypeOntologyIdsDiv);
+                var phenotypeOntologyButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, phenotypeOntologyButtonsContainer);
+                var addPhenotypeOntologyButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, phenotypeOntologyButtons);
+                var deletePhenotypeOntologyButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, phenotypeOntologyButtons);
+                var phenotypeOntologyTooltipMessage = "Use this field to add a phenotype ontology term to this variant. Ex: HP:0000118";
+                new Tooltip({
+                    connectId: phenotypeOntologyIdsDiv,
+                    label: phenotypeOntologyTooltipMessage,
+                    position: ["above"],
+                    showDelay: 600
+                });
+
                 // PubMed field
                 var pubmedIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var pubmedIdsLabel = dojo.create("div", {
@@ -2596,6 +2624,7 @@ define([
                         timeout: 5000 * 1000, // Time in milliseconds
                         load: function (response, ioArgs) {
                             var feature = response.features[0];
+                            console.log(track.annotationInfoEditorConfigs);
                             var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
                             initType(feature);
                             initName(feature);
@@ -2608,6 +2637,7 @@ define([
                             initAlleleInfo(feature);
                             initDbxrefs(feature, config);
                             initVariantInfo(feature);
+                            initPhenotypeOntology(feature);
                             initPubmedIds(feature, config);
                             //initGoIds(feature, config);
                             initComments(feature, config);
@@ -3445,6 +3475,92 @@ define([
                     });
                 };
 
+                // initialize Phenotype Ontology
+                var initPhenotypeOntology = function (feature) {
+                    var oldPhenotypeOntologyId;
+                    var phenotypeOntologyIds = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
+                        }
+                    });
+                    for (var i = 0; i < feature.dbxrefs.length; i++) {
+                        var dbxref = feature.dbxrefs[i];
+                        if (dbxref.db === 'HP') {
+                            phenotypeOntologyIds.newItem({phenotype_ontology_id: dbxref.db + ":" + dbxref.accession});
+                        }
+                    }
+                    var phenotypeOntologyIdTableLayout = [{
+                        cells: [
+                            {
+                                name: 'Phenotype Ontology ID',
+                                field: 'phenotype_ontology_id',
+                                width: '100%',
+                                formatter: function(phenotypeOntologyId) {
+                                    if (!phenotypeOntologyId) {
+                                        return "Enter new Phenotype Ontology ID";
+                                    }
+                                    return phenotypeOntologyId;
+                                },
+                                editable: hasWritePermission
+                            }
+                        ]
+                    }];
+
+                    var phenotypeOntologyIdTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: phenotypeOntologyIds,
+                        updateDelay: 0,
+                        structure: phenotypeOntologyIdTableLayout
+                    });
+
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(phenotypeOntologyIdTable.domNode, phenotypeOntologyIdsTable, phenotypeOntologyIdTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(phenotypeOntologyIdTable.domNode, phenotypeOntologyIdsTable, phenotypeOntologyIdTable, timeout);
+                    }
+
+                    dojo.connect(phenotypeOntologyIdTable, "onStartEdit", function (inCell, inRowIndex) {
+                        oldPhenotypeOntologyId = phenotypeOntologyIdTable.store.getValue(phenotypeOntologyIdTable.getItem(inRowIndex), "phenotype_ontology_id");
+                    });
+
+                    dojo.connect(phenotypeOntologyIdTable, "onApplyEdit", function (inRowIndex) {
+                        var newPhenotypeOntologyId = phenotypeOntologyIdTable.store.getValue(phenotypeOntologyIdTable.getItem(inRowIndex), "phenotype_ontology_id");
+                        if (!newPhenotypeOntologyId) {
+
+                        }
+                        else if (!oldPhenotypeOntologyId) {
+                            addPhenotypeOntologyId(phenotypeOntologyIdTable, inRowIndex, newPhenotypeOntologyId);
+                        }
+                        else {
+                            if (newPhenotypeOntologyId != oldPhenotypeOntologyId) {
+                                updatePhenotypeOntologyId(phenotypeOntologyIdTable, inRowIndex, oldPhenotypeOntologyId, newPhenotypeOntologyId);
+                            }
+                        }
+                    });
+
+                    dojo.connect(addPhenotypeOntologyButton, "onclick", function () {
+                        phenotypeOntologyIdTable.store.newItem({phenotype_ontology_id: ""});
+                        phenotypeOntologyIdTable.scrollToRow(phenotypeOntologyIdTable.rowCount);
+                        console.log("add button click");
+                    });
+
+                    dojo.connect(deletePhenotypeOntologyButton, "onclick", function () {
+                        var toBeDeleted = new Array();
+                        var selected = phenotypeOntologyIdTable.selection.getSelected();
+                        for (var i = 0; i < selected.length; i++) {
+                            var item = selected[i];
+                            var phenotypeOntologyId = phenotypeOntologyIdTable.store.getValue(item, "phenotype_ontology_id");
+                            var parts = phenotypeOntologyId.split(":");
+                            toBeDeleted.push({db: parts[0], accession: parts[1]});
+                        }
+                        console.log("To Be Del: ", toBeDeleted);
+                        phenotypeOntologyIdTable.removeSelectedRows();
+                        deletePhenotypeOntologyIds(toBeDeleted);
+                    });
+                };
+
                 // initialize PubMed
                 var initPubmedIds = function (feature, config) {
                     if (config.hasPubmedIds) {
@@ -4082,6 +4198,93 @@ define([
                     }
                 };
 
+                var addPhenotypeOntologyId = function(phenotypeOntologyIdTable, row, phenotypeOntologyId) {
+                    var url = "https://api.monarchinitiative.org/api/bioentity/%PHENOTYPE_ONTOLOGY_TERM%";
+                    queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(phenotypeOntologyId));
+
+                    request(queryUrl,
+                        {
+                            data: {},
+                            handleAs: 'json',
+                            method: 'get'
+                        }
+                    ).then(function(response) {
+                        if (response.id) {
+                            // validated
+                            pair = response.id.split(':');
+                            var features = [ {uniquename: uniqueName, dbxrefs: [{db: pair[0], accession: pair[1]}]} ];
+                            var operation = "add_non_primary_dbxrefs";
+                            var postData = {'track': trackName, 'features': features, operation: operation};
+                            track.executeUpdateOperation(JSON.stringify(postData));
+                            updateTimeLastUpdated();
+                        }
+                        else {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + phenotypeOntologyId,
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.deleteItem(phenotypeOntologyIdTable.getItem(row));
+                        }
+                    },
+                    function(err) {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + phenotypeOntologyId + " due to a server error.",
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.deleteItem(phenotypeOntologyIdTable.getItem(row));
+                    });
+                };
+
+                var deletePhenotypeOntologyIds = function(phenotypeOntologyIds) {
+                    var features = [{uniquename: uniqueName, dbxrefs: phenotypeOntologyIds}];
+                    var operation = 'delete_non_primary_dbxrefs';
+                    var postData = {track: trackName, features: features, operation: operation};
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var updatePhenotypeOntologyId = function(phenotypeOntologyIdTable, row, oldPhenotypeOntologyId, newPhenotypeOntologyId) {
+                    var url = "https://api.monarchinitiative.org/api/bioentity/%PHENOTYPE_ONTOLOGY_TERM%";
+                    queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(newPhenotypeOntologyId));
+
+                    request(queryUrl,
+                        {
+                            data: {},
+                            handleAs: 'json',
+                            method: 'get'
+                        }
+                    ).then(function(response) {
+                        if (response.id) {
+                            // validated
+                            old_pair = oldPhenotypeOntologyId.split(':');
+                            pair = response.id.split(':');
+                            var features = [ {uniquename: uniqueName, old_dbxrefs: [{db: old_pair[0], accession: old_pair[1]}],new_dbxrefs: [{db: pair[0], accession: pair[1]}]} ];
+                            var operation = "update_non_primary_dbxrefs";
+                            var postData = {'track': trackName, 'features': features, operation: operation};
+                            track.executeUpdateOperation(JSON.stringify(postData));
+                            updateTimeLastUpdated();
+                        }
+                        else {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + newPhenotypeOntologyId,
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.setValue(phenotypeOntologyIdTable.getItem(row), "phenotype_ontology_id", oldPhenotypeOntologyId);
+                        }
+                    },
+                    function(err) {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + newPhenotypeOntologyId + " due to a server error.",
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.deleteItem(phenotypeOntologyIdTable.getItem(row), "phenotype_ontology_id", oldPhenotypeOntologyId);
+                    });
+                };
+
                 var validateGoId = function (goId) {
                     var regex = new RegExp("^" + goIdDb + ":(\\d{7})$");
                     return regex.exec(goId);
@@ -4584,7 +4787,7 @@ define([
                         });
                         for (var i = 0; i < feature.dbxrefs.length; ++i) {
                             var dbxref = feature.dbxrefs[i];
-                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb) {
+                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb && dbxref.db != 'HP') {
                                 dbxrefs.newItem({db: dbxref.db, accession: dbxref.accession});
                             }
                         }
