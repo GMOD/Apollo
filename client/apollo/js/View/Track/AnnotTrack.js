@@ -7738,6 +7738,12 @@ define([
             updateFlipStrandMenuItem: function () {
                 var menuItem = this.getMenuItem("flip_strand");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
                 for (var i = 0; i < selected.length; ++i) {
                     if (selected[i].feature.get("strand") == 0) {
                         menuItem.set("disabled", true);
