@@ -81,7 +81,7 @@ public enum FeatureStringEnum {
         PLUS2FRAMESHIFT("Plus2Frameshift"),
         DELETION_PREFIX("Deletion-"),
         INSERTION_PREFIX("Insertion-"),
-        OWNER("Owner"),
+        OWNER("owner"),
         ORGANISM,
         SYMBOL,
         ALTERNATECVTERM("alternateCvTerm"),
