@@ -7488,7 +7488,7 @@ define([
                             menuItems[i].setDisabled(true);
                         }
                     }
-                    else if (selectedType == "SNV") {
+                    else if (JSONUtils.variantTypes.includes(selectedType.toUpperCase())) {
                         menuItems[i].setDisabled(true);
                     }
                     else {

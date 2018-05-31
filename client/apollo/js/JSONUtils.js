@@ -10,7 +10,7 @@ function JSONUtils() {
 }
 
 JSONUtils.verbose_conversion = false;
-JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INSERTION", "DELETION" ];
+JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
 
 JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene";
 JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene";
