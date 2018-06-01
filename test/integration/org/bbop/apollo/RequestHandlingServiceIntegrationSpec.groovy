@@ -4430,4 +4430,63 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Pseudogene.count == 0
 
     }
+
+    void "Add a variant of type SNV"() {
+
+        given: "a SNV"
+        String addVariantString = "{ ${testCredentials} \"features\":[{\"reference_allele\":\"C\",\"variant_info\":[{\"tag\":\"dbSNP_150\",\"value\":true},{\"tag\":\"TSA\",\"value\":\"SNV\"},{\"tag\":\"E_Freq\",\"value\":true},{\"tag\":\"E_1000G\",\"value\":true},{\"tag\":\"MA\",\"value\":\"C\"},{\"tag\":\"MAF\",\"value\":\"0.000399361\"},{\"tag\":\"MAC\",\"value\":\"2\"},{\"tag\":\"AA\",\"value\":\"G\"}],\"name\":\"rs541766448\",\"alternate_alleles\":[{\"bases\":\"T\",\"allele_info\":[{\"tag\":\"EAS_AF\",\"value\":\"0.002\"},{\"tag\":\"EUR_AF\",\"value\":\"0\"},{\"tag\":\"AMR_AF\",\"value\":\"0\"},{\"tag\":\"SAS_AF\",\"value\":\"0\"},{\"tag\":\"AFR_AF\",\"value\":\"0\"}]}],\"description\":\"SNV G -> C\",\"location\":{\"strand\":1,\"fmin\":69634,\"fmax\":69635},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"SNV\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add the variant"
+        requestHandlingService.addVariant(JSON.parse(addVariantString) as JSONObject)
+
+        then: "we should see 1 SNV"
+        assert SNV.count == 1
+        assert Allele.count == 2
+        assert VariantInfo.count == 8
+        assert AlleleInfo.count == 5
+
+        SNV variant = SNV.all.first()
+        assert variant.getReferenceAllele().bases == "C"
+        assert variant.getAlternateAlleles().first().bases == "T"
+    }
+
+    void "Add a variant of type Insertion"() {
+
+        given: "an insertion variant"
+        String addInsertionVariantString = "{ ${testCredentials} \"features\":[{\"reference_allele\":\"C\",\"variant_info\":[{\"tag\":\"dbSNP_150\",\"value\":true},{\"tag\":\"TSA\",\"value\":\"insertion\"},{\"tag\":\"E_Freq\",\"value\":true},{\"tag\":\"E_1000G\",\"value\":true},{\"tag\":\"MA\",\"value\":\"T\"},{\"tag\":\"MAF\",\"value\":\"0.00299521\"},{\"tag\":\"MAC\",\"value\":\"15\"}],\"name\":\"rs567944403\",\"alternate_alleles\":[{\"bases\":\"AT\",\"allele_info\":[{\"tag\":\"EAS_AF\",\"value\":\"0\"},{\"tag\":\"EUR_AF\",\"value\":\"0.0089\"},{\"tag\":\"AMR_AF\",\"value\":\"0.0043\"},{\"tag\":\"SAS_AF\",\"value\":\"0.001\"},{\"tag\":\"AFR_AF\",\"value\":\"0.0015\"}]}],\"description\":\"insertion A -> AT\",\"location\":{\"strand\":1,\"fmin\":94995,\"fmax\":94996},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add the variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "we should see 1 Insertion"
+        assert Insertion.count == 1
+        assert Allele.count == 2
+        assert VariantInfo.count == 7
+        assert AlleleInfo.count == 5
+
+        Insertion variant = Insertion.all.first()
+        assert variant.getReferenceAllele().bases == "C"
+        assert variant.getAlternateAlleles().first().bases == "AT"
+    }
+
+    void "Add a variant of type Deletion"() {
+
+        given: "a deletion variant"
+        String addDeletionVariantString = "{ ${testCredentials} \"features\":[{\"reference_allele\":\"AC\",\"variant_info\":[{\"tag\":\"dbSNP_150\",\"value\":true},{\"tag\":\"TSA\",\"value\":\"deletion\"},{\"tag\":\"E_Freq\",\"value\":true},{\"tag\":\"E_1000G\",\"value\":true},{\"tag\":\"MA\",\"value\":\"-\"},{\"tag\":\"MAF\",\"value\":\"0.000998403\"},{\"tag\":\"MAC\",\"value\":\"5\"},{\"tag\":\"AA\",\"value\":\"T\"}],\"name\":\"rs555680025\",\"alternate_alleles\":[{\"bases\":\"A\",\"allele_info\":[{\"tag\":\"EAS_AF\",\"value\":\"0\"},{\"tag\":\"EUR_AF\",\"value\":\"0.003\"},{\"tag\":\"AMR_AF\",\"value\":\"0\"},{\"tag\":\"SAS_AF\",\"value\":\"0.002\"},{\"tag\":\"AFR_AF\",\"value\":\"0\"}]}],\"description\":\"deletion AT -> A\",\"location\":{\"strand\":1,\"fmin\":94746,\"fmax\":94748},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add the deletion variant"
+        requestHandlingService.addVariant(JSON.parse(addDeletionVariantString) as JSONObject)
+
+        then: "we should see 1 Deletion"
+        assert Deletion.count == 1
+        assert Allele.count == 2
+        assert VariantInfo.count == 8
+        assert AlleleInfo.count == 5
+
+        Deletion variant = Deletion.all.first()
+        assert variant.getReferenceAllele().bases == "AC"
+        assert variant.getAlternateAlleles().first().bases == "A"
+    }
+
+
 }
