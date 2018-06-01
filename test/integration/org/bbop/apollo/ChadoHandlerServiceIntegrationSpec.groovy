@@ -40,9 +40,9 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         String repeatRegionString = "{ ${testCredentials} \"operation\":\"add_feature\",\"features\":[{\"location\":{\"fmin\":654601,\"strand\":0,\"fmax\":657144},\"type\":{\"name\":\"repeat_region\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
         String transposableElementString = "{ ${testCredentials} \"operation\":\"add_feature\",\"features\":[{\"location\":{\"fmin\":621650,\"strand\":0,\"fmax\":628275},\"type\":{\"name\":\"transposable_element\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
-        String insertionString = "{ ${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"ATCG\",\"location\":{\"fmin\":689758,\"strand\":1,\"fmax\":689758},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
-        String deletionString = "{ ${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":689725,\"strand\":1,\"fmax\":689735},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
-        String substitutionString = "{ ${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCC\",\"location\":{\"fmin\":689699,\"strand\":1,\"fmax\":689702},\"type\":{\"name\":\"substitution\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String insertionString = "{ ${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"ATCG\",\"location\":{\"fmin\":689758,\"strand\":1,\"fmax\":689758},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String deletionString = "{ ${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":689725,\"strand\":1,\"fmax\":689735},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String substitutionString = "{ ${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCC\",\"location\":{\"fmin\":689699,\"strand\":1,\"fmax\":689702},\"type\":{\"name\":\"substitution_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         when: "we add all these annotations"
         requestHandlingService.addTranscript(JSON.parse(gene1transcript1String) as JSONObject)
