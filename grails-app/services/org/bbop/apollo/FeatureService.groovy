@@ -92,11 +92,40 @@ class FeatureService {
         }
     }
 
+    /**
+     * See if there is overlapping sequence alteration for a range
+     *
+     * Case 1:
+     * - fmin / fmax on either side of alteration
+     *
+     * Case 2:
+     * - fmin / fmax both within the alteration
+     *
+     * Case 3:
+     * - fmin / fmax stradles min side of alteration
+     *
+     * Case 4:
+     * - fmin / fmax stradles max side of alteration
+     *
+     * @param sequence
+     * @param fmin  Inclusive fmin
+     * @param fmax  Exclusive fmax
+     * @return
+     */
     def getOverlappingSequenceAlterations(Sequence sequence, int fmin, int fmax) {
         Feature.executeQuery(
                 "SELECT DISTINCT sa FROM SequenceAlterationArtifact sa JOIN sa.featureLocations fl WHERE fl.sequence = :sequence AND ((fl.fmin <= :fmin AND fl.fmax > :fmin) OR (fl.fmin <= :fmax AND fl.fmax >= :fmax) OR (fl.fmin >= :fmin AND fl.fmax <= :fmax))",
                 [fmin: fmin, fmax: fmax, sequence: sequence]
         )
+
+        if(alterations){
+            for (a in alterations){
+                log.debug "locations: ${a.fmin}->${a.fmax} for ${fmin}->${fmax}"
+            }
+        }
+
+
+        return alterations
     }
 
     @Transactional

@@ -30,6 +30,8 @@ class UrlMappings {
         "/track/${organismString}/${trackName}/${sequence}/${featureName}.${type}"(controller: "track", action: "featuresByName",[params:params])
         "/track/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.${type}"(controller: "track", action: "featuresByLocation",[params:params])
         "/track/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}.${type}"(controller: "track", action: "featuresByLocation",[params:params])
+
+        "/track/list/${organismName}"(controller: "track", action: "getTracks",[params:params])
         "/track/cache/clear/${organismName}/${trackName}"(controller: "track", action: "clearTrackCache")
         "/track/cache/clear/${organismName}"(controller: "track", action: "clearOrganismCache")
 
