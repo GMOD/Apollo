@@ -108,6 +108,7 @@ public enum FeatureStringEnum {
         TYPE_GENOMIC("genomic"),
         TYPE_FASTA("FASTA"),
         TYPE_GFF3("GFF3"),
+        TYPE_VCF("VCF"),
         TYPE_CHADO("CHADO"),
         EXPORT_CHADO_CLEAN("chado_clean"),
         EXPORT_CHADO_UPDATE("chado_update"),
