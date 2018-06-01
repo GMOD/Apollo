@@ -336,4 +336,22 @@ class VariantService {
         String genomicResidues = sequenceService.getRawResiduesFromSequence(sequence, fmin, fmax)
         return (refString == genomicResidues)
     }
+
+    def getReferenceAllele(def variant) {
+        for (Allele a : variant.alleles) {
+            if (a.reference) {
+                return a
+            }
+        }
+    }
+
+    def getAlternateAlleles(def variant) {
+        def alts = []
+        for (Allele a : variant.alleles) {
+            if (!a.reference) {
+                alts.add(a)
+            }
+        }
+        return alts
+    }
 }

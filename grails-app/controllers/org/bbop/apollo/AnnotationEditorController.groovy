@@ -1057,7 +1057,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                         alleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
                     }
 
-                    if (allele.isReference) {
+                    if (allele.reference) {
                         newFeature.put(FeatureStringEnum.REFERENCE_ALLELE.value, alleleObject)
                     }
                     else {

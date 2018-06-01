@@ -1313,7 +1313,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (gsolFeature instanceof SequenceAlteration) {
                 if (jsonFeature.has(FeatureStringEnum.REFERENCE_ALLELE.value)) {
-                    Allele allele = new Allele(bases: jsonFeature.getString(FeatureStringEnum.REFERENCE_ALLELE.value), isReference: true)
+                    Allele allele = new Allele(bases: jsonFeature.getString(FeatureStringEnum.REFERENCE_ALLELE.value), reference: true)
                     allele.save()
                     gsolFeature.addToAlleles(allele)
                     gsolFeature.save(failOnError: true)
@@ -1817,7 +1817,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                     alleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
                 }
-                if(allele.isReference) {
+                if(allele.reference) {
                     jsonFeature.put(FeatureStringEnum.REFERENCE_ALLELE.value, alleleObject)
                 }
                 else {
@@ -2002,7 +2002,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     }
                     alleleObject.put(FeatureStringEnum.ALLELE_INFO.value, alleleInfoArray)
                 }
-                if(allele.isReference) {
+                if(allele.reference) {
                     jsonFeature.put(FeatureStringEnum.REFERENCE_ALLELE.value, alleleObject)
                 }
                 else {

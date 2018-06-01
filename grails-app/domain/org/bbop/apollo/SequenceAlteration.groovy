@@ -30,23 +30,4 @@ class SequenceAlteration extends SequenceFeature{
     public int getOffset() {
         return 0;
     }
-
-    def getReferenceAllele() {
-        for (Allele a : alleles) {
-            if (a.isReference) {
-                return a
-            }
-        }
-    }
-
-    def getAlternateAlleles() {
-        def alts = []
-        for (Allele a : alleles) {
-            if (!a.isReference) {
-                alts.add(a)
-            }
-        }
-        return alts
-    }
-
 }

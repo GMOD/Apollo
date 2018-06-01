@@ -164,7 +164,7 @@ class NameService {
         def alternateAlleles = []
         String referenceAllele
         for (Allele allele : variant.alleles.sort { a,b -> a.id <=> b.id }) {
-            if (allele.isReference) {
+            if (allele.reference) {
                 referenceAllele = allele.bases
             }
             else {

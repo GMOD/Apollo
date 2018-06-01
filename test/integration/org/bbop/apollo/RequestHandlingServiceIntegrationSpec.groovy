@@ -16,6 +16,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     def cdsService
     def sequenceService
     def gff3HandlerService
+    def variantService
 
 
     void "add transcript with UTR"() {
@@ -4446,8 +4447,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert AlleleInfo.count == 5
 
         SNV variant = SNV.all.first()
-        assert variant.getReferenceAllele().bases == "C"
-        assert variant.getAlternateAlleles().first().bases == "T"
+        assert variantService.getReferenceAllele(variant).bases == "C"
+        assert variantService.getAlternateAlleles(variant).first().bases == "T"
     }
 
     void "Add a variant of type Insertion"() {
@@ -4465,8 +4466,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert AlleleInfo.count == 5
 
         Insertion variant = Insertion.all.first()
-        assert variant.getReferenceAllele().bases == "C"
-        assert variant.getAlternateAlleles().first().bases == "AT"
+        assert variantService.getReferenceAllele(variant).bases == "C"
+        assert variantService.getAlternateAlleles(variant).first().bases == "AT"
     }
 
     void "Add a variant of type Deletion"() {
@@ -4484,8 +4485,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert AlleleInfo.count == 5
 
         Deletion variant = Deletion.all.first()
-        assert variant.getReferenceAllele().bases == "AC"
-        assert variant.getAlternateAlleles().first().bases == "A"
+        assert variantService.getReferenceAllele(variant).bases == "AC"
+        assert variantService.getAlternateAlleles(variant).first().bases == "A"
     }
 
 

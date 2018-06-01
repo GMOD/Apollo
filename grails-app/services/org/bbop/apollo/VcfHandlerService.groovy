@@ -9,6 +9,7 @@ class VcfHandlerService {
     def sequenceService
     def featureService
     def featurePropertyService
+    def variantService
 
     static final format = "VCFv4.2"
     static final header = ["CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO"]
@@ -91,9 +92,11 @@ class VcfHandlerService {
      * @param variant
      */
     public void writeVariants(PrintWriter writer, SequenceAlteration variant) {
-        def record = [variant.featureLocation.sequence.name, variant.featureLocation.fmin + 1, variant.uniqueName, variant.getReferenceAllele() ? variant.getReferenceAllele().bases : "."]
+        Allele referenceAllele = variantService.getReferenceAllele(variant)
+        def alternateAlleles = variantService.getAlternateAlleles(variant)
+        def record = [variant.featureLocation.sequence.name, variant.featureLocation.fmin + 1, variant.uniqueName, referenceAllele ? referenceAllele.bases : "."]
         def alleleInfoMap = [:]
-        variant.getAlternateAlleles().each { allele ->
+        alternateAlleles.each { allele ->
             if (alleleInfoMap.containsKey('allele_order')) {
                 alleleInfoMap.get('allele_order').add(allele.bases)
             }

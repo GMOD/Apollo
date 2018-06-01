@@ -11,9 +11,4 @@ class MNV extends Substitution {
             variantInfo: VariantInfo
     ]
 
-    def getReferenceAllele() {
-        alleles.each {
-            if (it.isReference) return it
-        }
-    }
 }

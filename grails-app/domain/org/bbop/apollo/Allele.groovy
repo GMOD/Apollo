@@ -4,7 +4,7 @@ class Allele {
 
     String bases
     SequenceAlteration variant
-    boolean isReference
+    boolean reference
 
     static constraints = {
         bases nullable: false
