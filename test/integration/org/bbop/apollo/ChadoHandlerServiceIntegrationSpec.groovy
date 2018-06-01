@@ -68,7 +68,7 @@ class ChadoHandlerServiceIntegrationSpec extends AbstractIntegrationSpec{
         assert Gene.count == 9
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
-        assert SequenceAlteration.count == 3
+        assert SequenceAlterationArtifact.count == 3
 
         when: "we try to export these annotations as Chado"
         def features = []
