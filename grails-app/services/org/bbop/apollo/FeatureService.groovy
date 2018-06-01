@@ -1329,7 +1329,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 }
             }
 
-
+            gsolFeature.save(flush: true)
 
             if (jsonFeature.has(FeatureStringEnum.LOCATION.value)) {
                 JSONObject jsonLocation = jsonFeature.getJSONObject(FeatureStringEnum.LOCATION.value);

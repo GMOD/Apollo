@@ -7849,12 +7849,17 @@ define([
             updateDuplicateMenuItem: function () {
                 var menuItem = this.getMenuItem("duplicate");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
                 for (var i = 1; i < selected.length; ++i) {
                     if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
                         menuItem.set("disabled", true);
                         return;
                     }
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
                 }
                 menuItem.set("disabled", false);
             },
