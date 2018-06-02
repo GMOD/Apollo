@@ -1134,7 +1134,7 @@ var SequenceTrack = declare( "SequenceTrack", DraggableFeatureTrack,
                     };
                     track.annotTrack.executeUpdateOperation(JSON.stringify(postData));
                     track.annotTrack.closeDialog();
-                }
+                };
             }
         };
 

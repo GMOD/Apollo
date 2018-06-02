@@ -2903,58 +2903,57 @@ define([
                         initTable(altAlleleTable.domNode, altAllelesTable, altAlleleTable, timeout);
                     }
 
-                    var dirty = false;
-                    dojo.connect(altAlleleTable, "onStartEdit", function (inCell, inRowIndex) {
-                        console.log("onStartEdit");
-                        if (!dirty) {
-                            oldAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases");
-                            //oldAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
-                            //oldProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
-                            dirty = true;
-                        }
-                    });
+//                    var dirty = false;
+//                    dojo.connect(altAlleleTable, "onStartEdit", function (inCell, inRowIndex) {
+//                        console.log("onStartEdit");
+//                        if (!dirty) {
+//                            oldAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases");
+//                            //oldAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
+//                            //oldProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
+//                            dirty = true;
+//                        }
+//                    });
+//
+//                    dojo.connect(altAlleleTable, "onCancelEdit", function(inRowIndex) {
+//                        console.log("onCancelEdit");
+//                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldAltBases);
+//                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", oldAltAlleleFrequency);
+//                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", oldProvenance);
+//                        dirty = false;
+//                    });
 
-                    dojo.connect(altAlleleTable, "onCancelEdit", function(inRowIndex) {
-                        console.log("onCancelEdit");
-                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldAltBases);
-                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", oldAltAlleleFrequency);
-                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", oldProvenance);
-                        dirty = false;
-                    });
-
-                    dojo.connect(altAlleleTable, "onApplyEdit", function(inRowIndex) {
-                        var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases").toUpperCase();
-                        //var newAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
-                        //var newProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
-
-                        var altFreq = parseFloat(newAltAlleleFrequency);
-                        if (altFreq < 0 || altFreq > 1.0) {
-                            // sanity check for frequency value
-                            new ConfirmDialog({
-                                title: 'Improper value for AF field',
-                                message: "The value for AF field should be within the range of 0.0 - 1.0",
-                                confirmLabel: 'OK',
-                                denyLabel: 'Cancel'
-                            }).show(function(confirmed) {});
-                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
-                            //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", "");
-                            //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", newProvenance);
-                        }
-                        else {
-                            if (newProvenance === undefined || newProvenance == "undefined" || newProvenance == "") {
-                                console.log("provenance not provided");
-                                // frequency must always be associated with a provenance
-                                new ConfirmDialog({
-                                    title: 'No provenance provided',
-                                    message: 'No provenance provided to support the entered AF value',
-                                    confirmLabel: 'OK',
-                                    denyLabel: 'Cancel'
-                                }).show(function(confirmed) {});
-                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
-                                //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", newAltAlleleFrequency);
-                                //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", "");
-                            }
-                            else {
+//                    dojo.connect(altAlleleTable, "onApplyEdit", function(inRowIndex) {
+//                        var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases").toUpperCase();
+//                        var newAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
+//                        var newProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
+//                       var altFreq = parseFloat(newAltAlleleFrequency);
+//                        if (altFreq < 0 || altFreq > 1.0) {
+//                            // sanity check for frequency value
+//                            new ConfirmDialog({
+//                                title: 'Improper value for AF field',
+//                                message: "The value for AF field should be within the range of 0.0 - 1.0",
+//                                confirmLabel: 'OK',
+//                                denyLabel: 'Cancel'
+//                            }).show(function(confirmed) {});
+//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
+//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", "");
+//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", newProvenance);
+//                        }
+//                        else {
+//                            if (newProvenance === undefined || newProvenance == "undefined" || newProvenance == "") {
+//                                console.log("provenance not provided");
+//                                // frequency must always be associated with a provenance
+//                                new ConfirmDialog({
+//                                    title: 'No provenance provided',
+//                                    message: 'No provenance provided to support the entered AF value',
+//                                    confirmLabel: 'OK',
+//                                    denyLabel: 'Cancel'
+//                                }).show(function(confirmed) {});
+//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
+//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", newAltAlleleFrequency);
+//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", "");
+//                            }
+//                            else {
 //                                if (!newAltBases || !newAltAlleleFrequency || !newProvenance) {
 //                                    // no changes
 //                                }
@@ -2967,9 +2966,9 @@ define([
 //                                    }
 //                                }
 //                                dirty = false;
-                            }
-                        }
-                    });
+//                            }
+//                        }
+//                    });
 
 //                    dojo.connect(addAltAlleleButton, "onclick", function() {
 //                        altAlleleTable.store.newItem({bases: "", allele_frequency: "", provenance: ""});
@@ -2989,7 +2988,7 @@ define([
 //                        altAlleleTable.removeSelectedRows();
 //                        deleteAltAlleles(toBeDeleted);
 //                    });
-                };
+//                };
 
                 // initialize Dbxref
                 var initDbxrefs = function (feature, config) {
@@ -4216,7 +4215,7 @@ define([
 
                 var addPhenotypeOntologyId = function(phenotypeOntologyIdTable, row, phenotypeOntologyId) {
                     var url = "https://api.monarchinitiative.org/api/bioentity/%PHENOTYPE_ONTOLOGY_TERM%";
-                    queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(phenotypeOntologyId));
+                    var queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(phenotypeOntologyId));
 
                     request(queryUrl,
                         {
@@ -4227,7 +4226,7 @@ define([
                     ).then(function(response) {
                         if (response.id) {
                             // validated
-                            pair = response.id.split(':');
+                            var pair = response.id.split(':');
                             var features = [ {uniquename: uniqueName, dbxrefs: [{db: pair[0], accession: pair[1]}]} ];
                             var operation = "add_non_primary_dbxrefs";
                             var postData = {'track': trackName, 'features': features, operation: operation};
@@ -4274,8 +4273,8 @@ define([
                     ).then(function(response) {
                         if (response.id) {
                             // validated
-                            old_pair = oldPhenotypeOntologyId.split(':');
-                            pair = response.id.split(':');
+                            var old_pair = oldPhenotypeOntologyId.split(':');
+                            var pair = response.id.split(':');
                             var features = [ {uniquename: uniqueName, old_dbxrefs: [{db: old_pair[0], accession: old_pair[1]}],new_dbxrefs: [{db: pair[0], accession: pair[1]}]} ];
                             var operation = "update_non_primary_dbxrefs";
                             var postData = {'track': trackName, 'features': features, operation: operation};
