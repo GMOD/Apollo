@@ -2988,7 +2988,7 @@ define([
 //                        altAlleleTable.removeSelectedRows();
 //                        deleteAltAlleles(toBeDeleted);
 //                    });
-//                };
+               };
 
                 // initialize Dbxref
                 var initDbxrefs = function (feature, config) {
@@ -4262,7 +4262,7 @@ define([
 
                 var updatePhenotypeOntologyId = function(phenotypeOntologyIdTable, row, oldPhenotypeOntologyId, newPhenotypeOntologyId) {
                     var url = "https://api.monarchinitiative.org/api/bioentity/%PHENOTYPE_ONTOLOGY_TERM%";
-                    queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(newPhenotypeOntologyId));
+                    var queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(newPhenotypeOntologyId));
 
                     request(queryUrl,
                         {
