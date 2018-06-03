@@ -2859,7 +2859,7 @@ define([
                                 },
                                 editable: false,
                                 cellStyles: "text-align: center"
-                            },
+                            }
 //                            {
 //                                name: 'AF',
 //                                field: 'allele_frequency',
