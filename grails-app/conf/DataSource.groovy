@@ -28,7 +28,8 @@ environments {
         dataSource {
             //dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            // url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            url = "jdbc:h2:AnnotationDatabase:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
         }
 //        dataSource_chado{
 //            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
