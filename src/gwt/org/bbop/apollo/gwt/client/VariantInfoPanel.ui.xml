@@ -33,10 +33,10 @@
                     <b:TextBox placeholder="Property Value" ui:field="valueInputBox" styleName="{style.widgetBox}"/>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="MD_1">
+                    <b:Column size="MD_3">
                         <b:Button text="Add" ui:field="addVariantInfoButton"/>
                     </b:Column>
-                    <b:Column size="MD_1">
+                    <b:Column size="MD_3">
                         <b:Button text="Delete" ui:field="deleteVariantInfoButton"/>
                     </b:Column>
                 </b:Row>
