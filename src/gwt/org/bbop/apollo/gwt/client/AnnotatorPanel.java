@@ -532,11 +532,6 @@ public class AnnotatorPanel extends Composite {
             --selectedSubTabIndex ;
             tabPanel.selectTab(selectedSubTabIndex);
         }
-
-//        if(tabPanel.getSelectedIndex())
-////        if (tabPanel.getSelectedIndex() != 0 && !tabPanel.getTabWidget(1).getParent().isVisible()) {
-////            tabPanel.selectTab(0);
-////        }
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
