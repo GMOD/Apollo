@@ -148,6 +148,15 @@ class RequestHandlingService {
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
 
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
@@ -2590,6 +2599,16 @@ class RequestHandlingService {
             Feature feature = variantService.addVariantInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
@@ -2604,6 +2623,16 @@ class RequestHandlingService {
             Feature feature = variantService.deleteVariantInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
@@ -2618,6 +2647,16 @@ class RequestHandlingService {
             Feature feature = variantService.updateVariantInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
@@ -2632,6 +2671,16 @@ class RequestHandlingService {
             Feature feature = variantService.addAlleleInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
@@ -2646,6 +2695,16 @@ class RequestHandlingService {
             Feature feature = variantService.deleteAlleleInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 
@@ -2660,6 +2719,16 @@ class RequestHandlingService {
             Feature feature = variantService.updateAlleleInfo(jsonFeature)
             updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
         }
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
         return updateFeatureContainer
     }
 }
