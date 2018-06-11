@@ -533,7 +533,9 @@ public class AnnotatorPanel extends Composite {
         }
 
         // Redraw the modified row.
-        dataGrid.redrawRow(index);
+        if(index < dataGrid.getRowCount()){
+            dataGrid.redrawRow(index);
+        }
     }
 
     private void initializeTable() {

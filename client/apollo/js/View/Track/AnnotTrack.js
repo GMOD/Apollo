@@ -1251,12 +1251,7 @@ define([
                                     if (seq != dragfeat.get('reference_allele')) {
                                         var variantPosition = dragfeat.get('start') + 1;
                                         var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position."
-                                        var confirmDialog = new ConfirmDialog({
-                                            title: 'Cannot Add Variant',
-                                            message: message,
-                                            confirmLabel: 'OK',
-                                            denyLabel: 'Cancel'
-                                        }).show();
+                                        target_track.openDialog( 'Cannot Add Variant', message );
                                     }
                                     else {
                                         var afeat = JSONUtils.createApolloVariant(dragfeat, true);
