@@ -78,6 +78,9 @@ public class AnnotatorPanel extends Composite {
     private long requestIndex = 0;
     private static String selectedChildUniqueName = null;
 
+    private static int selectedSubTabIndex = 0 ;
+
+
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
 
@@ -326,7 +329,8 @@ public class AnnotatorPanel extends Composite {
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                switch(event.getSelectedItem()) {
+                selectedSubTabIndex = event.getSelectedItem();
+                switch(selectedSubTabIndex) {
                     case 0:
                         break;
                     case 1:
@@ -512,11 +516,22 @@ public class AnnotatorPanel extends Composite {
             default:
                 GWT.log("not sure what to do with " + type);
         }
-        // if the current selected tb is not visible then select the first one
-        if (tabPanel.getSelectedIndex() != 0 && !tabPanel.getTabWidget(1).getParent().isVisible()) {
-            tabPanel.selectTab(0);
+        reselectSubTab();
+
+
+    }
+
+    private static void reselectSubTab() {
+        // attempt to selectt the last tab
+        if(tabPanel.getSelectedIndex()!=selectedSubTabIndex){
+            tabPanel.selectTab(selectedSubTabIndex);
         }
 
+        // if current tab is not visible, then select tab 0
+        while(!tabPanel.getTabWidget(selectedSubTabIndex).getParent().isVisible() && selectedSubTabIndex>=0){
+            --selectedSubTabIndex ;
+            tabPanel.selectTab(selectedSubTabIndex);
+        }
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
@@ -533,7 +548,9 @@ public class AnnotatorPanel extends Composite {
         }
 
         // Redraw the modified row.
-        dataGrid.redrawRow(index);
+        if(index < dataGrid.getRowCount()){
+            dataGrid.redrawRow(index);
+        }
     }
 
     private void initializeTable() {

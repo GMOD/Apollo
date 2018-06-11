@@ -51,7 +51,7 @@ public class AlleleInfoPanel extends Composite {
 
     private static AlleleInfoPanelUiBinder ourUiBinder = GWT.create(AlleleInfoPanelUiBinder.class);
 
-    DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
+    private DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<AllelePropertyInfo> dataGrid = new DataGrid<>(10, tablecss);
 
@@ -78,9 +78,6 @@ public class AlleleInfoPanel extends Composite {
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
-        tagInputBox = new TextBox();
-        valueInputBox = new TextBox();
-        alleleList = new ListBox();
 
         selectionModel.clear();
         deleteAlleleInfoButton.setEnabled(false);
