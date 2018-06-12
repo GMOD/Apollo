@@ -203,6 +203,8 @@ class TrackController {
     def featuresByLocation(String organismString, String trackName, String sequence, Long fmin, Long fmax, String type) {
         if (!trackService.checkPermission(request, response, organismString)) return
 
+        println "params: ${params}"
+
         Set<String> nameSet = getNames(params.name ? params.name : "")
         Boolean onlySelected = params.onlySelected != null ? params.onlySelected : false
         String flatten = params.flatten != null ? params.flatten : 'gene'
@@ -235,7 +237,9 @@ class TrackController {
         )
         try {
             JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
+            println "filtered list: ${filteredList}"
             renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+            println "nc list list : ${renderedArray}"
         } catch (FileNotFoundException fnfe) {
             log.warn(fnfe.message)
             response.status = 404
@@ -244,14 +248,19 @@ class TrackController {
 
         if (flatten) {
             renderedArray = trackService.flattenArray(renderedArray, flatten)
+            println "flattened array : ${flatten} ${renderedArray}"
         }
 
         JSONArray returnArray = new JSONArray()
+        println "final : ${renderedArray}"
         for (JSONObject returnObject in renderedArray) {
             // only set if true?
             if (returnObject.name) {
                 returnObject.id = createLink(absolute: true, uri: "/track/${organism.commonName}/${trackName}/${sequence}/${returnObject.name}.json")
             }
+            returnObject.track = trackName
+            returnObject.organism = organism.commonName
+            returnObject.sequence = sequence
             if (nameSet) {
                 if (returnObject.name && nameSet.contains(returnObject?.name)) {
                     returnObject.selected = true
