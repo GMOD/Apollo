@@ -65,6 +65,15 @@ public enum PermissionEnum implements Comparable<PermissionEnum> {
         return rank;
     }
 
+    @Override
+    public String toString() {
+        return "PermissionEnum{" +
+                "value=" + value +
+                ", rank=" + rank +
+                ", display=" + getDisplay()+
+                '}';
+    }
+
     //    @Override
 //    public int compareTo(PermissionEnum o) {
 //        return value - o.getValue();

@@ -90,7 +90,7 @@
                         <b:TextBox ui:field="maxFeatureLength" placeholder="Maximum"/>
                     </b:Column>
                 </b:Row>
-                <b:Row>
+                <b:Row ui:field="exportRow" >
                     <b:Column size="MD_2">
                         <gwt:HTML>
                             <h5>Export</h5>

@@ -301,6 +301,14 @@ public class MainPanel extends Composite {
         }
     }
 
+    PermissionEnum getOrganismPermission() {
+        if(currentUser!=null && currentOrganism!=null){
+            UserOrganismPermissionInfo userOrganismPermissionInfo = currentUser.getOrganismPermissionMap().get(currentOrganism.getName());
+            return userOrganismPermissionInfo.getHighestPermission();
+        }
+
+        return PermissionEnum.NONE;
+    }
 
     private static void setCurrentSequence(String sequenceNameString, final Integer start, final Integer end) {
         setCurrentSequence(sequenceNameString, start, end, false, false);
