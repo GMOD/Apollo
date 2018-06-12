@@ -1,5 +1,4 @@
-
-## 2.0.9
+## 2.1.0
 
 Features
 
@@ -12,15 +11,18 @@ Features
 - Recognized dot notation from JBrowse / Apollo [#1839](https://github.com/GMOD/Apollo/issues/1839)
 - Allow setting default native track to true [#1848](https://github.com/GMOD/Apollo/pull/1848)
 - Provide [sample data](https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md#adding-sample-data) (and links in doc)[#1817](https://github.com/GMOD/Apollo/pull/1817) 
+- Added ability to annotate a variant from VCF evidence tracks [1892](https://github.com/GMOD/Apollo/pull/1892)
 
-Bugfixes 
+Bugfixes
 
 - Fixed descriptor leak when loading bulk loading GFF3 [#1187](https://github.com/GMOD/Apollo/pull/1887)
-- Fixed adding ability to create sequence alterations of unever length [#1883](https://github.com/GMOD/Apollo/issues/1883)
+- Fixed adding ability to create sequence alterations of uneven length [#1883](https://github.com/GMOD/Apollo/issues/1883)
 - Fixed problem where canonical splice-sites were not recognized if sequence was being shown in lower-case [#1879](https://github.com/GMOD/Apollo/issues/1879)
 - Prevents setting bad translation starts and ends [#1838](https://github.com/GMOD/Apollo/issues/1838)
 - Improved performance of cache deletion code [#1824](https://github.com/GMOD/Apollo/pull/1824)
 - Allow more special characters in the password [#1859](https://github.com/GMOD/Apollo/issues/1859)
+- Fixed bug with 'Update Membership' and 'Update Group Admin' call in web services [#1891](https://github.com/GMOD/Apollo/issues/1891)
+- Fixed bug with 'Update Organism Permission' call in web services [#1885](https://github.com/GMOD/Apollo/issues/1885)
 
 ## 2.0.8
 
