@@ -379,4 +379,11 @@ class SequenceController {
         }
 
     }
+
+    def chromosome(){
+        Organism organism = Organism.findByCommonName("Honeybee")
+        def sequences = Sequence.findAllByOrganism(organism,[max:20,order:"desc",sort:"length"])
+        [array:sequences as JSON,sequences:sequences,organism:organism]
+//        render Sequence.listOrderByLength([max:20,order:"desc"]) as JSON
+    }
 }

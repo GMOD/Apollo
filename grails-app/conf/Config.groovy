@@ -360,7 +360,7 @@ apollo {
 
     // over-ride in apollo-config.groovy to add extra tabs
     extraTabs = [
-//            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
+            ['title': 'Chromosome', 'url': '../sequence/chromosome'],
 //            ['title': 'extra2', 'content': '<b>Some content</b><a href="http://google.com" target="_blank">Google</a>']
     ]
 
