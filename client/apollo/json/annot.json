@@ -56,7 +56,23 @@
                "tRNA" : {
                   "renderClassName" : "gray-center-30pct annot-apollo",
                   "className" : "brightgreen-80pct"
-               }
+               },
+              "SNV": {
+                "renderClassName": "snv-variant",
+                "className" : "snv-variant-render"
+              },
+              "MNV": {
+                "renderClassName": "mnv-variant",
+                "className" : "mnv-variant-render"
+              },
+              "insertion": {
+                "renderClassName": "insertion-variant",
+                "className" : "insertion-variant-render"
+              },
+              "deletion": {
+                "renderClassName": "deletion-variant",
+                "className" : "deletion-variant-render"
+              }
             },
             "uniqueIdField" : "id",
             "centerSubFeature" : {

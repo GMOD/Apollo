@@ -288,6 +288,16 @@ apollo {
                      ],
                      [
                              permission   : 1,
+                             key          : "VCF",
+                             data_adapters: [[
+                                                     permission: 1,
+                                                     key       : "VCF",
+                                                     options   : "output=file&format=gzip&type=VCF"
+                                             ]
+                             ]
+                     ],
+                     [
+                             permission   : 1,
                              key          : "FASTA",
                              data_adapters: [[
                                                      permission: 1,

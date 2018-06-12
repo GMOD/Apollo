@@ -98,8 +98,8 @@
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:ButtonGroup>
-                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY" width="56px">GFF3
-                            </b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY" width="56px">GFF3</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportVcfButton" width="56px">VCF</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton" width="56px">FASTA</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton" width="56px">CHADO</b:Button>
                         </b:ButtonGroup>

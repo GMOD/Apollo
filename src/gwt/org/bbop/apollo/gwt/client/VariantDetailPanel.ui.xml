@@ -1,0 +1,72 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:b="urn:import:org.gwtbootstrap3.client.ui">
+    <ui:style>
+
+        .container {
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-top: 10px;
+        }
+
+        .widgetPanel {
+        margin-bottom: 5px;
+        }
+
+        .row {
+        margin-left: 5px;
+        margin-right: 5px;
+        }
+    </ui:style>
+
+    <b:Container fluid="true" styleName="{style.container}">
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup >
+                    <b:InputGroupAddon>Name</b:InputGroupAddon>
+                    <b:TextBox autoComplete="false" ui:field="nameField" />
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_5" styleName="{style.widgetPanel}">
+                <b:InputGroup >
+                    <b:InputGroupAddon visible="true">Reference Allele</b:InputGroupAddon>
+                    <b:TextBox autoComplete="false" ui:field="referenceAlleleField" visible="true" enabled="false"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Description</b:InputGroupAddon>
+                    <b:TextBox autoComplete="false" ui:field="descriptionField"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Location</b:InputGroupAddon>
+                    <b:TextBox autoComplete="false" ui:field="locationField" enabled="false"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Ref Sequence</b:InputGroupAddon>
+                    <b:TextBox autoComplete="false" ui:field="sequenceField" enabled="false"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Owner</b:InputGroupAddon>
+                    <b:TextBox autoComplete="false" ui:field="userField" enabled="false"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+    </b:Container>
+</ui:UiBinder>

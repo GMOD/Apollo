@@ -16,6 +16,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     def cdsService
     def sequenceService
     def gff3HandlerService
+    def variantService
 
 
     void "add transcript with UTR"() {
@@ -1068,7 +1069,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at exon 1 of gene GB40807-RA"() {
         given: "given a gene GB40807-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":210517},\"name\":\"GB40807-RA\",\"children\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208322},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":209434,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208544},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208735,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208322,\"strand\":1,\"fmax\":209434},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials}  \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"GGG\",\"location\":{\"fmin\":208499,\"strand\":1,\"fmax\":208499},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addInsertionString = "{${testCredentials}  \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"GGG\",\"location\":{\"fmin\":208499,\"strand\":1,\"fmax\":208499},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         String expectedPeptideString = "MRVFMMQNFHRLTLFIWLVSILTLSISDEIKTDGNTSLTLNINNVDSDSKTEHRISSSSGIQFMPESVNSKKIQNQSIATPLVAGEGGPISLIPPTQQTSTISHLKDVTDNLDLQDNLSQKEDDILYVKKKKNTSKIVSRKGADNGNISIKMTLSNDTKPIIEFSTIASNISNNAKIDINMNNSKSNVSDKNINKASNIIVNNTLYLTNVTQKLLSVTTSSVQEHKPKPTATVIESNNDKQAFIPHTKGSRLGMPKKIDYVLPVIVTLIALPVLGAIIFMVYKQGRDCWDKRHYRRMDFLIDGMYND"
         String expectedCdnaString = "GCAATAGTTGCGTGCTTATGATGGAGCAAACAGTTTCTTAGTGGTTGAGACCACTTTTTTTTTAGTTTTTCTATATTTTTATAAAAGTTTTAACCAGATTTATCTGCAAAGAATCGTATCAGAAAATAAAATTTTATAATTAAAATAATGCGTGTTTTCATGATGCAAAATTTTCATCGATTAACTCTATTTATATGGCTTGTATCTATTCTAACCTTATCTATCAGTGATGAAATTAAAACAGATGGTAATACATCCTTAACATTAAATATAAACAATGTTGATAGTGATTCCAAAACCGAACATCGAATTTCATCTTCATCAGGGATTCAATTTATGCCTGAATCCGTTAATTCTAAAAAAATACAGAATCAAAGTATTGCCACTCCTTTAGTTGCTGGAGAAGGTGGTCCAATATCACTTATACCTCCTACTCAGCAAACATCTACTATTTCCCATTTAAAAGATGTTACTGATAATTTAGATTTACAAGATAATTTATCACAAAAAGAAGATGATATTTTATACGTAAAGAAAAAAAAGAATACTTCTAAAATCGTGTCGAGAAAAGGAGCAGATAATGGAAATATTTCTATTAAAATGACATTATCAAATGACACAAAACCTATTATTGAATTTTCAACAATAGCAAGTAATATTTCTAATAATGCAAAAATTGATATAAATATGAATAATTCAAAATCAAATGTTAGTGATAAAAATATAAATAAAGCTTCAAATATAATTGTAAATAATACTTTATATTTAACAAATGTAACTCAAAAATTATTAAGTGTAACAACATCATCAGTCCAAGAACATAAACCTAAACCAACTGCAACAGTAATAGAATCTAATAATGATAAACAAGCATTTATACCTCATACTAAAGGTTCACGCTTAGGAATGCCAAAGAAAATTGATTATGTCTTACCAGTTATTGTTACTCTTATAGCTCTACCAGTTTTGGGTGCTATTATTTTCATGGTTTATAAACAAGGTAGAGATTGTTGGGATAAAAGACACTACCGACGAATGGATTTTCTTATTGATGGCATGTACAATGATTAATACTTATAAATATGATATCACTTAATTCGGCTCATAATTTTCATTCATATATGCAATACATATACATAACAGTTGAATATACTATTTTGCCATTATAGCTAAAAAAAACATTATATTTCAATTATATATAATTTTTTATTTTACTGCAATTTTCTGCATATACTTTTATCATGCTACTGCCTTAATATGAGATTTGTTATTATATATTAATTAGTATCATGTTTATAATTTTAGACAAATGGTGCATAGGAAAGACAATATGGAAATAACAACAAATTTACAATTATAGCAATAACAATTTATTATGAATTCTAAGAGTGAAGTACTTTTAAAATAAAGATTTTATCTTAATTTATAAAATAATTAATGACACTTTTATAATTGTATATTAAAGCAATTTTTAAAATTAGAGATTTTTAATTACATTACTTTTTCATAAAAATTTTTAATAAAAAAATAAATGTGCCAAGAATTTTTGATTATGAAACCAGTGATATGTTAATGTTTTTTCTTCCAGTATATATAAAAGTAAGTTTTTTTGATATGAAAAAACATATTTATATTTTGATATTGTAATTTAAATTTGTTTTTAATTATATTTCCATATGATTTCCTCTTCATTAAAATTTGATTTTATTTTTTAAATTTTATAAAATGCTCTTTATATTACAAATTGTAAAATAGTAGTATCTAGTTCGCCAAAGAAGTCATTCATATAATTTGATGTTTGCATTTACTTATTATAATTATTATGTGTTATTATCTTTTTACTTATGTTTTCGAAAAAATTTGTTTATATAAATTGATAATTATAATTACAAATGAAAGAATAAAATGGACATTAAATGTCCATTTGTAAAATTATCATATTATAAAATATATAAGCAATGATTTATGCAATTACTTTATCTAATAAGGTTGCTGCAATTGTTATTAATGCTAGTAGAATTTTACGAACTTTTTTATCTTTTTTAACGTTCGTAAAATTTGTATATTATTCAGATATAATAAAGCAATAACTATTTTTATATATGTATGTAAAAAAATTATTCATATTCTTATAAAATATAAGTACTTGTAATT"
@@ -1088,7 +1089,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40807-RA-00001")
@@ -1108,7 +1109,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at 5'UTR of gene GB40807-RA"() {
         given: "given a gene GB40807-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":210517},\"name\":\"GB40807-RA\",\"children\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208322},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":209434,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208544},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208735,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208322,\"strand\":1,\"fmax\":209434},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAA\",\"location\":{\"fmin\":208299,\"strand\":1,\"fmax\":208299},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAA\",\"location\":{\"fmin\":208299,\"strand\":1,\"fmax\":208299},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MRVFMMQNFHRLTLFIWLVSILTLSISDEIKTDGNTSLTLNINNVDSDSKTEHRISSSSIQFMPESVNSKKIQNQSIATPLVAGEGGPISLIPPTQQTSTISHLKDVTDNLDLQDNLSQKEDDILYVKKKKNTSKIVSRKGADNGNISIKMTLSNDTKPIIEFSTIASNISNNAKIDINMNNSKSNVSDKNINKASNIIVNNTLYLTNVTQKLLSVTTSSVQEHKPKPTATVIESNNDKQAFIPHTKGSRLGMPKKIDYVLPVIVTLIALPVLGAIIFMVYKQGRDCWDKRHYRRMDFLIDGMYND"
         String expectedCdnaString = "GCAATAGTTGCGTGCTTATGATGGAGCAAACAGTTTCTTAGTGGTTGAGACCACTTTTTTTTTAGTTTTTCTATATTTTTATAAAAGTTTTAACCAGATTTATCTGCAAAGAATCGTATCAGAAAAAAATAAAATTTTATAATTAAAATAATGCGTGTTTTCATGATGCAAAATTTTCATCGATTAACTCTATTTATATGGCTTGTATCTATTCTAACCTTATCTATCAGTGATGAAATTAAAACAGATGGTAATACATCCTTAACATTAAATATAAACAATGTTGATAGTGATTCCAAAACCGAACATCGAATTTCATCTTCATCAATTCAATTTATGCCTGAATCCGTTAATTCTAAAAAAATACAGAATCAAAGTATTGCCACTCCTTTAGTTGCTGGAGAAGGTGGTCCAATATCACTTATACCTCCTACTCAGCAAACATCTACTATTTCCCATTTAAAAGATGTTACTGATAATTTAGATTTACAAGATAATTTATCACAAAAAGAAGATGATATTTTATACGTAAAGAAAAAAAAGAATACTTCTAAAATCGTGTCGAGAAAAGGAGCAGATAATGGAAATATTTCTATTAAAATGACATTATCAAATGACACAAAACCTATTATTGAATTTTCAACAATAGCAAGTAATATTTCTAATAATGCAAAAATTGATATAAATATGAATAATTCAAAATCAAATGTTAGTGATAAAAATATAAATAAAGCTTCAAATATAATTGTAAATAATACTTTATATTTAACAAATGTAACTCAAAAATTATTAAGTGTAACAACATCATCAGTCCAAGAACATAAACCTAAACCAACTGCAACAGTAATAGAATCTAATAATGATAAACAAGCATTTATACCTCATACTAAAGGTTCACGCTTAGGAATGCCAAAGAAAATTGATTATGTCTTACCAGTTATTGTTACTCTTATAGCTCTACCAGTTTTGGGTGCTATTATTTTCATGGTTTATAAACAAGGTAGAGATTGTTGGGATAAAAGACACTACCGACGAATGGATTTTCTTATTGATGGCATGTACAATGATTAATACTTATAAATATGATATCACTTAATTCGGCTCATAATTTTCATTCATATATGCAATACATATACATAACAGTTGAATATACTATTTTGCCATTATAGCTAAAAAAAACATTATATTTCAATTATATATAATTTTTTATTTTACTGCAATTTTCTGCATATACTTTTATCATGCTACTGCCTTAATATGAGATTTGTTATTATATATTAATTAGTATCATGTTTATAATTTTAGACAAATGGTGCATAGGAAAGACAATATGGAAATAACAACAAATTTACAATTATAGCAATAACAATTTATTATGAATTCTAAGAGTGAAGTACTTTTAAAATAAAGATTTTATCTTAATTTATAAAATAATTAATGACACTTTTATAATTGTATATTAAAGCAATTTTTAAAATTAGAGATTTTTAATTACATTACTTTTTCATAAAAATTTTTAATAAAAAAATAAATGTGCCAAGAATTTTTGATTATGAAACCAGTGATATGTTAATGTTTTTTCTTCCAGTATATATAAAAGTAAGTTTTTTTGATATGAAAAAACATATTTATATTTTGATATTGTAATTTAAATTTGTTTTTAATTATATTTCCATATGATTTCCTCTTCATTAAAATTTGATTTTATTTTTTAAATTTTATAAAATGCTCTTTATATTACAAATTGTAAAATAGTAGTATCTAGTTCGCCAAAGAAGTCATTCATATAATTTGATGTTTGCATTTACTTATTATAATTATTATGTGTTATTATCTTTTTACTTATGTTTTCGAAAAAATTTGTTTATATAAATTGATAATTATAATTACAAATGAAAGAATAAAATGGACATTAAATGTCCATTTGTAAAATTATCATATTATAAAATATATAAGCAATGATTTATGCAATTACTTTATCTAATAAGGTTGCTGCAATTGTTATTAATGCTAGTAGAATTTTACGAACTTTTTTATCTTTTTTAACGTTCGTAAAATTTGTATATTATTCAGATATAATAAAGCAATAACTATTTTTATATATGTATGTAAAAAAATTATTCATATTCTTATAAAATATAAGTACTTGTAATT"
@@ -1128,7 +1129,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40807-RA-00001")
@@ -1148,7 +1149,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at exon 2 of gene GB40807-RA"() {
         given: "given a gene GB40807-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":210517},\"name\":\"GB40807-RA\",\"children\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208322},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":209434,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208544},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208735,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208322,\"strand\":1,\"fmax\":209434},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAA\",\"location\":{\"fmin\":208899,\"strand\":1,\"fmax\":208899},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAA\",\"location\":{\"fmin\":208899,\"strand\":1,\"fmax\":208899},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MRVFMMQNFHRLTLFIWLVSILTLSISDEIKTDGNTSLTLNINNVDSDSKTEHRISSSSIQFMPESVNSKKIQNQSIATPLVAGEGGPISLIPPTQQTSTISHLKDVTDNLDLQDNLSQKEDDILYVKKKKKNTSKIVSRKGADNGNISIKMTLSNDTKPIIEFSTIASNISNNAKIDINMNNSKSNVSDKNINKASNIIVNNTLYLTNVTQKLLSVTTSSVQEHKPKPTATVIESNNDKQAFIPHTKGSRLGMPKKIDYVLPVIVTLIALPVLGAIIFMVYKQGRDCWDKRHYRRMDFLIDGMYND"
         String expectedCdnaString = "GCAATAGTTGCGTGCTTATGATGGAGCAAACAGTTTCTTAGTGGTTGAGACCACTTTTTTTTTAGTTTTTCTATATTTTTATAAAAGTTTTAACCAGATTTATCTGCAAAGAATCGTATCAGAAAATAAAATTTTATAATTAAAATAATGCGTGTTTTCATGATGCAAAATTTTCATCGATTAACTCTATTTATATGGCTTGTATCTATTCTAACCTTATCTATCAGTGATGAAATTAAAACAGATGGTAATACATCCTTAACATTAAATATAAACAATGTTGATAGTGATTCCAAAACCGAACATCGAATTTCATCTTCATCAATTCAATTTATGCCTGAATCCGTTAATTCTAAAAAAATACAGAATCAAAGTATTGCCACTCCTTTAGTTGCTGGAGAAGGTGGTCCAATATCACTTATACCTCCTACTCAGCAAACATCTACTATTTCCCATTTAAAAGATGTTACTGATAATTTAGATTTACAAGATAATTTATCACAAAAAGAAGATGATATTTTATACGTAAAGAAAAAAAAAAAGAATACTTCTAAAATCGTGTCGAGAAAAGGAGCAGATAATGGAAATATTTCTATTAAAATGACATTATCAAATGACACAAAACCTATTATTGAATTTTCAACAATAGCAAGTAATATTTCTAATAATGCAAAAATTGATATAAATATGAATAATTCAAAATCAAATGTTAGTGATAAAAATATAAATAAAGCTTCAAATATAATTGTAAATAATACTTTATATTTAACAAATGTAACTCAAAAATTATTAAGTGTAACAACATCATCAGTCCAAGAACATAAACCTAAACCAACTGCAACAGTAATAGAATCTAATAATGATAAACAAGCATTTATACCTCATACTAAAGGTTCACGCTTAGGAATGCCAAAGAAAATTGATTATGTCTTACCAGTTATTGTTACTCTTATAGCTCTACCAGTTTTGGGTGCTATTATTTTCATGGTTTATAAACAAGGTAGAGATTGTTGGGATAAAAGACACTACCGACGAATGGATTTTCTTATTGATGGCATGTACAATGATTAATACTTATAAATATGATATCACTTAATTCGGCTCATAATTTTCATTCATATATGCAATACATATACATAACAGTTGAATATACTATTTTGCCATTATAGCTAAAAAAAACATTATATTTCAATTATATATAATTTTTTATTTTACTGCAATTTTCTGCATATACTTTTATCATGCTACTGCCTTAATATGAGATTTGTTATTATATATTAATTAGTATCATGTTTATAATTTTAGACAAATGGTGCATAGGAAAGACAATATGGAAATAACAACAAATTTACAATTATAGCAATAACAATTTATTATGAATTCTAAGAGTGAAGTACTTTTAAAATAAAGATTTTATCTTAATTTATAAAATAATTAATGACACTTTTATAATTGTATATTAAAGCAATTTTTAAAATTAGAGATTTTTAATTACATTACTTTTTCATAAAAATTTTTAATAAAAAAATAAATGTGCCAAGAATTTTTGATTATGAAACCAGTGATATGTTAATGTTTTTTCTTCCAGTATATATAAAAGTAAGTTTTTTTGATATGAAAAAACATATTTATATTTTGATATTGTAATTTAAATTTGTTTTTAATTATATTTCCATATGATTTCCTCTTCATTAAAATTTGATTTTATTTTTTAAATTTTATAAAATGCTCTTTATATTACAAATTGTAAAATAGTAGTATCTAGTTCGCCAAAGAAGTCATTCATATAATTTGATGTTTGCATTTACTTATTATAATTATTATGTGTTATTATCTTTTTACTTATGTTTTCGAAAAAATTTGTTTATATAAATTGATAATTATAATTACAAATGAAAGAATAAAATGGACATTAAATGTCCATTTGTAAAATTATCATATTATAAAATATATAAGCAATGATTTATGCAATTACTTTATCTAATAAGGTTGCTGCAATTGTTATTAATGCTAGTAGAATTTTACGAACTTTTTTATCTTTTTTAACGTTCGTAAAATTTGTATATTATTCAGATATAATAAAGCAATAACTATTTTTATATATGTATGTAAAAAAATTATTCATATTCTTATAAAATATAAGTACTTGTAATT"
@@ -1168,7 +1169,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40807-RA-00001")
@@ -1188,7 +1189,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at 3'UTR of gene GB40807-RA"() {
         given: "given a gene GB40807-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":210517},\"name\":\"GB40807-RA\",\"children\":[{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208322},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":209434,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208175,\"strand\":1,\"fmax\":208544},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208735,\"strand\":1,\"fmax\":210517},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":208322,\"strand\":1,\"fmax\":209434},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAA\",\"location\":{\"fmin\":209449,\"strand\":1,\"fmax\":209449},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAA\",\"location\":{\"fmin\":209449,\"strand\":1,\"fmax\":209449},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MRVFMMQNFHRLTLFIWLVSILTLSISDEIKTDGNTSLTLNINNVDSDSKTEHRISSSSIQFMPESVNSKKIQNQSIATPLVAGEGGPISLIPPTQQTSTISHLKDVTDNLDLQDNLSQKEDDILYVKKKKNTSKIVSRKGADNGNISIKMTLSNDTKPIIEFSTIASNISNNAKIDINMNNSKSNVSDKNINKASNIIVNNTLYLTNVTQKLLSVTTSSVQEHKPKPTATVIESNNDKQAFIPHTKGSRLGMPKKIDYVLPVIVTLIALPVLGAIIFMVYKQGRDCWDKRHYRRMDFLIDGMYND"
         String expectedCdnaString = "GCAATAGTTGCGTGCTTATGATGGAGCAAACAGTTTCTTAGTGGTTGAGACCACTTTTTTTTTAGTTTTTCTATATTTTTATAAAAGTTTTAACCAGATTTATCTGCAAAGAATCGTATCAGAAAATAAAATTTTATAATTAAAATAATGCGTGTTTTCATGATGCAAAATTTTCATCGATTAACTCTATTTATATGGCTTGTATCTATTCTAACCTTATCTATCAGTGATGAAATTAAAACAGATGGTAATACATCCTTAACATTAAATATAAACAATGTTGATAGTGATTCCAAAACCGAACATCGAATTTCATCTTCATCAATTCAATTTATGCCTGAATCCGTTAATTCTAAAAAAATACAGAATCAAAGTATTGCCACTCCTTTAGTTGCTGGAGAAGGTGGTCCAATATCACTTATACCTCCTACTCAGCAAACATCTACTATTTCCCATTTAAAAGATGTTACTGATAATTTAGATTTACAAGATAATTTATCACAAAAAGAAGATGATATTTTATACGTAAAGAAAAAAAAGAATACTTCTAAAATCGTGTCGAGAAAAGGAGCAGATAATGGAAATATTTCTATTAAAATGACATTATCAAATGACACAAAACCTATTATTGAATTTTCAACAATAGCAAGTAATATTTCTAATAATGCAAAAATTGATATAAATATGAATAATTCAAAATCAAATGTTAGTGATAAAAATATAAATAAAGCTTCAAATATAATTGTAAATAATACTTTATATTTAACAAATGTAACTCAAAAATTATTAAGTGTAACAACATCATCAGTCCAAGAACATAAACCTAAACCAACTGCAACAGTAATAGAATCTAATAATGATAAACAAGCATTTATACCTCATACTAAAGGTTCACGCTTAGGAATGCCAAAGAAAATTGATTATGTCTTACCAGTTATTGTTACTCTTATAGCTCTACCAGTTTTGGGTGCTATTATTTTCATGGTTTATAAACAAGGTAGAGATTGTTGGGATAAAAGACACTACCGACGAATGGATTTTCTTATTGATGGCATGTACAATGATTAATACTTATAAATATGAAAATATCACTTAATTCGGCTCATAATTTTCATTCATATATGCAATACATATACATAACAGTTGAATATACTATTTTGCCATTATAGCTAAAAAAAACATTATATTTCAATTATATATAATTTTTTATTTTACTGCAATTTTCTGCATATACTTTTATCATGCTACTGCCTTAATATGAGATTTGTTATTATATATTAATTAGTATCATGTTTATAATTTTAGACAAATGGTGCATAGGAAAGACAATATGGAAATAACAACAAATTTACAATTATAGCAATAACAATTTATTATGAATTCTAAGAGTGAAGTACTTTTAAAATAAAGATTTTATCTTAATTTATAAAATAATTAATGACACTTTTATAATTGTATATTAAAGCAATTTTTAAAATTAGAGATTTTTAATTACATTACTTTTTCATAAAAATTTTTAATAAAAAAATAAATGTGCCAAGAATTTTTGATTATGAAACCAGTGATATGTTAATGTTTTTTCTTCCAGTATATATAAAAGTAAGTTTTTTTGATATGAAAAAACATATTTATATTTTGATATTGTAATTTAAATTTGTTTTTAATTATATTTCCATATGATTTCCTCTTCATTAAAATTTGATTTTATTTTTTAAATTTTATAAAATGCTCTTTATATTACAAATTGTAAAATAGTAGTATCTAGTTCGCCAAAGAAGTCATTCATATAATTTGATGTTTGCATTTACTTATTATAATTATTATGTGTTATTATCTTTTTACTTATGTTTTCGAAAAAATTTGTTTATATAAATTGATAATTATAATTACAAATGAAAGAATAAAATGGACATTAAATGTCCATTTGTAAAATTATCATATTATAAAATATATAAGCAATGATTTATGCAATTACTTTATCTAATAAGGTTGCTGCAATTGTTATTAATGCTAGTAGAATTTTACGAACTTTTTTATCTTTTTTAACGTTCGTAAAATTTGTATATTATTCAGATATAATAAAGCAATAACTATTTTTATATATGTATGTAAAAAAATTATTCATATTCTTATAAAATATAAGTACTTGTAATT"
@@ -1208,7 +1209,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40807-RA-00001")
@@ -1228,7 +1229,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at intron of gene GB40721-RA"() {
         given: "given a gene GB40721-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254801},\"name\":\"GB40721-RA\",\"children\":[{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254586},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1254747,\"strand\":-1,\"fmax\":1254801},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254801},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAAAAAAA\",\"location\":{\"fmin\":1254599,\"strand\":1,\"fmax\":1254599},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAAAAAAA\",\"location\":{\"fmin\":1254599,\"strand\":1,\"fmax\":1254599},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MRAAHLPFSGKVEGAHAMFLASDTSLTPCIQNIPSIRFLPSTRLLIDTF"
         String expectedCdnaString = "ATGCGTGCGGCCCATCTGCCGTTTAGCGGTAAGGTGGAGGGCGCTCATGCTATGTTTTTGGCATCTGACACATCTCTGACACCTTGCATTCAGAACATTCCATCCATTAGATTTCTGCCCTCGACCAGGTTACTTATAGATACGTTCTAA"
@@ -1248,7 +1249,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40721-RA-00001")
@@ -1268,7 +1269,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at exon 1 of gene GB40721-RA"() {
         given: "given a gene GB40721-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254801},\"name\":\"GB40721-RA\",\"children\":[{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254586},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1254747,\"strand\":-1,\"fmax\":1254801},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254801},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"TTT\",\"location\":{\"fmin\":1254774,\"strand\":1,\"fmax\":1254774},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"TTT\",\"location\":{\"fmin\":1254774,\"strand\":1,\"fmax\":1254774},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MRAAHLPFSKGKVEGAHAMFLASDTSLTPCIQNIPSIRFLPSTRLLIDTF"
         String expectedCdnaString = "ATGCGTGCGGCCCATCTGCCGTTTAGCAAAGGTAAGGTGGAGGGCGCTCATGCTATGTTTTTGGCATCTGACACATCTCTGACACCTTGCATTCAGAACATTCCATCCATTAGATTTCTGCCCTCGACCAGGTTACTTATAGATACGTTCTAA"
@@ -1288,7 +1289,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40721-RA-00001")
@@ -1308,7 +1309,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at exon 2 of gene GB40721-RA"() {
         given: "given a gene GB40721-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254801},\"name\":\"GB40721-RA\",\"children\":[{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254586},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1254747,\"strand\":-1,\"fmax\":1254801},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1254490,\"strand\":-1,\"fmax\":1254801},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"TTT\",\"location\":{\"fmin\":1254549,\"strand\":1,\"fmax\":1254549},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"TTT\",\"location\":{\"fmin\":1254549,\"strand\":1,\"fmax\":1254549},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MRAAHLPFSGKVEGAHAMFLASDTSLTPCIQKNIPSIRFLPSTRLLIDTF"
         String expectedCdnaString = "ATGCGTGCGGCCCATCTGCCGTTTAGCGGTAAGGTGGAGGGCGCTCATGCTATGTTTTTGGCATCTGACACATCTCTGACACCTTGCATTCAAAAGAACATTCCATCCATTAGATTTCTGCCCTCGACCAGGTTACTTATAGATACGTTCTAA"
@@ -1328,7 +1329,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40721-RA-00001")
@@ -1348,7 +1349,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at 5'UTR of gene GB40749-RA"() {
         given: "given a gene GB40749-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":694293,\"strand\":-1,\"fmax\":696055},\"name\":\"GB40749-RA\",\"children\":[{\"location\":{\"fmin\":695943,\"strand\":-1,\"fmax\":696055},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694293,\"strand\":-1,\"fmax\":694440},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694293,\"strand\":-1,\"fmax\":694606},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694918,\"strand\":-1,\"fmax\":695591},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":695882,\"strand\":-1,\"fmax\":696055},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694440,\"strand\":-1,\"fmax\":695943},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAAAA\",\"location\":{\"fmin\":695949,\"strand\":1,\"fmax\":695949},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAAAA\",\"location\":{\"fmin\":695949,\"strand\":1,\"fmax\":695949},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MPRCLIKSMTRYRKTDNSSEVEAELPWTPPSSVDAKRKHQIKDNSTKCNNIWTSSRLPIVTRYTFNKENNIFWNKELNIADVELGSRNFSEIENTIPSTTPNVSVNTNQAMVDTSNEQKVEKVQIPLPSNAKKVEYPVNVSNNEIKVAVNLNRMFDGAENQTTSQTLYIATNKKQIDSQNQYLGGNMKTTGVENPQNWKRNKTMHYCPYCRKSFDRPWVLKGHLRLHTGERPFECPVCHKSFADRSNLRAHQRTRNHHQWQWRCGECFKAFSQRRYLERHCPEACRKYRISQRREQNCS"
         String expectedCdnaString = "CAAATGCCTGTCGAACGTGTGACAGTGGTTTGCTCCATCGCTGTTGCAACGGCCAACACTTTATCGTATTTCGTTCTTTTTTTAGCTGTGGCCGTTTCATCGTCGCTTTTTTGAAAATATGCCTCGTTGCTTGATCAAATCGATGACAAGGTATAGGAAGACCGATAATTCTTCCGAAGTAGAGGCAGAATTACCATGGACTCCGCCATCGTCGGTCGACGCGAAGAGAAAACATCAGATTAAAGACAATTCCACGAAATGCAATAATATATGGACCTCCTCGAGATTGCCAATTGTAACACGTTACACGTTCAATAAAGAGAACAACATATTTTGGAACAAGGAGTTGAATATAGCAGACGTGGAATTGGGCTCGAGAAATTTTTCCGAGATTGAGAATACGATACCGTCGACCACTCCGAATGTCTCTGTGAATACCAATCAGGCAATGGTGGACACGAGCAATGAGCAAAAGGTGGAAAAAGTGCAAATACCATTGCCCTCGAACGCGAAAAAAGTAGAGTATCCGGTAAACGTGAGTAACAACGAGATCAAGGTGGCTGTGAATTTGAATAGGATGTTCGATGGGGCTGAGAATCAGACCACCTCGCAGACTTTGTATATTGCCACGAATAAGAAACAGATTGATTCCCAGAATCAATATTTAGGAGGGAATATGAAAACTACGGGGGTGGAGAATCCCCAGAATTGGAAGAGAAATAAAACTATGCATTATTGCCCTTATTGTCGCAAGAGTTTCGATCGTCCATGGGTTTTGAAGGGTCATCTGCGTCTTCACACGGGTGAACGACCTTTTGAATGTCCGGTCTGCCATAAATCCTTTGCCGATCGATCAAATTTACGTGCGCATCAAAGGACTCGGAATCACCATCAATGGCAATGGCGATGCGGGGAATGTTTCAAAGCATTCTCGCAAAGACGATATTTAGAACGACATTGCCCCGAAGCTTGTAGAAAATATCGAATATCTCAAAGGAGGGAACAGAATTGTAGTTAGAAGGCAAATTTTATTTCTTTAGTATAAACATATTTTTATATTGAAATATCTAATGTAATATATTAAATGTATTTCGTTAATTAACACTGTAAAATTTGAATTCGAAATATCACTGTATTGTTATTCTAATATACATATATATATGTG"
@@ -1368,7 +1369,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40749-RA-00001")
@@ -1388,7 +1389,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add insertion at 3'UTR of gene GB40749-RA"() {
         given: "given a gene GB40749-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":694293,\"strand\":-1,\"fmax\":696055},\"name\":\"GB40749-RA\",\"children\":[{\"location\":{\"fmin\":695943,\"strand\":-1,\"fmax\":696055},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694293,\"strand\":-1,\"fmax\":694440},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694293,\"strand\":-1,\"fmax\":694606},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694918,\"strand\":-1,\"fmax\":695591},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":695882,\"strand\":-1,\"fmax\":696055},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":694440,\"strand\":-1,\"fmax\":695943},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAA\",\"location\":{\"fmin\":694399,\"strand\":1,\"fmax\":694399},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAA\",\"location\":{\"fmin\":694399,\"strand\":1,\"fmax\":694399},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MPRCLIKSMTRYRKTDNSSEVEAELPWTPPSSVDAKRKHQIKDNSTKCNNIWTSSRLPIVTRYTFNKENNIFWNKELNIADVELGSRNFSEIENTIPSTTPNVSVNTNQAMVDTSNEQKVEKVQIPLPSNAKKVEYPVNVSNNEIKVAVNLNRMFDGAENQTTSQTLYIATNKKQIDSQNQYLGGNMKTTGVENPQNWKRNKTMHYCPYCRKSFDRPWVLKGHLRLHTGERPFECPVCHKSFADRSNLRAHQRTRNHHQWQWRCGECFKAFSQRRYLERHCPEACRKYRISQRREQNCS"
         String expectedCdnaString = "CAAATGCCTGTCGAACGTGTGACAGTGGTTTGCTCCATCGCTGTTGCAACGGCCAACACTTTATCGTATTTCGTTCTTTTTTTAGCTGTGGCCGTTTCATCGTCGCGAAAATATGCCTCGTTGCTTGATCAAATCGATGACAAGGTATAGGAAGACCGATAATTCTTCCGAAGTAGAGGCAGAATTACCATGGACTCCGCCATCGTCGGTCGACGCGAAGAGAAAACATCAGATTAAAGACAATTCCACGAAATGCAATAATATATGGACCTCCTCGAGATTGCCAATTGTAACACGTTACACGTTCAATAAAGAGAACAACATATTTTGGAACAAGGAGTTGAATATAGCAGACGTGGAATTGGGCTCGAGAAATTTTTCCGAGATTGAGAATACGATACCGTCGACCACTCCGAATGTCTCTGTGAATACCAATCAGGCAATGGTGGACACGAGCAATGAGCAAAAGGTGGAAAAAGTGCAAATACCATTGCCCTCGAACGCGAAAAAAGTAGAGTATCCGGTAAACGTGAGTAACAACGAGATCAAGGTGGCTGTGAATTTGAATAGGATGTTCGATGGGGCTGAGAATCAGACCACCTCGCAGACTTTGTATATTGCCACGAATAAGAAACAGATTGATTCCCAGAATCAATATTTAGGAGGGAATATGAAAACTACGGGGGTGGAGAATCCCCAGAATTGGAAGAGAAATAAAACTATGCATTATTGCCCTTATTGTCGCAAGAGTTTCGATCGTCCATGGGTTTTGAAGGGTCATCTGCGTCTTCACACGGGTGAACGACCTTTTGAATGTCCGGTCTGCCATAAATCCTTTGCCGATCGATCAAATTTACGTGCGCATCAAAGGACTCGGAATCACCATCAATGGCAATGGCGATGCGGGGAATGTTTCAAAGCATTCTCGCAAAGACGATATTTAGAACGACATTGCCCCGAAGCTTGTAGAAAATATCGAATATCTCAAAGGAGGGAACAGAATTGTAGTTAGAAGGCAAATTTTATTTCTTTAGTATAAACATATTTTTATATTTTTTGAAATATCTAATGTAATATATTAAATGTATTTCGTTAATTAACACTGTAAAATTTGAATTCGAAATATCACTGTATTGTTATTCTAATATACATATATATATGTG"
@@ -1408,7 +1409,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40749-RA-00001")
@@ -1428,7 +1429,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add start codon insertion at 5'UTR of gene GB40843-RA"() {
         given: "given a gene GB40843-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1092561,\"strand\":1,\"fmax\":1095202},\"name\":\"GB40843-RA\",\"children\":[{\"location\":{\"fmin\":1092561,\"strand\":1,\"fmax\":1092941},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1094825,\"strand\":1,\"fmax\":1095202},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1092561,\"strand\":1,\"fmax\":1093530},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1093608,\"strand\":1,\"fmax\":1094085},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1094159,\"strand\":1,\"fmax\":1094487},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1094623,\"strand\":1,\"fmax\":1095202},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1092941,\"strand\":1,\"fmax\":1094825},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"ATG\",\"location\":{\"fmin\":1092929,\"strand\":1,\"fmax\":1092929},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"ATG\",\"location\":{\"fmin\":1092929,\"strand\":1,\"fmax\":1092929},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptideString = "MYLIIMTLDNSWHIIKTAAAENKHELVLSGPAISELIQKRGFDKSLFNLEHLNYLNITQTCLHEVSEEIEKLQNLTTLVLHSNEISKIPSSIGKLEKLKVLDCSRNKLTSLPDEIGKLPQLTTMNFSSNFLKSLPTQIDNVKLTVLDLSNNQFEDFPDVCYTELVHLSEIYVMGNQIKEIPTIINQLPSLKIINVANNRISVIPGEIGDCNKLKELQLKGNPLSDKRLLKLVDQCHNKQILEYVKLHCPKQDGSVNSNSKSKKGKKVQKLSESENNANVMDNLTHKMKILKMANDTPVIKVTKYVKNIRPYIAACIVRNMSFTEDSFKKFIQLQTKLHDGICEKRNAATIATHDLKLITTGDLTYTAKPPNELEIKPLMRNKVYTGSELFKQLQTEADNLRKEKKRNVYSGIHKYLYLLEGKPYFPCLLDASEQVISFPPITNSDITKMSINTQAILIEVTSASSYQICRNVLDQFLKELVTFGLGCVSEQENASNYHKLIIEQVKVVDMEGNMKLVYPSRADLNFAENFITVLRE"
         String expectedCdnaString = "AATTAATAGTATTCATTTTTTATCTTTTGATCAAGCTCATATTTATAATTAAATATCAAAATATAATTCATAGATAACATTAAAATTTGTTTATAGTTTAATTCACTAAAATACGTTTATCATTATTGTTTAATCAAATTATATGTGACGGAAACTATCCGTTATATATCTCTACAAAACTTTTATTAGATTTAGGTTATTTGATGTCTCGTCTTAAATTCATTTATTCTTTTCAATCGCAATTTTTAAATTGCATATGTACGTAGATGTCGTTATAATCGTATAACGCATGTTTCAAATTGATCAACCCGGCAAGTAACCTTGAAACTACGTAAATAACATTACCCTTTTATTAAAAATTCTTTTAAATGTACTTAATAATAATGACGCTCGATAATTCATGGCATATAATCAAAACTGCAGCTGCAGAGAATAAACATGAATTAGTGTTGTCAGGTCCGGCAATCTCTGAATTGATTCAAAAAAGAGGCTTCGACAAGTCTTTATTTAACCTAGAGCATTTGAATTATTTGAATATTACTCAGACATGTTTACACGAAGTGTCAGAAGAAATTGAAAAATTGCAAAATCTAACAACATTGGTATTGCATTCGAATGAGATTTCGAAGATACCTAGCTCAATCGGGAAATTAGAAAAACTAAAGGTTCTCGATTGCTCTAGGAACAAGTTGACGTCTTTACCAGATGAAATCGGTAAACTTCCACAATTAACAACCATGAACTTCAGTTCAAATTTTTTGAAATCATTACCTACGCAAATTGACAATGTTAAGTTGACTGTTTTGGATCTTTCGAACAATCAGTTTGAAGATTTTCCTGATGTGTGCTATACAGAATTGGTTCATCTTTCTGAAATCTATGTCATGGGAAATCAAATAAAAGAAATTCCTACAATTATAAATCAGCTTCCATCTTTAAAAATAATAAATGTAGCAAACAATAGAATTTCAGTTATTCCAGGTGAGATTGGTGATTGTAATAAACTCAAAGAACTTCAATTAAAAGGAAATCCATTATCAGACAAAAGATTATTAAAATTAGTTGATCAATGTCATAATAAACAAATATTAGAATATGTAAAATTGCATTGTCCTAAACAAGATGGTTCTGTCAATTCAAATTCAAAATCAAAAAAAGGAAAAAAGGTACAAAAATTATCAGAAAGTGAAAATAATGCTAATGTAATGGATAATTTGACACACAAAATGAAAATATTAAAAATGGCAAATGATACACCAGTAATTAAGGTTACAAAATATGTGAAAAATATCAGACCTTACATTGCAGCTTGTATTGTTAGAAATATGAGCTTCACAGAAGATAGTTTTAAAAAATTTATTCAACTTCAAACTAAATTACATGATGGCATATGTGAAAAAAGAAATGCAGCTACTATTGCTACACATGACTTAAAATTGATTACCACTGGAGATTTAACATACACAGCAAAACCACCAAATGAATTAGAAATCAAGCCATTAATGCGCAATAAAGTTTATACTGGTTCTGAACTATTCAAACAGTTACAAACTGAAGCTGATAATTTAAGGAAAGAAAAAAAACGCAATGTATATTCTGGCATTCATAAATATCTTTATCTATTAGAAGGTAAACCTTACTTTCCTTGTTTGTTAGATGCTTCAGAACAAGTTATATCATTTCCACCTATAACGAATAGTGATATTACAAAAATGTCAATAAATACCCAAGCAATATTAATAGAAGTAACCAGTGCTTCATCCTATCAAATTTGCAGGAATGTATTAGATCAATTTTTAAAGGAACTAGTTACTTTTGGTTTAGGATGTGTCTCAGAACAAGAAAATGCTTCAAATTATCATAAATTAATCATAGAACAAGTAAAAGTGGTAGATATGGAAGGTAATATGAAATTAGTATATCCTTCAAGAGCAGATTTAAATTTTGCAGAAAATTTTATAACAGTATTACGCGAGTAATAAATTACTGTAAGTAATTAAATTGTTCTTTAATCTTGATCTAATCTGCATTTTTCTTTCTTAATCTTTTTAACTATTATTTTTTTGATTGATAAGTTGTAAATCTAAATTATTTTCATATTATTACTTTTTCATAAATAACACATTATTTTCATATGCCAAATTGTAATTTTTTATTTGTTACTCTGTGAAAATCTTAAGATTAGTATGCAATGTATATAATATTTGCATATTTTATACAGAATCTTTTTGGTATGTATCAATATAATTATATTTTAATCATAATATTTTTATACTGAGATTTGAATCTATGTAAAAATAATAACAATAAGTGTTTTATGTTATGAAAATCAAAAACTGGAAAATAAATATTAAAA"
@@ -1448,7 +1449,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertionString) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40843-RA-00001")
@@ -1469,8 +1470,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add deletions to GB40738-RA"() {
         given: "given a gene GB40738-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":874076,\"strand\":-1,\"fmax\":874361},\"name\":\"GB40738-RA\",\"children\":[{\"location\":{\"fmin\":874076,\"strand\":-1,\"fmax\":874091},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":874214,\"strand\":-1,\"fmax\":874252},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":874336,\"strand\":-1,\"fmax\":874361},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":874076,\"strand\":-1,\"fmax\":874361},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":874349,\"strand\":1,\"fmax\":874352},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":874224,\"strand\":1,\"fmax\":874227},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":874349,\"strand\":1,\"fmax\":874352},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":874224,\"strand\":1,\"fmax\":874227},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptide1String = "MILCKCINDGKYSFQRCFIQKSII"
         String expectedCdna1String = "ATGATACTCTGTAAATGTATAAATGATGGAAAATATTCTTTTCAACGATGCTTTATTCAGAAGTCAATCATTTGA"
@@ -1493,7 +1494,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion1String) as JSONObject)
 
         then: "the deletion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40738-RA-00001")
@@ -1511,7 +1512,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion2String) as JSONObject)
 
         then: "the deletion is successfully added"
-        assert SequenceAlteration.count == 2
+        assert SequenceAlterationArtifact.count == 2
 
         when: "we request for the FASTA sequence"
         String peptide2String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1528,12 +1529,12 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add combination of sequence alterations to GB40821-RA"() {
         given: "given a gene GB40821-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":621650,\"strand\":1,\"fmax\":628275},\"name\":\"GB40821-RA\",\"children\":[{\"location\":{\"fmin\":621650,\"strand\":1,\"fmax\":622270},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":628037,\"strand\":1,\"fmax\":628275},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":621650,\"strand\":1,\"fmax\":622330},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":623090,\"strand\":1,\"fmax\":623213},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":624547,\"strand\":1,\"fmax\":624610},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":624680,\"strand\":1,\"fmax\":624743},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":624885,\"strand\":1,\"fmax\":624927},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":625015,\"strand\":1,\"fmax\":625090},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":627962,\"strand\":1,\"fmax\":628275},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":622270,\"strand\":1,\"fmax\":628037},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":621999,\"strand\":1,\"fmax\":622010},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"GGGTGCC\",\"location\":{\"fmin\":622274,\"strand\":1,\"fmax\":622274},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion3String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":622299,\"strand\":1,\"fmax\":622301},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion4String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":622749,\"strand\":1,\"fmax\":622774},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertion5String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCCCCCC\",\"location\":{\"fmin\":623174,\"strand\":1,\"fmax\":623174},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertion6String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"TGA\",\"location\":{\"fmin\":623200,\"strand\":1,\"fmax\":623200},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":621999,\"strand\":1,\"fmax\":622010},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"GGGTGCC\",\"location\":{\"fmin\":622274,\"strand\":1,\"fmax\":622274},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion3String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":622299,\"strand\":1,\"fmax\":622301},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion4String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":622749,\"strand\":1,\"fmax\":622774},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertion5String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCCCCCC\",\"location\":{\"fmin\":623174,\"strand\":1,\"fmax\":623174},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertion6String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"TGA\",\"location\":{\"fmin\":623200,\"strand\":1,\"fmax\":623200},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptide1String = "MEIARIHRYYKTYHFGPRWLLYQYLLTDAKLRNMLDLGPFCGTITFITGLMILILLLYSYMNEKATNSNEKDFQELQKETNKKIPRKKSVADIRPIYNCIHKHLQQTDVFQEKTKKMLCKERLELEILCSKINCINKLLRPEAQTEWRRSKLRKVYYRPINSATSK"
         String expectedCdna1String = "AAAAAAACGAATAACCTAATCTAACCTCCTTTATTTCGTCGATTATGATCGAATTATGATCGAAAATATAAATAAATTTCTCGATTATTGCAAAAAAAAATATGAAGAAAATGAAGAAAAGGAATGAAAGAAAATGGAAAATTGAGTAAATAAAAACATATATATGAAAACATGGATACACCGAAATCAATAGCCAATAAAAAACATGATATTACGAGGATTCGCTTCTTGACACGAATCTCTACTTATCGTCGTTGCTTGAATATGCTCCTTTAATTTGTATCGTCTTTCACAACTAATCAAAAATTCCAATATACAACGAATAAATCTCGAAACTTAAAATTTTCAACGTAAAAAATGTATAATGTTAAGATGCTAAGGACGATTTCAAAAATTCAATGAAAAATCGCGACATGTACAAATCCCTCTATCGAAGACGAGATGAACAACAGCAAGGAGAGAAATTGAAGAGGGCGCATCGATCACTTTATGTCAAACGATCCTCCAAAAACTGTCAGTTTTTTCGATTCTCGTGGCCCGTCCAAATTCACGTGATGCTCGTGACAATAGCGACGAATTATCAGCTTCGCGGGACGAAAACTCGATGTCATGGAAATCGCAAGGATCCACAGATATTACAAAACCTATCATTTTGGGCCACGATGGCTGTTATACCAATATCTGTTGACGGACGCTAAGTTGAGGAATATGCTTGATTTGGGTCCGTTCTGCGGGACCATTACGTTTATAACTGGACTCATGATCTTGATCCTCCTCCTCTATTCATACATGAATGAAAAAGCGACCAATTCGAACGAGAAGGATTTTCAAGAGCTTCAAAAGGAAACAAATAAGAAAATTCCCCGGAAAAAAAGCGTGGCGGACATCAGGCCGATCTACAATTGTATTCATAAACACCTCCAGCAGACCGACGTGTTTCAAGAGAAGACGAAGAAAATGCTTTGCAAGGAACGCTTGGAATTGGAGATTCTGTGCAGTAAAATCAATTGCATCAACAAGCTGTTAAGGCCCGAGGCGCAGACCGAATGGCGGCGGAGCAAGTTACGAAAAGTGTATTATCGTCCTATTAACTCTGCCACGTCGAAGTAATGGCCGACGCCGTGTAACAATGTAATTAACCAAATACAAATGCATCCAATAAAGAACGTACAAATTGCATCGACTTATTACGCGCAGACGCGTTTATGAATTCACGATATTCTTGCACCAAACGTTCCTTTTTTTCTAACCGTGAAGAATTCTTCGTGCACGTTCCACAAATTGTACACTGTATTATTTGCACCCGACACGAAATTGAGCCTGCGTCGAACTGAGAATCGTAGCGGTG"
@@ -1572,7 +1573,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion1String) as JSONObject)
 
         then: "the deletion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40821-RA-00001")
@@ -1590,7 +1591,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion2String) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 2
+        assert SequenceAlterationArtifact.count == 2
 
         when: "we request for the FASTA sequence"
         String peptide2String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1606,7 +1607,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion3String) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 3
+        assert SequenceAlterationArtifact.count == 3
 
         when: "we request for the FASTA sequence"
         String peptide3String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1622,7 +1623,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion4String) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 4
+        assert SequenceAlterationArtifact.count == 4
 
         when: "we request for the FASTA sequence"
         String peptide4String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1638,7 +1639,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion5String) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 5
+        assert SequenceAlterationArtifact.count == 5
 
         when: "we request for the FASTA sequence"
         String peptide5String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1654,7 +1655,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion6String) as JSONObject)
 
         then: "the insertion is successfully added"
-        assert SequenceAlteration.count == 6
+        assert SequenceAlterationArtifact.count == 6
 
         when: "we request for the FASTA sequence"
         String peptide6String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1671,11 +1672,11 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "add combination of sequence alterations to GB40744-RA"() {
         given: "given a gene GB40744-RA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":768063},\"name\":\"GB40744-RA\",\"children\":[{\"location\":{\"fmin\":767945,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763070},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":761542,\"strand\":-1,\"fmax\":763513},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765327,\"strand\":-1,\"fmax\":765472},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":765551,\"strand\":-1,\"fmax\":766176},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":766255,\"strand\":-1,\"fmax\":767133},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767207,\"strand\":-1,\"fmax\":767389},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":767485,\"strand\":-1,\"fmax\":768063},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":763070,\"strand\":-1,\"fmax\":767945},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":768024,\"strand\":1,\"fmax\":768034},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AACCC\",\"location\":{\"fmin\":767849,\"strand\":1,\"fmax\":767849},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertion3String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAAAAAAAAA\",\"location\":{\"fmin\":767399,\"strand\":1,\"fmax\":767399},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletion4String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":767324,\"strand\":1,\"fmax\":767354},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addInsertion5String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCCGGGA\",\"location\":{\"fmin\":763174,\"strand\":1,\"fmax\":763174},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":768024,\"strand\":1,\"fmax\":768034},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AACCC\",\"location\":{\"fmin\":767849,\"strand\":1,\"fmax\":767849},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertion3String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"AAAAAAAAAAA\",\"location\":{\"fmin\":767399,\"strand\":1,\"fmax\":767399},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion4String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":767324,\"strand\":1,\"fmax\":767354},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addInsertion5String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCCGGGA\",\"location\":{\"fmin\":763174,\"strand\":1,\"fmax\":763174},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedPeptide1String = "MEEMDLGSDESTDKNLHEKSVNRKIESEMIENETEEIKDEFDEEQDKDNDDDDDDDDDDDDEEDADEAEVKILETSLAHNPYDYASHVALINKLQKMGELERLRAAREDMSSKYPLSPDLWLSWMRDEIKLATTIEQKAEVVKLCERAVKDYLAVEVWLEYLQFSIGNMGTEKDAAKNVRHLFERALTDVGLHTIKGAIIWEAFREFEAVLYALIDPLNQAERKEQLERIGNLFKRQLACPLLDMEKTYEEYEAWRHGDGTEAVIDDKIIIGGYNRALSKLNLRLPYEEKIVSAQTENELLDSYKIYLSYEQRNGDPGRITVLYERAITDLSLEMSIWLDYLKYLEENIKIESVLDQVYQRALRNVPWCAKIWQKWIRSYEKWNKSVLEVQTLLENALAAGFSTAEDYRNLWITYLEYLRRKIDRYSTDEGKQLEILRNTFNRACEHLAKSFGLEGDPNCIILQYWARTEAIHANNMEKTRSLWADILSQGHSGTASYWLEYISLERCYGDTKHLRKLFQKALTMVKDWPESIANSWIDFERDEGTLEQMEICEIRTKEKLDKVAEERQKMQQMSNHELSPLQNKKTLKRKQDETGKWKNLGSSPTKITKVEMQIKPKIRESRLNFEKNADSEEQKLKTAPPPGFKMPENEQMEIDNMNEMDDKSTVFISNLDYTASEEEVRNALQPAGPITMFKMIRDYKGRSKGYCYVQLSNIEAIDKALQLDRTPIRGRPMFVSKCDPNRTRGSGFKYSCSLEKNKLFVKGLPVSTTKEDLEEIFKVHGALKEVRIVTYRNGHSKGLAYIEFKDENSAAKALLATDGMKIADKIISVAISQPPERKKVPATEEPLLVKSLGGTTVSRTTFGMPKTLLSMVPRTVKTAATNGSANVPGNGVAPKMNNQDFRNMLLNKK"
         String expectedCds1String = "ATGGAAGAAATGGATTTAGGAAGCGATGAAAGTACCGATAAAAATTTACATGAAAAGTCGGTGAACAGAAAGATCGAATCAGAAATGATTGAAAATGAAACTGAAGAAATTAAGGATGAATTTGATGAAGAACAGGATAAAGATAATGATGATGATGATGATGATGATGATGATGATGATGATGAAGAGGATGCTGATGAAGCAGAAGTTAAAATTTTAGAAACTTCTCTTGCTCACAATCCATATGATTATGCGAGTCATGTAGCTCTTATCAACAAATTACAAAAAATGGGTGAATTAGAACGATTACGCGCTGCCAGAGAAGATATGAGTTCAAAATATCCCTTGAGTCCTGATCTCTGGTTATCTTGGATGCGTGACGAAATTAAATTAGCAACCACCATAGAACAGAAAGCTGAAGTAGTAAAATTATGTGAGCGAGCAGTAAAAGATTATCTTGCTGTAGAAGTATGGTTAGAATATTTGCAATTTAGTATTGGTAATATGGGCACTGAAAAAGATGCAGCAAAAAATGTTAGACATCTCTTTGAAAGAGCATTAACAGATGTTGGATTACATACTATTAAAGGTGCAATAATATGGGAAGCATTTCGAGAGTTTGAAGCTGTGTTATATGCTCTGATTGATCCTTTAAATCAAGCTGAAAGGAAAGAGCAATTAGAACGTATTGGTAACTTATTCAAAAGACAATTAGCTTGTCCTCTTTTAGATATGGAAAAAACATATGAAGAATATGAAGCTTGGCGTCATGGAGATGGTACAGAAGCTGTTATTGATGATAAAATTATTATTGGAGGATATAATCGAGCTCTTTCAAAGCTTAATCTTCGTTTACCTTATGAGGAAAAAATTGTTTCTGCACAAACAGAAAATGAATTATTAGATTCATACAAAATATATTTATCATACGAACAACGTAATGGTGATCCTGGAAGAATCACAGTTTTGTATGAAAGAGCAATCACTGATCTTAGTTTAGAAATGTCAATTTGGCTTGATTACCTTAAATATTTAGAAGAAAATATTAAAATTGAATCAGTTTTAGATCAAGTATATCAAAGAGCTTTAAGAAATGTTCCTTGGTGTGCAAAAATATGGCAAAAATGGATAAGATCATACGAAAAATGGAACAAATCGGTATTAGAAGTTCAAACTTTATTAGAAAATGCTTTAGCAGCTGGATTTTCTACCGCGGAAGATTATCGAAATTTATGGATAACTTATTTGGAATATTTACGACGAAAAATCGATCGTTATTCTACAGACGAAGGAAAACAATTAGAAATATTACGTAATACTTTTAATAGAGCTTGTGAACATTTGGCAAAATCATTTGGCTTAGAAGGAGACCCTAATTGTATTATATTGCAATATTGGGCAAGAACTGAAGCTATACATGCTAATAATATGGAAAAAACTAGATCATTATGGGCTGATATTTTGTCACAAGGACATTCCGGAACAGCATCTTATTGGTTGGAATATATTTCATTAGAAAGATGTTATGGAGATACAAAACATTTGAGGAAATTATTCCAAAAAGCTTTGACCATGGTAAAAGATTGGCCAGAAAGCATAGCAAATTCTTGGATAGATTTTGAACGGGATGAAGGAACATTAGAACAAATGGAAATATGTGAAATACGAACAAAAGAAAAATTAGATAAAGTTGCTGAAGAAAGACAGAAAATGCAACAAATGTCCAATCATGAACTATCACCATTACAAAACAAAAAAACTCTTAAAAGAAAACAAGACGAAACTGGTAAATGGAAAAATTTAGGATCTTCTCCAACAAAAATTACAAAAGTTGAAATGCAAATAAAACCAAAAATTAGAGAAAGTCGTTTAAATTTCGAAAAAAATGCTGATTCTGAAGAACAAAAATTAAAAACTGCGCCTCCGCCTGGTTTTAAAATGCCGGAAAATGAACAAATGGAGATAGATAATATGAATGAAATGGATGACAAAAGTACAGTTTTTATAAGTAATTTAGATTACACAGCAAGTGAAGAAGAAGTTAGAAATGCTTTACAACCAGCAGGACCAATTACAATGTTTAAAATGATACGAGATTATAAAGGACGTAGTAAAGGATATTGTTATGTGCAACTCAGTAATATAGAAGCAATTGATAAAGCTCTACAGTTGGATAGAACTCCTATAAGAGGGCGGCCAATGTTTGTTTCAAAGTGCGATCCCAACAGAACACGAGGATCTGGATTTAAATACAGCTGTTCTCTTGAGAAAAACAAGCTTTTTGTTAAAGGACTTCCGGTATCAACGACAAAAGAAGATCTTGAAGAAATTTTCAAAGTTCACGGAGCATTGAAGGAAGTCCGTATAGTTACTTACCGTAATGGCCATTCTAAAGGGTTGGCTTACATCGAATTTAAGGACGAGAACAGTGCCGCGAAGGCACTTCTGGCCACTGATGGAATGAAAATTGCCGACAAAATAATTAGTGTAGCCATAAGCCAACCACCTGAACGCAAGAAAGTACCAGCGACTGAAGAACCTCTCTTAGTTAAGTCTCTAGGTGGTACTACAGTAAGCAGAACTACATTTGGTATGCCCAAAACATTATTATCTATGGTACCTCGTACTGTCAAAACTGCTGCTACTAATGGCAGTGCAAATGTGCCTGGGAATGGTGTTGCTCCAAAAATGAATAATCAAGATTTTAGAAATATGTTACTGAATAAAAAGTAA"
@@ -1705,7 +1706,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion1String) as JSONObject)
 
         then: "the deletion is successfully added"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we request for the FASTA sequence"
         MRNA mrna = MRNA.findByName("GB40744-RA-00001")
@@ -1721,7 +1722,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion2String) as JSONObject)
 
         then: "the Insertion is successfully added"
-        assert SequenceAlteration.count == 2
+        assert SequenceAlterationArtifact.count == 2
 
         when: "we request for the FASTA sequence"
         String peptide2String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1735,7 +1736,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion3String) as JSONObject)
 
         then: "the Insertion is successfully added"
-        assert SequenceAlteration.count == 3
+        assert SequenceAlterationArtifact.count == 3
 
         when: "we request for the FASTA sequence"
         String peptide3String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1749,7 +1750,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion4String) as JSONObject)
 
         then: "the Insertion is successfully added"
-        assert SequenceAlteration.count == 4
+        assert SequenceAlterationArtifact.count == 4
 
         when: "we request for the FASTA sequence"
         String peptide4String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1764,7 +1765,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addInsertion5String) as JSONObject)
 
         then: "the Insertion is successfully added"
-        assert SequenceAlteration.count == 5
+        assert SequenceAlterationArtifact.count == 5
 
         when: "we request for the FASTA sequence"
         String peptide5String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -1779,11 +1780,11 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "a transcript GB40728-RA and 5 sequence alterations"
         String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":1087635,\"fmax\":1088108},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":1088739,\"fmax\":1088873},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":1089643,\"fmax\":1089949},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":1090294,\"fmax\":1091074},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":1087958,\"fmax\":1090634},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40728-RA\",\"location\":{\"strand\":-1,\"fmin\":1087635,\"fmax\":1091074},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        String addSequenceAlterationString1 = "{ ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":1089899,\"fmax\":1089899},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSequenceAlterationString2 = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":1089849,\"fmax\":1089852},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSequenceAlterationString3 = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":1089824,\"fmax\":1089826},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSequenceAlterationString4 = "{ ${testCredentials} \"features\":[{\"residues\":\"C\",\"location\":{\"strand\":1,\"fmin\":1089803,\"fmax\":1089803},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSequenceAlterationString5 = "{ ${testCredentials} \"features\":[{\"residues\":\"TCC\",\"location\":{\"strand\":1,\"fmin\":1090349,\"fmax\":1090349},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlterationString1 = "{ ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":1089899,\"fmax\":1089899},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlterationString2 = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":1089849,\"fmax\":1089852},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlterationString3 = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":1089824,\"fmax\":1089826},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlterationString4 = "{ ${testCredentials} \"features\":[{\"residues\":\"C\",\"location\":{\"strand\":1,\"fmin\":1089803,\"fmax\":1089803},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlterationString5 = "{ ${testCredentials} \"features\":[{\"residues\":\"TCC\",\"location\":{\"strand\":1,\"fmin\":1090349,\"fmax\":1090349},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
 
         when: "we add a transcript"
         requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
@@ -1796,7 +1797,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString1) as JSONObject)
 
         then: "we should see the insertion"
-        assert Insertion.all.size() == 1
+        assert InsertionArtifact.all.size() == 1
 
         then: "the insertion should be seen in the transcript's sequence"
         String genomic1String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_GENOMIC.value)
@@ -1813,7 +1814,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString2) as JSONObject)
 
         then: "we should see the deletion"
-        assert Deletion.all.size() == 1
+        assert DeletionArtifact.all.size() == 1
 
         then: "the deletion should be seen in the transcript's sequence"
         String genomic2String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_GENOMIC.value)
@@ -1830,7 +1831,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString3) as JSONObject)
 
         then: "we should see the deletion"
-        assert Deletion.all.size() == 2
+        assert DeletionArtifact.all.size() == 2
 
         then: "the deletion should be seen in the transcript's sequence"
         String genomic3String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_GENOMIC.value)
@@ -1847,7 +1848,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString4) as JSONObject)
 
         then: "we should see the deletion"
-        assert Insertion.all.size() == 2
+        assert InsertionArtifact.all.size() == 2
 
         then: "the insertion should be seen in the transcript's sequence"
         String genomic4String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_GENOMIC.value)
@@ -1864,7 +1865,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString5) as JSONObject)
 
         then: "we should see the insertion"
-        assert Insertion.all.size() == 3
+        assert InsertionArtifact.all.size() == 3
 
         then: "the insertion should be seen in the transcript's sequence"
         String genomic5String = sequenceService.getSequenceForFeature(mrna, FeatureStringEnum.TYPE_GENOMIC.value)
@@ -1889,13 +1890,13 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "a Gene GB40788-RA"
         String addTranscriptString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40788-RA\",\"children\":[{\"location\":{\"fmin\":65107,\"fmax\":65286,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":71477,\"fmax\":71651,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":75270,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":65107,\"fmax\":75367,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}], \"operation\": \"add_transcript\" }:"
         String peptideSequencePlain = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLRPTPSPLSETSATLQSDNNDTFSGGVDPRLLLGANTGGDRNTWEGRYRVKEHRRAGKATFQGQVYNFLERPTGWKCFLYHFSV"
-        String addSAS1String = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71549, \"fmax\": 71549, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"AAAAAAAAAAAAAAAAAAAA\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String addSAS1String = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71549, \"fmax\": 71549, \"strand\": 1 }, \"type\": {\"name\": \"insertion_artifact\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"AAAAAAAAAAAAAAAAAAAA\" } ], \"operation\": \"add_sequence_alteration\" }"
         String insertionStringOne = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQHCSPTTMIPLVEVSIHDYCWAQTPGATVTRGRVVTV"
-        String addSASIntronString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71199, \"fmax\": 71199, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"GGGGGGGGGGGGGGGGGGGGG\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String addSASIntronString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71199, \"fmax\": 71199, \"strand\": 1 }, \"type\": {\"name\": \"insertion_artifact\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"GGGGGGGGGGGGGGGGGGGGG\" } ], \"operation\": \"add_sequence_alteration\" }"
         String insertionStringTwo = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQHCSPTTMIPLVEVSIHDYCWAQTPGATVTRGRVVTV"
-        String addSADeleteString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71499, \"fmax\": 71509, \"strand\": 1 }, \"type\": {\"name\": \"deletion\", \"cv\": { \"name\":\"sequence\" } } } ], \"operation\": \"add_sequence_alteration\" }"
+        String addSADeleteString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71499, \"fmax\": 71509, \"strand\": 1 }, \"type\": {\"name\": \"deletion_artifact\", \"cv\": { \"name\":\"sequence\" } } } ], \"operation\": \"add_sequence_alteration\" }"
         String deletionString = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPLTIVQVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQH"
-        String addSASubstitutionString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71624, \"fmax\": 71638, \"strand\": 1 }, \"type\": {\"name\": \"substitution\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"TTTTTTTTTTTTTT\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String addSASubstitutionString = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 71624, \"fmax\": 71638, \"strand\": 1 }, \"type\": {\"name\": \"substitution_artifact\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"TTTTTTTTTTTTTT\" } ], \"operation\": \"add_sequence_alteration\" }"
         String finalSubstitutionString = "MKDRPHRPYRDHHGQAMPLEEVQGLLLPPSRTGNRGPKKKKKVGKGNGGGGDGGSDLLRLEPPSDLIFFFFFFGQLRRPCPKRAQH"
 
 
@@ -1964,17 +1965,17 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         String originalCdnaString = "ATGTTAGGCAAGCTGCTTCTGATGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAAACCTAGAAATCTTCTGTCAATGATGACAACTTGATTAATTTTCATCTCGGTGCTAATTTGAAGAAAAATCGCTGGAAAGAATGGAAGAGAGATGAAACATCCGTATCGCAATTTTTTTTTTCCGACATACAATTTGAATATATTAACCTAACCTTTTTATACTTTTTTTAAATCGAAATTAATTTTATAGATATTTTATAGATTTTTAAAAATTTATTTTAATTCCGTGGAAAAAATCTAAATTCTTAAGATAAAATAACTGCCAAAATTTCATAAAGTCAGTATTAGATAATATCCAATTATTAAATTAACTTGAATATTTTTAATACTGCTTAAAGTATAATTCCAAACTTTTTATTGGAAATGCATATTTGTATATGTTTTATATTTTTATAAGAATCTCTATTTATCTTTTATATGCTTGTTTGTTTTATATGTTTATTGATAGATTCTTAACTCTGTATTTTGTAGAATTTTGCGTAGAATAGTTATTTTTCATTCAATTATTTTTTTATTCATTATACAATTGGTTAAAAACGTTAAGAGACATAAATATACAGAATCATTTCGAGTTTATTATAACCTAATTGATCCATTTAAATTTTTTCATTCCAAAGTTCTGAATTCGTGACAATTTCACTCGAATTTTTCCGATCAATTCGAAATTGATAATATCTTTGATATACTTTTAATTGTGAATATTTATAATAAATGCAACTCTTTGTGCGATTAAATAGATGATATTTACTTGGATAAATTCTTGATTATGAATAAATTTTTATAGTTGATATTGACCATATACGAAGGAACATAACCTTAAGAATTTTAAAATAATTTTGATTGTAATTTTAATACACGTTACTTTAAAACTCTGCAT"
         String originalCdsString = "ATGTTAGGCAAGCTGCTTCTGATGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
 
-        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1039024,\"strand\":1,\"fmax\":1039031},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion1String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1039024,\"strand\":1,\"fmax\":1039031},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
         String deletion1PeptideString = "VRQAASVLLIQPSEEMSKQIRMELNENVATRDKDVEVIKEWLSKQPHLPQFDDDYRLLTFLRGCKFSLEKCKKKLDMYFTMRTAIPEFFTNRDVTLPELKEITKIIQIPPLPGLTKNGRRVIVMRGINKDLPTPNVAELMKLVLMIGDVRLKEELMGVAGDVYILDASVATPSHFAKFTPALVKKFLVCVQEAYPVKLKEVHVVNISPLVDTIVNFVKPFIKEKIRNRIFMHSDLNTLYEYIPREILPAEYGGDAGPLQNIHETWIKKLEEYGPWFVEQESIKTNEALRPGKPKTHDDLFGLDGSFRQLVID"
         String deletion1CdnaString = "ATGTTAGGCAAGCTGCTTCTGTGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAAACCTAGAAATCTTCTGTCAATGATGACAACTTGATTAATTTTCATCTCGGTGCTAATTTGAAGAAAAATCGCTGGAAAGAATGGAAGAGAGATGAAACATCCGTATCGCAATTTTTTTTTTCCGACATACAATTTGAATATATTAACCTAACCTTTTTATACTTTTTTTAAATCGAAATTAATTTTATAGATATTTTATAGATTTTTAAAAATTTATTTTAATTCCGTGGAAAAAATCTAAATTCTTAAGATAAAATAACTGCCAAAATTTCATAAAGTCAGTATTAGATAATATCCAATTATTAAATTAACTTGAATATTTTTAATACTGCTTAAAGTATAATTCCAAACTTTTTATTGGAAATGCATATTTGTATATGTTTTATATTTTTATAAGAATCTCTATTTATCTTTTATATGCTTGTTTGTTTTATATGTTTATTGATAGATTCTTAACTCTGTATTTTGTAGAATTTTGCGTAGAATAGTTATTTTTCATTCAATTATTTTTTTATTCATTATACAATTGGTTAAAAACGTTAAGAGACATAAATATACAGAATCATTTCGAGTTTATTATAACCTAATTGATCCATTTAAATTTTTTCATTCCAAAGTTCTGAATTCGTGACAATTTCACTCGAATTTTTCCGATCAATTCGAAATTGATAATATCTTTGATATACTTTTAATTGTGAATATTTATAATAAATGCAACTCTTTGTGCGATTAAATAGATGATATTTACTTGGATAAATTCTTGATTATGAATAAATTTTTATAGTTGATATTGACCATATACGAAGGAACATAACCTTAAGAATTTTAAAATAATTTTGATTGTAATTTTAATACACGTTACTTTAAAACTCTGCAT"
         String deletion1CdsString = "GTTAGGCAAGCTGCTTCTGTGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTATTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
 
-        String addDeletion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1039645,\"strand\":1,\"fmax\":1039648},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletion2String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1039645,\"strand\":1,\"fmax\":1039648},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
         String deletion2PeptideString = "MRGINKDLPTPNVAELMKLVLMIGDVRLKEELMGVAGDVYILDASVATPSHFAKFTPALVKKFLVCVQEAYPVKLKEVHVVNISPLVDTIVNFVKPFIKEKIRNRIFMHSDLNTLYEYIPREILPAEYGGDAGPLQNIHETWIKKLEEYGPWFVEQESIKTNEALRPGKPKTHDDLFGLDGSFRQLVID"
         String deletion2CdnaString = "ATGTTAGGCAAGCTGCTTCTGTGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAAACCTAGAAATCTTCTGTCAATGATGACAACTTGATTAATTTTCATCTCGGTGCTAATTTGAAGAAAAATCGCTGGAAAGAATGGAAGAGAGATGAAACATCCGTATCGCAATTTTTTTTTTCCGACATACAATTTGAATATATTAACCTAACCTTTTTATACTTTTTTTAAATCGAAATTAATTTTATAGATATTTTATAGATTTTTAAAAATTTATTTTAATTCCGTGGAAAAAATCTAAATTCTTAAGATAAAATAACTGCCAAAATTTCATAAAGTCAGTATTAGATAATATCCAATTATTAAATTAACTTGAATATTTTTAATACTGCTTAAAGTATAATTCCAAACTTTTTATTGGAAATGCATATTTGTATATGTTTTATATTTTTATAAGAATCTCTATTTATCTTTTATATGCTTGTTTGTTTTATATGTTTATTGATAGATTCTTAACTCTGTATTTTGTAGAATTTTGCGTAGAATAGTTATTTTTCATTCAATTATTTTTTTATTCATTATACAATTGGTTAAAAACGTTAAGAGACATAAATATACAGAATCATTTCGAGTTTATTATAACCTAATTGATCCATTTAAATTTTTTCATTCCAAAGTTCTGAATTCGTGACAATTTCACTCGAATTTTTCCGATCAATTCGAAATTGATAATATCTTTGATATACTTTTAATTGTGAATATTTATAATAAATGCAACTCTTTGTGCGATTAAATAGATGATATTTACTTGGATAAATTCTTGATTATGAATAAATTTTTATAGTTGATATTGACCATATACGAAGGAACATAACCTTAAGAATTTTAAAATAATTTTGATTGTAATTTTAATACACGTTACTTTAAAACTCTGCAT"
         String deletion2CdsString = "ATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACATGAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
 
-        String addSubstitution3String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCCC\",\"location\":{\"fmin\":1040815,\"strand\":1,\"fmax\":1040819},\"type\":{\"name\":\"substitution\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addSubstitution3String = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"CCCC\",\"location\":{\"fmin\":1040815,\"strand\":1,\"fmax\":1040819},\"type\":{\"name\":\"substitution_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
         String substitution3PeptideString = "MRGINKDLPTPNVAELMKLVLMIGDVRLKEELMGVAGDVYILDASVATPSHFAKFTPALVKKFLVCVQEAYPVKLKEVHVVNISPLVDTIVNFVKPFIKEKIRNRIFMHSDLNTLYEYIPREILPAEYGGDAGPLQNIHQTWIKKLEEYGPWFVEQESIKTNEALRPGKPKTHDDLFGLDGSFRQLVID"
         String substitution3CdnaString = "ATGTTAGGCAAGCTGCTTCTGTGTTGCTGATCCAACCGTCGGAAGAGATGTCGAAGCAGATTCGCATGGAGTTGAATGAAAATGTGGCGACACGCGATAAGGACGTGGAAGTCATCAAGGAATGGCTATCTAAGCAACCACATTTACCCCAGTTCGATGATGATTACAGATTATTGACGTTTCTTCGAGGTTGTAAATTCTCCTTGGAAAAATGTAAGAAAAAACTGGACATGTATTTCACGATGAGAACCGCAATCCCAGAGTTCTTTACTAATCGAGATGTCACTTTACCAGAACTGAAAGAAATCACTAAAATTTCAGATTCCTCCATTGCCTGGCTTAACAAAGAATGGACGACGAGTAATTGTAATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACACCAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAAACCTAGAAATCTTCTGTCAATGATGACAACTTGATTAATTTTCATCTCGGTGCTAATTTGAAGAAAAATCGCTGGAAAGAATGGAAGAGAGATGAAACATCCGTATCGCAATTTTTTTTTTCCGACATACAATTTGAATATATTAACCTAACCTTTTTATACTTTTTTTAAATCGAAATTAATTTTATAGATATTTTATAGATTTTTAAAAATTTATTTTAATTCCGTGGAAAAAATCTAAATTCTTAAGATAAAATAACTGCCAAAATTTCATAAAGTCAGTATTAGATAATATCCAATTATTAAATTAACTTGAATATTTTTAATACTGCTTAAAGTATAATTCCAAACTTTTTATTGGAAATGCATATTTGTATATGTTTTATATTTTTATAAGAATCTCTATTTATCTTTTATATGCTTGTTTGTTTTATATGTTTATTGATAGATTCTTAACTCTGTATTTTGTAGAATTTTGCGTAGAATAGTTATTTTTCATTCAATTATTTTTTTATTCATTATACAATTGGTTAAAAACGTTAAGAGACATAAATATACAGAATCATTTCGAGTTTATTATAACCTAATTGATCCATTTAAATTTTTTCATTCCAAAGTTCTGAATTCGTGACAATTTCACTCGAATTTTTCCGATCAATTCGAAATTGATAATATCTTTGATATACTTTTAATTGTGAATATTTATAATAAATGCAACTCTTTGTGCGATTAAATAGATGATATTTACTTGGATAAATTCTTGATTATGAATAAATTTTTATAGTTGATATTGACCATATACGAAGGAACATAACCTTAAGAATTTTAAAATAATTTTGATTGTAATTTTAATACACGTTACTTTAAAACTCTGCAT"
         String substitution3CdsString = "ATGCGTGGTATCAACAAGGATCTTCCAACCCCAAACGTGGCAGAATTGATGAAACTGGTTCTAATGATCGGCGACGTACGTTTAAAAGAAGAATTAATGGGAGTCGCAGGAGACGTGTATATTTTAGATGCTAGTGTCGCAACGCCATCTCACTTCGCCAAATTCACACCAGCTCTCGTGAAGAAATTCCTAGTATGCGTGCAAGAGGCATATCCAGTAAAATTGAAAGAGGTGCATGTAGTGAATATTAGTCCTCTGGTCGATACTATCGTCAATTTCGTGAAACCATTCATTAAAGAAAAAATTCGCAACAGAATTTTCATGCATAGTGATTTGAACACTTTATACGAATATATACCTAGGGAAATATTGCCAGCCGAATATGGCGGCGATGCTGGACCTCTACAGAATATACACCAGACCTGGATAAAGAAATTAGAAGAATATGGTCCTTGGTTCGTAGAACAGGAATCAATAAAAACGAACGAAGCACTTCGACCAGGAAAGCCAAAGACTCACGACGACTTATTCGGATTGGACGGATCGTTCCGACAGTTGGTGATCGATTAA"
@@ -1992,7 +1993,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion1String) as JSONObject)
 
         then: "we should have the deletion added and the proper sequences"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         Transcript transcript = Transcript.findByName("GB40837-RA-00001")
         String deletion1PeptideSequence = sequenceService.getSequenceForFeature(transcript, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -2007,7 +2008,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletion2String) as JSONObject)
 
         then: "we should have the deletion added and the proper sequences"
-        assert SequenceAlteration.count == 2
+        assert SequenceAlterationArtifact.count == 2
 
         String deletion2PeptideSequence = sequenceService.getSequenceForFeature(transcript, FeatureStringEnum.TYPE_PEPTIDE.value)
         String deletion2CdnaSequence = sequenceService.getSequenceForFeature(transcript, FeatureStringEnum.TYPE_CDNA.value)
@@ -2021,7 +2022,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSubstitution3String) as JSONObject)
 
         then: "we should have the substitution added and the proper sequences"
-        assert SequenceAlteration.count == 3
+        assert SequenceAlterationArtifact.count == 3
 
         String substitution3PeptideSequence = sequenceService.getSequenceForFeature(transcript, FeatureStringEnum.TYPE_PEPTIDE.value)
         String substitution3CdnaSequence = sequenceService.getSequenceForFeature(transcript, FeatureStringEnum.TYPE_CDNA.value)
@@ -2036,7 +2037,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "when we add a transcript and a sequence alteration, we should be able to get the proper sequence of individual exons"() {
         given: "The GB40843-RA transcript"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":1092561,\"strand\":1,\"fmax\":1095202},\"name\":\"GB40843-RA\",\"children\":[{\"location\":{\"fmin\":1092561,\"strand\":1,\"fmax\":1092941},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1094825,\"strand\":1,\"fmax\":1095202},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1092561,\"strand\":1,\"fmax\":1093530},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1093608,\"strand\":1,\"fmax\":1094085},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1094159,\"strand\":1,\"fmax\":1094487},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1094623,\"strand\":1,\"fmax\":1095202},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":1092941,\"strand\":1,\"fmax\":1094825},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
-        String addDeletionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1094155,\"strand\":1,\"fmax\":1094167},\"type\":{\"name\":\"deletion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
+        String addDeletionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"location\":{\"fmin\":1094155,\"strand\":1,\"fmax\":1094167},\"type\":{\"name\":\"deletion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\",'clientToken':'123123'}"
 
         String expectedTranscriptPeptideSequence = "MTLDNSWHIIKTAAAENKHELVLSGPAISELIQKRGFDKSLFNLEHLNYLNITQTCLHEVSEEIEKLQNLTTLVLHSNEISKIPSSIGKLEKLKVLDCSRNKLTSLPDEIGKLPQLTTMNFSSNFLKSLPTQIDNVKLTVLDLSNNQFEDFPDVCYTELVHLSEIYVMGNQIKEIPTIINQLPSLKIINVANNRISVIPGEIGDCNKLKELQLKGNPLSDKRLLKLVDQCHNKQILEYVKLHCPKQDGSVNSNSKSKKGKKVQKLSESENNANVMDNLTHKMKILKMANDTPVIKVTKYVKNIRPYIAACIVRNMSFTEDSFKKFIQLQTKLHDGICEKRNAATIATHDLKLITTDIHSKTTK"
         String expectedTranscriptCdnaSequence = "AATTAATAGTATTCATTTTTTATCTTTTGATCAAGCTCATATTTATAATTAAATATCAAAATATAATTCATAGATAACATTAAAATTTGTTTATAGTTTAATTCACTAAAATACGTTTATCATTATTGTTTAATCAAATTATATGTGACGGAAACTATCCGTTATATATCTCTACAAAACTTTTATTAGATTTAGGTTATTTGATGTCTCGTCTTAAATTCATTTATTCTTTTCAATCGCAATTTTTAAATTGCATATGTACGTAGATGTCGTTATAATCGTATAACGCATGTTTCAAATTGATCAACCCGGCAAGTAACCTTGAAACTACGTAAATAACATTACCCTTTTATTAAAAATTCTTTTAATACTTAATAATAATGACGCTCGATAATTCATGGCATATAATCAAAACTGCAGCTGCAGAGAATAAACATGAATTAGTGTTGTCAGGTCCGGCAATCTCTGAATTGATTCAAAAAAGAGGCTTCGACAAGTCTTTATTTAACCTAGAGCATTTGAATTATTTGAATATTACTCAGACATGTTTACACGAAGTGTCAGAAGAAATTGAAAAATTGCAAAATCTAACAACATTGGTATTGCATTCGAATGAGATTTCGAAGATACCTAGCTCAATCGGGAAATTAGAAAAACTAAAGGTTCTCGATTGCTCTAGGAACAAGTTGACGTCTTTACCAGATGAAATCGGTAAACTTCCACAATTAACAACCATGAACTTCAGTTCAAATTTTTTGAAATCATTACCTACGCAAATTGACAATGTTAAGTTGACTGTTTTGGATCTTTCGAACAATCAGTTTGAAGATTTTCCTGATGTGTGCTATACAGAATTGGTTCATCTTTCTGAAATCTATGTCATGGGAAATCAAATAAAAGAAATTCCTACAATTATAAATCAGCTTCCATCTTTAAAAATAATAAATGTAGCAAACAATAGAATTTCAGTTATTCCAGGTGAGATTGGTGATTGTAATAAACTCAAAGAACTTCAATTAAAAGGAAATCCATTATCAGACAAAAGATTATTAAAATTAGTTGATCAATGTCATAATAAACAAATATTAGAATATGTAAAATTGCATTGTCCTAAACAAGATGGTTCTGTCAATTCAAATTCAAAATCAAAAAAAGGAAAAAAGGTACAAAAATTATCAGAAAGTGAAAATAATGCTAATGTAATGGATAATTTGACACACAAAATGAAAATATTAAAAATGGCAAATGATACACCAGTAATTAAGGTTACAAAATATGTGAAAAATATCAGACCTTACATTGCAGCTTGTATTGTTAGAAATATGAGCTTCACAGAAGATAGTTTTAAAAAATTTATTCAACTTCAAACTAAATTACATGATGGCATATGTGAAAAAAGAAATGCAGCTACTATTGCTACACATGACTTAAAATTGATTACCACTGACATACACAGCAAAACCACCAAATGAATTAGAAATCAAGCCATTAATGCGCAATAAAGTTTATACTGGTTCTGAACTATTCAAACAGTTACAAACTGAAGCTGATAATTTAAGGAAAGAAAAAAAACGCAATGTATATTCTGGCATTCATAAATATCTTTATCTATTAGAAGGTAAACCTTACTTTCCTTGTTTGTTAGATGCTTCAGAACAAGTTATATCATTTCCACCTATAACGAATAGTGATATTACAAAAATGTCAATAAATACCCAAGCAATATTAATAGAAGTAACCAGTGCTTCATCCTATCAAATTTGCAGGAATGTATTAGATCAATTTTTAAAGGAACTAGTTACTTTTGGTTTAGGATGTGTCTCAGAACAAGAAAATGCTTCAAATTATCATAAATTAATCATAGAACAAGTAAAAGTGGTAGATATGGAAGGTAATATGAAATTAGTATATCCTTCAAGAGCAGATTTAAATTTTGCAGAAAATTTTATAACAGTATTACGCGAGTAATAAATTACTGTAAGTAATTAAATTGTTCTTTAATCTTGATCTAATCTGCATTTTTCTTTCTTAATCTTTTTAACTATTATTTTTTTGATTGATAAGTTGTAAATCTAAATTATTTTCATATTATTACTTTTTCATAAATAACACATTATTTTCATATGCCAAATTGTAATTTTTTATTTGTTACTCTGTGAAAATCTTAAGATTAGTATGCAATGTATATAATATTTGCATATTTTATACAGAATCTTTTTGGTATGTATCAATATAATTATATTTTAATCATAATATTTTTATACTGAGATTTGAATCTATGTAAAAATAATAACAATAAGTGTTTTATGTTATGAAAATCAAAAACTGGAAAATAAATATTAAAA"
@@ -2076,7 +2077,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
 
         then: "we see the alteration"
-        SequenceAlteration.count == 1
+        SequenceAlterationArtifact.count == 1
 
         when: "we get sequence of the whole transcript"
         String getTranscriptPeptideSequence = sequenceService.getSequenceForFeature(transcript, FeatureStringEnum.TYPE_PEPTIDE.value)
@@ -2191,7 +2192,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "Sequence alterations that introduce an in-frame stop codon should properly be handled"() {
         given: "GB40750-RA and a sequence alteration of type 'deletion' that has an in-frame stop codon TAA"
         String addTranscriptString = "{${testCredentials} \"operation\":\"add_transcript\",\"features\":[{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":693859},\"name\":\"GB40750-RA\",\"children\":[{\"location\":{\"fmin\":693543,\"strand\":-1,\"fmax\":693859},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":692451,\"strand\":-1,\"fmax\":692480},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":690442},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":689640,\"strand\":-1,\"fmax\":690739},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":690844,\"strand\":-1,\"fmax\":691015},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691158,\"strand\":-1,\"fmax\":691354},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691436,\"strand\":-1,\"fmax\":691587},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691674,\"strand\":-1,\"fmax\":691846},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":691974,\"strand\":-1,\"fmax\":692181},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":692310,\"strand\":-1,\"fmax\":692480},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":693543,\"strand\":-1,\"fmax\":693859},\"type\":{\"name\":\"exon\",\"cv\":{\"name\":\"sequence\"}}},{\"location\":{\"fmin\":690442,\"strand\":-1,\"fmax\":692451},\"type\":{\"name\":\"CDS\",\"cv\":{\"name\":\"sequence\"}}}],\"type\":{\"name\":\"mRNA\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
-        String addDeletionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"ATTTC\",\"location\":{\"fmin\":691208,\"strand\":1,\"fmax\":691208},\"type\":{\"name\":\"insertion\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
+        String addDeletionString = "{${testCredentials} \"operation\":\"add_sequence_alteration\",\"features\":[{\"residues\":\"ATTTC\",\"location\":{\"fmin\":691208,\"strand\":1,\"fmax\":691208},\"type\":{\"name\":\"insertion_artifact\",\"cv\":{\"name\":\"sequence\"}}}],\"track\":\"Group1.10\"}"
 
         String knownTranscriptPeptideSequence = 'MMTETHINSNHVLNSGLNTKSEIDKMDDVGWKAKLKIPPKDKRIKTSDVTDTRGNEFEEFCLKRELLMGIFEKGWEKPSPIQEASIPIALSGKDILARAKNGTGKTGAYSIPVLEQVDPRKDVIQALVLVPTRELALQTSQICIELAKHMEIKVMVTTGGTDLRDDIMRIYQSVQVIIATPGRILDLMDKNVANMDHCKTLVLDEADKLLSQDFKGMLDHVISRLPHERQILLYSATFPLTVKQFMEKHLRDPYEINLMEELTLKGVTQYYA'
         String knownTranscriptCdsSequence = 'ATGATGACAGAAACACATATAAATTCCAATCATGTCCTAAATTCTGGTTTGAATACTAAATCAGAAATCGACAAAATGGACGATGTAGGTTGGAAAGCTAAATTAAAAATTCCACCAAAGGACAAACGAATTAAAACTAGTGATGTTACTGATACTCGTGGCAATGAATTTGAGGAATTTTGCCTAAAACGAGAATTATTAATGGGCATCTTTGAAAAAGGCTGGGAAAAGCCTTCCCCAATTCAAGAAGCCAGTATTCCCATTGCATTATCTGGTAAAGATATCTTGGCCCGTGCAAAAAATGGGACTGGTAAAACTGGGGCCTATTCAATTCCAGTGCTAGAACAGGTTGATCCACGAAAAGATGTGATTCAGGCACTAGTACTTGTACCTACTAGAGAGTTAGCTCTTCAAACATCACAAATTTGCATTGAACTGGCAAAACATATGGAAATAAAAGTAATGGTAACTACTGGAGGAACAGACTTACGGGATGATATTATGAGGATTTACCAGTCAGTGCAAGTAATAATAGCAACCCCAGGAAGAATTCTCGATCTTATGGATAAGAATGTTGCAAATATGGATCATTGTAAAACTCTAGTTTTGGATGAAGCAGATAAACTTCTGTCACAAGATTTTAAAGGAATGTTGGATCATGTCATTTCGAGATTACCACACGAACGTCAGATACTGCTGTATTCAGCCACATTTCCCCTGACAGTGAAACAATTCATGGAAAAACATTTAAGAGATCCATATGAGATTAATTTAATGGAGGAACTCACATTGAAAGGTGTAACACAATATTATGCCTGA'
@@ -2209,7 +2210,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addDeletionString) as JSONObject)
 
         then: "we should see the sequence alteration"
-        assert SequenceAlteration.count == 1
+        assert SequenceAlterationArtifact.count == 1
 
         when: "we export the peptide sequence"
         MRNA mrna = MRNA.all.get(0)
@@ -2278,14 +2279,14 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "two transcripts"
         String postiveStrandedTranscript = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":1277947,\"fmax\":1278834,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40860-RA\",\"children\":[{\"location\":{\"fmin\":1277947,\"fmax\":1277953,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1278346,\"fmax\":1278499,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1278738,\"fmax\":1278834,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1277947,\"fmax\":1278834,\"strand\":1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
-        String postiveSequenceAlterationInsertion = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 1278631, \"fmax\": 1278631, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"ATCGATA\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String postiveSequenceAlterationInsertion = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 1278631, \"fmax\": 1278631, \"strand\": 1 }, \"type\": {\"name\": \"insertion_artifact\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"ATCGATA\" } ], \"operation\": \"add_sequence_alteration\" }"
         String setExonBoundaryCommand = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"uniquename\":\"@EXON_UNIQUENAME@\",\"location\":{\"fmin\":1278294,\"fmax\":1278499}}],\"operation\":\"set_exon_boundaries\"}"
         String setUpstreamSpliceAcceptorCommand = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"uniquename\": \"@EXON_UNIQUENAME@\" } ], \"operation\": \"set_to_upstream_acceptor\"}"
 
 //        String negativeStrandedTranscript = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":1279597,\"fmax\":1282168,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40718-RA\",\"children\":[{\"location\":{\"fmin\":1279597,\"fmax\":1279727,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1279801,\"fmax\":1280160,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1280402,\"fmax\":1280585,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1280671,\"fmax\":1280886,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1281086,\"fmax\":1281316,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1281385,\"fmax\":1281516,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1281603,\"fmax\":1281827,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1282152,\"fmax\":1282168,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1279597,\"fmax\":1282168,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
         String negativeStrandedTranscript = "{${testCredentials} \"track\":\"Group1.10\",\"features\":[{\"location\":{\"fmin\":1365530,\"fmax\":1367665,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB40713-RA\",\"children\":[{\"location\":{\"fmin\":1367417,\"fmax\":1367665,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1365530,\"fmax\":1366050,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1365530,\"fmax\":1366107,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1366199,\"fmax\":1366304,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1367171,\"fmax\":1367665,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"fmin\":1366050,\"fmax\":1367417,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}]}],\"operation\":\"add_transcript\"}"
 //        String negativeStrandedSequenceInsertion = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 1280277, \"fmax\": 1280277, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"GAATC\" } ], \"operation\": \"add_sequence_alteration\" }"
-        String negativeStrandedSequenceInsertion = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 1366134, \"fmax\": 1366134, \"strand\": 1 }, \"type\": {\"name\": \"insertion\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"ATAGAC\" } ], \"operation\": \"add_sequence_alteration\" }"
+        String negativeStrandedSequenceInsertion = "{ ${testCredentials} \"track\": \"Group1.10\", \"features\": [ { \"location\": { \"fmin\": 1366134, \"fmax\": 1366134, \"strand\": 1 }, \"type\": {\"name\": \"insertion_artifact\", \"cv\": { \"name\":\"sequence\" } }, \"residues\": \"ATAGAC\" } ], \"operation\": \"add_sequence_alteration\" }"
 
         when: "we add the positive transcript"
         requestHandlingService.addTranscript(JSON.parse(postiveStrandedTranscript) as JSONObject)
@@ -2301,8 +2302,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.count == 3
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert SequenceAlteration.count == 0
-        assert Insertion.count == 0
+        assert SequenceAlterationArtifact.count == 0
+        assert InsertionArtifact.count == 0
         assert MRNA.countByName("GB40860-RA-00001")
 
         when: "we add a sequence alteration"
@@ -2315,8 +2316,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.count == 3
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert SequenceAlteration.count == 1
-        assert Insertion.count == 1
+        assert SequenceAlterationArtifact.count == 1
+        assert InsertionArtifact.count == 1
         assert MRNA.countByName("GB40860-RA-00001") == 1
 
         when: "we set the exon boundary"
@@ -2329,8 +2330,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.count == 3
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 1
-        assert SequenceAlteration.count == 1
-        assert Insertion.count == 1
+        assert SequenceAlterationArtifact.count == 1
+        assert InsertionArtifact.count == 1
         assert MRNA.countByName("GB40860-RA-00001") == 1
 
         when: "we set the upstream splice acceptor"
@@ -2343,8 +2344,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.count == 3
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert SequenceAlteration.count == 1
-        assert Insertion.count == 1
+        assert SequenceAlterationArtifact.count == 1
+        assert InsertionArtifact.count == 1
         assert MRNA.countByName("GB40860-RA-00001") == 1
 
         when: "we add the negative transcript"
@@ -2358,8 +2359,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.count == 3 + 3
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert SequenceAlteration.count == 1
-        assert Insertion.count == 1
+        assert SequenceAlterationArtifact.count == 1
+        assert InsertionArtifact.count == 1
 
         when: "we add an overalapping negative sequence alteration"
         requestHandlingService.addSequenceAlteration(JSON.parse(negativeStrandedSequenceInsertion) as JSONObject)
@@ -2372,8 +2373,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Exon.count == 3 + 3
         assert NonCanonicalFivePrimeSpliceSite.count == 0
         assert NonCanonicalThreePrimeSpliceSite.count == 0
-        assert SequenceAlteration.count == 2
-        assert Insertion.count == 2
+        assert SequenceAlterationArtifact.count == 2
+        assert InsertionArtifact.count == 2
     }
 
     void "when a setTranslationStart action is performed on a transcript, there should be a check of overlapping isoforms"() {
@@ -3730,9 +3731,9 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583280},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String addTranscript3String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":588910},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":592526,\"fmax\":592731},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":593507,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":592678},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40820-RA\",\"location\":{\"strand\":1,\"fmin\":588729,\"fmax\":594164},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String setReadthroughStopCodonString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"readthrough_stop_codon\":true}],\"track\":\"Group1.10\",\"operation\":\"set_readthrough_stop_codon\"}"
-        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTACTAGTG\",\"location\":{\"strand\":1,\"fmin\":592775,\"fmax\":592775},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addDeletionString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":592699,\"fmax\":592714},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSubstitutionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":593549,\"fmax\":593552},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addInsertionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTACTAGTG\",\"location\":{\"strand\":1,\"fmin\":592775,\"fmax\":592775},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addDeletionString = "{ ${testCredentials} \"features\":[{\"location\":{\"strand\":1,\"fmin\":592699,\"fmax\":592714},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSubstitutionString = "{ ${testCredentials} \"features\":[{\"residues\":\"TTG\",\"location\":{\"strand\":1,\"fmin\":593549,\"fmax\":593552},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
 
         String addPseudogeneString = " { ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":622330},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":623090,\"fmax\":623213},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624547,\"fmax\":624610},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624680,\"fmax\":624743},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":624885,\"fmax\":624927},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":625015,\"fmax\":625090},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":627962,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":622270,\"fmax\":628037},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"gnomon_1560033_mRNA\",\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"transcript\"}}],\"location\":{\"strand\":1,\"fmin\":621650,\"fmax\":628275},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"pseudogene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addTRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":664578,\"fmax\":664637},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":665671,\"fmax\":665933},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":666034,\"fmax\":666168},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":667804,\"fmax\":667895},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":667965,\"fmax\":668110},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":666088,\"fmax\":667992},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"fgeneshpp_with_rnaseq_Group1.10_150_mRNA\",\"location\":{\"strand\":-1,\"fmin\":664578,\"fmax\":668110},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"tRNA\"}}],\"location\":{\"strand\":-1,\"fmin\":664578,\"fmax\":668110},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
@@ -3777,7 +3778,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we see these modifications"
         assert StopCodonReadThrough.count == 1
-        assert SequenceAlteration.count == 3
+        assert SequenceAlterationArtifact.count == 3
 
         when: "do a GFF3 export"
         Organism organism = Gene.all.get(0).featureLocation.sequence.organism
@@ -3788,7 +3789,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         def featuresToWrite = []
         Feature.all.each {
-            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, Insertion.cvTerm, Deletion.cvTerm, Substitution.cvTerm]) {
+            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm]) {
                 featuresToWrite.add(it)
             }
         }
@@ -3801,7 +3802,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we delete all features"
         Feature.all.each {
-            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, Insertion.cvTerm, Deletion.cvTerm, Substitution.cvTerm]) {
+            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm]) {
                 featureRelationshipService.deleteFeatureAndChildren(it)
             }
         }
@@ -3817,6 +3818,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         for (int i = 0; i < outputJsonArray.size(); i++) {
             if (outputJsonArray.getJSONObject(i).has("addFeature")) {
                 String inputString = "{${testCredentials} \"track\": \"${sequence.name}\", \"operation\": \"add_feature\", \"features\": " + outputJsonArray.getJSONObject(i).getJSONArray("addFeature").toString() + "}"
+                println(">>> Input string: ${inputString}")
                 requestHandlingService.addFeature(JSON.parse(inputString) as JSONObject)
             } else if (outputJsonArray.getJSONObject(i).has("addTranscript")) {
                 String inputString = "{${testCredentials} \"track\": \"${sequence.name}\", \"operation\": \"add_transcript\", \"features\": " + outputJsonArray.getJSONObject(i).getJSONArray("addTranscript").toString() + "}"
@@ -3830,7 +3832,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we restore all the features from GFF3"
         assert Gene.count == 10
         assert Transcript.count == 10
-        assert SequenceAlteration.count == 3
+        assert SequenceAlterationArtifact.count == 3
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
@@ -3839,7 +3841,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {
         given: "a transcript whose CDS is incorrect"
         String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":577643},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":582506,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":583187,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":582677},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40819-RA\",\"location\":{\"strand\":1,\"fmin\":577493,\"fmax\":583605},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}, \"use_cds\":\"true\"}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        String addSequenceAlterationString = "{ ${testCredentials} \"features\":[{\"residues\":\"TGA\",\"location\":{\"strand\":1,\"fmin\":582665,\"fmax\":582665},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlterationString = "{ ${testCredentials} \"features\":[{\"residues\":\"TGA\",\"location\":{\"strand\":1,\"fmin\":582665,\"fmax\":582665},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
         String cdsSequenceString = "ATGACAGGTCATATCTGGTTCTGCTTCTTATTGTTCTTAACGGGCTACTGTGATTGCTCACTAACGGGGACAATATCATCGTTCCCGATAAACCTCGAGAACAATCCTTACTGTCGTATTTGCCCCAATCACACCATGTGCCGATTTCCGCTCGATACTGATGGCATTAGATGTATAAACCTCCAGCATGCTGATCTGGACGACAAAGATATTGAAACTATACTCCATTGGCACAATACTTATCGCAATACTGTGGCAAGTGGAAAAGAAATACGAGGAAATCCAGGTCCACAACGTCCAGCAAAATTTATGATGGAAGTG"
         String recalculatedCdsSequenceString = "ATGACGAACTTGCTCTTATCGCGAGACGATGGGTGGTACAGTGCAACCTTCTCGAGAAAGATCAGTGCAGAGATGTTGGCAAGTAACTCCCACGGATACATATCATTTTTCATTTCCCTTAGTCGTCCCTATCATTTTTCAATATCCATCGCGTATACGTTCGAACACGAAATTGTTCCTCCTGTAACAGGATCAATGTGTCTGTGTGTTCTCCTCTTTTTATCGCAATTTCTCTCCTTCTTGTTTACGAATACCACTCTCTTCCAACCTATCTTCTTCCTTTTCCATCCCCTTATAACTCGTTTTGGCTTCGTTTCAATTTGCAATCGTAAGCCGCAAAAACGATATTGGCGCTTGTAA"
 
@@ -3862,7 +3864,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addSequenceAlteration(JSON.parse(addSequenceAlterationString) as JSONObject)
 
         then: "we should see the insertion"
-        assert Insertion.all.size() == 1
+        assert InsertionArtifact.all.size() == 1
 
         then: "previously added transcript's CDS should recalculate itself"
         cds.attach()
@@ -3888,8 +3890,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         given: "transcripts and sequence alterations"
         String addTranscript1String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":974327,\"fmax\":974467},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":974616,\"fmax\":975772},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":975852,\"fmax\":976988},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":974636,\"fmax\":975982},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40833-RA\",\"location\":{\"strand\":1,\"fmin\":974327,\"fmax\":976988},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         String addTranscript2String = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":982839,\"fmax\":984089},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":984503,\"fmax\":984707},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":985678,\"fmax\":985915},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":987924,\"fmax\":988085},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":992629,\"fmax\":992713},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":983963,\"fmax\":992699},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40731-RA\",\"location\":{\"strand\":-1,\"fmin\":982839,\"fmax\":992713},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        String addSequenceAlteration1String = "{ ${testCredentials} \"features\":[{\"residues\":\"TGA\",\"location\":{\"strand\":1,\"fmin\":975949,\"fmax\":975949},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
-        String addSequenceAlteration2String = "{ ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":983963,\"fmax\":983966},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlteration1String = "{ ${testCredentials} \"features\":[{\"residues\":\"TGA\",\"location\":{\"strand\":1,\"fmin\":975949,\"fmax\":975949},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
+        String addSequenceAlteration2String = "{ ${testCredentials} \"features\":[{\"residues\":\"TTT\",\"location\":{\"strand\":1,\"fmin\":983963,\"fmax\":983966},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"substitution_artifact\"}}],\"track\":\"Group1.10\",\"operation\":\"add_sequence_alteration\"}"
         String setReadThroughStopCodonString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\",\"readthrough_stop_codon\":true}],\"track\":\"Group1.10\",\"operation\":\"set_readthrough_stop_codon\"}"
         String deleteSequenceAlterationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"delete_sequence_alteration\"}"
 
@@ -3930,8 +3932,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert scrt4.fmax == 983960
 
         when: "we delete the sequence alterations"
-        requestHandlingService.deleteSequenceAlteration(JSON.parse(deleteSequenceAlterationString.replace("@UNIQUENAME@", Insertion.all.first().uniqueName)) as JSONObject)
-        requestHandlingService.deleteSequenceAlteration(JSON.parse(deleteSequenceAlterationString.replace("@UNIQUENAME@", Substitution.all.first().uniqueName)) as JSONObject)
+        requestHandlingService.deleteSequenceAlteration(JSON.parse(deleteSequenceAlterationString.replace("@UNIQUENAME@", InsertionArtifact.all.first().uniqueName)) as JSONObject)
+        requestHandlingService.deleteSequenceAlteration(JSON.parse(deleteSequenceAlterationString.replace("@UNIQUENAME@", SubstitutionArtifact.all.first().uniqueName)) as JSONObject)
 
         then: "the stop codon read throughs should still exist and snap back to the original position"
         StopCodonReadThrough scrt5 = cdsService.getStopCodonReadThrough(transcriptService.getCDS(Transcript.findByUniqueName(transcript1UniqueName))).first()
@@ -4429,4 +4431,63 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Pseudogene.count == 0
 
     }
+
+    void "Add a variant of type SNV"() {
+
+        given: "a SNV"
+        String addVariantString = "{ ${testCredentials} \"features\":[{\"reference_allele\":\"C\",\"variant_info\":[{\"tag\":\"dbSNP_150\",\"value\":true},{\"tag\":\"TSA\",\"value\":\"SNV\"},{\"tag\":\"E_Freq\",\"value\":true},{\"tag\":\"E_1000G\",\"value\":true},{\"tag\":\"MA\",\"value\":\"C\"},{\"tag\":\"MAF\",\"value\":\"0.000399361\"},{\"tag\":\"MAC\",\"value\":\"2\"},{\"tag\":\"AA\",\"value\":\"G\"}],\"name\":\"rs541766448\",\"alternate_alleles\":[{\"bases\":\"T\",\"allele_info\":[{\"tag\":\"EAS_AF\",\"value\":\"0.002\"},{\"tag\":\"EUR_AF\",\"value\":\"0\"},{\"tag\":\"AMR_AF\",\"value\":\"0\"},{\"tag\":\"SAS_AF\",\"value\":\"0\"},{\"tag\":\"AFR_AF\",\"value\":\"0\"}]}],\"description\":\"SNV G -> C\",\"location\":{\"strand\":1,\"fmin\":69634,\"fmax\":69635},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"SNV\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add the variant"
+        requestHandlingService.addVariant(JSON.parse(addVariantString) as JSONObject)
+
+        then: "we should see 1 SNV"
+        assert SNV.count == 1
+        assert Allele.count == 2
+        assert VariantInfo.count == 8
+        assert AlleleInfo.count == 5
+
+        SNV variant = SNV.all.first()
+        assert variantService.getReferenceAllele(variant).bases == "C"
+        assert variantService.getAlternateAlleles(variant).first().bases == "T"
+    }
+
+    void "Add a variant of type Insertion"() {
+
+        given: "an insertion variant"
+        String addInsertionVariantString = "{ ${testCredentials} \"features\":[{\"reference_allele\":\"C\",\"variant_info\":[{\"tag\":\"dbSNP_150\",\"value\":true},{\"tag\":\"TSA\",\"value\":\"insertion\"},{\"tag\":\"E_Freq\",\"value\":true},{\"tag\":\"E_1000G\",\"value\":true},{\"tag\":\"MA\",\"value\":\"T\"},{\"tag\":\"MAF\",\"value\":\"0.00299521\"},{\"tag\":\"MAC\",\"value\":\"15\"}],\"name\":\"rs567944403\",\"alternate_alleles\":[{\"bases\":\"AT\",\"allele_info\":[{\"tag\":\"EAS_AF\",\"value\":\"0\"},{\"tag\":\"EUR_AF\",\"value\":\"0.0089\"},{\"tag\":\"AMR_AF\",\"value\":\"0.0043\"},{\"tag\":\"SAS_AF\",\"value\":\"0.001\"},{\"tag\":\"AFR_AF\",\"value\":\"0.0015\"}]}],\"description\":\"insertion A -> AT\",\"location\":{\"strand\":1,\"fmin\":94995,\"fmax\":94996},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"insertion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add the variant"
+        requestHandlingService.addVariant(JSON.parse(addInsertionVariantString) as JSONObject)
+
+        then: "we should see 1 Insertion"
+        assert Insertion.count == 1
+        assert Allele.count == 2
+        assert VariantInfo.count == 7
+        assert AlleleInfo.count == 5
+
+        Insertion variant = Insertion.all.first()
+        assert variantService.getReferenceAllele(variant).bases == "C"
+        assert variantService.getAlternateAlleles(variant).first().bases == "AT"
+    }
+
+    void "Add a variant of type Deletion"() {
+
+        given: "a deletion variant"
+        String addDeletionVariantString = "{ ${testCredentials} \"features\":[{\"reference_allele\":\"AC\",\"variant_info\":[{\"tag\":\"dbSNP_150\",\"value\":true},{\"tag\":\"TSA\",\"value\":\"deletion\"},{\"tag\":\"E_Freq\",\"value\":true},{\"tag\":\"E_1000G\",\"value\":true},{\"tag\":\"MA\",\"value\":\"-\"},{\"tag\":\"MAF\",\"value\":\"0.000998403\"},{\"tag\":\"MAC\",\"value\":\"5\"},{\"tag\":\"AA\",\"value\":\"T\"}],\"name\":\"rs555680025\",\"alternate_alleles\":[{\"bases\":\"A\",\"allele_info\":[{\"tag\":\"EAS_AF\",\"value\":\"0\"},{\"tag\":\"EUR_AF\",\"value\":\"0.003\"},{\"tag\":\"AMR_AF\",\"value\":\"0\"},{\"tag\":\"SAS_AF\",\"value\":\"0.002\"},{\"tag\":\"AFR_AF\",\"value\":\"0\"}]}],\"description\":\"deletion AT -> A\",\"location\":{\"strand\":1,\"fmin\":94746,\"fmax\":94748},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"deletion\"}}],\"track\":\"Group1.10\",\"operation\":\"add_variant\"}"
+
+        when: "we add the deletion variant"
+        requestHandlingService.addVariant(JSON.parse(addDeletionVariantString) as JSONObject)
+
+        then: "we should see 1 Deletion"
+        assert Deletion.count == 1
+        assert Allele.count == 2
+        assert VariantInfo.count == 8
+        assert AlleleInfo.count == 5
+
+        Deletion variant = Deletion.all.first()
+        assert variantService.getReferenceAllele(variant).bases == "AC"
+        assert variantService.getAlternateAlleles(variant).first().bases == "A"
+    }
+
+
 }
