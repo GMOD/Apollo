@@ -2,16 +2,17 @@
 
 Features
 
+- Added ability to annotate a variant from VCF evidence tracks [1892](https://github.com/GMOD/Apollo/pull/1892)
+- Allow forced assignment of transcript to a gene [#1851](https://github.com/GMOD/Apollo/pull/1851)
+- Added proper Instructor and Organism Admin permission level [#1178](https://github.com/GMOD/Apollo/issues/1178)
 - Indicate start / stop codons with color [#1852](https://github.com/GMOD/Apollo/pull/1852)
 - Set the default biotype on track [#1861](https://github.com/GMOD/Apollo/issues/1861)
-- Allow forced assignment of transcript to a gene [#1851](https://github.com/GMOD/Apollo/pull/1851)
 - Focus annotator panel on the current transcript [#1846](https://github.com/GMOD/Apollo/issues/1846)
-- Added proper Instructor and Organism Admin permission level [#1178](https://github.com/GMOD/Apollo/issues/1178)
 - Allow fetching variant data from evidence tracks via web service [#1867](https://github.com/GMOD/Apollo/pull/1867)
 - Recognized dot notation from JBrowse / Apollo [#1839](https://github.com/GMOD/Apollo/issues/1839)
 - Allow setting default native track to true [#1848](https://github.com/GMOD/Apollo/pull/1848)
 - Provide [sample data](https://github.com/GMOD/Apollo/blob/master/docs/Apollo2Build.md#adding-sample-data) (and links in doc)[#1817](https://github.com/GMOD/Apollo/pull/1817) 
-- Added ability to annotate a variant from VCF evidence tracks [1892](https://github.com/GMOD/Apollo/pull/1892)
+
 
 Bugfixes
 
