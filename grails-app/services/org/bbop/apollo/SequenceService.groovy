@@ -86,7 +86,7 @@ class SequenceService {
         }
         
         StringBuilder residues = new StringBuilder(residueString);
-        List<SequenceAlteration> sequenceAlterationList = SequenceAlteration.withCriteria {
+        List<SequenceAlterationArtifact> sequenceAlterationList = SequenceAlterationArtifact.withCriteria {
             createAlias('featureLocations', 'fl', JoinType.INNER_JOIN)
             createAlias('fl.sequence', 's', JoinType.INNER_JOIN)
             and {
@@ -105,7 +105,7 @@ class SequenceService {
         }.unique()
         log.debug "sequence alterations found ${sequenceAlterationList.size()}"
         List<SequenceAlterationInContext> sequenceAlterationsInContextList = new ArrayList<SequenceAlterationInContext>()
-        for (SequenceAlteration sequenceAlteration : sequenceAlterationList) {
+        for (SequenceAlterationArtifact sequenceAlteration : sequenceAlterationList) {
             int alterationFmin = sequenceAlteration.fmin
             int alterationFmax = sequenceAlteration.fmax
             SequenceAlterationInContext sa = new SequenceAlterationInContext()
@@ -113,14 +113,14 @@ class SequenceService {
                 // alteration is within the generic feature
                 sa.fmin = alterationFmin
                 sa.fmax = alterationFmax
-                if (sequenceAlteration instanceof Insertion) {
-                    sa.instanceOf = Insertion.canonicalName
+                if (sequenceAlteration instanceof InsertionArtifact) {
+                    sa.instanceOf = InsertionArtifact.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
-                    sa.instanceOf = Deletion.canonicalName
+                else if (sequenceAlteration instanceof DeletionArtifact) {
+                    sa.instanceOf = DeletionArtifact.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
-                    sa.instanceOf = Substitution.canonicalName
+                else if (sequenceAlteration instanceof SubstitutionArtifact) {
+                    sa.instanceOf = SubstitutionArtifact.canonicalName
                 }
                 sa.type = 'within'
                 sa.strand = sequenceAlteration.strand
@@ -135,14 +135,14 @@ class SequenceService {
                 int difference = alterationFmax - fmax
                 sa.fmin = alterationFmin
                 sa.fmax = Math.min(fmax,alterationFmax)
-                if (sequenceAlteration instanceof Insertion) {
-                    sa.instanceOf = Insertion.canonicalName
+                if (sequenceAlteration instanceof InsertionArtifact) {
+                    sa.instanceOf = InsertionArtifact.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
-                    sa.instanceOf = Deletion.canonicalName
+                else if (sequenceAlteration instanceof DeletionArtifact) {
+                    sa.instanceOf = DeletionArtifact.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
-                    sa.instanceOf = Substitution.canonicalName
+                else if (sequenceAlteration instanceof SubstitutionArtifact) {
+                    sa.instanceOf = SubstitutionArtifact.canonicalName
                 }
                 sa.type = 'exon-to-intron'
                 sa.strand = sequenceAlteration.strand
@@ -157,14 +157,14 @@ class SequenceService {
                 int difference = fmin - alterationFmin
                 sa.fmin = Math.max(fmin, alterationFmin)
                 sa.fmax = alterationFmax
-                if (sequenceAlteration instanceof Insertion) {
-                    sa.instanceOf = Insertion.canonicalName
+                if (sequenceAlteration instanceof InsertionArtifact) {
+                    sa.instanceOf = InsertionArtifact.canonicalName
                 }
-                else if (sequenceAlteration instanceof Deletion) {
-                    sa.instanceOf = Deletion.canonicalName
+                else if (sequenceAlteration instanceof DeletionArtifact) {
+                    sa.instanceOf = DeletionArtifact.canonicalName
                 }
-                else if (sequenceAlteration instanceof Substitution) {
-                    sa.instanceOf = Substitution.canonicalName
+                else if (sequenceAlteration instanceof SubstitutionArtifact) {
+                    sa.instanceOf = SubstitutionArtifact.canonicalName
                 }
                 sa.type = 'intron-to-exon'
                 sa.strand = sequenceAlteration.strand
@@ -192,7 +192,7 @@ class SequenceService {
                 sequenceAlterationResidues = SequenceTranslationHandler.reverseComplementSequence(sequenceAlterationResidues);
             }
             // Insertions
-            if (sequenceAlteration.instanceOf == Insertion.canonicalName) {
+            if (sequenceAlteration.instanceOf == InsertionArtifact.canonicalName) {
                 if (strand==Strand.NEGATIVE) {
                     ++localCoordinate;
                 }
@@ -200,7 +200,7 @@ class SequenceService {
                 currentOffset += alterationLength;
             }
             // Deletions
-            else if (sequenceAlteration.instanceOf == Deletion.canonicalName) {
+            else if (sequenceAlteration.instanceOf == DeletionArtifact.canonicalName) {
                 if (strand == Strand.NEGATIVE) {
                     residues.delete(localCoordinate + currentOffset - alterationLength + 1,
                             localCoordinate + currentOffset + 1);
@@ -211,7 +211,7 @@ class SequenceService {
                 currentOffset -= alterationLength;
             }
             // Substitions
-            else if (sequenceAlteration.instanceOf == Substitution.canonicalName) {
+            else if (sequenceAlteration.instanceOf == SubstitutionArtifact.canonicalName) {
                 int start = strand == Strand.NEGATIVE ? localCoordinate - (alterationLength - 1) : localCoordinate;
                 residues.replace(start + currentOffset,
                         start + currentOffset + alterationLength,
@@ -368,11 +368,11 @@ class SequenceService {
         return referenceTrackObject
     }
 
-    def setResiduesForFeature(SequenceAlteration sequenceAlteration, String residue) {
+    def setResiduesForFeature(SequenceAlterationArtifact sequenceAlteration, String residue) {
         sequenceAlteration.alterationResidue = residue
     }
 
-    def setResiduesForFeatureFromLocation(Deletion deletion) {
+    def setResiduesForFeatureFromLocation(DeletionArtifact deletion) {
         FeatureLocation featureLocation = deletion.featureLocation
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
     }

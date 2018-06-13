@@ -40,6 +40,7 @@ public class ExportPanel extends Modal {
     Button exportButton = new Button("Export");
     RadioButton gff3Button = new RadioButton("GFF3", "GFF3", true);
     RadioButton gff3WithFastaButton = new RadioButton("GFF3 with FASTA", "GFF3 with FASTA", true);
+    RadioButton vcfButton = new RadioButton("VCF", "VCF", true);
     RadioButton genomicRadioButton = new RadioButton("Genomic", "Genomic", true);
     RadioButton cdnaRadioButton = new RadioButton("cDNA", "cDNA", true);
     RadioButton cdsRadioButton = new RadioButton("CDS", "CDS", true);
@@ -79,6 +80,10 @@ public class ExportPanel extends Modal {
         if (type.equals(FeatureStringEnum.TYPE_GFF3.getValue())) {
             buttonGroup.add(gff3Button);
             buttonGroup.add(gff3WithFastaButton);
+        }
+        else
+        if (type.equals(FeatureStringEnum.TYPE_VCF.getValue())) {
+            buttonGroup.add(vcfButton);
         }
         else
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
@@ -137,6 +142,8 @@ public class ExportPanel extends Modal {
 
         gff3WithFastaButton.addClickHandler(exportClickHandler);
         gff3Button.addClickHandler(exportClickHandler);
+
+        vcfButton.addClickHandler(exportClickHandler);
 
         chadoExportButton1.addClickHandler(new ClickHandler() {
             @Override
