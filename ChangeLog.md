@@ -24,6 +24,7 @@ Bugfixes
 - Allow more special characters in the password [#1859](https://github.com/GMOD/Apollo/issues/1859)
 - Fixed bug with 'Update Membership' and 'Update Group Admin' call in web services [#1891](https://github.com/GMOD/Apollo/issues/1891)
 - Fixed bug with 'Update Organism Permission' call in web services [#1885](https://github.com/GMOD/Apollo/issues/1885)
+- In some cases when the name store is not properly configured, the location is not remembered [#1895](https://github.com/GMOD/Apollo/issues/1895)
 
 ## 2.0.8
 
