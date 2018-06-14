@@ -352,7 +352,7 @@ task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
 task installJBrowseScript(type:Exec) {
     logger.quiet "Setting up JBrowse... "
     workingDir jbrowseDirectory
-    commandLine './setup.sh'
+    commandLine './setup.sh',"nosamples"
 }
 
 task refreshNpmRepo(type: Exec){
