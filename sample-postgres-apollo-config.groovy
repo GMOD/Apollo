@@ -121,8 +121,7 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.12.5-release"
-////        branch = "master"
+//        tag = "maint/1.12.5-apollo"
 //        alwaysPull = true
 //        alwaysRecheck = true
 //

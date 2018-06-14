@@ -408,9 +408,9 @@ jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
 //        branch = "master"
-        tag = "1.12.5-release"
-        alwaysPull = false
-        alwaysRecheck = false
+        tag = "maint/1.12.5-apollo"
+        alwaysPull = true
+        alwaysRecheck = true
     }
 //    url {
 //        // always use dev for apollo
