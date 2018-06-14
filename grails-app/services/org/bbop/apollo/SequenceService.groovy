@@ -357,6 +357,31 @@ class SequenceService {
         }
     }
 
+    def updateGenomeFasta(Organism organism) {
+        JSONObject referenceTrackObject = getReferenceTrackObject(organism)
+        organism.valid = false
+        organism.save(failOnError: true)
+        String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
+        String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
+        File genomeFastaFile = new File(genomeFastaFileName)
+        if(genomeFastaFile.exists()) {
+            organism.genomeFasta = referenceTrackObject.urlTemplate
+            File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
+            if (genomeFastaIndexFile.exists()) {
+                organism.genomeFastaIndex = referenceTrackObject.faiUrlTemplate
+                FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
+                organism.valid = true
+                organism.save(flush: true, insert: false, failOnError: true)
+            }
+            else {
+                throw  new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
+            }
+        }
+        else {
+            throw new FileNotFoundException("Genome fasta ${genomeFastaFile.getCanonicalPath()} does not exist!")
+        }
+    }
+
     def getReferenceTrackObject(Organism organism) {
         JSONObject referenceTrackObject = new JSONObject()
         File directory = new File(organism.directory)
