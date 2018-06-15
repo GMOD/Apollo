@@ -1270,8 +1270,12 @@ class RequestHandlingService {
 
         for (int i = 0; i < features.length(); ++i) {
             JSONObject jsonFeature = features.getJSONObject(i);
-            int fmin = jsonFeature.get(FeatureStringEnum.LOCATION.value).fmin
-            int fmax = jsonFeature.get(FeatureStringEnum.LOCATION.value).fmax
+            Integer fmin = jsonFeature.get(FeatureStringEnum.LOCATION.value)?.fmin
+            Integer fmax = jsonFeature.get(FeatureStringEnum.LOCATION.value)?.fmax
+            if(!fmax){
+                fmax = fmin
+                jsonFeature.get(FeatureStringEnum.LOCATION.value).fmax = fmax
+            }
             if (featureService.getOverlappingSequenceAlterations(sequence, fmin, fmax)) {
                 // found an overlapping sequence alteration
                 throw new AnnotationException("Cannot create an overlapping sequence alteration");
