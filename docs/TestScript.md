@@ -261,7 +261,10 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 16.1) Right-click on a HTML Annotation and "Create Annotation" and confirm that the same SNV has been added graphically.
 
-16.2) Option-click (or right-click and "Edit Information) on the created annotation and confirm that data is identical to what it has been added from.
+16.1.2) Confirm that you can drag up an HTML Variant Annotation.
+16.1.3) Confirm that you can create a Canvas Variant Annotation by right-clicking on it and click on Annotation.
+
+16.2) On any of the annotations, option-click (or right-click and "Edit Information) on the created annotation and confirm that data is identical to what it has been added from.
 
 16.2.1)  Make changes to the name and description fields.
 16.2.2)  Added two Allele INFO.  Remove one Allele INFO.  
@@ -278,13 +281,17 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 16.3.4) In the Allele Info screen confirm that the added info appears. 
 16.3.4.1) Confirm that you can add and delete Allele Info.
 
-
 16.4) In Annotator Panel search switch between Variant and others and confirm that the only the Variant shows up.
 
+16.5) Verify that you can zoom out and still see the variant info.
+
+16.6) On the Sequence Tab verify that the annotation shows up.
+
+16.6.1) Verify that you can click on the chromosome and export it as a valid VCF.
+
+16.7) Verify that you can delete the VCF.
 
 
 
-
-16.1) Right-click on a HTML Annotation and "Create Annotation"
 
 
