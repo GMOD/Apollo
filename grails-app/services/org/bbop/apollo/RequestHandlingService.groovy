@@ -70,10 +70,14 @@ class RequestHandlingService {
             SubstitutionArtifact.class.name
     ]
 
-    public static final List<String> viewableSequenceAlterationList = [
+
+    public static final List<String> viewableGenomicSequenceAlterationList = [
             Deletion.class.name,
             Insertion.class.name,
             Substitution.class.name,
+    ]
+
+    public static final List<String> variantAnnotationList = [
             SNV.class.name,
             SNP.class.name,
             MNV.class.name,
@@ -82,7 +86,11 @@ class RequestHandlingService {
     ]
 
     public static
+    final List<String> viewableSequenceAlterationList = viewableGenomicSequenceAlterationList + variantAnnotationList
+    public static
     final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList
+    public static
+    final List<String> countableAnnotationList = viewableAnnotationList + variantAnnotationList
     public static
     final List<String> viewableAnnotationTypesList = viewableAnnotationFeatureList + viewableAnnotationTranscriptList + viewableAnnotationTranscriptParentList
 
@@ -706,7 +714,7 @@ class RequestHandlingService {
      * @param inputObject
      */
     @Timed
-    JSONObject setTranslationStart(JSONObject inputObject) throws AnnotationException{
+    JSONObject setTranslationStart(JSONObject inputObject) throws AnnotationException {
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
@@ -1532,9 +1540,8 @@ class RequestHandlingService {
                             fireAnnotationEvent(annotationEvent)
                         }
                     }
-                }
-                else{
-                    log.error("Transcript failed to produce gene with moving to opposite strand: "+feature.name)
+                } else {
+                    log.error("Transcript failed to produce gene with moving to opposite strand: " + feature.name)
                 }
             } else {
                 feature = featureService.flipStrand(feature)
