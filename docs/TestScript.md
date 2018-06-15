@@ -69,7 +69,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 2.3) View
    
-   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark or light).
+   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark, light, grid, no grid).
 
 2.4) Tools
 
@@ -255,6 +255,36 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  `groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism`
 
 
+### E) Testing Variation Annotation
 
+16) Go to a Human or Volvox organism (with variant data, preferably an HTML and Canvas track). 
+
+16.1) Right-click on a HTML Annotation and "Create Annotation" and confirm that the same SNV has been added graphically.
+
+16.2) Option-click (or right-click and "Edit Information) on the created annotation and confirm that data is identical to what it has been added from.
+
+16.2.1)  Make changes to the name and description fields.
+16.2.2)  Added two Allele INFO.  Remove one Allele INFO.  
+16.2.3)  Added two Variant INFO.  Remove one Variant INFO.  
+16.2.4)  Added two Phenotype Ontology and remove one.
+16.2.5)  Repeat for Comment, DBXRefs, and PubMed Ids.
+16.2.6)  Change name and confirm name is changed. 
+
+16.3) Right-click on variant annotation and confirm that only that annotation appears in the Annotator Panel
+16.3.1) Observe that for tabs are shown in the details screen.
+16.3.2) In the Details screen confirm that Name and Description changes show up and are verified in the graphical editor.
+16.3.3) In the Variant Info screen confirm that the added info appears. 
+16.3.3.1) Confirm that you can add and delete Variant Info.
+16.3.4) In the Allele Info screen confirm that the added info appears. 
+16.3.4.1) Confirm that you can add and delete Allele Info.
+
+
+16.4) In Annotator Panel search switch between Variant and others and confirm that the only the Variant shows up.
+
+
+
+
+
+16.1) Right-click on a HTML Annotation and "Create Annotation"
 
 
