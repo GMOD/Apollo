@@ -5,6 +5,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -44,6 +46,7 @@ public class RestService {
             builder.setRequestData(data);
         }
         builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+        builder.setHeader("Accept", "application/json");
         try {
             if (requestCallback != null) {
                 builder.setCallback(requestCallback);

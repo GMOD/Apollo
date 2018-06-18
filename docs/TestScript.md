@@ -69,7 +69,7 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 2.3) View
    
-   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark or light).
+   Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark, light, grid, no grid).
 
 2.4) Tools
 
@@ -255,6 +255,40 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 15.3.4) Run ```delete_annotations_from_organism.groovy``` and confirm that annotations from this organism have been removed.  `groovy delete_annotations_from_organism.groovy -adminusername adminuser@admin.gov -adminpassword adminpassword -destinationurl http://testserver.gov/Apollo-staging -organismname SampleOrganism`
 
 
+### E) Testing Variation Annotation
+
+16) Go to a Human or Volvox organism (with variant data, preferably HTMLVariant and CanvasVariant tracks). 
+
+16.1) Right-click on a HTML Annotation and "Create Annotation" and confirm that the same SNV has been added graphically.
+
+16.1.2) Confirm that you can drag up an HTML Variant Annotation.
+16.1.3) Confirm that you can create a Canvas Variant Annotation by right-clicking on it and click on Annotation.
+
+16.2) On any of the annotations, option-click (or right-click and select "Edit Information") on the created variant and confirm that data is identical to what it has been added from.
+
+16.2.1)  Make changes to the name and description fields.
+16.2.2)  Add two Allele Info.  Remove one Allele INFO.  
+16.2.3)  Add two Variant Info.  Remove one Variant INFO.  
+16.2.4)  Add two Human Phenotype Ontology temrs and remove one.
+16.2.5)  Add an invalid Human Phenotype Ontology and ensure that the operation fails with a proper error.
+16.2.5)  Repeat for Comment, DBXRefs, and PubMed Ids.
+16.2.6)  Change name and confirm name is changed.
 
 
+16.3) Right-click on variant annotation and confirm that only that annotation appears in the Annotator Panel
+16.3.1) Observe that four tabs are shown in the details screen: Details, Alternate Alleles, Variant Info, and Allele Info.
+16.3.2) In the Details tab confirm that changes to Name and Description show up and match what is shown in the graphical editor.
+16.3.3) In the Variant Info tab confirm that the added info appears. 
+16.3.3.1) Confirm that you can add and delete Variant Info.
+16.3.4) In the Allele Info tab confirm that the added info appears. 
+16.3.4.1) Confirm that you can add and delete Allele Info.
 
+16.4) In Annotator Panel search switch between Variant and others and confirm that only variants shows up.
+
+16.5) Verify that you can zoom out and still see the variant info.
+
+16.6) On the Sequence Tab verify that the annotation shows up.
+
+16.6.1) Verify that you can click on the chromosome and export it as a valid VCF.
+
+16.6.2) Verify that the VCF contains all the variants and each variant has all the properties.
