@@ -893,21 +893,21 @@ define([
                 createGenomicInsertion: function () {
                     var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
 
-                    var content = this.createAddSequenceAlterationPanel("insertion", gcoord);
+                    var content = this.createAddSequenceAlterationPanel("insertion_artifact", gcoord);
                     this.annotTrack.openDialog("Add Insertion", content);
                 },
 
                 createGenomicDeletion: function () {
                     var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
 
-                    var content = this.createAddSequenceAlterationPanel("deletion", gcoord);
+                    var content = this.createAddSequenceAlterationPanel("deletion_artifact", gcoord);
                     this.annotTrack.openDialog("Add Deletion", content);
 
                 },
 
                 createGenomicSubstitution: function () {
                     var gcoord = this.getGenomeCoord(this.residues_context_mousedown);
-                    var content = this.createAddSequenceAlterationPanel("substitution", gcoord);
+                    var content = this.createAddSequenceAlterationPanel("substitution_artifact", gcoord);
                     this.annotTrack.openDialog("Add Substitution", content);
                 },
 
