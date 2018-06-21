@@ -39,7 +39,10 @@ class ProxyService {
             if(!proxy){
 
                 if(proxyConfig.replace){
-                    Proxy.findByFallbackOrderAndActive(proxyConfig.fallbackOrder as Integer,proxyConfig.active as Boolean).delete()
+                    def proxyToDelete = Proxy.findByFallbackOrderAndActive(proxyConfig.fallbackOrder as Integer,proxyConfig.active as Boolean)
+                    if(proxyToDelete){
+                       proxyToDelete.delete()
+                    }
                 }
 
                 proxy = new Proxy(
