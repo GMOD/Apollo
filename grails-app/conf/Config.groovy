@@ -235,25 +235,17 @@ apollo {
     proxies = [
             [
                     referenceUrl : 'http://golr.geneontology.org/select',
-                    targetUrl    : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.geneontology.org/solr/select',
                     active       : true,
                     fallbackOrder: 0,
-                    replace      : false
-            ]
-            ,
-            [
-                    referenceUrl : 'http://golr.geneontology.org/select',
-                    targetUrl    : 'http://golr.berkeleybop.org/select',
-                    active       : false,
-                    fallbackOrder: 1,
-                    replace      : false
+                    replace      : true
             ]
             ,
             [
                     referenceUrl : 'http://golr.geneontology.org/select',
                     targetUrl    : 'http://golr.berkeleybop.org/solr/select',
                     active       : false,
-                    fallbackOrder: 2,
+                    fallbackOrder: 1,
                     replace      : false
             ]
     ]
