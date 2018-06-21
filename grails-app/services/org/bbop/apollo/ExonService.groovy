@@ -174,7 +174,7 @@ class ExonService {
         String donorSite = null;
         int donorCoordinate = -1;
         for(String donor : SequenceTranslationHandler.spliceDonorSites){
-            int coordinate = sequence.substring(0, exonPosition - minimumIntronSize).lastIndexOf(donor);
+            int coordinate = sequence.toLowerCase().substring(0, exonPosition - minimumIntronSize).lastIndexOf(donor);
             if (coordinate > donorCoordinate) {
                 donorCoordinate = coordinate;
                 donorSite = donor;
@@ -184,7 +184,7 @@ class ExonService {
         String acceptorSite = null;
         int acceptorCoordinate = -1;
         for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
-            int coordinate = sequence.substring(exonPosition + minimumIntronSize, sequence.length()).indexOf(acceptor);
+            int coordinate = sequence.toLowerCase().substring(exonPosition + minimumIntronSize, sequence.length()).indexOf(acceptor);
             if (acceptorCoordinate == -1 || coordinate < acceptorCoordinate) {
                 acceptorCoordinate = coordinate;
                 acceptorSite = acceptor;
