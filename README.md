@@ -1,5 +1,5 @@
 # Apollo
-[![DOI](https://zenodo.org/badge/13471446.svg)](https://zenodo.org/badge/latestdoi/13471446)
+[![DOI](https://zenodo.org/badge/1295754.svg)](https://zenodo.org/badge/latestdoi/1295754)
 [![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)](https://travis-ci.org/GMOD/Apollo?branch=master)
 [![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
