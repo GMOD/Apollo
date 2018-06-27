@@ -140,6 +140,12 @@ class AvailableStatusController {
             return
         }
 
+        def filters = AvailableStatusOrganismFilter.findAllByAvailableStatus(availableStatusInstance)
+        AvailableStatusOrganismFilter.deleteAll(filters)
+        availableStatusInstance.featureTypes.each {
+            availableStatusInstance.removeFromFeatureTypes(it)
+        }
+
         availableStatusInstance.delete flush:true
 
         request.withFormat {
