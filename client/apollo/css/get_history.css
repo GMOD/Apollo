@@ -1,68 +1,68 @@
 @CHARSET "UTF-8";
 
-.history_div {
+.jbrowse .history_div {
 	font-size: 9px;
 }
 
-.history_table {
+.jbrowse .history_table {
 	font-size: 1.5em;
 /*	max-width: 47em; */
 }
 
-.history_header_column {
+.jbrowse .history_header_column {
 	font-weight: bold;
 	text-decoration: underline;
 }
-.history_set{
+.jbrowse .history_set{
 	text-align: left;
 	margin-right: auto;
 }
 
-.history_column_operation {
+.jbrowse .history_column_operation {
 	width: 17em !important;
 }
 
-.history_column_action{
+.jbrowse .history_column_action{
 	width: 5em !important;
 }
 
-.history_column {
+.jbrowse .history_column {
 	width: 15em;
 	display: inline-block;
 	background-color: inherit;
 }
 
-.history_row_selected  {
+.jbrowse .history_row_selected  {
 	background-color: #4169e1;
 	color: white;
 }
 
-.history_row:hover  {
+.jbrowse .history_row:hover  {
 	background-color: #000099;
 	color: white;
 }
 
-.history_row_current {
+.jbrowse .history_row_current {
 	background-color: #787878;
 	color: white;
 }
 
-.history_rows {
+.jbrowse .history_rows {
 	max-height: 10em;
 	overflow-y: auto;
 }
 
-.history_column_date {
+.jbrowse .history_column_date {
 	max-width: 10em;
 }
 
-.history_preview {
+.jbrowse .history_preview {
 	width: 45em;
 	height: 2em;
 	padding-top: 3em;
 }
 
-.revert_button.dijitButton .dijitButtonNode {
+.jbrowse .revert_button.dijitButton .dijitButtonNode {
 	padding: 0px;
 	margin: 0px;
 }

@@ -133,12 +133,13 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) {
 }
 
 
-task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
-	workingDir = '.'
-    commandLine './install_jbrowse.sh'
-}
+//task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
+//	workingDir = '.'
+//    commandLine './install_jbrowse.sh'
+//}
 
-task copyResourcesDev(dependsOn: installJBrowse) {
+//task copyResourcesDev(dependsOn: installJBrowse) {
+    task copyResourcesDev() {
 	doLast {
 		File jbrowse = new File("web-app/jbrowse")
 		logger.quiet "Found JBrowse directory ${jbrowse.file}"
@@ -148,11 +149,12 @@ task copyResourcesDev(dependsOn: installJBrowse) {
 		else{
 			tasks["copy-resources"].execute()
 		}
-		installJBrowseLocal.execute()
+//		installJBrowseLocal.execute()
 	}
 }
 
-task copyApolloPlugin(dependsOn:installJBrowse,type:Copy){
+//task copyApolloPlugin(dependsOn:installJBrowse,type:Copy){
+    task copyApolloPlugin(type:Copy){
     logger.quiet "Copying apollo plugin"
     from("client/apollo")
     into("jbrowse-download/plugins/WebApollo")

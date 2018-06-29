@@ -1,28 +1,28 @@
 @CHARSET "UTF-8";
 
-.comments {
+.jbrowse .comments {
 	width: 58em;
 }
 
-.comment_header {
+.jbrowse .comment_header {
 	font-size: 1.5em;
 	margin-bottom: 5px;
 }
 
-.comment_area {
+.jbrowse .comment_area {
 	width: 40em;
 	height: 3.5em;
 }
 
-.comment_button {
+.jbrowse .comment_button {
 	height: 2.5em;
 }
 
-.comment_add_button_div {
+.jbrowse .comment_add_button_div {
 	margin-top: 5px;
 }
 
-.parent_comments_div {
+.jbrowse .parent_comments_div {
 	margin-bottom: 10px;
 	border-bottom-style: dotted;
 	border-bottom-width: 2px;

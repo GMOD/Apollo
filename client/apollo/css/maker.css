@@ -34,23 +34,23 @@ div.gridline_minor {
     border-color: transparent;
 }
 
-.feature-label {
+.jbrowse .feature-label {
     color: gray;
 }
 
-.plus-trellis-arrowhead,
-.plus-webapollo-arrowhead,
-.plus-annot-arrowhead {
+.jbrowse .plus-trellis-arrowhead,
+.jbrowse .plus-webapollo-arrowhead,
+.jbrowse .plus-annot-arrowhead {
     background-image: url('../img/plus-arrowhead.png');
 }
 
-.minus-trellis-arrowhead,
-.minus-webapollo-arrowhead,
-.minus-annot-arrowhead {
+.jbrowse .minus-trellis-arrowhead,
+.jbrowse .minus-webapollo-arrowhead,
+.jbrowse .minus-annot-arrowhead {
     background-image: url('../img/minus-arrowhead.png');
 }
 
-.annot-render {
+.jbrowse .annot-render {
     /* height: 4px; original MAKER choice */
     /* margin-top: 6px; original MAKER choice */
     /* background-color: #0460d9; original color choice based on kuler.adobe.com */
@@ -60,9 +60,9 @@ div.gridline_minor {
     background-color: #A4BBFF; 
 }
  
-.annot-CDS, 
-.plus-annot-CDS,
-.minus-annot-CDS {
+.jbrowse .annot-CDS,
+.jbrowse .plus-annot-CDS,
+.jbrowse .minus-annot-CDS {
     height: 16px;
     margin-top: 0px; 
     /* background-color: #0460d9; original color choice based on kuler.adobe.com */
@@ -70,9 +70,9 @@ div.gridline_minor {
     border: 2px solid rgb(15,66,133);
 }
 
-.annot-UTR, 
-.plus-annot-UTR, 
-.minus-annot-UTR {
+.jbrowse .annot-UTR,
+.jbrowse .plus-annot-UTR,
+.jbrowse .minus-annot-UTR {
     height: 16px; 
     margin-top: 0px; 
     background-color: #FFF7cc;
@@ -80,82 +80,82 @@ div.gridline_minor {
 }
 
 /*  nucleotide alignments from MAKER */
-.blastn-part, 
-.plus-blastn-part, 
-.minus-blastn-part  {
+.jbrowse .blastn-part,
+.jbrowse .plus-blastn-part,
+.jbrowse .minus-blastn-part  {
     background-color: rgb(102,204,0);
 }
 
-.est2genome-part, 
-.plus-est2genome-part, 
-.minus-est2genome-part   {
+.jbrowse .est2genome-part,
+.jbrowse .plus-est2genome-part,
+.jbrowse .minus-est2genome-part   {
     background-color: rgb(250,250,210);
 }
 
-.est_gff-part, 
-.plus-est_gff-part, 
-.minus-est_gff-part  {
+.jbrowse .est_gff-part,
+.jbrowse .plus-est_gff-part,
+.jbrowse .minus-est_gff-part  {
     background-color: rgb(251,255,179);
 }
 
 /*  protein alignments from MAKER */
-.blastx-part, 
-.plus-blastx-part, 
-.minus-blastx-part  {
+.jbrowse .blastx-part,
+.jbrowse .plus-blastx-part,
+.jbrowse .minus-blastx-part  {
     background-color: pink;
 }
 
-.protein2genome-part, 
-.plus-protein2genome-part, 
-.minus-protein2genome-part  {
+.jbrowse .protein2genome-part,
+.jbrowse .plus-protein2genome-part,
+.jbrowse .minus-protein2genome-part  {
     background-color: rgb(102,204,0);
 }
 
 /* ???? not found in gff3.tiers 
-.protein_gff-part, 
-.plus-protein_gff-part, 
-.minus-protein_gff-part  {
+.jbrowse .protein_gff-part,
+.jbrowse .plus-protein_gff-part,
+.jbrowse .minus-protein_gff-part  {
 
 }
 */
 
-.tblastx-part, 
-.plus-tblastx-part, 
-.minus-tblastx-part  {
+.jbrowse .tblastx-part,
+.jbrowse .plus-tblastx-part,
+.jbrowse .minus-tblastx-part  {
     background-color: rgb(102,51,102);
 }
 
 /*  ????  couldn't find in gff3.tiers
-.cdna2genome-part, 
-.plus-cdna2genome-part, 
-.minus-cdna2genome-part  {
+.jbrowse .cdna2genome-part,
+.jbrowse .plus-cdna2genome-part,
+.jbrowse .minus-cdna2genome-part  {
 
 }
 */
 
 /*  ????  couldn't find in gff3.tiers
-.altest_gff-part, 
-.plus-altest_gff-part, 
-.minus-altest_gff-part  {
+.jbrowse .altest_gff-part,
+.jbrowse .plus-altest_gff-part,
+.jbrowse .minus-altest_gff-part  {
 
 }
 */
 
-.gvf,
-.plus-gvf,
-.minus-gvf  {
+.jbrowse .gvf,
+.jbrowse .plus-gvf,
+.jbrowse .minus-gvf  {
     height: 16px;
     background-color: pink;
     min-width: 4px;
 }
 
-.maker-CDS  {
+.jbrowse .maker-CDS  {
     height: 80%;
     top: 10%;
     background-color: rgb(51,102,255);
 }
 
-.maker-UTR {
+.jbrowse .maker-UTR {
     height: 80%;
     top: 10%;
     border-style: solid;
@@ -164,39 +164,39 @@ div.gridline_minor {
     background-color: #142933;
 }
 
-.augustus-CDS {
+.jbrowse .augustus-CDS {
     height: 80%;
     top: 10%;
     background-color: rgb(255,204,255);
 }
 
-.augustus-UTR {
+.jbrowse .augustus-UTR {
     height: 80%;
     top: 10%;
     border: 1px solid rgb(255,204,255);
     background-color: #142933;
 }
 
-.snap-CDS {
+.jbrowse .snap-CDS {
     height: 80%;
     top: 10%;
     background-color: rgb(153,255,204);
 }
 
-.snap-UTR {
+.jbrowse .snap-UTR {
     height: 80%;
     top: 10%;
     border: 1px solid rgb(153,255,204);
     background-color: #142933;
 }
 
-.genemark-CDS {
+.jbrowse .genemark-CDS {
     height: 80%;
     top: 10%;
     background-color: rgb(103,155,104);
 }
 
-.genemark-UTR {
+.jbrowse .genemark-UTR {
     height: 80%;
     top: 10%;
     border: 1px solid rgb(103,155,104);
@@ -204,12 +204,12 @@ div.gridline_minor {
 }
 
 /* ???? not sure about pred_gff, same as GeneMark? 
-.pred_gff-CDS {
+.jbrowse .pred_gff-CDS {
     height: 80%;
     top: 10%;
     background-color: rgb(103,155,104);
 }
-.pred_gff-UTR {
+.jbrowse .pred_gff-UTR {
     height: 80%;
     top: 10%;
     border: 1px solid rgb(103,155,104);
@@ -218,10 +218,10 @@ div.gridline_minor {
 */
 
 /* ???? couldn't find model_gff in gff3.tiers 
-.model_gff-CDS {
+.jbrowse .model_gff-CDS {
 
 }
-.model_gff-UTR {
+.jbrowse .model_gff-UTR {
     height: 80%;
     top: 10%;
     border: 1px solid rgb(103,155,104);
@@ -229,13 +229,13 @@ div.gridline_minor {
 }
 */
 
-.fgenesh-CDS {
+.jbrowse .fgenesh-CDS {
     height: 80%;
     top: 10%;
     background-color: rgb(55,153,255);
 }
 
-.fgenesh-UTR {
+.jbrowse .fgenesh-UTR {
     height: 80%;
     top: 10%;
 /*    background-color: rgb(255,204,255); */
@@ -250,42 +250,42 @@ div.gridline_minor {
 
 /*  ???? repeatrunner is different than repeatmasker in gff3.tiers, 
     should we make it different also for webapollo?
-.repeatrunner, 
-.plus-repeatrunner, 
-.minus-repeatrunner  {
+.jbrowse .repeatrunner,
+.jbrowse .plus-repeatrunner,
+.jbrowse .minus-repeatrunner  {
 }
 */
 
-.left-edge-match  {
+.jbrowse .left-edge-match  {
     border-left: solid red 3px;
 }
 
-.right-edge-match  {
+.jbrowse .right-edge-match  {
     border-right: solid red 3px;
 }
 
-.cds-frame0 {
+.jbrowse .cds-frame0 {
     background-color: #FF8080;
 }
 
-.cds-frame1 {
+.jbrowse .cds-frame1 {
     background-color: #80FF80; 
 }
 
-.cds-frame2 {
+.jbrowse .cds-frame2 {
     background-color: #8080FF;
 }
 
 
-.neg-cds-frame0 {
+.jbrowse .neg-cds-frame0 {
     background-color: #8080FF;
 }
 
-.neg-cds-frame1 {
+.jbrowse .neg-cds-frame1 {
     background-color: #80FF80;
 }
 
-.neg-cds-frame2 {
+.jbrowse .neg-cds-frame2 {
     background-color: #FF8080;
 }
 

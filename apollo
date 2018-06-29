@@ -209,6 +209,7 @@ elif [[ $1 == "watchman" ]]; then
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
+#        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
         $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
     else
         $gradle_executable handleJBrowse copyResourcesDev compileJBrowse && $grails_executable run-app

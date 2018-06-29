@@ -1,15 +1,15 @@
 /*MAKER CSS with colors for common features*/
 
 /*SNAP*/
-.snap-exon,
-.plus-snap-exon,
-.minus-snap-exon,
-.snap-five_prime_UTR,
-.plus-snap-five_prime_UTR,
-.minus-snap-five_prime_UTR,
-.snap-three_prime_UTR,
-.plus-snap-three_prime_UTR,
-.minus-snap-three_prime_UTR {
+.jbrowse .snap-exon,
+.jbrowse .plus-snap-exon,
+.jbrowse .minus-snap-exon,
+.jbrowse .snap-five_prime_UTR,
+.jbrowse .plus-snap-five_prime_UTR,
+.jbrowse .minus-snap-five_prime_UTR,
+.jbrowse .snap-three_prime_UTR,
+.jbrowse .plus-snap-three_prime_UTR,
+.jbrowse .minus-snap-three_prime_UTR {
     position: absolute;
     height: 7px;
     background-color: #99FFCC;
@@ -20,15 +20,15 @@
     min-width: 1px;
     cursor: pointer;
 }
-.Apollo .snap-exon,
-.Apollo .plus-snap-exon,
-.Apollo .minus-snap-exon,
-.Apollo .snap-five_prime_UTR,
-.Apollo .plus-snap-five_prime_UTR,
-.Apollo .minus-snap-five_prime_UTR,
-.Apollo .snap-three_prime_UTR,
-.Apollo .plus-snap-three_prime_UTR,
-.Apollo .minus-snap-three_prime_UTR {
+.jbrowse .Apollo .snap-exon,
+.jbrowse .Apollo .plus-snap-exon,
+.jbrowse .Apollo .minus-snap-exon,
+.jbrowse .Apollo .snap-five_prime_UTR,
+.jbrowse .Apollo .plus-snap-five_prime_UTR,
+.jbrowse .Apollo .minus-snap-five_prime_UTR,
+.jbrowse .Apollo .snap-three_prime_UTR,
+.jbrowse .Apollo .plus-snap-three_prime_UTR,
+.jbrowse .Apollo .minus-snap-three_prime_UTR {
     position: absolute;
     height: 80%;
     top: 10%;
@@ -39,15 +39,15 @@
     cursor: pointer;
 }
 /*Augustus*/
-.augustus-exon,
-.plus-augustus-exon,
-.minus-augustus-exon,
-.augustus-five_prime_UTR,
-.plus-augustus-five_prime_UTR,
-.minus-augustus-five_prime_UTR,
-.augustus-three_prime_UTR,
-.plus-augustus-three_prime_UTR,
-.minus-augustus-three_prime_UTR {
+.jbrowse .augustus-exon,
+.jbrowse .plus-augustus-exon,
+.jbrowse .minus-augustus-exon,
+.jbrowse .augustus-five_prime_UTR,
+.jbrowse .plus-augustus-five_prime_UTR,
+.jbrowse .minus-augustus-five_prime_UTR,
+.jbrowse .augustus-three_prime_UTR,
+.jbrowse .plus-augustus-three_prime_UTR,
+.jbrowse .minus-augustus-three_prime_UTR {
     position: absolute;
     height: 7px;
     background-color: #FFCCFF;
@@ -61,15 +61,15 @@
 
 
 
-.Apollo .augustus-exon,
-.Apollo .plus-augustus-exon,
-.Apollo .minus-augustus-exon,
-.Apollo .augustus-five_prime_UTR,
-.Apollo .plus-augustus-five_prime_UTR,
-.Apollo .minus-augustus-five_prime_UTR,
-.Apollo .augustus-three_prime_UTR,
-.Apollo .plus-augustus-three_prime_UTR,
-.Apollo .minus-augustus-three_prime_UTR {
+.jbrowse .Apollo .augustus-exon,
+.jbrowse .Apollo .plus-augustus-exon,
+.jbrowse .Apollo .minus-augustus-exon,
+.jbrowse .Apollo .augustus-five_prime_UTR,
+.jbrowse .Apollo .plus-augustus-five_prime_UTR,
+.jbrowse .Apollo .minus-augustus-five_prime_UTR,
+.jbrowse .Apollo .augustus-three_prime_UTR,
+.jbrowse .Apollo .plus-augustus-three_prime_UTR,
+.jbrowse .Apollo .minus-augustus-three_prime_UTR {
     position: absolute;
     height: 80%;
     top: 10%;
@@ -81,15 +81,15 @@
     cursor: pointer;
 }
 /*GeneMark*/
-.Apollo .genemark-exon,
-.Apollo .plus-genemark-exon,
-.Apollo .minus-genemark-exon,
-.Apollo .genemark-five_prime_UTR,
-.Apollo .plus-genemark-five_prime_UTR,
-.Apollo .minus-genemark-five_prime_UTR,
-.Apollo .genemark-three_prime_UTR,
-.Apollo .plus-genemark-three_prime_UTR,
-.Apollo .minus-genemark-three_prime_UTR {
+.jbrowse .Apollo .genemark-exon,
+.jbrowse .Apollo .plus-genemark-exon,
+.jbrowse .Apollo .minus-genemark-exon,
+.jbrowse .Apollo .genemark-five_prime_UTR,
+.jbrowse .Apollo .plus-genemark-five_prime_UTR,
+.jbrowse .Apollo .minus-genemark-five_prime_UTR,
+.jbrowse .Apollo .genemark-three_prime_UTR,
+.jbrowse .Apollo .plus-genemark-three_prime_UTR,
+.jbrowse .Apollo .minus-genemark-three_prime_UTR {
     position: absolute;
     height: 80%;
     top: 10%;
@@ -103,15 +103,15 @@
 
 
 /*GeneMark*/
-.genemark-exon,
-.plus-genemark-exon,
-.minus-genemark-exon,
-.genemark-five_prime_UTR,
-.plus-genemark-five_prime_UTR,
-.minus-genemark-five_prime_UTR,
-.genemark-three_prime_UTR,
-.plus-genemark-three_prime_UTR,
-.minus-genemark-three_prime_UTR {
+.jbrowse .genemark-exon,
+.jbrowse .plus-genemark-exon,
+.jbrowse .minus-genemark-exon,
+.jbrowse .genemark-five_prime_UTR,
+.jbrowse .plus-genemark-five_prime_UTR,
+.jbrowse .minus-genemark-five_prime_UTR,
+.jbrowse .genemark-three_prime_UTR,
+.jbrowse .plus-genemark-three_prime_UTR,
+.jbrowse .minus-genemark-three_prime_UTR {
     position: absolute;
     height: 7px;
     background-color: #679B68;
@@ -124,15 +124,15 @@
 }
 
 /*FGENESH*/
-.Apollo .fgenesh-exon,
-.Apollo .plus-fgenesh-exon,
-.Apollo .minus-fgenesh-exon,
-.Apollo .fgenesh-five_prime_UTR,
-.Apollo .plus-fgenesh-five_prime_UTR,
-.Apollo .minus-fgenesh-five_prime_UTR,
-.Apollo .fgenesh-three_prime_UTR,
-.Apollo .plus-fgenesh-three_prime_UTR,
-.Apollo .minus-fgenesh-three_prime_UTR {
+.jbrowse .Apollo .fgenesh-exon,
+.jbrowse .Apollo .plus-fgenesh-exon,
+.jbrowse .Apollo .minus-fgenesh-exon,
+.jbrowse .Apollo .fgenesh-five_prime_UTR,
+.jbrowse .Apollo .plus-fgenesh-five_prime_UTR,
+.jbrowse .Apollo .minus-fgenesh-five_prime_UTR,
+.jbrowse .Apollo .fgenesh-three_prime_UTR,
+.jbrowse .Apollo .plus-fgenesh-three_prime_UTR,
+.jbrowse .Apollo .minus-fgenesh-three_prime_UTR {
     position: absolute;
     height: 7px;
     background-color: #FF99FF;
@@ -147,15 +147,15 @@
 
 
 /*FGENESH*/
-.fgenesh-exon,
-.plus-fgenesh-exon,
-.minus-fgenesh-exon,
-.fgenesh-five_prime_UTR,
-.plus-fgenesh-five_prime_UTR,
-.minus-fgenesh-five_prime_UTR,
-.fgenesh-three_prime_UTR,
-.plus-fgenesh-three_prime_UTR,
-.minus-fgenesh-three_prime_UTR {
+.jbrowse .fgenesh-exon,
+.jbrowse .plus-fgenesh-exon,
+.jbrowse .minus-fgenesh-exon,
+.jbrowse .fgenesh-five_prime_UTR,
+.jbrowse .plus-fgenesh-five_prime_UTR,
+.jbrowse .minus-fgenesh-five_prime_UTR,
+.jbrowse .fgenesh-three_prime_UTR,
+.jbrowse .plus-fgenesh-three_prime_UTR,
+.jbrowse .minus-fgenesh-three_prime_UTR {
     position: absolute;
     height: 7px;
     background-color: #FF99FF;
@@ -168,9 +168,9 @@
 }
 
 /*protein2genome*/
-.Apollo .protein2genome_part,
-.Apollo .plus-protein2genome_part,
-.Apollo .minus-protein2genome_part {
+.jbrowse .Apollo .protein2genome_part,
+.jbrowse .Apollo .plus-protein2genome_part,
+.jbrowse .Apollo .minus-protein2genome_part {
     position: absolute;
     height: 60%;
     margin-top: 0px;
@@ -183,9 +183,9 @@
     cursor: pointer;
 }
 /*protein2genome*/
-.protein2genome_part,
-.plus-protein2genome_part,
-.minus-protein2genome_part {
+.jbrowse .protein2genome_part,
+.jbrowse .plus-protein2genome_part,
+.jbrowse .minus-protein2genome_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -199,9 +199,9 @@
 }
 
 /*BLASTN*/
-.blastn_part,
-.plus-blastn_part,
-.minus-blastn_part {
+.jbrowse .blastn_part,
+.jbrowse .plus-blastn_part,
+.jbrowse .minus-blastn_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -215,9 +215,9 @@
 }
 
 /*BLASTN*/
-.Apollo .blastn_part,
-.Apollo .plus-blastn_part,
-.Apollo .minus-blastn_part {
+.jbrowse .Apollo .blastn_part,
+.jbrowse .Apollo .plus-blastn_part,
+.jbrowse .Apollo .minus-blastn_part {
     position: absolute;
     height: 60%;
     margin-top: 0px;
@@ -230,9 +230,9 @@
     cursor: pointer;
 }
 /*BLASTX*/
-.blastx_part,
-.plus-blastx_part,
-.minus-blastx_part {
+.jbrowse .blastx_part,
+.jbrowse .plus-blastx_part,
+.jbrowse .minus-blastx_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -246,9 +246,9 @@
 }
 
 /*BLASTX*/
-.Apollo .blastx_part,
-.Apollo .plus-blastx_part,
-.Apollo .minus-blastx_part {
+.jbrowse .Apollo .blastx_part,
+.jbrowse .Apollo .plus-blastx_part,
+.jbrowse .Apollo .minus-blastx_part {
     position: absolute;
     height: 60%;
     margin-top: 0;
@@ -264,9 +264,9 @@
 
 
 /*TBLASTX*/
-.tblastx_part,
-.plus-tblastx_part,
-.minus-tblastx_part {
+.jbrowse .tblastx_part,
+.jbrowse .plus-tblastx_part,
+.jbrowse .minus-tblastx_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -280,9 +280,9 @@
 }
 
 /*TBLASTX*/
-.Apollo .tblastx_part,
-.Apollo .plus-tblastx_part,
-.Apollo .minus-tblastx_part {
+.jbrowse .Apollo .tblastx_part,
+.jbrowse .Apollo .plus-tblastx_part,
+.jbrowse .Apollo .minus-tblastx_part {
     position: absolute;
     height: 60%;
     margin-top: 0px;
@@ -297,9 +297,9 @@
 }
 
 /*est2genome*/
-.est2genome_part,
-.plus-est2genome_part,
-.minus-est2genome_part {
+.jbrowse .est2genome_part,
+.jbrowse .plus-est2genome_part,
+.jbrowse .minus-est2genome_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -314,9 +314,9 @@
 
 
 /*est2genome*/
-.Apollo .est2genome_part,
-.Apollo .plus-est2genome_part,
-.Apollo .minus-est2genome_part {
+.jbrowse .Apollo .est2genome_part,
+.jbrowse .Apollo .plus-est2genome_part,
+.jbrowse .Apollo .minus-est2genome_part {
     position: absolute;
     height: 60%;
     top: 20%;
@@ -329,9 +329,9 @@
 }
 
 /*repeat*/
-.repeat_part,
-.plus-repeat_part,
-.minus-repeat_part {
+.jbrowse .repeat_part,
+.jbrowse .plus-repeat_part,
+.jbrowse .minus-repeat_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -344,9 +344,9 @@
     cursor: pointer;
 }
 /*repeat*/
-.Apollo .repeat_part,
-.Apollo .plus-repeat_part,
-.Apollo .minus-repeat_part {
+.jbrowse .Apollo .repeat_part,
+.jbrowse .Apollo .plus-repeat_part,
+.jbrowse .Apollo .minus-repeat_part {
     position: absolute;
     height: 60%;
     top: 20%;
@@ -361,9 +361,9 @@
 
 
 /*cdna2genome*/
-.cdna2genome_part,
-.plus-cdna2genome_part,
-.minus-cdna2genome_part {
+.jbrowse .cdna2genome_part,
+.jbrowse .plus-cdna2genome_part,
+.jbrowse .minus-cdna2genome_part {
     position: absolute;
     height: 4px;
     margin-top: -2px;
@@ -379,9 +379,9 @@
 
 
 /*cdna2genome*/
-.Apollo .cdna2genome_part,
-.Apollo .plus-cdna2genome_part,
-.Apollo .minus-cdna2genome_part {
+.jbrowse .Apollo .cdna2genome_part,
+.jbrowse .Apollo .plus-cdna2genome_part,
+.jbrowse .Apollo .minus-cdna2genome_part {
     position: absolute;
     height: 60%;
     margin-top: 0px;
@@ -399,9 +399,9 @@
 
 
 /*cdna2genome*/
-.Apollo .exon,
-.Apollo .minus-exon,
-.Apollo .plus-exon {
+.jbrowse .Apollo .exon,
+.jbrowse .Apollo .minus-exon,
+.jbrowse .Apollo .plus-exon {
     position: absolute;
     height: 60%;
     margin-top: 0px;
@@ -415,7 +415,7 @@
 
 
 /*cdna2genome*/
-.Apollo .CDS {
+.jbrowse .Apollo .CDS {
     position: absolute;
     height: 80%;
     margin-top: 0px;
@@ -428,21 +428,21 @@
 }
 
 
-.Apollo .feature {
+.jbrowse .Apollo .feature {
     background-image: none;
 }
  
-.Apollo .generic_parent {
+.jbrowse .Apollo .generic_parent {
     background-image: none;
 }
 
-.Apollo .transcript, .plus-transcript, .minus-transcript {
+.jbrowse .Apollo .transcript, .plus-transcript, .minus-transcript {
     background: white;
 }
 
-.Apollo .plus-feature {
+.jbrowse .Apollo .plus-feature {
     background-color: transparent;
 }
-.Apollo .minus-feature {
+.jbrowse .Apollo .minus-feature {
     background-color: transparent;
 }
