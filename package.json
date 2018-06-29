@@ -1,6 +1,6 @@
 {
   "name": "apollo-genome-architect",
-  "version": "2.0.8",
+  "version": "2.1.0",
   "description": "Genome annotation editor with a Java Server backend and a Javascript client that runs in a web browser as a JBrowse plugin. http://genomearchitect.org",
   "main": "client/apollo/main.js",
   "directories": {

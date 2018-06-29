@@ -36,12 +36,19 @@ public class SequenceRestService {
         jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
 
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
-            jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAllSequencesToChado().toString()));
             jsonObject.put("chadoExportType", new JSONString(exportPanel.getChadoExportType()));
             jsonObject.put("seqType", new JSONString(""));
             jsonObject.put("exportGff3Fasta", new JSONString(""));
             jsonObject.put("output", new JSONString(""));
             jsonObject.put("format", new JSONString(""));
+        }
+        else if (type.equals(FeatureStringEnum.TYPE_VCF.getValue())) {
+            GWT.log("type is TYPE_VCF");
+            jsonObject.put("output", new JSONString("file"));
+            jsonObject.put("format", new JSONString("gzip"));
+            jsonObject.put("seqType", new JSONString(""));
+            jsonObject.put("exportGff3Fasta", new JSONString(""));
+            jsonObject.put("chadoExportType", new JSONString(""));
         }
         else {
             jsonObject.put("chadoExportType", new JSONString(""));

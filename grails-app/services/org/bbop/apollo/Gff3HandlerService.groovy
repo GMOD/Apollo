@@ -177,13 +177,13 @@ public class Gff3HandlerService {
     
     public void writeFastaForSequenceAlterations(WriteObject writeObject, Collection<? extends Feature> features) {
         for (Feature feature : features) {
-            if (feature instanceof SequenceAlteration) {
+            if (feature instanceof SequenceAlterationArtifact) {
                 writeFastaForSequenceAlteration(writeObject, feature)
             }
         }
     }
     
-    public void writeFastaForSequenceAlteration(WriteObject writeObject, SequenceAlteration sequenceAlteration) {
+    public void writeFastaForSequenceAlteration(WriteObject writeObject, SequenceAlterationArtifact sequenceAlteration) {
         int lineLength = 60;
         String residues = null
         residues = sequenceAlteration.getAlterationResidue()
@@ -393,7 +393,7 @@ public class Gff3HandlerService {
             }
 
 
-            if(feature.class.name in [Insertion.class.name,Substitution.class.name]) {
+            if(feature.class.name in [InsertionArtifact.class.name, SubstitutionArtifact.class.name]) {
                 attributes.put(FeatureStringEnum.RESIDUES.value, feature.alterationResidue)
             }
         }

@@ -78,6 +78,9 @@ public class AnnotatorPanel extends Composite {
     private long requestIndex = 0;
     private static String selectedChildUniqueName = null;
 
+    private static int selectedSubTabIndex = 0 ;
+
+
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
 
@@ -103,6 +106,14 @@ public class AnnotatorPanel extends Composite {
     static ExonDetailPanel exonDetailPanel;
     @UiField
     static RepeatRegionDetailPanel repeatRegionDetailPanel;
+    @UiField
+    static VariantDetailPanel variantDetailPanel;
+    @UiField
+    static VariantAllelesPanel variantAllelesPanel;
+    @UiField
+    static VariantInfoPanel variantInfoPanel;
+    @UiField
+    static AlleleInfoPanel alleleInfoPanel;
     @UiField
     static TabLayoutPanel tabPanel;
     @UiField
@@ -318,7 +329,21 @@ public class AnnotatorPanel extends Composite {
         tabPanel.addSelectionHandler(new SelectionHandler<Integer>() {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
-                exonDetailPanel.redrawExonTable();
+                selectedSubTabIndex = event.getSelectedItem();
+                switch(selectedSubTabIndex) {
+                    case 0:
+                        break;
+                    case 1:
+                        exonDetailPanel.redrawExonTable();
+                        break;
+                    case 2:
+                        variantAllelesPanel.redrawTable();
+                        break;
+                    case 3:
+                        variantInfoPanel.redrawTable();
+                    case 4:
+                        alleleInfoPanel.redrawTable();
+                }
             }
         });
 
@@ -412,6 +437,7 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("Pseudogene");
         typeList.addItem("Transposable Element", "transposable_element");
         typeList.addItem("Repeat Region", "repeat_region");
+        typeList.addItem("Variant", "sequence_alteration");
     }
 
     private static void hideDetailPanels() {
@@ -432,12 +458,21 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
             case "mRNA":
             case "miRNA":
@@ -447,22 +482,56 @@ public class AnnotatorPanel extends Composite {
             case "snoRNA":
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
             case "transposable_element":
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(false);
+                tabPanel.getTabWidget(3).getParent().setVisible(false);
+                tabPanel.getTabWidget(4).getParent().setVisible(false);
+                break;
+            case "SNV":
+            case "SNP":
+            case "MNV":
+            case "MNP":
+            case "indel":
+                variantDetailPanel.updateData(annotationInfo);
+                variantAllelesPanel.updateData(annotationInfo);
+                variantInfoPanel.updateData(annotationInfo);
+                alleleInfoPanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(0).getParent().setVisible(true);
+                tabPanel.getTabWidget(1).getParent().setVisible(false);
+                tabPanel.getTabWidget(2).getParent().setVisible(true);
+                tabPanel.getTabWidget(3).getParent().setVisible(true);
+                tabPanel.getTabWidget(4).getParent().setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
         }
-        // if the current selected tb is not visible then select the first one
-        if (tabPanel.getSelectedIndex() != 0 && !tabPanel.getTabWidget(1).getParent().isVisible()) {
-            tabPanel.selectTab(0);
+        reselectSubTab();
+
+
+    }
+
+    private static void reselectSubTab() {
+        // attempt to selectt the last tab
+        if(tabPanel.getSelectedIndex()!=selectedSubTabIndex){
+            tabPanel.selectTab(selectedSubTabIndex);
         }
 
+        // if current tab is not visible, then select tab 0
+        while(!tabPanel.getTabWidget(selectedSubTabIndex).getParent().isVisible() && selectedSubTabIndex>=0){
+            --selectedSubTabIndex ;
+            tabPanel.selectTab(selectedSubTabIndex);
+        }
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
@@ -479,7 +548,9 @@ public class AnnotatorPanel extends Composite {
         }
 
         // Redraw the modified row.
-        dataGrid.redrawRow(index);
+        if(index < dataGrid.getRowCount()){
+            dataGrid.redrawRow(index);
+        }
     }
 
     private void initializeTable() {

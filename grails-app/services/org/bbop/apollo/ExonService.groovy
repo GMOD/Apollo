@@ -174,7 +174,7 @@ class ExonService {
         String donorSite = null;
         int donorCoordinate = -1;
         for(String donor : SequenceTranslationHandler.spliceDonorSites){
-            int coordinate = sequence.substring(0, exonPosition - minimumIntronSize).lastIndexOf(donor);
+            int coordinate = sequence.toLowerCase().substring(0, exonPosition - minimumIntronSize).lastIndexOf(donor);
             if (coordinate > donorCoordinate) {
                 donorCoordinate = coordinate;
                 donorSite = donor;
@@ -184,7 +184,7 @@ class ExonService {
         String acceptorSite = null;
         int acceptorCoordinate = -1;
         for (String acceptor : SequenceTranslationHandler.getSpliceAcceptorSites()) {
-            int coordinate = sequence.substring(exonPosition + minimumIntronSize, sequence.length()).indexOf(acceptor);
+            int coordinate = sequence.toLowerCase().substring(exonPosition + minimumIntronSize, sequence.length()).indexOf(acceptor);
             if (acceptorCoordinate == -1 || coordinate < acceptorCoordinate) {
                 acceptorCoordinate = coordinate;
                 acceptorSite = acceptor;
@@ -263,7 +263,7 @@ class ExonService {
             }
             String seq = residues.substring(coordinate, coordinate + 2);
 
-            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq.toLowerCase())) {
                 if (exon.getFeatureLocation().getStrand() == -1) {
                     setExonBoundaries(exon,featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate)+1,exon.getFeatureLocation().getFmax())
                 } else {
@@ -292,7 +292,7 @@ class ExonService {
             String seq = residues.substring(coordinate, coordinate + 2);
 
 //            log.debug "seq ${seq} in ${SequenceTranslationHandler.spliceDonorSites}"
-            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceDonorSites().contains(seq.toLowerCase())) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) + 1, exon.getFmax());
                 } else {
@@ -334,7 +334,7 @@ class ExonService {
                 throw new AnnotationException("Cannot set to upstream acceptor - will overlap previous exon");
             }
             String seq = residues.substring(coordinate, coordinate + 2);
-            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq.toLowerCase())) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) - 1);
                 } else {
@@ -360,7 +360,7 @@ class ExonService {
                 throw new AnnotationException("Cannot set to downstream acceptor - will remove exon");
             }
             String seq = residues.substring(coordinate, coordinate + 2);
-            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq)) {
+            if (SequenceTranslationHandler.getSpliceAcceptorSites().contains(seq.toLowerCase())) {
                 if (exon.getStrand() == -1) {
                     setExonBoundaries(exon, exon.getFmin(), featureService.convertLocalCoordinateToSourceCoordinate(gene,coordinate) - 1);
                 } else {

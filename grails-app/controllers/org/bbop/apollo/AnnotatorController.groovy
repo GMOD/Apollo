@@ -6,6 +6,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
+import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -33,6 +34,7 @@ class AnnotatorController {
     def featureRelationshipService
     def configWrapperService
     def exportService
+    def variantService
     def grailsApplication
 
     private List<String> reservedList = ["loc",
@@ -309,13 +311,14 @@ class AnnotatorController {
                         break
                     case "transposable_element": viewableTypes.add(TransposableElement.class.canonicalName)
                         break
+                    case "sequence_alteration": viewableTypes.add(SequenceAlteration.class.canonicalName)
                     default:
                         log.info "Type not found for annotation filter '${type}'"
-                        viewableTypes = requestHandlingService.viewableAnnotationList
+                        viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList
                         break
                 }
             } else {
-                viewableTypes = requestHandlingService.viewableAnnotationList
+                viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList
             }
 
             long start = System.currentTimeMillis()
@@ -411,6 +414,140 @@ class AnnotatorController {
             render error as JSON
         }
 
+    }
+
+    def updateAlternateAlleles() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.updateAlternateAlleles(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+
+        render updateFeatureContainer
+    }
+
+    def addAlleleInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.addAlleleInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
+    }
+
+    def updateAlleleInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.updateAlleleInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
+    }
+
+    def deleteAlleleInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.deleteAlleleInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
+    }
+
+    def addVariantInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.addVariantInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
+    }
+
+    def updateVariantInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.updateVariantInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
+    }
+
+    def deleteVariantInfo() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+
+        if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        JSONArray featuresArray = dataObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < featuresArray.size(); i++) {
+            JSONObject jsonFeature = featuresArray.getJSONObject(i);
+            Feature feature = variantService.deleteVariantInfo(jsonFeature)
+            JSONObject updatedJsonFeature = featureService.convertFeatureToJSON(feature)
+            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(updatedJsonFeature)
+        }
+        render updateFeatureContainer
     }
 
     /**
@@ -598,7 +735,7 @@ class AnnotatorController {
     )
     def getAnnotatorsReportForGroup(){
         JSONObject dataObject = permissionService.handleInput(request, params)
-        if (!permissionService.hasGlobalPermissions(dataObject, PermissionEnum.ADMINISTRATE)) {
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED.value()
             return
         }

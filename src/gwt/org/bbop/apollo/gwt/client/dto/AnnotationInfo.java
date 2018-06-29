@@ -1,5 +1,9 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+
 import java.util.*;
 
 /**
@@ -20,6 +24,9 @@ public class AnnotationInfo {
     private Integer phase;
     private String owner;
     private String date;
+    private String referenceAllele;
+    private ArrayList<AlternateAlleleInfo> alternateAlleles = new ArrayList<AlternateAlleleInfo>();
+    private ArrayList<VariantPropertyInfo> variantProperties = new ArrayList<>();
 
     public String getOwner() {
         return owner;
@@ -145,5 +152,56 @@ public class AnnotationInfo {
 
     public void setPhase(Integer phase) {
         this.phase = phase;
+    }
+
+    public String getReferenceAllele() { return referenceAllele; }
+
+    public void setReferenceAllele(String referenceAlleleString) { this.referenceAllele = referenceAlleleString; }
+
+    public void setAlternateAlleles(JSONArray alternateAllelesArray) {
+        for (int i = 0; i < alternateAllelesArray.size(); i++) {
+            JSONObject alternateAlleleJsonObject = alternateAllelesArray.get(i).isObject();
+            AlternateAlleleInfo alternateAlleleInfo = new AlternateAlleleInfo(alternateAlleleJsonObject);
+            this.alternateAlleles.add(alternateAlleleInfo);
+        }
+    }
+
+    public ArrayList<AlternateAlleleInfo> getAlternateAlleles() {
+        return this.alternateAlleles;
+    }
+
+    public JSONArray getAlternateAllelesAsJsonArray() {
+        JSONArray alternateAllelesJsonArray = new JSONArray();
+        int alternateAllelesJsonArrayIndex = 0;
+        for (AlternateAlleleInfo alternateAllele : this.alternateAlleles) {
+            JSONObject alternateAlleleJsonObject = alternateAllele.convertToJsonObject();
+            alternateAllelesJsonArray.set(alternateAllelesJsonArrayIndex, alternateAlleleJsonObject);
+            alternateAllelesJsonArrayIndex++;
+        }
+        return alternateAllelesJsonArray;
+    }
+
+    public void setVariantProperties(JSONArray variantPropertiesJsonArray) {
+        ArrayList<VariantPropertyInfo> variantPropertyInfoArray = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < variantPropertiesJsonArray.size(); i++) {
+            JSONObject variantPropertyJsonObject = variantPropertiesJsonArray.get(i).isObject();
+            VariantPropertyInfo variantPropertyInfo = new VariantPropertyInfo(variantPropertyJsonObject);
+            variantPropertyInfoArray.add(variantPropertyInfo);
+        }
+        this.variantProperties = variantPropertyInfoArray;
+    }
+
+    public ArrayList<VariantPropertyInfo> getVariantProperties() { return this.variantProperties; }
+
+    public JSONArray getVariantPropertiesAsJsonArray() {
+        JSONArray variantPropertiesJsonArray = new JSONArray();
+        int index = 0;
+        for (VariantPropertyInfo variantPropertyInfo : this.variantProperties) {
+            JSONObject variantPropertyJsonObject = variantPropertyInfo.convertToJsonObject();
+            variantPropertiesJsonArray.set(0, variantPropertyJsonObject);
+            index++;
+        }
+        return variantPropertiesJsonArray;
     }
 }

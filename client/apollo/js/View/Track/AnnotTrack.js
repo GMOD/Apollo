@@ -594,6 +594,17 @@ define([
                 var rclass;
                 var clsName;
                 var type = feature.afeature.type;
+                if (JSONUtils.variantTypes.indexOf(type.name.toUpperCase()) != -1) {
+                    // feature is of type variant
+                    // TODO - this is a hack to override the rendering of arrowhead
+                    feature.afeature.location.strand = "0";
+                    feature.data.strand = "0";
+                    if (feature.afeature.children) {
+                        for (var i = 0; i < feature.afeature.children.length; i++) {
+                            feature.afeature.children[i].location.strand = "0"
+                        }
+                    }
+                }
                 if (!this.isProteinCoding(feature)) {
                     var topLevelAnnotation = AnnotTrack.getTopLevelAnnotation(feature);
                     var parentType = feature.afeature.parent_type ? feature.afeature.parent_type.name : null;
@@ -858,6 +869,10 @@ define([
                 for (var i = 0; i < feature_records.length; ++i) {
                     var feature_record = feature_records[i];
                     var original_feat = feature_record.feature;
+                    var type = original_feat.get('type');
+                    if (JSONUtils.variantTypes.includes(type.toUpperCase())) {
+                        return;
+                    }
                     var feat = JSONUtils.makeSimpleFeature(original_feat);
                     var isSubfeature = !!feat.parent();  // !! is
                     // shorthand for
@@ -1019,8 +1034,22 @@ define([
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
+                var variantSelectionRecords = new Array();
+
                 for (var i in selection_records) {
                     console.log('selection ' + i);
+                    var type = selection_records[i].feature.get("type").toUpperCase();
+                    if (JSONUtils.variantTypes.indexOf(type) != -1) {
+                        // feature is a variant
+                        variantSelectionRecords.push(selection_records[i]);
+                        continue;
+                    }
+                    else if (type == "indel") {
+                        // feature is an indel and is not supported
+                        console.log("unsupported variant type: indel");
+                        continue;
+                    }
+
                     var dragfeat = selection_records[i].feature;
                     var is_subfeature = !!dragfeat.parent();  // !! is shorthand
                     // for returning
@@ -1060,6 +1089,11 @@ define([
                             parentFeature = dragfeat;
                         }
                     }
+                }
+
+                if(variantSelectionRecords.length > 0) {
+                    target_track.createVariant(variantSelectionRecords);
+                    return;
                 }
 
                 function process() {
@@ -1195,6 +1229,42 @@ define([
                     process();
                 }
 
+            },
+
+            createVariant: function(selection_records) {
+                var target_track = this;
+                var featuresToAdd = new Array();
+
+                for (var i in selection_records) {
+                    var dragfeat = selection_records[i].feature;
+                    target_track.browser.getStore('refseqs', dojo.hitch(this, function(refSeqStore) {
+                        if (refSeqStore) {
+                            refSeqStore.getReferenceSequence(
+                                { ref: this.refSeq.name, start: dragfeat.get('start'), end: dragfeat.get('end')},
+                                // feature callback
+                                function (seq) {
+                                    if (seq != dragfeat.get('reference_allele')) {
+                                        var variantPosition = dragfeat.get('start') + 1;
+                                        var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position."
+                                        target_track.openDialog( 'Cannot Add Variant', message );
+                                    }
+                                    else {
+                                        var afeat = JSONUtils.createApolloVariant(dragfeat, true);
+                                        featuresToAdd.push(afeat);
+
+                                        var postData = {
+                                            track: target_track.getUniqueTrackName(),
+                                            features: featuresToAdd,
+                                            operation: "add_variant"
+                                        };
+                                        console.log("PostData: ", postData);
+                                        target_track.executeUpdateOperation(JSON.stringify(postData));
+                                    }
+                                }
+                            );
+                        }
+                    }));
+                }
             },
 
             createGenericAnnotations: function (feats, type, subfeatType, topLevelType) {
@@ -2136,7 +2206,14 @@ define([
                     dojo.place(parentContent, content);
                     ++numItems;
                 }
-                var annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
+                var annotContent;
+                if (JSONUtils.variantTypes.indexOf(annot.afeature.type.name.toUpperCase()) != -1) {
+                    // feature is a variant
+                    annotContent = this.createAnnotationInfoEditorPanelForVariant(annot.id(), track.getUniqueTrackName(), selector, false);
+                }
+                else {
+                    annotContent = this.createAnnotationInfoEditorPanelForFeature(annot.id(), track.getUniqueTrackName(), selector, false);
+                }
                 dojo.attr(annotContent, "class", "annotation_info_editor");
                 dojo.attr(annotContent, "id", "child_annotation_info_editor");
                 dojo.place(annotContent, content);
@@ -2173,6 +2250,2152 @@ define([
                 );
             },
 
+            createAnnotationInfoEditorPanelForVariant: function (uniqueName, trackName, selector, reload) {
+                var track = this;
+                var feature = this.store.getFeatureById(uniqueName);
+                var hasWritePermission = this.canEdit(this.store.getFeatureById(uniqueName));
+                var content = dojo.create("span");
+
+                var typeHeader = dojo.create("div", {className: "annotation_info_editor_header"}, content);
+
+                // Name field
+                var nameDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var nameLabel = dojo.create("label", {
+                    innerHTML: "Name",
+                    'class': "annotation_info_editor_label"
+                }, nameDiv);
+                var nameField = new dijitTextBox({'class': "annotation_editor_field"});
+                var nameLabelToolTipString = "Follow a standardized nomenclature like the HGVS.";
+                dojo.place(nameField.domNode, nameDiv);
+
+                new Tooltip({
+                    connectId: nameDiv,
+                    label: nameLabelToolTipString,
+                    position: ["above"],
+                    showDelay: 1200
+                });
+
+                // Position field
+                var positionDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var positionLabel = dojo.create("label", {
+                    innerHTML: "Position",
+                    'class': "annotation_info_editor_label"
+                }, positionDiv);
+                var positionField = new dijitTextBox({'class': "annotation_editor_field", readonly: true});
+                dojo.place(positionField.domNode, positionDiv);
+
+                // Reference bases field
+                var refBasesDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var refBasesLabel = dojo.create("label", {
+                    innerHTML: "Ref. Allele",
+                    'class': "annotation_info_editor_label"
+                }, refBasesDiv);
+                var refBasesField = new dijitTextBox({'class': "annotation_editor_field", readonly: true});
+                dojo.place(refBasesField.domNode, refBasesDiv);
+                new Tooltip({
+                    connectId: refBasesDiv,
+                    label: "Reference nucleotide with respect to the forward (+) strand",
+                    position: ["above"],
+                    showDelay: 600
+                });
+
+                //// Alternate bases field
+                //// TODO: Show Alt bases in a table to support multi-allelic variants
+                //var altBasesDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                //var altBasesLabel = dojo.create("label", {
+                //    innerHTML: "ALT",
+                //    'class': "annotation_info_editor_label"
+                //}, altBasesDiv);
+                //var altBasesField = new dijitTextBox({'class': "annotation_editor_field"});
+                //dojo.place(altBasesField.domNode, altBasesDiv);
+                //new Tooltip({
+                //    connectId: altBasesDiv,
+                //    label: "Alternate nucleotide w.r.t. the forward (+) strand",
+                //    position: ["above"],
+                //    showDelay: 600
+                //});
+                //
+                //// MAF field
+                //var minorAlleleFrequencyDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                //var minorAlleleFrequencyLabel = dojo.create("label", {
+                //    innerHTML: "MAF",
+                //    'class': "annotation_info_editor_label"
+                //}, minorAlleleFrequencyDiv);
+                //var minorAlleleFrequencyField = new dijitTextBox({'class': "annotation_editor_field"});
+                //dojo.place(minorAlleleFrequencyField.domNode, minorAlleleFrequencyDiv);
+                //new Tooltip({
+                //    connectId: minorAlleleFrequencyDiv,
+                //    label: "The frequency of the second most frequent allele",
+                //    position: ["above"],
+                //    showDelay: 600
+                //});
+
+                // Description field
+                var descriptionDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var descriptionLabel = dojo.create("label", {
+                    innerHTML: "Description",
+                    'class': "annotation_info_editor_label"
+                }, descriptionDiv);
+                var descriptionField = new dijitTextBox({'class': "annotation_editor_field"});
+                dojo.place(descriptionField.domNode, descriptionDiv);
+
+                // Date of Creation field
+                var dateCreationDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var dateCreationLabel = dojo.create("label", {
+                    innerHTML: "Created",
+                    'class': "annotation_info_editor_label"
+                }, dateCreationDiv);
+                var dateCreationField = new dijitTextBox({'class': "annotation_editor_field", readonly: true});
+                dojo.place(dateCreationField.domNode, dateCreationDiv);
+
+                // Date last Modified field
+                var dateLastModifiedDiv = dojo.create("div", {'class': "annotation_info_editor_field_section"}, content);
+                var dateLastModifiedLabel = dojo.create("label", {
+                    innerHTML: "Last modified",
+                    'class': "annotation_info_editor_label"
+                }, dateLastModifiedDiv);
+                var dateLastModifiedField = new dijitTextBox({'class': "annotation_editor_field", readonly: true});
+                dojo.place(dateLastModifiedField.domNode, dateLastModifiedDiv);
+
+                // Status field
+                var statusDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var statusLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Status"
+                }, statusDiv);
+                var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
+                var statusRadios = new Object();
+
+                // Alt alleles field
+                var altAllelesDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var altAllelesLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Alternate Alleles"
+                }, altAllelesDiv);
+                var altAllelesTable = dojo.create("div", {
+                    'class': "alt_alleles",
+                    id: "alt_alleles_" + (selector ? "child" : "parent")
+                }, altAllelesDiv);
+                var altAlleleButtonsContainer = dojo.create("div", {style: "text-align: center;"}, altAllelesDiv);
+                var altAlleleButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, altAlleleButtonsContainer);
+//                var addAltAlleleButton = dojo.create("button", {
+//                    innerHTML: "Add",
+//                    'class': "annotation_info_editor_button"
+//                }, altAlleleButtons);
+//                var deleteAltAlleleButton = dojo.create("button", {
+//                    innerHTML: "Delete",
+//                    'class': "annotation_info_editor_button"
+//                }, altAlleleButtons);
+                //var altAlleleTooltipString = "Use this field to enter all observed alternate alleles for the variant";
+                //new Tooltip({
+                //    connectId: altAllelesDiv,
+                //    label: altAlleleTooltipString,
+                //    position: ["above"],
+                //    showDelay: 600
+                //});
+
+                //Allele Info field
+                var alleleInfoDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var alleleInfoLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Allele INFO"
+                }, alleleInfoDiv);
+                var alleleInfosTable = dojo.create("div", {
+                    'class': "allele_info",
+                    id: "allele_info_" + (selector ? "child" : "parent")
+                }, alleleInfoDiv);
+                var alleleInfoButtonsContainer = dojo.create("div", {style: "text-align: center;"}, alleleInfoDiv);
+                var alleleInfoButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, alleleInfoButtonsContainer);
+                var addAlleleInfoButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, alleleInfoButtons);
+                var deleteAlleleInfoButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, alleleInfoButtons);
+
+                // Variant Info field
+                var variantInfoDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var variantInfoLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Variant INFO"
+                }, variantInfoDiv);
+                var variantInfosTable = dojo.create("div", {
+                    'class': "variant_info",
+                    id: "variant_info_" + (selector ? "child" : "parent")
+                }, variantInfoDiv);
+                var variantInfoButtonsContainer = dojo.create("div", {style: "text-align: center;"}, variantInfoDiv);
+                var variantInfoButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, variantInfoButtonsContainer);
+                var addVariantInfoButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, variantInfoButtons);
+                var deleteVariantInfoButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, variantInfoButtons);
+
+                // Dbxref field
+                var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var dbxrefsLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "DBXRefs"
+                }, dbxrefsDiv);
+                var dbxrefsTable = dojo.create("div", {
+                    'class': "dbxrefs",
+                    id: "dbxrefs_" + (selector ? "child" : "parent")
+                }, dbxrefsDiv);
+                var dbxrefButtonsContainer = dojo.create("div", {style: "text-align: center;"}, dbxrefsDiv);
+                var dbxrefButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, dbxrefButtonsContainer);
+                var addDbxrefButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, dbxrefButtons);
+                var deleteDbxrefButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, dbxrefButtons);
+                var dbxrefss = "Use this field to identify cross-references of this variant in other databases.";
+                new Tooltip({
+                    connectId: dbxrefsDiv,
+                    label: dbxrefss,
+                    position: ["above"],
+                    showDelay: 600
+                });
+
+                // Phenotype Ontology field
+                var phenotypeOntologyIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var phenotypeOntologyIdsLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Phenotype Ontology"
+                }, phenotypeOntologyIdsDiv);
+                var phenotypeOntologyIdsTable = dojo.create("div", {
+                    'class': "phenotype_ontology_ids",
+                    id: "phenotype_ontology_ids_" + (selector ? "child" : "parent")
+                }, phenotypeOntologyIdsDiv);
+                var phenotypeOntologyButtonsContainer = dojo.create("div", {style: "text-align: center;"}, phenotypeOntologyIdsDiv);
+                var phenotypeOntologyButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, phenotypeOntologyButtonsContainer);
+                var addPhenotypeOntologyButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, phenotypeOntologyButtons);
+                var deletePhenotypeOntologyButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, phenotypeOntologyButtons);
+                var phenotypeOntologyTooltipMessage = "Use this field to add a phenotype ontology term to this variant. Ex: HP:0000118";
+                new Tooltip({
+                    connectId: phenotypeOntologyIdsDiv,
+                    label: phenotypeOntologyTooltipMessage,
+                    position: ["above"],
+                    showDelay: 600
+                });
+
+                // PubMed field
+                var pubmedIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var pubmedIdsLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "PubMed IDs"
+                }, pubmedIdsDiv);
+                var pubmedIdsTable = dojo.create("div", {
+                    'class': "pubmed_ids",
+                    id: "pubmd_ids_" + (selector ? "child" : "parent")
+                }, pubmedIdsDiv);
+                var pubmedIdButtonsContainer = dojo.create("div", {style: "text-align: center;"}, pubmedIdsDiv);
+                var pubmedIdButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, pubmedIdButtonsContainer);
+                var addPubmedIdButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, pubmedIdButtons);
+                var deletePubmedIdButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, pubmedIdButtons);
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
+                new Tooltip({
+                    connectId: pubmedIdsDiv,
+                    label: pubmedss,
+                    position: ["above"],
+                    showDelay: 600
+                });
+
+                //// Gene Ontology field
+                //var goIdsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                //var goIdsLabel = dojo.create("div", {
+                //    'class': "annotation_info_editor_section_header",
+                //    innerHTML: "Gene Ontology IDs"
+                //}, goIdsDiv);
+                //var goIdsTable = dojo.create("div", {
+                //    'class': "go_ids",
+                //    id: "go_ids_" + (selector ? "child" : "parent")
+                //}, goIdsDiv);
+                //var goIdButtonsContainer = dojo.create("div", {style: "text-align: center;"}, goIdsDiv);
+                //var goIdButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, goIdButtonsContainer);
+                //var addGoIdButton = dojo.create("button", {
+                //    innerHTML: "Add",
+                //    'class': "annotation_info_editor_button"
+                //}, goIdButtons);
+                //var deleteGoIdButton = dojo.create("button", {
+                //    innerHTML: "Delete",
+                //    'class': "annotation_info_editor_button"
+                //}, goIdButtons);
+
+
+                // Ontology (HPO or other type of ontology)
+
+                // Comments field
+                var commentsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var commentsLabel = dojo.create("div", {
+                    'class': "annotation_info_editor_section_header",
+                    innerHTML: "Comments"
+                }, commentsDiv);
+                var commentsTable = dojo.create("div", {
+                    'class': "comments",
+                    id: "comments_" + (selector ? "child" : "parent")
+                }, commentsDiv);
+                var commentButtonsContainer = dojo.create("div", {style: "text-align: center;"}, commentsDiv);
+                var commentButtons = dojo.create("div", {'class': "annotation_info_editor_button_group"}, commentButtonsContainer);
+                var addCommentButton = dojo.create("button", {
+                    innerHTML: "Add",
+                    'class': "annotation_info_editor_button"
+                }, commentButtons);
+                var deleteCommentButton = dojo.create("button", {
+                    innerHTML: "Delete",
+                    'class': "annotation_info_editor_button"
+                }, commentButtons);
+
+                // check permissions
+                if (!hasWritePermission) {
+                    nameField.set("disabled", true);
+                    descriptionField.set("disabled", true);
+                    dateCreationField.set("disabled", true);
+                    dateLastModifiedField.set("disabled", true);
+                    dojo.attr(addDbxrefButton, "disabled", true);
+                    dojo.attr(deleteDbxrefButton, "disabled", true);
+//                    dojo.attr(addAltAlleleButton, "disabled", true);
+//                    dojo.attr(deleteAltAlleleButton, "disabled", true);
+                    dojo.attr(addPubmedIdButton, "disabled", true);
+                    dojo.attr(deletePubmedIdButton, "disabled", true);
+                    //dojo.attr(addGoIdButton, "disabled", true);
+                    //dojo.attr(deleteGoIdButton, "disabled", true);
+                    dojo.attr(addAlleleInfoButton, "disabled", true);
+                    dojo.attr(deleteAlleleInfoButton, "disabled", true);
+                    dojo.attr(addVariantInfoButton, "disabled", true);
+                    dojo.attr(deleteVariantInfoButton, "disabled", true);
+                    dojo.attr(addPhenotypeOntologyButton, "disabled", true);
+                    dojo.attr(deletePhenotypeOntologyButton, "disabled", true);
+                    dojo.attr(addCommentButton, "disabled", true);
+                    dojo.attr(deleteCommentButton, "disabled", true);
+                }
+
+                var pubmedIdDb = "PMID";
+                var goIdDb = "GO";
+                var hpoIdDb = "HP";
+                var cannedComments;
+                var cannedKeys;
+                var cannedValues;
+                var timeout = 100;
+
+                var escapeString = function (str) {
+                    return str.replace(/(["'])/g, "\\$1");
+                };
+
+                // initialize information editor
+                function init() {
+                    var postData = JSON.stringify({
+                        features: [
+                            {
+                                uniquename: uniqueName
+                            }
+                        ],
+                        operation: "get_annotation_info_editor_data",
+                        track: trackName,
+                        clientToken: track.getClientToken()
+                    });
+                    dojo.xhrPost({
+                        sync: true,
+                        postData: postData,
+                        url: context_path + "/AnnotationEditorService",
+                        handleAs: "json",
+                        timeout: 5000 * 1000, // Time in milliseconds
+                        load: function (response, ioArgs) {
+                            var feature = response.features[0];
+                            console.log(track.annotationInfoEditorConfigs);
+                            var config = track.annotationInfoEditorConfigs[feature.type.cv.name + ":" + feature.type.name] || track.annotationInfoEditorConfigs["default"];
+                            initType(feature);
+                            initName(feature);
+                            initPosition(feature);
+                            initRefBases(feature);
+                            initDescription(feature);
+                            initDates(feature);
+                            initStatus(feature, config);
+                            initAltAlleles(feature);
+                            initAlleleInfo(feature);
+                            initDbxrefs(feature, config);
+                            initVariantInfo(feature);
+                            initPhenotypeOntology(feature);
+                            initPubmedIds(feature, config);
+                            //initGoIds(feature, config);
+                            initComments(feature, config);
+
+                        }
+                    });
+                };
+
+                function initTable(domNode, tableNode, table, timeout) {
+                    var id = dojo.attr(tableNode, "id");
+                    var node = dojo.byId(id);
+                    if (!node) {
+                        setTimeout(function () {
+                            initTable(domNode, tableNode, table, timeout);
+                            return;
+                        }, timeout);
+                        return;
+                    }
+                    dojo.place(domNode, tableNode, "first");
+                    table.startup();
+                }
+
+                var initType = function (feature) {
+                    typeHeader.innerHTML = feature.type.name;
+                };
+
+                // initialize Name field
+                var initName = function (feature) {
+                    if (feature.name) {
+                        nameField.set("value", feature.name);
+                    }
+                    var oldName;
+                    dojo.connect(nameField, "onFocus", function () {
+                        oldName = nameField.get("value");
+                    });
+                    dojo.connect(nameField, "onBlur", function () {
+                        var newName = nameField.get("value");
+                        if (oldName != newName) {
+                            updateName(newName);
+                            if (selector) {
+                                var select = selector.store.get(feature.uniquename).then(function (select) {
+                                    selector.store.setValue(select, "label", newName);
+                                });
+                            }
+                        }
+                    });
+                };
+
+                // initialize Position field
+                var initPosition = function(feature) {
+                    if (feature.location) {
+                        var start = parseInt(feature.location.fmin) + 1;
+                        var positionString = start + " - " + feature.location.fmax;
+                        positionField.set("value", positionString);
+                    }
+                };
+
+                // initialize Reference Allele field
+                var initRefBases = function(feature) {
+                    if (feature.reference_allele) {
+                        refBasesField.set("value", feature.reference_allele.bases);
+                    }
+                };
+
+                //// initialize ALT field
+                //// TODO: Render a table with alternate bases and its properties
+                //var initAltBases = function(feature) {
+                //    if (feature.alternateBases) {
+                //        altBasesField.set("value", feature.alternateBases[0]);
+                //    }
+                //};
+                //
+                //// initialize MAF field
+                //var initMinorAlleleFrequency = function(feature) {
+                //    if (feature.minor_allele_frequency) {
+                //        minorAlleleFrequencyField.set("value", feature.minor_allele_frequency);
+                //    }
+                //    var oldMinorAlleleFrequency;
+                //    dojo.connect(minorAlleleFrequencyField, "onFocus", function () {
+                //        oldMinorAlleleFrequency = minorAlleleFrequencyField.get("value");
+                //    });
+                //    dojo.connect(minorAlleleFrequencyField, "onBlur", function () {
+                //        var newMinorAlleleFrequency = minorAlleleFrequencyField.get("value");
+                //        if(newMinorAlleleFrequency < 0.0 || newMinorAlleleFrequency > 1.0) {
+                //            newMinorAlleleFrequency = oldMinorAlleleFrequency;
+                //            new ConfirmDialog({
+                //                title: 'Invalid MAF value',
+                //                message: 'Minor Allele Frequency (MAF) must be within the range 0.0 - 1.0',
+                //                confirmLabel: 'OK',
+                //                denyLabel: 'Cancel'
+                //            }).show();
+                //        }
+                //        if (oldMinorAlleleFrequency != newMinorAlleleFrequency) {
+                //            updateMinorAlleleFrequency(newMinorAlleleFrequency);
+                //        }
+                //    });
+                //};
+
+                // initialize Description field
+                var initDescription = function (feature) {
+                    if (feature.description) {
+                        descriptionField.set("value", feature.description);
+                    }
+                    var oldDescription;
+                    dojo.connect(descriptionField, "onFocus", function () {
+                        oldDescription = descriptionField.get("value");
+                    });
+                    dojo.connect(descriptionField, "onBlur", function () {
+                        var newDescription = descriptionField.get("value");
+                        if (oldDescription != newDescription) {
+                            updateDescription(newDescription);
+                        }
+                    });
+                };
+
+                // initialize Date of Creation and Date Last Modified field
+                var initDates = function (feature) {
+                    if (feature.date_creation) {
+                        dateCreationField.set("value", FormatUtils.formatDate(feature.date_creation));
+                    }
+                    if (feature.date_last_modified) {
+                        dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
+                    }
+                };
+
+                // initialize Status
+                var initStatus = function (feature, config) {
+                    var maxLength = 0;
+                    var status = config.status;
+                    if (status) {
+                        for (var i = 0; i < status.length; ++i) {
+                            if (status[i].length > maxLength) {
+                                maxLength = status[i].length;
+                            }
+                        }
+                        for (var i = 0; i < status.length; ++i) {
+                            var statusRadioDiv = dojo.create("span", {
+                                'class': "annotation_info_editor_radio",
+                                style: "width:" + (maxLength * 0.75) + "em;"
+                            }, statusFlags);
+                            var statusRadio = new dijitRadioButton({
+                                value: status[i],
+                                name: "status_" + uniqueName,
+                                checked: status[i] == feature.status ? true : false
+                            });
+                            if (!hasWritePermission) {
+                                statusRadio.set("disabled", true);
+                            }
+                            dojo.place(statusRadio.domNode, statusRadioDiv);
+                            var statusLabel = dojo.create("label", {
+                                innerHTML: status[i],
+                                'class': "annotation_info_editor_radio_label"
+                            }, statusRadioDiv);
+                            statusRadios[status[i]] = statusRadio;
+                            dojo.connect(statusRadio, "onMouseDown", function (div, radio, label) {
+                                return function (event) {
+                                    if (radio.checked) {
+                                        deleteStatus();
+                                        dojo.place(new dijitRadioButton({
+                                            value: status[i],
+                                            name: "status_" + uniqueName,
+                                            checked: false
+                                        }).domNode, radio.domNode, "replace");
+                                    }
+                                };
+                            }(statusRadioDiv, statusRadio, statusLabel));
+                            dojo.connect(statusRadio, "onChange", function (label) {
+                                return function (selected) {
+                                    if (selected && hasWritePermission) {
+                                        updateStatus(label);
+                                    }
+                                };
+                            }(status[i]));
+                        }
+                    }
+                    else {
+                        dojo.style(statusDiv, "display", "none");
+                    }
+                };
+
+                // initialize alternate alleles
+                var initAltAlleles = function (feature) {
+                    console.log("@initAltAlleles");
+                    console.log("feature: ", feature);
+                    var oldAltBases;
+                    //var oldAltAlleleFrequency;
+                    //var oldProvenance;
+
+                    var altAlleles = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
+                        }
+                    });
+
+                    for (var i = 0; i < feature.alternate_alleles.length; ++i) {
+                        var alternateAllele = feature.alternate_alleles[i];
+                        //altAlleles.newItem({bases: alternateAllele.bases, allele_frequency: alternateAllele.allele_frequency || '', provenance: alternateAllele.provenance || '' });
+                        altAlleles.newItem({bases: alternateAllele.bases});
+                    }
+                    // TODO: dont allow to enter alt alleles; it should come from a VCF
+                    var altAlleleTableLayout = [{
+                        cells: [
+                            {
+                                name: 'ALT',
+                                field: 'bases',
+                                width: '20%',
+                                formatter: function (alt) {
+                                    if (!alt) {
+                                        return "Enter new ALT allele";
+                                    }
+                                    return alt;
+                                },
+                                editable: false,
+                                cellStyles: "text-align: center"
+                            }
+//                            {
+//                                name: 'AF',
+//                                field: 'allele_frequency',
+//                                width: '20%',
+//                                formatter: function (af) {
+//                                    if (!af) {
+//                                        return "Enter new AF";
+//                                    }
+//                                    return af;
+//                                },
+//                                editable: hasWritePermission
+//                            },
+//                            {
+//                                name: 'Provenance',
+//                                field: 'provenance',
+//                                width: '60%',
+//                                formatter: function (p) {
+//                                    if (!p) {
+//                                        return "Enter a URL/PMID/text as supporting evidence";
+//                                    }
+//                                    return p;
+//                                },
+//                                editable: hasWritePermission
+//                            }
+                        ]
+                    }];
+
+                    var altAlleleTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: altAlleles,
+                        updateDelay: 0,
+                        structure: altAlleleTableLayout,
+                        autoHeight: true
+                    });
+
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(altAlleleTable.domNode, altAllelesTable, altAlleleTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(altAlleleTable.domNode, altAllelesTable, altAlleleTable, timeout);
+                    }
+
+//                    var dirty = false;
+//                    dojo.connect(altAlleleTable, "onStartEdit", function (inCell, inRowIndex) {
+//                        console.log("onStartEdit");
+//                        if (!dirty) {
+//                            oldAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases");
+//                            //oldAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
+//                            //oldProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
+//                            dirty = true;
+//                        }
+//                    });
+//
+//                    dojo.connect(altAlleleTable, "onCancelEdit", function(inRowIndex) {
+//                        console.log("onCancelEdit");
+//                        altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", oldAltBases);
+//                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", oldAltAlleleFrequency);
+//                        //altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", oldProvenance);
+//                        dirty = false;
+//                    });
+
+//                    dojo.connect(altAlleleTable, "onApplyEdit", function(inRowIndex) {
+//                        var newAltBases = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "bases").toUpperCase();
+//                        var newAltAlleleFrequency = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "allele_frequency");
+//                        var newProvenance = altAlleleTable.store.getValue(altAlleleTable.getItem(inRowIndex), "provenance");
+//                       var altFreq = parseFloat(newAltAlleleFrequency);
+//                        if (altFreq < 0 || altFreq > 1.0) {
+//                            // sanity check for frequency value
+//                            new ConfirmDialog({
+//                                title: 'Improper value for AF field',
+//                                message: "The value for AF field should be within the range of 0.0 - 1.0",
+//                                confirmLabel: 'OK',
+//                                denyLabel: 'Cancel'
+//                            }).show(function(confirmed) {});
+//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
+//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", "");
+//                            altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", newProvenance);
+//                        }
+//                        else {
+//                            if (newProvenance === undefined || newProvenance == "undefined" || newProvenance == "") {
+//                                console.log("provenance not provided");
+//                                // frequency must always be associated with a provenance
+//                                new ConfirmDialog({
+//                                    title: 'No provenance provided',
+//                                    message: 'No provenance provided to support the entered AF value',
+//                                    confirmLabel: 'OK',
+//                                    denyLabel: 'Cancel'
+//                                }).show(function(confirmed) {});
+//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "bases", newAltBases);
+//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "allele_frequency", newAltAlleleFrequency);
+//                                altAlleleTable.store.setValue(altAlleleTable.getItem(inRowIndex), "provenance", "");
+//                            }
+//                            else {
+//                                if (!newAltBases || !newAltAlleleFrequency || !newProvenance) {
+//                                    // no changes
+//                                }
+//                                else if (!oldAltBases) {
+//                                    addAltAlleles(newAltBases, newAltAlleleFrequency, newProvenance);
+//                                }
+//                                else {
+//                                    if (newAltBases != oldAltBases || newAltAlleleFrequency != oldAltAlleleFrequency || newProvenance != oldProvenance) {
+//                                        updateAltAlleles(oldAltBases, oldAltAlleleFrequency, oldProvenance, newAltBases, newAltAlleleFrequency, newProvenance);
+//                                    }
+//                                }
+//                                dirty = false;
+//                            }
+//                        }
+//                    });
+
+//                    dojo.connect(addAltAlleleButton, "onclick", function() {
+//                        altAlleleTable.store.newItem({bases: "", allele_frequency: "", provenance: ""});
+//                        altAlleleTable.scrollToRow(altAlleleTable.rowCount);
+//                    });
+//
+//                    dojo.connect(deleteAltAlleleButton, "onclick", function() {
+//                        var toBeDeleted = new Array();
+//                        var selected = altAlleleTable.selection.getSelected();
+//                        for (var i = 0; i < selected.length; ++i) {
+//                            var item = selected[i];
+//                            var altBases = altAlleleTable.store.getValue(item, "bases");
+//                            //var altAlleleFrequency = altAlleleTable.store.getValue(item, "allele_frequency");
+//                            //var provenance = altAlleleTable.store.getValue(item, "provenance");
+//                            toBeDeleted.push({bases: altBases, allele_frequency: altAlleleFrequency, provenance: provenance});
+//                        }
+//                        altAlleleTable.removeSelectedRows();
+//                        deleteAltAlleles(toBeDeleted);
+//                    });
+               };
+
+                // initialize Dbxref
+                var initDbxrefs = function (feature, config) {
+                    if (config.hasDbxrefs) {
+                        var oldDb;
+                        var oldAccession;
+                        var dbxrefs = new dojoItemFileWriteStore({
+                            data: {
+                                items: []
+                            }
+                        });
+                        for (var i = 0; i < feature.dbxrefs.length; ++i) {
+                            var dbxref = feature.dbxrefs[i];
+                            if (dbxref.db != pubmedIdDb && dbxref.db != goIdDb && dbxref.db != hpoIdDb) {
+                                dbxrefs.newItem({db: dbxref.db, accession: dbxref.accession});
+                            }
+                        }
+                        var dbxrefTableLayout = [{
+                            cells: [
+                                {
+                                    name: 'DB',
+                                    field: 'db',
+                                    width: '40%',
+                                    formatter: function (db) {
+                                        if (!db) {
+                                            return "Enter new DB";
+                                        }
+                                        return db;
+                                    },
+                                    editable: hasWritePermission,
+                                    cellStyles: "text-align: center"
+                                },
+                                {
+                                    name: 'Accession',
+                                    field: 'accession',
+                                    width: '60%',
+                                    formatter: function (accession) {
+                                        if (!accession) {
+                                            return "Enter new accession";
+                                        }
+                                        return accession;
+                                    },
+                                    editable: hasWritePermission,
+                                    cellStyles: "text-align: center"
+                                }
+                            ]
+                        }];
+
+                        var dbxrefTable = new dojoxDataGrid({
+                            singleClickEdit: true,
+                            store: dbxrefs,
+                            updateDelay: 0,
+                            structure: dbxrefTableLayout
+                        });
+
+                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                            initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable);
+                            dojo.disconnect(handle);
+                        });
+                        if (reload) {
+                            initTable(dbxrefTable.domNode, dbxrefsTable, dbxrefTable, timeout);
+                        }
+
+
+                        var dirty = false;
+                        dojo.connect(dbxrefTable, "onStartEdit", function (inCell, inRowIndex) {
+                            if (!dirty) {
+                                oldDb = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "db");
+                                oldAccession = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "accession");
+                                dirty = true;
+                            }
+                        });
+
+                        dojo.connect(dbxrefTable, "onCancelEdit", function (inRowIndex) {
+                            dbxrefTable.store.setValue(dbxrefTable.getItem(inRowIndex), "db", oldDb);
+                            dbxrefTable.store.setValue(dbxrefTable.getItem(inRowIndex), "accession", oldAccession);
+                            dirty = false;
+                        });
+
+                        dojo.connect(dbxrefTable, "onApplyEdit", function (inRowIndex) {
+                            var newDb = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "db");
+                            var newAccession = dbxrefTable.store.getValue(dbxrefTable.getItem(inRowIndex), "accession");
+                            if (!newDb || !newAccession) {
+                            }
+                            else if (!oldDb || !oldAccession) {
+                                addDbxref(newDb, newAccession);
+                            }
+                            else {
+                                if (newDb != oldDb || newAccession != oldAccession) {
+                                    updateDbxref(oldDb, oldAccession, newDb, newAccession);
+                                }
+                            }
+                            dirty = false;
+                        });
+
+                        dojo.connect(addDbxrefButton, "onclick", function () {
+                            dbxrefTable.store.newItem({db: "", accession: ""});
+                            dbxrefTable.scrollToRow(dbxrefTable.rowCount);
+                        });
+
+                        dojo.connect(deleteDbxrefButton, "onclick", function () {
+                            var toBeDeleted = new Array();
+                            var selected = dbxrefTable.selection.getSelected();
+                            for (var i = 0; i < selected.length; ++i) {
+                                var item = selected[i];
+                                var db = dbxrefTable.store.getValue(item, "db");
+                                var accession = dbxrefTable.store.getValue(item, "accession");
+                                toBeDeleted.push({db: db, accession: accession});
+                            }
+                            dbxrefTable.removeSelectedRows();
+                            deleteDbxrefs(toBeDeleted);
+                        });
+                    }
+                    else {
+                        dojo.style(dbxrefsDiv, "display", "none");
+                    }
+                };
+
+                // initialize Attributes
+                //var initAttributes = function (feature, config) {
+                //    if (config.hasAttributes) {
+                //        cannedKeys = feature.canned_keys;
+                //        cannedValues = feature.canned_values;
+                //        var oldTag;
+                //        var oldValue;
+                //        var attributes = new dojoItemFileWriteStore({
+                //            data: {
+                //                items: []
+                //            }
+                //        });
+                //        for (var i = 0; i < feature.non_reserved_properties.length; ++i) {
+                //            var attribute = feature.non_reserved_properties[i];
+                //            attributes.newItem({tag: attribute.tag, value: attribute.value});
+                //        }
+                //
+                //
+                //        var attributeTableLayout = [{
+                //            cells: [
+                //                {
+                //                    name: 'Tag',
+                //                    field: 'tag',
+                //                    width: '40%',
+                //                    type: dojox.grid.cells.ComboBox,
+                //                    //type: dojox.grid.cells.Select,
+                //                    options: cannedKeys,
+                //                    formatter: function (tag) {
+                //                        if (!tag) {
+                //                            return "Enter new tag";
+                //                        }
+                //                        return tag;
+                //                    },
+                //                    editable: hasWritePermission
+                //                },
+                //                {
+                //                    name: 'Value',
+                //                    field: 'value',
+                //                    width: '60%',
+                //                    type: dojox.grid.cells.ComboBox,
+                //                    //type: dojox.grid.cells.Select,
+                //                    options: cannedValues,
+                //                    formatter: function (value) {
+                //                        if (!value) {
+                //                            return "Enter new value";
+                //                        }
+                //                        return value;
+                //                    },
+                //                    editable: hasWritePermission
+                //                }
+                //            ]
+                //        }];
+                //
+                //        var attributeTable = new dojoxDataGrid({
+                //            singleClickEdit: true,
+                //            store: attributes,
+                //            updateDelay: 0,
+                //            structure: attributeTableLayout
+                //        });
+                //
+                //        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                //            initTable(attributeTable.domNode, attributesTable, attributeTable);
+                //            dojo.disconnect(handle);
+                //        });
+                //        if (reload) {
+                //            initTable(attributeTable.domNode, attributesTable, attributeTable, timeout);
+                //        }
+                //
+                //        var dirty = false;
+                //
+                //        dojo.connect(attributeTable, "onStartEdit", function (inCell, inRowIndex) {
+                //            if (!dirty) {
+                //                oldTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
+                //                oldValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
+                //                dirty = true;
+                //            }
+                //        });
+                //
+                //        dojo.connect(attributeTable, "onCancelEdit", function (inRowIndex) {
+                //            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "tag", oldTag);
+                //            attributeTable.store.setValue(attributeTable.getItem(inRowIndex), "value", oldValue);
+                //            dirty = false;
+                //        });
+                //
+                //        dojo.connect(attributeTable, "onApplyEdit", function (inRowIndex) {
+                //            var newTag = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "tag");
+                //            var newValue = attributeTable.store.getValue(attributeTable.getItem(inRowIndex), "value");
+                //            if (!newTag || !newValue) {
+                //            }
+                //            else if (!oldTag || !oldValue) {
+                //                addAttribute(newTag, newValue);
+                //            }
+                //            else {
+                //                if (newTag != oldTag || newValue != oldValue) {
+                //                    updateAttribute(oldTag, oldValue, newTag, newValue);
+                //                }
+                //            }
+                //            dirty = false;
+                //        });
+                //
+                //        dojo.connect(addAttributeButton, "onclick", function () {
+                //            attributeTable.store.newItem({tag: "", value: ""});
+                //            attributeTable.scrollToRow(attributeTable.rowCount);
+                //        });
+                //
+                //        dojo.connect(deleteAttributeButton, "onclick", function () {
+                //            var toBeDeleted = new Array();
+                //            var selected = attributeTable.selection.getSelected();
+                //            for (var i = 0; i < selected.length; ++i) {
+                //                var item = selected[i];
+                //                var tag = attributeTable.store.getValue(item, "tag");
+                //                var value = attributeTable.store.getValue(item, "value");
+                //                toBeDeleted.push({tag: tag, value: value});
+                //            }
+                //            attributeTable.removeSelectedRows();
+                //            deleteAttributes(toBeDeleted);
+                //        });
+                //    }
+                //    else {
+                //        dojo.style(attributesDiv, "display", "none");
+                //    }
+                //
+                //};
+
+                // initialize Allele Info
+                var initAlleleInfo = function (feature) {
+                    var oldAlleleSelection;
+                    var oldTag;
+                    var oldValue;
+                    var alleleInfoStore = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
+                        }
+                    });
+
+                    var alleleOpts = [];
+
+                    if (feature.alternate_alleles) {
+                        for (var i = 0; i < feature.alternate_alleles.length; ++i) {
+                            alleleOpts.push(feature.alternate_alleles[i].bases);
+                            if (feature.alternate_alleles[i].allele_info) {
+                                for (var j = 0; j < feature.alternate_alleles[i].allele_info.length; ++j) {
+                                    var alleleInfo = feature.alternate_alleles[i].allele_info[j];
+                                    alleleInfoStore.newItem({allele: feature.alternate_alleles[i].bases, tag: alleleInfo.tag, value: alleleInfo.value});
+                                }
+                            }
+                        }
+                    }
+
+                    var tableLayout = [{
+                        cells: [
+                            {
+                                name: 'Allele',
+                                field: 'allele',
+                                width: '20%',
+                                type: dojox.grid.cells.Select,
+                                options: alleleOpts,
+                                rowSelector: '20px',
+                                formatter: function(allele) {
+                                    if (!allele) {
+                                        return "Select allele";
+                                    }
+                                    return allele;
+                                },
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
+                            },
+                            {
+                                name: 'Tag',
+                                field: 'tag',
+                                width: '40%',
+                                formatter: function(tag) {
+                                    if (!tag) {
+                                        return "Enter new tag";
+                                    }
+                                    return tag;
+                                },
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
+                            },
+                            {
+                                name: 'Value',
+                                field: 'value',
+                                width: '40%',
+                                formatter: function(value) {
+                                    if (!value) {
+                                        return "Enter new value";
+                                    }
+                                    return value;
+                                },
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
+                            }
+                        ]
+                    }];
+
+                    var alleleInfoTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: alleleInfoStore,
+                        updateDelay: 0,
+                        structure: tableLayout
+                    });
+
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(alleleInfoTable.domNode, alleleInfosTable, alleleInfoTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(alleleInfoTable.domNode, alleleInfosTable, alleleInfoTable, timeout);
+                    }
+
+                    var dirty = false;
+                    dojo.connect(alleleInfoTable, "onStartEdit", function(inCell, inRowIndex) {
+                        if (!dirty) {
+                            oldAlleleSelection = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "allele");
+                            oldTag = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "tag");
+                            oldValue = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "value");
+                            dirty = true;
+                        }
+                    });
+
+                    dojo.connect(alleleInfoTable, "onCancelEdit", function(inRowIndex) {
+                        alleleInfoTable.store.setValue(alleleInfoTable.getItem(inRowIndex), "allele", oldAlleleSelection);
+                        alleleInfoTable.store.setValue(alleleInfoTable.getItem(inRowIndex), "tag", oldTag);
+                        alleleInfoTable.store.setValue(alleleInfoTable.getItem(inRowIndex), "value", oldValue);
+                        dirty = false;
+                    });
+
+                    dojo.connect(alleleInfoTable, "onApplyEdit", function(inRowIndex) {
+                        var newAlleleSelection = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "allele");
+                        var newTag = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "tag");
+                        var newValue = alleleInfoTable.store.getValue(alleleInfoTable.getItem(inRowIndex), "value");
+                        if (!newAlleleSelection || !newTag || !newValue) {
+                        }
+                        else if (!newAlleleSelection || !oldTag || !oldValue) {
+                            addAlleleInfo(newAlleleSelection, newTag, newValue);
+                        }
+                        else {
+                            if (newAlleleSelection != oldAlleleSelection || newTag != oldTag || newValue != oldValue) {
+                                updateAlleleInfo(oldAlleleSelection, newAlleleSelection, oldTag, oldValue, newTag, newValue);
+                            }
+                        }
+                        dirty = false;
+                    });
+
+                    dojo.connect(addAlleleInfoButton, "onclick", function() {
+                        alleleInfoTable.store.newItem({allele: "", tag: "", value: ""});
+                        alleleInfoTable.scrollToRow(alleleInfoTable.rowCount);
+                    });
+
+                    dojo.connect(deleteAlleleInfoButton, "onclick", function() {
+                        var toBeDeleted = new Array();
+                        var selected = alleleInfoTable.selection.getSelected();
+                        for (var i = 0; i < selected.length; ++i) {
+                            var item = selected[i];
+                            var alleleSelection = alleleInfoTable.store.getValue(item, "allele");
+                            var tag = alleleInfoTable.store.getValue(item, "tag");
+                            var value = alleleInfoTable.store.getValue(item, "value");
+                            toBeDeleted.push({allele: alleleSelection, tag: tag, value: value});
+                        }
+                        alleleInfoTable.removeSelectedRows();
+                        deleteAlleleInfo(toBeDeleted);
+                    });
+                };
+
+                // initialize Variant Info
+                var initVariantInfo = function (feature) {
+                    //cannedKeys = feature.canned_keys;
+                    //cannedValues = feature.canned_values;
+                    var oldTag;
+                    var oldValue;
+                    var variantInfoStore = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
+                        }
+                    });
+                    if (feature.variant_info) {
+                        for (var i = 0; i < feature.variant_info.length; ++i) {
+                            var variantInfo = feature.variant_info[i];
+                            variantInfoStore.newItem({tag: variantInfo.tag, value: variantInfo.value});
+                        }
+                    }
+
+                    var variantInfoTableLayout = [{
+                        cells: [
+                            {
+                                name: 'Tag',
+                                field: 'tag',
+                                width: '40%',
+                                //options: cannedKeys,
+                                formatter: function(tag) {
+                                    if (!tag) {
+                                        return "Enter new tag";
+                                    }
+                                    return tag;
+                                },
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
+                            },
+                            {
+                                name: 'Value',
+                                field: 'value',
+                                width: '60%',
+                                //options: cannedValues,
+                                formatter: function(value) {
+                                    if (!value) {
+                                        return "Enter new value";
+                                    }
+                                    return value;
+                                },
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
+                            }
+                        ]
+                    }];
+
+                    var variantInfoTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: variantInfoStore,
+                        updateDelay: 0,
+                        structure: variantInfoTableLayout
+                    });
+
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(variantInfoTable.domNode, variantInfosTable, variantInfoTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(variantInfoTable.domNode, variantInfosTable, variantInfoTable, timeout);
+                    }
+
+                    var dirty = false;
+                    dojo.connect(variantInfoTable, "onStartEdit", function(inCell, inRowIndex) {
+                        if (!dirty) {
+                            oldTag = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "tag");
+                            oldValue = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "value");
+                            dirty = true;
+                        }
+                    });
+
+                    dojo.connect(variantInfoTable, "onCancelEdit", function(inRowIndex) {
+                        variantInfoTable.store.setValue(variantInfoTable.getItem(inRowIndex), "tag", oldTag);
+                        variantInfoTable.store.setValue(variantInfoTable.getItem(inRowIndex), "value", oldValue);
+                        dirty = false;
+                    });
+
+                    dojo.connect(variantInfoTable, "onApplyEdit", function(inRowIndex) {
+                        var newTag = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "tag");
+                        var newValue = variantInfoTable.store.getValue(variantInfoTable.getItem(inRowIndex), "value");
+                        if (!newTag || !newValue) {
+                        }
+                        else if (!oldTag || !oldValue) {
+                            addVariantInfo(newTag, newValue);
+                        }
+                        else {
+                            if (newTag != oldTag || newValue != oldValue) {
+                                updateVariantInfo(oldTag, oldValue, newTag, newValue);
+                            }
+                        }
+                        dirty = false;
+                    });
+
+                    dojo.connect(addVariantInfoButton, "onclick", function() {
+                        variantInfoTable.store.newItem({tag: "", value: ""});
+                        variantInfoTable.scrollToRow(variantInfoTable.rowCount);
+                    });
+
+                    dojo.connect(deleteVariantInfoButton, "onclick", function() {
+                        var toBeDeleted = new Array();
+                        var selected = variantInfoTable.selection.getSelected();
+                        for (var i = 0; i < selected.length; ++i) {
+                            var item = selected[i];
+                            var tag = variantInfoTable.store.getValue(item, "tag");
+                            var value = variantInfoTable.store.getValue(item, "value");
+                            toBeDeleted.push({tag: tag, value: value});
+                        }
+                        variantInfoTable.removeSelectedRows();
+                        deleteVariantInfo(toBeDeleted);
+                    });
+                };
+
+                // initialize Phenotype Ontology
+                var initPhenotypeOntology = function (feature) {
+                    var oldPhenotypeOntologyId;
+                    var phenotypeOntologyIds = new dojoItemFileWriteStore({
+                        data: {
+                            items: []
+                        }
+                    });
+                    for (var i = 0; i < feature.dbxrefs.length; i++) {
+                        var dbxref = feature.dbxrefs[i];
+                        if (dbxref.db == hpoIdDb) {
+                            phenotypeOntologyIds.newItem({phenotype_ontology_id: dbxref.db + ":" + dbxref.accession});
+                        }
+                    }
+                    var phenotypeOntologyIdTableLayout = [{
+                        cells: [
+                            {
+                                name: 'Phenotype Ontology ID',
+                                field: 'phenotype_ontology_id',
+                                width: '100%',
+                                formatter: function(phenotypeOntologyId) {
+                                    if (!phenotypeOntologyId) {
+                                        return "Enter new Phenotype Ontology ID";
+                                    }
+                                    return phenotypeOntologyId;
+                                },
+                                editable: hasWritePermission,
+                                cellStyles: "text-align: center"
+                            }
+                        ]
+                    }];
+
+                    var phenotypeOntologyIdTable = new dojoxDataGrid({
+                        singleClickEdit: true,
+                        store: phenotypeOntologyIds,
+                        updateDelay: 0,
+                        structure: phenotypeOntologyIdTableLayout
+                    });
+
+                    var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function() {
+                        initTable(phenotypeOntologyIdTable.domNode, phenotypeOntologyIdsTable, phenotypeOntologyIdTable);
+                        dojo.disconnect(handle);
+                    });
+                    if (reload) {
+                        initTable(phenotypeOntologyIdTable.domNode, phenotypeOntologyIdsTable, phenotypeOntologyIdTable, timeout);
+                    }
+
+                    dojo.connect(phenotypeOntologyIdTable, "onStartEdit", function (inCell, inRowIndex) {
+                        oldPhenotypeOntologyId = phenotypeOntologyIdTable.store.getValue(phenotypeOntologyIdTable.getItem(inRowIndex), "phenotype_ontology_id");
+                    });
+
+                    dojo.connect(phenotypeOntologyIdTable, "onApplyEdit", function (inRowIndex) {
+                        var newPhenotypeOntologyId = phenotypeOntologyIdTable.store.getValue(phenotypeOntologyIdTable.getItem(inRowIndex), "phenotype_ontology_id");
+                        if (!newPhenotypeOntologyId) {
+
+                        }
+                        else if (!oldPhenotypeOntologyId) {
+                            addPhenotypeOntologyId(phenotypeOntologyIdTable, inRowIndex, newPhenotypeOntologyId);
+                        }
+                        else {
+                            if (newPhenotypeOntologyId != oldPhenotypeOntologyId) {
+                                updatePhenotypeOntologyId(phenotypeOntologyIdTable, inRowIndex, oldPhenotypeOntologyId, newPhenotypeOntologyId);
+                            }
+                        }
+                    });
+
+                    dojo.connect(addPhenotypeOntologyButton, "onclick", function () {
+                        phenotypeOntologyIdTable.store.newItem({phenotype_ontology_id: ""});
+                        phenotypeOntologyIdTable.scrollToRow(phenotypeOntologyIdTable.rowCount);
+                        console.log("add button click");
+                    });
+
+                    dojo.connect(deletePhenotypeOntologyButton, "onclick", function () {
+                        var toBeDeleted = new Array();
+                        var selected = phenotypeOntologyIdTable.selection.getSelected();
+                        for (var i = 0; i < selected.length; i++) {
+                            var item = selected[i];
+                            var phenotypeOntologyId = phenotypeOntologyIdTable.store.getValue(item, "phenotype_ontology_id");
+                            var parts = phenotypeOntologyId.split(":");
+                            toBeDeleted.push({db: parts[0], accession: parts[1]});
+                        }
+                        console.log("To Be Del: ", toBeDeleted);
+                        phenotypeOntologyIdTable.removeSelectedRows();
+                        deletePhenotypeOntologyIds(toBeDeleted);
+                    });
+                };
+
+                // initialize PubMed
+                var initPubmedIds = function (feature, config) {
+                    if (config.hasPubmedIds) {
+                        var oldPubmedId;
+                        var pubmedIds = new dojoItemFileWriteStore({
+                            data: {
+                                items: []
+                            }
+                        });
+                        for (var i = 0; i < feature.dbxrefs.length; ++i) {
+                            var dbxref = feature.dbxrefs[i];
+                            if (dbxref.db == pubmedIdDb) {
+                                pubmedIds.newItem({pubmed_id: dbxref.accession});
+                            }
+                        }
+                        var pubmedIdTableLayout = [{
+                            cells: [
+                                {
+                                    name: 'PubMed ID',
+                                    field: 'pubmed_id',
+                                    width: '100%',
+                                    formatter: function (pubmedId) {
+                                        if (!pubmedId) {
+                                            return "Enter new PubMed ID";
+                                        }
+                                        return pubmedId;
+                                    },
+                                    editable: hasWritePermission,
+                                    cellStyles: "text-align: center"
+                                }
+                            ]
+                        }];
+
+                        var pubmedIdTable = new dojoxDataGrid({
+                            singleClickEdit: true,
+                            store: pubmedIds,
+                            updateDelay: 0,
+                            structure: pubmedIdTableLayout
+                        });
+
+                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                            initTable(pubmedIdTable.domNode, pubmedIdsTable, pubmedIdTable);
+                            dojo.disconnect(handle);
+                        });
+                        if (reload) {
+                            initTable(pubmedIdTable.domNode, pubmedIdsTable, pubmedIdTable, timeout);
+                        }
+
+                        dojo.connect(pubmedIdTable, "onStartEdit", function (inCell, inRowIndex) {
+                            oldPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
+                        });
+
+                        dojo.connect(pubmedIdTable, "onApplyEdit", function (inRowIndex) {
+                            var newPubmedId = pubmedIdTable.store.getValue(pubmedIdTable.getItem(inRowIndex), "pubmed_id");
+                            if (!newPubmedId) {
+                            }
+                            else if (!oldPubmedId) {
+                                addPubmedId(pubmedIdTable, inRowIndex, newPubmedId);
+                            }
+                            else {
+                                if (newPubmedId != oldPubmedId) {
+                                    updatePubmedId(pubmedIdTable, inRowIndex, oldPubmedId, newPubmedId);
+                                }
+                            }
+                        });
+
+                        dojo.connect(addPubmedIdButton, "onclick", function () {
+                            pubmedIdTable.store.newItem({pubmed_id: ""});
+                            pubmedIdTable.scrollToRow(pubmedIdTable.rowCount);
+                        });
+
+                        dojo.connect(deletePubmedIdButton, "onclick", function () {
+                            var toBeDeleted = new Array();
+                            var selected = pubmedIdTable.selection.getSelected();
+                            for (var i = 0; i < selected.length; ++i) {
+                                var item = selected[i];
+                                var pubmedId = pubmedIdTable.store.getValue(item, "pubmed_id");
+                                toBeDeleted.push({db: pubmedIdDb, accession: pubmedId});
+                            }
+                            pubmedIdTable.removeSelectedRows();
+                            deletePubmedIds(toBeDeleted);
+                        });
+                    }
+                    else {
+                        dojo.style(pubmedIdsDiv, "display", "none");
+                    }
+                };
+
+                //// initialize GO
+                //var initGoIds = function (feature, config) {
+                //    if (config.hasGoIds) {
+                //        var oldGoId;
+                //        var dirty = false;
+                //        var valid = true;
+                //        var editingRow = 0;
+                //        var goIds = new dojoItemFileWriteStore({
+                //            data: {
+                //                items: []
+                //            }
+                //        });
+                //        for (var i = 0; i < feature.dbxrefs.length; ++i) {
+                //            var dbxref = feature.dbxrefs[i];
+                //            if (dbxref.db == goIdDb) {
+                //                goIds.newItem({go_id: goIdDb + ":" + dbxref.accession});
+                //            }
+                //        }
+                //        var goIdTableLayout = [{
+                //            cells: [
+                //                {
+                //                    name: 'Gene Ontology ID',
+                //                    field: 'go_id', // '_item',
+                //                    width: '100%',
+                //                    type: declare(dojox.grid.cells._Widget, {
+                //                        widgetClass: dijitTextBox,
+                //                        createWidget: function (inNode, inDatum, inRowIndex) {
+                //                            var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
+                //                            var textBox = widget.domNode.childNodes[0].childNodes[0];
+                //                            dojo.connect(textBox, "onkeydown", function (event) {
+                //                                if (event.keyCode == dojo.keys.ENTER) {
+                //                                    if (dirty) {
+                //                                        dirty = false;
+                //                                        valid = validateGoId(textBox.value) ? true : false;
+                //                                    }
+                //                                }
+                //                            });
+                //                            var original = 'http://golr.geneontology.org/';
+                //                            //var original = 'http://golr.geneontology.org/solr/';
+                //                            //var original = 'http://golr.berkeleybop.org/solr/';
+                //                            var encoded_original = encodeURI(original);
+                //                            encoded_original = encoded_original.replace(/:/g, "%3A");
+                //                            encoded_original = encoded_original.replace(/\//g, "%2F");
+                //
+                //                            //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
+                //                            var gserv = context_path + "/proxy/request/" + encoded_original;
+                //                            var gconf = new bbop.golr.conf(amigo.data.golr);
+                //                            var args = {
+                //                                label_template: '{{annotation_class_label}} [{{annotation_class}}]',
+                //                                value_template: '{{annotation_class}}',
+                //                                list_select_callback: function (doc) {
+                //                                    dirty = false;
+                //                                    valid = true;
+                //                                    goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
+                //                                }
+                //                            };
+                //                            var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
+                //                            auto.set_personality('bbop_term_ac');
+                //                            auto.add_query_filter('document_category', 'ontology_class');
+                //                            auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
+                //                            return widget;
+                //                        }
+                //                    }),
+                //                    formatter: function (goId, rowIndex, cell) {
+                //                        if (!goId) {
+                //                            return "Enter new Gene Ontology ID";
+                //                        }
+                //                        return goId;
+                //                    },
+                //                    editable: hasWritePermission
+                //                }
+                //            ]
+                //        }];
+                //
+                //        var goIdTable = new dojoxDataGrid({
+                //            singleClickEdit: true,
+                //            store: goIds,
+                //            updateDelay: 0,
+                //            structure: goIdTableLayout
+                //        });
+                //
+                //        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                //            initTable(goIdTable.domNode, goIdsTable, goIdTable);
+                //            dojo.disconnect(handle);
+                //        });
+                //        if (reload) {
+                //            initTable(goIdTable.domNode, goIdsTable, goIdTable, timeout);
+                //        }
+                //
+                //        dojo.connect(goIdTable, "onStartEdit", function (inCell, inRowIndex) {
+                //            editingRow = inRowIndex;
+                //            oldGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex), "go_id");
+                //            dirty = true;
+                //        });
+                //
+                //        // dojo.connect(goIdTable, "onApplyCellEdit", function(inValue, inRowIndex, inCellIndex) {
+                //        dojo.connect(goIdTable.store, "onSet", function (item, attribute, oldValue, newValue) {
+                //            if (dirty) {
+                //                return;
+                //            }
+                //            // var newGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex),
+                //            // "go_id");
+                //            var newGoId = newValue;
+                //            if (!newGoId) {
+                //            }
+                //            else if (!oldGoId) {
+                //                addGoId(goIdTable, editingRow, newGoId, valid);
+                //            }
+                //            else {
+                //                if (newGoId != oldGoId) {
+                //                    // updateGoId(goIdTable, editingRow, oldGoId, newGoId);
+                //                    updateGoId(goIdTable, item, oldGoId, newGoId, valid);
+                //                }
+                //            }
+                //            goIdTable.render();
+                //        });
+                //
+                //        dojo.connect(addGoIdButton, "onclick", function () {
+                //            goIdTable.store.newItem({go_id: ""});
+                //            goIdTable.scrollToRow(goIdTable.rowCount);
+                //        });
+                //
+                //        dojo.connect(deleteGoIdButton, "onclick", function () {
+                //            var toBeDeleted = new Array();
+                //            var selected = goIdTable.selection.getSelected();
+                //            for (var i = 0; i < selected.length; ++i) {
+                //                var item = selected[i];
+                //                var goId = goIdTable.store.getValue(item, "go_id");
+                //                toBeDeleted.push({db: goIdDb, accession: goId.substr(goIdDb.length + 1)});
+                //            }
+                //            goIdTable.removeSelectedRows();
+                //            deleteGoIds(toBeDeleted);
+                //        });
+                //    }
+                //    else {
+                //        dojo.style(goIdsDiv, "display", "none");
+                //    }
+                //};
+
+
+                // initialize Comments
+                var initComments = function (feature, config) {
+                    if (config.hasComments) {
+                        cannedComments = feature.canned_comments;
+                        var oldComment;
+                        var comments = new dojoItemFileWriteStore({
+                            data: {
+                                items: []
+                            }
+                        });
+                        for (var i = 0; i < feature.comments.length; ++i) {
+                            var comment = feature.comments[i];
+                            comments.newItem({comment: comment});
+                        }
+                        var commentTableLayout = [{
+                            cells: [
+                                {
+                                    name: 'Comment',
+                                    field: 'comment',
+                                    editable: hasWritePermission,
+                                    type: dojox.grid.cells.ComboBox,
+                                    options: cannedComments,
+                                    formatter: function (comment) {
+                                        if (!comment) {
+                                            return "Enter new comment";
+                                        }
+                                        return comment;
+                                    },
+                                    width: "100%"
+                                }
+                            ]
+                        }];
+                        var commentTable = new dojoxDataGrid({
+                            singleClickEdit: true,
+                            store: comments,
+                            structure: commentTableLayout,
+                            updateDelay: 0
+                        });
+
+                        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
+                            initTable(commentTable.domNode, commentsTable, commentTable);
+                            dojo.disconnect(handle);
+                        });
+                        if (reload) {
+                            initTable(commentTable.domNode, commentsTable, commentTable, timeout);
+                        }
+
+                        dojo.connect(commentTable, "onStartEdit", function (inCell, inRowIndex) {
+                            oldComment = commentTable.store.getValue(commentTable.getItem(inRowIndex), "comment");
+                        });
+
+                        dojo.connect(commentTable, "onApplyCellEdit", function (inValue, inRowIndex, inFieldIndex) {
+                            var newComment = inValue;
+                            if (!newComment) {
+                                // alert("No comment");
+                            }
+                            else if (!oldComment) {
+                                addComment(newComment);
+                            }
+                            else {
+                                if (newComment != oldComment) {
+                                    updateComment(oldComment, newComment);
+                                }
+                            }
+                        });
+
+                        dojo.connect(addCommentButton, "onclick", function () {
+                            commentTable.store.newItem({comment: undefined});
+                            commentTable.scrollToRow(commentTable.rowCount);
+                        });
+
+                        dojo.connect(deleteCommentButton, "onclick", function () {
+                            var toBeDeleted = new Array();
+                            var selected = commentTable.selection.getSelected();
+                            for (var i = 0; i < selected.length; ++i) {
+                                var comment = commentTable.store.getValue(selected[i], "comment");
+                                toBeDeleted.push(comment);
+                            }
+                            commentTable.removeSelectedRows();
+                            deleteComments(toBeDeleted);
+                        });
+                    }
+                    else {
+                        dojo.style(commentsDiv, "display", "none");
+                    }
+                };
+
+
+                function updateTimeLastUpdated() {
+                    var date = new Date();
+                    dateLastModifiedField.set("value", FormatUtils.formatDate(date.getTime()));
+                }
+
+                var updateName = function (name) {
+                    name = escapeString(name);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "name": "' + name + '" } ]';
+                    var operation = "set_name";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateDescription = function (description) {
+                    description = escapeString(description);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
+                    var operation = "set_description";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateMinorAlleleFrequency = function (mafValue) {
+                    var features = [
+                        {
+                            uniquename: uniqueName,
+                            minor_allele_frequency: mafValue
+                        }
+                    ];
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: "set_minor_allele_frequency"
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var deleteStatus = function () {
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
+                    var operation = "delete_status";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateStatus = function (status) {
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "status": "' + status + '" } ]';
+                    var operation = "set_status";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var addAltAlleles = function(altBases, alleleFrequency, provenance) {
+                    console.log("@addAltAlleles: " + altBases);
+                    var features = [{ uniquename: uniqueName }];
+                    var alternateAllele = {bases: altBases};
+                    if (alleleFrequency) alternateAllele.allele_frequency = alleleFrequency;
+                    if (provenance) alternateAllele.provenance = provenance;
+                    features[0].alternate_alleles = [alternateAllele];
+                    var operation = "add_alternate_alleles";
+                    var postData = { track: trackName, features: features, operation: operation };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+
+                };
+
+                var updateAltAlleles = function(oldBases, oldAlleleFrequency, oldProvenance, newBases, newAlleleFrequency, newProvenance) {
+                    console.log("@updateAltAlleles: " + newBases);
+                    var feature = { uniquename: uniqueName };
+                    var oldAlternateAllele = {};
+                    oldAlternateAllele.bases = oldBases;
+                    if (oldAlleleFrequency) oldAlternateAllele.allele_frequency = oldAlleleFrequency;
+                    if (oldProvenance) oldAlternateAllele.provenance = oldProvenance;
+                    feature.old_alternate_alleles = [oldAlternateAllele];
+                    var newAlternateAllele = {};
+                    newAlternateAllele.bases = newBases;
+                    if (newAlleleFrequency) newAlternateAllele.allele_frequency = newAlleleFrequency;
+                    if (newProvenance) newAlternateAllele.provenance = newProvenance;
+                    feature.new_alternate_alleles = [newAlternateAllele];
+
+                    var operation = "update_alternate_alleles";
+                    var postData = { track: trackName, features: [feature], operation: operation };
+                    console.log("PostData: ", postData);
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var deleteAltAlleles = function(altAllelesToBeDeleted) {
+                    console.log("@deleteAltAlleles");
+                    var alternateAlleles = [];
+                    for (var i = 0; i < altAllelesToBeDeleted.length; ++i) {
+                        var alternateAllele = {};
+                        alternateAllele.bases = altAllelesToBeDeleted[i].bases;
+                        if (altAllelesToBeDeleted[i].allele_frequency) alternateAllele.allele_frequency = altAllelesToBeDeleted[i].allele_frequency;
+                        if (altAllelesToBeDeleted[i].provenance) alternateAllele.provenance = altAllelesToBeDeleted[i].provenance;
+                        alternateAlleles.push(alternateAllele);
+                    }
+
+                    var features = [{ uniquename: uniqueName, alternate_alleles: alternateAlleles }];
+                    var operation = "delete_alternate_alleles";
+                    var postData = {track: trackName, features: features, operation: operation};
+                    console.log("PostData: ", postData);
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var addDbxref = function (db, accession) {
+                    db = escapeString(db);
+                    accession = escapeString(accession);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + db + '", "accession": "' + accession + '" } ] } ]';
+                    var operation = "add_non_primary_dbxrefs";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var deleteDbxrefs = function (dbxrefs) {
+                    for (var i = 0; i < dbxrefs.length; ++i) {
+                        dbxrefs[i].accession = escapeString(dbxrefs[i].accession);
+                        dbxrefs[i].db = escapeString(dbxrefs[i].db);
+                    }
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(dbxrefs) + ' } ]';
+                    var operation = "delete_non_primary_dbxrefs";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateDbxref = function (oldDb, oldAccession, newDb, newAccession) {
+                    oldDb = escapeString(oldDb);
+                    oldAccession = escapeString(oldAccession);
+                    newDb = escapeString(newDb);
+                    newAccession = escapeString(newAccession);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + oldDb + '", "accession": "' + oldAccession + '" } ], "new_dbxrefs": [ { "db": "' + newDb + '", "accession": "' + newAccession + '" } ] } ]';
+                    var operation = "update_non_primary_dbxrefs";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                //var addAttribute = function (tag, value) {
+                //    tag = escapeString(tag);
+                //    value = escapeString(value);
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": [ { "tag": "' + tag + '", "value": "' + value + '" } ] } ]';
+                //    var operation = "add_non_reserved_properties";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+                //
+                //var deleteAttributes = function (attributes) {
+                //    for (var i = 0; i < attributes.length; ++i) {
+                //        attributes[i].tag = escapeString(attributes[i].tag);
+                //        attributes[i].value = escapeString(attributes[i].value);
+                //    }
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "non_reserved_properties": ' + JSON.stringify(attributes) + ' } ]';
+                //    var operation = "delete_non_reserved_properties";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+                //
+                //var updateAttribute = function (oldTag, oldValue, newTag, newValue) {
+                //    oldTag = escapeString(oldTag);
+                //    oldValue = escapeString(oldValue);
+                //    newTag = escapeString(newTag);
+                //    newValue = escapeString(newValue);
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_non_reserved_properties": [ { "tag": "' + oldTag + '", "value": "' + oldValue + '" } ], "new_non_reserved_properties": [ { "tag": "' + newTag + '", "value": "' + newValue + '" } ] } ]';
+                //    var operation = "update_non_reserved_properties";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+
+                var addAlleleInfo = function(allele, tag, value) {
+                    console.log("addAlleleInfo: ", allele, tag, value);
+                    allele = escapeString(allele);
+                    tag = escapeString(tag);
+                    value = escapeString(value);
+                    var features = [ { uniquename: uniqueName, allele_info:  [ { allele: allele, tag: tag, value: value } ] } ];
+                    var operation = "add_allele_info";
+                    var postData =  { track: trackName, features: features, operation: operation };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var deleteAlleleInfo = function(alleleInfos) {
+                    for (var i = 0; i < alleleInfos.length; i++) {
+                        alleleInfos[i].allele = escapeString(alleleInfos[i].allele);
+                        alleleInfos[i].tag = escapeString(alleleInfos[i].tag);
+                        alleleInfos[i].value = escapeString(alleleInfos[i].value);
+                    }
+                    var features = [ { uniquename: uniqueName, allele_info: alleleInfos } ];
+                    var operation = "delete_allele_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var updateAlleleInfo = function(oldAllele, newAllele, oldTag, oldValue, newTag, newValue) {
+                    oldAllele = escapeString(oldAllele);
+                    newAllele = escapeString(newAllele);
+                    oldTag = escapeString(oldTag);
+                    oldValue = escapeString(oldValue);
+                    newTag = escapeString(newTag);
+                    newValue = escapeString(newValue);
+                    var features = [ {uniquename: uniqueName, old_allele_info: [{bases: oldAllele, tag: oldTag, value: oldValue}], new_allele_info: [{bases: newAllele, tag: newTag, value: newValue}] } ];
+                    var operation= "update_allele_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var addVariantInfo = function(tag, value) {
+                    tag = escapeString(tag);
+                    value = escapeString(value);
+                    var features = [ { uniquename: uniqueName, variant_info:  [ { tag: tag, value: value } ] } ];
+                    var operation = "add_variant_info";
+                    var postData =  { track: trackName, features: features, operation: operation };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var deleteVariantInfo = function(variantInfos) {
+                    for (var i = 0; i < variantInfos.length; i++) {
+                        variantInfos[i].tag = escapeString(variantInfos[i].tag);
+                        variantInfos[i].value = escapeString(variantInfos[i].value);
+                    }
+                    var features = [ { uniquename: uniqueName, variant_info: variantInfos } ];
+                    var operation = "delete_variant_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var updateVariantInfo = function(oldTag, oldValue, newTag, newValue) {
+                    oldTag = escapeString(oldTag);
+                    oldValue = escapeString(oldValue);
+                    newTag = escapeString(newTag);
+                    newValue = escapeString(newValue);
+                    var features = [ {uniquename: uniqueName, old_variant_info: [{tag: oldTag, value: oldValue}], new_variant_info: [{tag: newTag, value: newValue}] } ];
+                    var operation= "update_variant_info";
+                    var postData = {
+                        track: trackName,
+                        features: features,
+                        operation: operation
+                    };
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var confirmPubmedEntry = function (record) {
+                    return confirm("Publication title: '" + record.PubmedArticleSet.PubmedArticle.MedlineCitation.Article.ArticleTitle + "'");
+                };
+
+                var addPubmedId = function (pubmedIdTable, row, pubmedId) {
+                    var eutils = new EUtils(context_path, track.handleError);
+                    var record = eutils.fetch("pubmed", pubmedId);
+                    if (record) {
+                        // if (eutils.validateId("pubmed", pubmedId)) {
+                        if (confirmPubmedEntry(record)) {
+                            var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + pubmedId + '" } ] } ]';
+                            var operation = "add_non_primary_dbxrefs";
+                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            track.executeUpdateOperation(postData);
+                            updateTimeLastUpdated();
+                        }
+                        else {
+                            pubmedIdTable.store.deleteItem(pubmedIdTable.getItem(row));
+                        }
+                    }
+                    else {
+                        alert("Invalid ID " + pubmedId + " - Removing entry");
+                        pubmedIdTable.store.deleteItem(pubmedIdTable.getItem(row));
+                    }
+                };
+
+                var deletePubmedIds = function (pubmedIds) {
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(pubmedIds) + ' } ]';
+                    var operation = "delete_non_primary_dbxrefs";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updatePubmedId = function (pubmedIdTable, row, oldPubmedId, newPubmedId) {
+                    var eutils = new EUtils(context_path, track.handleError);
+                    var record = eutils.fetch("pubmed", newPubmedId);
+                    // if (eutils.validateId("pubmed", newPubmedId)) {
+                    if (record) {
+                        if (confirmPubmedEntry(record)) {
+                            var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + oldPubmedId + '" } ], "new_dbxrefs": [ { "db": "' + pubmedIdDb + '", "accession": "' + newPubmedId + '" } ] } ]';
+                            var operation = "update_non_primary_dbxrefs";
+                            var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                            track.executeUpdateOperation(postData);
+                            updateTimeLastUpdated();
+                        }
+                        else {
+                            pubmedIdTable.store.setValue(pubmedIdTable.getItem(row), "pubmed_id", oldPubmedId);
+                        }
+                    }
+                    else {
+                        alert("Invalid ID " + newPubmedId + " - Undoing update");
+                        pubmedIdTable.store.setValue(pubmedIdTable.getItem(row), "pubmed_id", oldPubmedId);
+                    }
+                };
+
+                var addPhenotypeOntologyId = function(phenotypeOntologyIdTable, row, phenotypeOntologyId) {
+                    var url = "https://api.monarchinitiative.org/api/bioentity/%PHENOTYPE_ONTOLOGY_TERM%";
+                    var queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(phenotypeOntologyId));
+
+                    request(queryUrl,
+                        {
+                            data: {},
+                            handleAs: 'json',
+                            method: 'get'
+                        }
+                    ).then(function(response) {
+                        if (response.id) {
+                            // validated
+                            var pair = response.id.split(':');
+                            var features = [ {uniquename: uniqueName, dbxrefs: [{db: pair[0], accession: pair[1]}]} ];
+                            var operation = "add_non_primary_dbxrefs";
+                            var postData = {'track': trackName, 'features': features, operation: operation};
+                            track.executeUpdateOperation(JSON.stringify(postData));
+                            updateTimeLastUpdated();
+                        }
+                        else {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + phenotypeOntologyId,
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.deleteItem(phenotypeOntologyIdTable.getItem(row));
+                        }
+                    },
+                    function(err) {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + phenotypeOntologyId + " due to a server error.",
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.deleteItem(phenotypeOntologyIdTable.getItem(row));
+                    });
+                };
+
+                var deletePhenotypeOntologyIds = function(phenotypeOntologyIds) {
+                    var features = [{uniquename: uniqueName, dbxrefs: phenotypeOntologyIds}];
+                    var operation = 'delete_non_primary_dbxrefs';
+                    var postData = {track: trackName, features: features, operation: operation};
+                    track.executeUpdateOperation(JSON.stringify(postData));
+                    updateTimeLastUpdated();
+                };
+
+                var updatePhenotypeOntologyId = function(phenotypeOntologyIdTable, row, oldPhenotypeOntologyId, newPhenotypeOntologyId) {
+                    var url = "https://api.monarchinitiative.org/api/bioentity/%PHENOTYPE_ONTOLOGY_TERM%";
+                    var queryUrl = url.replace('%PHENOTYPE_ONTOLOGY_TERM%', escapeString(newPhenotypeOntologyId));
+
+                    request(queryUrl,
+                        {
+                            data: {},
+                            handleAs: 'json',
+                            method: 'get'
+                        }
+                    ).then(function(response) {
+                        if (response.id) {
+                            // validated
+                            var old_pair = oldPhenotypeOntologyId.split(':');
+                            var pair = response.id.split(':');
+                            var features = [ {uniquename: uniqueName, old_dbxrefs: [{db: old_pair[0], accession: old_pair[1]}],new_dbxrefs: [{db: pair[0], accession: pair[1]}]} ];
+                            var operation = "update_non_primary_dbxrefs";
+                            var postData = {'track': trackName, 'features': features, operation: operation};
+                            track.executeUpdateOperation(JSON.stringify(postData));
+                            updateTimeLastUpdated();
+                        }
+                        else {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + newPhenotypeOntologyId,
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.setValue(phenotypeOntologyIdTable.getItem(row), "phenotype_ontology_id", oldPhenotypeOntologyId);
+                        }
+                    },
+                    function(err) {
+                            var myDialog = new dijit.Dialog({
+                                    title: "Could not validate ontology term ID",
+                                    content: "Could not validate ontology term ID: " + newPhenotypeOntologyId + " due to a server error.",
+                                    style: "width: 300px"
+                                }).show();
+                            phenotypeOntologyIdTable.store.deleteItem(phenotypeOntologyIdTable.getItem(row), "phenotype_ontology_id", oldPhenotypeOntologyId);
+                    });
+                };
+
+                var validateGoId = function (goId) {
+                    var regex = new RegExp("^" + goIdDb + ":(\\d{7})$");
+                    return regex.exec(goId);
+                };
+
+                var addGoId = function (goIdTable, row, goId, valid) {
+                    // if (match = validateGoId(goId)) {
+                    if (valid) {
+                        var goAccession = goId.substr(goIdDb.length + 1);
+                        var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + goAccession + '" } ] } ]';
+                        var operation = "add_non_primary_dbxrefs";
+                        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                        track.executeUpdateOperation(postData);
+                        updateTimeLastUpdated();
+                    }
+                    else {
+                        alert("Invalid ID " + goId + " - Must be formatted as 'GO:#######' - Removing entry");
+                        goIdTable.store.deleteItem(goIdTable.getItem(row));
+                        goIdTable.close();
+                    }
+                };
+
+                //var deleteGoIds = function (goIds) {
+                //    var features = '"features": [ { "uniquename": "' + uniqueName + '", "dbxrefs": ' + JSON.stringify(goIds) + ' } ]';
+                //    var operation = "delete_non_primary_dbxrefs";
+                //    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //    track.executeUpdateOperation(postData);
+                //    updateTimeLastUpdated();
+                //};
+                //
+                //var updateGoId = function (goIdTable, item, oldGoId, newGoId, valid) {
+                //    if (valid) {
+                //        var oldGoAccession = oldGoId.substr(goIdDb.length + 1);
+                //        var newGoAccession = newGoId.substr(goIdDb.length + 1);
+                //        var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + oldGoAccession + '" } ], "new_dbxrefs": [ { "db": "' + goIdDb + '", "accession": "' + newGoAccession + '" } ] } ]';
+                //        var operation = "update_non_primary_dbxrefs";
+                //        var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                //        track.executeUpdateOperation(postData);
+                //        updateTimeLastUpdated();
+                //    }
+                //    else {
+                //        alert("Invalid ID " + newGoId + " - Undoing update");
+                //        goIdTable.store.setValue(item, "go_id", oldGoId);
+                //        goIdTable.close();
+                //    }
+                //};
+
+                var addComment = function (comment) {
+                    comment = escapeString(comment);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": [ "' + comment + '" ] } ]';
+                    var operation = "add_comments";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var deleteComments = function (comments) {
+                    for (var i = 0; i < comments.length; ++i) {
+                        comments[i] = escapeString(comments[i]);
+                    }
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "comments": ' + JSON.stringify(comments) + ' } ]';
+                    var operation = "delete_comments";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateComment = function (oldComment, newComment) {
+                    if (oldComment == newComment) {
+                        return;
+                    }
+                    oldComment = escapeString(oldComment);
+                    newComment = escapeString(newComment);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "old_comments": [ "' + oldComment + '" ], "new_comments": [ "' + newComment + '"] } ]';
+                    var operation = "update_comments";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var getCannedComments = function () {
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '" } ]';
+                    var operation = "get_canned_comments";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    dojo.xhrPost({
+                        postData: postData,
+                        url: context_path + "/AnnotationEditorService",
+                        handleAs: "json",
+                        sync: true,
+                        timeout: 5000 * 1000, // Time in milliseconds
+                        load: function (response, ioArgs) {
+                            var feature = response.features[0];
+                            cannedComments = feature.comments;
+                        },
+                        // The ERROR function will be called in an error case.
+                        error: function (response, ioArgs) {
+                            track.handleError(response);
+                            console.error("HTTP status code: ", ioArgs.xhr.status);
+                            return response;
+                        }
+                    });
+                };
+
+                init();
+                return content;
+            },
 
             createAnnotationInfoEditorPanelForFeature: function (uniqueName, trackName, selector, reload) {
                 var track = this;
@@ -4565,7 +6788,7 @@ define([
                         var selected = thisB.selectionManager.getSelection();
                         var selectedFeature = selected[0].feature;
                         var selectedFeatureDetails = selectedFeature.afeature;
-                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene'];
+                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion'];
                         while(selectedFeature  ){
                             if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
                                 thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
@@ -5113,6 +7336,8 @@ define([
             },
 
             updateMenu: function () {
+                this.updateGetSequenceMenuItem();
+                this.updateGetGff3MenuItem();
                 this.updateDeleteMenuItem();
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
@@ -5146,7 +7371,12 @@ define([
             updateAssociateTranscriptToGeneItem: function() {
                 var menuItem = this.getMenuItem("associate_transcript_to_gene");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -5179,7 +7409,12 @@ define([
             updateDissociateTranscriptFromGeneItem: function() {
                 var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -5242,9 +7477,36 @@ define([
                             menuItems[i].setDisabled(true);
                         }
                     }
+                    else if (JSONUtils.variantTypes.includes(selectedType.toUpperCase())) {
+                        menuItems[i].setDisabled(true);
+                    }
                     else {
                         menuItems[i].setDisabled(false);
                     }
+                }
+            },
+
+            updateGetSequenceMenuItem: function() {
+                var menuItem = this.getMenuItem("get_sequence");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
+                }
+            },
+
+            updateGetGff3MenuItem: function() {
+                var menuItem = this.getMenuItem("get_gff3");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                }
+                else {
+                    menuItem.set("disabled", false);
                 }
             },
 
@@ -5434,6 +7696,7 @@ define([
             updateMakeIntronMenuItem: function () {
                 var menuItem = this.getMenuItem("make_intron");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
                     return;
@@ -5450,12 +7713,26 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
+                    return;
+                }
                 menuItem.set("disabled", false);
             },
 
             updateFlipStrandMenuItem: function () {
                 var menuItem = this.getMenuItem("flip_strand");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
                 for (var i = 0; i < selected.length; ++i) {
                     if (selected[i].feature.get("strand") == 0) {
                         menuItem.set("disabled", true);
@@ -5485,12 +7762,21 @@ define([
             updateUndoMenuItem: function () {
                 var menuItem = this.getMenuItem("undo");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
                     return;
                 }
                 if (!this.canEdit(selected[0].feature)) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
@@ -5499,12 +7785,21 @@ define([
             updateRedoMenuItem: function () {
                 var menuItem = this.getMenuItem("redo");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
                     return;
                 }
                 if (!this.canEdit(selected[0].feature)) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
@@ -5514,8 +7809,17 @@ define([
             updateHistoryMenuItem: function () {
                 var menuItem = this.getMenuItem("history");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 if (selected.length > 1) {
                     menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                else {
+                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
@@ -5534,12 +7838,17 @@ define([
             updateDuplicateMenuItem: function () {
                 var menuItem = this.getMenuItem("duplicate");
                 var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
                 var parent = AnnotTrack.getTopLevelAnnotation(selected[0].feature);
                 for (var i = 1; i < selected.length; ++i) {
                     if (AnnotTrack.getTopLevelAnnotation(selected[i].feature) != parent) {
                         menuItem.set("disabled", true);
                         return;
                     }
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
                 }
                 menuItem.set("disabled", false);
             },

@@ -92,7 +92,7 @@ class NonCanonicalSplitSiteService {
         String residues = sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,fmin,fmax,strand);
         if(transcript.getStrand()==-1)residues=residues.reverse()
 
-        List<SequenceAlteration> sequenceAlterationList = new ArrayList<>()
+        List<SequenceAlterationArtifact> sequenceAlterationList = new ArrayList<>()
         sequenceAlterationList.addAll(featureService.getAllSequenceAlterationsForFeature(transcript))
 
         for (Exon exon : exons) {
@@ -125,7 +125,7 @@ class NonCanonicalSplitSiteService {
                         String acceptorSpliceSiteSequence = residues.substring(local1,local2)
                         acceptorSpliceSiteSequence=transcript.getStrand()==-1?acceptorSpliceSiteSequence.reverse():acceptorSpliceSiteSequence
                         log.debug "acceptor ${local1} ${local2} ${acceptorSpliceSiteSequence} ${acceptor}"
-                        if(acceptorSpliceSiteSequence==acceptor)
+                        if(acceptorSpliceSiteSequence.toLowerCase() == acceptor)
                             validThreePrimeSplice=true
                         else
                             threePrimeSpliceSitePosition = exon.getStrand() == -1 ? local1 : local2;
@@ -135,7 +135,7 @@ class NonCanonicalSplitSiteService {
                         String donorSpliceSiteSequence = residues.substring(local3,local4)
                         donorSpliceSiteSequence=transcript.getStrand()==-1?donorSpliceSiteSequence.reverse():donorSpliceSiteSequence
                         log.debug "donor ${local3} ${local4} ${donorSpliceSiteSequence} ${donor}"
-                        if(donorSpliceSiteSequence==donor)
+                        if(donorSpliceSiteSequence.toLowerCase() == donor)
                             validFivePrimeSplice=true
                         else
                             fivePrimeSpliceSitePosition = exon.getStrand() == -1 ? local3 : local4;

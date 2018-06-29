@@ -235,25 +235,17 @@ apollo {
     proxies = [
             [
                     referenceUrl : 'http://golr.geneontology.org/select',
-                    targetUrl    : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.geneontology.org/solr/select',
                     active       : true,
                     fallbackOrder: 0,
-                    replace      : false
-            ]
-            ,
-            [
-                    referenceUrl : 'http://golr.geneontology.org/select',
-                    targetUrl    : 'http://golr.berkeleybop.org/select',
-                    active       : false,
-                    fallbackOrder: 1,
-                    replace      : false
+                    replace      : true
             ]
             ,
             [
                     referenceUrl : 'http://golr.geneontology.org/select',
                     targetUrl    : 'http://golr.berkeleybop.org/solr/select',
                     active       : false,
-                    fallbackOrder: 2,
+                    fallbackOrder: 1,
                     replace      : false
             ]
     ]
@@ -285,6 +277,16 @@ apollo {
                                                      key       : "GFF3 with FASTA",
                                                      options   : "output=file&format=gzip&type=GFF3&exportGff3Fasta=true"
                                              ]]
+                     ],
+                     [
+                             permission   : 1,
+                             key          : "VCF",
+                             data_adapters: [[
+                                                     permission: 1,
+                                                     key       : "VCF",
+                                                     options   : "output=file&format=gzip&type=VCF"
+                                             ]
+                             ]
                      ],
                      [
                              permission   : 1,
@@ -397,7 +399,7 @@ auditLog {
 jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "dev"
+        branch = "1.14.2-release"
 //        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
         alwaysPull = true
         alwaysRecheck = true
