@@ -356,14 +356,22 @@ task moveNodeModulesJBrowse(dependsOn:removeJBrowseDownload) {
 task compileJBrowse(type:Exec) {
     logger.quiet "Setting up JBrowse... "
     workingDir jbrowseDirectory
-    commandLine 'npm','install'
-    commandLine 'npm','run','build'
+//    https://github.com/GMOD/jbrowse/releases/download/1.14.2-release/JBrowse-1.14.2.zip
+//    ## commandLine 'npm','install','GMOD/jbrowse'
+    // ## cp -r node_modules/@gmod/jbrowse .
+    // cd jbrowse
+    // cp -r ../client/apollo plugins/WebApollo
+    // npm install
+//    commandLine './node_modules/.bin/jb_setup.js',"nosamples"
+    // npm run build
+//    commandLine 'npm','run','build'
 }
 
 task installJBrowseScript(type:Exec) {
     logger.quiet "Setting up JBrowse... "
     workingDir jbrowseDirectory
-    commandLine './setup.sh',"nosamples"
+    //commandLine './setup.sh',"nosamples"
+//    commandLine './node_modules/.bin/jb_setup.js',"nosamples"
 }
 
 task refreshNpmRepo(type: Exec){
