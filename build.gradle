@@ -133,10 +133,10 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) {
 }
 
 
-//task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
-//	workingDir = '.'
-//    commandLine './install_jbrowse.sh'
-//}
+task installJBrowseLocal(dependsOn: installJBrowse,type: Exec) {
+	workingDir = '.'
+    commandLine './install_jbrowse.sh'
+}
 
 //task copyResourcesDev(dependsOn: installJBrowse) {
     task copyResourcesDev() {
@@ -324,7 +324,7 @@ def cloneRepoNpm(String url, String directory, String branch){
     if(finalUrl.contains("#") && (finalUrl.endsWith("jbrowse") || finalUrl.split("#")[0].endsWith("jbrowse"))) {
         logger.quiet "Moving JBrowse into position ${finalUrl}"
         tasks.moveNodeModulesJBrowse.execute()
-//        tasks.installJBrowseScript.execute()
+        tasks.installJBrowseScript.execute()
     }
     else{
         npmDirectory.eachDir {
@@ -469,4 +469,31 @@ def gitPull(File file) {
     proc.waitForProcessOutput(outputStream, errorStream);
     if(outputStream.length()>0) println outputStream
     if(errorStream.length()>0) println "Error: " + errorStream
+}
+
+task cloneRepo(type:Exec){
+    commandLine = ['git','clone','https://github.com/GMOD/jbrowse']
+}
+
+
+task installJBrowseWebDependencies(type:Exec,dependsOn: cloneRepo){
+    workingDir 'jbrowse'
+    commandLine 'yarn'
+}
+
+task installWebApolloPlugin(type:Exec,dependsOn: installJBrowseWebDependencies){
+    workingDir 'jbrowse'
+    commandLine 'cp','-r','../client/apollo','plugins/WebApollo'
+}
+
+task installJBrowseWeb(type:Exec,dependsOn: installWebApolloPlugin){
+    workingDir 'jbrowse'
+    commandLine 'npm','run','build'
+}
+
+task webOnlyJBrowseInstall(dependsOn:  installJBrowseWeb){
+    doLast{
+        copyResourcesDev
+    }
+
 }
