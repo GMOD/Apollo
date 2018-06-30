@@ -486,36 +486,54 @@ task installWebApolloPlugin(type: Exec, dependsOn: installJBrowseWebDependencies
     commandLine 'cp', '-r', '../client/apollo', 'plugins/WebApollo'
 }
 
-task buildNpmJBrowse(type:Exec,dependsOn: installWebApolloPlugin){
+task buildNpmJBrowse(type: Exec, dependsOn: installWebApolloPlugin) {
     println "build NPM"
     workingDir 'jbrowse'
     commandLine 'npm', 'run', 'build'
 }
 
-task installJBrowseWeb() {
+task installJBrowseWeb {
+    doFirst {
+        if (!file('jbrowse').exists()) {
+            println "cloning new"
+            tasks.cloneRepo2.execute()
+        } else {
+            println "already exists"
+            tasks.updateRepo2.execute()
+        }
+    }
     doLast{
-       if(!file('jbrowse').exists() ){
-           println "cloning new"
-           tasks.cloneRepo2.execute()
-       }
-        else{
-           println "already exists"
-           tasks.updateRepo2.execute()
-       }
-       tasks.buildNpmJBrowse.execute()
+        exec{
+            workingDir 'jbrowse'
+            commandLine 'yarn'
+        }
+        exec{
+            workingDir 'jbrowse'
+//            commandLine 'yarn'
+            executable 'cp' args '-r', '../client/apollo', 'plugins/WebApollo'
+        }
+        exec{
+            workingDir 'jbrowse'
+            commandLine 'npm', 'run', 'build'
+        }
+        tasks.copyJBrowseDirectory.execute()
+
     }
 }
 
-task copyJBrowseDirectory(type:Copy){
-    from('jbrowse'){
-        exclude "sample_data/**","node_modules/**","tests/**"
+task copyJBrowseDirectory(type: Copy) {
+    from('jbrowse') {
+        exclude "sample_data/**", "node_modules/**", "tests/**"
     }
-
     into("web-app/jbrowse/")
 }
 
+task cleanJBrowse(type: Delete) {
+    delete 'jbrowse', 'web-app/jbrowse'
+}
+
 task webOnlyJBrowseInstall(dependsOn: installJBrowseWeb) {
-    doLast {
+    doLast{
         copyJBrowseDirectory
     }
 }
