@@ -51,7 +51,7 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - travis_wait ./gradlew handleJBrowse copy-resources gwtc && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace
+  - travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseLocal && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace
   #- node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
   - jshint client/apollo/js
 after_success:
