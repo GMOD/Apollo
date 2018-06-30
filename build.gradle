@@ -15,6 +15,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+//        classpath 'org.ajoberstar:gradle-git:0.2.3'
     }
 }
 
@@ -35,8 +36,8 @@ ext {
     npmCommand = Os.isFamily(Os.FAMILY_WINDOWS) ? 'npm.cmd' : 'npm'
     githubURL = "https://github.com/"
     nodeModulesDirectory = "node_modules"
-    jbrowseDirectory = "jbrowse-download"
-    pluginsDirectory = "jbrowse-download/plugins"
+    jbrowseDirectory = "jbrowse"
+    pluginsDirectory = "jbrowse/plugins"
     defaultGitMethod = "shell"
 }
 
@@ -92,6 +93,55 @@ task evaluateJBrowseConfigs {
     logger.quiet "Final JBrowse settings ${jbrowseConfig}"
     logger.quiet "Final plugins ${jbrowsePlugins}"
 }
+
+//task cloneGitRepo(type: GitClone,uri) {
+//    def destination = file("destination_folder")
+//    uri = "your_git_repo_uri"
+//    destinationPath = destination
+//    bare = false
+//    enabled = !destination.exists() //to clone only once
+//}
+
+task cloneRepo3(dependsOn: evaluateJBrowseConfigs) {
+    println "installing $jbrowseConfig"
+//    commandLine = ['git', 'clone', 'https://github.com/GMOD/jbrowse']
+    File jbrowseFile = new File("jbrowse")
+    if (jbrowseConfig.git) {
+        def git = jbrowseConfig.git
+        if (jbrowseFile.exists()) {
+            if ((git.alwaysRecheck || git.alwaysPull)) {
+                exec {
+                    workingDir 'jbrowse'
+                    commandLine 'git', 'pull'
+                }
+            }
+        } else {
+            // always default to dev if nothing found
+            String branchName = (git.branch ?: git.tag) ?: dev
+            println "branchName ${branchName}"
+            exec {
+                commandLine = ['git', 'clone', '-b',branchName,'--single-branch', git.url]
+            }
+        }
+    } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
+        if (jbrowseConfig.url.type == "zip") {
+            // assume its a zip
+            def f = new File("jbrowse-directory" + ".zip")
+            new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
+            File tempFile = File.createTempDir()
+            ant.unzip(src: f.absolutePath, dest: tempFile, overwrite: false)
+            org.gradle.util.GFileUtils.moveDirectory(new File(tempFile.absolutePath + "/" + jbrowseConfig.url.fileName), jbrowseFile)
+            org.gradle.util.GFileUtils.deleteDirectory(new File(jbrowseFile.absolutePath + "/sample_data"))
+            tempFile.deleteDir()
+            f.delete()
+        } else {
+            //            new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
+            logger.error "Must specify JBrowse download type"
+            throw new GradleException("Unable to specify JBrowse download type")
+        }
+    }
+}
+
 
 task installJBrowse(dependsOn: evaluateJBrowseConfigs) {
     doLast {
@@ -156,7 +206,7 @@ task copyResourcesDev() {
 task copyApolloPlugin(type: Copy) {
     logger.quiet "Copying apollo plugin"
     from("client/apollo")
-    into("jbrowse-download/plugins/WebApollo")
+    into("jbrowse/plugins/WebApollo")
 }
 
 // wrapper for ant script
@@ -477,23 +527,23 @@ task updateRepo2(type: Exec) {
 task installJBrowseWebOnly {
     doFirst {
         if (!file('jbrowse').exists()) {
-            println "cloning new"
-            tasks.cloneRepo2.execute()
+            println "Cloning a new JBrowse"
+            tasks.cloneRepo3.execute()
         } else {
-            println "already exists"
+            println "JBrowse already exists"
             tasks.updateRepo2.execute()
         }
     }
-    doLast{
-        exec{
+    doLast {
+        exec {
             workingDir 'jbrowse'
             commandLine 'yarn'
         }
-        exec{
+        exec {
             workingDir 'jbrowse'
             executable 'cp' args '-r', '../client/apollo', 'plugins/WebApollo'
         }
-        exec{
+        exec {
             workingDir 'jbrowse'
             commandLine 'npm', 'run', 'build'
         }
