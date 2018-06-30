@@ -170,7 +170,6 @@ function clean_all(){
     check_configs
     rm -rf bin
     rm -rf jbrowse
-#    rm -rf JBrowse-dev
     rm -rf web-app/jbrowse
     rm -rf extlib
     rm -rf node_modules

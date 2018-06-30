@@ -1,4 +1,4 @@
-const $ = require('jquery')
+const $ = require('jquery');
 
 define( ['dojo/_base/declare',
           'WebApollo/View/Track/DraggableHTMLFeatures',

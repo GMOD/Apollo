@@ -408,43 +408,10 @@ task moveNodeModulesJBrowse(dependsOn: removeJBrowseDownload) {
     }
 }
 
-task compileJBrowse(type: Exec) {
-    logger.quiet "Setting up JBrowse... "
-    workingDir jbrowseDirectory
-//    https://github.com/GMOD/jbrowse/releases/download/1.14.2-release/JBrowse-1.14.2.zip
-//    ## commandLine 'npm','install','GMOD/jbrowse'
-    // ## cp -r node_modules/@gmod/jbrowse .
-    // cd jbrowse
-    // cp -r ../client/apollo plugins/WebApollo
-    // npm install
-//    commandLine './node_modules/.bin/jb_setup.js',"nosamples"
-    // npm run build
-//    commandLine 'npm','run','build'
-}
-
 task installJBrowseTools() {
-
-//    exec{
-//        logger.quiet "Setting up JBrowse... "
-//        workingDir 'jbrowse'
-//        //commandLine './setup.sh',"nosamples"
-//        commandLine 'npm','install','@gmod/jbrowse'
-//    }
-//    exec{
-//        logger.quiet "Setting up JBrowse... "
-//        workingDir 'jbrowse'
-//        //commandLine './setup.sh',"nosamples"
-//        commandLine './node_modules/.bin/jb_setup.js',"nosamples"
-//    }
     exec{
         commandLine './install_jbrowse.sh'
     }
-}
-
-task refreshNpmRepo(type: Exec) {
-//    println "using npm to update: ${directory}"
-    workingDir jbrowseDirectory
-    commandLine "npm", "update"
 }
 
 // Get the path for the locally installed binaries
@@ -538,19 +505,22 @@ def gitPull(File file) {
     if (errorStream.length() > 0) println "Error: " + errorStream
 }
 
-task updateRepo2(type: Exec,dependsOn: evaluateJBrowseConfigs) {
+task updateRepo2(dependsOn: evaluateJBrowseConfigs) {
 
-//    doLast {
+    doLast {
         def git = jbrowseConfig.git
         if (!git.hash) {
             String branchName = (git.branch ?: git.tag) ?: "dev"
-            workingDir 'jbrowse'
-            commandLine = ['git', 'pull', 'origin', branchName]
-        } else {
-            executable "ls"
-//            commandLine = ['echo', 'Using hash so ignoring.']
+            exec{
+                workingDir = 'jbrowse'
+                commandLine = ['git', 'pull', 'origin', branchName]
+            }
         }
-//    }
+//        else {
+//            executable "ls"
+////            commandLine = ['echo', 'Using hash so ignoring.']
+//        }
+    }
 }
 
 task installJBrowseWebOnly {
