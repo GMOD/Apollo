@@ -169,13 +169,14 @@ function clean_code(){
 function clean_all(){
     check_configs
     rm -rf bin
-    rm -rf jbrowse-download
-    rm -rf JBrowse-dev
+    rm -rf jbrowse
+#    rm -rf JBrowse-dev
     rm -rf web-app/jbrowse
     rm -rf extlib
     rm -rf node_modules
     rm -rf package-lock.json
     rm -f *.zip
+    rm -f *.tar.gz
     clean_code
 }
 
@@ -192,7 +193,7 @@ function installJBrowse(){
 
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable handleJBrowse copyResourcesDev devmode &
+    $gradle_executable installJBrowseWebOnly devmode &
     $grails_executable -reloading run-app
 elif [[ $1 == "install-jbrowse-tools" ]];then
     check_configs
@@ -201,11 +202,11 @@ elif [[ $1 == "install-jbrowse-tools" ]];then
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources copyResourcesDev compileJBrowse gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable installJBrowseWebOnly gwtc && $grails_executable -Dserver.port=$2 run-app
     else
 #        $gradle_executable handleJBrowse copy-resources copyResourcesDev compileJBrowse gwtc && $grails_executable run-app
-        installJBrowse
-        $gradle_executable gwtc && $grails_executable run-app
+#        installJBrowse
+        $gradle_executable installJBrowseWebOnly gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "watchman" ]]; then
     watchman_executable=$(which watchman)
@@ -219,9 +220,9 @@ elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
 #        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
-        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable installJBrowseWebOnly && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse && $grails_executable run-app
+        $gradle_executable installJBrowseWebOnly && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
@@ -230,24 +231,24 @@ elif [[ $1 == "debug" ]];then
     copy_configs
     clean_all
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    $gradle_executable handleJBrowse devmode &
+    $gradle_executable installJBrowseWebOnly devmode &
     $grails_executable -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
-    $gradle_executable handleJBrowse
+    $gradle_executable installJBrowseWebOnly
     check_rest_api
 	$grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     check_configs
     copy_configs
-    $grails_executable handleJBrowse test-app :unit
+    $grails_executable installJBrowseWebOnly test-app :unit
 elif [[ $1 == "deploy" ]];then
     check_configs
     copy_configs
-    $gradle_executable handleJBrowse copy-resources gwtc &&  $grails_executable war
+    $gradle_executable installJBrowseWebOnly gwtc &&  $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
@@ -262,7 +263,7 @@ elif [[ $1 == "clean" ]];then
     $gradle_executable clean &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
     check_configs
-    $gradle_executable handleJBrowse
+    $gradle_executable installJBrowseWebOnly
 else
     usage
 fi
