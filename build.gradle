@@ -465,33 +465,57 @@ def gitPull(File file) {
     if (errorStream.length() > 0) println "Error: " + errorStream
 }
 
-task cloneRepo(type: Exec) {
-
-    if (File.exists('jbrowse')) {
-        println "JBrowse clone exists"
-    } else {
-        commandLine = ['git', 'clone', 'https://github.com/GMOD/jbrowse']
-    }
+task cloneRepo2(type: Exec) {
+    commandLine = ['git', 'clone', 'https://github.com/GMOD/jbrowse']
 }
 
+task updateRepo2(type: Exec) {
+    workingDir 'jbrowse'
+    commandLine = ['git', 'pull']
+}
 
-task installJBrowseWebDependencies(type: Exec, dependsOn: cloneRepo) {
+task installJBrowseWebDependencies(type: Exec) {
+    println "yarn"
     workingDir 'jbrowse'
     commandLine 'yarn'
 }
 
 task installWebApolloPlugin(type: Exec, dependsOn: installJBrowseWebDependencies) {
+    println "install NPM"
     workingDir 'jbrowse'
     commandLine 'cp', '-r', '../client/apollo', 'plugins/WebApollo'
 }
 
-task installJBrowseWeb(type: Exec, dependsOn: installWebApolloPlugin) {
+task buildNpmJBrowse(type:Exec,dependsOn: installWebApolloPlugin){
+    println "build NPM"
     workingDir 'jbrowse'
     commandLine 'npm', 'run', 'build'
 }
 
+task installJBrowseWeb() {
+    doLast{
+       if(!file('jbrowse').exists() ){
+           println "cloning new"
+           tasks.cloneRepo2.execute()
+       }
+        else{
+           println "already exists"
+           tasks.updateRepo2.execute()
+       }
+       tasks.buildNpmJBrowse.execute()
+    }
+}
+
+task copyJBrowseDirectory(type:Copy){
+    from('jbrowse'){
+        exclude "sample_data/**","node_modules/**","tests/**"
+    }
+
+    into("web-app/jbrowse/")
+}
+
 task webOnlyJBrowseInstall(dependsOn: installJBrowseWeb) {
     doLast {
-        copyResourcesDev
+        copyJBrowseDirectory
     }
 }
