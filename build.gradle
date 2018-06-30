@@ -15,13 +15,10 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-//        classpath 'org.ajoberstar:gradle-git:0.2.3'
     }
 }
 
 plugins {
-//    id "com.eriwen.gradle.js" version "1.12.1"
-//    id "com.moowork.node" version "0.12"
 }
 
 // In this section you declare where to find the dependencies of your project
@@ -49,18 +46,9 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-//apply plugin: "de.qaware.seu.as.code.git"
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-    // The production code uses the SLF4J logging API at compile time
-//    compile 'org.slf4j:slf4j-api:1.7.14'
-
-    // Declare the dependency for your favourite test framework you want to use in your tests.
-    // TestNG is also supported by the Gradle Test task. Just change the
-    // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
-    // 'test.useTestNG()' to your build script.
-//    testCompile 'junit:junit:4.12'
 }
 
 def jbrowseConfig
@@ -94,75 +82,33 @@ task evaluateJBrowseConfigs {
     logger.quiet "Final plugins ${jbrowsePlugins}"
 }
 
-//task cloneGitRepo(type: GitClone,uri) {
-//    def destination = file("destination_folder")
-//    uri = "your_git_repo_uri"
-//    destinationPath = destination
-//    bare = false
-//    enabled = !destination.exists() //to clone only once
-//}
 
 task cloneRepo3(dependsOn: evaluateJBrowseConfigs) {
-    println "installing $jbrowseConfig"
-//    commandLine = ['git', 'clone', 'https://github.com/GMOD/jbrowse']
-    File jbrowseFile = new File("jbrowse")
-    if (jbrowseConfig.git) {
-        def git = jbrowseConfig.git
-        if (jbrowseFile.exists()) {
-            if ((git.alwaysRecheck || git.alwaysPull)) {
-                exec {
-                    workingDir 'jbrowse'
-                    commandLine 'git', 'pull'
-                }
-            }
-        } else {
-            // always default to dev if nothing found
-            String branchName = (git.branch ?: git.tag) ?: dev
-            println "branchName ${branchName}"
-            exec {
-                commandLine = ['git', 'clone', '-b',branchName,'--single-branch', git.url]
-            }
-        }
-    } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
-        if (jbrowseConfig.url.type == "zip") {
-            // assume its a zip
-            def f = new File("jbrowse-directory" + ".zip")
-            new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
-            File tempFile = File.createTempDir()
-            ant.unzip(src: f.absolutePath, dest: tempFile, overwrite: false)
-            org.gradle.util.GFileUtils.moveDirectory(new File(tempFile.absolutePath + "/" + jbrowseConfig.url.fileName), jbrowseFile)
-            org.gradle.util.GFileUtils.deleteDirectory(new File(jbrowseFile.absolutePath + "/sample_data"))
-            tempFile.deleteDir()
-            f.delete()
-        } else {
-            //            new URL(jbrowseConfig.url.url).withInputStream { i -> f.withOutputStream { it << i } }
-            logger.error "Must specify JBrowse download type"
-            throw new GradleException("Unable to specify JBrowse download type")
-        }
-    }
-}
-
-
-task installJBrowse(dependsOn: evaluateJBrowseConfigs) {
     doLast {
-        logger.quiet "Installing JBrowse ${jbrowseConfig}"
-
-        File jbrowseFile = new File("jbrowse-download")
+        println "installing $jbrowseConfig"
+        File jbrowseFile = new File("jbrowse")
         if (jbrowseConfig.git) {
             def git = jbrowseConfig.git
             if (jbrowseFile.exists()) {
                 if ((git.alwaysRecheck || git.alwaysPull)) {
-                    tasks.refreshNpmRepo.execute()
+                    if (!git.hash) {
+                        String branchName = (git.branch ?: git.tag) ?: "dev"
+                        exec {
+                            workingDir 'jbrowse'
+                            commandLine 'git', 'pull', 'origin', branchName
+
+                        }
+                    }
                 }
             } else {
-                logger.quiet "Cloning: ${git.url} into ${"jbrowse-download"}"
-                def branch = git.branch ?: (git.tag ? "tags/${git.tag}" : null)
-                // NOTE: this is possible, but user may have to explicitly force the checkout
-                //            cloneRepo(git.url, "jbrowse-download", branch, 1)
-                cloneRepoNpm(git.url, "jbrowse-download", branch)
+                // always default to dev if nothing found
+                String branchName = (git.branch ?: git.tag) ?: "dev"
+                println "branchName ${branchName}"
+                exec {
+                    commandLine = ['git', 'clone', '-b', branchName, '--single-branch', git.url]
+                }
             }
         } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
-
             if (jbrowseConfig.url.type == "zip") {
                 // assume its a zip
                 def f = new File("jbrowse-directory" + ".zip")
@@ -182,10 +128,11 @@ task installJBrowse(dependsOn: evaluateJBrowseConfigs) {
     }
 }
 
-
-task installJBrowseLocal(dependsOn: installJBrowse, type: Exec) {
-    workingDir = '.'
-    commandLine './install_jbrowse.sh'
+task installJBrowseLocal(type: Exec) {
+    doLast{
+        workingDir = '.'
+        commandLine './install_jbrowse.sh'
+    }
 }
 
 //task copyResourcesDev(dependsOn: installJBrowse) {
@@ -204,14 +151,80 @@ task copyResourcesDev() {
 
 //    task copyApolloPlugin(dependsOn: installJBrowse, type: Copy) {
 task copyApolloPlugin(type: Copy) {
-    logger.quiet "Copying apollo plugin"
-    from("client/apollo")
-    into("jbrowse/plugins/WebApollo")
+    doLast{
+        logger.quiet "Copying apollo plugin"
+        from("client/apollo")
+        into("jbrowse/plugins/WebApollo")
+    }
 }
 
 // wrapper for ant script
 // not sure if doLast is necessary, but leaving it in there.
 task setupJBrowse(dependsOn: "setup-jbrowse") { doLast {} }
+
+task installJBrowsePlugins2 {
+    doLast {
+        logger.quiet "Installing JBrowse plugins  ${jbrowsePlugins}"
+
+        for (plugin in jbrowsePlugins) {
+            def path = pluginsDirectory + "/" + plugin.key
+            logger.quiet "Evaluating plugin ${plugin}"
+            def pluginExists = confirmPlugin(path)
+            if (plugin.value.included == true) {
+                if (pluginExists) {
+                    logger.quiet "Plugin ${path} exists and appears valid."
+                } else {
+                    logger.error "Error: There is a problem with the plugin at ${path}!"
+                    throw new GradleException("Included plugin ${path} not found in build")
+                }
+            } else if (plugin.value.included == false) {
+                if (pluginExists) {
+                    logger.quiet "Plugin ${path} exists but is not included."
+                } else {
+                    logger.quiet "Plugin ${path} does not exist but is also not included."
+                }
+            } else if (plugin.value.git) {
+                logger.quiet "Plugin is supplied by git"
+                if (pluginExists) {
+                    logger.quiet "Plugin ${path} exists and appears valid."
+                    if (plugin.value.alwaysRecheck || plugin.value.alwaysPull) {
+                        logger.quiet "Checking out branch ${plugin.value.branch}"
+                        if (plugin.value.tag) {
+                            checkoutBranch(new File(path), "tags/${plugin.value.tag}")
+                        } else if (plugin.value.branch) {
+                            checkoutBranch(new File(path), plugin.value.branch)
+                        }
+
+                        if (plugin.value.alwaysPull) {
+                            logger.quiet "Pulling ${plugin.value.git}"
+                            gitPull(new File(path))
+                        }
+                    }
+                } else {
+                    logger.quiet "Cloning '${plugin.value.git}' into '${path}'"
+                    // checking if gitMethod exists, otherwise setting the default to 'shell'
+                    //                def gitMethod = plugin.value.gitMethod ? plugin.value.gitMethod : defaultGitMethod
+                    // Currently we only support the shell git method.
+                    // At a future time (when we install plugins as npm modules in JBrowse), this method can be optional.
+                    def gitMethod = defaultGitMethod
+                    cloneRepo(plugin.value.git, path, plugin.value.branch, 0, gitMethod)
+                    logger.quiet "Cloned from ${plugin.value.git} into ${path}"
+                }
+            } else if (plugin.value.url == true) {
+                // TODO: test
+                if (!pluginExists) {
+                    logger.quiet "Plugin ${path} exists and appears valid. Downloading..."
+                    def f = new File(path)
+                    new URL(plugin.value.url).withInputStream { i -> f.withOutputStream { it << i } }
+                }
+            } else {
+                logger.error "Invalid plugin settings"
+                throw new GradleException("Invalid plugin settings for path [${path}] and setting [${plugin.value}]")
+            }
+        }
+    }
+}
+
 
 task installJBrowsePlugins(dependsOn: copyApolloPlugin) {
     doLast {
@@ -280,30 +293,30 @@ task installJBrowsePlugins(dependsOn: copyApolloPlugin) {
 task buildJBrowse(dependsOn: 'build.jbrowse') {}
 
 // TODO: should inherent handleJBrowse
-task handleJBrowseRelease(dependsOn: [copyApolloPlugin]) {
-    logger.quiet "Handling JBrowse release ${jbrowseConfig}"
-
-    doLast {
-        installJBrowsePlugins
-        setupJBrowse
-        copyResourcesDev
-        buildJBrowse
-        installJBrowseLocal
-    }
-
-}
-
-// root task
-task handleJBrowse(dependsOn: [installJBrowsePlugins]) {
-    logger.quiet "Handling JBrowse ${jbrowseConfig}"
-
-    doLast {
-        setupJBrowse
-        copyResourcesDev
-        installJBrowseLocal
-    }
-
-}
+//task handleJBrowseRelease(dependsOn: [copyApolloPlugin]) {
+//    logger.quiet "Handling JBrowse release ${jbrowseConfig}"
+//
+//    doLast {
+//        installJBrowsePlugins
+//        setupJBrowse
+//        copyResourcesDev
+//        buildJBrowse
+//        installJBrowseLocal
+//    }
+//
+//}
+//
+//// root task
+//task handleJBrowse(dependsOn: [installJBrowsePlugins]) {
+//    logger.quiet "Handling JBrowse ${jbrowseConfig}"
+//
+//    doLast {
+//        setupJBrowse
+//        copyResourcesDev
+//        installJBrowseLocal
+//    }
+//
+//}
 
 def confirmPlugin(String path) {
     File file = new File(path)
@@ -450,7 +463,9 @@ task npm(type: Exec) {
 }
 
 task cleanAll(type: Delete) {
-    delete 'web-app/WEB-INF/deploy', 'web-app/annotator', 'target'
+    doLast{
+        delete 'web-app/WEB-INF/deploy', 'web-app/annotator', 'target'
+    }
 }
 
 def fetchTags(File file) {
@@ -515,17 +530,23 @@ def gitPull(File file) {
     if (errorStream.length() > 0) println "Error: " + errorStream
 }
 
-task cloneRepo2(type: Exec) {
-    commandLine = ['git', 'clone', 'https://github.com/GMOD/jbrowse']
-}
+task updateRepo2(type: Exec,dependsOn: evaluateJBrowseConfigs) {
 
-task updateRepo2(type: Exec) {
-    workingDir 'jbrowse'
-    commandLine = ['git', 'pull']
+//    doLast {
+        def git = jbrowseConfig.git
+        if (!git.hash) {
+            String branchName = (git.branch ?: git.tag) ?: "dev"
+            workingDir 'jbrowse'
+            commandLine = ['git', 'pull', 'origin', branchName]
+        } else {
+            executable "ls"
+//            commandLine = ['echo', 'Using hash so ignoring.']
+        }
+//    }
 }
 
 task installJBrowseWebOnly {
-    doFirst {
+    doLast {
         if (!file('jbrowse').exists()) {
             println "Cloning a new JBrowse"
             tasks.cloneRepo3.execute()
@@ -533,8 +554,6 @@ task installJBrowseWebOnly {
             println "JBrowse already exists"
             tasks.updateRepo2.execute()
         }
-    }
-    doLast {
         exec {
             workingDir 'jbrowse'
             commandLine 'yarn'
@@ -548,7 +567,6 @@ task installJBrowseWebOnly {
             commandLine 'npm', 'run', 'build'
         }
         tasks.copyJBrowseDirectory.execute()
-
     }
 }
 
@@ -560,6 +578,8 @@ task copyJBrowseDirectory(type: Copy) {
 }
 
 task cleanJBrowse(type: Delete) {
-    delete 'jbrowse', 'web-app/jbrowse'
+    doLast{
+        delete 'jbrowse', 'web-app/jbrowse'
+    }
 }
 
