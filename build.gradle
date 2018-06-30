@@ -422,11 +422,23 @@ task compileJBrowse(type: Exec) {
 //    commandLine 'npm','run','build'
 }
 
-task installJBrowseScript(type: Exec) {
-    logger.quiet "Setting up JBrowse... "
-    workingDir jbrowseDirectory
-    //commandLine './setup.sh',"nosamples"
-//    commandLine './node_modules/.bin/jb_setup.js',"nosamples"
+task installJBrowseTools() {
+
+//    exec{
+//        logger.quiet "Setting up JBrowse... "
+//        workingDir 'jbrowse'
+//        //commandLine './setup.sh',"nosamples"
+//        commandLine 'npm','install','@gmod/jbrowse'
+//    }
+//    exec{
+//        logger.quiet "Setting up JBrowse... "
+//        workingDir 'jbrowse'
+//        //commandLine './setup.sh',"nosamples"
+//        commandLine './node_modules/.bin/jb_setup.js',"nosamples"
+//    }
+    exec{
+        commandLine './install_jbrowse.sh'
+    }
 }
 
 task refreshNpmRepo(type: Exec) {
