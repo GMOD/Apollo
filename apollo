@@ -93,6 +93,15 @@ function check_node(){
         echo "npm version 3 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
+
+    yarn_executable=$(which yarn)
+    YARN_VERSION=`$yarn_executable -v | cut -d\. -f1`
+    echo "Npm Version: $YARN_VERSION"
+    if [ $YARN_VERSION -lt 1 ]; then
+        echo "yarn version 1 or better must be installed. npm i -g yarn"
+        exit 1
+    fi
+
 }
 
 

@@ -474,25 +474,7 @@ task updateRepo2(type: Exec) {
     commandLine = ['git', 'pull']
 }
 
-task installJBrowseWebDependencies(type: Exec) {
-    println "yarn"
-    workingDir 'jbrowse'
-    commandLine 'yarn'
-}
-
-task installWebApolloPlugin(type: Exec, dependsOn: installJBrowseWebDependencies) {
-    println "install NPM"
-    workingDir 'jbrowse'
-    commandLine 'cp', '-r', '../client/apollo', 'plugins/WebApollo'
-}
-
-task buildNpmJBrowse(type: Exec, dependsOn: installWebApolloPlugin) {
-    println "build NPM"
-    workingDir 'jbrowse'
-    commandLine 'npm', 'run', 'build'
-}
-
-task installJBrowseWeb {
+task installJBrowseWebOnly {
     doFirst {
         if (!file('jbrowse').exists()) {
             println "cloning new"
@@ -509,7 +491,6 @@ task installJBrowseWeb {
         }
         exec{
             workingDir 'jbrowse'
-//            commandLine 'yarn'
             executable 'cp' args '-r', '../client/apollo', 'plugins/WebApollo'
         }
         exec{
@@ -532,8 +513,3 @@ task cleanJBrowse(type: Delete) {
     delete 'jbrowse', 'web-app/jbrowse'
 }
 
-task webOnlyJBrowseInstall(dependsOn: installJBrowseWeb) {
-    doLast{
-        copyJBrowseDirectory
-    }
-}
