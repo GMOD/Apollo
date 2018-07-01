@@ -105,7 +105,7 @@ task cloneRepo3(dependsOn: evaluateJBrowseConfigs) {
                 String branchName = (git.branch ?: git.tag) ?: "dev"
                 println "branchName ${branchName}"
                 exec {
-                    commandLine = ['git', 'clone', '-b', branchName, '--single-branch', git.url]
+                    commandLine = ['git', 'clone', git.url,'--branch', branchName, '--single-branch']
                 }
             }
         } else if (jbrowseConfig.url && !jbrowseFile.exists()) {
