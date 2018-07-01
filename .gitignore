@@ -13,8 +13,7 @@ blat_config.xml
 *.iws
 out
 web-app/jbrowse
-jbrowse-github
-jbrowse-download
+jbrowse
 log4j2.json
 log4j2-test.json
 tmp
@@ -38,3 +37,4 @@ package-lock.json
 jb_run.js
 jb_setup.js
 .DS_Store
+yarn.lock

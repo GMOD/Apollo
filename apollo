@@ -179,17 +179,6 @@ function clean_all(){
     clean_code
 }
 
-function installJBrowse(){
-     git clone https://github.com/GMOD/jbrowse --branch dev --single-branch jbrowse
-#     npm install @gmod/jbrowse
-     rm -rf web-app/jbrowse
-     cp -r jbrowse web-app/jbrowse
-     cp -r client/apollo web-app/jbrowse/plugins/WebApollo
-     cd web-app/jbrowse
-     npm install
-     npm run build
-}
-
 if [[ $1 == "devmode" ]];then
     check_configs
     $gradle_executable installJBrowseWebOnly devmode &
@@ -203,8 +192,6 @@ elif [[ $1 == "run-local" ]];then
     if [[ $# == 2 ]]; then
         $gradle_executable installJBrowseWebOnly gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-#        $gradle_executable handleJBrowse copy-resources copyResourcesDev compileJBrowse gwtc && $grails_executable run-app
-#        installJBrowse
         $gradle_executable installJBrowseWebOnly gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "watchman" ]]; then
