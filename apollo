@@ -201,7 +201,7 @@ elif [[ $1 == "install-tools" ]];then
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable installJBrowseWebOnly installJBrosgwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable installJBrowseWebOnly gwtc && $grails_executable -Dserver.port=$2 run-app
     else
 #        $gradle_executable handleJBrowse copy-resources copyResourcesDev compileJBrowse gwtc && $grails_executable run-app
 #        installJBrowse
