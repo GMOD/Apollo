@@ -222,98 +222,6 @@ task installJBrowsePlugins2 {
 }
 
 
-task installJBrowsePlugins(dependsOn: copyApolloPlugin) {
-    doLast {
-        logger.quiet "Installing JBrowse plugins  ${jbrowsePlugins}"
-
-        for (plugin in jbrowsePlugins) {
-            def path = pluginsDirectory + "/" + plugin.key
-            logger.quiet "Evaluating plugin ${plugin}"
-            def pluginExists = confirmPlugin(path)
-            if (plugin.value.included == true) {
-                if (pluginExists) {
-                    logger.quiet "Plugin ${path} exists and appears valid."
-                } else {
-                    logger.error "Error: There is a problem with the plugin at ${path}!"
-                    throw new GradleException("Included plugin ${path} not found in build")
-                }
-            } else if (plugin.value.included == false) {
-                if (pluginExists) {
-                    logger.quiet "Plugin ${path} exists but is not included."
-                } else {
-                    logger.quiet "Plugin ${path} does not exist but is also not included."
-                }
-            } else if (plugin.value.git) {
-                logger.quiet "Plugin is supplied by git"
-                if (pluginExists) {
-                    logger.quiet "Plugin ${path} exists and appears valid."
-                    if (plugin.value.alwaysRecheck || plugin.value.alwaysPull) {
-                        logger.quiet "Checking out branch ${plugin.value.branch}"
-                        if (plugin.value.tag) {
-                            checkoutBranch(new File(path), "tags/${plugin.value.tag}")
-                        } else if (plugin.value.branch) {
-                            checkoutBranch(new File(path), plugin.value.branch)
-                        }
-
-                        if (plugin.value.alwaysPull) {
-                            logger.quiet "Pulling ${plugin.value.git}"
-                            gitPull(new File(path))
-                        }
-                    }
-                } else {
-                    logger.quiet "Cloning '${plugin.value.git}' into '${path}'"
-                    // checking if gitMethod exists, otherwise setting the default to 'shell'
-                    //                def gitMethod = plugin.value.gitMethod ? plugin.value.gitMethod : defaultGitMethod
-                    // Currently we only support the shell git method.
-                    // At a future time (when we install plugins as npm modules in JBrowse), this method can be optional.
-                    def gitMethod = defaultGitMethod
-                    cloneRepo(plugin.value.git, path, plugin.value.branch, 0, gitMethod)
-                    logger.quiet "Cloned from ${plugin.value.git} into ${path}"
-                }
-            } else if (plugin.value.url == true) {
-                // TODO: test
-                if (!pluginExists) {
-                    logger.quiet "Plugin ${path} exists and appears valid. Downloading..."
-                    def f = new File(path)
-                    new URL(plugin.value.url).withInputStream { i -> f.withOutputStream { it << i } }
-                }
-            } else {
-                logger.error "Invalid plugin settings"
-                throw new GradleException("Invalid plugin settings for path [${path}] and setting [${plugin.value}]")
-            }
-        }
-    }
-}
-
-// wrapper for ant script
-task buildJBrowse(dependsOn: 'build.jbrowse') {}
-
-// TODO: should inherent handleJBrowse
-//task handleJBrowseRelease(dependsOn: [copyApolloPlugin]) {
-//    logger.quiet "Handling JBrowse release ${jbrowseConfig}"
-//
-//    doLast {
-//        installJBrowsePlugins
-//        setupJBrowse
-//        copyResourcesDev
-//        buildJBrowse
-//        installJBrowseLocal
-//    }
-//
-//}
-//
-//// root task
-//task handleJBrowse(dependsOn: [installJBrowsePlugins]) {
-//    logger.quiet "Handling JBrowse ${jbrowseConfig}"
-//
-//    doLast {
-//        setupJBrowse
-//        copyResourcesDev
-//        installJBrowseLocal
-//    }
-//
-//}
-
 def confirmPlugin(String path) {
     File file = new File(path)
     return file.exists() && file.isDirectory() && file.canRead()
@@ -516,10 +424,6 @@ task updateRepo2(dependsOn: evaluateJBrowseConfigs) {
                 commandLine = ['git', 'pull', 'origin', branchName]
             }
         }
-//        else {
-//            executable "ls"
-////            commandLine = ['echo', 'Using hash so ignoring.']
-//        }
     }
 }
 
