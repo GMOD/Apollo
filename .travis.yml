@@ -32,6 +32,7 @@ before_install:
 before_script:
   - node -v
   - npm -v
+  - npm install -g yarn
   - "echo $JAVA_OPTS"
   - "export JAVA_OPTS='-Xmx2048m'"
   - "echo $JAVA_OPTS"
