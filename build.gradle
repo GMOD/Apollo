@@ -442,7 +442,15 @@ task installJBrowseWebOnly {
         }
         exec {
             workingDir 'jbrowse'
+            executable 'rm' args '-rf','plugins/WebApollo'
+        }
+        exec {
+            workingDir 'jbrowse'
             executable 'cp' args '-r', '../client/apollo', 'plugins/WebApollo'
+        }
+        exec {
+            workingDir 'jbrowse/plugins/WebApollo'
+            commandLine 'yarn'
         }
         tasks.installJBrowsePlugins2.execute()
         exec {
