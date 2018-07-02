@@ -1,5 +1,7 @@
 const $ = require('jquery');
 const jui = require('jqueryui');
+const bbopwidget = require('bbop-widget-set');
+// const bbopcore = require('bbop-core');
 const {draggable,droppable,resizable,autocomplete,dialog} = $.ui;
 
 
@@ -3653,144 +3655,6 @@ define([
                     }
                 };
 
-                //// initialize GO
-                //var initGoIds = function (feature, config) {
-                //    if (config.hasGoIds) {
-                //        var oldGoId;
-                //        var dirty = false;
-                //        var valid = true;
-                //        var editingRow = 0;
-                //        var goIds = new dojoItemFileWriteStore({
-                //            data: {
-                //                items: []
-                //            }
-                //        });
-                //        for (var i = 0; i < feature.dbxrefs.length; ++i) {
-                //            var dbxref = feature.dbxrefs[i];
-                //            if (dbxref.db == goIdDb) {
-                //                goIds.newItem({go_id: goIdDb + ":" + dbxref.accession});
-                //            }
-                //        }
-                //        var goIdTableLayout = [{
-                //            cells: [
-                //                {
-                //                    name: 'Gene Ontology ID',
-                //                    field: 'go_id', // '_item',
-                //                    width: '100%',
-                //                    type: declare(dojox.grid.cells._Widget, {
-                //                        widgetClass: dijitTextBox,
-                //                        createWidget: function (inNode, inDatum, inRowIndex) {
-                //                            var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
-                //                            var textBox = widget.domNode.childNodes[0].childNodes[0];
-                //                            dojo.connect(textBox, "onkeydown", function (event) {
-                //                                if (event.keyCode == dojo.keys.ENTER) {
-                //                                    if (dirty) {
-                //                                        dirty = false;
-                //                                        valid = validateGoId(textBox.value) ? true : false;
-                //                                    }
-                //                                }
-                //                            });
-                //                            var original = 'http://golr.geneontology.org/';
-                //                            //var original = 'http://golr.geneontology.org/solr/';
-                //                            //var original = 'http://golr.berkeleybop.org/solr/';
-                //                            var encoded_original = encodeURI(original);
-                //                            encoded_original = encoded_original.replace(/:/g, "%3A");
-                //                            encoded_original = encoded_original.replace(/\//g, "%2F");
-                //
-                //                            //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
-                //                            var gserv = context_path + "/proxy/request/" + encoded_original;
-                //                            var gconf = new bbop.golr.conf(amigo.data.golr);
-                //                            var args = {
-                //                                label_template: '{{annotation_class_label}} [{{annotation_class}}]',
-                //                                value_template: '{{annotation_class}}',
-                //                                list_select_callback: function (doc) {
-                //                                    dirty = false;
-                //                                    valid = true;
-                //                                    goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
-                //                                }
-                //                            };
-                //                            var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
-                //                            auto.set_personality('bbop_term_ac');
-                //                            auto.add_query_filter('document_category', 'ontology_class');
-                //                            auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
-                //                            return widget;
-                //                        }
-                //                    }),
-                //                    formatter: function (goId, rowIndex, cell) {
-                //                        if (!goId) {
-                //                            return "Enter new Gene Ontology ID";
-                //                        }
-                //                        return goId;
-                //                    },
-                //                    editable: hasWritePermission
-                //                }
-                //            ]
-                //        }];
-                //
-                //        var goIdTable = new dojoxDataGrid({
-                //            singleClickEdit: true,
-                //            store: goIds,
-                //            updateDelay: 0,
-                //            structure: goIdTableLayout
-                //        });
-                //
-                //        var handle = dojo.connect(AnnotTrack.popupDialog, "onFocus", function () {
-                //            initTable(goIdTable.domNode, goIdsTable, goIdTable);
-                //            dojo.disconnect(handle);
-                //        });
-                //        if (reload) {
-                //            initTable(goIdTable.domNode, goIdsTable, goIdTable, timeout);
-                //        }
-                //
-                //        dojo.connect(goIdTable, "onStartEdit", function (inCell, inRowIndex) {
-                //            editingRow = inRowIndex;
-                //            oldGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex), "go_id");
-                //            dirty = true;
-                //        });
-                //
-                //        // dojo.connect(goIdTable, "onApplyCellEdit", function(inValue, inRowIndex, inCellIndex) {
-                //        dojo.connect(goIdTable.store, "onSet", function (item, attribute, oldValue, newValue) {
-                //            if (dirty) {
-                //                return;
-                //            }
-                //            // var newGoId = goIdTable.store.getValue(goIdTable.getItem(inRowIndex),
-                //            // "go_id");
-                //            var newGoId = newValue;
-                //            if (!newGoId) {
-                //            }
-                //            else if (!oldGoId) {
-                //                addGoId(goIdTable, editingRow, newGoId, valid);
-                //            }
-                //            else {
-                //                if (newGoId != oldGoId) {
-                //                    // updateGoId(goIdTable, editingRow, oldGoId, newGoId);
-                //                    updateGoId(goIdTable, item, oldGoId, newGoId, valid);
-                //                }
-                //            }
-                //            goIdTable.render();
-                //        });
-                //
-                //        dojo.connect(addGoIdButton, "onclick", function () {
-                //            goIdTable.store.newItem({go_id: ""});
-                //            goIdTable.scrollToRow(goIdTable.rowCount);
-                //        });
-                //
-                //        dojo.connect(deleteGoIdButton, "onclick", function () {
-                //            var toBeDeleted = new Array();
-                //            var selected = goIdTable.selection.getSelected();
-                //            for (var i = 0; i < selected.length; ++i) {
-                //                var item = selected[i];
-                //                var goId = goIdTable.store.getValue(item, "go_id");
-                //                toBeDeleted.push({db: goIdDb, accession: goId.substr(goIdDb.length + 1)});
-                //            }
-                //            goIdTable.removeSelectedRows();
-                //            deleteGoIds(toBeDeleted);
-                //        });
-                //    }
-                //    else {
-                //        dojo.style(goIdsDiv, "display", "none");
-                //    }
-                //};
 
 
                 // initialize Comments
@@ -5149,7 +5013,8 @@ define([
 
                                             //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
                                             var gserv = context_path + "/proxy/request/" + encoded_original;
-                                            var gconf = new bbop.golr.conf(amigo.data.golr);
+                                            // var gconf = new bbop.golr.conf(amigo.data.golr);
+                                            var gconf = new bbopwidget.golr.conf(amigo.data.golr);
                                             var args = {
                                                 label_template: '{{annotation_class_label}} [{{annotation_class}}]',
                                                 value_template: '{{annotation_class}}',
@@ -5159,7 +5024,7 @@ define([
                                                     goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
                                                 }
                                             };
-                                            var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
+                                            var auto = new bbopwidget.search_box(gserv, gconf, textBox, args);
                                             auto.set_personality('bbop_term_ac');
                                             auto.add_query_filter('document_category', 'ontology_class');
                                             auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');

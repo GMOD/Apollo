@@ -10,7 +10,8 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
     "jquery": "^3.3.1",
-    "jqueryui": "^1.11.1"
+    "jqueryui": "^1.11.1",
+    "bbop-widget-set": "^2.5.12"
   },
   "devDependencies": {},
   "repository": {
@@ -19,7 +20,9 @@
   },
   "keywords": [
     "genome",
-    "curation"
+    "curation",
+    "annotation",
+    "biology"
   ],
   "bugs": {
     "url": "https://github.com/GMOD/Apollo/issues"
