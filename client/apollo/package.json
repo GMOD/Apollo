@@ -9,9 +9,9 @@
   "author": "Nathan Dunn",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "jquery": "^3.3.1",
-    "jqueryui": "^1.11.1",
-    "bbop-widget-set": "^2.5.12"
+    "bbop-core": "0.0.5",
+    "jquery": "^1.7.2",
+    "jqueryui": "^1.8.24"
   },
   "devDependencies": {},
   "repository": {

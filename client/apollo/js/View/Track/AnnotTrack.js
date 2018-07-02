@@ -1,7 +1,7 @@
 const $ = require('jquery');
 const jui = require('jqueryui');
-const bbopwidget = require('bbop-widget-set');
-// const bbopcore = require('bbop-core');
+// const bbopwidget = require('bbop-widget-set');
+const bbop = require('bbop-core');
 const {draggable,droppable,resizable,autocomplete,dialog} = $.ui;
 
 
@@ -5013,8 +5013,7 @@ define([
 
                                             //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
                                             var gserv = context_path + "/proxy/request/" + encoded_original;
-                                            // var gconf = new bbop.golr.conf(amigo.data.golr);
-                                            var gconf = new bbopwidget.golr.conf(amigo.data.golr);
+                                            var gconf = new bbop.golr.conf(amigo.data.golr);
                                             var args = {
                                                 label_template: '{{annotation_class_label}} [{{annotation_class}}]',
                                                 value_template: '{{annotation_class}}',
@@ -5024,7 +5023,7 @@ define([
                                                     goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
                                                 }
                                             };
-                                            var auto = new bbopwidget.search_box(gserv, gconf, textBox, args);
+                                            var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
                                             auto.set_personality('bbop_term_ac');
                                             auto.add_query_filter('document_category', 'ontology_class');
                                             auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');

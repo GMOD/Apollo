@@ -173,6 +173,7 @@ function clean_all(){
     rm -rf web-app/jbrowse
     rm -rf extlib
     rm -rf node_modules
+    rm -rf client/apollo/node_modules
     rm -rf package-lock.json
     rm -f *.zip
     rm -f *.tar.gz
