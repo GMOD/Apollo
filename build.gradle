@@ -301,34 +301,36 @@ def cloneRepoNpm(String url, String directory, String branch) {
 }
 
 task installJBrowseTools() {
-    exec{
-        workingDir 'jbrowse'
-        commandLine 'node','./utils/jb_setup.js'
-    }
-}
-
-// Get the path for the locally installed binaries
-task npmBin {
     doLast {
-        new ByteArrayOutputStream().withStream { os ->
-            exec {
-                executable = npmCommand
-                args = ['bin']
-                standardOutput = os
-            }
-            ext.binPath = os.toString().trim() + File.separator
+        exec {
+            workingDir 'jbrowse'
+            commandLine 'node', './utils/jb_setup.js'
         }
     }
 }
 
-// Install packages from package.json
-task npm(type: Exec) {
-    description = "Grab NodeJS dependencies (from package.json)"
-    commandLine = [npmCommand, "install"]
-    inputs.file "package.json"
-    outputs.dir "node_modules"
-    tasks.npmBin.execute()
-}
+// Get the path for the locally installed binaries
+//task npmBin {
+//    doLast {
+//        new ByteArrayOutputStream().withStream { os ->
+//            exec {
+//                executable = npmCommand
+//                args = ['bin']
+//                standardOutput = os
+//            }
+//            ext.binPath = os.toString().trim() + File.separator
+//        }
+//    }
+//}
+//
+//// Install packages from package.json
+//task npm(type: Exec) {
+//    description = "Grab NodeJS dependencies (from package.json)"
+//    commandLine = [npmCommand, "install"]
+//    inputs.file "package.json"
+//    outputs.dir "node_modules"
+//    tasks.npmBin.execute()
+//}
 
 task cleanAll(type: Delete) {
     doLast{
