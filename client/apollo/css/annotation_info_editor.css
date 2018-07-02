@@ -1,6 +1,6 @@
 @CHARSET "UTF-8";
 
-.jbrowse .parent_annotation_info_editor {
+.parent_annotation_info_editor {
 	font-size: 1.2em;
 	width: 22em !important;
 	border-min-width: 1px;
@@ -9,24 +9,24 @@
 	float: left;
 }
 
-.jbrowse .annotation_info_editor {
+.annotation_info_editor {
 	font-size: 1.2em;
 	width: 22em !important;
 	padding-right: 1%;
 	float: right;
 }
 
-.jbrowse .annotation_info_editor_container {
+.annotation_info_editor_container {
 	padding-bottom: 15%;
 }
 
-.jbrowse .annotation_info_editor_header {
+.annotation_info_editor_header {
 	font-size: 1.3em;
 	text-align: center;
 	padding-bottom: 5px;
 }
 
-.jbrowse .dbxrefs {
+.dbxrefs {
 	min-width: 100%;
 	min-height: 7em;
 	border: solid;
@@ -34,7 +34,7 @@
 	border-color: lightgray;
 }
 
-.jbrowse .alt_alleles {
+.alt_alleles {
     min-width: 100%;
     min-height: 7em;
     border: solid;
@@ -43,7 +43,7 @@
 }
 
 
-.jbrowse .allele_info {
+.allele_info {
 	min-width: 100%;
 	min-height: 7em;
 	border: solid;
@@ -51,7 +51,7 @@
 	border-color: lightgray;
 }
 
-.jbrowse .variant_info {
+.variant_info {
     min-width: 100%;
     min-height: 7em;
     border: solid;
@@ -59,7 +59,7 @@
     border-color: lightgray;
 }
 
-.jbrowse .phenotype_ontology_ids {
+.phenotype_ontology_ids {
     min-width: 100%;
     min-height: 7em;
     border: solid;
@@ -67,7 +67,7 @@
     border-color: lightgray;
 }
 
-.jbrowse .attributes {
+.attributes {
 	min-width: 100%;
 	min-height: 7em;
 	border: solid;
@@ -75,7 +75,7 @@
 	border-color: lightgray;
 }
 
-.jbrowse .pubmed_ids {
+.pubmed_ids {
 	min-width: 100%;
 	min-height: 7em;
 	border: solid;
@@ -83,7 +83,7 @@
 	border-color: lightgray;
 }
 
-.jbrowse .go_ids {
+.go_ids {
 	min-width: 100%;
 	min-height: 7em;
 	border: solid;
@@ -91,7 +91,7 @@
 	border-color: lightgray;
 }
 
-.jbrowse .comments {
+.comments {
 	min-width: 100%;
 	min-height: 10em;
 	border: solid;
@@ -99,30 +99,30 @@
 	border-color: lightgray;
 }
 
-.jbrowse .annotation_info_editor_content {
+.annotation_info_editor_content {
 	font-size: 1.5em;
 }
 
-.jbrowse .annotation_info_editor_section_header {
+.annotation_info_editor_section_header {
 	text-align: center;
 }
 
-.jbrowse .annotation_info_editor_label {
+.annotation_info_editor_label {
 	text-align: right;
 	padding-right: 10px;
 	float: left;
 }
 
-.jbrowse .annotation_info_editor_section {
+.annotation_info_editor_section {
 	padding-top: 20px;
 }
 
-.jbrowse .annotation_info_editor_field_section {
+.annotation_info_editor_field_section {
 	padding-bottom: 1em;
 	padding-top: 0.5em;
 }
 
-.jbrowse .annotation_info_editor_button_group {
+.annotation_info_editor_button_group {
 	/*
 	width: 60%;
 	margin-left: auto;
@@ -130,24 +130,24 @@
 	*/
 }
 
-.jbrowse .annotation_info_editor_button {
+.annotation_info_editor_button {
 	width: 5em;
 	margin-right: 2.5px;
 	margin-left: 2.5px;
 }
 
-.jbrowse .comments .dojoxGridHeader,
-.jbrowse .pubmed_ids .dojoxGridHeader,
-.jbrowse .go_ids .dojoxGridHeader,
-.jbrowse .phenotype_ontology_ids .dojoxGridHeader {
+.comments .dojoxGridHeader,
+.pubmed_ids .dojoxGridHeader,
+.go_ids .dojoxGridHeader,
+.phenotype_ontology_ids .dojoxGridHeader {
 	display: none;
 }
 
-.jbrowse .annotation_editor_field {
+.annotation_editor_field {
 	float: right;
 }
 
-.jbrowse .status {
+.status {
 	border: 1px;
 	border-style: solid;
 	border-color: lightgray;
@@ -156,23 +156,23 @@
 	max-height: 2em;
 }
 
-.jbrowse .annotation_info_editor_radio {
+.annotation_info_editor_radio {
 /*	padding-right: 1em; */
 	display: inline-block;
 }
 
-.jbrowse .annotation_info_editor_radio_label {
+.annotation_info_editor_radio_label {
 }
 
-.jbrowse .ui-autocomplete {
+.ui-autocomplete {
 	max-width: 75%;
 }
 
-.jbrowse .annotation_info_editor_selector {
+.annotation_info_editor_selector {
 	margin-bottom: 1.5em;
 }
 
-.jbrowse .annotation_info_editor_selector_label {
+.annotation_info_editor_selector_label {
 	text-align: right;
 	padding-right: 10px;
 	float: left;
