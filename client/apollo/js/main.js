@@ -1,13 +1,4 @@
-require({
-           packages: [
-               { name: 'jqueryui', location: '../plugins/WebApollo/jslib/jqueryui' },
-               { name: 'jquery', location: '../plugins/WebApollo/jslib/jquery', main: 'jquery' }
-           ]
-       },
-       [],
-       function() {
-
-define.amd.jQuery = true;
+const $ = require('jquery')
 
 define([
            'dojo/_base/declare',
@@ -38,8 +29,6 @@ define([
            'JBrowse/View/FileDialog/TrackList/GFF3Driver',
            'JBrowse/CodonTable',
            'dojo/io-query',
-           'jquery/jquery',
-           'lazyload/lazyload'
        ],
     function( declare,
             lang,
@@ -68,9 +57,8 @@ define([
             HelpMixin,
             GFF3Driver,
             CodonTable,
-            ioQuery,
-            $,
-            LazyLoad ) {
+            ioQuery
+            ) {
 
 return declare( [JBPlugin, HelpMixin],
 {
@@ -389,9 +377,15 @@ return declare( [JBPlugin, HelpMixin],
         }
 
         // move Tool menu in front of Help menu
-        var toolsMenu = dijit.byId('dropdownbutton_tools');
-        var helpMenu = dijit.byId('dropdownbutton_help');
-        domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
+        var intervalFunction  = function(){
+            var toolsMenu = dijit.byId('dropdownbutton_tools');
+            var helpMenu = dijit.byId('dropdownbutton_help');
+            if(toolsMenu && helpMenu){
+                domConstruct.place(toolsMenu.domNode,helpMenu.domNode,'before');
+                clearInterval(intervalID); // Will clear the timer.
+            }
+        };
+        var intervalID = setInterval(intervalFunction, 100); // Will alert every second.
         this.searchMenuInitialized = true;
     },
 
@@ -746,8 +740,6 @@ return declare( [JBPlugin, HelpMixin],
         this.updateLabels();
     }
 
-
-});
 
 });
 

@@ -1,7 +1,8 @@
 {
     "plugins" : [
       {
-         "location" : "./plugins/WebApollo",
+        "pluginsDir" : "./plugins/WebApollo",
+         "location" : "./plugins/WebApollo/js",
          "name" : "WebApollo"
       }
    ],

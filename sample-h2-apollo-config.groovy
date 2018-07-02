@@ -77,7 +77,9 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//        tag = "maint/1.12.5-apollo"
+//        tag = " 1.14.2-release"
+////        branch = "dev"
+////        hash = "09b71099bf73c50d37a0e911baf06b4975e3f6ca"
 //        alwaysPull = true
 //        alwaysRecheck = true
 //    }

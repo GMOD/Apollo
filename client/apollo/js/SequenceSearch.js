@@ -1,17 +1,18 @@
+const $ = require('jquery')
+
 define( [
             'dojo/_base/declare',
             'dojo/_base/array',
             'dojo/dom-construct',
             'dojo/dom-attr',
             'dojo/dom',
-            'jquery'
 ], 
     function( declare,
         array,
         domConstruct,
         domAttr,
-        dom,
-        $ ) {
+        dom
+        ) {
 
 return declare(null, {
 constructor: function(contextPath) {

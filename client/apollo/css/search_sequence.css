@@ -1,37 +1,37 @@
 @CHARSET "UTF-8";
 
-.search_sequence_label {
+.jbrowse .search_sequence_label {
 	font-size: 1.5em;
 }
 
-.search_sequence_input {
+.jbrowse .search_sequence_input {
 	width: 50em;
 	height: 3.5em;
 }
 
-.search_sequence_area {
+.jbrowse .search_sequence_area {
 	margin-bottom: 10px;
 }
 
-.search_all_ref_seqs_area {
+.jbrowse .search_all_ref_seqs_area {
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
 
-.search_all_ref_seqs_checkbox {
+.jbrowse .search_all_ref_seqs_checkbox {
 	margin-right: 3px;
 }
 
-.search_all_ref_seqs_label {
+.jbrowse .search_all_ref_seqs_label {
 	font-size: 1em;
 }
 
-.search_sequence_matches_row:hover {
+.jbrowse .search_sequence_matches_row:hover {
 	background-color: #000099;
 	color: white;
 }
 
-.search_sequence_matches_generic_field {
+.jbrowse .search_sequence_matches_generic_field {
 	width: 6.3em;
 	margin-right: 0.2em;
 	overflow: hidden;
@@ -41,11 +41,11 @@
 	display: table-cell;
 }
 
-.search_sequence_matches_header {
+.jbrowse .search_sequence_matches_header {
 	margin-bottom: 10px;
 }
 
-.search_sequence_matches_field {
+.jbrowse .search_sequence_matches_field {
 	margin-top: 0px;
 	margin-bottom: 0px;
 	float: left;
@@ -53,24 +53,24 @@
 	width: 6em;
 }
 
-.search_sequence_tools {
+.jbrowse .search_sequence_tools {
 	margin-bottom: 10px;
 }
 
-.search_sequence_matches {
+.jbrowse .search_sequence_matches {
 	max-height: 25em;
 	overflow: auto;
 }
 
-.search_sequence_matches_row {
+.jbrowse .search_sequence_matches_row {
 	display: table-row;
 }
 
 
-.search_sequence_message {
+.jbrowse .search_sequence_message {
 	font-size: 1.6em;
 }
 
-.search_sequence {
+.jbrowse .search_sequence {
 	font-size: 9px;
 }
