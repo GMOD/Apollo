@@ -2637,7 +2637,7 @@ define([
                             initVariantInfo(feature);
                             initPhenotypeOntology(feature);
                             initPubmedIds(feature, config);
-                            initGoIds(feature, config);
+                            // initGoIds(feature, config);
                             initComments(feature, config);
 
                         }
