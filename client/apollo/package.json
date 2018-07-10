@@ -9,7 +9,6 @@
   "author": "Nathan Dunn",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "bbop-core": "0.0.5",
     "jquery": "^1.7.2",
     "jqueryui": "^1.8.24"
   },

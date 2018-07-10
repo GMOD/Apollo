@@ -1,7 +1,6 @@
 const $ = require('jquery');
 const jui = require('jqueryui');
 // const bbopwidget = require('bbop-widget-set');
-const bbop = require('bbop-core');
 const {draggable,droppable,resizable,autocomplete,dialog} = $.ui;
 
 
@@ -2638,12 +2637,12 @@ define([
                             initVariantInfo(feature);
                             initPhenotypeOntology(feature);
                             initPubmedIds(feature, config);
-                            //initGoIds(feature, config);
+                            initGoIds(feature, config);
                             initComments(feature, config);
 
                         }
                     });
-                };
+                }
 
                 function initTable(domNode, tableNode, table, timeout) {
                     var id = dojo.attr(tableNode, "id");
@@ -4991,45 +4990,45 @@ define([
                                     name: 'Gene Ontology ID',
                                     field: 'go_id', // '_item',
                                     width: '100%',
-                                    type: declare(dojox.grid.cells._Widget, {
-                                        widgetClass: dijitTextBox,
-                                        createWidget: function (inNode, inDatum, inRowIndex) {
-                                            var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
-                                            var textBox = widget.domNode.childNodes[0].childNodes[0];
-                                            dojo.connect(textBox, "onkeydown", function (event) {
-                                                if (event.keyCode == dojo.keys.ENTER) {
-                                                    if (dirty) {
-                                                        dirty = false;
-                                                        valid = validateGoId(textBox.value) ? true : false;
-                                                    }
-                                                }
-                                            });
-                                            var original = 'http://golr.geneontology.org/';
-                                            //var original = 'http://golr.geneontology.org/solr/';
-                                            //var original = 'http://golr.berkeleybop.org/solr/';
-                                            var encoded_original = encodeURI(original);
-                                            encoded_original = encoded_original.replace(/:/g, "%3A");
-                                            encoded_original = encoded_original.replace(/\//g, "%2F");
-
-                                            //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
-                                            var gserv = context_path + "/proxy/request/" + encoded_original;
-                                            var gconf = new bbop.golr.conf(amigo.data.golr);
-                                            var args = {
-                                                label_template: '{{annotation_class_label}} [{{annotation_class}}]',
-                                                value_template: '{{annotation_class}}',
-                                                list_select_callback: function (doc) {
-                                                    dirty = false;
-                                                    valid = true;
-                                                    goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
-                                                }
-                                            };
-                                            var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
-                                            auto.set_personality('bbop_term_ac');
-                                            auto.add_query_filter('document_category', 'ontology_class');
-                                            auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
-                                            return widget;
-                                        }
-                                    }),
+                                    // type: declare(dojox.grid.cells._Widget, {
+                                    //     widgetClass: dijitTextBox,
+                                    //     createWidget: function (inNode, inDatum, inRowIndex) {
+                                    //         var widget = new this.widgetClass(this.getWidgetProps(inDatum), inNode);
+                                    //         var textBox = widget.domNode.childNodes[0].childNodes[0];
+                                    //         dojo.connect(textBox, "onkeydown", function (event) {
+                                    //             if (event.keyCode == dojo.keys.ENTER) {
+                                    //                 if (dirty) {
+                                    //                     dirty = false;
+                                    //                     valid = validateGoId(textBox.value) ? true : false;
+                                    //                 }
+                                    //             }
+                                    //         });
+                                    //         var original = 'http://golr.geneontology.org/';
+                                    //         //var original = 'http://golr.geneontology.org/solr/';
+                                    //         //var original = 'http://golr.berkeleybop.org/solr/';
+                                    //         var encoded_original = encodeURI(original);
+                                    //         encoded_original = encoded_original.replace(/:/g, "%3A");
+                                    //         encoded_original = encoded_original.replace(/\//g, "%2F");
+                                    //
+                                    //         //var gserv = context_path + "/proxy/request/http/golr.geneontology.org%2Fsolr%2Fselect/json/";
+                                    //         var gserv = context_path + "/proxy/request/" + encoded_original;
+                                    //         var gconf = new bbop.golr.conf(amigo.data.golr);
+                                    //         var args = {
+                                    //             label_template: '{{annotation_class_label}} [{{annotation_class}}]',
+                                    //             value_template: '{{annotation_class}}',
+                                    //             list_select_callback: function (doc) {
+                                    //                 dirty = false;
+                                    //                 valid = true;
+                                    //                 goIdTable.store.setValue(goIdTable.getItem(editingRow), "go_id", doc.annotation_class);
+                                    //             }
+                                    //         };
+                                    //         var auto = new bbop.widget.search_box(gserv, gconf, textBox, args);
+                                    //         auto.set_personality('bbop_term_ac');
+                                    //         auto.add_query_filter('document_category', 'ontology_class');
+                                    //         auto.add_query_filter('source', '(biological_process OR molecular_function OR cellular_component)');
+                                    //         return widget;
+                                    //     }
+                                    // }),
                                     formatter: function (goId, rowIndex, cell) {
                                         if (!goId) {
                                             return "Enter new Gene Ontology ID";
