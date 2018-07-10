@@ -21,6 +21,14 @@ constructor: function( args )  {
         trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
     };
 
+    this.transformers["JBrowse/View/Track/HTMLVariants"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/DraggableHTMLVariants";
+    };
+
+    this.transformers["JBrowse/View/Track/CanvasVariants"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/WebApolloCanvasVariants";
+    };
+
     this.transformers["JBrowse/View/Track/Sequence"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/AnnotSequenceTrack";
         trackConfig.storeClass = "WebApollo/Store/SeqFeature/ScratchPad";

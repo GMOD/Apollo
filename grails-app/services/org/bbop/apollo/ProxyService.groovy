@@ -31,19 +31,27 @@ class ProxyService {
         for(proxyConfig in proxies){
             def proxy = Proxy.findByReferenceUrlAndTargetUrl(proxyConfig.referenceUrl,proxyConfig.targetUrl)
 
+            if (proxy && proxyConfig.replace) {
+                proxy.active= proxyConfig.active
+                proxy.fallbackOrder= proxyConfig.fallbackOrder
+                proxy.save(failOnError: false,insert: false)
+            }
             if(!proxy){
+
+                if(proxyConfig.replace){
+                    def proxyToDelete = Proxy.findByFallbackOrderAndActive(proxyConfig.fallbackOrder as Integer,proxyConfig.active as Boolean)
+                    if(proxyToDelete){
+                       proxyToDelete.delete()
+                    }
+                }
+
                 proxy = new Proxy(
                         referenceUrl: proxyConfig.referenceUrl
                         , targetUrl: proxyConfig.targetUrl
                         ,active: proxyConfig.active
                         ,fallbackOrder: proxyConfig.fallbackOrder
                 ).save(failOnError: false,insert: true)
-            }
-            else
-            if (proxyConfig.replace) {
-                active: proxyConfig.active
-                fallbackOrder: proxyConfig.fallbackOrder
-                proxy.save(failOnError: false,insert: false)
+
             }
         }
     }

@@ -20,7 +20,7 @@ environments {
         dataSource {
             // NOTE: this is in memory, so it will be deleted.
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            url = "jdbc:h2:AnnotationDatabase:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
         }
     }
     test {
@@ -77,8 +77,7 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.12.5-release"
-////        branch = "master"
+//        tag = "maint/1.12.5-apollo"
 //        alwaysPull = true
 //        alwaysRecheck = true
 //    }

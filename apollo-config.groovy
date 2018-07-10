@@ -56,7 +56,9 @@ jbrowse {
        url= "https://github.com/NAL-i5K/jbrowse"
 //        branch = "master"
 //	  tag = "1.0.0"
-	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"
+//	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"
+//	  tag = "c16e8aefa5e249fc4fd36923988d48937e032bda"
+	  tag = "6d19243fd45aea980a5743a8b29a177737d0fe1c"
        alwaysPull = true
        alwaysRecheck = true
 

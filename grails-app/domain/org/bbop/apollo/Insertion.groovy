@@ -10,8 +10,4 @@ class Insertion extends SequenceAlteration{
     static String ontologyId = "SO:0000667"
     static String alternateCvTerm = "Insertion"
 
-    @Override
-    int getOffset() {
-        return alterationResidue.length()
-    }
 }

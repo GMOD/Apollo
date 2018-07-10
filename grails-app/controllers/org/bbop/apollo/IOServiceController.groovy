@@ -31,6 +31,7 @@ class IOServiceController extends AbstractApolloController {
     def permissionService
     def configWrapperService
     def requestHandlingService
+    def vcfHandlerService
 
     // fileMap of uuid / filename
     // see #464
@@ -85,33 +86,55 @@ class IOServiceController extends AbstractApolloController {
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism ? preferenceService.getOrganismForTokenInDB(dataObject.organism) : preferenceService.getCurrentOrganismForCurrentUser(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
-
             def st = System.currentTimeMillis()
-            def queryParams = [viewableAnnotationList: requestHandlingService.viewableAnnotationList, organism: organism]
+            def queryParams = [organism: organism]
+            def features = []
+
             if(exportAllSequences){
                 sequences = []
             }
             if (sequences) {
                 queryParams.sequences = sequences
             }
-            // caputures 3 level indirection, joins feature locations only. joining other things slows it down
-            def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
-            // captures rest of feats
-            def otherFeats = Feature.createCriteria().list() {
-                featureLocations {
-                    sequence {
-                        eq('organism', organism)
-                        if (sequences) {
-                            'in'('name', sequences)
+
+            if (typeOfExport == FeatureStringEnum.TYPE_VCF.value) {
+                queryParams['viewableAnnotationList'] = requestHandlingService.viewableSequenceAlterationList
+                features = SequenceAlteration.createCriteria().list() {
+                    featureLocations {
+                        sequence {
+                            eq('organism', organism)
+                            if (sequences) {
+                                'in'('name', sequences)
+                            }
                         }
                     }
+                    'in'('class', requestHandlingService.viewableSequenceAlterationList)
                 }
-                'in'('class', requestHandlingService.viewableAlterations + requestHandlingService.viewableAnnotationFeatureList)
-            }
-            log.debug "${otherFeats}"
-            def features = genes + otherFeats
 
-            log.debug "IOService query: ${System.currentTimeMillis() - st}ms"
+                log.debug "IOService query: ${System.currentTimeMillis() - st}ms"
+            }
+            else {
+                queryParams['viewableAnnotationList'] = requestHandlingService.viewableAnnotationList
+
+                // caputures 3 level indirection, joins feature locations only. joining other things slows it down
+                def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
+                // captures rest of feats
+                def otherFeats = Feature.createCriteria().list() {
+                    featureLocations {
+                        sequence {
+                            eq('organism', organism)
+                            if (sequences) {
+                                'in'('name', sequences)
+                            }
+                        }
+                    }
+                    'in'('class', requestHandlingService.viewableAlterations + requestHandlingService.viewableAnnotationFeatureList)
+                }
+                log.debug "${otherFeats}"
+                features = genes + otherFeats
+
+                log.debug "IOService query: ${System.currentTimeMillis() - st}ms"
+            }
 
             def sequenceList = Sequence.createCriteria().list() {
                 eq('organism', organism)
@@ -119,6 +142,7 @@ class IOServiceController extends AbstractApolloController {
                     'in'('name', sequences)
                 }
             }
+
             File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
             String fileName
 
@@ -135,6 +159,14 @@ class IOServiceController extends AbstractApolloController {
                 } else {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
+            } else if (typeOfExport == FeatureStringEnum.TYPE_VCF.value) {
+                if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
+                    fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                } else {
+                    fileName = "Annotations" + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                }
+                // call vcfHandlerService
+                vcfHandlerService.writeVariantsToText(organism, features, outputFile.path, grailsApplication.config.apollo.gff3.source as String)
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
                 if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
                     String regionString = (region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value) ? region : ""

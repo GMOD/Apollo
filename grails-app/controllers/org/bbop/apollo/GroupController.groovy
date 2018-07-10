@@ -422,7 +422,13 @@ class GroupController {
 
 
         List<User> oldUsers = groupInstance.users as List
-        List<String> usernames = dataObject.users
+        //List<String> usernames = dataObject.users
+        //Fixed bug on passing array through web services: cannot cast String to List
+        JSONArray arr = new JSONArray(dataObject.users)
+        List<String> usernames = new ArrayList<String>()
+        for (int i = 0; i < arr.length(); i++){
+            usernames.add(arr.getString(i))
+        }
         List<User> newUsers = User.findAllByUsernameInList(usernames)
 
         List<User> usersToAdd = newUsers - oldUsers
@@ -469,8 +475,12 @@ class GroupController {
         log.info "Trying to update group admin"
         
         List<User> oldUsers = groupInstance.admin as List
-
-        List<String> usernames = dataObject.users
+        //Fixed bug on passing array through web services: cannot cast String to List
+        JSONArray arr = new JSONArray(dataObject.users)
+        List<String> usernames = new ArrayList<String>()
+        for (int i = 0; i < arr.length(); i++){
+            usernames.add(arr.getString(i))
+        }
         List<User> newUsers = User.findAllByUsernameInList(usernames)
         List<User> usersToAdd = newUsers - oldUsers
         List<User> usersToRemove = oldUsers - newUsers

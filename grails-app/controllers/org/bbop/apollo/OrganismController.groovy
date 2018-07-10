@@ -959,12 +959,17 @@ class OrganismController {
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
-
                 if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
                 } else {
                     throw new Exception("Bad organism directory: " + organism.directory)
                 }
+
+                if (organism.genomeFasta) {
+                    // update location of genome fasta
+                    sequenceService.updateGenomeFasta(organism)
+                }
+
             } else {
                 throw new Exception('organism not found')
             }
