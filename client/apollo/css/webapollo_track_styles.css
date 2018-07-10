@@ -106,21 +106,21 @@ div.wa-sequence .aa-residues  {
     color: black;
     z-index: 5;
 }
-.jbrowse .Dark div.wa-sequence .aa-residues  {
+.Dark div.wa-sequence .aa-residues  {
     color: white;
 }
 
-.jbrowse .aa-residues.cds-frame0 {
+.aa-residues.cds-frame0 {
     background-color: #999999; 
     z-index: 5;
 }
 
-.jbrowse .aa-residues.cds-frame1 {
+.aa-residues.cds-frame1 {
     background-color: #BBBBBB; 
     z-index: 5;
 }
 
-.jbrowse .aa-residues.cds-frame2 {
+.aa-residues.cds-frame2 {
     background-color: #DDDDDD; 
     z-index: 5;
 }
@@ -569,44 +569,44 @@ div.annot-sequence  {
     z-index: 15;
 }
 
-.jbrowse .colorCds .cds-frame0 {
+.colorCds .cds-frame0 {
     background-color: #FF8080;
 }
 
-.jbrowse .colorCds .cds-frame1 {
+.colorCds .cds-frame1 {
     background-color: #80FF80;
 }
 
-.jbrowse .colorCds .cds-frame2 {
+.colorCds .cds-frame2 {
     background-color: #8080FF;
 }
 
-.jbrowse .colorCds .neg-cds-frame0 {
+.colorCds .neg-cds-frame0 {
     background-color: #8080FF;
 }
 
-.jbrowse .colorCds .neg-cds-frame1 {
+.colorCds .neg-cds-frame1 {
     background-color: #80FF80;
 }
 
-.jbrowse .colorCds .neg-cds-frame2 {
+.colorCds .neg-cds-frame2 {
     background-color: #FF8080;
 }
 
 
-.jbrowse .Dark.colorCds .dna-residues.cds-frame0 {
+.Dark.colorCds .dna-residues.cds-frame0 {
 	background-color: #902748
 }
 
-.jbrowse .Dark.colorCds .dna-residues.cds-frame1 {
+.Dark.colorCds .dna-residues.cds-frame1 {
 	background-color: #366f4b;
 }
 
-.jbrowse .Dark.colorCds .dna-residues.cds-frame2 {
+.Dark.colorCds .dna-residues.cds-frame2 {
 	background-color: #4e408e;
 }
 
-.jbrowse .Dark div.block.height_overflow .height_overflow_message {
+.Dark div.block.height_overflow .height_overflow_message {
 	color: white;
 	text-shadow: none;
 }
@@ -615,15 +615,15 @@ div.annot-sequence  {
 	stroke: white;
 }
 
-.jbrowse .Dark.colorCds .feature .cds-frame0 {
+.Dark.colorCds .feature .cds-frame0 {
     border: 1px solid hsla(0, 100%, 25%, 1);
 }
 
-.jbrowse .Dark.colorCds .feature .cds-frame1 {
+.Dark.colorCds .feature .cds-frame1 {
     border: 1px solid hsla(120, 100%, 25%, 1);
 }
 
-.jbrowse .Dark.colorCds .feature .cds-frame2 {
+.Dark.colorCds .feature .cds-frame2 {
     border: 1px solid hsla(240, 100%, 25%, 1);
 }
 

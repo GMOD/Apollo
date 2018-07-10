@@ -4968,7 +4968,7 @@ define([
                 };
 
                 var initGoIds = function (feature, config) {
-                    if (config.hasGoIds) {
+                    if (false && config.hasGoIds) {
                         var oldGoId;
                         var dirty = false;
                         var valid = true;
