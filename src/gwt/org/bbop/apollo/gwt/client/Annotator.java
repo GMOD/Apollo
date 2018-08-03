@@ -32,7 +32,7 @@ public class Annotator implements EntryPoint {
 
     public static EventBus eventBus = GWT.create(SimpleEventBus.class);
     private static Storage preferenceStore = Storage.getSessionStorageIfSupported();
-    private static Map<String,String> backupPreferenceStore = new HashMap<>();
+    private static Map<String, String> backupPreferenceStore = new HashMap<>();
 
     // check the session once a minute
     private static Integer DEFAULT_PING_TIME = 60000;
@@ -46,10 +46,10 @@ public class Annotator implements EntryPoint {
         rp.add(mainPanel);
 
         Dictionary optionsDictionary = Dictionary.getDictionary("Options");
-        if(optionsDictionary.keySet().contains(FeatureStringEnum.CLIENT_TOKEN.getValue())){
+        if (optionsDictionary.keySet().contains(FeatureStringEnum.CLIENT_TOKEN.getValue())) {
             String clientToken = optionsDictionary.get(FeatureStringEnum.CLIENT_TOKEN.getValue());
-            if(ClientTokenGenerator.isValidToken(clientToken)){
-                setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(),clientToken);
+            if (ClientTokenGenerator.isValidToken(clientToken)) {
+                setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), clientToken);
             }
         }
         Double height = 100d;
@@ -72,6 +72,7 @@ public class Annotator implements EntryPoint {
         rp.setWidgetTopHeight(mainPanel, top, topUnit, height, heightUnit);
 
         exportStaticMethod();
+        injectEventListener();
     }
 
     static void startSessionTimer() {
@@ -81,30 +82,29 @@ public class Annotator implements EntryPoint {
     static void startSessionTimer(int i) {
         Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
 
-            private Boolean keepGoing = true ;
-            private Boolean confirmOpen = false ;
+            private Boolean keepGoing = true;
+            private Boolean confirmOpen = false;
 
             @Override
             public boolean execute() {
-                if(MainPanel.hasCurrentUser()){
+                if (MainPanel.hasCurrentUser()) {
                     RestService.sendRequest(new RequestCallback() {
                         @Override
                         public void onResponseReceived(Request request, Response response) {
                             int statusCode = response.getStatusCode();
-                            if(statusCode==200 && response.getText().equals("{}")){
+                            if (statusCode == 200 && response.getText().equals("{}")) {
                                 GWT.log("Still connected");
-                            }
-                            else{
-                                if(!confirmOpen){
-                                    confirmOpen = true ;
+                            } else {
+                                if (!confirmOpen) {
+                                    confirmOpen = true;
                                     Bootbox.confirm("Logged out or server failure.  Attempt to reconnect?", new ConfirmCallback() {
                                         @Override
                                         public void callback(boolean result) {
-                                            if(result){
+                                            if (result) {
                                                 Window.Location.reload();
                                             }
 
-                                            confirmOpen = false ;
+                                            confirmOpen = false;
                                         }
                                     });
                                 }
@@ -113,19 +113,35 @@ public class Annotator implements EntryPoint {
 
                         @Override
                         public void onError(Request request, Throwable exception) {
-                            Window.alert("failed to connect: "+exception.toString());
-                            Bootbox.alert("Error: "+exception);
+                            Window.alert("failed to connect: " + exception.toString());
+                            Bootbox.alert("Error: " + exception);
                         }
-                    },"annotator/ping");
+                    }, "annotator/ping");
 
-                    return keepGoing ;
-                }
-                else{
+                    return keepGoing;
+                } else {
                     return false;
                 }
             }
-        },i);
+        }, i);
     }
+
+    private native void injectEventListener() /*-{
+        function postMessageListener(e) {
+            var curUrl = $wnd.location.protocol + "//" + $wnd.location.hostname;
+            alert(e);
+//            if (e.origin !== curUrl) return; // security check to verify that we receive event from trusted source
+//            p.@com.bear - z.demo.presenter.ChildContainerPresenter::eventListener(Ljava/lang/String;)(e.data); // call function with the name
+        }
+
+        // Listen to message from child window
+//        if ($wnd.BrowserDetect.browser == "Explorer") {
+//            $wnd.attachEvent("onmessage", postMessageListener, false);
+//        } else {
+            // "Normal" browsers
+            $wnd.addEventListener("message", postMessageListener, false);
+//        }
+    }-*/;
 
     public static native void exportStaticMethod() /*-{
         $wnd.setPreference = $entry(@org.bbop.apollo.gwt.client.Annotator::setPreference(Ljava/lang/String;Ljava/lang/Object;));
@@ -141,24 +157,22 @@ public class Annotator implements EntryPoint {
     public static void setPreference(String key, Object value) {
         if (preferenceStore != null) {
             preferenceStore.setItem(key, value.toString());
-        }
-        else{
-            backupPreferenceStore.put(key,value.toString());
+        } else {
+            backupPreferenceStore.put(key, value.toString());
         }
     }
 
     public static String getPreference(String key) {
         if (preferenceStore != null) {
             return preferenceStore.getItem(key);
-        }
-        else{
+        } else {
             return backupPreferenceStore.get(key);
         }
     }
 
 
-    public static String getRootUrl(){
-        return GWT.getModuleBaseURL().replace("annotator/","");
+    public static String getRootUrl() {
+        return GWT.getModuleBaseURL().replace("annotator/", "");
     }
 
     public static String getClientToken() {
@@ -168,7 +182,7 @@ public class Annotator implements EntryPoint {
             setPreference(FeatureStringEnum.CLIENT_TOKEN.getValue(), token);
         }
         token = getPreference(FeatureStringEnum.CLIENT_TOKEN.getValue());
-        return token ;
+        return token;
 
     }
 

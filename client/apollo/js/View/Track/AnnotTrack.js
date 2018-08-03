@@ -1529,7 +1529,12 @@ define([
             },
 
             runningApollo: function(){
-                return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+                // return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+                if(this.getApollo()===undefined){
+                    return false ;
+                }
+
+                this.getApollo().postMessage("getApollo");
             },
 
             deleteAnnotations: function (records) {
