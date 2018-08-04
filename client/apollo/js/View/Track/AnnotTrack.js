@@ -1529,7 +1529,14 @@ define([
             },
 
             runningApollo: function(){
-                return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+                // return (this.getApollo() && typeof this.getApollo().getEmbeddedVersion == 'function' && this.getApollo().getEmbeddedVersion() == 'ApolloGwt-2.0') ;
+                if(this.getApollo()===undefined){
+                    return false ;
+                }
+
+                var returnMessage = this.getApollo().postMessage({"message":"getApollo"},'*');
+                console.log('return message',returnMessage);
+                return returnMessage === 'Valid Apollo'  ;
             },
 
             deleteAnnotations: function (records) {
