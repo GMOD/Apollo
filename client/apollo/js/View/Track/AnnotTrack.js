@@ -1534,7 +1534,9 @@ define([
                     return false ;
                 }
 
-                this.getApollo().postMessage({"message":"getApollo"},'*');
+                var returnMessage = this.getApollo().postMessage({"message":"getApollo"},'*');
+                console.log('return message',returnMessage);
+                return returnMessage === 'Valid Apollo'  ;
             },
 
             deleteAnnotations: function (records) {

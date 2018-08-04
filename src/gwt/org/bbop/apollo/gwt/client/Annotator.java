@@ -127,19 +127,30 @@ public class Annotator implements EntryPoint {
     }
 
     private native void injectEventListener() /*-{
-        function postMessageListener(e) {
+        function postMessageListener(event) {
             var curUrl = $wnd.location.protocol + "//" + $wnd.location.hostname;
-            console.log('outter frame ingesting message',e);
-//            if (e.origin !== curUrl) return; // security check to verify that we receive event from trusted source
-//            p.@com.bear - z.demo.presenter.ChildContainerPresenter::eventListener(Ljava/lang/String;)(e.data); // call function with the name
+            console.log('outter frame ingesting message', event);
+            var data = event.data;
+            var message = data.message;
+            console.log('data',data)
+            console.log('message',message)
+            switch (message) {
+                case 'getApollo':
+                    console.log('returning a valid message');
+                    return {message: 'Valid Apollo'};
+                    break;
+
+                default:
+                    return {message: 'Invalid message: "' + message + '" for data: ' + data + ''};
+            }
         }
 
         // Listen to message from child window
 //        if ($wnd.BrowserDetect.browser == "Explorer") {
 //            $wnd.attachEvent("onmessage", postMessageListener, false);
 //        } else {
-            // "Normal" browsers
-            $wnd.addEventListener("message", postMessageListener, false);
+        // "Normal" browsers
+        $wnd.addEventListener("message", postMessageListener, false);
 //        }
     }-*/;
 
