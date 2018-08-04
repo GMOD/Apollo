@@ -129,7 +129,7 @@ public class Annotator implements EntryPoint {
     private native void injectEventListener() /*-{
         function postMessageListener(e) {
             var curUrl = $wnd.location.protocol + "//" + $wnd.location.hostname;
-            alert(e);
+            console.log('outter frame ingesting message',e);
 //            if (e.origin !== curUrl) return; // security check to verify that we receive event from trusted source
 //            p.@com.bear - z.demo.presenter.ChildContainerPresenter::eventListener(Ljava/lang/String;)(e.data); // call function with the name
         }
