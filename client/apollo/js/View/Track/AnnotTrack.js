@@ -8129,7 +8129,7 @@ define([
                     // console.log("removing base residued text from selected annot");
                     $("div.annot-sequence", track.div).remove();
                     delete this.currentResizableFeature;
-                    if ($featdiv.hasClass("resizable")) {
+                    if ($(featdiv).hasClass("resizable")) {
                         $(featdiv).resizable("destroy");
                         if (this.verbose_selection || this.verbose_selection_notification)
                             console.log("AnnotTrack: selectionRemoved -- feature's 'resizable' class destroyed.");
