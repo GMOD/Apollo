@@ -8129,7 +8129,16 @@ define([
                     // console.log("removing base residued text from selected annot");
                     $("div.annot-sequence", track.div).remove();
                     delete this.currentResizableFeature;
-                    $(featdiv).resizable("destroy");
+                    if ($featdiv.hasClass("resizable")) {
+                        $(featdiv).resizable("destroy");
+                        if (this.verbose_selection || this.verbose_selection_notification)
+                            console.log("AnnotTrack: selectionRemoved -- feature's 'resizable' class destroyed.");
+                    }
+                    // this case happens when a user double-clicks on a feature in the annotation panel;
+                    // double-clicking removes resizability of selected object(s)
+                    else if (this.verbose_selection || this.verbose_selection_notification) {
+                        console.log("AnnotTrack: selectionRemoved -- feature's  'resizable' was previously destroyed.");
+                    }
                 }
             },
 
