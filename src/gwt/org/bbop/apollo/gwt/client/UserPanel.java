@@ -71,6 +71,8 @@ public class UserPanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.Button cancelButton;
     @UiField
+    org.gwtbootstrap3.client.ui.Button inactivateButton;
+    @UiField
     org.gwtbootstrap3.client.ui.Button deleteButton;
     @UiField
     org.gwtbootstrap3.client.ui.Button saveButton;
@@ -446,6 +448,20 @@ public class UserPanel extends Composite {
         passwordRow.setVisible(false);
     }
 
+    @UiHandler("inactivateButton")
+    public void inactivate(ClickEvent clickEvent) {
+        Bootbox.confirm("Inactivate user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    UserRestService.inactivate(userInfoList, selectedUserInfo);
+                    selectedUserInfo = null;
+                    updateUserInfo();
+                }
+            }
+        });
+    }
+
     @UiHandler("deleteButton")
     public void delete(ClickEvent clickEvent) {
         Bootbox.confirm("Delete user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
@@ -572,6 +588,8 @@ public class UserPanel extends Composite {
 
             deleteButton.setEnabled(false);
             deleteButton.setVisible(false);
+            inactivateButton.setEnabled(false);
+            inactivateButton.setVisible(false);
             roleList.setVisible(false);
             permissionProviderList.clear();
 
@@ -604,6 +622,8 @@ public class UserPanel extends Composite {
             cancelButton.setEnabled(false);
             deleteButton.setVisible(true);
             deleteButton.setEnabled(true);
+            inactivateButton.setVisible(true);
+            inactivateButton.setEnabled(true);
             userRow1.setVisible(true);
             userRow2.setVisible(true);
             passwordRow.setVisible(true);
