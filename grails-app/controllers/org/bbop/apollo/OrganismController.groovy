@@ -163,7 +163,7 @@ class OrganismController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism.")
-            , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "Comma-delimited strings of sequence names on that organism.")
+            , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Comma-delimited sequence names on that organism if only certain sequences should be deleted.")
     ])
     @NotTransactional
     def deleteOrganismFeatures() {
