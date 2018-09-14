@@ -19,7 +19,12 @@ static def getFeature(url,track,cookieFile,ignorePrefix){
 
     String json = "{ 'operation': 'get_features', 'track': '${prefix}${track}'}"
     def process = ["curl","-b",cookieFile,"-c",cookieFile,"-e",url,"--data",json,"${url}/AnnotationEditorService"].execute()
-    def response = process.text
+    def out = new ByteArrayOutputStream()
+    def err = new ByteArrayOutputStream()
+    process.consumeProcessOutput(out, err)
+    process.waitFor()
+    def response = out.toString()
+    println response
     if(process.exitValue()!=0){
         println process.errorStream.text
     }
@@ -31,7 +36,11 @@ static def getFeature(url,track,cookieFile,ignorePrefix){
 static def doLogin(url, username, password,cookieFile) {
     String json = "{'username': '${username}', 'password': '${password}'}"
     def process = ["curl", "-c", cookieFile, "-H", "Content-Type:application/json", "-d", json, "${url}/Login?operation=login"].execute()
-    def response = process.text
+    def out = new ByteArrayOutputStream()
+    def err = new ByteArrayOutputStream()
+    process.consumeProcessOutput(out, err)
+    process.waitFor()
+    def response = out.toString()
     if (process.exitValue() != 0) {
         println process.errorStream.text
     }
