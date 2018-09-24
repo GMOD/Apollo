@@ -991,7 +991,25 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             e.printStackTrace()
         }
     }
-
+    
+    @RestApiMethod(description = "Get genes created or updated in the last 24 hours,JSON hash gene_name:organism", path = "/annotationEditor/getTodaysAnnotation", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            
+    ])
+    
+    def getTodaysAnnotation(){
+    	JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+    	JsonBuilder updatedGenes = annotationEditorService.todaysAnnotation()  
+    	render updatedGenes
+    }    
+    
+    
     @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence

@@ -2,6 +2,8 @@ package org.bbop.apollo
 
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import static java.util.Calendar.YEAR
+import groovy.json.JsonBuilder
 
 @Transactional
 class AnnotationEditorService {
@@ -17,4 +19,19 @@ class AnnotationEditorService {
         outputString = outputString.replaceAll("\\\\\"","\"")
         return outputString
     }
+
+    JsonBuilder todaysAnnotation(){
+    	Date today = new Date()
+    	Date yesterday = today -1 // -24 hour
+    	List updatedGenes = Gene.findAllByLastUpdatedGreaterThan(yesterday)
+    	
+    	Map geneToSpecies = [ : ]    	
+    	updatedGenes.each { gene ->
+    		geneToSpecies[gene.uniqueName] = gene.getFeatureLocation().sequence.organism.commonName
+    	}
+    	
+    	JsonBuilder toJson = new JsonBuilder()
+    	toJson(geneToSpecies)
+    	return toJson
+    }        
 }
