@@ -129,6 +129,7 @@
                                 <b:Button text="Save" type="PRIMARY" icon="SAVE" ui:field="saveButton" visible="false" enabled="false" marginRight="5"/>
                                 <b:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false" marginRight="5"/>
                                 <b:Button text="Delete" icon="REMOVE" type="WARNING" ui:field="deleteButton" enabled="false" visible="false" marginRight="5"/>
+                                <b:Button text="Inactivate" icon="REMOVE" type="WARNING" ui:field="inactivateButton" enabled="false" visible="false" marginRight="5"/>
                                 <b:Label ui:field="saveLabel" visible="false"/>
                             </b:Column>
                         </b:Row>
