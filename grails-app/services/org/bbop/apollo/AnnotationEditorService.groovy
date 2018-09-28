@@ -20,10 +20,10 @@ class AnnotationEditorService {
         return outputString
     }
 
-    JsonBuilder todaysAnnotation(){
+    JsonBuilder recentAnnotations(Integer days=1){
     	Date today = new Date()
-    	Date yesterday = today -1 // -24 hour
-    	List updatedGenes = Gene.findAllByLastUpdatedGreaterThan(yesterday)
+    	Date fromDate = today - days
+    	List updatedGenes = Gene.findAllByLastUpdatedGreaterThan(fromDate)
     	
     	Map geneToSpecies = [ : ]    	
     	updatedGenes.each { gene ->

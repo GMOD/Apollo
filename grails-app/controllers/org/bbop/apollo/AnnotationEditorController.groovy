@@ -992,21 +992,28 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
     }
     
-    @RestApiMethod(description = "Get genes created or updated in the last 24 hours,JSON hash gene_name:organism", path = "/annotationEditor/getTodaysAnnotation", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Get genes created or updated in the past, Returns JSON hash gene_name:organism", path = "/annotationEditor/getRecentAnnotations", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            ,@RestApiParam(name = "days", type = "Integer", paramType = RestApiParamType.QUERY, description = "Number of past days to retrieve annotations from.")
             
     ])
     
-    def getTodaysAnnotation(){
+    def getRecentAnnotations(){
     	JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-    	JsonBuilder updatedGenes = annotationEditorService.todaysAnnotation()  
-    	render updatedGenes
+    	
+        if(inputObject.get('days') instanceof Integer){
+        	JsonBuilder updatedGenes = annotationEditorService.recentAnnotations(inputObject.get('days'))  
+        	render updatedGenes
+        }else{
+        	def error = [error: inputObject.get('days') + ' Param days must be an Integer']
+            render error as JSON	
+        }
     }    
     
     
