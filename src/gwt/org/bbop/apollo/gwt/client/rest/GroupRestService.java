@@ -26,6 +26,17 @@ import java.util.TreeMap;
  */
 public class GroupRestService {
 
+    //adding
+    public static void loadGroups(RequestCallback requestCallback, Integer start, Integer length, String searchNameString, String searchColumnString, Boolean sortAscending) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("start",new JSONNumber(start < 0 ? 0 : start));
+        jsonObject.put("length",new JSONNumber(length < 0 ? 20 : length));
+        jsonObject.put("name",new JSONString(searchNameString));
+        jsonObject.put("sortColumn",new JSONString(searchColumnString));
+        jsonObject.put("sortAscending",JSONBoolean.getInstance(sortAscending));
+        RestService.sendRequest(requestCallback, "user/loadGroups/",jsonObject);
+    }
+    //ending
 
     public static void loadGroups(final List<GroupInfo> groupInfoList) {
 

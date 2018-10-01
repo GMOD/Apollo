@@ -46,6 +46,26 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+//Adding
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.view.client.AsyncDataProvider;
+import com.google.gwt.view.client.HasData;
+import com.google.gwt.view.client.NoSelectionModel;
+import com.google.gwt.view.client.Range;
+import org.gwtbootstrap3.client.ui.Input;
+import org.gwtbootstrap3.client.ui.Row;
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.text.shared.AbstractSafeHtmlRenderer;
+import com.google.gwt.text.shared.SafeHtmlRenderer;
+import org.bbop.apollo.gwt.client.dto.GroupInfoConverter;
+import com.google.gwt.user.cellview.client.ColumnSortList;
+
+
+
 /**
  * Created by ndunn on 12/17/14.
  */
@@ -92,6 +112,8 @@ public class GroupPanel extends Composite {
     MultipleSelect availableGroupAdmin;
     @UiField
     Button updateGroupAdmin;
+    @UiField
+    org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
 
     private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
     private List<GroupInfo> groupInfoList = dataProvider.getList();
@@ -104,6 +126,9 @@ public class GroupPanel extends Composite {
     private ListDataProvider<GroupOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
     private List<GroupOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
     private ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo> sortHandler = new ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo>(permissionProviderList);
+       
+    private AsyncDataProvider<GroupInfo> dataProvider2;
+
 
     public GroupPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -157,6 +182,68 @@ public class GroupPanel extends Composite {
             }
 
         });
+        
+        //ADDING
+        dataProvider2 = new AsyncDataProvider<GroupInfo>() {
+            @Override
+            protected void onRangeChanged(HasData<GroupInfo> display) {
+                final Range range = display.getVisibleRange();
+                final ColumnSortList sortList = dataGrid.getColumnSortList();
+                final int start = range.getStart();
+                final int length = range.getLength();
+
+                RequestCallback requestCallback = new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
+                        Integer groupCount = 0;
+                        if (jsonArray != null && jsonArray.size() > 0) {
+                            JSONObject jsonObject = jsonArray.get(0).isObject();
+                            groupCount = (int) jsonObject.get("groupCount").isNumber().doubleValue();
+
+                            if (jsonObject.containsKey("searchName") && jsonObject.get("searchName").isString() != null) {
+                                String searchName = jsonObject.get("searchName").isString().stringValue();
+                                if (searchName.trim().length() > 0 && !searchName.trim().equals(nameSearchBox.getText().trim())) {
+                                    return;
+                                }
+                            }
+                        }
+                        dataGrid.setRowCount(groupCount, true);
+                        //adding
+                        dataGrid.setRowData(start, GroupInfoConverter.convertFromJsonArray(jsonArray));
+                        //end
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        Bootbox.alert("error getting sequence info: " + exception);
+                    }
+                };
+
+
+                ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
+                if (nameSortInfo.getColumn().isSortable()) {
+                    Column<GroupInfo, ?> sortColumn = (Column<GroupInfo, ?>) sortList.get(0).getColumn();
+                    Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
+                    String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "users" : "";
+                    Boolean sortNameAscending = nameSortInfo.isAscending();
+                    GroupRestService.loadGroups(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending);
+                //ending
+                }
+            }
+        };
+
+
+        ColumnSortEvent.AsyncHandler columnSortHandler = new ColumnSortEvent.AsyncHandler(dataGrid);
+        dataGrid.addColumnSortHandler(columnSortHandler);
+        dataGrid.getColumnSortList().push(firstNameColumn);
+        dataGrid.getColumnSortList().push(secondNameColumn);
+
+        dataProvider.addDataDisplay(dataGrid);
+        pager.setDisplay(dataGrid);
+        //end
+
+
 
 
         createOrganismPermissionsTable();
@@ -319,6 +406,39 @@ public class GroupPanel extends Composite {
         cancelButton.setVisible(true);
         createGroupField.setText("");
     }
+    
+ 
+    //*****problem******
+    @UiHandler(value = {"nameSearchBox"})
+    public void handleNameSearch(KeyUpEvent keyUpEvent) {
+        pager.setPageStart(0);
+        dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+        }
+    //*******************
+
+
+        //String SearchName = nameSearchBox.getText().trim();
+
+        //if (SearchName.trim().length() > 0) 
+        //{
+        //setSelectedGroup();
+        //selectedGroupInfo = null;
+        //selectionModel.clear();
+                        
+        //pager.setPageStart(0);
+        //dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+
+        //reload();
+        //}
+
+        //for (GroupInfo groupInfo : groupInfoList)
+        //if (GroupName.trim().length() > 0 && GroupName.equals(groupInfo.getName())) 
+        //{
+        //System.out.print("YESYESYES");
+        //}
+  
+    //}     
+
 
     @UiHandler("createButton")
     public void createGroup(ClickEvent clickEvent) {
@@ -356,6 +476,7 @@ public class GroupPanel extends Composite {
     public void cancelUpdateGroupName(ClickEvent clickEvent) {
         name.setText(selectedGroupInfo.getName());
         handleNameChange(null);
+      
     }
 
     @UiHandler("name")
