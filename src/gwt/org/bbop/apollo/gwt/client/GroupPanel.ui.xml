@@ -52,6 +52,11 @@
         <gwt:north size="40">
             <b:Container fluid="true" width="100%">
                 <b:Row styleName="{style.northPanel}">
+
+                    <b:Column size="MD_6">
+                        <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
+                    </b:Column>
+
                     <b:Column size="MD_4">
                         <b:Button ui:field="createButton" icon="PLUS">Add Group</b:Button>
                         <b:Button ui:field="saveButton" icon="SAVE" visible="false" type="PRIMARY">Save</b:Button>
