@@ -15,7 +15,9 @@ class UrlMappings {
                 action(validator: { return it == 'export'})
             }
         }
-        
+
+
+     //  "/annotator/export/"(controller: "annotator", action:"export")
 
         "/"(redirect: '/annotator/index')
         "500"(view: '/error')

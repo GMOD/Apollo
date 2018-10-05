@@ -21,6 +21,7 @@ import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.*;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import com.google.gwt.dom.client.Style;
 
 public class LoginDialog extends DialogBox {
     private static final Binder binder = GWT.create(Binder.class);
@@ -53,6 +54,7 @@ public class LoginDialog extends DialogBox {
 
     public LoginDialog() {
         getElement().setId("loginDialogId");
+	getElement().getStyle().setWidth(500, Style.Unit.PX);
         setText("Login");
         setAnimationEnabled(true);
         // Enable glass background.

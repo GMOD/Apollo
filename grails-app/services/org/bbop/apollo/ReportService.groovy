@@ -191,7 +191,7 @@ class ReportService {
 
     AnnotatorSummary generateAnnotatorSummary(User owner, boolean includePermissions = false) {
         AnnotatorSummary annotatorSummary = new AnnotatorSummary()
-        
+        //List<AnnotatorSummary> summaries = new ArrayList<>()
         // get features created by the annotator
         def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
         def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])

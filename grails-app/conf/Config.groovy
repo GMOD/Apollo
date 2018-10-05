@@ -370,7 +370,7 @@ apollo {
     ]
 
     // comment out if you don't want this to be reported
-    google_analytics = ["UA-62921593-1"]
+    google_analytics = ["UA-62921593-1","UA-49907870-1"]
 
     phone {
         phoneHome = true
