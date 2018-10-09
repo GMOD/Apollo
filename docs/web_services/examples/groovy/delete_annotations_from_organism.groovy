@@ -12,7 +12,8 @@ import groovyx.net.http.RESTClient
 String usageString = "\nUSAGE: delete_annotations_from_organism.groovy <options>\n" +
         "Example (will prompt if 'adminusername' and 'adminpassword' are not provided):\n" +
         "./delete_annotations_from_organism.groovy -organismname organism_name -destinationurl http://localhost:8080/Apollo\n" +
-        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/Apollo"
+        "./delete_annotations_from_organism.groovy -organismid 123  -sequences chr1,chr2 -destinationurl http://localhost:8080/Apollo -adminusername bob@gov.com -adminpassword demo\n"  +
+        "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/Apollo\n" +
         "./delete_annotations_from_organism.groovy -organismid 123 -destinationurl http://localhost:8080/Apollo -adminusername bob@gov.com -adminpassword demo"
 
 def cli = new CliBuilder(usage: 'delete_annotations_from_organism.groovy')
@@ -20,6 +21,7 @@ cli.setStopAtNonOption(true)
 cli.organismid('Organism Id corresponding to organism', required: false, args: 1)
 cli.organismname('Common name for the organism (if organismid is not provided)', required: false, args:1)
 cli.destinationurl('Apollo URL', required: true, args: 1)
+cli.sequences('Sequence names from the organism, comma-delimited (e.g., chr1,chr2,chr3)', required: false, args:1)
 cli.adminusername('Admin username', required: false, args: 1)
 cli.adminpassword('Admin password', required: false, args: 1)
 cli.ignoressl('Use this flag to ignore SSL issues', required: false)
@@ -60,11 +62,15 @@ def client = new RESTClient(options.destinationurl)
 if (options.ignoressl) { client.ignoreSSLIssues() }
 String path = "${url.path}/organism/deleteOrganismFeatures"
 
+
 def userArgument = [
-        organism: options.organismid ? options.organismid : options.organismname, 
+        organism: options.organismid ? options.organismid : options.organismname,
         username: admin_username,
         password: admin_password
 ]
+if(options.sequences){
+    userArgument.sequences = options.sequences
+}
 
 def response = client.post(
         contentType: 'text/javascript',

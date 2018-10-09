@@ -162,7 +162,8 @@ class OrganismController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism.")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism.")
+            , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Comma-delimited sequence names on that organism if only certain sequences should be deleted.")
     ])
     @NotTransactional
     def deleteOrganismFeatures() {
@@ -191,7 +192,15 @@ class OrganismController {
                 throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
             }
 
-            organismService.deleteAllFeaturesForOrganism(organism)
+            if(organismJson.sequences){
+                List<String> sequenceNames = organismJson.sequences.toString().split(",")
+                List<Sequence> sequences = Sequence.findAllByOrganismAndNameInList(organism,sequenceNames)
+                organismService.deleteAllFeaturesForSequences(sequences)
+            }
+            else{
+                organismService.deleteAllFeaturesForOrganism(organism)
+            }
+
             render [:] as JSON
         }
         catch (e) {

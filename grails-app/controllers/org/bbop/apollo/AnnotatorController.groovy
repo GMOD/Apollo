@@ -13,6 +13,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.hibernate.FetchMode
+import org.restapidoc.annotation.RestApi
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
  */
+@RestApi(name = "Application Services", description = "Methods for running the annotation engine")
 class AnnotatorController {
 
     def featureService
