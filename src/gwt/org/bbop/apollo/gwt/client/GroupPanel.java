@@ -65,7 +65,6 @@ import org.bbop.apollo.gwt.client.dto.GroupInfoConverter;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 
 
-
 /**
  * Created by ndunn on 12/17/14.
  */
@@ -115,18 +114,18 @@ public class GroupPanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.TextBox nameSearchBox;
 
-    private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
-    private List<GroupInfo> groupInfoList = dataProvider.getList();
+    //    private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
+//    private List<GroupInfo> groupInfoList = dataProvider.getList();
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
     private GroupInfo selectedGroupInfo;
-    private ColumnSortEvent.ListHandler<GroupInfo> groupSortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
+    //    private ColumnSortEvent.ListHandler<GroupInfo> groupSortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
     private List<UserInfo> allUsersList = new ArrayList<>();
 
 
     private ListDataProvider<GroupOrganismPermissionInfo> permissionProvider = new ListDataProvider<>();
     private List<GroupOrganismPermissionInfo> permissionProviderList = permissionProvider.getList();
     private ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo> sortHandler = new ColumnSortEvent.ListHandler<GroupOrganismPermissionInfo>(permissionProviderList);
-       
+
     private AsyncDataProvider<GroupInfo> dataProvider2;
 
 
@@ -155,10 +154,10 @@ public class GroupPanel extends Composite {
         dataGrid.addColumn(firstNameColumn, "Name");
         dataGrid.addColumn(secondNameColumn, "Users");
 
-        dataProvider.addDataDisplay(dataGrid);
-        dataGrid.setSelectionModel(selectionModel);
-        organismPager.setDisplay(organismPermissionsGrid);
-        pager.setDisplay(dataGrid);
+//        dataProvider.addDataDisplay(dataGrid);
+//        dataGrid.setSelectionModel(selectionModel);
+//        organismPager.setDisplay(organismPermissionsGrid);
+//        pager.setDisplay(dataGrid);
 
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -168,21 +167,7 @@ public class GroupPanel extends Composite {
             }
         });
 
-        dataGrid.addColumnSortHandler(groupSortHandler);
-        groupSortHandler.setComparator(firstNameColumn, new Comparator<GroupInfo>() {
-            @Override
-            public int compare(GroupInfo o1, GroupInfo o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        groupSortHandler.setComparator(secondNameColumn, new Comparator<GroupInfo>() {
-            @Override
-            public int compare(GroupInfo o1, GroupInfo o2) {
-                return o1.getNumberOfUsers() - o2.getNumberOfUsers();
-            }
 
-        });
-        
         //ADDING
         dataProvider2 = new AsyncDataProvider<GroupInfo>() {
             @Override
@@ -228,7 +213,7 @@ public class GroupPanel extends Composite {
                     String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "users" : "";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
                     GroupRestService.loadGroups(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending);
-                //ending
+                    //ending
                 }
             }
         };
@@ -239,11 +224,11 @@ public class GroupPanel extends Composite {
         dataGrid.getColumnSortList().push(firstNameColumn);
         dataGrid.getColumnSortList().push(secondNameColumn);
 
-        dataProvider.addDataDisplay(dataGrid);
+        dataGrid.setSelectionModel(selectionModel);
+        organismPager.setDisplay(organismPermissionsGrid);
+        dataProvider2.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
         //end
-
-
 
 
         createOrganismPermissionsTable();
@@ -281,9 +266,10 @@ public class GroupPanel extends Composite {
             @Override
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
-                    if(MainPanel.getInstance().isCurrentUserInstructorOrBetter())  {
-                        GroupRestService.loadGroups(groupInfoList);
-                        UserRestService.loadUsers(allUsersList);
+                    if (MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
+                        reload();
+//                        GroupRestService.loadGroups(groupInfoList);
+//                        UserRestService.loadUsers(allUsersList);
                     }
                     return false;
                 }
@@ -406,37 +392,37 @@ public class GroupPanel extends Composite {
         cancelButton.setVisible(true);
         createGroupField.setText("");
     }
-    
- 
+
+
     //*****problem******
     @UiHandler(value = {"nameSearchBox"})
     public void handleNameSearch(KeyUpEvent keyUpEvent) {
         pager.setPageStart(0);
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
-        }
+    }
     //*******************
 
 
-        //String SearchName = nameSearchBox.getText().trim();
+    //String SearchName = nameSearchBox.getText().trim();
 
-        //if (SearchName.trim().length() > 0) 
-        //{
-        //setSelectedGroup();
-        //selectedGroupInfo = null;
-        //selectionModel.clear();
-                        
-        //pager.setPageStart(0);
-        //dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+    //if (SearchName.trim().length() > 0)
+    //{
+    //setSelectedGroup();
+    //selectedGroupInfo = null;
+    //selectionModel.clear();
 
-        //reload();
-        //}
+    //pager.setPageStart(0);
+    //dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
 
-        //for (GroupInfo groupInfo : groupInfoList)
-        //if (GroupName.trim().length() > 0 && GroupName.equals(groupInfo.getName())) 
-        //{
-        //System.out.print("YESYESYES");
-        //}
-  
+    //reload();
+    //}
+
+    //for (GroupInfo groupInfo : groupInfoList)
+    //if (GroupName.trim().length() > 0 && GroupName.equals(groupInfo.getName()))
+    //{
+    //System.out.print("YESYESYES");
+    //}
+
     //}     
 
 
@@ -450,12 +436,12 @@ public class GroupPanel extends Composite {
             Bootbox.alert("Group must be at least 3 characters long");
             return false;
         }
-        for (GroupInfo groupInfo : groupInfoList) {
-            if (groupName.equals(groupInfo.getName())) {
-                Bootbox.alert("Group name must be unique");
-                return false;
-            }
-        }
+//        for (GroupInfo groupInfo : groupInfoList) {
+//            if (groupName.equals(groupInfo.getName())) {
+//                Bootbox.alert("Group name must be unique");
+//                return false;
+//            }
+//        }
 
         return true;
     }
@@ -476,7 +462,7 @@ public class GroupPanel extends Composite {
     public void cancelUpdateGroupName(ClickEvent clickEvent) {
         name.setText(selectedGroupInfo.getName());
         handleNameChange(null);
-      
+
     }
 
     @UiHandler("name")
@@ -556,10 +542,20 @@ public class GroupPanel extends Composite {
     }
 
 
-    public void reload() {
-        if (MainPanel.getInstance().getCurrentUser() != null) {
-            GroupRestService.loadGroups(groupInfoList);
+    public void reload(Boolean forceReload) {
+        if (MainPanel.getInstance().getGroupPanel().isVisible() || forceReload) {
+//            updateAvailableRoles();
+            pager.setPageStart(0);
+            dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
+            dataGrid.redraw();
         }
+    }
+
+    public void reload() {
+        reload(false);
+//        if (MainPanel.getInstance().getCurrentUser() != null) {
+//            GroupRestService.loadGroups(groupInfoList);
+//        }
     }
 
 

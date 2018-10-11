@@ -1163,6 +1163,11 @@ public class MainPanel extends Composite {
         return userPanel;
     }
 
+    public static GroupPanel getGroupPanel() {
+        return userGroupPanel ;
+    }
+
+
     public static TrackPanel getTrackPanel() {
         return trackPanel;
     }

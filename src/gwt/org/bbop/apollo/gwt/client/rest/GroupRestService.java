@@ -34,7 +34,7 @@ public class GroupRestService {
         jsonObject.put("name",new JSONString(searchNameString));
         jsonObject.put("sortColumn",new JSONString(searchColumnString));
         jsonObject.put("sortAscending",JSONBoolean.getInstance(sortAscending));
-        RestService.sendRequest(requestCallback, "user/loadGroups/",jsonObject);
+        RestService.sendRequest(requestCallback, "group/loadGroups/",jsonObject);
     }
     //ending
 
