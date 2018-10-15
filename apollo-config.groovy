@@ -51,14 +51,59 @@ environments {
 
 // Uncomment to make changes
 //
+// not quite default apollo settings
+apollo {
+  default_minimum_intron_size = 1
+  history_size = 0
+  overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
+  track_name_comparator = "/config/track_name_comparator.js"
+  use_cds_for_new_transcripts = true
+  user_pure_memory_store = true
+  translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
+  is_partial_translation_allowed = false // unused so far
+  get_translation_code = 1
+  only_owners_delete = false
+  sequence_search_tools = [
+    blat_nuc: [
+      search_exe: "/usr/local/bin/blat",
+      search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+      name: "Blat nucleotide",
+      params: ""
+    ],
+    blat_prot: [
+      search_exe: "/usr/local/bin/blat",
+      search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+      name: "Blat protein",
+      params: ""
+    ]
+  ]    
+      
+
+
+  splice_donor_sites = [ "GT" ]
+  splice_acceptor_sites = [ "AG"]
+  gff3.source= "." 
+  bootstrap = false
+
+  info_editor = {
+    feature_types = "default"
+    attributes = true
+    dbxrefs = true
+    pubmed_ids = true
+    go_ids = true
+    comments = true
+  }
+}
+
 jbrowse {
    git {
        url= "https://github.com/NAL-i5K/jbrowse"
+//       url= "https://github.com/GMOD/jbrowse"
 //        branch = "master"
 //	  tag = "1.0.0"
-//	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"
+	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"
 //	  tag = "c16e8aefa5e249fc4fd36923988d48937e032bda"
-	  tag = "6d19243fd45aea980a5743a8b29a177737d0fe1c"
+//	  tag = "f7e58a3bd2632e5811f98a200399fcbdb775f804"
        alwaysPull = true
        alwaysRecheck = true
 
@@ -101,6 +146,7 @@ jbrowse {
        ColorByType {
            git = "https://github.com/NAL-i5K/ColorByType"
            branch = "master"
+//           branch = "color_second_level"
            alwaysPull = true
            alwaysRecheck = true
        }
