@@ -97,12 +97,12 @@ apollo {
 
 jbrowse {
    git {
-       url= "https://github.com/NAL-i5K/jbrowse"
-//       url= "https://github.com/GMOD/jbrowse"
+//       url= "https://github.com/NAL-i5K/jbrowse"
+       url= "https://github.com/GMOD/jbrowse"
 //        branch = "master"
 //	  tag = "1.0.0"
-	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"
-//	  tag = "maint/1.12.5-apollo"
+//	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"
+	  tag = "maint/1.12.5-apollo"
        alwaysPull = true
        alwaysRecheck = true
 
