@@ -5915,8 +5915,7 @@ define([
                 var track = this;
 
                 var content = dojo.create("div", {className: "get_gff3"});
-                // var content = dojo.create("div", {className: "get_gff3", style:{ width:'1000px',color:'green'}});
-                var textArea = dojo.create("textarea", {className: "gff3_area", readonly: true,rows:37,cols:145}, content);
+                var textArea = dojo.create("textarea", {className: "gff3_area", readonly: true}, content);
 
                 var fetchGff3 = function () {
                     var features = '"features": [';
@@ -5967,8 +5966,7 @@ define([
                 };
                 fetchGff3(records);
 
-                // this.openDialog("GFF3", content);
-                this.openDialog("GFF3", content,'950px','550px');
+                this.openDialog("GFF3", content);
             },
 
             getSequence: function () {
@@ -5980,8 +5978,7 @@ define([
                 var track = this;
 
                 var content = dojo.create("div", {className: "get_sequence"});
-                var textArea = dojo.create("textarea", {className: "sequence_area", readonly: true,
-                    rows:27,cols:145}, content);
+                var textArea = dojo.create("textarea", {className: "sequence_area", readonly: true}, content);
                 var form = dojo.create("form", {}, content);
                 var peptideButtonDiv = dojo.create("div", {className: "first_button_div"}, form);
                 var peptideButton = dojo.create("input", {
@@ -6132,8 +6129,7 @@ define([
                 dojo.connect(genomicWithFlankButtonLabel, "onclick", null, callback);
 
                 fetchSequence("peptide");
-                // this.openDialog("Sequence", content);
-                this.openDialog("Sequence", content,'950px','550px');
+                this.openDialog("Sequence", content);
             },
 
             searchSequence: function () {
