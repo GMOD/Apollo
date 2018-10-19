@@ -1,35 +1,35 @@
 @CHARSET "UTF-8";
 
-.jbrowse .get_sequence {
+.get_sequence {
 	font-size:10px;
 }
 
-.jbrowse .gff3_area{
+.gff3_area{
 	width: 50em;
 	height: 20em;
 	font-family: 'courier';
 	font-size: 1.0em;
 }
 
-.jbrowse .sequence_area {
+.sequence_area {
 	width: 60em;
 	height: 20em;
 	font-family: 'courier';
 	font-size: 1.5em;
 }
 
-.jbrowse .first_button_div {
+.first_button_div {
 	margin-top: 10px;
 }
 
-.jbrowse .button_div {
+.button_div {
 	margin-top: 5px;
 }
 
-.jbrowse .button_label {
+.button_label {
 	margin-left: 3px;
 }
 
-.jbrowse .button_field {
+.button_field {
 	margin-left: 3px;
 }
