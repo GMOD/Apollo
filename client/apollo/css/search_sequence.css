@@ -1,37 +1,37 @@
 @CHARSET "UTF-8";
 
-.jbrowse .search_sequence_label {
+.search_sequence_label {
 	font-size: 1.5em;
 }
 
-.jbrowse .search_sequence_input {
+.search_sequence_input {
 	width: 50em;
 	height: 3.5em;
 }
 
-.jbrowse .search_sequence_area {
+.search_sequence_area {
 	margin-bottom: 10px;
 }
 
-.jbrowse .search_all_ref_seqs_area {
+.search_all_ref_seqs_area {
 	margin-top: 5px;
 	margin-bottom: 5px;
 }
 
-.jbrowse .search_all_ref_seqs_checkbox {
+.search_all_ref_seqs_checkbox {
 	margin-right: 3px;
 }
 
-.jbrowse .search_all_ref_seqs_label {
+.search_all_ref_seqs_label {
 	font-size: 1em;
 }
 
-.jbrowse .search_sequence_matches_row:hover {
+.search_sequence_matches_row:hover {
 	background-color: #000099;
 	color: white;
 }
 
-.jbrowse .search_sequence_matches_generic_field {
+.search_sequence_matches_generic_field {
 	width: 6.3em;
 	margin-right: 0.2em;
 	overflow: hidden;
@@ -41,11 +41,11 @@
 	display: table-cell;
 }
 
-.jbrowse .search_sequence_matches_header {
+.search_sequence_matches_header {
 	margin-bottom: 10px;
 }
 
-.jbrowse .search_sequence_matches_field {
+.search_sequence_matches_field {
 	margin-top: 0px;
 	margin-bottom: 0px;
 	float: left;
@@ -53,24 +53,24 @@
 	width: 6em;
 }
 
-.jbrowse .search_sequence_tools {
+.search_sequence_tools {
 	margin-bottom: 10px;
 }
 
-.jbrowse .search_sequence_matches {
+.search_sequence_matches {
 	max-height: 25em;
 	overflow: auto;
 }
 
-.jbrowse .search_sequence_matches_row {
+.search_sequence_matches_row {
 	display: table-row;
 }
 
 
-.jbrowse .search_sequence_message {
+.search_sequence_message {
 	font-size: 1.6em;
 }
 
-.jbrowse .search_sequence {
+.search_sequence {
 	font-size: 9px;
 }

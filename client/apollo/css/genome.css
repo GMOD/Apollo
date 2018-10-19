@@ -26,19 +26,19 @@ div.locationThumb {
 
 
 /* tweak the style of the powered_by link that has the WA logo in it */
-.jbrowse .menuBar .powered_by {
+.menuBar .powered_by {
     height: 27px;
     background: white;
     border-right: 1px solid rgb(156,156,156);
     position: relative;
     top: -1px;
 }
-.jbrowse .menuBar .powered_by > img {
+.menuBar .powered_by > img {
     position: relative;
     top: 1px;
 }
 
-.jbrowse .menuBar .user .icon {
+.menuBar .user .icon {
     height: 16px;
     width: 16px;
     margin-right: 2px;
@@ -48,7 +48,7 @@ div.locationThumb {
     background: url("img/glyphs_white.png") no-repeat -168px -27px;
 }
 
-.jbrowse .usericon {
+.usericon {
     height: 16px;
     width: 16px;
     margin-right: 2px;
