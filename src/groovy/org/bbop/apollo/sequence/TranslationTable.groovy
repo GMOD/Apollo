@@ -28,14 +28,14 @@ class TranslationTable {
         alternateTranslationTable = new HashMap<String, String>();
     }
 
-    public TranslationTable cloneTable() {
-        TranslationTable clone = null;
+    TranslationTable cloneTable() {
+        TranslationTable clone = null
         try {
-            clone = getClass().newInstance();
-            clone.translationTable = new HashMap<String, String>(translationTable);
-            clone.startCodons = new HashSet<String>(startCodons);
-            clone.stopCodons = new HashSet<String>(stopCodons);
-            clone.alternateTranslationTable = new HashMap<String, String>(alternateTranslationTable);
+            clone = getClass().newInstance()
+            clone.translationTable = new HashMap<String, String>(translationTable)
+            clone.startCodons = new HashSet<String>(startCodons)
+            clone.stopCodons = new HashSet<String>(stopCodons)
+            clone.alternateTranslationTable = new HashMap<String, String>(alternateTranslationTable)
         }
         catch (InstantiationException e) {
         }
@@ -50,8 +50,8 @@ class TranslationTable {
      * @param codon - Codon to be translated
      * @return Amino acid corresponding to the the codon
      */
-    public String translateCodon(String codon) {
-        String aa = translationTable.get(codon);
+    String translateCodon(String codon) {
+        String aa = translationTable.get(codon)
         if (aa == null) {
             return "X";
         }
@@ -62,7 +62,7 @@ class TranslationTable {
      *
      * @return Collection of Strings representing the start codons
      */
-    public Collection<String> getStartCodons() {
+    Collection<String> getStartCodons() {
         return startCodons;
     }
 
@@ -70,7 +70,7 @@ class TranslationTable {
      *
      * @return Collection of Strings representing the stop codons
      */
-    public Collection<String> getStopCodons() {
+    Collection<String> getStopCodons() {
         return stopCodons;
     }
 
@@ -78,11 +78,11 @@ class TranslationTable {
         return translateCodon(codon).equals(STOP);
     }
 
-    public Map<String, String> getTranslationTable() {
+    Map<String, String> getTranslationTable() {
         return translationTable;
     }
 
-    public Map<String, String> getAlternateTranslationTable() {
+    Map<String, String> getAlternateTranslationTable() {
         return alternateTranslationTable;
     }
 
