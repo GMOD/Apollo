@@ -97,8 +97,8 @@ class SequenceTranslationHandler {
                 if (!translateThroughStop) {
                     break;
                 }
-                // TODO: not sure why this is written this way . . .clearly a bug
                 else {
+                    // if we encounter this once, keep going, otherwise if an extra time then break
                     if (++stopCodonCount > 1) {
                         break;
                     }
