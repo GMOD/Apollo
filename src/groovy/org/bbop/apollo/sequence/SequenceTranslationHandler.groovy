@@ -1,7 +1,6 @@
 package org.bbop.apollo.sequence
 
 import org.apache.commons.io.FileUtils
-import org.apache.commons.io.filefilter.DirectoryFileFilter
 import org.apache.commons.io.filefilter.NameFileFilter
 import org.apache.commons.io.filefilter.TrueFileFilter
 import org.bbop.apollo.AnnotationException
@@ -39,6 +38,18 @@ class SequenceTranslationHandler {
                 case 'T':
                     buffer.setCharAt(i, 'A' as char);
                     break;
+                case 'a':
+                    buffer.setCharAt(i, 't' as char);
+                    break;
+                case 'c':
+                    buffer.setCharAt(i, 'g' as char);
+                    break;
+                case 'g':
+                    buffer.setCharAt(i, 'c' as char);
+                    break;
+                case 't':
+                    buffer.setCharAt(i, 'a' as char);
+                    break;
             }
         }
         return buffer.toString();
@@ -70,9 +81,10 @@ class SequenceTranslationHandler {
 //            throw new AnnotationException("Sequence to be translated must have length of factor of 3");
 //        }
         StringBuilder buffer = new StringBuilder();
+        String upperString = sequence.toUpperCase()
         int stopCodonCount = 0;
-        for (int i = 0; i + 3 <= sequence.length(); i += 3) {
-            String codon = sequence.substring(i, i + 3);
+        for (int i = 0; i + 3 <= upperString.length(); i += 3) {
+            String codon = upperString.substring(i, i + 3);
             String aminoAcid = translationTable.translateCodon(codon);
             if(i==0 && translationTable.isStartCodon(codon)){
                 aminoAcid = "M"
@@ -85,8 +97,8 @@ class SequenceTranslationHandler {
                 if (!translateThroughStop) {
                     break;
                 }
-                // TODO: not sure why this is written this way . . .clearly a bug
                 else {
+                    // if we encounter this once, keep going, otherwise if an extra time then break
                     if (++stopCodonCount > 1) {
                         break;
                     }
