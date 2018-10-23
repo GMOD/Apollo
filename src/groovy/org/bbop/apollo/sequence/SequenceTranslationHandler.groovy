@@ -38,6 +38,20 @@ class SequenceTranslationHandler {
                 case 'T':
                     buffer.setCharAt(i, 'A' as char)
                     break
+                case 'a':
+                    buffer.setCharAt(i, 't' as char)
+                    break
+                case 'c':
+                    buffer.setCharAt(i, 'g' as char)
+                    break
+                case 'g':
+                    buffer.setCharAt(i, 'c' as char)
+                    break
+                case 't':
+                    buffer.setCharAt(i, 'a' as char)
+                    break
+                default:
+                    println "Unable to provide a reverse complement to ${buffer.charAt(i)}"
             }
         }
         return buffer.toString()
@@ -64,14 +78,13 @@ class SequenceTranslationHandler {
      * @return Translated amino acid sequence
      */
     static String translateSequence(String sequence, TranslationTable translationTable,
-                                           boolean includeStop, boolean translateThroughStop) {
+                                    boolean includeStop, boolean translateThroughStop) {
         StringBuilder buffer = new StringBuilder()
         String upperSequence = sequence.toUpperCase()
-        int stopCodonCount = 0;
         for (int i = 0; i + 3 <= upperSequence.length(); i += 3) {
             String codon = upperSequence.substring(i, i + 3)
             String aminoAcid = translationTable.translateCodon(codon)
-            if(i==0 && translationTable.isStartCodon(codon)){
+            if (i == 0 && translationTable.isStartCodon(codon)) {
                 aminoAcid = "M"
             }
 
@@ -81,12 +94,6 @@ class SequenceTranslationHandler {
                 }
                 if (!translateThroughStop) {
                     break
-                }
-                // TODO: not sure why this is written this way . . .clearly a bug
-                else {
-                    if (++stopCodonCount > 1) {
-                        break
-                    }
                 }
             } else {
                 buffer.append(aminoAcid)
@@ -121,11 +128,10 @@ class SequenceTranslationHandler {
 
     private static void initTranslationTables(String code) {
         if (code == DEFAULT_TRANSLATION_TABLE) {
-            TranslationTable translationTable = new StandardTranslationTable()
-            translationTables.put(code,translationTable )
+            translationTables.put(code, new StandardTranslationTable())
         } else {
-            File parentFile = FileUtils.listFiles(new File("."),new NameFileFilter("ncbi_1_translation_table.txt"),TrueFileFilter.INSTANCE).first().parentFile
-            translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath+"/ncbi_${code}_translation_table.txt")))
+            File parentFile = FileUtils.listFiles(new File("."), new NameFileFilter("ncbi_1_translation_table.txt"), TrueFileFilter.INSTANCE).first().parentFile
+            translationTables.put(code.toString(), readTable(new File(parentFile.absolutePath + "/ncbi_${code}_translation_table.txt")))
         }
     }
 
