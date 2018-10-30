@@ -420,9 +420,20 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        if (MainPanel.getInstance().getCurrentUser() != null) {
+//        if (MainPanel.getInstance().getCurrentUser() != null) {
             UserRestService.loadUsers(requestCallback);
-        }
+//        }
+//        else{
+//            // issue a command delaying by a lot
+//            Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+//                @Override
+//                public boolean execute() {
+//                    UserRestService.loadUsers(requestCallback);
+//                    return false;
+//                }
+//            },1000);
+//
+//        }
     }
 
     private void initializeTypes() {
