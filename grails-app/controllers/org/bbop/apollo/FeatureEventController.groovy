@@ -5,6 +5,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import org.restapidoc.annotation.RestApi
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
@@ -13,6 +14,7 @@ import org.restapidoc.pojo.RestApiVerb
 
 import static org.springframework.http.HttpStatus.*
 
+@RestApi(name = "History Services", description = "Methods for querying history")
 @Transactional(readOnly = true)
 class FeatureEventController {
 

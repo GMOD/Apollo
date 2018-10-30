@@ -78,7 +78,7 @@ public class AnnotatorPanel extends Composite {
     private long requestIndex = 0;
     private static String selectedChildUniqueName = null;
 
-    private static int selectedSubTabIndex = 0 ;
+    private static int selectedSubTabIndex = 0;
 
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
@@ -307,7 +307,6 @@ public class AnnotatorPanel extends Composite {
 
 
         initializeTypes();
-        initializeUsers();
 
         sequenceList.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
@@ -330,7 +329,7 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 selectedSubTabIndex = event.getSelectedItem();
-                switch(selectedSubTabIndex) {
+                switch (selectedSubTabIndex) {
                     case 0:
                         break;
                     case 1:
@@ -383,23 +382,14 @@ public class AnnotatorPanel extends Composite {
                 }
         );
 
-        // TODO: not sure if this was necessary, leaving it here until it fails
-//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                if (organismChangeEvent.getAction() == OrganismChangeEvent.Action.LOADED_ORGANISMS) {
-//                    sequenceList.setText(organismChangeEvent.getCurrentSequence());
-//                    reload();
-//                }
-//            }
-//        });
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
+                initializeUsers();
                 userField.setVisible(true);
             }
         });
+
 
     }
 
@@ -410,9 +400,13 @@ public class AnnotatorPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+
+                if (response.getStatusCode() == 401) {
+                    return;
+                }
+
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
-
                 for (int i = 0; array != null && i < array.size(); i++) {
                     JSONObject object = array.get(i).isObject();
                     UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
@@ -426,9 +420,7 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        if (MainPanel.getInstance().getCurrentUser() != null) {
-            UserRestService.loadUsers(requestCallback);
-        }
+        UserRestService.loadUsers(requestCallback);
     }
 
     private void initializeTypes() {
@@ -523,13 +515,13 @@ public class AnnotatorPanel extends Composite {
 
     private static void reselectSubTab() {
         // attempt to selectt the last tab
-        if(tabPanel.getSelectedIndex()!=selectedSubTabIndex){
+        if (tabPanel.getSelectedIndex() != selectedSubTabIndex) {
             tabPanel.selectTab(selectedSubTabIndex);
         }
 
         // if current tab is not visible, then select tab 0
-        while(!tabPanel.getTabWidget(selectedSubTabIndex).getParent().isVisible() && selectedSubTabIndex>=0){
-            --selectedSubTabIndex ;
+        while (!tabPanel.getTabWidget(selectedSubTabIndex).getParent().isVisible() && selectedSubTabIndex >= 0) {
+            --selectedSubTabIndex;
             tabPanel.selectTab(selectedSubTabIndex);
         }
     }
@@ -548,7 +540,7 @@ public class AnnotatorPanel extends Composite {
         }
 
         // Redraw the modified row.
-        if(index < dataGrid.getRowCount()){
+        if (index < dataGrid.getRowCount()) {
             dataGrid.redrawRow(index);
         }
     }
