@@ -401,8 +401,8 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
 
-                if(response.getStatusCode()==401){
-                    return ;
+                if (response.getStatusCode() == 401) {
+                    return;
                 }
 
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
@@ -420,20 +420,7 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-//        if (MainPanel.getInstance().getCurrentUser() != null) {
-            UserRestService.loadUsers(requestCallback);
-//        }
-//        else{
-//            // issue a command delaying by a lot
-//            Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-//                @Override
-//                public boolean execute() {
-//                    UserRestService.loadUsers(requestCallback);
-//                    return false;
-//                }
-//            },1000);
-//
-//        }
+        UserRestService.loadUsers(requestCallback);
     }
 
     private void initializeTypes() {
