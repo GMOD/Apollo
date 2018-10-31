@@ -75,10 +75,10 @@ class AnnotatorController {
                 throw new RuntimeException("User does have permissions to access any organisms.")
             }
 
-            if(params.uuid){
+            if (params.uuid) {
                 Feature feature = Feature.findByUniqueName(params.uuid)
                 FeatureLocation featureLocation = feature.featureLocation
-                params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin +".." + featureLocation.fmax
+                params.loc = featureLocation.sequence.name + ":" + featureLocation.fmin + ".." + featureLocation.fmax
                 organism = featureLocation.sequence.organism
             }
 
@@ -131,8 +131,7 @@ class AnnotatorController {
 
         if (queryParamString.contains("http://") || queryParamString.contains("https://") || queryParamString.contains("ftp://")) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
-        }
-        else {
+        } else {
             redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
         }
 
@@ -150,7 +149,7 @@ class AnnotatorController {
     }
 
     @NotTransactional
-    def getExtraTabs(){
+    def getExtraTabs() {
         def extraTabs = configWrapperService.extraTabs
         render extraTabs as JSON
     }
@@ -158,11 +157,12 @@ class AnnotatorController {
     @NotTransactional
     def adminPanel() {
         if (permissionService.checkPermissions(PermissionEnum.ADMINISTRATE)) {
-            Integer highestGlobalRoleRank = permissionService.currentUser.roles.sort(){ a,b -> a.rank <=> b.rank}.first().rank // should return the highest either way
+            Integer highestGlobalRoleRank = permissionService.currentUser.roles.sort() { a, b -> a.rank <=> b.rank }.first().rank
+            // should return the highest either way
 //            permissionService.getPermissionsForUser(permissionService.currentUser)
 
             def administativePanel = grailsApplication.config.apollo.administrativePanel
-            [links: administativePanel,highestRank:highestGlobalRoleRank,roles:Role.all]
+            [links: administativePanel, highestRank: highestGlobalRoleRank, roles: Role.all]
         } else {
             render text: "Unauthorized"
         }
@@ -350,6 +350,11 @@ class AnnotatorController {
                 }
                 if (annotationName) {
                     ilike('name', '%' + annotationName + '%')
+                }
+                if (user) {
+                    owners {
+                        'in'('username', user)
+                    }
                 }
                 'in'('class', viewableTypes)
             }
@@ -632,14 +637,14 @@ class AnnotatorController {
         params.max = Math.min(max ?: 20, 100)
         // restricted groups
         def groups = UserGroup.all
-        def filteredGroups =  groups
+        def filteredGroups = groups
         // if user is admin, then include all
         // if group has metadata with the creator or no metadata then include
 
         if (!permissionService.isAdmin()) {
             log.debug "filtering groups"
 
-            filteredGroups = groups.findAll(){
+            filteredGroups = groups.findAll() {
                 it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
             }
         }
@@ -648,11 +653,11 @@ class AnnotatorController {
             render error as JSON
             return
         }
-        userGroup = userGroup?:filteredGroups.first()
+        userGroup = userGroup ?: filteredGroups.first()
 
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
         List<User> allUsers = User.list(params)
-        List<User> annotators = allUsers.findAll(){
+        List<User> annotators = allUsers.findAll() {
             it.userGroups.contains(userGroup)
         }
 
@@ -687,7 +692,7 @@ class AnnotatorController {
     }
 
     def export() {
-        if(!params.max) params.max = 10
+        if (!params.max) params.max = 10
         response.contentType = grailsApplication.config.grails.mime.types[params.format]
         response.setHeader("Content-disposition", "attachment; filename=annotators.${params.extension}")
         List fields = ["username", "firstname", "lastname", "usergroup", "organism", "totalfeaturecount", "genecount", "transcripts", "exons", "te", "rr", "lastupdated"]
@@ -735,7 +740,7 @@ class AnnotatorController {
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name")
     ]
     )
-    def getAnnotatorsReportForGroup(){
+    def getAnnotatorsReportForGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
         if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN)) {
             render status: HttpStatus.UNAUTHORIZED.value()
@@ -745,10 +750,10 @@ class AnnotatorController {
         def group
         if (!dataObject.id && !dataObject.name) {
             def userGroups = UserGroup.all
-            def groupList = userGroups.findAll(){
+            def groupList = userGroups.findAll() {
                 it.metadata == null || it.getMetaData("creator") == (permissionService.currentUser.id as String) || permissionService.isGroupAdmin(it, permissionService.currentUser)
             }
-            group = groupList.collect{it.id}
+            group = groupList.collect { it.id }
         }
         if (!group && dataObject.id) {
             def userGroup = UserGroup.findById(dataObject.id)
