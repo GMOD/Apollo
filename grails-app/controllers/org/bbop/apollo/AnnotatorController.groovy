@@ -90,8 +90,9 @@ class AnnotatorController {
 
             log.debug "loading organism: ${organism}"
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
-            if (params.loc) {
-                String location = params.loc
+            String location = params.loc
+            // assume that the lookup is a symbol lookup value and not a location
+            if (location && location.contains(":") && location.contains("\\.\\.")) {
                 String[] splitString = location.split(":")
                 log.debug "splitString : ${splitString}"
                 String sequenceString = splitString[0]
@@ -112,8 +113,9 @@ class AnnotatorController {
 
                 preferenceService.setCurrentSequenceLocation(sequence.name, fmin, fmax, clientToken)
             }
+        }
 
-        } catch (e) {
+        catch (e) {
             log.error "problem parsing the string ${e}"
         }
 
@@ -129,7 +131,8 @@ class AnnotatorController {
             }
         }
 
-        if (queryParamString.contains("http://") || queryParamString.contains("https://") || queryParamString.contains("ftp://")) {
+        if (queryParamString.contains("http://") || queryParamString.contains("https://") ||
+                queryParamString.contains("ftp://")) {
             redirect uri: "${request.contextPath}/annotator/index?clientToken=" + clientToken + queryParamString
         } else {
             redirect uri: "/annotator/index?clientToken=" + clientToken + queryParamString
@@ -137,9 +140,9 @@ class AnnotatorController {
 
     }
 
-    /**
-     * Loads the main annotator panel.
-     */
+/**
+ * Loads the main annotator panel.
+ */
     @NotTransactional
     def index() {
         log.debug "loading the index"
@@ -168,10 +171,10 @@ class AnnotatorController {
         }
     }
 
-    /**
-     * updates shallow properties of gene / feature
-     * @return
-     */
+/**
+ * updates shallow properties of gene / feature
+ * @return
+ */
     @RestApiMethod(description = "Update shallow feature properties", path = "/annotator/updateFeature", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -272,20 +275,20 @@ class AnnotatorController {
         return jsonFeatureContainer;
     }
 
-    /**
-     * Not really setup for a REST service as is specific to the Annotator Panel interface.
-     * If a user has read permissions this method will work.
-     * @param sequenceName
-     * @param request
-     * @param annotationName
-     * @param type
-     * @param user
-     * @param offset
-     * @param max
-     * @param sortorder
-     * @param sort
-     * @return
-     */
+/**
+ * Not really setup for a REST service as is specific to the Annotator Panel interface.
+ * If a user has read permissions this method will work.
+ * @param sequenceName
+ * @param request
+ * @param annotationName
+ * @param type
+ * @param user
+ * @param offset
+ * @param max
+ * @param sortorder
+ * @param sort
+ * @return
+ */
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
@@ -557,26 +560,26 @@ class AnnotatorController {
         render updateFeatureContainer
     }
 
-    /**
-     * This is a public passthrough to version
-     */
+/**
+ * This is a public passthrough to version
+ */
     def version() {}
 
-    /**
-     * This is a very specific method for the GWT interface.
-     * An additional method should be added.
-     *
-     * AnnotatorService.getAppState() throws an exception and returns an empty JSON string
-     * if the user has insufficient permissions.
-     */
+/**
+ * This is a very specific method for the GWT interface.
+ * An additional method should be added.
+ *
+ * AnnotatorService.getAppState() throws an exception and returns an empty JSON string
+ * if the user has insufficient permissions.
+ */
     @Transactional
     def getAppState() {
         preferenceService.evaluateSaves(true)
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
-    /**
-     */
+/**
+ */
     @Transactional
     def setCurrentOrganism(Organism organismInstance) {
         // set the current organism
@@ -592,8 +595,8 @@ class AnnotatorController {
         render annotatorService.getAppState(params[FeatureStringEnum.CLIENT_TOKEN.value] as String) as JSON
     }
 
-    /**
-     */
+/**
+ */
     @Transactional
     def setCurrentSequence(Sequence sequenceInstance) {
         if (!permissionService.checkPermissions(PermissionEnum.READ)) {
@@ -612,11 +615,11 @@ class AnnotatorController {
         log.error "not authorized"
     }
 
-    /**
-     * Permissions handled upstream
-     * @param max
-     * @return
-     */
+/**
+ * Permissions handled upstream
+ * @param max
+ * @return
+ */
     def report(Integer max) {
         List<AnnotatorSummary> annotatorSummaryList = new ArrayList<>()
         params.max = Math.min(max ?: 20, 100)
@@ -630,9 +633,9 @@ class AnnotatorController {
         render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
     }
 
-    /**
-     * report annotation summary that is grouped by userGroups
-     */
+/**
+ * report annotation summary that is grouped by userGroups
+ */
     def instructorReport(UserGroup userGroup, Integer max) {
         params.max = Math.min(max ?: 20, 100)
         // restricted groups
