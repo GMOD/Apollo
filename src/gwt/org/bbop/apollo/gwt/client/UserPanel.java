@@ -179,6 +179,9 @@ public class UserPanel extends Composite {
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
+                        if(response.getStatusCode()==401){
+                            return;
+                        }
                         JSONArray jsonArray = JSONParser.parseLenient(response.getText()).isArray();
                         Integer userCount = 0;
                         if (jsonArray != null && jsonArray.size() > 0) {

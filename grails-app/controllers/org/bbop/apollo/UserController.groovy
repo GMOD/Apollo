@@ -43,7 +43,7 @@ class UserController {
             JSONObject dataObject = permissionService.handleInput(request, params)
             JSONArray returnArray = new JSONArray()
             // allow instructor see all the users
-            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.INSTRUCTOR)) {
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.USER)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
