@@ -3,7 +3,7 @@
              xmlns:b="urn:import:org.gwtbootstrap3.client.ui"
              xmlns:cellview="urn:import:com.google.gwt.user.cellview.client"
              xmlns:wa="urn:import:org.bbop.apollo.gwt.client"
-        >
+>
     <ui:style>
 
         .widgetPanel {
@@ -15,6 +15,7 @@
             margin-top: 10px;
             vertical-align: middle;
         }
+
         .container {
             margin-left: 10px;
             margin-top: 10px;
@@ -24,13 +25,17 @@
             margin-left: 0px;
             margin-right: 10px;
         }
+
         .pager {
             width: 100%;
             margin-left: auto;
             margin-right: auto;
         }
-        .inline-button{
+
+        .inline-button {
             display: inline;
+            margin-left: 5px;
+            margin-right: 5px;
         }
 
     </ui:style>
@@ -94,17 +99,27 @@
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:InputGroup>
                                     <b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>
-                                    <b:TextBox autoComplete="false" ui:field="nonDefaultTranslationTable" enabled="false"/>
+                                    <b:TextBox autoComplete="false" ui:field="nonDefaultTranslationTable"
+                                               enabled="false"/>
                                 </b:InputGroup>
                             </b:Column>
                         </b:Row>
                         <b:Row styleName="{style.row}">
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:Button ui:field="newButton" text="Add New Organism" enabled="true"/>
-                                <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"/>
-                                <b:Button ui:field="createButton" text="Save New Organism" visible="false"/>
-                                <b:Button ui:field="cancelButton" text="Cancel" visible="false"/>
-                                <b:CheckBox ui:field="publicMode" text="Public" enabled="true" />
+                                <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
+                                <b:Button ui:field="createButton" text="Save New Organism" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
+                                <b:Button ui:field="cancelButton" text="Cancel" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
+                                <b:CheckBox ui:field="publicMode" text="Public" enabled="true"
+                                            styleName="{style.inline-button}"
+                                />
+                                <b:Label ui:field="organismIdLabel"/>
                             </b:Column>
                         </b:Row>
                     </b:Container>

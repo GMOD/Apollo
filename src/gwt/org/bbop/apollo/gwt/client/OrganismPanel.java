@@ -78,6 +78,8 @@ public class OrganismPanel extends Composite {
     WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField
     TextBox nonDefaultTranslationTable;
+    @UiField
+    org.gwtbootstrap3.client.ui.Label organismIdLabel;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -134,7 +136,6 @@ public class OrganismPanel extends Composite {
             }
         });
         dataGrid.addColumn(sequenceColumn, safeHtmlHeader);
-//        dataGrid.addColumn(sequenceColumn, "Ref Sequences");
         dataGrid.setEmptyTableWidget(new Label("No organisms available. Add new organisms using the form field."));
 
 
@@ -225,6 +226,8 @@ public class OrganismPanel extends Composite {
 
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
+
+        organismIdLabel.setHTML("Internal ID: " +organismInfo.getId());
 
         nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
         nonDefaultTranslationTable.setEnabled(isEditable);
