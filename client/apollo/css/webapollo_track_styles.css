@@ -321,6 +321,13 @@ div.annot-sequence  {
     top: 10%;
 }
 
+.black-80pct,
+.plus-black-80pct,
+.minus-black-80pct  {
+    background-color: #222;
+    height: 80%;
+    top: 10%;
+}
 
 .brightgreen-80pct, 
 .plus-brightgreen-80pct, 

@@ -1277,6 +1277,15 @@ var draggableTrack = declare( HTMLFeatureTrack,
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "terminator",
+            onClick: dojo.hitch(this, function() {
+                var selection = this.selectionManager.getSelection();
+                var selFeats = this.selectionManager.getSelectedFeatures();
+                this.selectionManager.clearSelection();
+                atrack.createGenericOneLevelAnnotations(selFeats, "terminator", true);
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "transposable_element",
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
