@@ -609,7 +609,7 @@ public class AnnotatorPanel extends Composite {
                 String type = annotationInfo.getType();
                 switch (type) {
                     case "terminator":
-                        return "term elem";
+                        return "terminator";
                     case "repeat_region":
                         return "repeat rgn";
                     case "transposable_element":
