@@ -17,6 +17,7 @@ quickest way to take care of pre-requisites.
     -   Servlet container (must support servlet spec 3.0+) such as tomcat 8 for production (not needed for development).
     -   Java 8+  OpenJDK or Oracle should work.
     -   [npm 2.X or better / node.js](https://nodejs.org/en/download/package-manager/)
+	-   yarn `npm install -g yarn`
     -   Grails (optional, but good for development).   The easiest way to install is using sdkman, see [Apollo 2.x quick-start](Apollo2Build.md) for this step).
     -   Ant 1.8+ (most package managers will have this).
     -   A database (RDMS) system. Sample configurations for PostgreSQL and MySQL are available. H2 configuration does not require any manual installation.

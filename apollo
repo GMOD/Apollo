@@ -95,6 +95,13 @@ function check_node(){
     fi
 
     yarn_executable=$(which yarn)
+    if ! [ -x "$yarn_executable" ] ; then
+        yarnjs_executable=$(which yarnjs)
+		echo "You must install 'yarn ' to build Apollo."
+		exit 1 ;
+    fi
+
+
     YARN_VERSION=`$yarn_executable -v | cut -d\. -f1`
     echo "Yarn Version: $YARN_VERSION"
     if [ $YARN_VERSION -lt 1 ]; then
