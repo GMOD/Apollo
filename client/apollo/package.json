@@ -19,7 +19,9 @@
   },
   "keywords": [
     "genome",
-    "curation"
+    "curation",
+    "annotation",
+    "biology"
   ],
   "bugs": {
     "url": "https://github.com/GMOD/Apollo/issues"

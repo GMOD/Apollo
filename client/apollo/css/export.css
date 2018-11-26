@@ -1,17 +1,17 @@
 @CHARSET "UTF-8";
 
-.export_response {
+.jbrowse .export_response {
 	width: 15em;
 	text-align: center;
 }
 
-.waiting_image {
+.jbrowse .waiting_image {
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-.export_response_iframe {
+.jbrowse .export_response_iframe {
 	border: none;
 	text-align: center;
 	font-size: 12px;

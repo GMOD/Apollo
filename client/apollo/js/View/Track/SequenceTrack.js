@@ -1,23 +1,24 @@
-define([
-        'dojo/_base/declare',
-        'dojo/request/xhr',
-        'JBrowse/Store/Sequence/StaticChunked',
-        'WebApollo/Store/SeqFeature/ScratchPad',
-        'WebApollo/View/Track/DraggableHTMLFeatures',
-        'WebApollo/JSONUtils',
-        'WebApollo/Permission',
-        'dojox/widget/Standby',
-        'jquery/jquery'
-    ],
-    function (declare,
-              xhr,
-              StaticChunked,
-              ScratchPad,
-              DraggableFeatureTrack,
-              JSONUtils,
-              Permission,
-              Standby,
-              $) {
+const $ = require('jquery')
+
+define( [
+    'dojo/_base/declare',
+    'dojo/request/xhr',
+    'JBrowse/Store/Sequence/StaticChunked',
+    'WebApollo/Store/SeqFeature/ScratchPad',
+    'WebApollo/View/Track/DraggableHTMLFeatures',
+    'WebApollo/JSONUtils',
+    'WebApollo/Permission',
+    'dojox/widget/Standby'
+     ],
+function( declare,
+    xhr,
+    StaticChunked,
+    ScratchPad,
+    DraggableFeatureTrack,
+    JSONUtils,
+    Permission,
+    Standby
+) {
 
         var SequenceTrack = declare("SequenceTrack", DraggableFeatureTrack,
             {
