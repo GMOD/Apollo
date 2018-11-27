@@ -1905,6 +1905,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.symbol) {
             jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
         }
+        if (gsolFeature.status) {
+            jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value);
+        }
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
