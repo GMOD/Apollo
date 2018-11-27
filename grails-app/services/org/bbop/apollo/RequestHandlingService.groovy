@@ -547,6 +547,7 @@ class RequestHandlingService {
             fetchMode 'featureLocations.sequence', FetchMode.JOIN
             fetchMode 'featureProperties', FetchMode.JOIN
             fetchMode 'featureDBXrefs', FetchMode.JOIN
+            fetchMode 'status', FetchMode.JOIN
             fetchMode 'parentFeatureRelationships', FetchMode.JOIN
             fetchMode 'childFeatureRelationships', FetchMode.JOIN
             fetchMode 'childFeatureRelationships.parentFeature', FetchMode.JOIN
