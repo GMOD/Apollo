@@ -409,6 +409,7 @@ define([
                     var user = JSON.parse(apolloMainPanel.getCurrentUser());
                     client.subscribe("/topic/AnnotationNotification/" + organism.id + "/" + sequence.id, dojo.hitch(track, 'annotationNotification'));
                     client.subscribe("/topic/AnnotationNotification/user/" + user.email, dojo.hitch(track, 'annotationNotification'));
+		    localStorage.setItem('organism-id', organism.id);
                 });
                 console.log('connection established');
             },

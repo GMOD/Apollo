@@ -144,8 +144,8 @@ jbrowse {
        }
        ColorByType {
            git = "https://github.com/NAL-i5K/ColorByType"
-           branch = "master"
-//           branch = "color_second_level"
+//           branch = "master"
+           branch = "issue10_cds"
            alwaysPull = true
            alwaysRecheck = true
        }
