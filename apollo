@@ -6,8 +6,8 @@ function usage(){
     echo "";
     echo "Production Commands:";
     echo "";
-    echo "deploy:           Builds Unoptimized war file (no processing of javascript) into the target directory.";
-    echo "release:          Builds in release mode (minimized javascript). (beta)";
+    echo "deploy:           Builds war file (no processing of javascript) into the target directory.";
+    echo "install-tools:    Installs JBrowse tools in the ./bin directory if not preset."
     echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
     echo "help:             This message.";
     echo "";
@@ -15,7 +15,7 @@ function usage(){
     echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
     echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
-    echo "debug:            Runs from current directory in debug mode (non-minimized javascript).";
+    echo "debug:            Runs from cuurent directory in debug mode (non-minimized javascript).";
     echo "watchman:         Creates watchman daemon to autocopy plugin files (non-minimized javascript).";
     echo "compile:          Compiled the build.";
     echo "clean:            Removes class files.";
@@ -93,6 +93,22 @@ function check_node(){
         echo "npm version 3 or better must be installed.  Please install an updated version of node.js by following the instructions appropriate for your system https://nodejs.org/en/download/package-manager/";
         exit 1
     fi
+
+    yarn_executable=$(which yarn)
+    if ! [ -x "$yarn_executable" ] ; then
+        yarnjs_executable=$(which yarnjs)
+		echo "You must install 'yarn ' to build Apollo."
+		exit 1 ;
+    fi
+
+
+    YARN_VERSION=`$yarn_executable -v | cut -d\. -f1`
+    echo "Yarn Version: $YARN_VERSION"
+    if [ $YARN_VERSION -lt 1 ]; then
+        echo "yarn version 1 or better must be installed. npm i -g yarn"
+        exit 1
+    fi
+
 }
 
 
@@ -160,27 +176,31 @@ function clean_code(){
 function clean_all(){
     check_configs
     rm -rf bin
-    rm -rf jbrowse-download
-    rm -rf JBrowse-dev
+    rm -rf jbrowse
     rm -rf web-app/jbrowse
     rm -rf extlib
     rm -rf node_modules
+    rm -rf client/apollo/node_modules
     rm -rf package-lock.json
     rm -f *.zip
+    rm -f *.tar.gz
     clean_code
 }
 
-
 if [[ $1 == "devmode" ]];then
     check_configs
-    $gradle_executable handleJBrowse copyResourcesDev devmode &
+    $gradle_executable installJBrowseWebOnly devmode &
     $grails_executable -reloading run-app
+elif [[ $1 == "install-tools" ]];then
+    check_configs
+    check_perldependencies
+    $gradle_executable installJBrowseLocal
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copy-resources copyResourcesDev gwtc && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable installJBrowseWebOnly gwtc && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copy-resources copyResourcesDev gwtc && $grails_executable run-app
+        $gradle_executable installJBrowseWebOnly gwtc && $grails_executable run-app
     fi
 elif [[ $1 == "watchman" ]]; then
     watchman_executable=$(which watchman)
@@ -193,9 +213,10 @@ elif [[ $1 == "watchman" ]]; then
 elif [[ $1 == "run-app" ]];then
     check_configs
     if [[ $# == 2 ]]; then
-        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable -Dserver.port=$2 run-app
+#        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
+        $gradle_executable installJBrowseWebOnly && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable handleJBrowse copyResourcesDev && $grails_executable run-app
+        $gradle_executable installJBrowseWebOnly && $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
@@ -204,31 +225,24 @@ elif [[ $1 == "debug" ]];then
     copy_configs
     clean_all
     export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n
-    $gradle_executable handleJBrowse devmode &
+    $gradle_executable installJBrowseWebOnly devmode &
     $grails_executable -reloading debug
     export MAVEN_OPTS=$OLD_MAVEN_OPTS
     unset OLD_MAVEN_OPTS
 elif [[ $1 == "test" ]];then
     check_configs
     copy_configs
-    $gradle_executable handleJBrowse
+    $gradle_executable installJBrowseWebOnly
     check_rest_api
 	$grails_executable test-app
 elif [[ $1 == "test-unit" ]];then
     check_configs
     copy_configs
-    $grails_executable handleJBrowse test-app :unit
+    $grails_executable installJBrowseWebOnly test-app :unit
 elif [[ $1 == "deploy" ]];then
     check_configs
     copy_configs
-    $gradle_executable handleJBrowse copy-resources gwtc &&  $grails_executable war
-    deploy_message
-elif [[ $1 == "release" ]];then
-    check_configs
-    check_configs_for_release
-    copy_configs
-    clean_all
-    $gradle_executable handleJBrowse release gwtc && $grails_executable war
+    $gradle_executable installJBrowseWebOnly gwtc &&  $grails_executable war
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
@@ -243,7 +257,7 @@ elif [[ $1 == "clean" ]];then
     $gradle_executable clean &&  $grails_executable clean
 elif [[ $1 == "jbrowse" ]];then
     check_configs
-    $gradle_executable handleJBrowse
+    $gradle_executable installJBrowseWebOnly
 else
     usage
 fi

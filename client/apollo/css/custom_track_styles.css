@@ -1,71 +1,71 @@
-.whatever-80pct, 
-.whatever-blue-80pct, 
-.whatever-blue-80pct  {
+.jbrowse .whatever-80pct,
+.jbrowse .whatever-blue-80pct,
+.jbrowse .whatever-blue-80pct  {
     background-color: blue;
     height: 80%;
     top: 10%;
 }
 
-.green-80pct, 
-.plus-green-80pct, 
-.minus-green-80pct  {
+.jbrowse .green-80pct,
+.jbrowse .plus-green-80pct,
+.jbrowse .minus-green-80pct  {
     background-color: green; 
     height: 80%;
     top: 10%;
 }
 
-.blue-80pct, 
-.plus-blue-80pct, 
-.minus-blue-80pct  {
+.jbrowse .blue-80pct,
+.jbrowse .plus-blue-80pct,
+.jbrowse .minus-blue-80pct  {
     background-color: blue; 
     height: 80%;
     top: 10%;
 }
 
-.purple-80pct, 
-.plus-purple-80pct, 
-.minus-purple-80pct  {
+.jbrowse .purple-80pct,
+.jbrowse .plus-purple-80pct,
+.jbrowse .minus-purple-80pct  {
     background-color: purple; 
     height: 80%;
     top: 10%;
 }
 
-.springgreen-80pct, 
-.plus-springgreen-80pct, 
-.minus-springgreen-80pct  {
+.jbrowse .springgreen-80pct,
+.jbrowse .plus-springgreen-80pct,
+.jbrowse .minus-springgreen-80pct  {
     background-color: springgreen; 
     height: 80%;
     top: 10%;
 }
 
-.blueviolet-80pct, 
-.plus-blueviolet-80pct, 
-.minus-blueviolet-80pct  {
+.jbrowse .blueviolet-80pct,
+.jbrowse .plus-blueviolet-80pct,
+.jbrowse .minus-blueviolet-80pct  {
     background-color: blueviolet; 
     height: 80%;
     top: 10%;
 }
 
-.mediumpurple-80pct, 
-.plus-mediumpurple-80pct, 
-.minus-mediumpurple-80pct  {
+.jbrowse .mediumpurple-80pct,
+.jbrowse .plus-mediumpurple-80pct,
+.jbrowse .minus-mediumpurple-80pct  {
     background-color: mediumpurple; 
     height: 80%;
     top: 10%;
 }
 
-.orange-80pct, 
-.plus-orange-80pct, 
-.minus-orange-80pct  {
+.jbrowse .orange-80pct,
+.jbrowse .plus-orange-80pct,
+.jbrowse .minus-orange-80pct  {
     background-color: rgb(255, 163, 0);
     height: 80%;
     top: 10%;
     border: 1px solid gray;
 }
 
-.darkorange-60pct, 
-.plus-darkorange-60pct, 
-.minus-darkorange-60pct  {
+.jbrowse .darkorange-60pct,
+.jbrowse .plus-darkorange-60pct,
+.jbrowse .minus-darkorange-60pct  {
     background-color: rgb(214, 172, 121);
     height: 60%;
     top: 20%;

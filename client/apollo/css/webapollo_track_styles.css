@@ -1,13 +1,13 @@
 
-.track .global_highlight {
+.jbrowse .track .global_highlight {
     background: rgba( 255, 255, 0, 0.5 );
 }
 
-.feature, .plus-feature, .minus-feature {
+.jbrowse .feature, .plus-feature, .minus-feature {
   height: 10px;
 }
 
-.webapollo-CDS {
+.jbrowse .webapollo-CDS {
     height: 80%;
     top: 10%;
     background-color: rgb(218, 170, 241);
@@ -16,36 +16,36 @@
     border-width: 1px;
 }
 
-.webapollo-UTR {
+.jbrowse .webapollo-UTR {
     height: 50%;
     top: 25%;
     background-color: rgb(173, 92, 194);
 }
 
-.bam-read{
+.jbrowse .bam-read{
     height: 5px;
     background-color: #AACDDC;
     z-index: 8;
 }
 
-.plus-bam-read {
+.jbrowse .plus-bam-read {
     height: 5px;
     background-color: #EC8B8B;
     z-index: 8;
 }
 
-.minus-bam-read {
+.jbrowse .minus-bam-read {
     height: 5px;
     background-color: #898FD8;
     z-index: 8;
 }
 
 
-.track.track_annotations {
+.jbrowse .track.track_annotations {
     background-color: #FFFFDD;
 }
 
-.Dark .track.track_annotations {
+.jbrowse .Dark .track.track_annotations {
     background-color: #676767;
 }
 
@@ -88,7 +88,7 @@ div.wa-sequence .dna-residues.forward-strand {
     color: black;
     z-index: 5;
 }
-.Dark div.wa-sequence .dna-residues.forward-strand {
+.jbrowse .Dark div.wa-sequence .dna-residues.forward-strand {
 	color: white;
 }
 
@@ -98,7 +98,7 @@ div.wa-sequence .dna-residues.reverse-strand {
     z-index: 5;
     /* outline: 1px solid pink; */
 }
-.Dark div.wa-sequence .dna-residues.reverse-strand {
+.jbrowse .Dark div.wa-sequence .dna-residues.reverse-strand {
 	color: lightgray;
 }
 
@@ -162,37 +162,37 @@ div.annot-sequence  {
 *      and for subfeatures that have rendered children 
 *      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
 ********************************************************/
-.container-16px, 
-.plus-container-16px, 
-.minus-container-16px  {
+.jbrowse .container-16px,
+.jbrowse .plus-container-16px,
+.jbrowse .minus-container-16px  {
     height: 16px;
     background-color: transparent;
 }
 
-.container-14px, 
-.plus-container-14px, 
-.minus-container-14px  {
+.jbrowse .container-14px,
+.jbrowse .plus-container-14px,
+.jbrowse .minus-container-14px  {
     height: 14px;
     background-color: transparent;
 }
 
-.container-12px, 
-.plus-container-12px, 
-.minus-container-12px  {
+.jbrowse .container-12px,
+.jbrowse .plus-container-12px,
+.jbrowse .minus-container-12px  {
     height: 12px;
     background-color: transparent;
 }
 
-.container-10px, 
-.plus-container-10px, 
-.minus-container-10px  {
+.jbrowse .container-10px,
+.jbrowse .plus-container-10px,
+.jbrowse .minus-container-10px  {
     height: 10px;
     background-color: transparent;
 }
 
-.container-8px, 
-.plus-container-8px, 
-.minus-container-8px {
+.jbrowse .container-8px,
+.jbrowse .plus-container-8px,
+.jbrowse .minus-container-8px {
     height: 8px;
     background-color: transparent;
 }
@@ -201,14 +201,14 @@ div.annot-sequence  {
 *  want to size subfeature container to same height as parent feature
 *      (currently only subfeatures like this are exons, which have CDS and UTR child divs)
 */
-.container-100pct, 
-.plus-container-100pct, 
-.minus-container-100pct {
+.jbrowse .container-100pct,
+.jbrowse .plus-container-100pct,
+.jbrowse .minus-container-100pct {
     height: 100%;
     background-color: transparent;
 }
 
-.feature-render  {
+.jbrowse .feature-render  {
     position: absolute;
     min-width: 1px;
     width: 100%;
@@ -222,21 +222,21 @@ div.annot-sequence  {
  *   Basic boxes for subfeatures (and for "render-*" rendering div for features with container divs)
  *   height is % of parent feature, top % determined based on height to ensure vertically centered
  */
-.gray-center-30pct  {
+.jbrowse .gray-center-30pct  {
     background-color: gray;
     height: 30%;
     top: 35%;
 }
 
 
-.gray-center-50pct  {
+.jbrowse .gray-center-50pct  {
     background-color: lightgray;
     height: 50%;
     top: 25%;
 }
 
 
-.gray-center-20pct  {
+.jbrowse .gray-center-20pct  {
     position:absolute;
     background-color: gray;
     min-width: 1px;
@@ -249,7 +249,7 @@ div.annot-sequence  {
     z-index: 2;  
 }
 
-.gray-center-10pct  {
+.jbrowse .gray-center-10pct  {
     position:absolute;
     background-color: gray;
     min-width: 1px;
@@ -265,114 +265,121 @@ div.annot-sequence  {
 
 
 
-.pink-90pct, 
-.plus-pink-90pct, 
-.minus-pink-90pct  {
+.jbrowse .pink-90pct,
+.jbrowse .plus-pink-90pct,
+.jbrowse .minus-pink-90pct  {
     height: 90%;
     top: 5%;
     background-color: #D8BDEB;
     border: 1px solid #01F;
 }
 
-.pink-12px, 
-.plus-pink-12px, 
-.minus-pink-12px {
+.jbrowse .pink-12px,
+.jbrowse .plus-pink-12px,
+.jbrowse .minus-pink-12px {
     background-color: #D8BDEB;
     border: 1px solid #01F;
     height: 12px;
 }
 
-.pink-16px, 
-.plus-pink-16px, 
-.minus-pink-16px {
+.jbrowse .pink-16px,
+.jbrowse .plus-pink-16px,
+.jbrowse .minus-pink-16px {
     background-color: #D8BDEB;
     border: 1px solid #01F;
     height: 16px;
 }
 
-.purple-60pct, 
-.plus-purple-60pct, 
-.minus-purple-60pct  {
+.jbrowse .purple-60pct,
+.jbrowse .plus-purple-60pct,
+.jbrowse .minus-purple-60pct  {
     background-color: #8F408F;
     height: 60%;
     top: 20%;
 }
 
-.purple-8px, 
-.plus-purple-8px, 
-.minus-purple-8px {
+.jbrowse .purple-8px,
+.jbrowse .plus-purple-8px,
+.jbrowse .minus-purple-8px {
     background-color: #8F408F;
     height: 8px; 
 }
 
-.darkblue-80pct, 
-.plus-darkblue-80pct, 
-.minus-darkblue-80pct  {
+.jbrowse .darkblue-80pct,
+.jbrowse .plus-darkblue-80pct,
+.jbrowse .minus-darkblue-80pct  {
     background-color: #1F3DDE;
     height: 80%;
     top: 10%;
 }
 
-.bluegreen-80pct, 
-.plus-bluegreen-80pct, 
-.minus-bluegreen-80pct  {
+.jbrowse .bluegreen-80pct,
+.jbrowse .plus-bluegreen-80pct,
+.jbrowse .minus-bluegreen-80pct  {
     background-color: #3BA08E;
     height: 80%;
     top: 10%;
 }
 
+.black-80pct,
+.plus-black-80pct,
+.minus-black-80pct  {
+    background-color: #222;
+    height: 80%;
+    top: 10%;
+}
 
-.brightgreen-80pct, 
-.plus-brightgreen-80pct, 
-.minus-brightgreen-80pct  {
+.jbrowse .brightgreen-80pct,
+.jbrowse .plus-brightgreen-80pct,
+.jbrowse .minus-brightgreen-80pct  {
     background-color: #21D61F;
     border: 1px solid #555;
     height: 80%;
     top: 10%;
 }
 
-.darkgreen-60pct, 
-.plus-darkgreen-60pct, 
-.minus-darkgreen-60pct {
+.jbrowse .darkgreen-60pct,
+.jbrowse .plus-darkgreen-60pct,
+.jbrowse .minus-darkgreen-60pct {
     height: 60%;
     top: 20%;
     background-color: #8DB890;
 }
 
-.trellis-CDS, 
-.plus-trellis-CDS, 
-.minus-trellis-CDS {
+.jbrowse .trellis-CDS,
+.jbrowse .plus-trellis-CDS,
+.jbrowse .minus-trellis-CDS {
     background-color: gold;
     border: 1px solid gray;
     height: 80%;
     top: 10%;
 }
 
-.trellis-UTR, 
-.plus-trellis-UTR, 
-.minus-trellis-UTR  {
+.jbrowse .trellis-UTR,
+.jbrowse .plus-trellis-UTR,
+.jbrowse .minus-trellis-UTR  {
     background-color: #B39700;
     height: 60%;
     top: 20%;
 }
 
-.trellis-match-part, 
-.plus-trellis-match-part, 
-.minus-trellis-match-part  {
+.jbrowse .trellis-match-part,
+.jbrowse .plus-trellis-match-part,
+.jbrowse .minus-trellis-match-part  {
     background-color: #1F3DDE;
     height: 60%;
     top: 10%;
 }
 
 /* CIGAR string "M" subfeature, indicating "alignment match" (can be a sequence match or mismatch) of aligned sequence relative to viewed sequence */
-.cigarM {
+.jbrowse .cigarM {
     height: 100%; 
     background-color: #1B8A99;
     z-index: 8;   /* rendered below most other subfeatures */
     min-width: 1px;
 }
 
-.plus-cigarM {
+.jbrowse .plus-cigarM {
     height: 100%;
     /*background-color: #898FD8;*/
     background-color: indianred;
@@ -381,7 +388,7 @@ div.annot-sequence  {
     min-width: 1px;
 }
 
-.minus-cigarM  {
+.jbrowse .minus-cigarM  {
     height: 100%;
     /*background-color: #EC8B8B;*/
     background-color: royalblue;
@@ -391,9 +398,9 @@ div.annot-sequence  {
 }
 
 /* CIGAR string "=" (or "E") subfeature, indicating exact sequence match of aligned sequence relative to viewed sequence */
-.cigarEQ, 
-.plus-cigarEQ, 
-.minus-cigarEQ  {
+.jbrowse .cigarEQ,
+.jbrowse .plus-cigarEQ,
+.jbrowse .minus-cigarEQ  {
     height: 100%; 
     background-color: #1B8A99;
     z-index: 10; /* rendered above more generic "M" type */
@@ -401,9 +408,9 @@ div.annot-sequence  {
 }
 
 /* CIGAR string "X" subfeature, indicating mismatch of aligned sequence relative to viewed sequence */
-.cigarX, 
-.plus-cigarX, 
-.minus-cigarX  {
+.jbrowse .cigarX,
+.jbrowse .plus-cigarX,
+.jbrowse .minus-cigarX  {
     height: 100%; 
     background-color: rgb(182, 167, 0);  
     z-index: 11;  /* rendered above matches, but below deletions and insertions */
@@ -415,24 +422,24 @@ div.annot-sequence  {
 /* align_insertion, align_deletion, align_skip, align_mismatch are assigned to 
    non-feature child divs of bam-read features in DraggableAlignments._drawMismatches()
 */
-.align_insertion {
+.jbrowse .align_insertion {
     background-color: #00FF00;
     height: 100%;
     min-width: 2px;
     z-index: 20;
 }
 
-.align_deletion {
+.jbrowse .align_deletion {
     background-color: #FF0000;
     height: 100%;
     min-width: 2px;
     z-index: 20;
 }
 
-.align_skip {
+.jbrowse .align_skip {
 }
 
-.align_mismatch {
+.jbrowse .align_mismatch {
     background-color: #D8C046;
     height: 100%;
     min-width: 2px;
@@ -440,51 +447,51 @@ div.annot-sequence  {
 }
 
 /** container */
-.annot,  
-.plus-annot,
-.minus-annot {
+.jbrowse .annot,
+.jbrowse .plus-annot,
+.jbrowse .minus-annot {
   height: 16px;
   background-color: transparent;
   user-select: none;
 }
 
-.annot-render {
+.jbrowse .annot-render {
     height: 8px;
     margin-top: 4px;
     background-color: #A4BBFF;
 }
 
-.annot-apollo{
+.jbrowse .annot-apollo{
 
 }
  
-.annot-CDS, 
-.plus-annot-CDS,
-.minus-annot-CDS {
+.jbrowse .annot-CDS,
+.jbrowse .plus-annot-CDS,
+.jbrowse .minus-annot-CDS {
     height: 16px;
     background-color: #30AAFF;
     border: 1px solid #01F;
 }
 
-.Dark .annot-CDS,
-.Dark .plus-annot-CDS,
-.Dark .minus-annot-CDS {
+.jbrowse .Dark .annot-CDS,
+.jbrowse .Dark .plus-annot-CDS,
+.jbrowse .Dark .minus-annot-CDS {
     height: 16px;
     background-color: #30AAFF;
     border: 1px solid hsla(205, 100%, 25%, 1);
 }
 
-.annot-UTR, x
-.plus-annot-UTR, 
-.minus-annot-UTR {
+.jbrowse .annot-UTR, x
+.jbrowse .plus-annot-UTR,
+.jbrowse .minus-annot-UTR {
     height: 12px; 
     margin-top: 2px;
     background-color: #2088FF;
 }
 
-.noncanonical-splice-site, 
-.plus-noncanonical-splice-site,  
-.minus-noncanonical-splice-site  { 
+.jbrowse .noncanonical-splice-site,
+.jbrowse .plus-noncanonical-splice-site,
+.jbrowse .minus-noncanonical-splice-site  {
     margin-left: -8px;
     /* margin-top: -11px;  */
     /*  moved noncanonical icon to bottom of annotation, prefer top of annotation but 
@@ -512,9 +519,9 @@ div.annot-sequence  {
        (div.sequence .dna-residues.forward-strand) and 
        (div.sequence .dna-residues.reverse-strand) styles
 */
-.Apollo .sequence-alteration-artifact.deletion_artifact,
-.Apollo .sequence-alteration-artifact.plus-deletion_artifact,
-.Apollo .sequence-alteration-artifact.minus-deletion_artifact {
+.jbrowse .Apollo .sequence-alteration-artifact.deletion_artifact,
+.jbrowse .Apollo .sequence-alteration-artifact.plus-deletion_artifact,
+.jbrowse .Apollo .sequence-alteration-artifact.minus-deletion_artifact {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -523,9 +530,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.Apollo .sequence-alteration-artifact.insertion_artifact,
-.Apollo .sequence-alteration-artifact.plus-insertion_artifact,
-.Apollo .sequence-alteration-artifact.minus-insertion_artifact {
+.jbrowse .Apollo .sequence-alteration-artifact.insertion_artifact,
+.jbrowse .Apollo .sequence-alteration-artifact.plus-insertion_artifact,
+.jbrowse .Apollo .sequence-alteration-artifact.minus-insertion_artifact {
     border-style: solid;
     border-color: green;
     border-width: 1px;
@@ -534,9 +541,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.Apollo .sequence-alteration-artifact.substitution_artifact,
-.Apollo .sequence-alteration-artifact.plus-substitution_artifact,
-.Apollo .sequence-alteration-artifact.minus-substitution_artifact {
+.jbrowse .Apollo .sequence-alteration-artifact.substitution_artifact,
+.jbrowse .Apollo .sequence-alteration-artifact.plus-substitution_artifact,
+.jbrowse .Apollo .sequence-alteration-artifact.minus-substitution_artifact {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -545,9 +552,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.plus-trellis-arrowhead,
-.plus-webapollo-arrowhead,
-.plus-annot-arrowhead  {
+.jbrowse .plus-trellis-arrowhead,
+.jbrowse .plus-webapollo-arrowhead,
+.jbrowse .plus-annot-arrowhead  {
     position: absolute;
     width: 12px;
     height: 100%;
@@ -557,9 +564,9 @@ div.annot-sequence  {
     z-index: 15;
 }
 
-.minus-trellis-arrowhead,
-.minus-webapollo-arrowhead,
-.minus-annot-arrowhead {
+.jbrowse .minus-trellis-arrowhead,
+.jbrowse .minus-webapollo-arrowhead,
+.jbrowse .minus-annot-arrowhead {
     position: absolute;
     width: 12px;
     height: 100%;
@@ -611,7 +618,7 @@ div.annot-sequence  {
 	text-shadow: none;
 }
 
-.Dark div.ruler svg g line {
+.jbrowse .Dark div.ruler svg g line {
 	stroke: white;
 }
 
@@ -628,7 +635,7 @@ div.annot-sequence  {
 }
 
 
-.Dark .track .loading {
+.jbrowse .Dark .track .loading {
 	background: rgb(59, 59, 61);
 	color: white;
 }
@@ -637,7 +644,7 @@ div.annot-sequence  {
 *   appearance of resizing box when dragging annotation edges
 *   if case browser doesn't support transparency via "rgba", fall back on solid background?
 */
-.ui-resizable-helper  {
+.jbrowse .ui-resizable-helper  {
     border: 2px dotted red;
     background: rgb(100, 150, 255);
     background: rgba(100, 150, 255, 0.5);
@@ -648,7 +655,7 @@ div.annot-sequence  {
 *  By default, no styling associated with custom multifeature draggable helper
 *  But leaving here for easing toggling of diagnostic rendering
 */
-.custom-multifeature-draggable-helper  {
+.jbrowse .custom-multifeature-draggable-helper  {
 /*  
     outline-style: dotted; 
     outline-color: red;
@@ -659,7 +666,7 @@ div.annot-sequence  {
 /**
 *  appearance of annotations (features in AnnoTracks)  when they are drop targets and are hovered over 
 */
-.annot-drop-hover  {
+.jbrowse .annot-drop-hover  {
     outline-style: solid; 
     outline-color: green;
     outline-width: 4px; 
@@ -669,7 +676,7 @@ div.annot-sequence  {
 *  overriding JQueryUI .ui-resizable style, which changes anything getting resized to "position:absolute"
 *  for this to work this CSS _must_ come after jquery-ui.css in load order
 */
-.ui-resizable  {
+.jbrowse .ui-resizable  {
     position: absolute;
 }
 
@@ -677,7 +684,7 @@ div.annot-sequence  {
 *  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
 *  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
 */
-.left-edge-match  {
+.jbrowse .left-edge-match  {
     border-left: solid red 2px !important;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -689,7 +696,7 @@ div.annot-sequence  {
 *  setting box-sizing to border-box keeps the border _inside_ the element (rather than outside)
 *  (-moz*, -webkit*, -ms* prefixed versions needed because box-sizing property name currently differs across browsers)
 */
-.right-edge-match  {
+.jbrowse .right-edge-match  {
     border-right: solid red 2px !important;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -699,13 +706,13 @@ div.annot-sequence  {
 
 
 /* to make sure selection style overrides any other styles in this stylesheet, make sure to put selection style at end */
-.selected-feature {
+.jbrowse .selected-feature {
     outline-style: solid; 
     outline-color: red;
     outline-width: 3px;
 }
 
-.shadow  { 
+.jbrowse .shadow  {
     -moz-box-shadow: 5px 5px 5px #444;
     -webkit-box-shadow: 5px 5px 5px #444;
     box-shadow: 5px 5px 5px #444;
@@ -714,7 +721,7 @@ div.annot-sequence  {
 /* 
 *  selection of annotations is separate from selection of features 
 */
-.selected-annotation  {
+.jbrowse .selected-annotation  {
     outline-style: solid;
     outline-color: red;
     outline-width: 3px;
@@ -741,9 +748,9 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 /* default-alignment-block    background-color: #C87C8E; */
 /* nvit-alignment    background-color: #848DBF; */
 
-.stop_codon_read_through, 
-.plus-stop_codon_read_through,
-.minus-stop_codon_read_through {
+.jbrowse .stop_codon_read_through,
+.jbrowse .plus-stop_codon_read_through,
+.jbrowse .minus-stop_codon_read_through {
     position: absolute;
     height: 16px;
     background-color: purple;
@@ -758,73 +765,73 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     -webkit-box-sizing: border-box;
 }
 
-.pseudogene,
-.plus-pseudogene, 
-.minus-pseudogene {
+.jbrowse .pseudogene,
+.jbrowse .plus-pseudogene,
+.jbrowse .minus-pseudogene {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(153,153,255);
 }
 
-.tRNA,
-.plus-tRNA, 
-.minus-tRNA {
+.jbrowse .tRNA,
+.jbrowse .plus-tRNA,
+.jbrowse .minus-tRNA {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
 
-.snRNA,
-.plus-snRNA, 
-.minus-snRNA {
+.jbrowse .snRNA,
+.jbrowse .plus-snRNA,
+.jbrowse .minus-snRNA {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
 
-.snoRNA,
-.plus-snoRNA, 
-.minus-snoRNA {
+.jbrowse .snoRNA,
+.jbrowse .plus-snoRNA,
+.jbrowse .minus-snoRNA {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
 
-.ncRNA,
-.plus-ncRNA, 
-.minus-ncRNA {
+.jbrowse .ncRNA,
+.jbrowse .plus-ncRNA,
+.jbrowse .minus-ncRNA {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
 
-.miRNA,
-.plus-miRNA, 
-.minus-miRNA {
+.jbrowse .miRNA,
+.jbrowse .plus-miRNA,
+.jbrowse .minus-miRNA {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
 
-.rRNA,
-.plus-rRNA, 
-.minus-rRNA {
+.jbrowse .rRNA,
+.jbrowse .plus-rRNA,
+.jbrowse .minus-rRNA {
     height: 12px; 
     margin-top: 2px;
     background-color: rgb(0,204,0);
 }
 
-.repeat_region,
-.plus-repeat_region, 
-.minus-repeat_region {
+.jbrowse .repeat_region,
+.jbrowse .plus-repeat_region,
+.jbrowse .minus-repeat_region {
     height: 12px; 
     margin-top: 2px;
     background-color: magenta;
 }
 
-.transposable_element,
-.plus-transposable_element, 
-.minus-transposable_element {
+.jbrowse .transposable_element,
+.jbrowse .plus-transposable_element,
+.jbrowse .minus-transposable_element {
 	height: 12px;
 	border-left-color: blue;
 	border-right-color: blue;
@@ -834,13 +841,13 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 	z-index: 10;
 }
 
-.transposable_element-render {
+.jbrowse .transposable_element-render {
     height: 3px;
     margin-top: 4px;
     background-color: blue;
 }
 
-.blue-ibeam {
+.jbrowse .blue-ibeam {
 	height: 12px;
 	border-left-color: blue;
 	border-right-color: blue;
@@ -850,54 +857,54 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 	z-index: 10;
 }
 
-.blue-ibeam-render {
+.jbrowse .blue-ibeam-render {
 	height: 3px;
     margin-top: 4px;
     background-color: blue;
 }
 
-.magenta-80pct,
-.plus-magenta-80pct, 
-.minus-magenta-80pct {
+.jbrowse .magenta-80pct,
+.jbrowse .plus-magenta-80pct,
+.jbrowse .minus-magenta-80pct {
 	top: 10%;
 	height: 80%;
     background-color: magenta;
     border: 1px solid #01F;
 }
 
-.light-purple-80pct,
-.plus-light-purple-80pct, 
-.minus-light-purple-80pct {
+.jbrowse .light-purple-80pct,
+.jbrowse .plus-light-purple-80pct,
+.jbrowse .minus-light-purple-80pct {
 	top: 10%;
 	height: 80%;
     background-color: rgb(153,153,255);
     border: 1px solid #01F;
 }
 
-.locked-annotation  {
+.jbrowse .locked-annotation  {
     outline-style: solid;
     outline-color: blue;
     outline-width: 3px;
 }
 
-.sequence-start-protein {
+.jbrowse .sequence-start-protein {
     background-color: yellow;
     font-weight: bolder;
 	color: black;
     display: inline ;
 }
 
-.sequence-stop-protein {
+.jbrowse .sequence-stop-protein {
     background-color: #3b4a20;
     font-weight: bolder;
 	color: white;
     display: inline ;
 }
 
-.insertion-variant,
-.deletion-variant,
-.snv-variant,
-.mnv-variant {
+.jbrowse .insertion-variant,
+.jbrowse .deletion-variant,
+.jbrowse .snv-variant,
+.jbrowse .mnv-variant {
     height: 16px;
     border-width: 0px 0px 0px 0px;
     border-style: none;
@@ -905,10 +912,10 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     z-index: 10;
 }
 
-.insertion-variant-render,
-.deletion-variant-render,
-.snv-variant-render,
-.mnv-variant-render {
+.jbrowse .insertion-variant-render,
+.jbrowse .deletion-variant-render,
+.jbrowse .snv-variant-render,
+.jbrowse .mnv-variant-render {
     width: 0;
     height: 0;
     border-left: 4px solid transparent;

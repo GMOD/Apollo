@@ -36,7 +36,7 @@ class FeatureService {
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final
     def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
-    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm]
+    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm,Terminator.cvTerm]
 
     @Timed
     @Transactional
@@ -1527,6 +1527,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Pseudogene.ontologyId: return new Pseudogene()
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
+            case Terminator.ontologyId: return new Terminator()
             case RepeatRegion.ontologyId: return new RepeatRegion()
             case InsertionArtifact.ontologyId: return new InsertionArtifact()
             case DeletionArtifact.ontologyId: return new DeletionArtifact()
@@ -1570,6 +1571,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case Pseudogene.cvTerm.toUpperCase(): return Pseudogene.ontologyId
                 case TransposableElement.alternateCvTerm.toUpperCase():
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
+                case Terminator.alternateCvTerm.toUpperCase():
+                case Terminator.cvTerm.toUpperCase(): return Terminator.ontologyId
                 case RepeatRegion.alternateCvTerm.toUpperCase():
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
                 case InsertionArtifact.cvTerm.toUpperCase(): return InsertionArtifact.ontologyId
@@ -1901,6 +1904,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         if (gsolFeature.symbol) {
             jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+        }
+        if (gsolFeature.status) {
+            jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value);
         }
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);

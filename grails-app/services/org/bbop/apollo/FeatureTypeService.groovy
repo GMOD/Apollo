@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 @Transactional
 class FeatureTypeService {
@@ -29,6 +28,8 @@ class FeatureTypeService {
         createFeatureTypeForFeature(NcRNA.class,NcRNA.cvTerm)
         createFeatureTypeForFeature(RRNA.class,RRNA.cvTerm)
         createFeatureTypeForFeature(RepeatRegion.class,RepeatRegion.cvTerm)
+        createFeatureTypeForFeature(Terminator.class,Terminator.alternateCvTerm)
         createFeatureTypeForFeature(TransposableElement.class,TransposableElement.cvTerm)
+        return true
     }
 }

@@ -22,6 +22,7 @@ SequenceOntologyUtils.neverHasCDS = {
     alignment: true, 
     repeat: true,
     repeat_region: true,
+    terminator: true,
     transposable_element: true
 };
             
@@ -40,6 +41,7 @@ SequenceOntologyUtils.neverHasExons = {
     alignment: true, 
     repeat: true,
     repeat_region: true,
+    terminator: true,
     transposable_element: true
 };
 
