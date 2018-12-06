@@ -76,7 +76,7 @@ class ReportService {
     generate organism summary specific to an annotator
      */
 
-    def generateOrganismSummary(User owner, Organism organism) {
+    OrganismSummary generateOrganismSummary(User owner, Organism organism) {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
         def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
         def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])
@@ -146,7 +146,6 @@ class ReportService {
         }
 
         return thisFeatureSummaryInstance
-
     }
 
 
@@ -177,7 +176,7 @@ class ReportService {
         return sequenceSummary
     }
 
-    def copyProperties(source, target) {
+    def copyProperties(OrganismSummary source, OrganismPermissionSummary target) {
         source.properties.each { key, value ->
             if (target.hasProperty(key) && !(key in ['class', 'metaClass'])) {
                 try {

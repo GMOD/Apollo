@@ -342,7 +342,7 @@ apollo {
             , ['label': "Proxies", 'link': "/proxy/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Report::Organisms", 'link': "/organism/report/", 'type': "report"]
             , ['label': "Report::Sequences", 'link': "/sequence/report/", 'type': "report"]
-            , ['label': "Report::Annotator", 'link': "/annotator/report/", 'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Report::Annotator", 'link': "/annotator/report/", 'type':'report','globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Report::Instructor", 'link': "/annotator/instructorReport/", 'type': "report"]
             , ['label': "Report::Changes", 'link': "/featureEvent/report/", 'type': "report"]
             , ['label': "System Info", 'link': "/home/systemInfo/", 'type': "report",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
