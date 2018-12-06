@@ -78,31 +78,25 @@ class ReportService {
 
     OrganismSummary generateOrganismSummary(User owner, Organism organism) {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
-        def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
-        def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])
-        def repeatRegion = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])
+        def geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+        def transposableElementCount = TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+        def repeatRegionCount = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+
         def exons = TransposableElement.executeQuery("select distinct g from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])
         def transcripts = Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner])
 
         //get the gene on the current organism
-        def currentGenes = genes.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        def currentTE = transposableElement.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        def currentRR = repeatRegion.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
         def currentExons = exons.findAll() {
             it.featureLocations.sequence.organism.id.iterator().next() == organism.id
         }
         def currentTranscripts = transcripts.findAll() {
             it.featureLocations.sequence.organism.id.iterator().next() == organism.id
         }
-        thisFeatureSummaryInstance.geneCount = (int) currentGenes.unique(){it.name}.size()
-        thisFeatureSummaryInstance.transposableElementCount = (int) currentTE.size()
-        thisFeatureSummaryInstance.repeatRegionCount = (int) currentRR.size()
+        thisFeatureSummaryInstance.geneCount = geneCount
+        thisFeatureSummaryInstance.transposableElementCount = transposableElementCount
+        thisFeatureSummaryInstance.repeatRegionCount = repeatRegionCount
+
+
         thisFeatureSummaryInstance.exonCount = (int) currentExons.size()
 
 
