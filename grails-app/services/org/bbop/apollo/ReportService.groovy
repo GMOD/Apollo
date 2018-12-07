@@ -182,31 +182,32 @@ class ReportService {
         AnnotatorSummary annotatorSummary = new AnnotatorSummary()
         
         // get features created by the annotator
-        def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
-        def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])
-        def repeatRegion = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])
-        def exons = TransposableElement.executeQuery("select distinct g from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])
-        def transcripts = Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner])
+        def geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.owners owner where owner = :owner", [owner: owner])[0]
+        def transposableElementCount = TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])[0]
+        def repeatRegionCount = TransposableElement.executeQuery("select count(distinct g) from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])[0]
+        def exonsCount = TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])[0]
+        def transcriptCount = Transcript.executeQuery("select count(distinct g) from Transcript g join g.owners owner where owner = :owner ", [owner: owner])[0]
 
         annotatorSummary.annotator = owner
-        annotatorSummary.geneCount = genes.unique(){it.name}.size()
-        annotatorSummary.transposableElementCount = transposableElement.size()
-        annotatorSummary.repeatRegionCount = repeatRegion.size()
-        annotatorSummary.exonCount = exons.size()
-        annotatorSummary.transcriptCount = transcripts.size()
+        annotatorSummary.geneCount = geneCount
+        annotatorSummary.transposableElementCount = transposableElementCount
+        annotatorSummary.repeatRegionCount = repeatRegionCount
+        annotatorSummary.exonCount = exonsCount
+        annotatorSummary.transcriptCount = transcriptCount
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
+        // TODO: this is potentially very slow
         Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner]).each {
             String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
             Integer count = transcriptMap.get(className) ?: 0
             transcriptMap.put(className, ++count)
         }
         annotatorSummary.transcriptTypeCount = transcriptMap
-        if (transcriptMap) {
-            annotatorSummary.transcriptCount = transcriptMap.values()?.sum()
-        } else {
-            annotatorSummary.transcriptCount = 0
-        }
+//        if (transcriptMap) {
+//            annotatorSummary.transcriptCount = transcriptMap.values()?.sum()
+//        } else {
+//            annotatorSummary.transcriptCount = 0
+//        }
 
 
         if (!permissionService.isUserGlobalAdmin(owner)) {

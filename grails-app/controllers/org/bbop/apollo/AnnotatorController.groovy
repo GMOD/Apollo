@@ -654,7 +654,7 @@ class AnnotatorController {
             }
         }
         if (!filteredGroups) {
-            def error = [error: "no authorized groups"]
+            def error = [error: "No authorized groups"]
             render error as JSON
             return
         }
