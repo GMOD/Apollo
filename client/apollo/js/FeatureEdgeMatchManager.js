@@ -150,7 +150,6 @@ var FeatureEdgeMatchManager = declare( null,
                                     var ssmax = ssfeat.get('end');
 
                                     var ssubdiv = rec.track.getFeatDiv(ssfeat);
-                                    var $ssubdiv = $(ssubdiv);
                                     for (var k=0; k < target_subfeats.length; k++)  {
                                         var tsfeat = target_subfeats[k];
                                         var tstype = tsfeat.get('type');
