@@ -248,6 +248,10 @@ class PermissionService {
      */
     Map<String, Integer> getPermissionsForUser(User user) {
         Map<String, Integer> returnMap = new HashMap<>()
+        if(!user) {
+            log.warn("No user provided, please log in")
+            return returnMap
+        }
         returnMap.put(user.username, 0)
         Organism.all.each { organism ->
             List<PermissionEnum> permissionEnums = getOrganismPermissionsForUser(organism, user)
