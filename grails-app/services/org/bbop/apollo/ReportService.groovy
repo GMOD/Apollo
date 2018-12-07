@@ -83,7 +83,7 @@ class ReportService {
         def repeatRegionCount = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
 
         def exonCount = TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism ", [owner: owner,"organism":organism])
-        def transcriptCount  = Transcript.executeQuery("select distinct g from Transcript g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+        def transcriptCount  = Transcript.executeQuery("select count(distinct g) from Transcript g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
 
         //get the gene on the current organism
 //        def currentTranscripts = transcripts.findAll() {
@@ -178,7 +178,7 @@ class ReportService {
         }
     }
 
-    AnnotatorSummary generateAnnotatorSummary(User owner, boolean includePermissions = false) {
+    AnnotatorSummary generateAnnotatorSummary(User owner) {
         AnnotatorSummary annotatorSummary = new AnnotatorSummary()
         
         // get features created by the annotator
@@ -209,7 +209,7 @@ class ReportService {
         }
 
 
-        if (includePermissions && !permissionService.isUserGlobalAdmin(owner)) {
+        if (!permissionService.isUserGlobalAdmin(owner)) {
 
             List<OrganismPermissionSummary> userOrganismPermissionList = new ArrayList<>()
             if (permissionService.isUserGlobalAdmin(owner)) {
