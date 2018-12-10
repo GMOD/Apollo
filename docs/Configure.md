@@ -96,7 +96,7 @@ __Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins wor
 jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.12.1-release"
+//        tag = "1.15.4-release"
         branch = "master"
         alwaysPull = true
         alwaysRecheck = true
