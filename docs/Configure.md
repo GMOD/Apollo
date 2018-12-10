@@ -101,12 +101,6 @@ jbrowse {
         alwaysPull = true
         alwaysRecheck = true
     }
-//    url {
-//        // always use dev for apollo
-//        url = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
-//        type ="zip"
-//        fileName = "JBrowse-1.12.0-dev"
-//    }
     plugins {
         WebApollo{
             included = true
