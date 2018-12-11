@@ -158,7 +158,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.2.2) Repeat for pseudogenes and non-coding RNAs.
 
-13.1.2.3) Reveal the _Details_ for Repeat Region and Transposable Element to display metadate for each annotation.  
+13.1.2.3) Reveal the _Details_ for Repeat Region and Transposable Element to display metadate for each annotation and demonstrate editing details.
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
