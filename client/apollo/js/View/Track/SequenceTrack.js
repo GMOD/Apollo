@@ -1100,7 +1100,7 @@ function( declare,
                                 addSequenceAlteration();
                             }
                             else {
-                                var curval = e.srcElement.value;
+                                var curval = e.currentTarget.value;
                                 var newchar = String.fromCharCode(unicode);
                                 // only allow acgtnACGTN and backspace
                                 //    (and acgtn are transformed to uppercase in CSS)
@@ -1136,7 +1136,7 @@ function( declare,
                                 addSequenceAlteration();
                             }
                             else {
-                                var curval = e.srcElement.value;
+                                var curval = e.currentTarget.value;
                                 var newchar = String.fromCharCode(unicode);
                                 // only allow acgtnACGTN and backspace
                                 //    (and acgtn are transformed to uppercase in CSS)
