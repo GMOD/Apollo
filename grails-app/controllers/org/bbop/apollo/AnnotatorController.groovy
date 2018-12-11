@@ -92,8 +92,8 @@ class AnnotatorController {
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             String location = params.loc
             // assume that the lookup is a symbol lookup value and not a location
-            if (location && location.contains(":") && location.contains("\\.\\.")) {
-                String[] splitString = location.split(":")
+            if (location && location.contains(':') && location.contains('..')) {
+                String[] splitString = location.split(':')
                 log.debug "splitString : ${splitString}"
                 String sequenceString = splitString[0]
                 Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
