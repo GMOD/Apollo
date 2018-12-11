@@ -5574,7 +5574,7 @@ define([
             getHistoryForSelectedFeatures: function (selected) {
                 var track = this;
                 var content = dojo.create("div");
-                var historyDiv = dojo.create("div", {className: "history_div"}, content);
+                var historyDiv = dojo.create("div", {className: "jbrowse history_div"}, content);
                 var historyTable = dojo.create("div", {className: "history_table"}, historyDiv);
                 var historyHeader = dojo.create("div", {
                     className: "history_header",
