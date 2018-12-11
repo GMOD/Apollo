@@ -492,6 +492,8 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
                 break;
+            case "deletion":
+            case "insertion":
             case "SNV":
             case "SNP":
             case "MNV":
