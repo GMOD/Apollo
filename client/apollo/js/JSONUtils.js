@@ -445,7 +445,9 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     var astrand = 1; // variants are represented w.r.t. the sense strand
     var fmin = feat.get('start');
     var fmax = feat.get('end');
-    var alternativeAlleles = feat.get('alternative_alleles').values.split(',');
+    // split if string, but
+    var altAlleleValues = feat.get('alternative_alleles').values;
+    var alternativeAlleles = (typeof altAlleleValues === 'string') ? altAlleleValues.split(',') : altAlleleValues
 
     afeature.location = {
         fmin: fmin,
