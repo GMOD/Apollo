@@ -490,16 +490,16 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
                 var entry = feat.get(property);
                 if (entry) {
                     if (entry.meta) {
-                        if (entry.meta.number == "A") {
+                        if (entry.meta.Number == "A") {
                             allele_specific_metadata.push(feat.get(property));
                         }
-                        else if (entry.meta.number == "0") {
+                        else if (entry.meta.Number == 0) {
                             variant_specific_metadata.push(feat.get(property));
                         }
-                        else if (entry.meta.number == "1") {
+                        else if (entry.meta.Number == 1) {
                             variant_specific_metadata.push(feat.get(property));
                         }
-                        else if (entry.meta.number == ".") {
+                        else if (entry.meta.Number == ".") {
                             variant_specific_metadata.push(feat.get(property));
                         }
                         else {
@@ -519,6 +519,8 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
         var allele = { bases: alternativeAlleles[i] };
         allele.allele_info = [];
         for (var j = 0; j < allele_specific_metadata.length; ++j) {
+            console.log('meta',allele_specific_metadata[j].meta)
+            console.log('values',allele_specific_metadata[j].values)
             var tag = allele_specific_metadata[j].meta.id[0];
             var value = allele_specific_metadata[j].values[i];
             var allele_info = {tag: tag, value: value};
