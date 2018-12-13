@@ -440,7 +440,7 @@ var draggableTrack = declare( HTMLVariantTrack,
                         axis: 'y'
                 });
 
-                $featdiv.draggable().data("draggable")._mouseDown(event);
+                $featdiv.draggable().data("ui-draggable")._mouseDown(event);
             }
         }
     },
