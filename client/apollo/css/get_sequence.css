@@ -7,14 +7,14 @@
 .gff3_area{
 	width: 50em;
 	height: 20em;
-	font-family: 'courier';
+	font-family: 'courier', monospace;
 	font-size: 1.0em;
 }
 
 .sequence_area {
 	width: 100%;
 	height: 20em;
-	font-family: 'courier';
+	font-family: 'courier', monospace;;
 	font-size: 1.5em;
 }
 

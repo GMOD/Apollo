@@ -13,6 +13,7 @@ function usage(){
     echo "";
     echo "Development Commands:";
     echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
+    echo "jbrowse:          Installs updated client/apollo files and JBrowse.";
     echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from cuurent directory in debug mode (non-minimized javascript).";

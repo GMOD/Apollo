@@ -110,6 +110,9 @@ var FeatureEdgeMatchManager = declare( null,
                 if (verbose_edges)  {
                     console.log("edge matching for: " + target_track.name);
                 }
+                if (target_track === rec.track) {
+                    return;
+                }
 
                 var featureStore = target_track.store;
 
@@ -145,6 +148,8 @@ var FeatureEdgeMatchManager = declare( null,
 
                                     var ssmin = ssfeat.get('start');
                                     var ssmax = ssfeat.get('end');
+
+                                    var ssubdiv = rec.track.getFeatDiv(ssfeat);
                                     for (var k=0; k < target_subfeats.length; k++)  {
                                         var tsfeat = target_subfeats[k];
                                         var tstype = tsfeat.get('type');
@@ -159,12 +164,13 @@ var FeatureEdgeMatchManager = declare( null,
                                             if (tsid)   {
                                                 var tsubdiv = target_track.getFeatDiv(tsfeat);
                                                 if (tsubdiv)  {
-                                                    var $tsubdiv = $(tsubdiv);
                                                     if (ssmin === tsmin)  {
                                                         $(tsubdiv).addClass("left-edge-match");
+                                                        $(ssubdiv).addClass("left-edge-match");
                                                     }
                                                     if (ssmax === tsmax)  {
                                                         $(tsubdiv).addClass("right-edge-match");
+                                                        $(ssubdiv).addClass("right-edge-match");
                                                     }
                                                 }
                                             }

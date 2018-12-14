@@ -76,48 +76,38 @@ class ReportService {
     generate organism summary specific to an annotator
      */
 
-    def generateOrganismSummary(User owner, Organism organism) {
+    OrganismSummary generateOrganismSummary(User owner, Organism organism) {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
-        def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
-        def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])
-        def repeatRegion = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])
-        def exons = TransposableElement.executeQuery("select distinct g from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])
-        def transcripts = Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner])
+        def geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+        def transposableElementCount = TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+        def repeatRegionCount = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+
+        def exonCount = TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism ", [owner: owner,"organism":organism])
+        def transcriptCount  = Transcript.executeQuery("select count(distinct g) from Transcript g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
 
         //get the gene on the current organism
-        def currentGenes = genes.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        def currentTE = transposableElement.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        def currentRR = repeatRegion.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        def currentExons = exons.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        def currentTranscripts = transcripts.findAll() {
-            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-        }
-        thisFeatureSummaryInstance.geneCount = (int) currentGenes.unique(){it.name}.size()
-        thisFeatureSummaryInstance.transposableElementCount = (int) currentTE.size()
-        thisFeatureSummaryInstance.repeatRegionCount = (int) currentRR.size()
-        thisFeatureSummaryInstance.exonCount = (int) currentExons.size()
+//        def currentTranscripts = transcripts.findAll() {
+//            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
+//        }
+        thisFeatureSummaryInstance.geneCount = geneCount
+        thisFeatureSummaryInstance.transposableElementCount = transposableElementCount
+        thisFeatureSummaryInstance.repeatRegionCount = repeatRegionCount
 
+        thisFeatureSummaryInstance.exonCount = exonCount
+//        Map<String, Integer> transcriptMap = new TreeMap<>()
+//        currentTranscripts.each {
+//            String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
+//            Integer count = transcriptMap.get(className) ?: 0
+//            transcriptMap.put(className, ++count)
+//        }
+//        thisFeatureSummaryInstance.transcriptTypeCount = transcriptMap
+//        if (transcriptMap) {
+//            thisFeatureSummaryInstance.transcriptCount = transcriptMap.values()?.sum()
+//        } else {
+//            thisFeatureSummaryInstance.transcriptCount = 0
+//        }
 
-        Map<String, Integer> transcriptMap = new TreeMap<>()
-        currentTranscripts.each {
-            String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
-            Integer count = transcriptMap.get(className) ?: 0
-            transcriptMap.put(className, ++count)
-        }
-        thisFeatureSummaryInstance.transcriptTypeCount = transcriptMap
-        if (transcriptMap) {
-            thisFeatureSummaryInstance.transcriptCount = transcriptMap.values()?.sum()
-        } else {
-            thisFeatureSummaryInstance.transcriptCount = 0
-        }
+        thisFeatureSummaryInstance.transcriptCount = transcriptCount
         thisFeatureSummaryInstance.annotators = User.executeQuery("select distinct own from Feature g join g.featureLocations fl join fl.sequence s join s.organism o join g.owners own where o = :organism", [organism: organism])
         thisFeatureSummaryInstance.sequenceCount = Sequence.countByOrganism(organism)
         thisFeatureSummaryInstance.organismId = organism.id
@@ -146,7 +136,6 @@ class ReportService {
         }
 
         return thisFeatureSummaryInstance
-
     }
 
 
@@ -177,7 +166,7 @@ class ReportService {
         return sequenceSummary
     }
 
-    def copyProperties(source, target) {
+    def copyProperties(OrganismSummary source, OrganismPermissionSummary target) {
         source.properties.each { key, value ->
             if (target.hasProperty(key) && !(key in ['class', 'metaClass'])) {
                 try {
@@ -189,38 +178,39 @@ class ReportService {
         }
     }
 
-    AnnotatorSummary generateAnnotatorSummary(User owner, boolean includePermissions = false) {
+    AnnotatorSummary generateAnnotatorSummary(User owner) {
         AnnotatorSummary annotatorSummary = new AnnotatorSummary()
         //List<AnnotatorSummary> summaries = new ArrayList<>()
         // get features created by the annotator
-        def genes = Gene.executeQuery("select distinct g from Gene g join g.owners owner where owner = :owner", [owner: owner])
-        def transposableElement = TransposableElement.executeQuery("select distinct g from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])
-        def repeatRegion = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])
-        def exons = TransposableElement.executeQuery("select distinct g from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])
-        def transcripts = Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner])
+        def geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.owners owner where owner = :owner", [owner: owner])[0]
+        def transposableElementCount = TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.owners owner where owner = :owner", [owner: owner])[0]
+        def repeatRegionCount = TransposableElement.executeQuery("select count(distinct g) from RepeatRegion g join g.owners owner where owner = :owner", [owner: owner])[0]
+        def exonsCount = TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner where owner = :owner", [owner: owner])[0]
+        def transcriptCount = Transcript.executeQuery("select count(distinct g) from Transcript g join g.owners owner where owner = :owner ", [owner: owner])[0]
 
         annotatorSummary.annotator = owner
-        annotatorSummary.geneCount = genes.unique(){it.name}.size()
-        annotatorSummary.transposableElementCount = transposableElement.size()
-        annotatorSummary.repeatRegionCount = repeatRegion.size()
-        annotatorSummary.exonCount = exons.size()
-        annotatorSummary.transcriptCount = transcripts.size()
+        annotatorSummary.geneCount = geneCount
+        annotatorSummary.transposableElementCount = transposableElementCount
+        annotatorSummary.repeatRegionCount = repeatRegionCount
+        annotatorSummary.exonCount = exonsCount
+        annotatorSummary.transcriptCount = transcriptCount
 
         Map<String, Integer> transcriptMap = new TreeMap<>()
+        // TODO: this is potentially very slow
         Transcript.executeQuery("select distinct g from Transcript g join g.owners owner where owner = :owner ", [owner: owner]).each {
             String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
             Integer count = transcriptMap.get(className) ?: 0
             transcriptMap.put(className, ++count)
         }
         annotatorSummary.transcriptTypeCount = transcriptMap
-        if (transcriptMap) {
-            annotatorSummary.transcriptCount = transcriptMap.values()?.sum()
-        } else {
-            annotatorSummary.transcriptCount = 0
-        }
+//        if (transcriptMap) {
+//            annotatorSummary.transcriptCount = transcriptMap.values()?.sum()
+//        } else {
+//            annotatorSummary.transcriptCount = 0
+//        }
 
 
-        if (includePermissions && !permissionService.isUserGlobalAdmin(owner)) {
+        if (!permissionService.isUserGlobalAdmin(owner)) {
 
             List<OrganismPermissionSummary> userOrganismPermissionList = new ArrayList<>()
             if (permissionService.isUserGlobalAdmin(owner)) {

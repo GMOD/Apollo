@@ -93,8 +93,8 @@ class AnnotatorController {
             preferenceService.setCurrentOrganism(permissionService.currentUser, organism, clientToken)
             String location = params.loc
             // assume that the lookup is a symbol lookup value and not a location
-            if (location && location.contains(":") && location.contains("\\.\\.")) {
-                String[] splitString = location.split(":")
+            if (location && location.contains(':') && location.contains('..')) {
+                String[] splitString = location.split(':')
                 log.debug "splitString : ${splitString}"
                 String sequenceString = splitString[0]
                 Sequence sequence = Sequence.findByOrganismAndName(organism, sequenceString)
@@ -630,7 +630,7 @@ class AnnotatorController {
         List<User> annotators = User.list(params)
 
         annotators.each {
-            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it))
         }
 
         render view: "report", model: [annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: User.count]
@@ -655,7 +655,7 @@ class AnnotatorController {
             }
         }
         if (!filteredGroups) {
-            def error = [error: "no authorized groups"]
+            def error = [error: "No authorized groups"]
             render error as JSON
             return
         }
@@ -669,7 +669,7 @@ class AnnotatorController {
 
         def annotatorInstanceCount = userGroup.users.size()
         annotators.each {
-            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it, true))
+            annotatorSummaryList.add(reportService.generateAnnotatorSummary(it))
         }
 
         render view: "instructorReport", model: [userGroups: filteredGroups, userGroup: userGroup, permissionService: permissionService, annotatorInstanceList: annotatorSummaryList, annotatorInstanceCount: annotatorInstanceCount]
@@ -682,7 +682,7 @@ class AnnotatorController {
             redirect(uri: "/auth/login")
             return
         }
-        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user, true)]
+        render view: "detail", model: [annotatorInstance: reportService.generateAnnotatorSummary(user)]
     }
 
     def ping() {
@@ -712,8 +712,8 @@ class AnnotatorController {
         groups.each { group ->
             def userGroup = UserGroup.findById(group)
             def annotators = userGroup.users
-            annotators.each { annotator ->
-                def annotatorSummary = reportService.generateAnnotatorSummary(annotator, true)
+            annotators.each { User annotator ->
+                AnnotatorSummary annotatorSummary = reportService.generateAnnotatorSummary(annotator)
                 annotatorSummary.userOrganismPermissionList.each {
                     Organism organism = it.userOrganismPermission.organism
 

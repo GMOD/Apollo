@@ -7,6 +7,7 @@ Features
 - Add ability to annotate terminators [1954](https://github.com/GMOD/Apollo/issues/1954)
 - Added a script for removing all features from a sequence [1935](https://github.com/GMOD/Apollo/pull/1935)
 - Allowed removal of ALL user permissions (instead of deleting) to inactivate [777](https://github.com/GMOD/Apollo/issues/777)
+- Clarified edge-detection [9](https://github.com/GMOD/Apollo/issues/9)
 
 
 Bug Fixes
@@ -14,6 +15,8 @@ Bug Fixes
 - Fixed bug where showing annotations by users was lost [1952](https://github.com/GMOD/Apollo/issues/1952)
 - Fixed by where lowercase reference sequence does not translate correctly in 'Get Sequence' output  [1944](https://github.com/GMOD/Apollo/issues/1944)
 - Fixed problem where removing an available status type caused an error [1909](https://github.com/GMOD/Apollo/issues/1909)
+- Fixed bug where a logged-in link location was ignored when passed in by copying the logged in URL [1982](https://github.com/GMOD/Apollo/issues/1982)
+- Fixed bug where insertion and deletion details did not come up in the Annotator Panel when clicked [1984](https://github.com/GMOD/Apollo/issues/1984)
 
 
 

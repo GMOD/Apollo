@@ -57,10 +57,10 @@ div.track_localannot {
    To support WebApollo with sequence alteration features shown on SequenceTrack, 
    sequence style MUST NOT have a z-index specified 
 */
-div.wa-sequence {
+.jbrowse div.wa-sequence {
     position: absolute;
     left: 0px;
-    font-family: monospace;
+    font-family: 'courier', monospace;
     font-size: 10px;
     letter-spacing: 2px;
     padding-left: 2px;
@@ -137,7 +137,7 @@ div.wa-sequence .highlighted {
 div.annot-sequence  {
     position: absolute;
     left: 0px;
-    font-family: monospace;
+    font-family: 'courier', monospace;
     font-size: 10px;
     letter-spacing: 2px;
     padding-left: 2px;
@@ -669,7 +669,7 @@ div.annot-sequence  {
 .jbrowse .annot-drop-hover  {
     outline-style: solid; 
     outline-color: green;
-    outline-width: 4px; 
+    outline-width: 4px;
 }
 
 /* 
@@ -723,8 +723,8 @@ div.annot-sequence  {
 */
 .jbrowse .selected-annotation  {
     outline-style: solid;
-    outline-color: red;
-    outline-width: 3px;
+    outline-color: goldenrod;
+    outline-width: 2px;
 }
 
 /* hiding close button for AnnotTracks, so can't be removed */

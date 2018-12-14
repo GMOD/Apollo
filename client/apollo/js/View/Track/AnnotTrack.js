@@ -1039,7 +1039,6 @@ define([
                 var variantSelectionRecords = new Array();
 
                 for (var i in selection_records) {
-                    console.log('selection ' + i);
                     var type = selection_records[i].feature.get("type").toUpperCase();
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
@@ -5576,7 +5575,7 @@ define([
             getHistoryForSelectedFeatures: function (selected) {
                 var track = this;
                 var content = dojo.create("div");
-                var historyDiv = dojo.create("div", {className: "history_div"}, content);
+                var historyDiv = dojo.create("div", {className: "jbrowse history_div"}, content);
                 var historyTable = dojo.create("div", {className: "history_table"}, historyDiv);
                 var historyHeader = dojo.create("div", {
                     className: "history_header",
@@ -8162,9 +8161,7 @@ define([
                     postObject.clientToken = this.getClientToken();
                     postData = JSON.stringify(postObject);
                 }
-                console.log('connected and sending notifications');
                 this.client.send("/app/AnnotationNotification", {}, JSON.stringify(postData));
-                console.log('sent notification message');
             },
 
             isProteinCoding: function (feature) {
