@@ -105,7 +105,7 @@ function check_node(){
 
     YARN_VERSION=`$yarn_executable --version | cut -d\. -f1`
     echo "Yarn Version: $YARN_VERSION"
-    if [ -n $YARN_VERSION && $YARN_VERSION -lt 1 ]; then
+    if [[ -n $YARN_VERSION && $YARN_VERSION -lt 1 ]]; then
         echo "yarn version 1 or better must be installed. npm i -g yarn"
         exit 1
     fi
