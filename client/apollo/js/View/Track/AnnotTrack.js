@@ -4275,7 +4275,6 @@ define([
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
                 var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature.";
                 dojo.place(nameField.domNode, nameDiv);
-                // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
                 new Tooltip({
                     connectId: nameDiv,
@@ -4451,6 +4450,7 @@ define([
                 if (!hasWritePermission) {
                     nameField.set("disabled", true);
                     symbolField.set("disabled", true);
+                    associatedTranscriptField.set("disabled", true);
                     descriptionField.set("disabled", true);
                     dateCreationField.set("disabled", true);
                     dateLastModifiedField.set("disabled", true);
@@ -4654,10 +4654,22 @@ define([
                 var initAssociatedTranscript = function(feature){
                     // feature type
                     var featureType = feature.type.name ;
-                    console.log('feature type',featureType)
                     if(!JSONUtils.regulatorTypes.includes(featureType.toUpperCase())){
                         dojo.style(associatedTranscriptDiv, "display", "none");
                     }
+                    // if (feature.symbol) {
+                    //     symbolField.set("value", feature.symbol);
+                    // }
+                    var oldAssociatedTranscript;
+                    dojo.connect(associatedTranscriptField, "onFocus", function () {
+                        oldAssociatedTranscript = associatedTranscriptField.get("value");
+                    });
+                    dojo.connect(associatedTranscriptField, "onBlur", function () {
+                        var newAssociatedTranscript = associatedTranscriptField.get("value");
+                        if (oldAssociatedTranscript != newAssociatedTranscript) {
+                            updateAssociatedTranscript(newAssociatedTranscript);
+                        }
+                    });
 
                 };
 
@@ -5228,6 +5240,16 @@ define([
                     symbol = escapeString(symbol);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
                     var operation = "set_symbol";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateAssociatedTranscript = function(transcript){
+                    alert('updating associated transcript'+transcript)
+                    transcript = escapeString(transcript);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "transcript": "' + transcript+ '" } ]';
+                    var operation = "set_associated_transcript";
                     var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
