@@ -4324,6 +4324,14 @@ define([
                 var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
                 var statusRadios = [];
 
+                var associatedTranscriptDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
+                var associatedTranscriptLabel = dojo.create("div", {
+                    innerHTML: "Transcript",
+                    'class': "annotation_info_editor_label"
+                }, associatedTranscriptDiv);
+                var associatedTranscriptField = new dijitTextBox({'class': "annotation_editor_field"});
+                dojo.place(associatedTranscriptField.domNode, associatedTranscriptDiv);
+
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var dbxrefsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
@@ -4497,8 +4505,8 @@ define([
                             initSymbol(feature);
                             initDescription(feature);
                             initDates(feature);
-                            // initStatus(feature, config);
                             initStatus(feature);
+                            initAssociatedTranscript(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -4606,7 +4614,7 @@ define([
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
                                 name: "status_" + uniqueName,
-                                checked: status[i] == feature.status ? true : false
+                                checked: status[i] == feature.status
                             });
                             if (!hasWritePermission) {
                                 statusRadio.set("disabled", true);
@@ -4641,6 +4649,16 @@ define([
                     else {
                         dojo.style(statusDiv, "display", "none");
                     }
+                };
+
+                var initAssociatedTranscript = function(feature){
+                    // feature type
+                    var featureType = feature.type.name ;
+                    console.log('feature type',featureType)
+                    if(!JSONUtils.regulatorTypes.includes(featureType.toUpperCase())){
+                        dojo.style(associatedTranscriptDiv, "display", "none");
+                    }
+
                 };
 
                 var initDbxrefs = function (feature, config) {
