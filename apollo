@@ -132,9 +132,10 @@ function check_configs_for_release(){
 
 function use_gradlew(){
    if [ -f 'gradlew' ]; then
-       echo "Gradle not found using gradlew";
+       echo "Using gradlew";
        : "${JAVA_HOME?:Need to set JAVA_HOME}"
        gradle_executable="./gradlew"
+       echo "Gradle version: `$gradle_executable  -v | grep Gradle | cut -f2 -d' ' `";
    else
        echo "You must install 'gradle' to install Apollo."
        exit 1 ;
@@ -162,6 +163,7 @@ function check_configs(){
        GRADLE_MAJOR_VERSION=`$gradle_executable  -v | grep Gradle | cut -f2 -d' ' | cut -f1 -d.`;
        echo "Gradle version: ${GRADLE_MAJOR_VERSION}"
        if [[ $GRADLE_MAJOR_VERSION -gt 3  || $GRADLE_MAJOR_VERSION -lt 2 ]];then
+           echo "Gradle version ${GRADLE_MAJOR_VERSION} not supported.  ONly 2 or 3 supported so using local ./gradlew instead"
            use_gradlew
        else
            echo "Using system gradle `$gradle_executable  -v | grep Gradle | cut -f2 -d' '`";
