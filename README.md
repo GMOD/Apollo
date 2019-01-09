@@ -12,6 +12,8 @@ Javascript client that runs in a web browser as a JBrowse plugin.
 
 For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).
 
+Questions / Comments / Community contact can be sent to our [Apollo user mailing list](mailto:apollo@lists.lbl.gov). To subscribe send [this email to our mail server](mailto:sympa@lists.lbl.gov?subject=subscribe apollo) or review additional [sympa commands](http://www.sympa.org/manual/sympa-commands). Old questions are [archived on Nabble](http://gmod.827538.n3.nabble.com/Apollo-f815553.html).
+
 Complete Apollo installation and configuration instructions are available from the [Apollo documentation pages](http://genomearchitect.readthedocs.io/en/latest/)
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
