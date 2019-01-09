@@ -78,36 +78,12 @@ class ReportService {
 
     OrganismSummary generateOrganismSummary(User owner, Organism organism) {
         OrganismSummary thisFeatureSummaryInstance = new OrganismSummary()
-        def geneCount = Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
-        def transposableElementCount = TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
-        def repeatRegionCount = TransposableElement.executeQuery("select distinct g from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
+        thisFeatureSummaryInstance.geneCount = (int) Gene.executeQuery("select count(distinct g) from Gene g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism]).iterator().next()
+        thisFeatureSummaryInstance.transposableElementCount = (int) TransposableElement.executeQuery("select count(distinct g) from TransposableElement g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism]).iterator().next()
+        thisFeatureSummaryInstance.repeatRegionCount = (int) TransposableElement.executeQuery("select count(distinct g) from RepeatRegion g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism]).iterator().next()
 
-        def exonCount = TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism ", [owner: owner,"organism":organism])
-        def transcriptCount  = Transcript.executeQuery("select count(distinct g) from Transcript g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism])
-
-        //get the gene on the current organism
-//        def currentTranscripts = transcripts.findAll() {
-//            it.featureLocations.sequence.organism.id.iterator().next() == organism.id
-//        }
-        thisFeatureSummaryInstance.geneCount = geneCount
-        thisFeatureSummaryInstance.transposableElementCount = transposableElementCount
-        thisFeatureSummaryInstance.repeatRegionCount = repeatRegionCount
-
-        thisFeatureSummaryInstance.exonCount = exonCount
-//        Map<String, Integer> transcriptMap = new TreeMap<>()
-//        currentTranscripts.each {
-//            String className = it.class.canonicalName.substring("org.bbop.apollo.".size())
-//            Integer count = transcriptMap.get(className) ?: 0
-//            transcriptMap.put(className, ++count)
-//        }
-//        thisFeatureSummaryInstance.transcriptTypeCount = transcriptMap
-//        if (transcriptMap) {
-//            thisFeatureSummaryInstance.transcriptCount = transcriptMap.values()?.sum()
-//        } else {
-//            thisFeatureSummaryInstance.transcriptCount = 0
-//        }
-
-        thisFeatureSummaryInstance.transcriptCount = transcriptCount
+        thisFeatureSummaryInstance.exonCount = (int) TransposableElement.executeQuery("select count(distinct g) from Exon g join g.childFeatureRelationships child join child.parentFeature.owners owner join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism ", [owner: owner,"organism":organism]).iterator().next()
+        thisFeatureSummaryInstance.transcriptCount = (int) Transcript.executeQuery("select count(distinct g) from Transcript g join g.featureLocations fl join fl.sequence s join s.organism organism join g.owners owner where owner = :owner and organism = :organism", [owner: owner,"organism":organism]).iterator().next()
         thisFeatureSummaryInstance.annotators = User.executeQuery("select distinct own from Feature g join g.featureLocations fl join fl.sequence s join s.organism o join g.owners own where o = :organism", [organism: organism])
         thisFeatureSummaryInstance.sequenceCount = Sequence.countByOrganism(organism)
         thisFeatureSummaryInstance.organismId = organism.id
