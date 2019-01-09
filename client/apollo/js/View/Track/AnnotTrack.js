@@ -7189,7 +7189,7 @@ define([
             openDialog: function (title, data, width, height) {
                 AnnotTrack.popupDialog.set("title", title);
                 AnnotTrack.popupDialog.set("content", data);
-                AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "80%") + ";height:" + (height ? height : "auto"));
+                AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
                 AnnotTrack.popupDialog.show();
             },
 
