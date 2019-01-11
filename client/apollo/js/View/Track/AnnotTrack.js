@@ -4323,14 +4323,6 @@ define([
                 var statusFlags = dojo.create("div", {'class': "status"}, statusDiv);
                 var statusRadios = [];
 
-                var associatedTranscriptDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
-                var associatedTranscriptLabel = dojo.create("div", {
-                    innerHTML: "Transcript",
-                    'class': "annotation_info_editor_label"
-                }, associatedTranscriptDiv);
-                var associatedTranscriptField = new dijitTextBox({'class': "annotation_editor_field"});
-                dojo.place(associatedTranscriptField.domNode, associatedTranscriptDiv);
-
                 var dbxrefsDiv = dojo.create("div", {'class': "annotation_info_editor_section"}, content);
                 var dbxrefsLabel = dojo.create("div", {
                     'class': "annotation_info_editor_section_header",
@@ -4450,7 +4442,6 @@ define([
                 if (!hasWritePermission) {
                     nameField.set("disabled", true);
                     symbolField.set("disabled", true);
-                    associatedTranscriptField.set("disabled", true);
                     descriptionField.set("disabled", true);
                     dateCreationField.set("disabled", true);
                     dateLastModifiedField.set("disabled", true);
@@ -4464,8 +4455,6 @@ define([
                     dojo.attr(deleteGoIdButton, "disabled", true);
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
-                    //dojo.attr(addreplacementButton, "disabled", true);
-                    //dojo.attr(deletereplacementButton, "disabled", true);
                 }
 
                 var pubmedIdDb = "PMID";
@@ -4506,7 +4495,6 @@ define([
                             initDescription(feature);
                             initDates(feature);
                             initStatus(feature);
-                            initAssociatedTranscript(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -4651,27 +4639,6 @@ define([
                     }
                 };
 
-                var initAssociatedTranscript = function(feature){
-                    // feature type
-                    var featureType = feature.type.name ;
-                    if(!JSONUtils.regulatorTypes.includes(featureType.toUpperCase())){
-                        dojo.style(associatedTranscriptDiv, "display", "none");
-                    }
-                    // if (feature.symbol) {
-                    //     symbolField.set("value", feature.symbol);
-                    // }
-                    var oldAssociatedTranscript;
-                    dojo.connect(associatedTranscriptField, "onFocus", function () {
-                        oldAssociatedTranscript = associatedTranscriptField.get("value");
-                    });
-                    dojo.connect(associatedTranscriptField, "onBlur", function () {
-                        var newAssociatedTranscript = associatedTranscriptField.get("value");
-                        if (oldAssociatedTranscript != newAssociatedTranscript) {
-                            updateAssociatedTranscript(newAssociatedTranscript);
-                        }
-                    });
-
-                };
 
                 var initDbxrefs = function (feature, config) {
                     if (config.hasDbxrefs) {

@@ -581,59 +581,6 @@ class RequestHandlingService {
 
     }
 
-    JSONObject setAssociatedTranscript(JSONObject inputObject){
-        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        // first feature is the transcript
-        String uniqueName = features.getJSONObject(0).getString(FeatureStringEnum.UNIQUENAME.value)
-        Transcript transcript = Transcript.findByUniqueName(uniqueName)
-        JSONObject oldJsonObject = featureService.convertFeatureToJSON(transcript)
-        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
-
-        for (int i = 1; i < features.length(); ++i) {
-            JSONObject jsonExon = features.getJSONObject(i);
-            // could be that this is null
-            Exon gsolExon = (Terminator) featureService.convertJSONToFeature(jsonExon, sequence)
-
-            featureService.updateNewGsolFeatureAttributes(gsolExon, sequence);
-
-            if (gsolExon.getFmin() < 0 || gsolExon.getFmax() < 0) {
-                throw new AnnotationException("Feature cannot have negative coordinates")
-            }
-
-            transcriptService.addExon(transcript, gsolExon, false)
-
-            gsolExon.save()
-        }
-        featureService.removeExonOverlapsAndAdjacencies(transcript)
-        transcriptService.updateGeneBoundaries(transcript)
-        featureService.calculateCDS(transcript)
-
-        transcript.save(flush: true)
-        transcript.attach()
-        nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
-        transcript.save(flush: true)
-
-        // TODO: one of these two versions . . .
-        JSONObject newJsonObject = featureService.convertFeatureToJSON(transcript, false)
-        JSONObject returnObject = createJSONFeatureContainer(newJsonObject)
-
-        Gene gene = transcriptService.getGene(transcript)
-
-        featureEventService.addNewFeatureEvent(FeatureOperation.ADD_EXON, gene.name, transcript.uniqueName, inputObject, oldJsonObject, newJsonObject, permissionService.getCurrentUser(inputObject))
-
-        AnnotationEvent annotationEvent = new AnnotationEvent(
-                features: returnObject
-                , sequence: sequence
-                , operation: AnnotationEvent.Operation.UPDATE
-        )
-
-        fireAnnotationEvent(annotationEvent)
-
-        return returnObject
-
-
-    }
-
     /**
      * First feature is transcript, and the rest must be exons to add
      * @param inputObject
