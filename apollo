@@ -103,9 +103,9 @@ function check_node(){
     fi
 
 
-    YARN_VERSION=`$yarn_executable -v | cut -d\. -f1`
+    YARN_VERSION=`$yarn_executable --version | cut -d\. -f1`
     echo "Yarn Version: $YARN_VERSION"
-    if [ $YARN_VERSION -lt 1 ]; then
+    if [[ -n $YARN_VERSION && $YARN_VERSION -lt 1 ]]; then
         echo "yarn version 1 or better must be installed. npm i -g yarn"
         exit 1
     fi
@@ -130,13 +130,24 @@ function check_configs_for_release(){
     check_perldependencies
 }
 
+function use_gradlew(){
+   if [ -f 'gradlew' ]; then
+       echo "Using gradlew";
+       : "${JAVA_HOME?:Need to set JAVA_HOME}"
+       gradle_executable="./gradlew"
+       echo "Gradle version: `$gradle_executable  -v | grep Gradle | cut -f2 -d' ' `";
+   else
+       echo "You must install 'gradle' to install Apollo."
+       exit 1 ;
+    fi
+}
 
 function check_configs(){
     grails_executable=$(which grails)
     gradle_executable=$(which gradle)
     git_executable=$(which git)
-    if ! [ -x "$grails_executable" ] ; then
-        if [ -f 'grailsw' ]; then
+    if ! [[ -x "$grails_executable" ]] ; then
+        if [[ -f 'grailsw' ]]; then
             echo "Grails not found using grailsw";
            : "${JAVA_HOME?:Need to set JAVA_HOME}"
             grails_executable="./grailsw"
@@ -145,17 +156,21 @@ function check_configs(){
            exit 1 ;
         fi
     fi
-    if ! [ -x "$gradle_executable" ] ; then
-       if [ -f 'gradlew' ]; then
-           echo "Gradle not found using gradlew";
-           : "${JAVA_HOME?:Need to set JAVA_HOME}"
-           gradle_executable="./gradlew"
+
+    if ! [[ -x "$gradle_executable" ]] ; then
+      use_gradlew
+    else
+       GRADLE_MAJOR_VERSION=`$gradle_executable  -v | grep Gradle | cut -f2 -d' ' | cut -f1 -d.`;
+       echo "Gradle version: ${GRADLE_MAJOR_VERSION}"
+       if [[ $GRADLE_MAJOR_VERSION -gt 3  || $GRADLE_MAJOR_VERSION -lt 2 ]];then
+           echo "Gradle version ${GRADLE_MAJOR_VERSION} not supported.  ONly 2 or 3 supported so using local ./gradlew instead"
+           use_gradlew
        else
-           echo "You must install 'gradle' to install Apollo."
-           exit 1 ;
-        fi
+           echo "Using system gradle `$gradle_executable  -v | grep Gradle | cut -f2 -d' '`";
+       fi
     fi
-    if ! [ -x "$git_executable" ] ; then
+
+    if ! [[ -x "$git_executable" ]] ; then
        echo "You must install 'git' to install Apollo."
        exit 1 ;
     fi
