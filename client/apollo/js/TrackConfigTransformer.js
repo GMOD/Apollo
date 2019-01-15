@@ -13,6 +13,9 @@ constructor: function( args )  {
     this.transformers=[];
     var browser=args.browser;
     this.overridePlugins=browser.config.overridePlugins;
+    this.transformers["NeatHTMLFeatures/View/Track/NeatFeatures"] = function(trackConfig) {
+        trackConfig.type = "WebApollo/View/Track/DraggableNeatHTMLFeatures";
+    };
     this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
     };
