@@ -4275,7 +4275,6 @@ define([
                 var nameField = new dijitTextBox({'class': "annotation_editor_field"});
                 var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature.";
                 dojo.place(nameField.domNode, nameDiv);
-                // var nameField = new dojo.create("input", { type: "text" }, nameDiv);
 
                 new Tooltip({
                     connectId: nameDiv,
@@ -4456,8 +4455,6 @@ define([
                     dojo.attr(deleteGoIdButton, "disabled", true);
                     dojo.attr(addCommentButton, "disabled", true);
                     dojo.attr(deleteCommentButton, "disabled", true);
-                    //dojo.attr(addreplacementButton, "disabled", true);
-                    //dojo.attr(deletereplacementButton, "disabled", true);
                 }
 
                 var pubmedIdDb = "PMID";
@@ -4497,7 +4494,6 @@ define([
                             initSymbol(feature);
                             initDescription(feature);
                             initDates(feature);
-                            // initStatus(feature, config);
                             initStatus(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
@@ -4606,7 +4602,7 @@ define([
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
                                 name: "status_" + uniqueName,
-                                checked: status[i] == feature.status ? true : false
+                                checked: status[i] == feature.status
                             });
                             if (!hasWritePermission) {
                                 statusRadio.set("disabled", true);
@@ -4642,6 +4638,7 @@ define([
                         dojo.style(statusDiv, "display", "none");
                     }
                 };
+
 
                 var initDbxrefs = function (feature, config) {
                     if (config.hasDbxrefs) {
@@ -5210,6 +5207,16 @@ define([
                     symbol = escapeString(symbol);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "symbol": "' + symbol + '" } ]';
                     var operation = "set_symbol";
+                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                    track.executeUpdateOperation(postData);
+                    updateTimeLastUpdated();
+                };
+
+                var updateAssociatedTranscript = function(transcript){
+                    alert('updating associated transcript'+transcript)
+                    transcript = escapeString(transcript);
+                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "transcript": "' + transcript+ '" } ]';
+                    var operation = "set_associated_transcript";
                     var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
                     track.executeUpdateOperation(postData);
                     updateTimeLastUpdated();
@@ -7189,7 +7196,7 @@ define([
             openDialog: function (title, data, width, height) {
                 AnnotTrack.popupDialog.set("title", title);
                 AnnotTrack.popupDialog.set("content", data);
-                AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "80%") + ";height:" + (height ? height : "auto"));
+                AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
                 AnnotTrack.popupDialog.show();
             },
 
@@ -7271,12 +7278,12 @@ define([
             updateDissociateTranscriptFromGeneItem: function() {
                 var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
                 var selected = this.selectionManager.getSelection();
-                var currentType = selected[0].feature.get('type');
                 if (selected.length != 1) {
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase()) || JSONUtils.regulatorTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7314,7 +7321,7 @@ define([
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
+                    else if (selectedType === "miRNA" || selectedType === "snRNA" || selectedType === "snoRNA" ||
                         selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
                         if (menuItems[i].label === selectedType) {
                             menuItems[i].setDisabled(true);
@@ -7340,6 +7347,9 @@ define([
                         }
                     }
                     else if (JSONUtils.variantTypes.includes(selectedType.toUpperCase())) {
+                        menuItems[i].setDisabled(true);
+                    }
+                    else if (JSONUtils.regulatorTypes.includes(selectedType.toUpperCase())) {
                         menuItems[i].setDisabled(true);
                     }
                     else {

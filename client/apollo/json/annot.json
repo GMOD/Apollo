@@ -24,8 +24,8 @@
             "arrowheadClass" : "annot-arrowhead",
             "alternateClasses" : {
                "terminator" : {
-                  "renderClassName" : "black-80pct annot-apollo",
-                  "className" : "black-80pct"
+                  "renderClassName" : "terminatort  annot-apollo",
+                  "className" : "terminator"
                },
                "transposable_element" : {
                   "renderClassName" : "blue-ibeam-render annot-apollo",
