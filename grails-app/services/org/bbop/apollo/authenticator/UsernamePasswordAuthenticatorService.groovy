@@ -18,6 +18,9 @@ class UsernamePasswordAuthenticatorService implements AuthenticatorService{
     }
 
     def authenticate(UsernamePasswordToken authToken, HttpServletRequest request) {
+        if(authToken==null){
+            return false
+        }
         try {
             Subject subject = SecurityUtils.getSubject();
             subject.login(authToken)
