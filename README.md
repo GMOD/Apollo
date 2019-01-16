@@ -79,5 +79,5 @@ http://www.jetbrains.com/idea/index.html)
 
 Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit supports Open Source.
 
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/GMOD/Apollo.svg?columns=all)](https://waffle.io/GMOD/Apollo)
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/GMOD/Apollo.svg?columns=all)](https://waffle.io/GMOD/Apollo) [![Greenkeeper badge](https://badges.greenkeeper.io/GMOD/Apollo.svg)](https://greenkeeper.io/)
 
