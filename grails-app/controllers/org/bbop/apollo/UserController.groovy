@@ -226,17 +226,8 @@ class UserController {
 
         // grab from session
         if (!currentUser) {
-            def authToken = null
-            if (request.getParameter("username")) {
-                String username = request.getParameter("username")
-                String password = request.getParameter("password")
-                authToken = new UsernamePasswordToken(username, password)
-            }
-
             if (permissionService.authenticateWithToken(request)) {
                 currentUser = permissionService.currentUser
-            } else {
-                log.error("Failed to authenticate")
             }
         }
 
