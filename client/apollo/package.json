@@ -9,7 +9,7 @@
   "author": "Nathan Dunn",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "jquery": "^1.7.2",
+    "jquery": "^3.3.1",
     "jqueryui": "^1.8.24"
   },
   "devDependencies": {},
