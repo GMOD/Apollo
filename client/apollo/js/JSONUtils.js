@@ -294,8 +294,9 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     if (useName) {
         // using 'id' attribute in the absence of 'name' attribute
         name !== undefined ? afeature.name = name : afeature.name = id;
+        afeature.orig_id = id ;
     }
-    
+
     /*
     afeature.properties = [];
     var property = { value : "source_id=" + jfeature.get('id'),

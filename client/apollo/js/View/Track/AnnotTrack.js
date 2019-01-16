@@ -1313,8 +1313,10 @@ define([
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
+                        console.log('created apollo feature',afeat)
                         if (topLevelType) {
                             var topLevel = new Object();
+                            topLevel.orig_id = dojo.clone(afeat.id);
                             topLevel.location = dojo.clone(afeat.location);
                             topLevel.type = dojo.clone(afeat.type);
                             topLevel.type.name = topLevelType;
@@ -1330,6 +1332,7 @@ define([
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
                                 var topLevel = new Object();
+                                topLevel.orig_id = dojo.clone(afeat.id);
                                 topLevel.location = dojo.clone(afeat.location);
                                 topLevel.type = dojo.clone(afeat.type);
                                 topLevel.type.name = topLevelType;
@@ -1341,6 +1344,7 @@ define([
                         }
                     }
                 }
+                console.log('adding a feature',featuresToAdd);
                 var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
                 target_track.executeUpdateOperation(postData);
             },
