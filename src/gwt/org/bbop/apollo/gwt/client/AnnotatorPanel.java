@@ -644,6 +644,7 @@ public class AnnotatorPanel extends Composite {
         dateColumn.setSortable(true);
         dateColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
         dateColumn.setCellStyleNames("dataGridLastColumn");
+        dateColumn.setDefaultSortAscending(false);
 
         dataGrid.addDomHandler(new DoubleClickHandler() {
             @Override

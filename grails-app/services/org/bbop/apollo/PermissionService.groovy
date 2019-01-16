@@ -546,6 +546,10 @@ class PermissionService {
      */
     Boolean hasGlobalPermissions(JSONObject jsonObject, GlobalPermissionEnum permissionEnum) {
         // check the authentication
+        if(jsonObject.username == null){
+            log.debug("User not logged in")
+            return false
+        }
         jsonObject = validateSessionForJsonObject(jsonObject)
         User user = User.findByUsername(jsonObject.username)
         if (!user) {

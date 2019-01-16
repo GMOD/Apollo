@@ -1243,7 +1243,7 @@ define([
                                 { ref: this.refSeq.name, start: dragfeat.get('start'), end: dragfeat.get('end')},
                                 // feature callback
                                 function (seq) {
-                                    if (seq != dragfeat.get('reference_allele')) {
+                                    if (seq.toUpperCase() != dragfeat.get('reference_allele').toUpperCase()) {
                                         var variantPosition = dragfeat.get('start') + 1;
                                         var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position."
                                         target_track.openDialog( 'Cannot Add Variant', message );
@@ -7189,7 +7189,7 @@ define([
             openDialog: function (title, data, width, height) {
                 AnnotTrack.popupDialog.set("title", title);
                 AnnotTrack.popupDialog.set("content", data);
-                AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "80%") + ";height:" + (height ? height : "auto"));
+                AnnotTrack.popupDialog.set("style", "width:" + (width ? width : "auto") + ";height:" + (height ? height : "auto"));
                 AnnotTrack.popupDialog.show();
             },
 
@@ -7271,12 +7271,12 @@ define([
             updateDissociateTranscriptFromGeneItem: function() {
                 var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
                 var selected = this.selectionManager.getSelection();
-                var currentType = selected[0].feature.get('type');
                 if (selected.length != 1) {
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase()) || JSONUtils.regulatorTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7314,7 +7314,7 @@ define([
                             menuItems[i].setDisabled(false);
                         }
                     }
-                    else if (selectedType === "miRNA" || selectedType == "snRNA" || selectedType === "snoRNA" ||
+                    else if (selectedType === "miRNA" || selectedType === "snRNA" || selectedType === "snoRNA" ||
                         selectedType === "rRNA" || selectedType === "tRNA" || selectedType === "ncRNA") {
                         if (menuItems[i].label === selectedType) {
                             menuItems[i].setDisabled(true);
@@ -7340,6 +7340,9 @@ define([
                         }
                     }
                     else if (JSONUtils.variantTypes.includes(selectedType.toUpperCase())) {
+                        menuItems[i].setDisabled(true);
+                    }
+                    else if (JSONUtils.regulatorTypes.includes(selectedType.toUpperCase())) {
                         menuItems[i].setDisabled(true);
                     }
                     else {

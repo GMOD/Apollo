@@ -405,7 +405,7 @@ public class Gff3HandlerService {
     }
 
     static private String encodeString(String str) {
-        return str ? str.replaceAll(",", "%2C").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09") : ""
+        return str ? str.replaceAll(",", "%2C").replaceAll("\n","%0A").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09") : ""
     }
 
 
