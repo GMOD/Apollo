@@ -1,0 +1,10 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "client/apollo/package.json",
+        "package.json"
+      ]
+    }
+  }
+}
