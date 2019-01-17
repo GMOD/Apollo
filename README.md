@@ -5,6 +5,8 @@
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+
+
 ### [![](https://github.com/GMOD/Apollo/blob/master/docs/images/download_small.png)&nbsp;Download the latest release](https://github.com/GMOD/Apollo/releases/latest)
 
 An instantaneous, collaborative, genome annotation editor.  The stack is a Java web application / database backend and a
@@ -17,6 +19,8 @@ Questions / Comments / Community contact can be sent to our [Apollo user mailing
 Complete Apollo installation and configuration instructions are available from the [Apollo documentation pages](http://genomearchitect.readthedocs.io/en/latest/)
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
+
+[Planning Board](https://waffle.io/GMOD/Apollo?milestone=2.3)
 
 
 ## Setup guide
@@ -56,7 +60,7 @@ It will also use your custom settings if an apollo-config.groovy file has been s
 Users can generate a war file (for example target/apollo-1.0.2.war) that will be copied into their tomcat webapps
 directory for production deployments:
 
-    apollo deploy 
+  apollo deploy 
 
 Note: make sure to create an apollo-config.groovy file following the sample data (e.g.
 sample-postgres-apollo-config.groovy) to make sure you use your preferred database settings.
@@ -74,3 +78,6 @@ http://www.jetbrains.com/idea/index.html)
 [![YourKit](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
 
 Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit supports Open Source.
+
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/GMOD/Apollo.svg?columns=all)](https://waffle.io/GMOD/Apollo)
+
