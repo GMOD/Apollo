@@ -5212,16 +5212,6 @@ define([
                     updateTimeLastUpdated();
                 };
 
-                var updateAssociatedTranscript = function(transcript){
-                    alert('updating associated transcript'+transcript)
-                    transcript = escapeString(transcript);
-                    var features = '"features": [ { "uniquename": "' + uniqueName + '", "transcript": "' + transcript+ '" } ]';
-                    var operation = "set_associated_transcript";
-                    var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
-                    track.executeUpdateOperation(postData);
-                    updateTimeLastUpdated();
-                };
-
                 var updateDescription = function (description) {
                     description = escapeString(description);
                     var features = '"features": [ { "uniquename": "' + uniqueName + '", "description": "' + description + '" } ]';
