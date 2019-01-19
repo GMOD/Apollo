@@ -837,6 +837,11 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     background-color: black;
     background-repeat: no-repeat;
     background-size: 9px 11px;
+
+
+    /* TODO: remove when we have another strand type */
+    background-image: url('../img/plus-terminator.png');
+    background-position: bottom left;  /* center image vertically */
 }
 
 
