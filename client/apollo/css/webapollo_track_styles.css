@@ -831,26 +831,23 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 
 
 .jbrowse .terminator {
-    margin-top: 1px;
-    padding-left: 1px;
-    padding-right: 0px;
     position: absolute;
-    height: 16px;
+    height: 12px;
     z-index: 100;
+    background-color: black;
+    background-repeat: no-repeat;
+    background-size: 9px 11px;
 }
 
+
 .jbrowse .plus-terminator {
-    background-color: black;
-    background-image: url('../img/terminator16plus.png');
-    background-repeat: no-repeat;
-    background-position: left;  /* center image vertically */
+    background-image: url('../img/plus-terminator.png');
+    background-position: bottom left;  /* center image vertically */
 }
 
 .jbrowse .minus-terminator {
-    background-color: black;
-    background-image: url('../img/terminator16minus.png');
-    background-repeat: no-repeat;
-    background-position: right;  /* center image vertically */
+    background-image: url('../img/minus-terminator.png');
+    background-position: bottom right;  /* center image vertically */
 }
 
 .jbrowse .transposable_element,
