@@ -1148,8 +1148,9 @@ define([
 
                     // TODO: pull from the server at some point
                     var recognizedBioType = [
-                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element'
+                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
                     ];
+                    var strandedOneLevelTypes = ['terminator']
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
@@ -1175,7 +1176,7 @@ define([
                         target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
                     }
                     else {
-                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , true );
+                        target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0);
                     }
 
                     var postData = {
