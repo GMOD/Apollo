@@ -77,7 +77,7 @@ http://www.jetbrains.com/idea/index.html)
 
 [![YourKit](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
 
-Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit supports Open Source Projects.
+Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit provides great supports for Open Source Projects.
 
 [![Waffle.io - Columns and their card count](https://badge.waffle.io/GMOD/Apollo.svg?columns=all)](https://waffle.io/GMOD/Apollo)
 
