@@ -1150,7 +1150,7 @@ define([
                     var recognizedBioType = [
                         'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
                     ];
-                    var strandedOneLevelTypes = ['terminator']
+                    var strandedOneLevelTypes = ['terminator'];
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
@@ -1496,14 +1496,12 @@ define([
                         track.executeUpdateOperation(postData);
                     }
                     else if (feature.afeature.parent_id) {
-                        var feats = [feature];
                         this.createGenericAnnotations([feature], feature.get("type"), feature.get("subfeatures")[0].get("type"), feature.afeature.parent_type.name);
                     }
                     else {
                         if (!feature.get("name")) {
                             feature.set("name", feature.afeature.name);
                         }
-                        var feats = [feature];
                         this.createGenericOneLevelAnnotations([feature], feature.get("type"), feature.get("strand") == 0);
                     }
                 }

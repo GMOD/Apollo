@@ -1282,7 +1282,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 var selection = this.selectionManager.getSelection();
                 var selFeats = this.selectionManager.getSelectedFeatures();
                 this.selectionManager.clearSelection();
-                atrack.createGenericOneLevelAnnotations(selFeats, "terminator", true);
+                atrack.createGenericOneLevelAnnotations(selFeats, "terminator", false);
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
