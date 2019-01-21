@@ -1147,6 +1147,7 @@ define([
                     var biotype ;
 
                     // TODO: pull from the server at some point
+                    // TODO: this list is duplicated
                     var recognizedBioType = [
                         'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
                     ];
@@ -6606,6 +6607,10 @@ define([
             },
 
             initAnnotContextMenu: function () {
+
+                // TODO: this list is duplicated
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+
                 var thisB = this;
                 contextMenuItems = new Array();
                 annot_context_menu = new dijit.Menu({});
@@ -6646,7 +6651,6 @@ define([
                         var selected = thisB.selectionManager.getSelection();
                         var selectedFeature = selected[0].feature;
                         var selectedFeatureDetails = selectedFeature.afeature;
-                        var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion'];
                         while(selectedFeature  ){
                             if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
                                 thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
@@ -6738,12 +6742,27 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "terminator",
+                        onclick: function(event) {
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "terminator", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("terminator");
+                            }
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "repeat_region",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element") {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" ) {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
                             }
@@ -6758,7 +6777,7 @@ define([
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "repeat_region") {
+                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
                             }

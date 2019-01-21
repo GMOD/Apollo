@@ -24,7 +24,7 @@
             "arrowheadClass" : "annot-arrowhead",
             "alternateClasses" : {
                "terminator" : {
-                  "renderClassName" : "terminatort  annot-apollo",
+                  "renderClassName" : "terminator-render annot-apollo",
                   "className" : "terminator"
                },
                "transposable_element" : {
