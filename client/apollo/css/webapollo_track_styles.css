@@ -833,21 +833,23 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 .jbrowse .terminator {
     position: absolute;
     height: 16px;
+    width: 16px;
+    top: -4px;
     z-index: 100;
     /*background-color: black;*/
     background-repeat: no-repeat;
-    background-size: 9px 15px;
+    background-size: 15px 15px;
 
 
     /* TODO: remove when we have another strand type */
-    background-image: url('../img/plus-terminator.png');
+    background-image: url('../img/terminator.png');
     background-position: bottom center;  /* center image vertically */
 }
 
 .jbrowse .terminator-render {
     position: absolute;
     height: 10px;
-    z-index: 100;
+    z-index: 90;
     background-color: black;
 }
 
