@@ -16,8 +16,10 @@ constructor: function( args )  {
     this.transformers["NeatHTMLFeatures/View/Track/NeatFeatures"] = function(trackConfig) {
         trackConfig.type = "WebApollo/View/Track/DraggableNeatHTMLFeatures";
     };
+    // have to set this explicitly if you want undecorated features
+    // trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
     this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
-        trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
+        trackConfig.type = "WebApollo/View/Track/DraggableNeatHTMLFeatures";
     };
 
     this.transformers["JBrowse/View/Track/CanvasFeatures"] = function(trackConfig) {
