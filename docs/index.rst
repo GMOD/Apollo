@@ -1,7 +1,7 @@
 Apollo
 ============
 
-Apollo - An instantaneous, collaborative, genome annotation editor.
+Apollo - An instantaneous, collaborative, genome annotation web-based editor.
 
 The application's technology stack includes a Grails-based Java web application with flexible database backends and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
