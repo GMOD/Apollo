@@ -148,6 +148,8 @@ or
 trackType: NeatCanvasFeatures/View/Track/NeatFeatures
 ```
 
+In the `AnnotTrack.json` code you will have to change `WebApollo/View/Track/DraggableHTMLFeatures` to `WebApollo/View/Track/DraggableNeatHTMLFeatures`.
+
 
 ### Translation tables
 
