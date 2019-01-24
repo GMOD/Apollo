@@ -460,6 +460,9 @@ class JbrowseController {
             // add core plugin: https://github.com/GMOD/jbrowse/blob/master/src/JBrowse/Browser.js#L244
 //            pluginKeys.add("RegexSequenceSearch")
             pluginKeys.add("WebApollo")
+            // see https://github.com/GMOD/jbrowse/issues/897
+            // https://github.com/GMOD/Apollo/issues/2014
+            jsonObject.plugins.add("stub")
             for (plugin in plugins) {
                 if (!pluginKeys.contains(plugin.key)) {
                     pluginKeys.add(plugin.key)

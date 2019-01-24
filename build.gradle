@@ -128,13 +128,6 @@ task cloneRepo3(dependsOn: evaluateJBrowseConfigs) {
     }
 }
 
-task installJBrowseLocal(type: Exec) {
-    doLast{
-        workingDir = '.'
-        commandLine './install_jbrowse.sh'
-    }
-}
-
 //task copyResourcesDev(dependsOn: installJBrowse) {
 task copyResourcesDev() {
     doLast {
