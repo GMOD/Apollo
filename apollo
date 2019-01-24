@@ -7,13 +7,13 @@ function usage(){
     echo "Production Commands:";
     echo "";
     echo "deploy:           Builds war file (no processing of javascript) into the target directory.";
-    echo "install-tools:    Installs JBrowse tools in the ./bin directory if not preset."
+    echo "jbrowse-tools:    Installs JBrowse tools in the ./bin directory if not preset."
     echo "run-local <port>: Runs from current directory, but not in dev-mode. ";
     echo "help:             This message.";
     echo "";
     echo "Development Commands:";
     echo "devmode:          Runs from current directory debug mode (non-minimized javascript).";
-    echo "jbrowse:          Installs updated client/apollo files and JBrowse.";
+    echo "jbrowse:          Installs updated client/apollo files and JBrowse for the web.";
     echo "run-app   <port>: Runs from current directory, but does not compile annotator panel (you have to run run-local once first).";
     echo "test:             Runs test-suite.";
     echo "debug:            Runs from cuurent directory in debug mode (non-minimized javascript).";
@@ -207,10 +207,11 @@ if [[ $1 == "devmode" ]];then
     check_configs
     $gradle_executable installJBrowseWebOnly devmode &
     $grails_executable -reloading run-app
-elif [[ $1 == "install-tools" ]];then
+elif [[ $1 == "jbrowse-tools" ]];then
     check_configs
-    check_perldependencies
-    $gradle_executable installJBrowseLocal
+	$gradle_executable installJBrowseWebOnly
+	rm -rf bin
+	ln -s jbrowse/bin bin
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
