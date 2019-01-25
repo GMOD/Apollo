@@ -456,7 +456,9 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
     var astrand = 1; // variants are represented w.r.t. the sense strand
     var fmin = feat.get('start');
     var fmax = feat.get('end');
-    var alternativeAlleles = feat.get('alternative_alleles').values.split(',');
+    // split if string, but
+    var altAlleleValues = feat.get('alternative_alleles').values;
+    var alternativeAlleles = (typeof altAlleleValues === 'string') ? altAlleleValues.split(',') : altAlleleValues
 
     afeature.location = {
         fmin: fmin,
@@ -498,18 +500,19 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
             if (! ['description', 'score', 'start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
                 var entry = feat.get(property);
                 if (entry) {
+                    entry.tag = property ;
                     if (entry.meta) {
-                        if (entry.meta.number == "A") {
-                            allele_specific_metadata.push(feat.get(property));
+                        if (entry.meta.Number == "A") {
+                            allele_specific_metadata.push(entry);
                         }
-                        else if (entry.meta.number == "0") {
-                            variant_specific_metadata.push(feat.get(property));
+                        else if (entry.meta.Number == 0) {
+                            variant_specific_metadata.push(entry);
                         }
-                        else if (entry.meta.number == "1") {
-                            variant_specific_metadata.push(feat.get(property));
+                        else if (entry.meta.Number == 1) {
+                            variant_specific_metadata.push(entry);
                         }
-                        else if (entry.meta.number == ".") {
-                            variant_specific_metadata.push(feat.get(property));
+                        else if (entry.meta.Number == "." || entry.meta.Number == null) {
+                            variant_specific_metadata.push(entry);
                         }
                         else {
                             console.log("Unhandled metadata 1: ", entry);
@@ -528,7 +531,7 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
         var allele = { bases: alternativeAlleles[i] };
         allele.allele_info = [];
         for (var j = 0; j < allele_specific_metadata.length; ++j) {
-            var tag = allele_specific_metadata[j].meta.id[0];
+            var tag = allele_specific_metadata[j].tag;
             var value = allele_specific_metadata[j].values[i];
             var allele_info = {tag: tag, value: value};
             allele.allele_info.push(allele_info);
@@ -545,14 +548,16 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
             metadata.push({tag: "filters", value: value});
         }
         else {
-            var tag = variant_specific_metadata[i].meta.id[0];
-            var value = variant_specific_metadata[i].values[0];
-            if (tag == "AA") {
-                // some bug upstream that introduces '|' in the value field for 'AA' tag
-                value = value.replace(/\|/g, '');
+            var tag = variant_specific_metadata[i].tag;
+            if(variant_specific_metadata[i].values){
+                var value = variant_specific_metadata[i].values[0];
+                if (tag == "AA") {
+                    // some bug upstream that introduces '|' in the value field for 'AA' tag
+                    value = value.replace(/\|/g, '');
+                }
+                // TODO: What if there are more than one values corresponding to this tag?
+                metadata.push({tag: tag, value: value});
             }
-            // TODO: What if there are more than one values corresponding to this tag?
-            metadata.push({tag: tag, value: value});
         }
     }
 

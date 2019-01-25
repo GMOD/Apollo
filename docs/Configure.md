@@ -90,13 +90,17 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
-__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances.  We are still in the process of testing and improving their performance in combination with the Apollo plugin. Until we finalize this process, we strongly advise caution if enabling them for use in your Apollo instances.
+##### NeatFeatures
+
+__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances.  
+
+However, there are some outstanding issues with them, so proceed with caution.
 
 ```
 jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.15.4-release"
+//        tag = "1.16.1-release"
         branch = "master"
         alwaysPull = true
         alwaysRecheck = true
@@ -131,6 +135,20 @@ jbrowse {
     }
 }
 ```
+
+To use `NeatFeatures` in the tracks you need to specify:
+
+```
+trackType: NeatHTMLFeatures/View/Track/NeatFeatures
+```
+
+or 
+
+```
+trackType: NeatCanvasFeatures/View/Track/NeatFeatures
+```
+
+In the `AnnotTrack.json` code you will have to change `WebApollo/View/Track/DraggableHTMLFeatures` to `WebApollo/View/Track/DraggableNeatHTMLFeatures`.
 
 
 ### Translation tables
