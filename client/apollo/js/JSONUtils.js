@@ -491,6 +491,7 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
             if (! ['description', 'score', 'start', 'end', 'strand', 'seq_id', 'type', 'reference_allele', 'name', 'alternative_alleles', 'subfeatures', 'genotypes'].includes(property)) {
                 var entry = feat.get(property);
                 if (entry) {
+                    entry.tag = property ;
                     if (entry.meta) {
                         if (entry.meta.Number == "A") {
                             allele_specific_metadata.push(feat.get(property));
@@ -538,14 +539,16 @@ JSONUtils.createApolloVariant = function( feat, useName ) {
             metadata.push({tag: "filters", value: value});
         }
         else {
-            var tag = variant_specific_metadata[i].meta.id[0];
-            var value = variant_specific_metadata[i].values[0];
-            if (tag == "AA") {
-                // some bug upstream that introduces '|' in the value field for 'AA' tag
-                value = value.replace(/\|/g, '');
+            var tag = variant_specific_metadata[i].tag;
+            if(variant_specific_metadata[i].values){
+                var value = variant_specific_metadata[i].values[0];
+                if (tag == "AA") {
+                    // some bug upstream that introduces '|' in the value field for 'AA' tag
+                    value = value.replace(/\|/g, '');
+                }
+                // TODO: What if there are more than one values corresponding to this tag?
+                metadata.push({tag: tag, value: value});
             }
-            // TODO: What if there are more than one values corresponding to this tag?
-            metadata.push({tag: tag, value: value});
         }
     }
 
