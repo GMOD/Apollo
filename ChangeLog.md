@@ -3,7 +3,7 @@
 
 Features
 
-- Move to JBrowse 1.15 and webpack (smaller file size) [1928](https://github.com/GMOD/Apollo/pull/1928)
+- Move to JBrowse 1.16 and webpack (smaller file size) [1928](https://github.com/GMOD/Apollo/pull/1928),[1986](https://github.com/GMOD/Apollo/pull/1986)
 - Add ability to annotate terminators [1954](https://github.com/GMOD/Apollo/issues/1954)
 - Added a script for removing all features from a sequence [1935](https://github.com/GMOD/Apollo/pull/1935)
 - Allowed removal of ALL user permissions (instead of deleting) to inactivate [777](https://github.com/GMOD/Apollo/issues/777)

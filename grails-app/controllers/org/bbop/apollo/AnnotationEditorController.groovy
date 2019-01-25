@@ -1061,7 +1061,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 newFeature.put(FeatureStringEnum.LOCATION.value, featureService.convertFeatureLocationToJSON(feature.featureLocation));
 
                 JSONArray alternateAllelesArray = new JSONArray()
-                println("Features has altAlleles: ${feature.alleles}")
+                log.debug("Features has altAlleles: ${feature.alleles}")
                 for (Allele allele : feature.alleles) {
                     JSONObject alleleObject = new JSONObject()
                     alleleObject.put(FeatureStringEnum.BASES.value, allele.bases)

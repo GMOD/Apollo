@@ -100,7 +100,7 @@ However, there are some outstanding issues with them, so proceed with caution.
 jbrowse {
     git {
         url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.15.4-release"
+//        tag = "1.16.1-release"
         branch = "master"
         alwaysPull = true
         alwaysRecheck = true
