@@ -25,7 +25,7 @@ define([
         'dojox/grid/DataGrid',
         'dojox/grid/cells/dijit',
         'dojo/data/ItemFileWriteStore',
-        'WebApollo/View/Track/DraggableHTMLFeatures',
+        'WebApollo/View/Track/DraggableNeatHTMLFeatures',
         'WebApollo/FeatureSelectionManager',
         'WebApollo/JSONUtils',
         'WebApollo/BioFeatureUtils',
