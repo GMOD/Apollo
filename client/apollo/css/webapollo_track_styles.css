@@ -504,6 +504,8 @@ div.annot-sequence  {
     z-index: 100;
     background-color: transparent;
     background-image: url('../img/exclamation_circle_orange.png');
+    background-size: 15px 15px;
+    background-repeat: no-repeat;
     pointer-events: none;   /*  attempting to route around issue with centered non-canon splice sites preventing edge-drag */
 /*    background-image: url('img/exclamation_circle_orange.png');  */
 /*    background-image: url('img/warning_exclamation_small.png'); */
@@ -559,6 +561,7 @@ div.annot-sequence  {
     width: 12px;
     height: 100%;
     background-image: url('../img/plus-arrowhead.png');
+    background-size: 12px 12px;
     background-repeat: no-repeat;
     background-position: left center;  /* center image vertically */
     z-index: 15;
@@ -571,6 +574,7 @@ div.annot-sequence  {
     width: 12px;
     height: 100%;
     background-image: url('../img/minus-arrowhead.png');
+    background-size: 10px 10px;
     background-repeat: no-repeat;
     background-position: right center;  /* center image vertically */
     z-index: 15;
