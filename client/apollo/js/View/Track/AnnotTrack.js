@@ -25,7 +25,7 @@ define([
         'dojox/grid/DataGrid',
         'dojox/grid/cells/dijit',
         'dojo/data/ItemFileWriteStore',
-        'WebApollo/View/Track/DraggableHTMLFeatures',
+        'WebApollo/View/Track/DraggableNeatHTMLFeatures',
         'WebApollo/FeatureSelectionManager',
         'WebApollo/JSONUtils',
         'WebApollo/BioFeatureUtils',
@@ -5633,9 +5633,10 @@ define([
 
                     // if feature-render annot-render ,
                     // remove and add: gray-center-10pct
-                    if(div.className && div.className.indexOf("feature-render")>=0 &&  div.className.indexOf("annot-render")>=0 ){
-                        div.className = "gray-center-10pct";
-                    }
+                    // var className = div.className ;
+                    // if(typeof div.className === 'string' && div.className.indexOf("feature-render")>=0 &&  div.className.indexOf("annot-render")>=0 ){
+                    //     div.className = "gray-center-10pct";
+                    // }
 // annot_context_menu.unBindDomNode(div);
                     $(div).unbind();
                     for (var i = 0; i < div.childNodes.length; ++i) {

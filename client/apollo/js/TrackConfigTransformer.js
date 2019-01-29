@@ -22,12 +22,14 @@ constructor: function( args )  {
     // have to set this explicitly if you want undecorated features
     // and configure the jbrowse plugin off
     this.transformers["JBrowse/View/Track/HTMLFeatures"] = function(trackConfig) {
-        trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
+        // trackConfig.type = "WebApollo/View/Track/DraggableHTMLFeatures";
+        trackConfig.type = "WebApollo/View/Track/DraggableNeatHTMLFeatures";
     };
 
     // trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
     this.transformers["JBrowse/View/Track/CanvasFeatures"] = function(trackConfig) {
-        trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
+        // trackConfig.type = "WebApollo/View/Track/WebApolloCanvasFeatures";
+        trackConfig.type = "WebApollo/View/Track/WebApolloNeatCanvasFeatures";
     };
 
     this.transformers["JBrowse/View/Track/HTMLVariants"] = function(trackConfig) {
