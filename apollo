@@ -209,6 +209,9 @@ function link_jbrowse_tools(){
 	cd jbrowse
 	cpanm Bio::GFF3::LowLevel::Parser CGI Devel::Size Digest::Crc32 JSON File::Next Hash::Merge Heap::Simple Heap::Simple::Perl Heap::Simple::XS PerlIO::gzip --force
 	cd ..
+	echo "**********************************";
+	echo "JBrowse Tools installed in './bin'";
+	echo "**********************************";
 }
 
 if [[ $1 == "devmode" ]];then
