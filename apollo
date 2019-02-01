@@ -203,15 +203,21 @@ function clean_all(){
     clean_code
 }
 
+function link_jbrowse_tools(){
+	rm -rf bin
+	ln -s jbrowse/bin bin
+	cd jbrowse
+	cpanm Bio::GFF3::LowLevel::Parser CGI Devel::Size Digest::Crc32 JSON File::Next Hash::Merge Heap::Simple Heap::Simple::Perl Heap::Simple::XS PerlIO::gzip --force
+	cd ..
+}
+
 if [[ $1 == "devmode" ]];then
     check_configs
     $gradle_executable installJBrowseWebOnly devmode &
     $grails_executable -reloading run-app
 elif [[ $1 == "jbrowse-tools" ]];then
     check_configs
-	$gradle_executable installJBrowseWebOnly
-	rm -rf bin
-	ln -s jbrowse/bin bin
+	$gradle_executable installJBrowseWebOnly && link_jbrowse_tools
 elif [[ $1 == "run-local" ]];then
     check_configs
     if [[ $# == 2 ]]; then
@@ -233,7 +239,7 @@ elif [[ $1 == "run-app" ]];then
 #        $gradle_executable handleJBrowse copyResourcesDev compileJBrowse  && $grails_executable -Dserver.port=$2 run-app
         $gradle_executable installJBrowseWebOnly && $grails_executable -Dserver.port=$2 run-app
     else
-        $gradle_executable installJBrowseWebOnly && $grails_executable run-app
+        $gradle_executable installJBrowseWebOnly &&  $grails_executable run-app
     fi
 elif [[ $1 == "debug" ]];then
     # TODO: feel like there is a better way to do this
@@ -259,7 +265,7 @@ elif [[ $1 == "test-unit" ]];then
 elif [[ $1 == "deploy" ]];then
     check_configs
     copy_configs
-    $gradle_executable installJBrowseWebOnly gwtc &&  $grails_executable war
+    $gradle_executable installJBrowseWebOnly gwtc &&  $grails_executable war && link_jbrowse_tools
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs
