@@ -21,20 +21,39 @@ You should [increase the memory according to these instructions](Troubleshooting
 
 Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configuration_Guide) (based on an Ubuntu 16 install):
 
-     sudo apt-get update && sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential git python-software-properties 
+     sudo apt-get update && sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential git python-software-properties python
+     
+### Install node if not present
+
+Node versions 608 have been tested.  
+
+Option 1 (preferred):
+
+1. Install [nvm](https://github.com/creationix/nvm) 
+2. Install node with ```nvm install node 8```
+
+Option 2:
+
+[stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
+
      curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
      sudo apt-get install nodejs 
      
-NOTE: npm (installed with nodejs) must be version 6 or better.  If not installed from the above instructions, most [stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  [nvm](https://github.com/creationix/nvm) may also be useful.
-
-NOTE: you must link nodejs to to node if your system installs it as a ```nodejs``` binary instead of a node one.  E.g., 
+NOTE: you may need to link nodejs to to node if your system installs it as a ```nodejs``` binary instead of a node one.  E.g., 
 
     sudo ln -s /usr/bin/nodejs /usr/bin/node
+
+
+### 
      
 Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat8 is preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
      
     sudo apt-get install ant openjdk-8-jdk 
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
+    
+Install yarn:
+
+    npm install -g yarn
 
 Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  To setup for production continue onto configuration below after install . 
 
@@ -64,7 +83,7 @@ renamed to apollo-config.groovy before running `apollo deploy`. Additionally the
 Furthermore, the `apollo-config.groovy` has different groovy environments for test, development, and production modes.
 The environment will be selected automatically selected depending on how it is run, e.g:
 
-* `apollo deploy` or `apollo release` use the production environment (i.e. when you copy the war file to your production
+* `apollo deploy` use the production environment (i.e. when you copy the war file to your production
 server `apollo run-local` or `apollo debug` use the development environment (i.e. when you are running it locally)
 * `apollo test` uses the test environment (i.e. only when running unit tests)
 
@@ -192,57 +211,5 @@ the apollo-config.groovy is used.
 While the shortcut `apollo deploy` takes care of basic application deployment, understanding the full build process of
 Apollo can help you to optimize and improve your deployed instances.
 
-To learn more about the architecture of webapollo, view the [architecture guide](Architecture.md) but the main idea here
-is to learn how to use `apollo release` to construct a build that includes javascript minimization
-
-
-### Pre-requisites for Javascript minimization
-
-In addition to the system [pre-requisites](Prerequisites.md), the javascript compilation will use nodejs, which can be
-installed from a package manager on many platforms. Recommended setup for different platforms:
-
-
-``` 
-sudo apt-get install nodejs
-sudo yum install epel-release npm
-brew install node
-```
-
-#### Install extra perl modules
-
-Building apollo in release mode also requires some extra Perl modules, namely Text::Markdown and DateTime. One way to
-install them:
-
-``` 
-bin/cpanm -l extlib DateTime Text::Markdown
-```
-
-### Performing the javascript minimization
-
-To build a Apollo release with Javascript minimization, you can use the command
-
-``` 
-./apollo release
-```
-
-This will compile JBrowse and Apollo javascript code into minimized files so that the number of HTTP requests that the
-client needs to make are reduced.
-
-In all other respects, `apollo release` is exactly the same as `apollo deploy` though.
-
-
-### Performing active development
-
-To perform active development of the codebase, use
-
-``` 
-./apollo debug
-```
-
-This will launch a temporary instance of Apollo by running `grails run-app` and `ant devmode` at the same time,
-which means that any changes to the Java files will be picked up, allowing fast iteration.
-
-If you modify the javascript files (i.e. the client directory), you can run `scripts/copy_client.sh` and these will be
-picked up on-the-fly too.
-
+To learn more about the architecture of webapollo, view the [architecture guide](Architecture.md). 
 

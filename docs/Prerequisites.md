@@ -34,7 +34,6 @@ quickest way to take care of pre-requisites.
         -   expat-dev (RedHat/CentOS)
 -   Perl pre-requisites:
     -   Apollo will automatically try to install all perl-pre-requisites.
-    -   If you are building Apollo in "release" mode, perl 5.10 or up will be required
 -   Sequence search (optional).
     -   Blat (download [Linux](http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/) or [OSX](http://hgdownload.cse.ucsc.edu/admin/exe/macOSX.x86_64/) binaries).
 

@@ -54,7 +54,7 @@ re-installing, as the live re-deploy itself can cause memory leaks or an inconsi
 If you have named your web application named `Apollo.war` then you can remove all of these files from your webapps
 directory and re-deploy.
 
-- Run `apollo deploy`  (or `apollo release` for javascript-minimization)
+- Run `apollo deploy`  
 - Undeploy any existing Apollo instances
 - Stop tomcat
 - Copy the war file to the webapps folder
@@ -125,7 +125,7 @@ Type:
 
 ```git config --global url."https://".insteadOf git://``` 
 
-in the command-line and then re-install using ```./apollo clean-all``` ```./apollo run-local``` (or deploy or release).
+in the command-line and then re-install using ```./apollo clean-all``` ```./apollo run-local``` (or deploy).
 
 
 
