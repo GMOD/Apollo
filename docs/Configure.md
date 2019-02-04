@@ -90,66 +90,6 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
-##### NeatFeatures
-
-__Warning:__ The ```NeatHTMLFeatures``` and ```NeatCanvasFeatures``` plugins work very well in JBrowse instances.  
-
-However, there are some outstanding issues with them, so proceed with caution.
-
-```
-jbrowse {
-    git {
-        url= "https://github.com/GMOD/jbrowse"
-//        tag = "1.16.1-release"
-        branch = "master"
-        alwaysPull = true
-        alwaysRecheck = true
-    }
-    plugins {
-        WebApollo{
-            included = true
-        }
-        NeatHTMLFeatures{
-            included = true
-        }
-        NeatCanvasFeatures{
-            included = true
-        }
-        RegexSequenceSearch{
-            included = true
-        }
-        HideTrackLabels{
-            included = true
-        }
-//        MyVariantInfo {
-//            git = 'https://github.com/GMOD/myvariantviewer'
-//            branch = 'master'
-//            alwaysRecheck = "true"
-//            alwaysPull = "true"
-//        }
-//        SashimiPlot {
-//            git = 'https://github.com/cmdcolin/sashimiplot'
-//            branch = 'master'
-//            alwaysPull = "true"
-//        }
-    }
-}
-```
-
-To use `NeatFeatures` in the tracks you need to specify:
-
-```
-trackType: NeatHTMLFeatures/View/Track/NeatFeatures
-```
-
-or 
-
-```
-trackType: NeatCanvasFeatures/View/Track/NeatFeatures
-```
-
-In the `AnnotTrack.json` code you will have to change `WebApollo/View/Track/DraggableHTMLFeatures` to `WebApollo/View/Track/DraggableNeatHTMLFeatures`.
-
 
 ### Translation tables
 
@@ -162,7 +102,6 @@ To use a different table from [this list of NCBI translation tables](http://www.
 apollo {
 ...
   get_translation_code = "11"
-}
 ```   
 
 You may also add a custom translation table in the ```web-app/translation_tables``` directory as follows:
@@ -371,36 +310,74 @@ forwarded to the tomcat server.  This setup is not necessary, but it is a very s
 Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since
 websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded
 in some way too.
-If you are using tomcat 7, please make sure to use the most recent stable version, which supports web sockets by default.  Using older versions (e.g. 7.0.26) websockets may not be included by default and you will need to include an additional .jar file.
+
+Use Tomcat 8 or above as Tomcat 7 has been deprecated.
+
+
+### Installing secure certificates. 
+
+Free certificates can be found by using [certbot](https://certbot.eff.org/).
+
+Follow the instructions to install your appropriate certificate if users are going to potentially be sending passwords across. 
+
 
 #### Apache Proxy 
 
-The most simple setup on apache is as follows.. Here is the most basic configuration for a reverse proxy:
+Here is the most basic configuration for a reverse proxy with Apache 2.4 (will probably work for 2.2 as well).   
 
+Enable proxy_pass and proxy_wstunnel:
+
+    sudo a2enmod proxy proxy_wstunnel proxy_connect proxy_http
+    sudo service apache2 restart
+
+In the apache conf directory edit `proxy.conf`
 
 ``` 
-ProxyPass  /apollo http://localhost:8080/apollo
-ProxyPassReverse  /apollo http://localhost:8080/apollo
+   <Proxy *>
+      # if using Apache 2.2 use Order, Allow directives
+      Order Deny,Allow
+      Allow from all
+
+      # if using Apache 2.4 use Require directive
+      Require all granted
+
+    </Proxy>
+    
+    ProxyPass /apollo/stomp/info http://localhost:8080/apollo/stomp/info
+    ProxyPassReverse /apollo/stomp/info http://localhost:8080/apollo/stomp/info
+
+    ProxyPass /apollo/stomp ws://localhost:8080/apollo/stomp
+    ProxyPassReverse /apollo/stomp ws://localhost:8080/apollo/stomp
+
+    ProxyPass           /apollo  http://localhost:8080/apollo
+    ProxyPassReverse    /apollo  http://localhost:8080/apollo
+
 ```
+
+### If Tomcat is running SSL 
+
+If the secure certificate is on Apollo and you're running via apache use `https` and `wss` protocols instead or just change the tomcat server port explicitly:
+
+```
+    ProxyPass /apollo/stomp/info https://site:8443/apollo/stomp/info
+    ProxyPassReverse /apollo/stomp/info https://localhost:8443/apollo/stomp/info
+
+    ProxyPass /apollo/stomp wss://localhost:8443/apollo/stomp
+    ProxyPassReverse /apollo/stomp wss://localhost:8443/apollo/stomp
+
+    ProxyPass           /apollo  https://localhost:8443/apollo
+    ProxyPassReverse    /apollo  https://localhost:8443/apollo
+
+```
+
+
 
 Note: that a reverse proxy _does not_ use `ProxyRequests On` (which turns on forward proxying, which is dangerous)
 
+Also note: This setup will downgrade (but will still function) to use AJAX long-polling without the websocket proxy being configured.
 
-Also note: This setup will use downgrade to use AJAX long-polling without the websocket proxy being configured.
 
 
-To setup the proxy for websockets, you can use mod_proxy_wstunnel, first load the module
-
-``` 
-LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
-```
-
-Then add extra ProxyPass calls for the websocket "endpoint" called `/apollo/stomp`
-
-``` 
-ProxyPass /apollo/stomp  ws://localhost:8080/apollo/stomp
-ProxyPassReverse /apollo/stomp ws://localhost:8080/apollo/stomp
-```
 
 ##### Debugging proxy issues
 
