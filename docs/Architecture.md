@@ -213,7 +213,7 @@ environment, and these are basically assigned automatically depending on how you
 
 * Test environment - "apollo test"
 
-* Production environment - "apollo deploy" or "apollo release"
+* Production environment - "apollo deploy" 
 
 
 Note: If there are no users and no annotations, a bootstrap procedure can also automatically create some annotations and

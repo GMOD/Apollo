@@ -24,7 +24,7 @@ import org.springframework.http.HttpStatus
 /**
  * This is server-side code supporting the high-level functionality of the GWT AnnotatorPanel class.
  */
-@RestApi(name = "Application Services", description = "Methods for running the annotation engine")
+@RestApi(name = "Annotator Engine Services", description = "Methods for running the annotation engine")
 class AnnotatorController {
 
     def featureService

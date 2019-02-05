@@ -829,6 +829,41 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     background-color: magenta;
 }
 
+
+.jbrowse .terminator {
+    position: absolute;
+    height: 16px;
+    width: 16px;
+    top: -4px;
+    z-index: 100;
+    /*background-color: black;*/
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+
+
+    /* TODO: remove when we have another strand type */
+    background-image: url('../img/terminator.png');
+    background-position: bottom center;  /* center image vertically */
+}
+
+.jbrowse .terminator-render {
+    position: absolute;
+    height: 10px;
+    z-index: 90;
+    background-color: black;
+}
+
+
+.jbrowse .minus-terminator {
+    height: 10px; !important;
+    background-color: transparent;
+}
+
+.jbrowse .plus-terminator {
+    height: 10px; !important;
+    background-color: transparent;
+}
+
 .jbrowse .transposable_element,
 .jbrowse .plus-transposable_element,
 .jbrowse .minus-transposable_element {
