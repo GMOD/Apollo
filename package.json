@@ -9,6 +9,7 @@
   "author": "Nathan Dunn",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
+    "gradle": "^1.0.9",
     "jquery": "^1.7.2",
     "jqueryui": "^1.8.24"
   },
