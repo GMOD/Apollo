@@ -4,8 +4,7 @@ use strict;
 use warnings;
 
 use FindBin qw($RealBin);
-use lib "$RealBin/../../jbrowse/src/perl5";
-use JBlibs;
+use lib "$RealBin/../../jbrowse/src/perl5/lib/perl5";
 
 use File::Basename;
 use lib dirname($0);
