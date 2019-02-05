@@ -71,6 +71,8 @@ public class OrganismPanel extends Composite {
     @UiField
     Button createButton;
     @UiField
+    Button duplicateButton;
+    @UiField
     Button cancelButton;
     @UiField
     Button deleteButton;
@@ -328,6 +330,14 @@ public class OrganismPanel extends Composite {
         loadingDialog.show();
     }
 
+    @UiHandler("duplicateButton")
+    public void handleDuplicateOrganism(ClickEvent clickEvent) {
+        duplicateButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
+        organismInfo.setName(organismInfo.getName() + " Copy");
+        OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
+        setNoSelection();
+    }
 
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
@@ -456,12 +466,14 @@ public class OrganismPanel extends Composite {
             deleteButton.setVisible(isAdmin);
             createButton.setVisible(false);
             cancelButton.setVisible(false);
+            duplicateButton.setVisible(isAdmin);
         } else {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
             createButton.setVisible(false);
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
+            duplicateButton.setVisible(false);
         }
     }
 
