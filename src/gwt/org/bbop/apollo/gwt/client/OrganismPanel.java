@@ -32,8 +32,8 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.CheckBox;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -70,6 +70,8 @@ public class OrganismPanel extends Composite {
     Button newButton;
     @UiField
     Button createButton;
+    @UiField
+    Button duplicateButton;
     @UiField
     Button cancelButton;
     @UiField
@@ -207,7 +209,7 @@ public class OrganismPanel extends Composite {
         setTextEnabled(organismInfo.isEditable());
 
         GWT.log("loadOrganismInfo setValue " + organismInfo.getPublicMode());
-        Boolean isEditable = organismInfo.isEditable()||MainPanel.getInstance().isCurrentUserAdmin();
+        Boolean isEditable = organismInfo.isEditable() || MainPanel.getInstance().isCurrentUserAdmin();
 
         organismName.setText(organismInfo.getName());
         organismName.setEnabled(isEditable);
@@ -227,7 +229,7 @@ public class OrganismPanel extends Composite {
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
 
-        organismIdLabel.setHTML("Internal ID: " +organismInfo.getId());
+        organismIdLabel.setHTML("Internal ID: " + organismInfo.getId());
 
         nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
         nonDefaultTranslationTable.setEnabled(isEditable);
@@ -328,6 +330,14 @@ public class OrganismPanel extends Composite {
         loadingDialog.show();
     }
 
+    @UiHandler("duplicateButton")
+    public void handleDuplicateOrganism(ClickEvent clickEvent) {
+        duplicateButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
+        organismInfo.setName("Copy of " + organismInfo.getName());
+        OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
+        setNoSelection();
+    }
 
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
@@ -343,7 +353,7 @@ public class OrganismPanel extends Composite {
         OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
         if (organismInfo == null) return;
         if (organismInfo.getNumFeatures() > 0) {
-            new ErrorDialog("Cannot delete organism '" + organismInfo.getName() + "'", "You must first remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations before deleting organism '"+organismInfo.getName()+"'.  Please see our <a href='../WebServices/'>Web Services API</a> from the 'Help' menu for more details on how to perform this operation in bulk.", true, true);
+            new ErrorDialog("Cannot delete organism '" + organismInfo.getName() + "'", "You must first remove " + singleSelectionModel.getSelectedObject().getNumFeatures() + " annotations before deleting organism '" + organismInfo.getName() + "'.  Please see our <a href='../WebServices/'>Web Services API</a> from the 'Help' menu for more details on how to perform this operation in bulk.", true, true);
             return;
         }
         Bootbox.confirm("Are you sure you want to delete organism " + singleSelectionModel.getSelectedObject().getName() + "?", new ConfirmCallback() {
@@ -456,12 +466,14 @@ public class OrganismPanel extends Composite {
             deleteButton.setVisible(isAdmin);
             createButton.setVisible(false);
             cancelButton.setVisible(false);
+            duplicateButton.setVisible(isAdmin);
         } else {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
             createButton.setVisible(false);
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
+            duplicateButton.setVisible(false);
         }
     }
 

@@ -113,6 +113,9 @@
                                 <b:Button ui:field="createButton" text="Save New Organism" visible="false"
                                           styleName="{style.inline-button}"
                                 />
+                                <b:Button ui:field="duplicateButton" text="Duplicate" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
                                 <b:Button ui:field="cancelButton" text="Cancel" visible="false"
                                           styleName="{style.inline-button}"
                                 />
