@@ -18,6 +18,7 @@ class Organism implements JsonMetadata {
         metadata nullable: true
         commonName nullable: false
         genomeFasta nullable: true
+        obselete nullable: true
         genomeFastaIndex nullable: true
         nonDefaultTranslationTable nullable: true, blank: false
         dataAddedViaWebServices nullable: true
@@ -31,6 +32,7 @@ class Organism implements JsonMetadata {
     String comment;
     Boolean valid;
     boolean publicMode;
+    boolean obselete
     String blatdb;
     String directory
     String genomeFasta
@@ -73,6 +75,7 @@ class Organism implements JsonMetadata {
 
     static mapping = {
         publicMode defaultValue: true
+        obselete defaultValue: false
     }
 
 }

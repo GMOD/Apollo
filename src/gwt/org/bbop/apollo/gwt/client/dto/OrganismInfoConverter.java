@@ -47,6 +47,9 @@ public class OrganismInfoConverter {
         if (object.get("publicMode") != null) {
             organismInfo.setPublicMode(object.get("publicMode").isBoolean().booleanValue());
         }
+        if (object.get("obselete") != null) {
+            organismInfo.setObsolete(object.get("obselete").isBoolean().booleanValue());
+        }
         if (object.get("editable") != null) {
             organismInfo.setEditable(object.get("editable").isBoolean().booleanValue());
         }
@@ -97,6 +100,7 @@ public class OrganismInfoConverter {
 
         GWT.log("convertOrganismInfoToJSONObject "+organismInfo.getPublicMode());
         object.put("publicMode", JSONBoolean.getInstance(organismInfo.getPublicMode()));
+        object.put("obsolete", JSONBoolean.getInstance(organismInfo.getObsolete()));
 
         return object;
     }

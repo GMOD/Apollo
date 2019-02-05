@@ -321,6 +321,7 @@ public class OrganismPanel extends Composite {
         organismInfo.setBlatDb(blatdb.getText());
         organismInfo.setNonDefaultTranslationTable(nonDefaultTranslationTable.getText());
         organismInfo.setPublicMode(publicMode.getValue());
+        organismInfo.setObsolete(false);
 
         createButton.setEnabled(false);
         createButton.setText("Processing");

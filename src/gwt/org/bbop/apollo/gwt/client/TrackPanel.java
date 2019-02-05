@@ -482,7 +482,14 @@ public class TrackPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v = JSONParser.parseStrict(response.getText());
+                JSONValue v ;
+                try {
+                    v = JSONParser.parseStrict(response.getText());
+                } catch (Exception e) {
+                    GWT.log("No organism present: "+response.getText());
+                    return ;
+//                    e.printStackTrace();
+                }
                 JSONObject o = v.isObject();
                 if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
                     new ErrorDialog("Error Updating User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);

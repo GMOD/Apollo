@@ -255,6 +255,7 @@ class OrganismController {
                         directory: configWrapperService.commonDataDirectory,
                         blatdb: requestObject.blatdb ?: "",
                         genus: requestObject.genus ?: "",
+                        obsolete: false,
                         species: requestObject.species ?: "",
                         metadata: requestObject.metadata ?: "",
                         publicMode: requestObject.publicMode ?: false,
@@ -815,6 +816,7 @@ class OrganismController {
                     , blatdb: organismJson.blatdb
                     , species: organismJson.species
                     , genus: organismJson.genus
+                    , obsolete : false
                     , metadata: organismJson.metadata?organismJson.metadata.toString(): null
                     , nonDefaultTranslationTable: organismJson.nonDefaultTranslationTable ?: null
                     , publicMode: organismJson.publicMode ?: false
