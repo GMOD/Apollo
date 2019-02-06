@@ -37,7 +37,9 @@ class AnnotatorService {
 
 
             JSONArray organismArray = new JSONArray()
-            for (Organism organism in organismList) {
+            println "input list: ${organismList.size()} -> ${ ( organismList as List).findAll(){ o -> !o.obsolete }.size() }"
+
+            for (Organism organism in organismList.findAll(){ o -> !o.obsolete} ) {
                 Integer sequenceCount = sequenceIntegerMap.get(organism) ?: 0
                 JSONObject jsonObject = [
                         id             : organism.id as Long,

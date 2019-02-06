@@ -33,6 +33,7 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
+import org.gwtbootstrap3.client.ui.CheckBoxButton;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
@@ -84,6 +85,10 @@ public class OrganismPanel extends Composite {
     TextBox nonDefaultTranslationTable;
     @UiField
     org.gwtbootstrap3.client.ui.Label organismIdLabel;
+    @UiField
+    CheckBoxButton showOnlyPublicOrganisms;
+    @UiField
+    CheckBoxButton showObsoleteOrganisms;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -172,9 +177,7 @@ public class OrganismPanel extends Composite {
             }
         }, DoubleClickEvent.getType());
 
-        List<OrganismInfo> trackInfoList = dataProvider.getList();
-
-        ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
+        ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(organismInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(organismNameColumn, new Comparator<OrganismInfo>() {
             @Override
@@ -344,6 +347,19 @@ public class OrganismPanel extends Composite {
 
         OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
         loadingDialog.show();
+    }
+
+    @UiHandler("showOnlyPublicOrganisms")
+    public void handleShowOnlyPublicOrganisms(ClickEvent clickEvent) {
+        showOnlyPublicOrganisms.setValue(!showOnlyPublicOrganisms.getValue());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
+    }
+
+
+    @UiHandler("showObsoleteOrganisms")
+    public void handleShowObsoleteOrganisms(ClickEvent clickEvent) {
+        showObsoleteOrganisms.setValue(!showObsoleteOrganisms.getValue());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
     }
 
     @UiHandler("duplicateButton")

@@ -40,6 +40,14 @@
 
     </ui:style>
     <gwt:DockLayoutPanel>
+        <gwt:north size="25">
+           <!--<gwt:FlowPanel>-->
+            <b:ButtonGroup dataToggle="BUTTONS">
+                <b:CheckBoxButton ui:field="showOnlyPublicOrganisms" visible="false" value="false" >Show Public Only</b:CheckBoxButton>
+                <b:CheckBoxButton ui:field="showObsoleteOrganisms" value="false" >Show Obsolete</b:CheckBoxButton>
+               </b:ButtonGroup>
+           <!--</gwt:FlowPanel>-->
+        </gwt:north>
         <gwt:center>
             <gwt:DockLayoutPanel>
                 <gwt:north size="25">
