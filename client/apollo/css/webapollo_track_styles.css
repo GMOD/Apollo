@@ -855,9 +855,13 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
 
 
 .jbrowse .minus-terminator {
+    height: 10px; !important;
+    background-color: transparent;
 }
 
 .jbrowse .plus-terminator {
+    height: 10px; !important;
+    background-color: transparent;
 }
 
 .jbrowse .transposable_element,

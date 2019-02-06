@@ -52,8 +52,6 @@ rm -f /var/lib/tomcat/webapps/apollo.war
 # Startup tomcat again
 service tomcat8 start
 
-# ... with javascript minimization: 
-./apollo release
 # ... without javascript minimization
 #  ./apollo deploy
 # Above creates this file: target/apollo-2.0.4.war

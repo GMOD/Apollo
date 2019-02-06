@@ -156,6 +156,19 @@ class FeatureService {
         }
     }
 
+    @Transactional
+    def addOwnersByString(def username,Feature... features){
+        User owner = User.findByUsername(username as String)
+        if (owner && features) {
+            log.debug "setting owner for feature ${features} to ${owner}"
+            features.each{
+                it.addToOwners(owner)
+            }
+        } else {
+            log.warn "user ${owner} or feature ${features} is null so not setting"
+        }
+    }
+
     /**
      * From Gene.addTranscript
      * @return

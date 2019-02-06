@@ -121,14 +121,11 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//         tag = "1.16.1-release"
+//         tag = "1.16.2-release"
 ////        branch = "dev"
 ////        hash = "09b71099bf73c50d37a0e911baf06b4975e3f6ca"
 //        alwaysPull = true
 //        alwaysRecheck = true
-//
-//	// Warning: We are still testing the performance of NeatFeatures plugins in combination with Apollo.
-//	// We advise caution if enabling these plugins with Apollo until this process is finalized.
 //    }
 //    plugins {
 //        NeatHTMLFeatures{
@@ -143,16 +140,16 @@ environments {
 //        HideTrackLabels{
 //            included = true
 //        }
-//        MyVariantInfo {
-//            git = 'https://github.com/GMOD/myvariantviewer'
-//            branch = 'master'
-//            alwaysRecheck = "true"
-//            alwaysPull = "true"
-//        }
-//        SashimiPlot {
-//            git = 'https://github.com/cmdcolin/sashimiplot'
-//            branch = 'master'
-//            alwaysPull = "true"
-//        }
+////        MyVariantInfo {
+////            git = 'https://github.com/GMOD/myvariantviewer'
+////            branch = 'master'
+////            alwaysRecheck = "true"
+////            alwaysPull = "true"
+////        }
+////        SashimiPlot {
+////            git = 'https://github.com/cmdcolin/sashimiplot'
+////            branch = 'master'
+////            alwaysPull = "true"
+////        }
 //    }
 //}

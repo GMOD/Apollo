@@ -40,6 +40,14 @@
 
     </ui:style>
     <gwt:DockLayoutPanel>
+        <gwt:north size="25">
+           <!--<gwt:FlowPanel>-->
+            <b:ButtonGroup dataToggle="BUTTONS">
+                <b:CheckBoxButton ui:field="showOnlyPublicOrganisms" visible="false" value="false" >Show Public Only</b:CheckBoxButton>
+                <b:CheckBoxButton ui:field="showObsoleteOrganisms" value="false" >Show Obsolete</b:CheckBoxButton>
+               </b:ButtonGroup>
+           <!--</gwt:FlowPanel>-->
+        </gwt:north>
         <gwt:center>
             <gwt:DockLayoutPanel>
                 <gwt:north size="25">
@@ -113,11 +121,21 @@
                                 <b:Button ui:field="createButton" text="Save New Organism" visible="false"
                                           styleName="{style.inline-button}"
                                 />
+                                <b:Button ui:field="duplicateButton" text="Duplicate" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
                                 <b:Button ui:field="cancelButton" text="Cancel" visible="false"
                                           styleName="{style.inline-button}"
                                 />
-                                <b:CheckBox ui:field="publicMode" text="Public" enabled="true"
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                                <b:CheckBox ui:field="publicMode" text="Public" visible="false"
                                             styleName="{style.inline-button}"
+                                />
+                                <b:CheckBox ui:field="obsoleteButton" text="Obsolete" visible="false"
+                                          styleName="{style.inline-button}"
                                 />
                                 <b:Label ui:field="organismIdLabel"/>
                             </b:Column>

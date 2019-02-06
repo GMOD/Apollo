@@ -414,7 +414,7 @@ class JbrowseController {
             id = request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
             jsonObject.put("dataset_id", id);
         }
-        List<Organism> list = permissionService.getOrganismsForCurrentUser()
+        List<Organism> list = permissionService.getOrganismsForCurrentUser().findAll(){ o -> !o.obsolete}
         JSONObject organismObjectContainer = new JSONObject()
         for (organism in list) {
             JSONObject organismObject = new JSONObject()
