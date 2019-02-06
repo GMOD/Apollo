@@ -382,7 +382,8 @@ public class Gff3HandlerService {
                 String ownersString = feature.owners.collect{ owner ->
                     encodeString(owner.username)
                 }.join(",")
-                // Note: how to do this using history directly, but only
+                // Note: how to do this using history directly, but only the top-level visible object gets annotated (e.g., the mRNA)
+                // also, this is a separate query to the history table for each GFF3, so very slow
 //                def owners = FeatureEvent.findAllByUniqueName(feature.uniqueName).editor.unique()
 //                String ownersString = owners.collect{ owner ->
 //                    encodeString(owner.username)
