@@ -35,6 +35,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.CheckBoxButton;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -169,7 +170,12 @@ public class OrganismPanel extends Composite {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
                 if (singleSelectionModel.getSelectedObject() != null) {
-                    String orgId = singleSelectionModel.getSelectedObject().getId();
+                    OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
+                    if(organismInfo.getObsolete()){
+                        Bootbox.alert("You will have to make this organism 'active' by unselecting the 'Obsolete' checkbox in the Organism Details panel at the bottom.");
+                        return ;
+                    }
+                    String orgId = organismInfo.getId();
                     if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
                         OrganismRestService.switchOrganismById(orgId);
                     }
