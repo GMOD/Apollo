@@ -483,6 +483,7 @@ public class OrganismPanel extends Composite {
             createButton.setVisible(false);
             cancelButton.setVisible(false);
             duplicateButton.setVisible(isAdmin);
+            publicMode.setVisible(isAdmin);
             obsoleteButton.setVisible(isAdmin);
         } else {
             newButton.setEnabled(isAdmin);
@@ -491,6 +492,7 @@ public class OrganismPanel extends Composite {
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
             duplicateButton.setVisible(false);
+            publicMode.setVisible(false);
             obsoleteButton.setVisible(false);
         }
     }

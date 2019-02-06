@@ -123,7 +123,7 @@
                         </b:Row>
                         <b:Row styleName="{style.row}">
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
-                                <b:CheckBox ui:field="publicMode" text="Public" enabled="true"
+                                <b:CheckBox ui:field="publicMode" text="Public" visible="false"
                                             styleName="{style.inline-button}"
                                 />
                                 <b:CheckBox ui:field="obsoleteButton" text="Obsolete" visible="false"
