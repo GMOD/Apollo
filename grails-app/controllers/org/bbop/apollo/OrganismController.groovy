@@ -957,6 +957,7 @@ class OrganismController {
     def updateOrganismInfo() {
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
+            println "orbanism JSON ${organismJson as JSON}"
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {
@@ -969,6 +970,7 @@ class OrganismController {
                 organism.metadata = organismJson.metadata ?organismJson.metadata.toString():organism.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
+                organism.obsolete = organismJson.obsolete ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
                 if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
@@ -1119,6 +1121,7 @@ class OrganismController {
                         species                   : organism.species,
                         valid                     : organism.valid,
                         publicMode                : organism.publicMode,
+                        obsolete                  : organism.obsolete,
                         nonDefaultTranslationTable: organism.nonDefaultTranslationTable,
                         metadata                  : organism.metadata,
                         currentOrganism           : defaultOrganismId != null ? organism.id == defaultOrganismId : false

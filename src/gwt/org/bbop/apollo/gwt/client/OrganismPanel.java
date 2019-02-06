@@ -58,6 +58,8 @@ public class OrganismPanel extends Composite {
     @UiField
     CheckBox publicMode;
     @UiField
+    CheckBox obsoleteButton;
+    @UiField
     TextBox genus;
     @UiField
     TextBox species;
@@ -229,6 +231,9 @@ public class OrganismPanel extends Composite {
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
 
+        obsoleteButton.setValue(organismInfo.getObsolete());
+        obsoleteButton.setEnabled(isEditable);
+
         organismIdLabel.setHTML("Internal ID: " + organismInfo.getId());
 
         nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
@@ -283,6 +288,16 @@ public class OrganismPanel extends Composite {
     }
 
 
+    @UiHandler("obsoleteButton")
+    public void handleObsoleteButton(ChangeEvent changeEvent) {
+        GWT.log("Handling obsolete change " + obsoleteButton.getValue());
+        if (singleSelectionModel.getSelectedObject() != null) {
+            GWT.log("Handling obsolete not null " + obsoleteButton.getValue());
+            singleSelectionModel.getSelectedObject().setObsolete(obsoleteButton.getValue());
+            updateOrganismInfo();
+        }
+    }
+
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
         creatingNewOrganism = true;
@@ -321,7 +336,7 @@ public class OrganismPanel extends Composite {
         organismInfo.setBlatDb(blatdb.getText());
         organismInfo.setNonDefaultTranslationTable(nonDefaultTranslationTable.getText());
         organismInfo.setPublicMode(publicMode.getValue());
-        organismInfo.setObsolete(false);
+        organismInfo.setObsolete(obsoleteButton.getValue());
 
         createButton.setEnabled(false);
         createButton.setText("Processing");
@@ -468,6 +483,7 @@ public class OrganismPanel extends Composite {
             createButton.setVisible(false);
             cancelButton.setVisible(false);
             duplicateButton.setVisible(isAdmin);
+            obsoleteButton.setVisible(isAdmin);
         } else {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
@@ -475,6 +491,7 @@ public class OrganismPanel extends Composite {
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
             duplicateButton.setVisible(false);
+            obsoleteButton.setVisible(false);
         }
     }
 
@@ -487,6 +504,7 @@ public class OrganismPanel extends Composite {
         blatdb.setEnabled(enabled);
         nonDefaultTranslationTable.setEnabled(enabled);
         publicMode.setEnabled(enabled);
+        obsoleteButton.setEnabled(enabled);
     }
 
     //Utility function for clearing the textboxes ("")
@@ -498,6 +516,7 @@ public class OrganismPanel extends Composite {
         blatdb.setText("");
         nonDefaultTranslationTable.setText("");
         publicMode.setValue(false);
+        obsoleteButton.setValue(false);
     }
 
 }
