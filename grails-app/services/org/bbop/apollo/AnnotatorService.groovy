@@ -17,7 +17,7 @@ class AnnotatorService {
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
         try {
-            List<Organism> organismList = permissionService.getOrganismsForCurrentUser().findAll(){ o -> !o.obsolete }
+            List<Organism> organismList = permissionService.getOrganismsForCurrentUser()
             UserOrganismPreference userOrganismPreference = UserOrganismPreference.findByUserAndCurrentOrganismAndClientToken(permissionService.currentUser, true,token,[max: 1, sort: "lastUpdated", order: "desc"])
             log.debug "found organism preference: ${userOrganismPreference} for token ${token}"
             Long defaultOrganismId = userOrganismPreference ? userOrganismPreference.organism.id : null
