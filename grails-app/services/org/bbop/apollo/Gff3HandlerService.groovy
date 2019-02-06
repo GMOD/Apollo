@@ -379,7 +379,15 @@ public class Gff3HandlerService {
                 }
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.OWNER.value) && feature.getOwner()) {
-                attributes.put(FeatureStringEnum.OWNER.value.toLowerCase(), encodeString(feature.getOwner().username));
+                String ownersString = feature.owners.collect{ owner ->
+                    encodeString(owner.username)
+                }.join(",")
+                // Note: how to do this using history directly, but only
+//                def owners = FeatureEvent.findAllByUniqueName(feature.uniqueName).editor.unique()
+//                String ownersString = owners.collect{ owner ->
+//                    encodeString(owner.username)
+//                }.join(",")
+                attributes.put(FeatureStringEnum.OWNER.value.toLowerCase(), ownersString);
             }
             if (writeObject.attributesToExport.contains(FeatureStringEnum.DATE_CREATION.value)) {
                 Calendar calendar = Calendar.getInstance();

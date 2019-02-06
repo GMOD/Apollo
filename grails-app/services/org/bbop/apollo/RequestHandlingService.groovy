@@ -1062,11 +1062,11 @@ class RequestHandlingService {
                 transcriptFeatureLocation.fmax = fmax
             }
 
-
             exonFeatureLocation.fmin = fmin
             exonFeatureLocation.fmax = fmax
             featureService.removeExonOverlapsAndAdjacencies(transcript)
             transcriptService.updateGeneBoundaries(transcript)
+            featureService.addOwnersByString(inputObject.username,transcript,exon)
 
             exon.save()
 
