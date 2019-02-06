@@ -6197,7 +6197,11 @@ define([
                     load: function (response, ioArgs) {
                         dojo.create("a", {
                             innerHTML: response.filename,
-                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format
+                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format,
+                            onclick:  function(){
+                                track.closeDialog();
+                            }
+
                         }, content);
                         dojo.style(waitingDiv, {display: "none"});
                     },
