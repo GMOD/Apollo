@@ -28,10 +28,12 @@ public class OrganismInfo implements HasJSON{
     private Boolean valid ;
     private Boolean current;
     private Boolean publicMode;
-    private Boolean canEdit ;
-    private boolean editable;
+    private Boolean obsolete;
     private String nonDefaultTranslationTable ;
 
+
+    // internal GWT variable
+    private boolean editable;
 
     public OrganismInfo(){
 
@@ -130,6 +132,15 @@ public class OrganismInfo implements HasJSON{
         return current;
     }
 
+
+    public Boolean getObsolete() {
+        return obsolete;
+    }
+
+    public void setObsolete(Boolean obsolete) {
+        this.obsolete = obsolete;
+    }
+
     public String getNonDefaultTranslationTable() {
         return nonDefaultTranslationTable;
     }
@@ -165,6 +176,9 @@ public class OrganismInfo implements HasJSON{
         if(valid!=null){
             payload.put("valid",JSONBoolean.getInstance(valid));
         }
+        if(valid!=null){
+            payload.put("obsolete",JSONBoolean.getInstance(obsolete));
+        }
         if(nonDefaultTranslationTable!=null){
             payload.put("nonDefaultTranslationTable",new JSONString(nonDefaultTranslationTable));
         }
@@ -174,6 +188,7 @@ public class OrganismInfo implements HasJSON{
         return payload;
     }
 
+    // internal setting
     public void setEditable(boolean editable) {
         this.editable = editable;
     }

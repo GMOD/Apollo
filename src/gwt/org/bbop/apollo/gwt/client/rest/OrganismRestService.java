@@ -26,6 +26,12 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback, "organism/findAllOrganisms");
     }
 
+    public static void loadOrganisms(Boolean publicOnly, Boolean showObsoletes, RequestCallback requestCallback) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("publicOnly",JSONBoolean.getInstance(publicOnly));
+        jsonObject.put("showObsolete",JSONBoolean.getInstance(showObsoletes));
+        RestService.sendRequest(requestCallback, "organism/findAllOrganisms","data="+jsonObject.toString());
+    }
 
     public static void loadOrganisms(final List<OrganismInfo> organismInfoList) {
         RequestCallback requestCallback = new RequestCallback() {

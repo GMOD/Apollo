@@ -33,7 +33,9 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
+import org.gwtbootstrap3.client.ui.CheckBoxButton;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -57,6 +59,8 @@ public class OrganismPanel extends Composite {
     TextBox blatdb;
     @UiField
     CheckBox publicMode;
+    @UiField
+    CheckBox obsoleteButton;
     @UiField
     TextBox genus;
     @UiField
@@ -82,6 +86,10 @@ public class OrganismPanel extends Composite {
     TextBox nonDefaultTranslationTable;
     @UiField
     org.gwtbootstrap3.client.ui.Label organismIdLabel;
+    @UiField
+    CheckBoxButton showOnlyPublicOrganisms;
+    @UiField
+    CheckBoxButton showObsoleteOrganisms;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -162,7 +170,12 @@ public class OrganismPanel extends Composite {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
                 if (singleSelectionModel.getSelectedObject() != null) {
-                    String orgId = singleSelectionModel.getSelectedObject().getId();
+                    OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
+                    if(organismInfo.getObsolete()){
+                        Bootbox.alert("You will have to make this organism 'active' by unselecting the 'Obsolete' checkbox in the Organism Details panel at the bottom.");
+                        return ;
+                    }
+                    String orgId = organismInfo.getId();
                     if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
                         OrganismRestService.switchOrganismById(orgId);
                     }
@@ -170,9 +183,7 @@ public class OrganismPanel extends Composite {
             }
         }, DoubleClickEvent.getType());
 
-        List<OrganismInfo> trackInfoList = dataProvider.getList();
-
-        ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(trackInfoList);
+        ColumnSortEvent.ListHandler<OrganismInfo> sortHandler = new ColumnSortEvent.ListHandler<OrganismInfo>(organismInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
         sortHandler.setComparator(organismNameColumn, new Comparator<OrganismInfo>() {
             @Override
@@ -229,6 +240,9 @@ public class OrganismPanel extends Composite {
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
 
+        obsoleteButton.setValue(organismInfo.getObsolete());
+        obsoleteButton.setEnabled(isEditable);
+
         organismIdLabel.setHTML("Internal ID: " + organismInfo.getId());
 
         nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
@@ -283,6 +297,16 @@ public class OrganismPanel extends Composite {
     }
 
 
+    @UiHandler("obsoleteButton")
+    public void handleObsoleteButton(ChangeEvent changeEvent) {
+        GWT.log("Handling obsolete change " + obsoleteButton.getValue());
+        if (singleSelectionModel.getSelectedObject() != null) {
+            GWT.log("Handling obsolete not null " + obsoleteButton.getValue());
+            singleSelectionModel.getSelectedObject().setObsolete(obsoleteButton.getValue());
+            updateOrganismInfo();
+        }
+    }
+
     @UiHandler("newButton")
     public void handleAddNewOrganism(ClickEvent clickEvent) {
         creatingNewOrganism = true;
@@ -321,6 +345,7 @@ public class OrganismPanel extends Composite {
         organismInfo.setBlatDb(blatdb.getText());
         organismInfo.setNonDefaultTranslationTable(nonDefaultTranslationTable.getText());
         organismInfo.setPublicMode(publicMode.getValue());
+        organismInfo.setObsolete(obsoleteButton.getValue());
 
         createButton.setEnabled(false);
         createButton.setText("Processing");
@@ -328,6 +353,19 @@ public class OrganismPanel extends Composite {
 
         OrganismRestService.createOrganism(new UpdateInfoListCallback(), organismInfo);
         loadingDialog.show();
+    }
+
+    @UiHandler("showOnlyPublicOrganisms")
+    public void handleShowOnlyPublicOrganisms(ClickEvent clickEvent) {
+        showOnlyPublicOrganisms.setValue(!showOnlyPublicOrganisms.getValue());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
+    }
+
+
+    @UiHandler("showObsoleteOrganisms")
+    public void handleShowObsoleteOrganisms(ClickEvent clickEvent) {
+        showObsoleteOrganisms.setValue(!showObsoleteOrganisms.getValue());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
     }
 
     @UiHandler("duplicateButton")
@@ -467,6 +505,8 @@ public class OrganismPanel extends Composite {
             createButton.setVisible(false);
             cancelButton.setVisible(false);
             duplicateButton.setVisible(isAdmin);
+            publicMode.setVisible(isAdmin);
+            obsoleteButton.setVisible(isAdmin);
         } else {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
@@ -474,6 +514,8 @@ public class OrganismPanel extends Composite {
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
             duplicateButton.setVisible(false);
+            publicMode.setVisible(false);
+            obsoleteButton.setVisible(false);
         }
     }
 
@@ -486,6 +528,7 @@ public class OrganismPanel extends Composite {
         blatdb.setEnabled(enabled);
         nonDefaultTranslationTable.setEnabled(enabled);
         publicMode.setEnabled(enabled);
+        obsoleteButton.setEnabled(enabled);
     }
 
     //Utility function for clearing the textboxes ("")
@@ -497,6 +540,7 @@ public class OrganismPanel extends Composite {
         blatdb.setText("");
         nonDefaultTranslationTable.setText("");
         publicMode.setValue(false);
+        obsoleteButton.setValue(false);
     }
 
 }

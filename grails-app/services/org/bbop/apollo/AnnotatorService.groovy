@@ -37,7 +37,7 @@ class AnnotatorService {
 
 
             JSONArray organismArray = new JSONArray()
-            for (Organism organism in organismList) {
+            for (Organism organism in organismList.findAll()) {
                 Integer sequenceCount = sequenceIntegerMap.get(organism) ?: 0
                 JSONObject jsonObject = [
                         id             : organism.id as Long,
@@ -50,6 +50,7 @@ class AnnotatorService {
                         species        : organism.species,
                         valid          : organism.valid,
                         publicMode     : organism.publicMode,
+                        obsolete       : organism.obsolete,
                         nonDefaultTranslationTable : organism.nonDefaultTranslationTable,
                         currentOrganism: defaultOrganismId != null ? organism.id == defaultOrganismId : false,
                         editable       : organismBooleanMap.get(organism) ?: false

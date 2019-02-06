@@ -16,7 +16,6 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
-import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import javax.servlet.http.HttpServletResponse
@@ -192,12 +191,11 @@ class OrganismController {
                 throw new Exception("Can not find organism for ${organismJson.organism} to remove features of")
             }
 
-            if(organismJson.sequences){
+            if (organismJson.sequences) {
                 List<String> sequenceNames = organismJson.sequences.toString().split(",")
-                List<Sequence> sequences = Sequence.findAllByOrganismAndNameInList(organism,sequenceNames)
+                List<Sequence> sequences = Sequence.findAllByOrganismAndNameInList(organism, sequenceNames)
                 organismService.deleteAllFeaturesForSequences(sequences)
-            }
-            else{
+            } else {
                 organismService.deleteAllFeaturesForOrganism(organism)
             }
 
@@ -255,6 +253,7 @@ class OrganismController {
                         directory: configWrapperService.commonDataDirectory,
                         blatdb: requestObject.blatdb ?: "",
                         genus: requestObject.genus ?: "",
+                        obsolete: false,
                         species: requestObject.species ?: "",
                         metadata: requestObject.metadata ?: "",
                         publicMode: requestObject.publicMode ?: false,
@@ -815,7 +814,8 @@ class OrganismController {
                     , blatdb: organismJson.blatdb
                     , species: organismJson.species
                     , genus: organismJson.genus
-                    , metadata: organismJson.metadata?organismJson.metadata.toString(): null
+                    , obsolete: false
+                    , metadata: organismJson.metadata ? organismJson.metadata.toString() : null
                     , nonDefaultTranslationTable: organismJson.nonDefaultTranslationTable ?: null
                     , publicMode: organismJson.publicMode ?: false
             )
@@ -955,6 +955,7 @@ class OrganismController {
     def updateOrganismInfo() {
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
+            println "orbanism JSON ${organismJson as JSON}"
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             if (organism) {
@@ -964,9 +965,10 @@ class OrganismController {
                 organism.species = organismJson.species ?: null
                 organism.genus = organismJson.genus ?: null
                 //if the organismJson.metadata is null, remain the old metadata
-                organism.metadata = organismJson.metadata ?organismJson.metadata.toString():organism.metadata
+                organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
+                organism.obsolete = organismJson.obsolete ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
                 if (checkOrganism(organism)) {
                     organism.save(flush: true, insert: false, failOnError: true)
@@ -1057,6 +1059,9 @@ class OrganismController {
     def findAllOrganisms() {
         try {
             JSONObject requestObject = permissionService.handleInput(request, params)
+            println "request object ${requestObject as JSON}"
+            Boolean showPublicOnly = requestObject.showPublicOnly ? Boolean.valueOf(requestObject.showPublicOnly) : false
+            Boolean showObsolete = requestObject.showObsolete ? Boolean.valueOf(requestObject.showObsolete) : false
             List<Organism> organismList = []
             if (requestObject.organism) {
                 log.debug "finding info for specific organism"
@@ -1074,9 +1079,9 @@ class OrganismController {
                 log.debug "finding all info"
                 //if (permissionService.isAdmin()) {
                 if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
-                    organismList = Organism.all
+                    organismList = showObsolete ? Organism.all : Organism.findAllByObsolete(false)
                 } else {
-                    organismList = permissionService.getOrganismsForCurrentUser(requestObject)
+                    organismList = permissionService.getOrganismsForCurrentUser(requestObject).filter(){ o -> !o.obsolete }
                 }
             }
 
@@ -1091,6 +1096,7 @@ class OrganismController {
 
             JSONArray jsonArray = new JSONArray()
             for (Organism organism in organismList) {
+
 
                 def c = Feature.createCriteria()
 
@@ -1117,6 +1123,7 @@ class OrganismController {
                         species                   : organism.species,
                         valid                     : organism.valid,
                         publicMode                : organism.publicMode,
+                        obsolete                  : organism.obsolete,
                         nonDefaultTranslationTable: organism.nonDefaultTranslationTable,
                         metadata                  : organism.metadata,
                         currentOrganism           : defaultOrganismId != null ? organism.id == defaultOrganismId : false
@@ -1148,9 +1155,8 @@ class OrganismController {
         OrganismSummary organismSummaryInstance = permissionService.currentUser.roles.first().rank == GlobalPermissionEnum.ADMIN.rank ? reportService.generateAllFeatureSummary() : new OrganismSummary()
 //        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
 
-
 //        def organismPermissions = permissionService.getOrganismsWithPermission(permissionService.currentUser)
-        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser,PermissionEnum.ADMINISTRATE)
+        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser, PermissionEnum.ADMINISTRATE)
 
 
         organisms.each { organism ->
@@ -1159,7 +1165,7 @@ class OrganismController {
         }
 
 
-        respond organismSummaryInstance, model: [organismSummaries: organismSummaryListInstance,isSuperAdmin:permissionService.isAdmin()]
+        respond organismSummaryInstance, model: [organismSummaries: organismSummaryListInstance, isSuperAdmin: permissionService.isAdmin()]
     }
 
     protected void notFound() {

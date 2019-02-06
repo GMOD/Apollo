@@ -643,7 +643,21 @@ public class MainPanel extends Composite {
 
     public void setAppState(AppStateInfo appStateInfo) {
         trackPanel.clear();
-        organismInfoList = appStateInfo.getOrganismList();
+
+        Boolean showObsoletes = organismPanel.showObsoleteOrganisms.getValue();
+        if(!showObsoletes){
+           organismInfoList = new ArrayList<>();
+           for(OrganismInfo organismInfo : appStateInfo.getOrganismList()){
+               if(!organismInfo.getObsolete()){
+                   organismInfoList.add(organismInfo);
+               }
+           }
+        }
+        else{
+            organismInfoList = appStateInfo.getOrganismList();
+        }
+
+
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
