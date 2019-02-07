@@ -481,7 +481,7 @@ div.annot-sequence  {
     border: 1px solid hsla(205, 100%, 25%, 1);
 }
 
-.jbrowse .annot-UTR, x
+.jbrowse .annot-UTR,
 .jbrowse .plus-annot-UTR,
 .jbrowse .minus-annot-UTR {
     height: 12px; 
