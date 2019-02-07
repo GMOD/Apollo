@@ -294,7 +294,7 @@ class FeatureService {
                         }
 
                         if (!suppressHistory) {
-                            tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                            tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene?.name)
                         }
 
                         // setting back the original name for transcript
