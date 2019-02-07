@@ -26,7 +26,9 @@ The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org). 
 ## Setup guide
 
 [Setup guide](docs/Setup.md) for deploying on production and [custom configuration guide](docs/Configure.md).  
-Launchable public Amazon EC2 images may also be found in most regions under the name 'Apollo' as well as [instructions for docker](docs/Setup.md#configure-for-docker). 
+Launchable public Amazon Web Services (AWS) EC2 images may be [launched from Community AMIs in the N. Virginia region under 'Apollo'](docs/images/EC2Image.png).
+ 
+Apollo may be launched from [Docker](docs/Setup.md#configure-for-docker) as well. 
 
 The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
 
@@ -37,8 +39,8 @@ You can follow steps in our [migration guide](https://github.com/GMOD/Apollo/blo
 
 ### Note about data directories
 
-Apollo 2.0 allows you to add multiple data directories to your webapp, and it expects the data directories to be stored
-outside of the tomcat webapps directory. Use the WA2.0 [quick-start guide](docs/Apollo2Build.md) to learn how to add new
+Apollo 2.X allows you to add multiple data directories to your webapp, and it expects the data directories to be stored
+outside of the tomcat webapps directory. Use the [quick-start guide](docs/Apollo2Build.md) to learn how to add new
 data directories for your organisms.
 
 
