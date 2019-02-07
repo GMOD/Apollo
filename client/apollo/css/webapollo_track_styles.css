@@ -437,6 +437,9 @@ div.annot-sequence  {
 }
 
 .jbrowse .align_skip {
+    background: url('../jbrowse/img/dark_20x2.png') repeat-x 0 50% white;
+    height: 100%;
+    opacity: 0.7;
 }
 
 .jbrowse .align_mismatch {
@@ -481,7 +484,7 @@ div.annot-sequence  {
     border: 1px solid hsla(205, 100%, 25%, 1);
 }
 
-.jbrowse .annot-UTR, x
+.jbrowse .annot-UTR,
 .jbrowse .plus-annot-UTR,
 .jbrowse .minus-annot-UTR {
     height: 12px; 

@@ -637,10 +637,10 @@ tr:hover {
     background-image: url(../images/skin/database_save.png);
 }
 
-a.skip {
-    position: absolute;
-    left: -9999px;
-}
+/*a.skip {*/
+    /*position: absolute;*/
+    /*left: -9999px;*/
+/*}*/
 
 .report-header {
     /*margin-left: 10px;*/
