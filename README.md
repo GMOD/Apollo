@@ -25,8 +25,11 @@ The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org). 
 
 ## Setup guide
 
-[Setup guide](docs/Setup.md) for deploying on production and [custom configuration guide](docs/Configure.md).  
-Launchable public Amazon Web Services (AWS) EC2 images may be [launched from Community AMIs in the N. Virginia region under 'Apollo'](docs/images/EC2Image.png).
+We provide a [Setup guide](docs/Setup.md) for deploying a [configuring](docs/Configure.md) a production instance.  
+
+Launchable public Amazon Web Services (AWS) EC2 images may be [launched from Community AMIs in the N. Virginia region under 'Apollo'](docs/images/EC2Image.png).  
+Launch settings should be 2 vCPU, 8 GB recommended, 80 GB storage depending on the size of your data, and ports 22 and 8080 open at a minimum.
+The server will be available at <http://aws.public.ip:8080/apollo/>.   Binaries with be in the `apollo/bin` directory though it should be in the path.
  
 Apollo may be launched from [Docker](docs/Setup.md#configure-for-docker) as well. 
 
