@@ -437,9 +437,6 @@ div.annot-sequence  {
 }
 
 .jbrowse .align_skip {
-    background: url('../jbrowse/img/dark_20x2.png') repeat-x 0 50% white;
-    height: 100%;
-    opacity: 0.7;
 }
 
 .jbrowse .align_mismatch {
