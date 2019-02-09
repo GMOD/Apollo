@@ -227,7 +227,7 @@ JSONUtils.parseCigar = function( cigar ) {
 */
 JSONUtils.generateFeaturesFromCigar = function(feature){
     var cigarData = feature.data.cigar ;
-    var baseObject = new Object();
+    // var baseObject = {};
 
 
     // 12M3N5M9N4M
@@ -236,12 +236,14 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
     var currOffset = 0;
     // var mismatches = [];
     // {"track":"ctgA","features":[{"location":{"fmin":17399,"fmax":23000,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"Apple3","children":[{"location":{"fmin":17999,"fmax":21200,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}},{"location":{"fmin":20999,"fmax":21200,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":18999,"fmax":19500,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":17999,"fmax":18800,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}}]}],"operation":"add_transcript","clientToken":"85401581821119996091324637603"}
+    console.log('ffeature',feature);
     // feature.children = feature.children ? feature.children : [];
-    console.log('childrens: '+feature.children);
-    console.log('subfeatures: ' + feature.subfeature)
+    // console.log('childrens: '+feature.children);
+    // console.log('subfeatures: ' + feature.subfeature)
     // feature.children = feature.children ? feature.children : [];
-    feature.subfeatures = [];
-    baseObject.children= [];
+    feature.children = [];
+    // baseObject.children= [];
+    var start = feature.data.start ;
     array.forEach( ops, function( oprec ) {
         var op  = oprec[0];
         var len = oprec[1];
@@ -250,12 +252,13 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
             // add subfeature
 
             var exon = new SimpleFeature({parent: feature});
-            exon.set('start', currOffset);
-            exon.set('end', currOffset + len);
+            exon.set('start', currOffset+start);
+            exon.set('end', currOffset + len+start);
             exon.set('strand', feature.strand);
             exon.set('type', 'exon');
-            feature.subfeatures.push(JSONUtils.createApolloFeature(exon, "exon"));
-            baseObject.children.push(JSONUtils.createApolloFeature(exon, "exon"));
+            // feature.children().push(JSONUtils.createApolloFeature(exon, "exon"));
+            feature.children.push(JSONUtils.createApolloFeature(exon, "exon"));
+            // baseObject.children.push(JSONUtils.createApolloFeature(exon, "exon"));
 
        }
         // if( op == 'I' )
@@ -274,7 +277,8 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
         // if( op != 'I' && op != 'S' && op != 'H' )
         currOffset += len;
     });
-    console.log('output',feature,baseObject)
+    feature.data.children = feature.children;
+    console.log('output',feature)
     return feature ;
 };
 
