@@ -238,7 +238,7 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
         var len = oprec[1];
         if( op === 'M' || op === '=' || op === 'E' ) {
             // TODO: create an exon subfeature for each
-            
+
         }
         // if( op == 'I' )
         // // GAH: shouldn't length of insertion really by 0, since JBrowse internally uses zero-interbase coordinates?
@@ -256,8 +256,6 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
         // if( op != 'I' && op != 'S' && op != 'H' )
             currOffset += len;
     });
-    return mismatches;
-
     return feature ;
 };
 
