@@ -258,7 +258,6 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
             baseObject.children.push(JSONUtils.createApolloFeature(exon, "exon"));
 
        }
-        currOffset = currOffset + len ;
         // if( op == 'I' )
         // // GAH: shouldn't length of insertion really by 0, since JBrowse internally uses zero-interbase coordinates?
         //     mismatches.push( { start: currOffset, type: 'insertion', base: ''+len, length: 1 });
@@ -273,7 +272,7 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
         // else if( op == 'S' )
         //     mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, cliplen: len, length: 1 });
         // if( op != 'I' && op != 'S' && op != 'H' )
-            currOffset += len;
+        currOffset += len;
     });
     console.log('output',feature,baseObject)
     return feature ;
