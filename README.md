@@ -4,6 +4,7 @@
 [![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
 [![Chat at Gitter](https://badges.gitter.im/GMOD/Apollo.svg)](https://gitter.im/GMOD/Apollo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 
 
 
@@ -12,7 +13,7 @@
 A collaborative, real-time, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
 
-For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).
+For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).  Cite Apollo using [10.1371/journal.pcbi.1006790](https://doi.org/10.1371/journal.pcbi.1006790)
 
 Questions / Comments / Community contact can be sent to our [Apollo user mailing list](mailto:apollo@lists.lbl.gov). To subscribe send [this email to our mail server](mailto:sympa@lists.lbl.gov?subject=subscribe apollo) or review additional [sympa commands](http://www.sympa.org/manual/sympa-commands). Old questions are [archived on Nabble](http://gmod.827538.n3.nabble.com/Apollo-f815553.html).
 
@@ -20,7 +21,7 @@ Complete Apollo installation and configuration instructions are available from t
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
-[Planning Board](https://waffle.io/GMOD/Apollo?milestone=2.3)
+[Planning Board](https://waffle.io/GMOD/Apollo)
 
 
 ## Setup guide
