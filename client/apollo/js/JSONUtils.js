@@ -297,7 +297,6 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
 *    currently, for features with lazy-loaded children, ignores children
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-    console.log('creating apollo feature',jfeature);
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type);
