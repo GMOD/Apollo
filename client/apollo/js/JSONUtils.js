@@ -225,7 +225,7 @@ JSONUtils.parseCigar = function( cigar ) {
 * Generate exon subfeatures only from M vs N.
 * @param feature
 */
-JSONUtils.generateFeaturesFromCigar = function(feature){
+JSONUtils.generateSubFeaturesFromCigar = function(feature){
     var cigarData = feature.data.cigar ;
     // var baseObject = {};
 
@@ -241,9 +241,12 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
     // console.log('childrens: '+feature.children);
     // console.log('subfeatures: ' + feature.subfeature)
     // feature.children = feature.children ? feature.children : [];
-    feature.children = [];
+    // feature.children = [];
     // baseObject.children= [];
     var start = feature.data.start ;
+    // var featureToAdd = JSONUtils.makeSimpleFeature(feature);
+    feature.set('subfeatures', []);
+    console.log('A')
     array.forEach( ops, function( oprec ) {
         var op  = oprec[0];
         var len = oprec[1];
@@ -251,13 +254,22 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
             // TODO: create an exon subfeature for each
             // add subfeature
 
-            var exon = new SimpleFeature({parent: feature});
+            console.log('B',feature)
+            // var exon = JSONUtils.makeSimpleFeature(feature);
+            var exon = new SimpleFeature({parent:feature});
+            console.log('C',exon)
             exon.set('start', currOffset+start);
             exon.set('end', currOffset + len+start);
             exon.set('strand', feature.strand);
             exon.set('type', 'exon');
             // feature.children().push(JSONUtils.createApolloFeature(exon, "exon"));
-            feature.children.push(JSONUtils.createApolloFeature(exon, "exon"));
+            // feature.children.push(JSONUtils.createApolloFeature(exon, "exon"));
+            console.log('D',exon)
+            var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
+            console.log('E',subfeature)
+
+            feature.get("subfeatures").push(subfeature);
+            console.log('F',feature)
             // baseObject.children.push(JSONUtils.createApolloFeature(exon, "exon"));
 
        }
@@ -277,9 +289,10 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
         // if( op != 'I' && op != 'S' && op != 'H' )
         currOffset += len;
     });
-    feature.data.children = feature.children;
-    console.log('output',feature)
-    return feature ;
+    // feature.data.subfeatures = JSON.parse(JSON.stringify(feature.subfeatures));
+    // feature.data.children = JSON.parse(JSON.stringify(feature.children));
+    console.log('output to add',feature);
+    return feature;
 };
 
 /**
@@ -311,7 +324,7 @@ JSONUtils.generateFeaturesFromCigar = function(feature){
 *    currently, for features with lazy-loaded children, ignores children
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-    console.log('creating apollo feature')
+    console.log('creating apollo feature');
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type);
@@ -319,15 +332,16 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     }
 
     if(this.isAlignment(jfeature)){
-        console.log('is an alignment')
-        jfeature = this.generateFeaturesFromCigar(jfeature)
+        console.log('is an alignment');
+        jfeature = this.generateSubFeaturesFromCigar(jfeature)
     }
     else{
         console.log('just regular input')
     }
+    console.log('output jfeature',jfeature)
 
 
-    var afeature = new Object();
+    var afeature = {};
     var astrand;
     // Apollo feature strand must be an integer
     //     either 1 (plus strand), -1 (minus strand), or 0? (not stranded or strand is unknown?)

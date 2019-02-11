@@ -1100,6 +1100,7 @@ define([
                     var keys = Object.keys(parentFeatures);
                     var singleParent = keys.length === 1;
                     var featureToAdd;
+                    console.log('preccing new feature',parentFeatures)
                     if (singleParent) {
                         featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
                     }
@@ -1179,6 +1180,8 @@ define([
                     else {
                         target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0);
                     }
+
+                    console.log('features to add',featuresToAdd);
 
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
