@@ -227,71 +227,30 @@ JSONUtils.parseCigar = function( cigar ) {
 */
 JSONUtils.generateSubFeaturesFromCigar = function(feature){
     var cigarData = feature.data.cigar ;
-    // var baseObject = {};
-
-
     // 12M3N5M9N4M
     // split <Number>Cigar
     var ops = this.parseCigar(cigarData);
     var currOffset = 0;
-    // var mismatches = [];
-    // {"track":"ctgA","features":[{"location":{"fmin":17399,"fmax":23000,"strand":1},"type":{"cv":{"name":"sequence"},"name":"mRNA"},"name":"Apple3","children":[{"location":{"fmin":17999,"fmax":21200,"strand":1},"type":{"cv":{"name":"sequence"},"name":"CDS"}},{"location":{"fmin":20999,"fmax":21200,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":18999,"fmax":19500,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}},{"location":{"fmin":17999,"fmax":18800,"strand":1},"type":{"cv":{"name":"sequence"},"name":"exon"}}]}],"operation":"add_transcript","clientToken":"85401581821119996091324637603"}
     console.log('ffeature',feature);
-    // feature.children = feature.children ? feature.children : [];
-    // console.log('childrens: '+feature.children);
-    // console.log('subfeatures: ' + feature.subfeature)
-    // feature.children = feature.children ? feature.children : [];
-    // feature.children = [];
-    // baseObject.children= [];
     var start = feature.data.start ;
     // var featureToAdd = JSONUtils.makeSimpleFeature(feature);
     feature.set('subfeatures', []);
-    console.log('A')
     array.forEach( ops, function( oprec ) {
         var op  = oprec[0];
         var len = oprec[1];
         if( op === 'M' || op === '=' || op === 'E' ) {
-            // TODO: create an exon subfeature for each
+            // create an exon subfeature for each
             // add subfeature
-
-            console.log('B',feature)
-            // var exon = JSONUtils.makeSimpleFeature(feature);
             var exon = new SimpleFeature({parent:feature});
-            console.log('C',exon)
             exon.set('start', currOffset+start);
             exon.set('end', currOffset + len+start);
             exon.set('strand', feature.strand);
             exon.set('type', 'exon');
-            // feature.children().push(JSONUtils.createApolloFeature(exon, "exon"));
-            // feature.children.push(JSONUtils.createApolloFeature(exon, "exon"));
-            console.log('D',exon)
             var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
-            console.log('E',subfeature)
-
             feature.get("subfeatures").push(subfeature);
-            console.log('F',feature)
-            // baseObject.children.push(JSONUtils.createApolloFeature(exon, "exon"));
-
        }
-        // if( op == 'I' )
-        // // GAH: shouldn't length of insertion really by 0, since JBrowse internally uses zero-interbase coordinates?
-        //     mismatches.push( { start: currOffset, type: 'insertion', base: ''+len, length: 1 });
-        // else if( op == 'D' )
-        //     mismatches.push( { start: currOffset, type: 'deletion',  base: '*', length: len  });
-        // else if( op == 'N' )
-        //     mismatches.push( { start: currOffset, type: 'skip',      base: 'N', length: len  });
-        // else if( op == 'X' )
-        //     mismatches.push( { start: currOffset, type: 'mismatch',  base: 'X', length: len  });
-        // else if( op == 'H' )
-        //     mismatches.push( { start: currOffset, type: 'hardclip',  base: 'H'+len, length: 1 });
-        // else if( op == 'S' )
-        //     mismatches.push( { start: currOffset, type: 'softclip',  base: 'S'+len, cliplen: len, length: 1 });
-        // if( op != 'I' && op != 'S' && op != 'H' )
         currOffset += len;
     });
-    // feature.data.subfeatures = JSON.parse(JSON.stringify(feature.subfeatures));
-    // feature.data.children = JSON.parse(JSON.stringify(feature.children));
-    console.log('output to add',feature);
     return feature;
 };
 
