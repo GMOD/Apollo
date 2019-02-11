@@ -15,7 +15,8 @@ define( [
             'dijit/Dialog',
             'JBrowse/Util',
             'JBrowse/Model/SimpleFeature',
-            'WebApollo/SequenceOntologyUtils'
+            'WebApollo/SequenceOntologyUtils',
+            'WebApollo/JSONUtils',
         ],
     function( declare,
         array,
@@ -29,7 +30,9 @@ define( [
         dijitDialog,
         Util,
         SimpleFeature,
-        SeqOnto ) {
+        SeqOnto,
+        JSONUtils
+    ) {
 
 var debugFrame = false ;
 
@@ -1201,6 +1204,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
+                selection = JSONUtils.handleCigarSubFeatures(selection,'mRNA');
                 atrack.createAnnotations(selection,true);
             })
         }));
