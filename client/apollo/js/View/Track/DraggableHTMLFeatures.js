@@ -1201,6 +1201,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
             onClick: dojo.hitch(this, function() {
                 var selection = this.selectionManager.getSelection();
                 this.selectionManager.clearSelection();
+                selection = JSONUtils.handleCigarSubFeatures(selection,'mRNA');
                 atrack.createAnnotations(selection,true);
             })
         }));

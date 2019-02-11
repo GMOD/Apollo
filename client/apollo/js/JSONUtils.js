@@ -211,8 +211,22 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
     });
 };
 
+
+JSONUtils.handleCigarSubFeatures = function(feature,type){
+    type = type ? type : feature.get('type');
+    if(type.endsWith('RNA') && JSONUtils.isAlignment(feature)){
+        feature = JSONUtils.generateSubFeaturesFromCigar(feature)
+    }
+    return feature ;
+};
+
 JSONUtils.isAlignment = function(feature){
-   return feature.data.cigar !== undefined ;
+    try {
+        return feature.data.cigar !== undefined;
+    } catch (e) {
+        console.error('Unable to process feature alignment.  Assuming not an alignment',feature,e);
+        return false;
+    }
 };
 
 JSONUtils.parseCigar = function( cigar ) {
@@ -283,21 +297,21 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
 *    currently, for features with lazy-loaded children, ignores children
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-    console.log('creating apollo feature');
+    console.log('creating apollo feature',jfeature);
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type);
         console.log(jfeature);
     }
 
-    if(this.isAlignment(jfeature)){
-        console.log('is an alignment');
-        jfeature = this.generateSubFeaturesFromCigar(jfeature)
-    }
-    else{
-        console.log('just regular input')
-    }
-    console.log('output jfeature',jfeature)
+    // if(this.isAlignment(jfeature)){
+    //     console.log('is an alignment');
+    //     jfeature = this.generateSubFeaturesFromCigar(jfeature)
+    // }
+    // else{
+    //     console.log('just regular input')
+    // }
+    // console.log('output jfeature',jfeature)
 
 
     var afeature = {};

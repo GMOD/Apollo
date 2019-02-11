@@ -1170,6 +1170,7 @@ define([
                     }
 
                     var afeat ;
+                    featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                     if(biotype === 'mRNA'){
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
                         featuresToAdd.push(afeat);
