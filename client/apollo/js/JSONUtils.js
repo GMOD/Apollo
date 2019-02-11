@@ -1,7 +1,7 @@
 define([ 'dojo/_base/declare',
          'dojo/_base/array',
          'JBrowse/Util',
-         'JBrowse/Model/SimpleFeature', 
+         'JBrowse/Model/SimpleFeature',
          'WebApollo/SequenceOntologyUtils'
        ],
        function( declare, array, Util, SimpleFeature, SeqOnto ) {
@@ -38,7 +38,7 @@ var JAFeature = declare( SimpleFeature, {
     constructor: function( afeature, parent ) {
         this.afeature = afeature;
         if (parent)  { this._parent = parent; }
-        
+
         // get the main data
         var loc = afeature.location;
         var pfeat = this;
@@ -49,21 +49,21 @@ var JAFeature = declare( SimpleFeature, {
             name: afeature.name,
             parent_id: afeature.parent_id,
             parent_type: afeature.parent_type ? afeature.parent_type.name : undefined,
-            type: afeature.type.name, 
+            type: afeature.type.name,
             properties: afeature.properties
         };
 
-        if (this.data.type === "CDS")  { 
-            this.data.type = "wholeCDS"; 
+        if (this.data.type === "CDS")  {
+            this.data.type = "wholeCDS";
         }
         else if (this.data.type === "stop_codon_read_through") {
             parent.data.readThroughStopCodon = true;
         }
-    
+
         this._uniqueID = afeature.uniquename;
 
         // this doesn't work, since can be multiple properties with same CV term (comments, for example)
-        //   could create arrray for each flattened cv-name for multiple values, but not sure what the point would be over 
+        //   could create arrray for each flattened cv-name for multiple values, but not sure what the point would be over
         //   just making sure can access via get('properties') via above assignment into data object
         // parse the props
 /*      var props = afeature.properties;
@@ -95,7 +95,7 @@ var JAFeature = declare( SimpleFeature, {
                 }
             }
         }
-        
+
         if (!parent) {
             if (afeature.children) {
                 var descendants = [];
@@ -116,16 +116,16 @@ var JAFeature = declare( SimpleFeature, {
                 afeature.children = [ child ];
             }
         }
-        
+
         // moved subfeature assignment to bottom of feature construction, since subfeatures may need to call method on their parent
         //     only thing subfeature constructor won't have access to is parent.data.subfeatures
-        // get the subfeatures              
+        // get the subfeatures
         this.data.subfeatures = array.map( afeature.children, function(s) {
             return new JAFeature( s, pfeat);
         } );
 
     },
-    
+
     getUniqueName: function() {
         if (this.parent() && this.parent().get("cloned_subfeatures")) {
             return this.parent().id();
@@ -152,18 +152,18 @@ JSONUtils.flattenFeature = function(feature, descendants) {
 
 
 /**
- *  takes any JBrowse feature, returns a SimpleFeature "copy", 
+ *  takes any JBrowse feature, returns a SimpleFeature "copy",
  *        for which all properties returned by tags() are mutable (has set() method)
  *  needed since JBrowse features no longer necessarily mutable
  *    feature requirements:
  *         functions: id, parent, tags, get
  *         if subfeatures, then returned as array by feature.get('subfeatures')
- *      
+ *
  */
 JSONUtils.makeSimpleFeature = function(feature, parent)  {
     var result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
     var ftags = feature.tags();
-    for (var tindex = 0; tindex < ftags.length; tindex++)  {  
+    for (var tindex = 0; tindex < ftags.length; tindex++)  {
         var tag = ftags[tindex];
         // forcing lower case, since still having case issues with NCList features
         result.set(tag.toLowerCase(), feature.get(tag.toLowerCase()));
@@ -187,7 +187,7 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
 *      afeature: sequence alteration in ApolloEditorService JSON format,
 */
 JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
-    var loc = afeature.location; 
+    var loc = afeature.location;
     var uid = afeature.uniquename;
     var justification;
     for (var i = 0; i < afeature.properties.length; i++) {
@@ -212,42 +212,99 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
 };
 
 
-/** 
+JSONUtils.handleCigarSubFeatures = function(feature,type){
+    type = type ? type : feature.get('type');
+    if(type.endsWith('RNA') && JSONUtils.isAlignment(feature)){
+        feature = JSONUtils.generateSubFeaturesFromCigar(feature)
+    }
+    return feature ;
+};
+
+JSONUtils.isAlignment = function(feature){
+    try {
+        return feature.data.cigar !== undefined;
+    } catch (e) {
+        console.error('Unable to process feature alignment.  Assuming not an alignment',feature,e);
+        return false;
+    }
+};
+
+JSONUtils.parseCigar = function( cigar ) {
+   return array.map( cigar.toUpperCase().match(/\d+\D/g), function( op ) {
+       return [ op.match(/\D/)[0], parseInt( op ) ];
+   });
+};
+
+/**
+* Generate exon subfeatures only from M vs N.
+* @param feature
+*/
+JSONUtils.generateSubFeaturesFromCigar = function(feature){
+    var cigarData = feature.data.cigar ;
+    // 12M3N5M9N4M
+    // split <Number>Cigar
+    var ops = this.parseCigar(cigarData);
+    var currOffset = 0;
+    console.log('ffeature',feature);
+    var start = feature.data.start ;
+    // var featureToAdd = JSONUtils.makeSimpleFeature(feature);
+    feature.set('subfeatures', []);
+    array.forEach( ops, function( oprec ) {
+        var op  = oprec[0];
+        var len = oprec[1];
+        if( op === 'M' || op === '=' || op === 'E' ) {
+            // create an exon subfeature for each
+            // add subfeature
+            var exon = new SimpleFeature({parent:feature});
+            exon.set('start', currOffset+start);
+            exon.set('end', currOffset + len+start);
+            exon.set('strand', feature.strand);
+            exon.set('type', 'exon');
+            var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
+            feature.get("subfeatures").push(subfeature);
+       }
+        currOffset += len;
+    });
+    return feature;
+};
+
+/**
 *  creates a feature in ApolloEditorService JSON format
 *  takes as argument:
-*       jfeature: a feature in JBrowse JSON format, 
+*       jfeature: a feature in JBrowse JSON format,
 *       fields: array specifying order of fields in jfeature
 *       subfields: array specifying order of fields in subfeatures of jfeature
 *       specified_type (optional): type passed in that overrides type info for jfeature
 *  ApolloEditorService format:
-*    { 
-*       "location" : { "fmin": fmin, "fmax": fmax, "strand": strand }, 
+*    {
+*       "location" : { "fmin": fmin, "fmax": fmax, "strand": strand },
 *       "type": { "cv": { "name":, cv },   // typical cv name: "SO" (Sequence Ontology)
 *                 "name": cvterm },        // typical name: "transcript"
 *       "children": { __recursive ApolloEditorService feature__ }
 *    }
-* 
-*   For ApolloEditorService "add_feature" call to work, need to have "gene" as toplevel feature, 
+*
+*   For ApolloEditorService "add_feature" call to work, need to have "gene" as toplevel feature,
 *         then "transcript", then ???
-*                 
+*
 *    JBrowse JSON fields example: ["start", "end", "strand", "id", "subfeatures"]
 *
 *    type handling
 *    if specified_type arg present, it determines type name
 *    else if fields has a "type" field, use that to determine type name
-*    else don't include type 
+*    else don't include type
 *
 *    ignoring JBrowse ID / name fields for now
-*    currently, for features with lazy-loaded children, ignores children 
+*    currently, for features with lazy-loaded children, ignores children
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
+    console.log('creating apollo feature',jfeature);
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
-    if (diagnose)  { 
-        console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type); 
+    if (diagnose)  {
+        console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type);
         console.log(jfeature);
     }
 
-    var afeature = new Object();
+    var afeature = {};
     var astrand;
     // Apollo feature strand must be an integer
     //     either 1 (plus strand), -1 (minus strand), or 0? (not stranded or strand is unknown?)
@@ -261,7 +318,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     default:
         astrand = 0; // either not stranded or strand is uknown
     }
-    
+
     afeature.location = {
         "fmin": jfeature.get('start'),
         "fmax": jfeature.get('end'),
@@ -295,7 +352,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         // using 'id' attribute in the absence of 'name' attribute
         name !== undefined ? afeature.name = name : afeature.name = id;
     }
-    
+
     /*
     afeature.properties = [];
     var property = { value : "source_id=" + jfeature.get('id'),
@@ -314,14 +371,14 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     // use filteredsubs if present instead of subfeats?
     //    if (jfeature.filteredsubs)  { subfeats = jfeature.filteredsubs; }
     //    else  { subfeats = jfeature.get('subfeatures'); }
-    subfeats = jfeature.get('subfeatures'); 
+    subfeats = jfeature.get('subfeatures');
     if( subfeats && subfeats.length )  {
         afeature.children = [];
         var slength = subfeats.length;
         var cds;
         var cdsFeatures = [];
         var foundExons = false;
-        
+
         var updateCds = function(subfeat) {
             if (!cds) {
                 cds = new SimpleFeature({id: "cds", parent: jfeature});
@@ -339,14 +396,14 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                 }
             }
         };
-        
+
         for (var i=0; i<slength; i++)  {
             var subfeat = subfeats[i];
             var subtype = subfeat.get('type');
                 var converted_subtype = specified_subtype || subtype;
                 if (!specified_subtype) {
                     if (SeqOnto.exonTerms[subtype])  {
-                        // definitely an exon, leave exact subtype as is 
+                        // definitely an exon, leave exact subtype as is
                         // converted_subtype = "exon"
                     }
                     else if (subtype === "wholeCDS" || subtype === "polypeptide") {
@@ -361,7 +418,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                         converted_subtype = null;
                         cdsFeatures.push(subfeat);
                     }
-                    else if (SeqOnto.spliceTerms[subtype])  {  
+                    else if (SeqOnto.spliceTerms[subtype])  {
                         // splice sites -- filter out?  leave unchanged?
                         // 12/16/2012 filtering out for now, causes errors in AnnotTrack duplication operation
                         converted_subtype = null;  // filter out
@@ -379,7 +436,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                         // filter out UTR
                         converted_subtype = null;
                     }
-                    else  { 
+                    else  {
                         // convert everything else to exon???
                         // need to do this since server only creates exons for "exon" and descendant terms
                         converted_subtype = "exon";
@@ -406,7 +463,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         }
     }
     else if ( specified_type === 'transcript' )  {
-        // special casing for Apollo "transcript" features being created from 
+        // special casing for Apollo "transcript" features being created from
         //    JBrowse top-level features that have no children
         // need to create an artificial exon child the same size as the transcript
         var fake_exon = new SimpleFeature({id: jfeature.id()+"_dummy_exon", parent: jfeature});
@@ -595,5 +652,5 @@ JSONUtils.classifyVariant = function( refAllele, altAlleles, fmin, fmax ) {
 window.JSONUtils = JSONUtils;
 
 return JSONUtils;
- 
+
 });
