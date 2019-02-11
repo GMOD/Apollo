@@ -304,16 +304,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         console.log(jfeature);
     }
 
-    // if(this.isAlignment(jfeature)){
-    //     console.log('is an alignment');
-    //     jfeature = this.generateSubFeaturesFromCigar(jfeature)
-    // }
-    // else{
-    //     console.log('just regular input')
-    // }
-    // console.log('output jfeature',jfeature)
-
-
     var afeature = {};
     var astrand;
     // Apollo feature strand must be an integer

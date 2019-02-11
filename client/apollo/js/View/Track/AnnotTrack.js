@@ -1182,8 +1182,6 @@ define([
                         target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0);
                     }
 
-                    console.log('features to add',featuresToAdd);
-
                     var postData = {
                         "track": target_track.getUniqueTrackName(),
                         "features": featuresToAdd,
