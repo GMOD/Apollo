@@ -74,7 +74,7 @@
                                       text="Go to Annotation"
                                       ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.action-buttons}"/>
                             <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
-                                      text="Delete Annotation?"
+                                      text="Delete Annotation"
                                       ui:field="deleteAnnotation" enabled="false"
                                       addStyleNames="{style.action-buttons}"/>
                         </b:ButtonGroup>

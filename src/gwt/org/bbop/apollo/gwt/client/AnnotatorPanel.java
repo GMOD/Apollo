@@ -43,6 +43,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -737,16 +738,33 @@ public class AnnotatorPanel extends Composite {
     @UiHandler("deleteAnnotation")
     void deleteAnnotation(ClickEvent clickEvent) {
         String confirmString = "Delete the annotaiton"+selectedAnnotationInfo.getName();
+
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if(response.getStatusCode()==200){
+                    reload();
+                }
+                else{
+                    Bootbox.alert("Problem with deletion: "+response.getText());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Problem with deletion: "+exception.getMessage());
+            }
+        };
+
         Bootbox.confirm(confirmString,new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
-                Bootbox.alert("Confirmed? "+result);
+                GWT.log("Confirmed? "+result);
+                if(result){
+                    AnnotationRestService.deleteAnnotation(requestCallback,selectedAnnotationInfo);
+                }
             }
         });
-//        Integer min = selectedAnnotationInfo.getMin() - 50;
-//        Integer max = selectedAnnotationInfo.getMax() + 50;
-//        min = min < 0 ? 0 : min;
-//        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {

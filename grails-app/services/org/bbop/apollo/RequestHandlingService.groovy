@@ -1814,7 +1814,7 @@ class RequestHandlingService {
 //    { "track": "Group1.3", "features": [ { "uniquename": "179e77b9-9329-4633-9f9e-888e3cf9b76a" } ], "operation": "delete_feature" }:
     @Timed
     def deleteFeature(JSONObject inputObject) {
-        log.debug "in delete feature ${inputObject as JSON}"
+        println "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {

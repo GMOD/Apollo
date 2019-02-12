@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -10,7 +12,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 /**
  * Created by ndunn on 1/28/15.
  */
-public class AnnotationRestService {
+public class AnnotationRestService extends RestService{
 
     public static JSONObject convertAnnotationInfoToJSONObject(AnnotationInfo annotationInfo){
         JSONObject jsonObject = new JSONObject();
@@ -33,4 +35,18 @@ public class AnnotationRestService {
         return jsonObject;
 
     }
+
+
+    public static JSONObject deleteAnnotation(RequestCallback requestCallback, AnnotationInfo annotationInfo){
+        JSONObject jsonObject = new JSONObject();
+        JSONArray featuresArray = new JSONArray();
+        JSONObject uniqueNameObject = new JSONObject();
+        uniqueNameObject.put(FeatureStringEnum.UNIQUENAME.getValue(),new JSONString(annotationInfo.getUniqueName()));
+        featuresArray.set(0,uniqueNameObject);
+        jsonObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+
+        sendRequest(requestCallback,"annotationEditor/deleteFeature","data="+jsonObject.toString());
+        return jsonObject;
+    }
+
 }
