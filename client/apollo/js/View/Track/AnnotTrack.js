@@ -1352,7 +1352,6 @@ define([
                         }
                     }
                 }
-                console.log('adding a feature',featuresToAdd);
                 var postData = '{ "track": "' + target_track.getUniqueTrackName() + '", "features": ' + JSON.stringify(featuresToAdd) + ', "operation": "add_feature" }';
                 target_track.executeUpdateOperation(postData);
             },
