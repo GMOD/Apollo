@@ -823,7 +823,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             , @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray of features objects to delete defined by unique name {'uniquename':'ABC123'}")
     ])
     def deleteFeature() {
-        println "delete feature input ${request.JSON} and ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
             render requestHandlingService.deleteFeature(inputObject)
