@@ -52,6 +52,7 @@ import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -124,6 +125,8 @@ public class AnnotatorPanel extends Composite {
     Container northPanelContainer;
     @UiField
     static Button gotoAnnotation;
+    @UiField
+    static Button deleteAnnotation;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -664,9 +667,11 @@ public class AnnotatorPanel extends Composite {
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
+                    deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
                     gotoAnnotation.setEnabled(false);
+                    deleteAnnotation.setEnabled(false);
                 }
             }
         });
@@ -729,6 +734,20 @@ public class AnnotatorPanel extends Composite {
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
+    @UiHandler("deleteAnnotation")
+    void deleteAnnotation(ClickEvent clickEvent) {
+        String confirmString = "Delete the annotaiton"+selectedAnnotationInfo.getName();
+        Bootbox.confirm(confirmString,new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                Bootbox.alert("Confirmed? "+result);
+            }
+        });
+//        Integer min = selectedAnnotationInfo.getMin() - 50;
+//        Integer max = selectedAnnotationInfo.getMax() + 50;
+//        min = min < 0 ? 0 : min;
+//        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
+    }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
         for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
@@ -747,6 +766,7 @@ public class AnnotatorPanel extends Composite {
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
+        deleteAnnotation.setEnabled(true);
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
@@ -758,6 +778,7 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         gotoAnnotation.setEnabled(true);
+        deleteAnnotation.setEnabled(true);
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
 
         // for some reason doesn't like call gotoAnnotation
@@ -777,6 +798,7 @@ public class AnnotatorPanel extends Composite {
             exonDetailPanel.updateData(annotationInfo);
         }
         gotoAnnotation.setEnabled(true);
+        deleteAnnotation.setEnabled(true);
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
