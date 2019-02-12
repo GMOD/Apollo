@@ -222,7 +222,7 @@ JSONUtils.handleCigarSubFeatures = function(feature,type){
 
 JSONUtils.isAlignment = function(feature){
     try {
-        return feature.data.cigar !== undefined;
+        return feature.data && feature.data.cigar !== undefined;
     } catch (e) {
         console.error('Unable to process feature alignment.  Assuming not an alignment',feature,e);
         return false;
