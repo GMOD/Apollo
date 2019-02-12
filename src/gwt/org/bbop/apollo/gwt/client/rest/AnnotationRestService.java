@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.Set;
@@ -51,6 +52,21 @@ public class AnnotationRestService extends RestService{
         }
 
         sendRequest(requestCallback,"annotationEditor/deleteFeature","data="+jsonObject.toString());
+        return jsonObject;
+    }
+
+    public static JSONObject deleteAnnotationsFromSequences(RequestCallback requestCallback, Set<SequenceInfo> sequenceInfoSet) {
+        JSONObject jsonObject = new JSONObject();
+        JSONArray sequencesArray = new JSONArray();
+        jsonObject.put(FeatureStringEnum.SEQUENCE.getValue(),sequencesArray);
+
+        for(SequenceInfo sequenceInfo : sequenceInfoSet){
+            JSONObject sequenceIdObject = new JSONObject();
+            sequenceIdObject.put(FeatureStringEnum.ID.getValue(),new JSONNumber(sequenceInfo.getId()));
+            sequencesArray.set(sequencesArray.size(),sequenceIdObject);
+        }
+
+        sendRequest(requestCallback,"annotationEditor/deleteFeaturesForSequences","data="+jsonObject.toString());
         return jsonObject;
     }
 }

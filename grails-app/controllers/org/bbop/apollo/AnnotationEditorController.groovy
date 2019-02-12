@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import groovy.json.JsonBuilder
 import org.apache.shiro.SecurityUtils
+import org.bbop.apollo.Feature
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.event.AnnotationListener
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -825,6 +826,44 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def deleteFeature() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            render requestHandlingService.deleteFeature(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
+
+    @RestApiMethod(description = "Delete features for sequences", path = "/annotationEditor/deleteFeaturesForSequences", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sequence name")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism ID or common name")
+            , @RestApiParam(name = "sequences", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray of sequence id object to delete defined by {id:<sequence.id>} ")
+    ])
+    def deleteFeaturesForSequences() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        println "delete freatures for sequences ${inputObject as JSON}"
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+            // create features from sequences
+            JSONArray features = new JSONArray()
+            inputObject.features = features
+            List<Long> sequenceList = inputObject.sequence.collect{
+                return Long.valueOf(it.id)
+            }
+            println "sequence lists ${sequenceList}"
+
+            List<String> featureUniqueNames = Feature.executeQuery("select f.uniqueName from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s   where f.childFeatureRelationships is empty and s.id in (:sequenceList) and f.class in (:viewableTypes) ", [sequenceList: sequenceList, viewableTypes: requestHandlingService.viewableAnnotationList])
+            println "feature unique names ${featureUniqueNames}"
+            featureUniqueNames.each{
+                def jsonObject = new JSONObject()
+                jsonObject.put(FeatureStringEnum.UNIQUENAME.value,it)
+                features.add(jsonObject)
+            }
+            println featureUniqueNames
+            println "deleting features iwth ${inputObject as JSON}"
+            inputObject.remove("sequence")
+
             render requestHandlingService.deleteFeature(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
