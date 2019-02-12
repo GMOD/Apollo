@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,12 +31,15 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.bootbox.client.callback.SimpleCallback;
 import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
 
@@ -89,6 +93,8 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
     @UiField
     Button exportChadoButton;
+    @UiField
+    Button deleteSequencesButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -219,8 +225,8 @@ public class SequencePanel extends Composite {
                             MainPanel mainPanel = MainPanel.getInstance();
                             SequenceInfo currentSequence = mainPanel.setCurrentSequenceAndEnds(SequenceInfoConverter.convertFromJson(sequenceInfoJson));
                             mainPanel.sequenceSuggestBox.setText(currentSequence.getName());
-                            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(),mainPanel.getCurrentOrganism().getName()));
-                            MainPanel.updateGenomicViewerForLocation(currentSequence.getName(),currentSequence.getStartBp(),currentSequence.getEndBp(),true,false);
+                            Annotator.eventBus.fireEvent(new OrganismChangeEvent(OrganismChangeEvent.Action.LOADED_ORGANISMS, currentSequence.getName(), mainPanel.getCurrentOrganism().getName()));
+                            MainPanel.updateGenomicViewerForLocation(currentSequence.getName(), currentSequence.getStartBp(), currentSequence.getEndBp(), true, false);
                         }
 
                         @Override
@@ -283,18 +289,18 @@ public class SequencePanel extends Composite {
         Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
-                if(MainPanel.getInstance().getCurrentUser()!=null) {
+                if (MainPanel.getInstance().getCurrentUser() != null) {
                     if (MainPanel.getInstance().isCurrentUserAdmin()) {
                         exportChadoButton.setVisible(true);
                         getChadoExportStatus();
                     } else {
                         exportChadoButton.setVisible(false);
                     }
-                    return false ;
+                    return false;
                 }
-                return true ;
+                return true;
             }
-        },100);
+        }, 100);
 
     }
 
@@ -395,6 +401,42 @@ public class SequencePanel extends Composite {
 
         ExportPanel exportPanel = new ExportPanel(organismInfo, type, exportAll, sequenceInfoList);
         exportPanel.show();
+    }
+
+    @UiHandler("deleteSequencesButton")
+    public void deleteSequencesButton(ClickEvent clickEvent) {
+        // get all sequences for annotation
+        final Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                GWT.log(response.getText() + " " + response.getStatusCode());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("There was a problem with deleting the sequences: "+exception.getMessage());
+            }
+        };
+
+        Bootbox.confirm("Remove Annotations from " + sequenceInfoSet.size() + " sequences (this could take a VERY long time for large sets?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                // block here
+                if (result){
+                    final LoadingDialog loadingDialog = new LoadingDialog("Deleting Annotations ...", null, false);
+                    JSONObject returnObject = AnnotationRestService.deleteAnnotationsFromSequences(requestCallback, sequenceInfoSet);
+                    loadingDialog.hide();
+                    Bootbox.alert("Annotations deleted from " + sequenceInfoSet.size() + " sequences, reloading", new SimpleCallback() {
+                        @Override
+                        public void callback() {
+                            Window.Location.reload();
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     @UiHandler("exportSelectedButton")

@@ -70,7 +70,7 @@
             margin-right: auto;
         }</ui:style>
     <gwt:DockLayoutPanel addStyleNames="{style.dockLayoutPanel}">
-        <gwt:north size="210">
+        <gwt:north size="250">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
                     <b:Column size="MD_6" styleName="{style.widgetPanel}">
@@ -98,7 +98,8 @@
                     </b:Column>
                     <b:Column size="MD_7" marginTop="8">
                         <b:ButtonGroup>
-                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY" width="56px">GFF3</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportGff3Button" type="PRIMARY" width="56px">GFF3
+                            </b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportVcfButton" width="56px">VCF</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton" width="56px">FASTA</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton" width="56px">CHADO</b:Button>
@@ -125,7 +126,17 @@
                             <b:Button ui:field="exportSelectedButton" icon="DOWNLOAD" size="EXTRA_SMALL" text="Selected"
                                       enabled="false" width="100px"/>
                         </b:ButtonGroup>
-
+                    </b:Column>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_2">
+                        <gwt:HTML>
+                            <h5>Delete</h5>
+                        </gwt:HTML>
+                    </b:Column>
+                    <b:Column size="MD_7" marginTop="8">
+                        <b:Button ui:field="deleteSequencesButton" icon="TRASH_O" size="EXTRA_SMALL"
+                                  title="Delete Annotations" marginLeft="1"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
