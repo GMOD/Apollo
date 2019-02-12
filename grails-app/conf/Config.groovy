@@ -215,6 +215,7 @@ apollo {
     user_pure_memory_store = true
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
+    store_orig_id = true
 
     // used for uploading
     common_data_directory = "/opt/apollo"

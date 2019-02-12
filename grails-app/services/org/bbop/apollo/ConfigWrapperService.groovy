@@ -113,6 +113,10 @@ class ConfigWrapperService {
         grailsApplication.config.apollo.authentications
     }
 
+    def storeOrigId() {
+        grailsApplication.config.apollo.store_orig_id
+    }
+
     def getPingUrl() {
         Boolean phoneHome =  grailsApplication.config.apollo.phone.phoneHome
         if(phoneHome){
