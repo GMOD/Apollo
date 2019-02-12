@@ -845,6 +845,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
            }
        }
        else if (event.altKey) {
+           if(feat.parent()===undefined){
+            // do nothing
+           }
+           else
            if (already_selected) {
                // select entire feature
                selman.addToSelection({ feature: feat.parent(), track: this}, false);
@@ -1190,6 +1194,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
         //  return this.getUiGenomeCoord(mouseEvent) - 1;
     },
 
+    _handleSelectedFeatures: function(){
+        var selFeats = this.selectionManager.getSelectedFeatures();
+        this.selectionManager.clearSelection();
+        return selFeats;
+    },
+
     _makeFeatureContextMenu: function( featDiv, menuTemplate ) {
         var atrack = this.webapollo.getAnnotTrack();
 
@@ -1211,91 +1221,61 @@ var draggableTrack = declare( HTMLFeatureTrack,
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "pseudogene",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "transcript", null, "pseudogene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "transcript", null, "pseudogene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "tRNA",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "tRNA", null, "gene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "tRNA", null, "gene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "snRNA",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "snRNA", null, "gene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "snRNA", null, "gene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "snoRNA",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "snoRNA", null, "gene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "snoRNA", null, "gene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "ncRNA",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "ncRNA", null, "gene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "ncRNA", null, "gene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "rRNA",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "rRNA", null, "gene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "rRNA", null, "gene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "miRNA",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericAnnotations(selFeats, "miRNA", null, "gene");
+                atrack.createGenericAnnotations(this._handleSelectedFeatures(), "miRNA", null, "gene");
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "repeat_region",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericOneLevelAnnotations(selFeats, "repeat_region", true);
+                atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "repeat_region", true);
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "terminator",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericOneLevelAnnotations(selFeats, "terminator", false);
+                atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "terminator", false);
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "transposable_element",
             onClick: dojo.hitch(this, function() {
-                var selection = this.selectionManager.getSelection();
-                var selFeats = this.selectionManager.getSelectedFeatures();
-                this.selectionManager.clearSelection();
-                atrack.createGenericOneLevelAnnotations(selFeats, "transposable_element", true);
+                atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "transposable_element", true);
             })
         }));
 

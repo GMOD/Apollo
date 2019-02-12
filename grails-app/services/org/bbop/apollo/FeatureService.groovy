@@ -1423,6 +1423,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             } else {
                 gsolFeature.setLastUpdated(new Date());
             }
+            if(configWrapperService.storeOrigId()){
+                if (jsonFeature.has(FeatureStringEnum.ORIG_ID.value)) {
+                    FeatureProperty gsolProperty = new FeatureProperty()
+                    gsolProperty.setTag(FeatureStringEnum.ORIG_ID.value)
+                    gsolProperty.setValue(jsonFeature.get(FeatureStringEnum.ORIG_ID.value))
+                    gsolProperty.setFeature(gsolFeature)
+                    gsolProperty.save()
+                    gsolFeature.addToFeatureProperties(gsolProperty)
+                }
+            }
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
                 for (int i = 0; i < properties.length(); ++i) {

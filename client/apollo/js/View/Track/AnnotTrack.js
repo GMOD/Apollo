@@ -1035,7 +1035,7 @@ define([
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
-                var variantSelectionRecords = new Array();
+                var variantSelectionRecords = [];
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
@@ -1110,6 +1110,7 @@ define([
                     if (!featureToAdd.get('name')) {
                         featureToAdd.set('name', featureToAdd.get('id'));
                     }
+                    featureToAdd.set('orig_id', featureToAdd.get('id'));
                     featureToAdd.set("strand", strand);
                     var fmin;
                     var fmax;
@@ -1171,6 +1172,8 @@ define([
 
                     var afeat ;
                     featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
+                    console.log('adding',featureToAdd)
+
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
@@ -1228,7 +1231,6 @@ define([
                         }
                     });
                     this.openDialog("Confirm", content);
-                    return;
                 }
                 else {
                     process();
@@ -1255,6 +1257,7 @@ define([
                                     }
                                     else {
                                         var afeat = JSONUtils.createApolloVariant(dragfeat, true);
+                                        afeat.orig_id = dojo.clone(dragfeat.id);
                                         featuresToAdd.push(afeat);
 
                                         var postData = {
@@ -1318,12 +1321,14 @@ define([
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
+                        console.log('created apollo feature',afeat)
                         if (topLevelType) {
-                            var topLevel = new Object();
+                            var topLevel = {};
+                            topLevel.orig_id = dojo.clone(afeat.id);
                             topLevel.location = dojo.clone(afeat.location);
                             topLevel.type = dojo.clone(afeat.type);
                             topLevel.type.name = topLevelType;
-                            topLevel.children = new Array();
+                            topLevel.children = [];
                             topLevel.children.push(afeat);
                             afeat = topLevel;
                         }
@@ -1335,6 +1340,7 @@ define([
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
                                 var topLevel = new Object();
+                                topLevel.orig_id = dojo.clone(afeat.id);
                                 topLevel.location = dojo.clone(afeat.location);
                                 topLevel.type = dojo.clone(afeat.type);
                                 topLevel.type.name = topLevelType;

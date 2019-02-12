@@ -222,7 +222,7 @@ JSONUtils.handleCigarSubFeatures = function(feature,type){
 
 JSONUtils.isAlignment = function(feature){
     try {
-        return feature.data.cigar !== undefined;
+        return feature.data && feature.data.cigar !== undefined;
     } catch (e) {
         console.error('Unable to process feature alignment.  Assuming not an alignment',feature,e);
         return false;
@@ -297,7 +297,6 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
 *    currently, for features with lazy-loaded children, ignores children
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
-    console.log('creating apollo feature',jfeature);
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type);
@@ -350,8 +349,14 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     var name = jfeature.get('name');
     if (useName) {
         // using 'id' attribute in the absence of 'name' attribute
-        name !== undefined ? afeature.name = name : afeature.name = id;
+        if( name !== undefined ) {
+            afeature.name = name;
+        }
+        else{
+            afeature.name = id;
+        }
     }
+    afeature.orig_id = id ;
 
     /*
     afeature.properties = [];
