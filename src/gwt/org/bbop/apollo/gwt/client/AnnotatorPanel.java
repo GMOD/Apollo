@@ -780,7 +780,6 @@ public class AnnotatorPanel extends Composite {
 
     private Set<AnnotationInfo> getDeletableChildren(AnnotationInfo selectedAnnotationInfo) {
         String type = selectedAnnotationInfo.getType();
-        GWT.log("type:" + type);
         if (type.equalsIgnoreCase(FeatureStringEnum.GENE.getValue()) || type.equalsIgnoreCase(FeatureStringEnum.PSEUDOGENE.getValue())) {
             return selectedAnnotationInfo.getChildAnnotations();
         }
