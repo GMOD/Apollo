@@ -2,7 +2,6 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -18,7 +17,6 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
@@ -30,7 +28,6 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -202,8 +199,8 @@ public class ExonDetailPanel extends Composite {
         //displayAnnotationInfo(annotationInfo);
         getAnnotationInfoWithTopLevelFeature(annotationInfo);
         annotationInfoList.clear();
-        GWT.log("sublist: " + annotationInfo.getAnnotationInfoSet().size());
-        for (AnnotationInfo annotationInfo1 : annotationInfo.getAnnotationInfoSet()) {
+        GWT.log("sublist: " + annotationInfo.getChildAnnotations().size());
+        for (AnnotationInfo annotationInfo1 : annotationInfo.getChildAnnotations()) {
             GWT.log("adding: " + annotationInfo1.getName());
             annotationInfoList.add(annotationInfo1);
         }

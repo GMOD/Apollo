@@ -2,7 +2,6 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.*;
 
@@ -15,7 +14,7 @@ public class AnnotationInfo {
     private String type;
     private Integer min;
     private Integer max;
-    private Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
+    private Set<AnnotationInfo> childAnnotations = new HashSet<>(); // children
     private String symbol;
     private String description;
     private Integer strand;
@@ -95,15 +94,15 @@ public class AnnotationInfo {
     }
 
     public void addChildAnnotation(AnnotationInfo annotationInfo) {
-        annotationInfoSet.add(annotationInfo);
+        childAnnotations.add(annotationInfo);
     }
 
-    public Set<AnnotationInfo> getAnnotationInfoSet() {
-        return annotationInfoSet;
+    public Set<AnnotationInfo> getChildAnnotations() {
+        return childAnnotations;
     }
 
-    public void setAnnotationInfoSet(Set<AnnotationInfo> annotationInfoSet) {
-        this.annotationInfoSet = annotationInfoSet;
+    public void setChildAnnotations(Set<AnnotationInfo> childAnnotations) {
+        this.childAnnotations = childAnnotations;
     }
 
     public void setSymbol(String symbol) {

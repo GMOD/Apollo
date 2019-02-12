@@ -9,6 +9,8 @@ import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
+import java.util.Set;
+
 /**
  * Created by ndunn on 1/28/15.
  */
@@ -37,16 +39,18 @@ public class AnnotationRestService extends RestService{
     }
 
 
-    public static JSONObject deleteAnnotation(RequestCallback requestCallback, AnnotationInfo annotationInfo){
+    public static JSONObject deleteAnnotations(RequestCallback requestCallback, Set<AnnotationInfo> annotationInfoSet){
         JSONObject jsonObject = new JSONObject();
         JSONArray featuresArray = new JSONArray();
-        JSONObject uniqueNameObject = new JSONObject();
-        uniqueNameObject.put(FeatureStringEnum.UNIQUENAME.getValue(),new JSONString(annotationInfo.getUniqueName()));
-        featuresArray.set(0,uniqueNameObject);
         jsonObject.put(FeatureStringEnum.FEATURES.getValue(),featuresArray);
+
+        for(AnnotationInfo annotationInfo : annotationInfoSet){
+            JSONObject uniqueNameObject = new JSONObject();
+            uniqueNameObject.put(FeatureStringEnum.UNIQUENAME.getValue(),new JSONString(annotationInfo.getUniqueName()));
+            featuresArray.set(featuresArray.size(),uniqueNameObject);
+        }
 
         sendRequest(requestCallback,"annotationEditor/deleteFeature","data="+jsonObject.toString());
         return jsonObject;
     }
-
 }

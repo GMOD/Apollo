@@ -31,7 +31,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -263,7 +262,7 @@ public class AnnotatorPanel extends Composite {
                                             }
                                             // if a child, we need to get the index I think?
                                             final String thisUniqueName = selectedChildUniqueName;
-                                            for (AnnotationInfo annotationInfoChild : annotationInfo.getAnnotationInfoSet()) {
+                                            for (AnnotationInfo annotationInfoChild : annotationInfo.getChildAnnotations()) {
                                                 GWT.log("next-level: " + annotationInfoChild.getType());
                                                 if (annotationInfoChild.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
 //                                                    selectedAnnotationInfo = annotationInfo;
@@ -737,38 +736,59 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("deleteAnnotation")
     void deleteAnnotation(ClickEvent clickEvent) {
-        String confirmString = "Delete the annotaiton"+selectedAnnotationInfo.getName();
+        final Set<AnnotationInfo> deletableChildren = getDeletableChildren(selectedAnnotationInfo);
+        String confirmString = "";
+        if (deletableChildren.size() > 0) {
+            confirmString = "Delete the " + deletableChildren.size() + " annotation" + (deletableChildren.size() > 1 ? "s" : "") + " belonging to the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
+        } else {
+            confirmString = "Delete the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
+        }
+
 
         final RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                if(response.getStatusCode()==200){
-                    reload();
-                }
-                else{
-                    Bootbox.alert("Problem with deletion: "+response.getText());
+                if (response.getStatusCode() == 200) {
+//                    reload();
+                } else {
+                    Bootbox.alert("Problem with deletion: " + response.getText());
                 }
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Problem with deletion: "+exception.getMessage());
+                Bootbox.alert("Problem with deletion: " + exception.getMessage());
             }
         };
 
-        Bootbox.confirm(confirmString,new ConfirmCallback() {
+        Bootbox.confirm(confirmString, new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
-                GWT.log("Confirmed? "+result);
-                if(result){
-                    AnnotationRestService.deleteAnnotation(requestCallback,selectedAnnotationInfo);
+                if (result) {
+                    if (deletableChildren.size() == 0) {
+                        Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
+                        annotationInfoSet.add(selectedAnnotationInfo);
+                        AnnotationRestService.deleteAnnotations(requestCallback, annotationInfoSet);
+                    } else {
+                        JSONObject jsonObject = AnnotationRestService.deleteAnnotations(requestCallback, deletableChildren);
+                    }
                 }
             }
         });
     }
 
+
+    private Set<AnnotationInfo> getDeletableChildren(AnnotationInfo selectedAnnotationInfo) {
+        String type = selectedAnnotationInfo.getType();
+        GWT.log("type:" + type);
+        if (type.equalsIgnoreCase(FeatureStringEnum.GENE.getValue()) || type.equalsIgnoreCase(FeatureStringEnum.PSEUDOGENE.getValue())) {
+            return selectedAnnotationInfo.getChildAnnotations();
+        }
+        return new HashSet<>();
+    }
+
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
-        for (AnnotationInfo childAnnotation : annotationInfo.getAnnotationInfoSet()) {
+        for (AnnotationInfo childAnnotation : annotationInfo.getChildAnnotations()) {
             if (childAnnotation.getUniqueName().equalsIgnoreCase(uniqueName)) {
                 return childAnnotation;
             }
@@ -844,7 +864,7 @@ public class AnnotatorPanel extends Composite {
 
             if (showingTranscripts.contains(rowValue.getUniqueName())) {
                 // add some random rows
-                Set<AnnotationInfo> annotationInfoSet = rowValue.getAnnotationInfoSet();
+                Set<AnnotationInfo> annotationInfoSet = rowValue.getChildAnnotations();
                 if (annotationInfoSet.size() > 0) {
                     for (AnnotationInfo annotationInfo : annotationInfoSet) {
                         buildAnnotationRow(annotationInfo, absRowIndex, true);
