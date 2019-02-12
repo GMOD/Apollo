@@ -845,6 +845,10 @@ var draggableTrack = declare( HTMLFeatureTrack,
            }
        }
        else if (event.altKey) {
+           if(feat.parent()===undefined){
+            // do nothing
+           }
+           else
            if (already_selected) {
                // select entire feature
                selman.addToSelection({ feature: feat.parent(), track: this}, false);
