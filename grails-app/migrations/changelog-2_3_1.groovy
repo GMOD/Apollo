@@ -8,7 +8,7 @@ databaseChangeLog = {
             }
         }
         addColumn(tableName: "organism"){
-            column(name:"obsolete",type:"boolean",value:false,nullable:true)
+            column(name:"obsolete",type:"BOOLEAN",defaultValueBoolean:false)
         }
     }
 }
