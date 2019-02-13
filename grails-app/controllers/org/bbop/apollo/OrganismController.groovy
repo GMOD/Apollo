@@ -958,6 +958,7 @@ class OrganismController {
             println "orbanism JSON ${organismJson as JSON}"
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
+            Boolean madeObsolete = false
             if (organism) {
                 log.debug "Updating organism info ${organismJson as JSON}"
                 organism.commonName = organismJson.name
@@ -968,9 +969,14 @@ class OrganismController {
                 organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
+                madeObsolete = organism.obsolete == false && !organismJson.obsolete
                 organism.obsolete = organismJson.obsolete ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
                 if (checkOrganism(organism)) {
+                    if(madeObsolete){
+                        // TODO: remove all organism permissions
+                        permissionService.removeAllPermissions(organism)
+                    }
                     organism.save(flush: true, insert: false, failOnError: true)
                 } else {
                     throw new Exception("Bad organism directory: " + organism.directory)
