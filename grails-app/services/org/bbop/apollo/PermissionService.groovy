@@ -707,6 +707,14 @@ class PermissionService {
         return false
     }
 
+    @Transactional
+    def removeAllPermissions(Organism organism){
+        def userPermissions = UserOrganismPermission.findAllByOrganism(organism)
+        UserOrganismPermission.deleteAll(userPermissions)
+        def groupPermissions = GroupOrganismPermission.findAllByOrganism(organism)
+        GroupOrganismPermission.deleteAll(groupPermissions)
+    }
+
     @NotTransactional
     def getInsufficientPermissionMessage(PermissionEnum permissionEnum) {
         if (permissionEnum == PermissionEnum.ADMINISTRATE) {
