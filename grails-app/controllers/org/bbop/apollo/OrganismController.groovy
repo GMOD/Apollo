@@ -955,7 +955,6 @@ class OrganismController {
     def updateOrganismInfo() {
         try {
             JSONObject organismJson = permissionService.handleInput(request, params)
-            println "orbanism JSON ${organismJson as JSON}"
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
             Boolean madeObsolete = false
@@ -969,7 +968,7 @@ class OrganismController {
                 organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
-                madeObsolete = organism.obsolete == false && !organismJson.obsolete
+                madeObsolete = !organism.obsolete  && organismJson.obsolete
                 organism.obsolete = organismJson.obsolete ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
                 if (checkOrganism(organism)) {
@@ -1065,7 +1064,6 @@ class OrganismController {
     def findAllOrganisms() {
         try {
             JSONObject requestObject = permissionService.handleInput(request, params)
-            println "request object ${requestObject as JSON}"
             Boolean showPublicOnly = requestObject.showPublicOnly ? Boolean.valueOf(requestObject.showPublicOnly) : false
             Boolean showObsolete = requestObject.showObsolete ? Boolean.valueOf(requestObject.showObsolete) : false
             List<Organism> organismList = []
