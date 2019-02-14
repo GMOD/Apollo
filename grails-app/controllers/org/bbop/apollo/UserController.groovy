@@ -95,6 +95,9 @@ class UserController {
                         ilike('username', '%' + searchName + '%')
                     }
                 }
+                if(!showInactiveUsers){
+                    eq('inactive',false)
+                }
                 if (sortName) {
                     switch (sortName) {
                         case "name":
@@ -117,6 +120,9 @@ class UserController {
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
+                if(!showInactiveUsers){
+                    eq('inactive',false)
+                }
                 if (searchName) {
                     or {
                         ilike('firstName', '%' + searchName + '%')
@@ -124,6 +130,7 @@ class UserController {
                         ilike('username', '%' + searchName + '%')
                     }
                 }
+
             }.unique { a, b ->
                 a.id <=> b.id
             }.size()
