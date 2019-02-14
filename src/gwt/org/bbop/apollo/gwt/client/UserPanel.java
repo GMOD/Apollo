@@ -478,6 +478,10 @@ public class UserPanel extends Composite {
 
     @UiHandler("inactivateButton")
     public void inactivate(ClickEvent clickEvent) {
+        if(selectedUserInfo.getName().equals(MainPanel.getInstance().getCurrentUser().getName())){
+            Bootbox.alert("You can not inactivate yourself.");
+            return ;
+        }
         Bootbox.confirm("Inactivate user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
