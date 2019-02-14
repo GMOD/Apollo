@@ -14,11 +14,11 @@ Bug Fixes
 - Multiple owners tagged on GFF3 export [29](https://github.com/GMOD/Apollo/pull/29)
 
 Minor Features
-- Allowed deletion of feature from the Sequence and Annotator Panels [2040](https://github.com/GMOD/Apollo/pull/2040)
 - Allowed duplication of organism from the Organism Panel [1968](https://github.com/GMOD/Apollo/pull/1968)
 - Allows making an organism obsolete [1967](https://github.com/GMOD/Apollo/pull/1967)
-- Allow export of orig_id as an attribute [2002](https://github.com/GMOD/Apollo/pull/2002)
 - Create a filter and flag for inactive users [1937](https://github.com/GMOD/Apollo/pull/1937)
+- Allowed deletion of feature from the Sequence and Annotator Panels [2040](https://github.com/GMOD/Apollo/pull/2040)
+- Allow export of orig_id as an optional attribute [2002](https://github.com/GMOD/Apollo/pull/2002)
 
 
 ## 2.3.0

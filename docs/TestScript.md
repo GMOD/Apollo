@@ -162,6 +162,8 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
+13.1.4) Test that you can delete an annotation from the Details menu.
+
 13.2) Tracks
 
 13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" from the list of available tracks.
@@ -186,17 +188,28 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.3.2) Test that you can export GFF3, FASTA, and CHADO files for one or more selected scaffolds at a time. 
 
+13.3.3) Test that you can delete all annotations from 2 or more sequences.
+
 13.4) Organism
 
 13.4.1) Check that you can alter the metadata or source file for existing organisms, add new organisms, and delete current organisms. 
 
 13.4.2) Test that you can switch between organisms by double clicking on one of them. 
 
+13.4.3) Test that you duplicate an organism and obsolete the duplicate and that the show obsolete works correctly.
+
+13.4.4) Delete the duplicated organism
+
 13.5) Users 
 
 13.5.1) Create a new user and grant read, write, and publish permissions.
 
 13.5.2) Test altering information and permissions and group membership for users. 
+
+13.5.3) Make a user 'inactive' and confirm that they are listed as such and they have no permissions and they only show up when "Show inactive" is selected.
+
+13.5.3) Make an 'inactive' user active and assign them permissions.
+
 
 13.6) Groups
 
