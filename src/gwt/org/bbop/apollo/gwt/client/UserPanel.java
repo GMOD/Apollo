@@ -612,6 +612,8 @@ public class UserPanel extends Composite {
         passwordTextBox.setText("");
         groupTable.removeAllRows();
         if (selectedUserInfo == null) {
+            userDetailTab.getTabWidget(1).getParent().setVisible(false);
+            userDetailTab.getTabWidget(2).getParent().setVisible(false);
             addGroupButton.setEnabled(false);
             addGroupButton.setColor("gray");
             firstName.setText("");
@@ -644,6 +646,8 @@ public class UserPanel extends Composite {
             }
 
         } else {
+            userDetailTab.getTabWidget(1).getParent().setVisible(!selectedUserInfo.getInactive());
+            userDetailTab.getTabWidget(2).getParent().setVisible(!selectedUserInfo.getInactive());
             createButton.setEnabled(true);
             addGroupButton.setEnabled(true);
             addGroupButton.setColor("blue");
