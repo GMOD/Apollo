@@ -1,7 +1,6 @@
 databaseChangeLog = {
 
     changeSet(author: "nathandunn", id: "1459788030178-1") {
-
         preConditions(onFail: 'MARK_RAN', onError: "HALT") {
             not {
                 columnExists(columnName: "obsolete", tableName: "organism")
@@ -12,7 +11,15 @@ databaseChangeLog = {
                 constraints(nullable:"true")
             }
         }
-        addColumn(tableName: "user"){
+    }
+
+    changeSet(author: "nathandunn", id: "1459788030178-2") {
+        preConditions(onFail: 'MARK_RAN', onError: "HALT") {
+            not {
+                columnExists(columnName: "inactive", tableName: "grails_user")
+            }
+        }
+        addColumn(tableName: "grails_user"){
             column(name:"inactive",type:"BOOLEAN",defaultValueBoolean:false)
         }
     }
