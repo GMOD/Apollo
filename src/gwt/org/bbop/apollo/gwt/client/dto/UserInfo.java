@@ -22,6 +22,7 @@ public class UserInfo implements HasJSON {
     private String email;
     private String role;
     private Integer numberUserGroups;
+    private Boolean inactive;
     private String password;
     private List<String> groupList = new ArrayList<>();
     private List<String> availableGroupList = new ArrayList<>();
@@ -46,6 +47,14 @@ public class UserInfo implements HasJSON {
         } else if (userObject.get("id") != null) {
             setUserId((long) userObject.get("id").isNumber().doubleValue());
         }
+    }
+
+    public Boolean getInactive() {
+        return inactive;
+    }
+
+    public void setInactive(Boolean inactive) {
+        this.inactive = inactive;
     }
 
     public Long getUserId() {

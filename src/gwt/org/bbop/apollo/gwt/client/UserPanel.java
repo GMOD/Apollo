@@ -75,6 +75,8 @@ public class UserPanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.Button inactivateButton;
     @UiField
+    org.gwtbootstrap3.client.ui.Button activateButton;
+    @UiField
     org.gwtbootstrap3.client.ui.Button deleteButton;
     @UiField
     org.gwtbootstrap3.client.ui.Button saveButton;
@@ -458,6 +460,20 @@ public class UserPanel extends Composite {
         passwordRow.setVisible(false);
     }
 
+    @UiHandler("activateButton")
+    public void activate(ClickEvent clickEvent) {
+        Bootbox.confirm("Activate user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    UserRestService.activate(userInfoList, selectedUserInfo);
+                    selectedUserInfo = null;
+                    updateUserInfo();
+                }
+            }
+        });
+    }
+
     @UiHandler("inactivateButton")
     public void inactivate(ClickEvent clickEvent) {
         Bootbox.confirm("Inactivate user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
@@ -600,6 +616,8 @@ public class UserPanel extends Composite {
             deleteButton.setVisible(false);
             inactivateButton.setEnabled(false);
             inactivateButton.setVisible(false);
+            activateButton.setEnabled(false);
+            activateButton.setVisible(false);
             roleList.setVisible(false);
             permissionProviderList.clear();
 
@@ -632,8 +650,10 @@ public class UserPanel extends Composite {
             cancelButton.setEnabled(false);
             deleteButton.setVisible(true);
             deleteButton.setEnabled(true);
-            inactivateButton.setVisible(true);
-            inactivateButton.setEnabled(true);
+            inactivateButton.setVisible(!selectedUserInfo.getInactive());
+            inactivateButton.setEnabled(!selectedUserInfo.getInactive());
+            activateButton.setVisible(selectedUserInfo.getInactive());
+            activateButton.setEnabled(selectedUserInfo.getInactive());
             userRow1.setVisible(true);
             userRow2.setVisible(true);
             passwordRow.setVisible(true);

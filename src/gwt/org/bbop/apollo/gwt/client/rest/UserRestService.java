@@ -6,8 +6,6 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.*;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ErrorDialog;
@@ -21,8 +19,6 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Created by ndunn on 1/14/15.
@@ -43,20 +39,19 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue j= null ;
+                JSONValue j = null;
                 try {
                     j = JSONParser.parseStrict(response.getText());
                 } catch (Exception e) {
-                    GWT.log("Error parsing login response: "+e);
+                    GWT.log("Error parsing login response: " + e);
 //                    Window.alert("Error parsing login response, reloading");
                     Window.Location.reload();
-                    return ;
+                    return;
                 }
-                JSONObject o=j.isObject();
-                if(o.get("error")!=null) {
+                JSONObject o = j.isObject();
+                if (o.get("error") != null) {
                     loginDialog.setError(o.get("error").isString().stringValue() + "!");
-                }
-                else {
+                } else {
                     Window.Location.reload();
                 }
             }
@@ -77,18 +72,18 @@ public class UserRestService {
     }
 
     public static void loadUsers(RequestCallback requestCallback) {
-        loadUsers(requestCallback,-1,-1,"","name",true,false);
+        loadUsers(requestCallback, -1, -1, "", "name", true, false);
     }
 
-    public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length, String searchNameString, String searchColumnString, Boolean sortAscending,Boolean showInactiveUsers) {
+    public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length, String searchNameString, String searchColumnString, Boolean sortAscending, Boolean showInactiveUsers) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put("start",new JSONNumber(start < 0 ? 0 : start));
-        jsonObject.put("length",new JSONNumber(length < 0 ? 20 : length));
-        jsonObject.put("name",new JSONString(searchNameString));
-        jsonObject.put("sortColumn",new JSONString(searchColumnString));
-        jsonObject.put("sortAscending",JSONBoolean.getInstance(sortAscending));
-        jsonObject.put("showInactiveUsers",JSONBoolean.getInstance(showInactiveUsers));
-        RestService.sendRequest(requestCallback, "user/loadUsers/",jsonObject);
+        jsonObject.put("start", new JSONNumber(start < 0 ? 0 : start));
+        jsonObject.put("length", new JSONNumber(length < 0 ? 20 : length));
+        jsonObject.put("name", new JSONString(searchNameString));
+        jsonObject.put("sortColumn", new JSONString(searchColumnString));
+        jsonObject.put("sortAscending", JSONBoolean.getInstance(sortAscending));
+        jsonObject.put("showInactiveUsers", JSONBoolean.getInstance(showInactiveUsers));
+        RestService.sendRequest(requestCallback, "user/loadUsers/", jsonObject);
     }
 
     public static void loadUsers(final List<UserInfo> userInfoList) {
@@ -116,6 +111,7 @@ public class UserRestService {
 
         loadUsers(requestCallback);
     }
+
     public static void logout() {
         logout(null);
     }
@@ -124,10 +120,9 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                if(redirectUrl!=null){
+                if (redirectUrl != null) {
                     Window.Location.replace(redirectUrl);
-                }
-                else{
+                } else {
                     Window.Location.reload();
                 }
             }
@@ -151,16 +146,37 @@ public class UserRestService {
         RestService.sendRequest(requestCallback, "user/updateTrackListPreference", "data=" + jsonObject.toString());
     }
 
+    public static void activate(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue v = JSONParser.parseStrict(response.getText());
+                JSONObject o = v.isObject();
+                if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Activiating User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
+                } else {
+                    loadUsers(userInfoList);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error deleting user: " + exception);
+            }
+        };
+        JSONObject jsonObject = selectedUserInfo.toJSON();
+        RestService.sendRequest(requestCallback, "user/activateUser", "data=" + jsonObject.toString());
+    }
+
     public static void inactivate(final List<UserInfo> userInfoList, UserInfo selectedUserInfo) {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v=JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Deleting User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
-                }
-                else{
+                JSONValue v = JSONParser.parseStrict(response.getText());
+                JSONObject o = v.isObject();
+                if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Deleting User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
+                } else {
                     loadUsers(userInfoList);
                 }
             }
@@ -178,12 +194,11 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v=JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Deleting User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
-                }
-                else{
+                JSONValue v = JSONParser.parseStrict(response.getText());
+                JSONObject o = v.isObject();
+                if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Deleting User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
+                } else {
                     loadUsers(userInfoList);
                 }
             }
@@ -201,12 +216,11 @@ public class UserRestService {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v=JSONParser.parseStrict(response.getText());
-                JSONObject o=v.isObject();
-                if(o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Creating User",o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(),true,true);
-                }
-                else {
+                JSONValue v = JSONParser.parseStrict(response.getText());
+                JSONObject o = v.isObject();
+                if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
+                    new ErrorDialog("Error Creating User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
+                } else {
                     loadUsers(userInfoList);
                 }
             }
