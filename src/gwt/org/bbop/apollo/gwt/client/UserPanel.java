@@ -478,6 +478,10 @@ public class UserPanel extends Composite {
 
     @UiHandler("inactivateButton")
     public void inactivate(ClickEvent clickEvent) {
+        if(!selectedUserInfo.getRole().equals(GlobalPermissionEnum.USER.getLookupKey())){
+            Bootbox.alert("You must set the user's global role to 'user' before you inactivate them.");
+            return ;
+        }
         if(selectedUserInfo.getName().equals(MainPanel.getInstance().getCurrentUser().getName())){
             Bootbox.alert("You can not inactivate yourself.");
             return ;
