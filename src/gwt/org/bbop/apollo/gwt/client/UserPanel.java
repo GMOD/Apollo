@@ -69,6 +69,8 @@ public class UserPanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.Button createButton;
     @UiField
+    org.gwtbootstrap3.client.ui.CheckBoxButton showInactiveUsersButton;
+    @UiField
     org.gwtbootstrap3.client.ui.Button cancelButton;
     @UiField
     org.gwtbootstrap3.client.ui.Button inactivateButton;
@@ -211,7 +213,7 @@ public class UserPanel extends Composite {
                     Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
                     String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "email" : "";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
-                    UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending);
+                    UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending,showInactiveUsersButton.getValue());
                 }
             }
         };
@@ -417,6 +419,11 @@ public class UserPanel extends Composite {
         }
 
         return mutableBoolean.getBooleanValue();
+    }
+
+    @UiHandler("showInactiveUsersButton")
+    public void showInactiveUsersButton(ClickEvent clickEvent) {
+        reload();
     }
 
 

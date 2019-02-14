@@ -37,6 +37,7 @@ class UserController {
             , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column, default 'name'")
             , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true (default false)")
             , @RestApiParam(name = "omitEmptyOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Omits empty organism permissions from return (default false)")
+            , @RestApiParam(name = "showInactiveUsers", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Shows inactive users without permissions (default false)")
     ])
     def loadUsers() {
         try {
@@ -77,6 +78,7 @@ class UserController {
             def searchName = dataObject.name ?: null
             def sortName = dataObject.sortColumn ?: 'name'
             def sortAscending = dataObject.sortAscending ?: true
+            def showInactiveUsers = dataObject.showInactiveUsers ?: false
             def omitEmptyOrganisms = dataObject.omitEmptyOrganisms != null ? dataObject.omitEmptyOrganisms : false
 
             def users = c.list(max: maxResults, offset: offset) {
