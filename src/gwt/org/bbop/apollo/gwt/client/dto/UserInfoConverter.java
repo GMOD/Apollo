@@ -34,6 +34,12 @@ public class UserInfoConverter {
         userInfo.setFirstName(object.get("firstName").isString().stringValue());
         userInfo.setLastName(object.get("lastName").isString().stringValue());
         userInfo.setEmail(object.get("username").isString().stringValue());
+        if(object.containsKey("inactive")){
+            userInfo.setInactive(object.get("inactive").isBoolean().booleanValue());
+        }
+        else{
+            userInfo.setInactive(false);
+        }
         if (object.get("role") != null && object.get("role").isString() != null) {
             userInfo.setRole(object.get("role").isString().stringValue().toLowerCase());
         } else {

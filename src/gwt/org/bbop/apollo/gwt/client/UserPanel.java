@@ -69,9 +69,13 @@ public class UserPanel extends Composite {
     @UiField
     org.gwtbootstrap3.client.ui.Button createButton;
     @UiField
+    org.gwtbootstrap3.client.ui.CheckBoxButton showInactiveUsersButton;
+    @UiField
     org.gwtbootstrap3.client.ui.Button cancelButton;
     @UiField
     org.gwtbootstrap3.client.ui.Button inactivateButton;
+    @UiField
+    org.gwtbootstrap3.client.ui.Button activateButton;
     @UiField
     org.gwtbootstrap3.client.ui.Button deleteButton;
     @UiField
@@ -149,7 +153,9 @@ public class UserPanel extends Composite {
         TextColumn<UserInfo> thirdNameColumn = new TextColumn<UserInfo>() {
             @Override
             public String getValue(UserInfo user) {
-                return user.getRole();
+                String returnRole = user.getInactive() ? "(inactive) " : "";
+                returnRole += user.getRole();
+                return returnRole;
             }
         };
         thirdNameColumn.setSortable(false);
@@ -211,7 +217,7 @@ public class UserPanel extends Composite {
                     Integer columnIndex = dataGrid.getColumnIndex(sortColumn);
                     String searchColumnString = columnIndex == 0 ? "name" : columnIndex == 1 ? "email" : "";
                     Boolean sortNameAscending = nameSortInfo.isAscending();
-                    UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending);
+                    UserRestService.loadUsers(requestCallback, start, length, nameSearchBox.getText(), searchColumnString, sortNameAscending,showInactiveUsersButton.getValue());
                 }
             }
         };
@@ -419,6 +425,11 @@ public class UserPanel extends Composite {
         return mutableBoolean.getBooleanValue();
     }
 
+    @UiHandler("showInactiveUsersButton")
+    public void showInactiveUsersButton(ClickEvent clickEvent) {
+        reload();
+    }
+
 
     @UiHandler("createButton")
     public void create(ClickEvent clickEvent) {
@@ -451,8 +462,26 @@ public class UserPanel extends Composite {
         passwordRow.setVisible(false);
     }
 
+    @UiHandler("activateButton")
+    public void activate(ClickEvent clickEvent) {
+        Bootbox.confirm("Activate user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    UserRestService.activate(userInfoList, selectedUserInfo);
+                    selectedUserInfo = null;
+                    updateUserInfo();
+                }
+            }
+        });
+    }
+
     @UiHandler("inactivateButton")
     public void inactivate(ClickEvent clickEvent) {
+        if(selectedUserInfo.getName().equals(MainPanel.getInstance().getCurrentUser().getName())){
+            Bootbox.alert("You can not inactivate yourself.");
+            return ;
+        }
         Bootbox.confirm("Inactivate user " + selectedUserInfo.getName() + "?", new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
@@ -583,6 +612,8 @@ public class UserPanel extends Composite {
         passwordTextBox.setText("");
         groupTable.removeAllRows();
         if (selectedUserInfo == null) {
+            userDetailTab.getTabWidget(1).getParent().setVisible(false);
+            userDetailTab.getTabWidget(2).getParent().setVisible(false);
             addGroupButton.setEnabled(false);
             addGroupButton.setColor("gray");
             firstName.setText("");
@@ -593,6 +624,8 @@ public class UserPanel extends Composite {
             deleteButton.setVisible(false);
             inactivateButton.setEnabled(false);
             inactivateButton.setVisible(false);
+            activateButton.setEnabled(false);
+            activateButton.setVisible(false);
             roleList.setVisible(false);
             permissionProviderList.clear();
 
@@ -613,6 +646,8 @@ public class UserPanel extends Composite {
             }
 
         } else {
+            userDetailTab.getTabWidget(1).getParent().setVisible(!selectedUserInfo.getInactive());
+            userDetailTab.getTabWidget(2).getParent().setVisible(!selectedUserInfo.getInactive());
             createButton.setEnabled(true);
             addGroupButton.setEnabled(true);
             addGroupButton.setColor("blue");
@@ -625,8 +660,10 @@ public class UserPanel extends Composite {
             cancelButton.setEnabled(false);
             deleteButton.setVisible(true);
             deleteButton.setEnabled(true);
-            inactivateButton.setVisible(true);
-            inactivateButton.setEnabled(true);
+            inactivateButton.setVisible(!selectedUserInfo.getInactive());
+            inactivateButton.setEnabled(!selectedUserInfo.getInactive());
+            activateButton.setVisible(selectedUserInfo.getInactive());
+            activateButton.setEnabled(selectedUserInfo.getInactive());
             userRow1.setVisible(true);
             userRow2.setVisible(true);
             passwordRow.setVisible(true);
