@@ -12,5 +12,8 @@ databaseChangeLog = {
                 constraints(nullable:"true")
             }
         }
+        addColumn(tableName: "user"){
+            column(name:"inactive",type:"BOOLEAN",defaultValueBoolean:false)
+        }
     }
 }
