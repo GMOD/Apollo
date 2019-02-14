@@ -153,7 +153,9 @@ public class UserPanel extends Composite {
         TextColumn<UserInfo> thirdNameColumn = new TextColumn<UserInfo>() {
             @Override
             public String getValue(UserInfo user) {
-                return user.getRole();
+                String returnRole = user.getInactive() ? "(inactive) " : "";
+                returnRole += user.getRole();
+                return returnRole;
             }
         };
         thirdNameColumn.setSortable(false);
