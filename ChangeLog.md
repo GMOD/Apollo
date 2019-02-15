@@ -1,4 +1,25 @@
 
+## 2.3.1
+
+Bug Fixes
+
+- Fixed issue when dragging features to resize was not providing an indicator box [1988](https://github.com/GMOD/Apollo/pull/1988)
+- Fixed issue when sequence alterations were not rendering the full height of the sequence track [2049](https://github.com/GMOD/Apollo/pull/2049)
+- Making organisms obsolete should remove associated permissions [2043](https://github.com/GMOD/Apollo/pull/2043)
+- User-created features taken from split reads should create features with introns [2036](https://github.com/GMOD/Apollo/pull/2036)
+- Should indicate split reads properly in evidence [2034](https://github.com/GMOD/Apollo/pull/2034)
+- Temporary files not removed during export of GFF3 or other file types [1966](https://github.com/GMOD/Apollo/pull/1966)
+- Fixed issue where you could not alter an isoform after deleting a gene name [1961](https://github.com/GMOD/Apollo/pull/1961)
+- Fixed some minor issues associated with sequence alterations [1497](https://github.com/GMOD/Apollo/pull/1497)
+- Multiple owners tagged on GFF3 export [29](https://github.com/GMOD/Apollo/pull/29)
+
+Minor Features
+- Allowed duplication of organism from the Organism Panel [1968](https://github.com/GMOD/Apollo/pull/1968)
+- Allows making an organism obsolete [1967](https://github.com/GMOD/Apollo/pull/1967)
+- Create a filter and flag for inactive users [1937](https://github.com/GMOD/Apollo/pull/1937)
+- Allowed deletion of feature from the Sequence and Annotator Panels [2040](https://github.com/GMOD/Apollo/pull/2040)
+- Allow export of orig_id as an optional attribute [2002](https://github.com/GMOD/Apollo/pull/2002)
+
 
 ## 2.3.0
 

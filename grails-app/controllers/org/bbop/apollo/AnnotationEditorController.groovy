@@ -462,9 +462,16 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             String uniqueName = jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value);
             Feature gbolFeature = Feature.findByUniqueName(uniqueName)
             JSONObject info = new JSONObject();
-            info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName);
+            info.put(FeatureStringEnum.UNIQUENAME.value, uniqueName)
             info.put("time_accessioned", gbolFeature.lastUpdated)
-            info.put("owner", gbolFeature.owner ? gbolFeature.owner.username : "N/A");
+            info.put("owner", gbolFeature.owner ? gbolFeature.owner.username : "N/A")
+            info.put("location", gbolFeature.featureLocation.fmin)
+            if(gbolFeature instanceof SequenceAlterationArtifact){
+                info.put("length", gbolFeature.offset)
+            }
+            if(gbolFeature instanceof SequenceAlteration && gbolFeature.alterationResidue){
+                info.put("length", gbolFeature?.alterationResidue?.size())
+            }
             String parentIds = "";
             featureRelationshipService.getParentForFeature(gbolFeature).each {
                 if (parentIds.length() > 0) {

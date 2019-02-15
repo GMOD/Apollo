@@ -519,9 +519,9 @@ div.annot-sequence  {
        (div.sequence .dna-residues.forward-strand) and 
        (div.sequence .dna-residues.reverse-strand) styles
 */
-.jbrowse .Apollo .sequence-alteration-artifact.deletion_artifact,
-.jbrowse .Apollo .sequence-alteration-artifact.plus-deletion_artifact,
-.jbrowse .Apollo .sequence-alteration-artifact.minus-deletion_artifact {
+.Apollo .sequence-alteration-artifact.deletion_artifact,
+.Apollo .sequence-alteration-artifact.plus-deletion_artifact,
+.Apollo .sequence-alteration-artifact.minus-deletion_artifact {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -530,9 +530,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.jbrowse .Apollo .sequence-alteration-artifact.insertion_artifact,
-.jbrowse .Apollo .sequence-alteration-artifact.plus-insertion_artifact,
-.jbrowse .Apollo .sequence-alteration-artifact.minus-insertion_artifact {
+.Apollo .sequence-alteration-artifact.insertion_artifact,
+.Apollo .sequence-alteration-artifact.plus-insertion_artifact,
+.Apollo .sequence-alteration-artifact.minus-insertion_artifact {
     border-style: solid;
     border-color: green;
     border-width: 1px;
@@ -541,9 +541,9 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
-.jbrowse .Apollo .sequence-alteration-artifact.substitution_artifact,
-.jbrowse .Apollo .sequence-alteration-artifact.plus-substitution_artifact,
-.jbrowse .Apollo .sequence-alteration-artifact.minus-substitution_artifact {
+.Apollo .sequence-alteration-artifact.substitution_artifact,
+.Apollo .sequence-alteration-artifact.plus-substitution_artifact,
+.Apollo .sequence-alteration-artifact.minus-substitution_artifact {
     border-style: solid;
     border-color: blue;
     border-width: 1px;
@@ -644,7 +644,7 @@ div.annot-sequence  {
 *   appearance of resizing box when dragging annotation edges
 *   if case browser doesn't support transparency via "rgba", fall back on solid background?
 */
-.jbrowse .ui-resizable-helper  {
+.ui-resizable-helper  {
     border: 2px dotted red;
     background: rgb(100, 150, 255);
     background: rgba(100, 150, 255, 0.5);
@@ -655,7 +655,7 @@ div.annot-sequence  {
 *  By default, no styling associated with custom multifeature draggable helper
 *  But leaving here for easing toggling of diagnostic rendering
 */
-.jbrowse .custom-multifeature-draggable-helper  {
+.custom-multifeature-draggable-helper  {
 /*  
     outline-style: dotted; 
     outline-color: red;
@@ -666,7 +666,7 @@ div.annot-sequence  {
 /**
 *  appearance of annotations (features in AnnoTracks)  when they are drop targets and are hovered over 
 */
-.jbrowse .annot-drop-hover  {
+.annot-drop-hover  {
     outline-style: solid; 
     outline-color: green;
     outline-width: 4px;
@@ -676,7 +676,7 @@ div.annot-sequence  {
 *  overriding JQueryUI .ui-resizable style, which changes anything getting resized to "position:absolute"
 *  for this to work this CSS _must_ come after jquery-ui.css in load order
 */
-.jbrowse .ui-resizable  {
+.ui-resizable  {
     position: absolute;
 }
 

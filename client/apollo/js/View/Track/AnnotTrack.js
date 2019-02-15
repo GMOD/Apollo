@@ -5892,12 +5892,16 @@ define([
                             information += "Unique id: " + feature.uniquename + "<br/>";
                             information += "Date of creation: " + feature.time_accessioned + "<br/>";
                             information += "Owner: " + feature.owner + "<br/>";
+                            information += "Location: " + feature.location+ "<br/>";
+                            if(feature.length){
+                                information += "Length: " + feature.length+ "<br/>";
+                            }
                             if (feature.parent_ids) {
                                 information += "Parent ids: " + feature.parent_ids + "<br/>";
                             }
                         }
                         if (feature.justification) {
-                            information += "Justification: " + feature.justification + "<br/>";
+                            information += "Comment: " + feature.justification + "<br/>";
                         }
                         track.openDialog("Annotation information", information);
                     },
