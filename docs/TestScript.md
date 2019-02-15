@@ -2,24 +2,6 @@
 
 Note: The following steps are meant for testing purposes only, not for training manual annotators.
 
-## Apollo General Information
-- The Apollo website:
-http://GenomeArchitect.org
-- The article describing Apollo can be found at:  
-http://genomebiology.com/2013/14/8/R93/abstract
-- The public Apollo honey bee (_Apis mellifera_) demonstration site is available at: 
-http://genomearchitect.org/demo/
-- You may find our user guide at:
-http://genomearchitect.org/users-guide/
-- You may find a few slide presentations on the 'How Tos' of Apollo at:
-http://www.slideshare.net/MonicaMunozTorres/
-- Apollo at GMOD page: 
-http://www.gmod.org/wiki/WebApollo 
-- Apollo installation and configuration guide
-http://genomearchitect.readthedocs.io/en/latest/
-
-
-
 ### A) Testing functions in the main window
 
 1) Switch between organisms:
