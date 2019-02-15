@@ -883,7 +883,6 @@ define([
                     // and non-null
                     var annotStrand = annot.get('strand');
                     if (isSubfeature) {
-                        console.info("DEBUG: Not a subfeature");
                         var featStrand = feat.get('strand');
                         var featToAdd = feat;
                         if (featStrand != annotStrand) {
