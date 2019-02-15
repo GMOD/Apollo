@@ -258,7 +258,8 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
             var exon = new SimpleFeature({parent:feature});
             exon.set('start', currOffset+start);
             exon.set('end', currOffset + len+start);
-            exon.set('strand', feature.strand);
+            //exon.set('strand', feature.strand);
+            exon.set('strand', feature.get('strand'));
             exon.set('type', 'exon');
             var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
             feature.get("subfeatures").push(subfeature);
