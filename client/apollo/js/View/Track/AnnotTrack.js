@@ -893,7 +893,6 @@ define([
                         subfeats.push(featToAdd);
                     }
                     else {  // top-level feature
-                        //var source_track = feature_record.track;
                         var feat = JSONUtils.handleCigarSubFeatures(feat, annot.get('type'));
                         var subs = feat.get('subfeatures');
                         if (subs && subs.length > 0) {  // top-level
