@@ -245,7 +245,6 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
     // split <Number>Cigar
     var ops = this.parseCigar(cigarData);
     var currOffset = 0;
-    console.log('ffeature',feature);
     var start = feature.data.start ;
     // var featureToAdd = JSONUtils.makeSimpleFeature(feature);
     feature.set('subfeatures', []);
