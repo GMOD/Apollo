@@ -691,7 +691,7 @@ define([
                      * setting up annotation resizing via pulling of left/right edges but if
                      * subfeature is not selectable, do not bind mouse down
                      */
-                    if (subdiv && subdiv != null && (!this.selectionManager.unselectableTypes[subfeature.get('type')])) {
+                    if (subdiv && (!this.selectionManager.unselectableTypes[subfeature.get('type')])) {
                         $(subdiv).bind("mousedown", this.annotMouseDown);
                     }
                 }
@@ -852,7 +852,7 @@ define([
                 event = event || window.event;
                 var elem = (event.currentTarget || event.srcElement);
                 var featdiv = this.getLowestFeatureDiv(elem);
-                if (featdiv && (featdiv != null)) {
+                if (featdiv) {
                     if (this.verbose_click) {
                         console.log(featdiv);
                     }
@@ -1100,7 +1100,7 @@ define([
                     var keys = Object.keys(parentFeatures);
                     var singleParent = keys.length === 1;
                     var featureToAdd;
-                    console.log('preccing new feature',parentFeatures)
+                    console.log('preccing new feature',parentFeatures);
                     if (singleParent) {
                         featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
                     }
@@ -1172,7 +1172,7 @@ define([
 
                     var afeat ;
                     featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
-                    console.log('adding',featureToAdd)
+                    console.log('adding',featureToAdd);
 
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
@@ -1252,7 +1252,7 @@ define([
                                 function (seq) {
                                     if (seq.toUpperCase() != dragfeat.get('reference_allele').toUpperCase()) {
                                         var variantPosition = dragfeat.get('start') + 1;
-                                        var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position."
+                                        var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position.";
                                         target_track.openDialog( 'Cannot Add Variant', message );
                                     }
                                     else {
@@ -1321,7 +1321,7 @@ define([
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
-                        console.log('created apollo feature',afeat)
+                        console.log('created apollo feature',afeat);
                         if (topLevelType) {
                             var topLevel = {};
                             topLevel.orig_id = dojo.clone(afeat.id);
@@ -2658,7 +2658,7 @@ define([
                     if (!node) {
                         setTimeout(function () {
                             initTable(domNode, tableNode, table, timeout);
-                            return;
+
                         }, timeout);
                         return;
                     }
@@ -4520,7 +4520,6 @@ define([
                     if (!node) {
                         setTimeout(function () {
                             initTable(domNode, tableNode, table, timeout);
-                            return;
                         }, timeout);
                         return;
                     }
@@ -5613,8 +5612,7 @@ define([
                     current = selectedIndex;
                     cleanUpHistoryTable();
                     displayHistory();
-                };
-
+                }
                 var cleanUpHistoryTable = function() {
                     while (historyRows.hasChildNodes()) {
                         historyRows.removeChild(historyRows.lastChild);
@@ -5957,8 +5955,8 @@ define([
                         handleAs: "text",
                         timeout: 5000 * 1000, // Time in milliseconds
                         load: function (response, ioArgs) {
-                            var textAreaContent = response;
-                            dojo.attr(textArea, "innerHTML", textAreaContent);
+                            // Response is the textarea content;
+                            dojo.attr(textArea, "innerHTML", response);
                         },
                         // The ERROR function will be called in an error case.
                         error: function (response, ioArgs) {
@@ -6258,7 +6256,7 @@ define([
                             break;
                         }
                     }
-                };
+                }
                 if (selected && (selected.length > 0)) {
 
 
@@ -6330,7 +6328,7 @@ define([
                             break;
                         }
                     }
-                };
+                }
                 if (selected && (selected.length > 0)) {
 
 
