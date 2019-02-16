@@ -1108,6 +1108,7 @@ define([
                         featureToAdd = new SimpleFeature({data: {strand: strand}});
                     }
                     if (!featureToAdd.get('name')) {
+                        // TODO: We can't guarantee that the featureToAdd has an id, this may end up undefined.
                         featureToAdd.set('name', featureToAdd.get('id'));
                     }
                     featureToAdd.set('orig_id', featureToAdd.get('id'));
