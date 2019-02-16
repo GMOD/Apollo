@@ -1044,7 +1044,7 @@ define([
                         variantSelectionRecords.push(selection_records[i]);
                         continue;
                     }
-                    else if (type == "indel") {
+                    else if (type == "INDEL") {
                         // feature is an indel and is not supported
                         console.log("unsupported variant type: indel");
                         continue;
