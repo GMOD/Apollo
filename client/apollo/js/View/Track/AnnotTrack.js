@@ -897,8 +897,8 @@ define([
                         if (subs && subs.length > 0) {  // top-level
                             // feature with
                             // subfeatures
-                            for (var i = 0; i < subs.length; ++i) {
-                                var subfeat = subs[i];
+                            for (var j = 0; j < subs.length; ++j) {
+                                var subfeat = subs[j];
                                 var featStrand = subfeat.get('strand');
                                 var featToAdd = subfeat;
                                 if (featStrand != annotStrand) {
@@ -907,7 +907,6 @@ define([
                                 }
                                 subfeats.push(featToAdd);
                             }
-                            // $.merge(subfeats, subs);
                         }
                         else {  // top-level feature without subfeatures
                             // make exon feature
@@ -1038,6 +1037,7 @@ define([
                 var variantSelectionRecords = [];
 
                 for (var i in selection_records) {
+                    console.info("Iterating through new selection record: ", i);
                     var type = selection_records[i].feature.get("type").toUpperCase();
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
