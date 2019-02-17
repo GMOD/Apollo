@@ -70,7 +70,11 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 3.1) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box in the middle of the navigation bar in the main window. 
 
-4) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
+4) Drag and drop a gene onto the “User-created Annotations” (U-cA) area. 
+
+4.1) Drag and drop an HTML BAM read to the “User-created Annotations” (U-cA) area.
+4.2) Drag and drop an HTML BAM split-read to the “User-created Annotations” (U-cA) area.
+4.1) Drag and drop an Canvas BAM split-read to the “User-created Annotations” (U-cA) area.
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
