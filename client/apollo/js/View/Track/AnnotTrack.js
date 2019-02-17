@@ -1037,7 +1037,6 @@ define([
                 var variantSelectionRecords = [];
 
                 for (var i in selection_records) {
-                    console.info("Iterating through new selection record: ", i);
                     var type = selection_records[i].feature.get("type").toUpperCase();
                     if (JSONUtils.variantTypes.indexOf(type) != -1) {
                         // feature is a variant
@@ -1046,7 +1045,7 @@ define([
                     }
                     else if (type == "INDEL") {
                         // feature is an indel and is not supported
-                        console.log("unsupported variant type: indel");
+                        console.log("unsupported variant type: INDEL");
                         continue;
                     }
 
@@ -1100,7 +1099,6 @@ define([
                     var keys = Object.keys(parentFeatures);
                     var singleParent = keys.length === 1;
                     var featureToAdd;
-                    console.log('preccing new feature',parentFeatures);
                     if (singleParent) {
                         featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
                     }
@@ -1173,8 +1171,6 @@ define([
 
                     var afeat ;
                     featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
-                    console.log('adding',featureToAdd);
-
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
@@ -1322,7 +1318,6 @@ define([
                         featureToAdd.set("start", fmin);
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
-                        console.log('created apollo feature',afeat);
                         if (topLevelType) {
                             var topLevel = {};
                             topLevel.orig_id = dojo.clone(afeat.id);
