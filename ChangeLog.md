@@ -12,6 +12,7 @@ Bug Fixes
 - Fixed issue where you could not alter an isoform after deleting a gene name [1961](https://github.com/GMOD/Apollo/pull/1961)
 - Fixed some minor issues associated with sequence alterations [1497](https://github.com/GMOD/Apollo/pull/1497)
 - Multiple owners tagged on GFF3 export [29](https://github.com/GMOD/Apollo/pull/29)
+- Setting gene description puts UcA into a bad state [2056](https://github.com/GMOD/Apollo/issues/2056)
 
 Minor Features
 - Allowed duplication of organism from the Organism Panel [1968](https://github.com/GMOD/Apollo/pull/1968)

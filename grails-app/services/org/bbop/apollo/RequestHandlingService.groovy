@@ -148,7 +148,7 @@ class RequestHandlingService {
             featureService.addOwnersByString(inputObject.username,feature)
             feature.save(flush: true, failOnError: true)
 
-            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
+            updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
         }
 
         if (sequence) {
