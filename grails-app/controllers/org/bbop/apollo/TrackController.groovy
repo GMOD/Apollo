@@ -2,7 +2,6 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
-import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -12,8 +11,6 @@ import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
-
-import javax.servlet.http.HttpServletResponse
 
 @RestApi(name = "Track Services", description = "Methods for retrieving track data")
 @Transactional(readOnly = true)
@@ -301,12 +298,27 @@ class TrackController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
             @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     ])
-    def updateTrack(Track track){
-        println "trying to save track ${track as JSON}"
-        if (!trackService.checkPermission(request, response, organism.id)) return
-        println "saving track ${track as JSON}"
-        track.save(flush:true)
-        render tracks as JSON
+    @Transactional
+    def updateTrack(){
+        JSONObject data = permissionService.handleInput(request, params)
+        println "data as ${data as JSON}"
+//        if (!permissionService.hasPermissions(data, PermissionEnum.ADMINISTRATE)) {
+//            render status: HttpStatus.UNAUTHORIZED
+//            return
+//        }
+        Organism organism = Organism.findById(data.organism.id)
+        Track track = Track.findByKeyAndOrganism(data.name,organism)
+        if(!track){
+            track = new Track(
+                    key: data.name,
+                    organism: organism,
+                    isPublic: data.public
+            ).save(flush: true)
+        }
+//        if (!trackService.checkPermission(request, response, organism.id)) return
+//        println "saving track ${track as JSON}"
+//        track.save(flush:true)
+        render track as JSON
     }
 
 /**

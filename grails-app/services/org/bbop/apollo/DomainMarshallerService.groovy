@@ -38,6 +38,15 @@ class DomainMarshallerService {
             return returnArray
         }
 
+        JSON.registerObjectMarshaller(Track) {
+            def returnArray = [:]
+            returnArray['id'] = it.id
+            returnArray['key'] = it.key
+            returnArray['public'] = it.isPublic
+            returnArray['organism'] = it.organism
+            return returnArray
+        }
+
         JSON.registerObjectMarshaller(Sequence) {
             def returnArray = [:]
             returnArray['id'] = it.id

@@ -87,6 +87,7 @@ public class TrackPanel extends Composite {
     private static Map<String, Boolean> categoryOpen = new TreeMap<>();
     private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
     private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
+    private static JSONObject trackData;
 
     public TrackPanel() {
         exportStaticMethod();
@@ -112,10 +113,17 @@ public class TrackPanel extends Composite {
         TrackRestService.loadTracks(new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue returnValue = null;
                 try {
-                    returnValue = JSONParser.parseStrict(response.getText());
-                    Window.alert(returnValue.toString());
+                    JSONArray returnArray = JSONParser.parseStrict(response.getText()).isArray();
+                    trackData = null ;
+                    trackData = new JSONObject();
+                    for(int i = 0 ; i < returnArray.size() ; i++){
+                        JSONObject trackObject = returnArray.get(i).isObject();
+                        trackData.put(trackObject.get("key").isString().stringValue(),trackObject);
+                    }
+                    if(trackData!=null){
+                        Window.alert(trackData.toString());
+                    }
                 } catch (Exception e) {
                     Bootbox.alert(e.getMessage());
                 }
@@ -124,7 +132,14 @@ public class TrackPanel extends Composite {
                     @Override
                     public boolean execute() {
                         reload();
-                        return trackInfoList.isEmpty();
+                        boolean returnStatus = trackInfoList.isEmpty();
+                        if(!returnStatus){
+                            for(TrackInfo trackInfo : trackInfoList){
+                                Boolean isPublic = trackData.get(trackInfo.getName()).isObject().get("isPublic").isBoolean().booleanValue();
+                                trackInfo.setPublic(isPublic);
+                            }
+                        }
+                        return returnStatus ;
                     }
                 }, delay);
             }
@@ -147,6 +162,7 @@ public class TrackPanel extends Composite {
         trackInfo.setName(trackName.getText());
         trackInfo.setType(trackName.getText());
         trackInfo.setPublic(permissionField.getValue());
+        trackInfo.setOrganismInfo(MainPanel.getInstance().getCurrentOrganism());
         return trackInfo;
     }
 
@@ -210,9 +226,24 @@ public class TrackPanel extends Composite {
 
     @UiHandler("permissionField")
     public void updatePermissions(final ClickEvent event) {
-        Window.alert("value changed alert");
+        GWT.log("value changed alert");
         TrackInfo trackInfo = getTrackInfo();
-//        TrackRestService.updatePermissions(permissionField.getValue())
+        GWT.log("A");
+        trackInfo.setPublic(permissionField.getValue());
+        GWT.log("B");
+        TrackRestService.updateTrack(new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                GWT.log("C");
+                Window.alert(response.getStatusText() + " " + response.getText());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                GWT.log("D");
+                Bootbox.alert("failed to update the track: "+ exception.getMessage());
+            }
+        },trackInfo);
     }
 
     static void filterList() {

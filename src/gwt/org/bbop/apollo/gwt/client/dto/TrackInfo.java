@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
@@ -146,13 +147,13 @@ public class TrackInfo implements Comparable<TrackInfo> {
     public JSONObject toJSON() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("name", new JSONString(name));
-        jsonObject.put("label", new JSONString(label));
+        if(label!=null) jsonObject.put("label", new JSONString(label));
         jsonObject.put("type", new JSONString(type));
-        jsonObject.put("visible", JSONBoolean.getInstance(visible));
-        jsonObject.put("public", JSONBoolean.getInstance(isPublic));
-        jsonObject.put("urlTemplate", new JSONString(urlTemplate));
-        jsonObject.put("category", new JSONString(category));
-        jsonObject.put("payload", payload);
+//        jsonObject.put("visible", JSONBoolean.getInstance(visible));
+        jsonObject.put("public", JSONBoolean.getInstance(isPublic==null ? true : isPublic));
+        if(urlTemplate!=null) jsonObject.put("urlTemplate", new JSONString(urlTemplate));
+        if(category!=null) jsonObject.put("category", new JSONString(category));
+        if(payload!=null) jsonObject.put("payload", payload);
         jsonObject.put("organism", organismInfo.toJSON());
         return jsonObject;
     }

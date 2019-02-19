@@ -8,6 +8,7 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
+import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.SequencePanel;
@@ -27,7 +28,9 @@ public class TrackRestService {
     }
 
     public static void updateTrack(RequestCallback requestCallback, TrackInfo trackInfo) {
-        RestService.sendRequest(requestCallback, "track/updateTrack/" +trackInfo.getOrganismInfo() ,"data="+trackInfo.toJSON());
+        Window.alert(""+trackInfo.getOrganismInfo().toJSON());
+        Window.alert(""+trackInfo.toJSON());
+        RestService.sendRequest(requestCallback, "track/updateTrack/","data="+trackInfo.toJSON());
     }
 
 //            RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
