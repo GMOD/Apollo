@@ -462,7 +462,10 @@ class JbrowseController {
             pluginKeys.add("WebApollo")
             // see https://github.com/GMOD/jbrowse/issues/897
             // https://github.com/GMOD/Apollo/issues/2014
-//            jsonObject.plugins.add("stub")
+            // if it is empty, we need to add a single bogus plugin because of the bug
+            if(!jsonObject.plugins){
+                jsonObject.plugins.add("stub")
+            }
             for (plugin in plugins) {
                 if (!pluginKeys.contains(plugin.key)) {
                     pluginKeys.add(plugin.key)
