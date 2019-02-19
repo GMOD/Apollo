@@ -2517,7 +2517,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
                     label: pubmedss,
@@ -4394,7 +4394,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
                     label: pubmedss,

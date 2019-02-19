@@ -73,8 +73,10 @@ Note: The following steps are meant for testing purposes only, not for training 
 4) Drag and drop a gene onto the “User-created Annotations” (U-cA) area. 
 
 4.1) Drag and drop an HTML BAM read to the “User-created Annotations” (U-cA) area.
-4.2) Drag and drop an HTML BAM split-read to the “User-created Annotations” (U-cA) area.
-4.1) Drag and drop an Canvas BAM split-read to the “User-created Annotations” (U-cA) area.
+
+4.2) Drag and drop an HTML BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under HTML Alignment).
+
+4.1) Drag and drop an Canvas BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under Canvas Alignment).
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
