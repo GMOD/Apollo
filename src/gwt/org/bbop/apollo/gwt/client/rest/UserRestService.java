@@ -175,7 +175,7 @@ public class UserRestService {
                 JSONValue v = JSONParser.parseStrict(response.getText());
                 JSONObject o = v.isObject();
                 if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
-                    new ErrorDialog("Error Deleting User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
+                    new ErrorDialog("Error Inactivating User", o.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue(), true, true);
                 } else {
                     loadUsers(userInfoList);
                 }
@@ -183,7 +183,7 @@ public class UserRestService {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Error deleting user: " + exception);
+                Bootbox.alert("Error inactivating user: " + exception);
             }
         };
         JSONObject jsonObject = selectedUserInfo.toJSON();
