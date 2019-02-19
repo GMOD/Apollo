@@ -23,6 +23,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.rest.TrackRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.shared.event.HiddenEvent;
@@ -105,16 +106,34 @@ public class TrackPanel extends Composite {
 
     }
 
-    public void loadTracks(int delay) {
+    public void loadTracks(final int delay) {
         filteredTrackInfoList.clear();
         trackInfoList.clear();
-        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+        TrackRestService.loadTracks(new RequestCallback() {
             @Override
-            public boolean execute() {
-                reload();
-                return trackInfoList.isEmpty();
+            public void onResponseReceived(Request request, Response response) {
+                JSONValue returnValue = null;
+                try {
+                    returnValue = JSONParser.parseStrict(response.getText());
+                    Window.alert(returnValue.toString());
+                } catch (Exception e) {
+                    Bootbox.alert(e.getMessage());
+                }
+
+                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+                    @Override
+                    public boolean execute() {
+                        reload();
+                        return trackInfoList.isEmpty();
+                    }
+                }, delay);
             }
-        }, delay);
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error loading track info");
+            }
+        }, MainPanel.getInstance().getCurrentOrganism());
     }
 
     public void reloadIfEmpty() {

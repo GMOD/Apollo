@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 
 /**
  * Created by ndunn on 12/18/14.
@@ -17,6 +19,8 @@ public class TrackInfo implements Comparable<TrackInfo> {
 
 
     private Boolean isPublic ;
+    private OrganismInfo organismInfo ;
+
     private String urlTemplate ;
     private String category;
 
@@ -85,6 +89,14 @@ public class TrackInfo implements Comparable<TrackInfo> {
         this.category = category;
     }
 
+    public OrganismInfo getOrganismInfo() {
+        return organismInfo;
+    }
+
+    public void setOrganismInfo(OrganismInfo organismInfo) {
+        this.organismInfo = organismInfo;
+    }
+
     public String getStandardCategory(){
         if(category==null || category.trim().length()==0){
             return TRACK_UNCATEGORIZED ;
@@ -130,4 +142,19 @@ public class TrackInfo implements Comparable<TrackInfo> {
         result = 31 * result + (getCategory() != null ? getCategory().hashCode() : 0);
         return result;
     }
+
+    public JSONObject toJSON() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("name", new JSONString(name));
+        jsonObject.put("label", new JSONString(label));
+        jsonObject.put("type", new JSONString(type));
+        jsonObject.put("visible", JSONBoolean.getInstance(visible));
+        jsonObject.put("public", JSONBoolean.getInstance(isPublic));
+        jsonObject.put("urlTemplate", new JSONString(urlTemplate));
+        jsonObject.put("category", new JSONString(category));
+        jsonObject.put("payload", payload);
+        jsonObject.put("organism", organismInfo.toJSON());
+        return jsonObject;
+    }
+
 }

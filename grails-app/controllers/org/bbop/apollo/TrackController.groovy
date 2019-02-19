@@ -283,6 +283,32 @@ class TrackController {
         render renderdObject as JSON
     }
 
+    @RestApiMethod(description = "Get track data from the database", path = "/track/getTracksForOrganism/<organism id>", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organism id", type = "integer", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)"),
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
+            @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    ])
+    def getTracksForOrganism(Organism organism){
+        if (!trackService.checkPermission(request, response, organism.id as String)) return
+        def tracks = Track.findAllByOrganism(organism)
+        render tracks as JSON
+    }
+
+    @RestApiMethod(description = "Update track data to the database", path = "/track/updateTrack/<organism id>", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "organism id", type = "integer", paramType = RestApiParamType.QUERY, description = "Organism common name or ID(required)"),
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY),
+            @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    ])
+    def updateTrack(Track track){
+        println "trying to save track ${track as JSON}"
+        if (!trackService.checkPermission(request, response, organism.id)) return
+        println "saving track ${track as JSON}"
+        track.save(flush:true)
+        render tracks as JSON
+    }
+
 /**
  *
  * @param trackName
