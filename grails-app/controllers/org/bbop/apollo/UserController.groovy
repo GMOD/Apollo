@@ -464,7 +464,7 @@ class UserController {
         } catch (e) {
             log.error(e.fillInStackTrace())
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to inactivate the user " + e.message)
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to inactivate the user " + e.message+". Remove users and groups first.")
             render jsonObject as JSON
         }
     }
