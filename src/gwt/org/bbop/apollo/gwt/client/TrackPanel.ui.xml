@@ -23,6 +23,21 @@
             outline: none;
         }
 
+        .dropdown-display:focus {
+            background-color: gray;
+        }
+
+        .dropdown-display {
+            margin-left: 5px;
+            margin-right: 5px;
+            display: inline;
+            background-color: gray;
+            color: white;
+            font-size: smaller;
+            height: 25px;
+            width: 100px;
+        }
+
     </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
         <gwt:north size="60">
@@ -44,7 +59,7 @@
                 </b:PanelGroup>
             </gwt:ScrollPanel>
         </gwt:center>
-        <gwt:south size="200">
+        <gwt:south size="250">
             <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
@@ -65,6 +80,16 @@
                             </b:Column>
                             <b:Column size="MD_4" >
                                 <gwt:HTML ui:field="trackType"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row>
+                            <b:Column size="MD_3" >
+                                <gwt:HTML styleName="{style.tableKeyName}">
+                                    Public
+                                </gwt:HTML>
+                            </b:Column>
+                            <b:Column size="MD_4" >
+                                <b:CheckBoxButton visible="false" ui:field="permissionField" styleName="{style.dropdown-display}"/>
                             </b:Column>
                         </b:Row>
                         <b:Row visible="true">

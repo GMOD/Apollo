@@ -17,6 +17,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -63,6 +64,8 @@ public class TrackPanel extends Composite {
     HTML trackCount;
     @UiField
     HTML trackDensity;
+    @UiField
+    CheckBoxButton permissionField;
 
     @UiField
     ToggleSwitch trackListToggle;
@@ -109,10 +112,7 @@ public class TrackPanel extends Composite {
             @Override
             public boolean execute() {
                 reload();
-                if (trackInfoList.isEmpty()) {
-                    return true;
-                }
-                return false;
+                return trackInfoList.isEmpty();
             }
         }, delay);
     }
@@ -123,13 +123,24 @@ public class TrackPanel extends Composite {
         }
     }
 
+    private TrackInfo getTrackInfo() {
+        TrackInfo trackInfo = new TrackInfo();
+        trackInfo.setName(trackName.getText());
+        trackInfo.setType(trackName.getText());
+        trackInfo.setPublic(permissionField.getValue());
+        return trackInfo;
+    }
 
     private void setTrackInfo(TrackInfo selectedObject) {
         if (selectedObject == null) {
             trackName.setText("");
             trackType.setText("");
+            permissionField.setVisible(false);
+            permissionField.setValue(false);
             optionTree.clear();
         } else {
+            permissionField.setVisible(true);
+            permissionField.setValue(false);
             trackName.setText(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
@@ -173,10 +184,16 @@ public class TrackPanel extends Composite {
         return treeItem;
     }
 
-
     @UiHandler("nameSearchBox")
     public void doSearch(KeyUpEvent keyUpEvent) {
         filterList();
+    }
+
+    @UiHandler("permissionField")
+    public void updatePermissions(final ClickEvent event) {
+        Window.alert("value changed alert");
+        TrackInfo trackInfo = getTrackInfo();
+//        TrackRestService.updatePermissions(permissionField.getValue())
     }
 
     static void filterList() {
@@ -243,6 +260,7 @@ public class TrackPanel extends Composite {
                 @Override
                 public void onClick(ClickEvent event) {
                     MainPanel.getTrackPanel().setTrackInfo(trackInfo);
+//                    setTrackInfo(trackInfo);
                 }
             }, ClickEvent.getType());
         }
@@ -482,12 +500,12 @@ public class TrackPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v ;
+                JSONValue v;
                 try {
                     v = JSONParser.parseStrict(response.getText());
                 } catch (Exception e) {
-                    GWT.log("No organism present: "+response.getText());
-                    return ;
+                    GWT.log("No organism present: " + response.getText());
+                    return;
 //                    e.printStackTrace();
                 }
                 JSONObject o = v.isObject();

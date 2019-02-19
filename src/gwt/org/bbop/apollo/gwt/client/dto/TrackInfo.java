@@ -14,6 +14,9 @@ public class TrackInfo implements Comparable<TrackInfo> {
     private String label;
     private String type;
     private Boolean visible;
+
+
+    private Boolean isPublic ;
     private String urlTemplate ;
     private String category;
 
@@ -93,6 +96,14 @@ public class TrackInfo implements Comparable<TrackInfo> {
             }
             return  categoryString.substring(0,categoryString.length()-1);
         }
+    }
+
+    public Boolean getPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(Boolean aPublic) {
+        isPublic = aPublic;
     }
 
     @Override
