@@ -749,7 +749,12 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 if (response.getStatusCode() == 200) {
-//                    reload();
+                    // parse to make sure we return the complete amount
+                    try {
+                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    } catch (Exception e) {
+                        Bootbox.alert(e.getMessage());
+                    }
                 } else {
                     Bootbox.alert("Problem with deletion: " + response.getText());
                 }
