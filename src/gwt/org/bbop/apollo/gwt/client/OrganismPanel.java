@@ -108,6 +108,9 @@ public class OrganismPanel extends Composite {
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
             public String getValue(OrganismInfo organism) {
+                if(organism.getObsolete()){
+                    return "(obs) "+organism.getName();
+                }
                 return organism.getName();
             }
         };
