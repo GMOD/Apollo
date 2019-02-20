@@ -250,7 +250,7 @@ class JbrowseController {
 
         String mimeType = getServletContext().getMimeType(fileName);
         if (!mimeType) {
-            println("No input MIME type of " + fileName);
+            log.debug("No input MIME type of " + fileName);
             if (fileName.endsWith(".json") || params.format == "json") {
                 mimeType = "application/json";
                 response.setContentType(mimeType);
@@ -515,7 +515,7 @@ class JbrowseController {
             log.info "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
             File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
             if (extendedTrackListFile.exists()) {
-                println "augmenting track JSON Object with extendedTrackList.json contents"
+                log.debug "augmenting track JSON Object with extendedTrackList.json contents"
                 JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
                 jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
             }
@@ -578,12 +578,12 @@ class JbrowseController {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
             File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
             if (extendedOrganismDataDirectory.exists()) {
-                println"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                log.debug "track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
                 String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
                 dataFileName = newPath
                 dataFileName += params.fileType ? ".${params.fileType}" : ""
                 file = new File(dataFileName)
-                println"data file name: ${dataFileName}"
+                log.debug"data file name: ${dataFileName}"
             }
 
             if (!file.exists()) {
