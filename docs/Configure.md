@@ -595,6 +595,28 @@ Following are a few recommendations for adding tracks via dot notation in Apollo
 
 Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
 
+### Hiding JBrowse tracks from the public
+
+To hide public tracks from public organisms add `apollo.permission.level.private` line to your JBrowse track:
+
+```
+      {
+         "compress" : 0,
+         "key" : "GeneData_hidden",
+         "label" : "GeneData_hidden",
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         ... 
+         "apollo":{
+             "permission":{
+                 "level":"private"
+             }
+         },
+         ... 
+         "trackType" : null,
+         "type" : "FeatureTrack",
+         "urlTemplate" : "tracks/GeneData/{refseq}/trackData.json"
+      },
+```
 
 ### Phone Home
 
