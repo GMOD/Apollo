@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
@@ -283,9 +284,9 @@ class JbrowseController {
 
         String range = request.getHeader("range");
         long length = file.length();
-        Range full = new Range(0, length - 1, length);
+        Range full = new Range(0, length - 1, length)
 
-        List<Range> ranges = new ArrayList<Range>();
+        List<Range> ranges = new ArrayList<Range>()
 
         // from http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html#sublong
         if (range != null) {
@@ -385,6 +386,26 @@ class JbrowseController {
 
     }
 
+    /**
+     "apollo":{
+         "permission":{
+             "level":"private"
+         }
+     },
+
+     * @param tracksArray
+     */
+    @NotTransactional
+    def pruneTracks(JSONArray tracksArray){
+        JSONArray returnArray = new JSONArray()
+
+        for(track in tracksArray){
+            if(track?.apollo?.permission?.level==null || track?.apollo?.permission?.level=="public"){
+                returnArray.add(track)
+            }
+        }
+        return returnArray
+    }
 
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -406,6 +427,14 @@ class JbrowseController {
 
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
+
+        /**
+         * remove private tracks #17
+         */
+        if (!permissionService.currentUser || !clientToken) {
+            jsonObject.tracks = pruneTracks(jsonObject.tracks)
+        }
+
 
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
@@ -492,6 +521,7 @@ class JbrowseController {
             }
         }
 
+
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
     }
@@ -548,7 +578,7 @@ class JbrowseController {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
             File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
             if (extendedOrganismDataDirectory.exists()) {
-                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                log.debug "track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
                 String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
                 dataFileName = newPath
                 dataFileName += params.fileType ? ".${params.fileType}" : ""
