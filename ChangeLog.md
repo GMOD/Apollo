@@ -30,7 +30,7 @@ Features
 
 - Moved to JBrowse 1.16.2 by default [1988](https://github.com/GMOD/Apollo/pull/1988), which also fixed track styling issues [#1942](https://github.com/GMOD/Apollo/pull/1942)
 - Moved to Neat Features as the default  [2021](https://github.com/GMOD/Apollo/pull/2021)
-- Improved terminator annoation [1997](https://github.com/GMOD/Apollo/pull/1997)
+- Improved terminator annotation [1997](https://github.com/GMOD/Apollo/pull/1997)
 
 
 Bug Fixes
