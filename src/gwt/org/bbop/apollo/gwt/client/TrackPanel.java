@@ -17,6 +17,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -29,6 +30,7 @@ import org.gwtbootstrap3.client.shared.event.HiddenHandler;
 import org.gwtbootstrap3.client.shared.event.ShowEvent;
 import org.gwtbootstrap3.client.shared.event.ShowHandler;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Panel;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.HeadingSize;
@@ -63,6 +65,8 @@ public class TrackPanel extends Composite {
     HTML trackCount;
     @UiField
     HTML trackDensity;
+    @UiField
+    Button addTrackButton;
 
     @UiField
     ToggleSwitch trackListToggle;
@@ -73,6 +77,8 @@ public class TrackPanel extends Composite {
     Tree optionTree;
     @UiField
     static PanelGroup dataGrid;
+    @UiField
+    TabLayoutPanel southTabs;
 
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
@@ -92,6 +98,11 @@ public class TrackPanel extends Composite {
 
         dataGrid.setWidth("100%");
 
+
+        southTabs.getTabWidget(0).getParent().setVisible(false);
+        southTabs.getTabWidget(0).setVisible(false);
+        southTabs.getTabWidget(1).getParent().setVisible(false);
+        southTabs.getTabWidget(1).setVisible(false);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -126,10 +137,12 @@ public class TrackPanel extends Composite {
 
     private void setTrackInfo(TrackInfo selectedObject) {
         if (selectedObject == null) {
+            southTabs.getTabWidget(0).getParent().setVisible(false);
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
         } else {
+            southTabs.getTabWidget(0).getParent().setVisible(true);
             trackName.setText(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
@@ -171,6 +184,15 @@ public class TrackPanel extends Composite {
 
 
         return treeItem;
+    }
+
+    @UiHandler("addTrackButton")
+    public void addTrackButtonHandler(ClickEvent clickEvent) {
+//        Window.alert("adding track");
+        southTabs.getTabWidget(0).getParent().setVisible(false);
+        southTabs.getTabWidget(1).getParent().setVisible(true);
+        southTabs.getTabWidget(0).setVisible(false);
+        southTabs.getTabWidget(1).setVisible(true);
     }
 
 
