@@ -2,6 +2,64 @@ package org.bbop.apollo.gwt.client.track;
 
 public class TrackConfigurationTemplate {
 
+    String storeClass;
+    String urlTemplate;
+    String label;
+    String type;
+    String key;
+    // key is entered
+
+    public enum TrackType {
+        BAM,
+        BAM_CANVAS,
+        BIGWIG_HEAT_MAP,
+        BIGWIG_XY,
+        VCF,
+        VCF_CANVAS,
+        GFF3,
+        GFF3_CANVAS,
+    }
+    public TrackConfigurationTemplate(){ }
+
+    public TrackConfigurationTemplate(String storeClass, String urlTemplate, String label, String type, String key) {
+        this.storeClass = storeClass;
+        this.urlTemplate = urlTemplate;
+        this.label = label;
+        this.type = type;
+        this.key = key;
+    }
+
+
+    public static TrackConfigurationTemplate generateForType(String type) {
+        TrackConfigurationTemplate trackConfigurationTemplate = new TrackConfigurationTemplate();
+
+
+        return trackConfigurationTemplate;
+    }
+
+    String toJSON() {
+        String returnString = "";
+
+
+        return returnString;
+    }
+
+    public static String generateForTypeAndKey(TrackType type, String key) {
+        switch (type) {
+            case BAM:
+                new TrackConfigurationTemplate().toJSON();
+            case BAM_CANVAS:
+            case BIGWIG_HEAT_MAP:
+            case BIGWIG_XY:
+            case VCF:
+            case VCF_CANVAS:
+            case GFF3:
+            case GFF3_CANVAS:
+        }
+
+        return null;
+    }
+
     public final static String bamDefault = "" +
             "{\n" +
             "  \"key\":\"<change me>\",\n" +
@@ -20,11 +78,11 @@ public class TrackConfigurationTemplate {
             " \"type\" : \"JBrowse/View/Track/Alignments2\"\n" +
             "}\n" +
             "\n";
-    public final static String bigWigDefault= "";
-    public final static String bigWigXYDefault= "";
-    public final static String vcfDefault= "";
-    public final static String vcfCanvasDefault= "";
-    public final static String gff3Default= "";
-    public final static String gff3CanvasDefault= "";
+    public final static String bigWig = "";
+    public final static String bigWigXY = "";
+    public final static String vcf = "";
+    public final static String vcfCanvas = "";
+    public final static String gff3Default = "";
+    public final static String gff3CanvasDefault = "";
 
 }

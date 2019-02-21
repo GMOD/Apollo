@@ -263,7 +263,7 @@ public class TrackPanel extends Composite {
     @UiHandler("selectBigWig")
     public void selectBigWig(ClickEvent clickEvent) {
         configuration.setText("BigWig text");
-        configuration.setText(TrackConfigurationTemplate.bigWigDefault);
+        configuration.setText(TrackConfigurationTemplate.bigWig);
     }
 
     @UiHandler("selectGFF3")
@@ -275,7 +275,7 @@ public class TrackPanel extends Composite {
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
         configuration.setText("VCF text");
-        configuration.setText(TrackConfigurationTemplate.vcfDefault);
+        configuration.setText(TrackConfigurationTemplate.vcf);
     }
 
     @UiHandler("nameSearchBox")
