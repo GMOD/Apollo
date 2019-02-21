@@ -47,31 +47,14 @@
                                 <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
                                 <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"/>
-
-                                <gwt:HTML text="AND"/>
-
-                                <gwt:HTML text="Data File (zip or tar.gz of compressed data"/>
-                                <gwt:FileUpload ui:field="uploadDataFile" name="trackData"/>
-
-                                <gwt:HTML text="- OR - "/>
-
                                 <gwt:HTML text="Track File (*.bam,*.vcf,*.bw,*gff.gz"/>
                                 <gwt:FileUpload ui:field="uploadTrackFile" name="trackFile"/>
                                 <gwt:HTML text="Track File Index (*.bai,*.tbl)"/>
                                 <gwt:FileUpload ui:field="uploadTrackFileIndex" name="trackFileIndex"/>
                             </gwt:FlowPanel>
-                            <!--<gwt:HTML text="footer"/>-->
-                            <!--<b:Button ui:field="saveNewTrack" text="Save"/>-->
-                            <!--HTML html = new HTML("<hr  style=\"width:100%;\" />")-->
-
-                            <!--<b:Alert type="WARNING" ui:field="alertText">-->
-                            <!--<b:Icon type="WARNING"/>-->
-                            <!--</b:Alert>-->
-                            <!--<b:Button text="Logout" ui:field="logoutButton2" styleName="{style.addTrackModal}"-->
-                            <!--icon="SIGN_OUT"/>-->
                         </b:ModalBody>
                         <b:ModalFooter>
-                            <!--<gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>-->
+                            <gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>
                             <b:Button ui:field="cancelNewTrack" text="Cancel"/>
                         </b:ModalFooter>
                     </b:Modal>

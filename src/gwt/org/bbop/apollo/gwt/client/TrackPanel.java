@@ -82,19 +82,16 @@ public class TrackPanel extends Composite {
     static PanelGroup dataGrid;
     @UiField
     static Modal addTrackModal;
-//    @UiField
-//    SubmitButton saveNewTrack;
+    @UiField
+    SubmitButton saveNewTrack;
     @UiField
     Button cancelNewTrack;
     @UiField
     FileUpload uploadTrackFile;
     @UiField
     FileUpload uploadTrackFileIndex;
-    //    @UiField(provided = true)
     @UiField
     FormPanel newTrackForm;
-    @UiField
-    FileUpload uploadDataFile;
     @UiField
     TextArea configuration;
     @UiField
@@ -230,24 +227,24 @@ public class TrackPanel extends Composite {
         addTrackModal.hide();
     }
 
-//    @UiHandler("saveNewTrack")
-//    public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
-//        newTrackForm.submit();
-////        Window.alert("saving new track");
-////        addTrackModal.hide();
-//    }
+    @UiHandler("saveNewTrack")
+    public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
+        newTrackForm.submit();
+//        Window.alert("saving new track");
+//        addTrackModal.hide();
+    }
 
     @UiHandler("addTrackButton")
     public void addTrackButtonHandler(ClickEvent clickEvent) {
 //        newTrackForm.reset();
 //        newTrackForm.setWidget(flowPanel);
-        Button button = new Button("Submit",new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                newTrackForm.submit();
-            }
-        });
-        flowPanel.add(button);
+//        Button button = new Button("Submit",new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                newTrackForm.submit();
+//            }
+//        });
+//        flowPanel.add(button);
 
         hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
 

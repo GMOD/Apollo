@@ -314,16 +314,15 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        println "input request object ${requestObject}"
-        println "request ${request}"
-        println "request params ${params}"
-        println "request trackFile: ${request.getFile("trackFile")}"
-        def trackFileData = request.getFile("trackFile")
-        println "reading ${trackFileData}"
-        File tempFile = File.createTempFile("trackFile","tmp")
-        println "writing to file ${tempFile.absolutePath}"
-        trackFileData.transferTo(tempFile)
-        println "transfer complete to ${tempFile.absolutePath} -> ${tempFile.size()}"
+//        println "input request object ${requestObject}"
+//        println "request ${request}"
+//        println "request params ${params}"
+//        println "request trackFile: ${request.getFile("trackFile")}"
+//        if(request.getFile(FeatureStringEnum.TRACK_DATA.value)){
+////            File tempFile = File.createTempFile("trackFile","tmp")
+////            trackFileData.transferTo(tempFile)
+////            requestObject.put("trackFile")
+//        }
 
 
 
@@ -374,7 +373,7 @@ class OrganismController {
 
         try {
             permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
-            log.debug "user ${requestObject.get(FeatureStringEnum.USERNAME.value)} is admin"
+//            log.debug "user ${requestObject.get(FeatureStringEnum.USERNAME.value)} is admin"
             Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value))
 
             if (organism) {
@@ -384,12 +383,13 @@ class OrganismController {
                 File commonDataDirectory = new File(configWrapperService.commonDataDirectory)
 
                 CommonsMultipartFile trackDataFile = request.getFile(FeatureStringEnum.TRACK_DATA.value)
-                CommonsMultipartFile trackFile = request.getFile("trackFile")
-                CommonsMultipartFile trackFileIndex = request.getFile("trackFileIndex")
+                CommonsMultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
+                CommonsMultipartFile trackFileIndex = request.getFile(FeatureStringEnum.TRACK_FILE_INDEX.value)
 
+                println "file paths? ${trackFile}"
                 if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
                     // organism data is in common data directory
-                    log.debug "organism data is in common data directory"
+                    println "organism data is in common data directory"
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
@@ -425,7 +425,9 @@ class OrganismController {
                     } else {
                         // trackDataFile is null; use data from trackFile and trackFileIndex, if available
                         if (trackFile) {
+                            println "using track file"
                             if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+                                println "found track from array"
                                 // add track config to trackList.json
                                 tracksArray.add(trackConfigObject)
                                 try {
@@ -455,6 +457,7 @@ class OrganismController {
                     }
                 } else {
                     // organism data is somewhere on the server where we don't want to modify anything
+                    println "adding to existing organism"
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
@@ -462,20 +465,22 @@ class OrganismController {
                         log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                     } else {
+                        println "will be a new track"
                         String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
                         File extendedDirectory = new File(extendedDirectoryName)
                         if (extendedDirectory.exists()) {
                             // extended organism directory present in common data directory
-                            log.debug "extended organism directory ${extendedDirectoryName} present in common data directory"
+                            println "extended organism directory ${extendedDirectoryName} present in common data directory"
                         } else {
                             // make a new extended organism directory in common data directory
-                            log.debug "creating extended organism directory ${extendedDirectoryName} in common data directory"
+                            println "creating extended organism directory ${extendedDirectoryName} in common data directory"
                             if (extendedDirectory.mkdirs()) {
                                 // write extendedTrackList.json
                                 File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
                                 def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                 trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                 trackListJsonWriter.close()
+                                println "added to the trackListJsonWriter ${extendedTrackListJsonFile.text}"
                             } else {
                                 log.error "Cannot create directory ${extendedDirectoryName}"
                                 returnObject.put("error", "Cannot create directory ${extendedDirectoryName}.")
