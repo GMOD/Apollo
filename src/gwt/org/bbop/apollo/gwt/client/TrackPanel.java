@@ -87,6 +87,8 @@ public class TrackPanel extends Composite {
     FileUpload uploadTrackFile;
     @UiField
     FileUpload uploadTrackFileIndex;
+    @UiField
+    FormPanel newTrackForm;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -189,13 +191,15 @@ public class TrackPanel extends Composite {
 
     @UiHandler("cancelNewTrack")
     public void cancelNewTrackButtonHandler(ClickEvent clickEvent) {
-        Window.alert("cancelign track");
+//        Window.alert("cancelign track");
         addTrackModal.hide();
     }
 
     @UiHandler("saveNewTrack")
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
-        Window.alert("saving new track");
+        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        newTrackForm.setMethod(FormPanel.METHOD_POST);
+//        Window.alert("saving new track");
         addTrackModal.hide();
     }
 
