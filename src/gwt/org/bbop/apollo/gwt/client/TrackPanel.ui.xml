@@ -24,10 +24,49 @@
             padding-top: 10px;
             padding-left: 12px;
         }
-    </ui:style>
+
+        .addTrackModal {
+
+        }</ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
         <gwt:north size="90">
             <b:Container fluid="true" styleName="{style.northPanel}">
+                <b:Modal ui:field="addTrackModal" closable="true" dataBackdrop="FALSE">
+                    <b:ModalHeader>
+                        <gwt:HTML>
+                            <b>Add Track</b>
+                        </gwt:HTML>
+                    </b:ModalHeader>
+                    <b:ModalBody>
+                        <gwt:FormPanel>
+                            <b:Label text="Config"/>
+                            <gwt:TextArea text="Config text here"/>
+
+                            <gwt:HTML text="AND"/>
+
+                            <b:Label text="Data File (zip or tar.gz of compressed data"/>
+
+                            <gwt:HTML text="- OR - "/>
+
+                            <b:Label text="Track File (*.bam,*.vcf,*.bw,*gff.gz"/>
+                            <gwt:FileUpload ui:field="uploadTrackFile"/>
+                            <b:Label text="Track File Index (*.bai,*.tbl)"/>
+                            <gwt:FileUpload ui:field="uploadTrackFileIndex"/>
+                        </gwt:FormPanel>
+                        <!--HTML html = new HTML("<hr  style=\"width:100%;\" />")-->
+
+                        <!--<b:Alert type="WARNING" ui:field="alertText">-->
+                        <!--<b:Icon type="WARNING"/>-->
+                        <!--</b:Alert>-->
+                        <!--<b:Button text="Logout" ui:field="logoutButton2" styleName="{style.addTrackModal}"-->
+                        <!--icon="SIGN_OUT"/>-->
+                    </b:ModalBody>
+                    <b:ModalFooter>
+                        <!--<gwt:HTML text="footer"/>-->
+                        <b:Button ui:field="saveNewTrack" text="Save"/>
+                        <b:Button ui:field="cancelNewTrack" text="Cancel"/>
+                    </b:ModalFooter>
+                </b:Modal>
                 <b:Row>
                     <b:Column size="MD_6">
                         <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
@@ -52,7 +91,7 @@
             </gwt:ScrollPanel>
         </gwt:center>
         <gwt:south size="200">
-            <gwt:TabLayoutPanel barHeight="35" ui:field="southTabs">
+            <gwt:TabLayoutPanel barHeight="35">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
                     <b:Container fluid="true" width="100%">
@@ -107,20 +146,6 @@
                         </b:Row>
                     </b:Container>
                 </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>New Track</gwt:header>
-                    <b:Container fluid="true" width="100%">
-                        <b:Row>
-                            <b:Column size="MD_3">
-                                <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
-                            </b:Column>
-                            <b:Column size="MD_4">
-                                <!--<gwt:HTML ui:field="trackName"/>-->
-                            </b:Column>
-                        </b:Row>
-                    </b:Container>
-                </gwt:tab>
-
             </gwt:TabLayoutPanel>
         </gwt:south>
 

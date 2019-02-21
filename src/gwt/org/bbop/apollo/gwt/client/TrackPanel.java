@@ -78,8 +78,15 @@ public class TrackPanel extends Composite {
     @UiField
     static PanelGroup dataGrid;
     @UiField
-    TabLayoutPanel southTabs;
-
+    static Modal addTrackModal;
+    @UiField
+    Button saveNewTrack;
+    @UiField
+    Button cancelNewTrack;
+    @UiField
+    FileUpload uploadTrackFile;
+    @UiField
+    FileUpload uploadTrackFileIndex;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -99,10 +106,6 @@ public class TrackPanel extends Composite {
         dataGrid.setWidth("100%");
 
 
-        southTabs.getTabWidget(0).getParent().setVisible(false);
-        southTabs.getTabWidget(0).setVisible(false);
-        southTabs.getTabWidget(1).getParent().setVisible(false);
-        southTabs.getTabWidget(1).setVisible(false);
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -137,12 +140,10 @@ public class TrackPanel extends Composite {
 
     private void setTrackInfo(TrackInfo selectedObject) {
         if (selectedObject == null) {
-            southTabs.getTabWidget(0).getParent().setVisible(false);
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
         } else {
-            southTabs.getTabWidget(0).getParent().setVisible(true);
             trackName.setText(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
@@ -186,13 +187,22 @@ public class TrackPanel extends Composite {
         return treeItem;
     }
 
+    @UiHandler("cancelNewTrack")
+    public void cancelNewTrackButtonHandler(ClickEvent clickEvent) {
+        Window.alert("cancelign track");
+        addTrackModal.hide();
+    }
+
+    @UiHandler("saveNewTrack")
+    public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
+        Window.alert("saving new track");
+        addTrackModal.hide();
+    }
+
     @UiHandler("addTrackButton")
     public void addTrackButtonHandler(ClickEvent clickEvent) {
 //        Window.alert("adding track");
-        southTabs.getTabWidget(0).getParent().setVisible(false);
-        southTabs.getTabWidget(1).getParent().setVisible(true);
-        southTabs.getTabWidget(0).setVisible(false);
-        southTabs.getTabWidget(1).setVisible(true);
+        addTrackModal.show();
     }
 
 
