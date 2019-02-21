@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -17,16 +18,19 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.SubmitButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.client.track.TrackConfigurationTemplate;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.shared.event.HiddenEvent;
 import org.gwtbootstrap3.client.shared.event.HiddenHandler;
@@ -98,6 +102,14 @@ public class TrackPanel extends Composite {
     Hidden hiddenOrganism;
     @UiField
     FlowPanel flowPanel;
+    @UiField
+    AnchorListItem selectBam;
+    @UiField
+    AnchorListItem selectBigWig;
+    @UiField
+    AnchorListItem selectGFF3;
+    @UiField
+    AnchorListItem selectVCF;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -236,26 +248,35 @@ public class TrackPanel extends Composite {
 
     @UiHandler("addTrackButton")
     public void addTrackButtonHandler(ClickEvent clickEvent) {
-//        newTrackForm.reset();
-//        newTrackForm.setWidget(flowPanel);
-//        Button button = new Button("Submit",new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                newTrackForm.submit();
-//            }
-//        });
-//        flowPanel.add(button);
-
         hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
-
-//        uploadTrackFile = new FileUpload();
-//        uploadTrackFileIndex = new FileUpload();
-        uploadTrackFile.setName("trackFile");
-        uploadTrackFileIndex.setName("trackFileIndex");
-//        Window.alert("adding track");
+//        uploadTrackFile.setName("trackFile");
+//        uploadTrackFileIndex.setName("trackFileIndex");
         addTrackModal.show();
     }
 
+    @UiHandler("selectBam")
+    public void selectBam(ClickEvent clickEvent) {
+        configuration.setText("Bam text");
+        configuration.setText(TrackConfigurationTemplate.bamDefault);
+    }
+
+    @UiHandler("selectBigWig")
+    public void selectBigWig(ClickEvent clickEvent) {
+        configuration.setText("BigWig text");
+        configuration.setText(TrackConfigurationTemplate.bigWigDefault);
+    }
+
+    @UiHandler("selectGFF3")
+    public void selectGFF3(ClickEvent clickEvent) {
+        configuration.setText("GFF3 text");
+        configuration.setText(TrackConfigurationTemplate.gff3Default);
+    }
+
+    @UiHandler("selectVCF")
+    public void selectVCF(ClickEvent clickEvent) {
+        configuration.setText("VCF text");
+        configuration.setText(TrackConfigurationTemplate.vcfDefault);
+    }
 
     @UiHandler("nameSearchBox")
     public void doSearch(KeyUpEvent keyUpEvent) {
@@ -268,7 +289,7 @@ public class TrackPanel extends Composite {
             if (trackInfo.getName().toLowerCase().contains(text.toLowerCase()) &&
                     !isReferenceSequence(trackInfo) &&
                     !isAnnotationTrack(trackInfo)) {
-                Integer filteredIndex = filteredTrackInfoList.indexOf(trackInfo);
+                int filteredIndex = filteredTrackInfoList.indexOf(trackInfo);
                 if (filteredIndex < 0) {
                     filteredTrackInfoList.add(trackInfo);
                 } else {
