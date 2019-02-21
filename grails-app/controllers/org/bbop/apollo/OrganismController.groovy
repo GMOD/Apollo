@@ -314,6 +314,17 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
+        println "input request object ${requestObject}"
+        println "request ${request}"
+        println "request params ${params}"
+        println "request trackFile: ${request.getFile("trackFile")}"
+        def trackFileData = request.getFile("trackFile")
+        println "reading ${trackFileData}"
+        File tempFile = File.createTempFile("trackFile","tmp")
+        println "writing to file ${tempFile.absolutePath}"
+        trackFileData.transferTo(tempFile)
+        println "transfer complete to ${tempFile.absolutePath} -> ${tempFile.size()}"
+
 
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {

@@ -82,8 +82,8 @@ public class TrackPanel extends Composite {
     static PanelGroup dataGrid;
     @UiField
     static Modal addTrackModal;
-    @UiField
-    SubmitButton saveNewTrack;
+//    @UiField
+//    SubmitButton saveNewTrack;
     @UiField
     Button cancelNewTrack;
     @UiField
@@ -99,6 +99,8 @@ public class TrackPanel extends Composite {
     TextArea configuration;
     @UiField
     Hidden hiddenOrganism;
+    @UiField
+    FlowPanel flowPanel;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -129,13 +131,15 @@ public class TrackPanel extends Composite {
         newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
             public void onSubmit(FormPanel.SubmitEvent event) {
-                Window.alert(event.toDebugString());
+                GWT.log("induce submission:" + event.toString());
+//                Window.alert(event.toDebugString());
             }
         });
         newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                Window.alert(event.getResults());
+//                Window.alert(event.getResults());
+                GWT.log("handle completed submission: "+event.getResults());
             }
         });
 
@@ -226,16 +230,24 @@ public class TrackPanel extends Composite {
         addTrackModal.hide();
     }
 
-    @UiHandler("saveNewTrack")
-    public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
-        newTrackForm.submit();
-//        Window.alert("saving new track");
-//        addTrackModal.hide();
-    }
+//    @UiHandler("saveNewTrack")
+//    public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
+//        newTrackForm.submit();
+////        Window.alert("saving new track");
+////        addTrackModal.hide();
+//    }
 
     @UiHandler("addTrackButton")
     public void addTrackButtonHandler(ClickEvent clickEvent) {
 //        newTrackForm.reset();
+//        newTrackForm.setWidget(flowPanel);
+        Button button = new Button("Submit",new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                newTrackForm.submit();
+            }
+        });
+        flowPanel.add(button);
 
         hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
 

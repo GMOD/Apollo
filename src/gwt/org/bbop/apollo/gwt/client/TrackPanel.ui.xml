@@ -43,7 +43,7 @@
                             </gwt:HTML>
                         </b:ModalHeader>
                         <b:ModalBody>
-                            <gwt:FlowPanel>
+                            <gwt:FlowPanel ui:field="flowPanel">
                                 <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
                                 <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"/>
@@ -71,7 +71,7 @@
                             <!--icon="SIGN_OUT"/>-->
                         </b:ModalBody>
                         <b:ModalFooter>
-                            <gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>
+                            <!--<gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>-->
                             <b:Button ui:field="cancelNewTrack" text="Cancel"/>
                         </b:ModalFooter>
                     </b:Modal>
