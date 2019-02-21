@@ -4,9 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
@@ -19,10 +17,12 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.shared.event.HiddenEvent;
@@ -89,6 +89,12 @@ public class TrackPanel extends Composite {
     FileUpload uploadTrackFileIndex;
     @UiField
     FormPanel newTrackForm;
+    @UiField
+    FileUpload uploadDataFile;
+    @UiField
+    TextArea configuration;
+    @UiField
+    Hidden hiddenOrganism;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -197,14 +203,23 @@ public class TrackPanel extends Composite {
 
     @UiHandler("saveNewTrack")
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
-        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
-        newTrackForm.setMethod(FormPanel.METHOD_POST);
+        newTrackForm.submit();
 //        Window.alert("saving new track");
         addTrackModal.hide();
     }
 
     @UiHandler("addTrackButton")
     public void addTrackButtonHandler(ClickEvent clickEvent) {
+        newTrackForm.reset();
+        configuration.getElement().setPropertyString("placeholder","Enter configuration data");
+
+        hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
+        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        newTrackForm.setMethod(FormPanel.METHOD_POST);
+        newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
+
+//        uploadTrackFile = new FileUpload();
+        uploadTrackFile.setName("trackFile");
 //        Window.alert("adding track");
         addTrackModal.show();
     }
