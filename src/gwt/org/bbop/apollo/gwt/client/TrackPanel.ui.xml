@@ -59,7 +59,10 @@
                                 <gwt:FileUpload ui:field="uploadTrackFile"/>
                                 <gwt:HTML text="Track File Index (*.bai,*.tbl)"/>
                                 <gwt:FileUpload ui:field="uploadTrackFileIndex"/>
+                                <gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>
                             </gwt:FlowPanel>
+                            <!--<gwt:HTML text="footer"/>-->
+                            <!--<b:Button ui:field="saveNewTrack" text="Save"/>-->
                         </gwt:FormPanel>
                         <!--HTML html = new HTML("<hr  style=\"width:100%;\" />")-->
 
@@ -70,8 +73,6 @@
                         <!--icon="SIGN_OUT"/>-->
                     </b:ModalBody>
                     <b:ModalFooter>
-                        <!--<gwt:HTML text="footer"/>-->
-                        <b:Button ui:field="saveNewTrack" text="Save"/>
                         <b:Button ui:field="cancelNewTrack" text="Cancel"/>
                     </b:ModalFooter>
                 </b:Modal>

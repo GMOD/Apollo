@@ -4,7 +4,9 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
@@ -17,6 +19,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.SubmitButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -80,13 +83,14 @@ public class TrackPanel extends Composite {
     @UiField
     static Modal addTrackModal;
     @UiField
-    Button saveNewTrack;
+    SubmitButton saveNewTrack;
     @UiField
     Button cancelNewTrack;
     @UiField
     FileUpload uploadTrackFile;
     @UiField
     FileUpload uploadTrackFileIndex;
+    //    @UiField(provided = true)
     @UiField
     FormPanel newTrackForm;
     @UiField
@@ -113,6 +117,27 @@ public class TrackPanel extends Composite {
 
         dataGrid.setWidth("100%");
 
+//        newTrackForm = new FormPanel();
+        configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
+
+//        if(MainPanel.getInstance().getCurrentOrganism()){
+//            hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
+//        }
+        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        newTrackForm.setMethod(FormPanel.METHOD_POST);
+        newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
+        newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+            @Override
+            public void onSubmit(FormPanel.SubmitEvent event) {
+                Window.alert(event.toDebugString());
+            }
+        });
+        newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+            @Override
+            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+                Window.alert(event.getResults());
+            }
+        });
 
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
@@ -205,21 +230,19 @@ public class TrackPanel extends Composite {
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
         newTrackForm.submit();
 //        Window.alert("saving new track");
-        addTrackModal.hide();
+//        addTrackModal.hide();
     }
 
     @UiHandler("addTrackButton")
     public void addTrackButtonHandler(ClickEvent clickEvent) {
-        newTrackForm.reset();
-        configuration.getElement().setPropertyString("placeholder","Enter configuration data");
+//        newTrackForm.reset();
 
         hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
-        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
-        newTrackForm.setMethod(FormPanel.METHOD_POST);
-        newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
 
 //        uploadTrackFile = new FileUpload();
+//        uploadTrackFileIndex = new FileUpload();
         uploadTrackFile.setName("trackFile");
+        uploadTrackFileIndex.setName("trackFileIndex");
 //        Window.alert("adding track");
         addTrackModal.show();
     }
@@ -533,12 +556,12 @@ public class TrackPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                JSONValue v ;
+                JSONValue v;
                 try {
                     v = JSONParser.parseStrict(response.getText());
                 } catch (Exception e) {
-                    GWT.log("No organism present: "+response.getText());
-                    return ;
+                    GWT.log("No organism present: " + response.getText());
+                    return;
 //                    e.printStackTrace();
                 }
                 JSONObject o = v.isObject();
