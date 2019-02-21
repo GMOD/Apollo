@@ -325,7 +325,6 @@ class OrganismController {
 //        }
 
 
-
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
@@ -516,6 +515,61 @@ class OrganismController {
                                 catch (IOException e) {
                                     log.error e.printStackTrace()
                                     returnObject.put("error", e.message)
+                                }
+                            }
+                        } else {
+                            if (trackFile) {
+                                println "using track file for existing organism"
+                                if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+                                    println "found track from array"
+                                    // add track config to trackList.json
+                                    File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+                                    if(!extendedTrackListJsonFile.exists()){
+                                        println "file does not exist so creating"
+                                        def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
+                                        trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
+                                        trackListJsonWriter.close()
+                                        println "added to the trackListJsonWriter ${extendedTrackListJsonFile.text}"
+                                    }
+                                    else{
+                                        println "FILE EXISTS, so nothing to do ${extendedTrackListJsonFile.text}"
+                                    }
+                                    JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
+                                    JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+                                    if (trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
+                                        log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
+                                        returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
+                                    }
+                                    else {
+                                        try {
+                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
+                                            String trackDirectoryName = urlTemplate.split("/").first()
+                                            String path = organismDirectoryName + File.separator + trackDirectoryName
+                                            fileService.store(trackFile, path)
+                                            if (trackFileIndex) {
+                                                fileService.store(trackFileIndex, path)
+                                            }
+
+                                            extendedTracksArray.add(trackConfigObject)
+                                            extendedTrackListObject.put(FeatureStringEnum.TRACKS.value,extendedTracksArray)
+                                            println "array ${extendedTracksArray as JSON}"
+                                            println "object ${extendedTrackListObject as JSON}"
+
+                                            // write to trackList.json
+                                            def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
+                                            trackListJsonWriter << extendedTrackListObject.toString(4)
+                                            trackListJsonWriter.close()
+                                            returnObject.put(FeatureStringEnum.TRACKS.value, tracksArray)
+                                        }
+                                        catch (IOException e) {
+                                            log.error e.printStackTrace()
+                                            returnObject.put("error", e.message)
+                                        }
+                                    }
+                                    println "trackJsonWriter: -> ${extendedTrackListJsonFile.absolutePath}, ${extendedTrackListJsonFile.text}"
+                                } else {
+                                    log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
+                                    returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                                 }
                             }
                         }
@@ -984,11 +1038,11 @@ class OrganismController {
                 organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
                 organism.directory = organismJson.directory
                 organism.publicMode = organismJson.publicMode ?: false
-                madeObsolete = !organism.obsolete  && organismJson.obsolete
+                madeObsolete = !organism.obsolete && organismJson.obsolete
                 organism.obsolete = organismJson.obsolete ?: false
                 organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
                 if (checkOrganism(organism)) {
-                    if(madeObsolete){
+                    if (madeObsolete) {
                         // TODO: remove all organism permissions
                         permissionService.removeAllPermissions(organism)
                     }
@@ -1101,7 +1155,7 @@ class OrganismController {
                 if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
                     organismList = showObsolete ? Organism.all : Organism.findAllByObsolete(false)
                 } else {
-                    organismList = permissionService.getOrganismsForCurrentUser(requestObject).filter(){ o -> !o.obsolete }
+                    organismList = permissionService.getOrganismsForCurrentUser(requestObject).filter() { o -> !o.obsolete }
                 }
             }
 
