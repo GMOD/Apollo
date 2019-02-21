@@ -35,47 +35,47 @@
     <gwt:DockLayoutPanel ui:field="layoutPanel">
         <gwt:north size="90">
             <b:Container fluid="true" styleName="{style.northPanel}">
-                <b:Modal ui:field="addTrackModal" closable="true" dataBackdrop="FALSE">
-                    <b:ModalHeader>
-                        <gwt:HTML>
-                            <b>Add Track</b>
-                        </gwt:HTML>
-                    </b:ModalHeader>
-                    <b:ModalBody>
-                        <gwt:FormPanel ui:field="newTrackForm">
+                <gwt:FormPanel ui:field="newTrackForm">
+                    <b:Modal ui:field="addTrackModal" closable="true" dataBackdrop="FALSE">
+                        <b:ModalHeader>
+                            <gwt:HTML>
+                                <b>Add Track</b>
+                            </gwt:HTML>
+                        </b:ModalHeader>
+                        <b:ModalBody>
                             <gwt:FlowPanel>
-                                <gwt:Hidden ui:field="hiddenOrganism"/>
+                                <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
                                 <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
-                                <gwt:TextArea ui:field="configuration" />
+                                <gwt:TextArea ui:field="configuration" name="trackConfig"/>
 
                                 <gwt:HTML text="AND"/>
 
                                 <gwt:HTML text="Data File (zip or tar.gz of compressed data"/>
-                                <gwt:FileUpload ui:field="uploadDataFile"/>
+                                <gwt:FileUpload ui:field="uploadDataFile" name="trackData"/>
 
                                 <gwt:HTML text="- OR - "/>
 
                                 <gwt:HTML text="Track File (*.bam,*.vcf,*.bw,*gff.gz"/>
-                                <gwt:FileUpload ui:field="uploadTrackFile"/>
+                                <gwt:FileUpload ui:field="uploadTrackFile" name="trackFile"/>
                                 <gwt:HTML text="Track File Index (*.bai,*.tbl)"/>
-                                <gwt:FileUpload ui:field="uploadTrackFileIndex"/>
-                                <gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>
+                                <gwt:FileUpload ui:field="uploadTrackFileIndex" name="trackFileIndex"/>
                             </gwt:FlowPanel>
                             <!--<gwt:HTML text="footer"/>-->
                             <!--<b:Button ui:field="saveNewTrack" text="Save"/>-->
-                        </gwt:FormPanel>
-                        <!--HTML html = new HTML("<hr  style=\"width:100%;\" />")-->
+                            <!--HTML html = new HTML("<hr  style=\"width:100%;\" />")-->
 
-                        <!--<b:Alert type="WARNING" ui:field="alertText">-->
-                        <!--<b:Icon type="WARNING"/>-->
-                        <!--</b:Alert>-->
-                        <!--<b:Button text="Logout" ui:field="logoutButton2" styleName="{style.addTrackModal}"-->
-                        <!--icon="SIGN_OUT"/>-->
-                    </b:ModalBody>
-                    <b:ModalFooter>
-                        <b:Button ui:field="cancelNewTrack" text="Cancel"/>
-                    </b:ModalFooter>
-                </b:Modal>
+                            <!--<b:Alert type="WARNING" ui:field="alertText">-->
+                            <!--<b:Icon type="WARNING"/>-->
+                            <!--</b:Alert>-->
+                            <!--<b:Button text="Logout" ui:field="logoutButton2" styleName="{style.addTrackModal}"-->
+                            <!--icon="SIGN_OUT"/>-->
+                        </b:ModalBody>
+                        <b:ModalFooter>
+                            <gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>
+                            <b:Button ui:field="cancelNewTrack" text="Cancel"/>
+                        </b:ModalFooter>
+                    </b:Modal>
+                </gwt:FormPanel>
                 <b:Row>
                     <b:Column size="MD_6">
                         <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
