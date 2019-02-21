@@ -1,7 +1,6 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
