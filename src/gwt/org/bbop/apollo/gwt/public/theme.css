@@ -7,6 +7,7 @@
     font-size: 12px !important;
     margin-bottom: 0 !important;
     padding-bottom: 0 !important;
+    padding-top: 0 !important;
 }
 
 .btn {
@@ -78,6 +79,7 @@
 .text-left {
     text-align: left !important;
     background-color: white !important;
+    padding-top: 4px !important;
 }
 
 .panel-select {
