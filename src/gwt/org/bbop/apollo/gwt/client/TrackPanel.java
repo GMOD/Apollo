@@ -151,7 +151,6 @@ public class TrackPanel extends Composite {
         newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                GWT.log("form submit complete:" + event.toString());
                 newTrackForm.reset();
                 Bootbox.alert("Track added successfully.", new SimpleCallback() {
                     @Override
@@ -271,9 +270,6 @@ public class TrackPanel extends Composite {
     }
 
     private TrackConfigurationTemplate.TrackType getTrackType() {
-        GWT.log("track type: " + configurationButton.getText());
-        GWT.log("text replace: " + configurationButton.getText().replaceAll(" ", "_"));
-        GWT.log("text replace enum: " + TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_")));
         return TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_"));
     }
 
@@ -678,8 +674,6 @@ public class TrackPanel extends Composite {
 
     public static void updateTracks(JSONArray array) {
         trackInfoList.clear();
-        GWT.log(array.toString());
-
         for (int i = 0; i < array.size(); i++) {
             JSONObject object = array.get(i).isObject();
             TrackInfo trackInfo = new TrackInfo();
@@ -725,9 +719,7 @@ public class TrackPanel extends Composite {
                 try {
                     v = JSONParser.parseStrict(response.getText());
                 } catch (Exception e) {
-                    GWT.log("No organism present: " + response.getText());
                     return;
-//                    e.printStackTrace();
                 }
                 JSONObject o = v.isObject();
                 if (o.containsKey(FeatureStringEnum.ERROR.getValue())) {
