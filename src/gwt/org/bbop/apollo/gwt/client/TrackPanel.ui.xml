@@ -33,8 +33,8 @@
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="layoutPanel">
-        <gwt:north size="90">
-            <b:Container fluid="true" styleName="{style.northPanel}">
+        <gwt:north size="50">
+            <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northContainer">
                 <gwt:FormPanel ui:field="newTrackForm">
                     <b:Modal ui:field="addTrackModal" closable="true" dataBackdrop="FALSE">
                         <b:ModalHeader>
@@ -77,17 +77,15 @@
                     </b:Modal>
                 </gwt:FormPanel>
                 <b:Row>
-                    <b:Column size="MD_6">
+                    <b:Column size="MD_5">
                         <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
                     </b:Column>
-                    <b:Column size="MD_6">
+                    <b:Column size="MD_4">
                         <toggle:ToggleSwitch ui:field="trackListToggle" size="MINI" labelText="JBrowse Track Selector"
                                              onText="Hide" offText="Show" visible="true"/>
                     </b:Column>
-                </b:Row>
-                <b:Row>
-                    <b:Column size="MD_6" styleName="{style.buttonRow}">
-                        <b:Button text="Add New Track" icon="PLUS_CIRCLE" ui:field="addTrackButton"/>
+                    <b:Column size="MD_2" >
+                        <b:Button text="New Track" icon="PLUS_CIRCLE" ui:field="addTrackButton" visible="false"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -115,9 +113,7 @@
                             </b:Row>
                             <b:Row>
                                 <b:Column size="MD_3">
-                                    <gwt:HTML styleName="{style.tableKeyName}">
-                                        Type
-                                    </gwt:HTML>
+                                    <gwt:HTML styleName="{style.tableKeyName}" text="Type"/>
                                 </b:Column>
                                 <b:Column size="MD_4">
                                     <gwt:HTML ui:field="trackType"/>

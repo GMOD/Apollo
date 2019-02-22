@@ -123,6 +123,8 @@ public class TrackPanel extends Composite {
     Button configurationButton;
     @UiField
     TabLayoutPanel southTabs;
+    @UiField
+    Container northContainer;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -139,28 +141,38 @@ public class TrackPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
         dataGrid.setWidth("100%");
-        configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
 
-        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
-        newTrackForm.setMethod(FormPanel.METHOD_POST);
-        newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
-        newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+
+
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
-            public void onSubmit(FormPanel.SubmitEvent event) {
-                addTrackModal.hide();
-            }
-        });
-        newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
-            @Override
-            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                newTrackForm.reset();
-                Bootbox.alert("Track added successfully.", new SimpleCallback() {
-                    @Override
-                    public void callback() {
-                        loadTracks(200);
-                    }
-                });
-//                Window.alert("handle completed submission successfully: " + event.getResults());
+            public void execute() {
+                if(canAdminTracks()){
+                    addTrackButton.setVisible(true);
+                    configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
+                    newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+                    newTrackForm.setMethod(FormPanel.METHOD_POST);
+                    newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
+                    newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+                        @Override
+                        public void onSubmit(FormPanel.SubmitEvent event) {
+                            addTrackModal.hide();
+                        }
+                    });
+                    newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+                        @Override
+                        public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+                            newTrackForm.reset();
+                            Bootbox.alert("Track added successfully.", new SimpleCallback() {
+                                @Override
+                                public void callback() {
+                                    loadTracks(200);
+                                }
+                            });
+                        }
+                    });
+                }
+
             }
         });
 
@@ -174,6 +186,9 @@ public class TrackPanel extends Composite {
 
     }
 
+    private static boolean canAdminTracks(){
+        return MainPanel.getInstance().isCurrentUserAdmin();
+    }
 
     private String checkForm() {
         if(configurationButton.getText().startsWith("Choosing")){
@@ -430,7 +445,7 @@ public class TrackPanel extends Composite {
             label.add(trackNameHTML);
             label.addStyleName("text-left");
             inputGroup.add(label);
-            if(trackInfo.getApollo()!=null){
+            if(trackInfo.getApollo()!=null && canAdminTracks()){
 //                InputGroupAddon editLabel = new InputGroupAddon();
                 Button removeButton = new Button("Remove");
                 removeButton.setPull(Pull.RIGHT);
