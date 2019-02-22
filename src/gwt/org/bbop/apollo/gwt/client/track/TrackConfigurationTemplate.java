@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.track;
 
+import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -59,6 +60,9 @@ public class TrackConfigurationTemplate {
         returnObject.put("label", new JSONString(this.label));
         returnObject.put("type", new JSONString(this.type));
         returnObject.put("key", new JSONString(this.key));
+        JSONObject apolloDetails = new JSONObject();
+        apolloDetails.put("source", new JSONString("upload"));
+        returnObject.put("apollo", apolloDetails);
         return returnObject;
     }
 
