@@ -121,6 +121,8 @@ public class TrackPanel extends Composite {
     com.google.gwt.user.client.ui.TextBox trackFileName;
     @UiField
     Button configurationButton;
+    @UiField
+    TabLayoutPanel southTabs;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -217,6 +219,9 @@ public class TrackPanel extends Composite {
 
     private void setTrackInfo(TrackInfo selectedObject) {
         if (selectedObject == null) {
+            trackName.setVisible(false);
+            trackType.setVisible(false);
+            optionTree.setVisible(false);
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
@@ -226,6 +231,9 @@ public class TrackPanel extends Composite {
             optionTree.clear();
             JSONObject jsonObject = selectedObject.getPayload();
             setOptionDetails(jsonObject);
+            trackName.setVisible(true);
+            trackType.setVisible(true);
+            optionTree.setVisible(true);
         }
     }
 
