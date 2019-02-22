@@ -331,6 +331,9 @@ define([
                         filteredTrack.category = trackConfig.category;
                         filteredTrack.urlTemplate = trackConfig.urlTemplate;
                         filteredTrack.visible = visible;
+                        if(trackConfig.apollo){
+                            filteredTrack.apollo = trackConfig.apollo;
+                        }
                         filteredTrackList.push(filteredTrack);
                     }
 

@@ -5,6 +5,8 @@
 
 .input-group-addon {
     font-size: 12px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 .btn {
@@ -48,11 +50,30 @@
     padding-top: 1px !important;
     padding-bottom: 5px !important;
 }
+
+.track-edit-button{
+    padding-bottom: 1px !important;
+    padding-top: 0 !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    margin: 0 !important;
+    display: inline;
+    height: 15px;
+
+}
+
 .track-header {
     display: inline;
     cursor: pointer;
     font-size: medium;
 }
+
+.text-html-left{
+    padding: 0;
+    margin: 0;
+    display: inline;
+}
+
 
 .text-left {
     text-align: left !important;

@@ -4,7 +4,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -18,13 +17,11 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.SubmitButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.SelectionChangeEvent;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
@@ -152,7 +149,7 @@ public class TrackPanel extends Composite {
         newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                Window.alert("handle completed submission successfully: "+event.getResults());
+                Window.alert("handle completed submission successfully: " + event.getResults());
             }
         });
 
@@ -237,21 +234,21 @@ public class TrackPanel extends Composite {
         return treeItem;
     }
 
-    private void setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType trackType){
+    private void setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType trackType) {
         configurationButton.setText(trackType.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(trackType,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(trackType, trackFileName.getText()).toString());
     }
 
-    private TrackConfigurationTemplate.TrackType getTrackType(){
-        GWT.log("track type: "+configurationButton.getText());
-        GWT.log("text replace: "+configurationButton.getText().replaceAll(" ","_"));
-        GWT.log("text replace enum: "+TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ","_")));
-        return TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ","_"));
+    private TrackConfigurationTemplate.TrackType getTrackType() {
+        GWT.log("track type: " + configurationButton.getText());
+        GWT.log("text replace: " + configurationButton.getText().replaceAll(" ", "_"));
+        GWT.log("text replace enum: " + TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_")));
+        return TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_"));
     }
 
     @UiHandler("trackFileName")
     public void updateTrackFileName(KeyUpEvent event) {
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(getTrackType(),trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(getTrackType(), trackFileName.getText()).toString());
     }
 
     @UiHandler("cancelNewTrack")
@@ -281,43 +278,44 @@ public class TrackPanel extends Composite {
     @UiHandler("selectBamCanvas")
     public void setSelectBamCanvas(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.BAM_CANVAS.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BAM_CANVAS,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BAM_CANVAS, trackFileName.getText()).toString());
     }
 
 
     @UiHandler("selectBigWig")
     public void selectBigWig(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.BIGWIG_HEAT_MAP.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BIGWIG_HEAT_MAP,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BIGWIG_HEAT_MAP, trackFileName.getText()).toString());
     }
 
     @UiHandler("selectBigWigXY")
     public void selectBigWigXY(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.BIGWIG_XY.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BIGWIG_XY,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BIGWIG_XY, trackFileName.getText()).toString());
     }
 
     @UiHandler("selectGFF3")
     public void selectGFF3(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.GFF3.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3, trackFileName.getText()).toString());
     }
+
     @UiHandler("selectGFF3Canvas")
     public void selectGFF3Canvas(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.GFF3_CANVAS.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3_CANVAS,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3_CANVAS, trackFileName.getText()).toString());
     }
 
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.VCF.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF, trackFileName.getText()).toString());
     }
 
     @UiHandler("selectVCFCanvas")
     public void selectVCFCanvas(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.VCF_CANVAS.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF_CANVAS,trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF_CANVAS, trackFileName.getText()).toString());
     }
 
     @UiHandler("nameSearchBox")
@@ -366,9 +364,39 @@ public class TrackPanel extends Composite {
             inputGroup.add(inputGroupButton);
 
             InputGroupAddon label = new InputGroupAddon();
-            label.add(new HTML(trackInfo.getName()));
+            HTML trackNameHTML = new HTML(trackInfo.getName());
+            trackNameHTML.addStyleName("text-html-left");
+            label.add(trackNameHTML);
             label.addStyleName("text-left");
             inputGroup.add(label);
+            if(trackInfo.getApollo()!=null){
+//                InputGroupAddon editLabel = new InputGroupAddon();
+                Button removeButton = new Button("Remove");
+                removeButton.setPull(Pull.RIGHT);
+                removeButton.addStyleName("track-edit-button");
+                removeButton.addClickHandler( new ClickHandler(){
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        Window.alert("removing");
+                    }
+                });
+                label.add(removeButton);
+                Button editButton = new Button("Edit");
+                editButton.setPull(Pull.RIGHT);
+                editButton.addStyleName("track-edit-button");
+                editButton.addClickHandler( new ClickHandler(){
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        Window.alert("editing");
+                    }
+                });
+                label.add(editButton);
+
+
+//                inputGroup.add(editLabel);
+//                editLabel(new Button("Re"))
+//                editLabel.add(new HTML(trackInfo.getApollo()))
+            }
 
             add(inputGroup);
 
@@ -588,12 +616,15 @@ public class TrackPanel extends Composite {
 
     public static void updateTracks(JSONArray array) {
         trackInfoList.clear();
+        GWT.log(array.toString());
 
         for (int i = 0; i < array.size(); i++) {
             JSONObject object = array.get(i).isObject();
             TrackInfo trackInfo = new TrackInfo();
             // track label can never be null, but key can be
             trackInfo.setName(object.get("key") == null ? object.get("label").isString().stringValue() : object.get("key").isString().stringValue());
+
+            if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
 
             if (object.get("label") != null) trackInfo.setLabel(object.get("label").isString().stringValue());
             else Bootbox.alert("Track label should not be null, please check your tracklist");
