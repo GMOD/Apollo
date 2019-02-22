@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -172,8 +173,9 @@ public class TrackPanel extends Composite {
 
     }
 
+
     private String checkForm() {
-        if(!configurationButton.getText().startsWith("Choosing")){
+        if(configurationButton.getText().startsWith("Choosing")){
             return "Specify a template.";
         }
         if(configuration.getText().trim().length()<10){
@@ -273,6 +275,28 @@ public class TrackPanel extends Composite {
         GWT.log("text replace: " + configurationButton.getText().replaceAll(" ", "_"));
         GWT.log("text replace enum: " + TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_")));
         return TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_"));
+    }
+
+    @UiHandler("uploadTrackFile")
+    public void uploadTrackFile(ChangeEvent event) {
+        if(uploadTrackFile.getFilename().endsWith(".bam")){
+            selectBam(null);
+        }
+        else
+        if(uploadTrackFile.getFilename().endsWith(".vcf.gz")){
+            selectVCF(null);
+        }
+        else
+        if(uploadTrackFile.getFilename().endsWith(".bw")){
+            selectBigWig(null);
+        }
+        else
+        if(uploadTrackFile.getFilename().endsWith(".gff.gz")|| uploadTrackFile.getFilename().endsWith(".gff3.gz")){
+            selectGFF3(null);
+        }
+        else{
+            Bootbox.alert("Filetype suffix for "+uploadTrackFile.getFilename()+ " not recognized.");
+        }
     }
 
     @UiHandler("trackFileName")
