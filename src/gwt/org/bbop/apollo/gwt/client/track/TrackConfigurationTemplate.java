@@ -58,7 +58,7 @@ public class TrackConfigurationTemplate {
 
     static String generateString() {
         String returnString = "";
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             returnString += String.valueOf(Math.round(Math.random() * 26));
         }
 
@@ -70,10 +70,10 @@ public class TrackConfigurationTemplate {
     }
 
     public static JSONObject generateForTypeAndKey(TrackType type, String key) {
-        String randomFileName = generateString() ;
+        String randomFileName = key!=null && key.trim().length()>1 ? key : generateString() ;
         switch (type) {
             case BAM:
-                new TrackConfigurationTemplate(
+                return new TrackConfigurationTemplate(
                         "JBrowse/Store/SeqFeature/BAM",
                         "raw/"+randomFileName+".bam",
                         randomFileName,
@@ -81,7 +81,7 @@ public class TrackConfigurationTemplate {
                         randomFileName
                 ).toJSON();
             case BAM_CANVAS:
-                new TrackConfigurationTemplate(
+                return new TrackConfigurationTemplate(
                         "JBrowse/Store/SeqFeature/BAM",
                         "raw/"+randomFileName+".bam",
                         randomFileName,
@@ -89,7 +89,7 @@ public class TrackConfigurationTemplate {
                         randomFileName
                 ).toJSON();
             case BIGWIG_HEAT_MAP:
-                new TrackConfigurationTemplate(
+                return new TrackConfigurationTemplate(
                         "JBrowse/Store/BigWig",
                         "raw/"+randomFileName+".bw",
                         randomFileName,
@@ -97,7 +97,7 @@ public class TrackConfigurationTemplate {
                         randomFileName
                 ).toJSON();
             case BIGWIG_XY:
-                new TrackConfigurationTemplate(
+                return new TrackConfigurationTemplate(
                         "JBrowse/Store/BigWig",
                         "raw/"+randomFileName+".bw",
                         randomFileName,
@@ -105,7 +105,7 @@ public class TrackConfigurationTemplate {
                         randomFileName
                 ).toJSON();
             case VCF:
-                new TrackConfigurationTemplate(
+                return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/VCFTabix",
                         "raw/"+randomFileName+".vcf.gz",
                         randomFileName,
@@ -113,7 +113,7 @@ public class TrackConfigurationTemplate {
                         randomFileName
                 ).toJSON();
             case VCF_CANVAS:
-                new TrackConfigurationTemplate(
+                return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/VCFTabix",
                         "raw/"+randomFileName+".vcf.gz",
                         randomFileName,
@@ -121,14 +121,21 @@ public class TrackConfigurationTemplate {
                         randomFileName
                 ).toJSON();
             case GFF3:
-                new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/VCFTabix",
-                        "raw/"+randomFileName+".vcf.gz",
+                return new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/GFF3Tabix",
+                        "raw/"+randomFileName+".gff.gz",
                         randomFileName,
-                        "JBrowse/View/Track/CanvasVariants",
+                        "JBrowse/View/Track/HTMLFeatures",
                         randomFileName
                 ).toJSON();
             case GFF3_CANVAS:
+                return new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/GFF3Tabix",
+                        "raw/"+randomFileName+".gff.gz",
+                        randomFileName,
+                        "JBrowse/View/Track/CanvasFeatures",
+                        randomFileName
+                ).toJSON();
         }
 
         return null;

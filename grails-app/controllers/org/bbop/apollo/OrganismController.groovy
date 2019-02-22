@@ -316,7 +316,7 @@ class OrganismController {
         JSONObject requestObject = permissionService.handleInput(request, params)
 //        println "input request object ${requestObject}"
 //        println "request ${request}"
-//        println "request params ${params}"
+        println "input params ${params}"
 //        println "request trackFile: ${request.getFile("trackFile")}"
 //        if(request.getFile(FeatureStringEnum.TRACK_DATA.value)){
 ////            File tempFile = File.createTempFile("trackFile","tmp")
@@ -355,7 +355,7 @@ class OrganismController {
 
         JSONObject trackConfigObject
         try {
-            trackConfigObject = JSON.parse(params.get(FeatureStringEnum.TRACK_CONFIG.value)) as JSONObject
+            trackConfigObject = JSON.parse(params.get(FeatureStringEnum.TRACK_CONFIG.value) as String) as JSONObject
         } catch (ConverterException ce) {
             log.error ce.message
             returnObject.put("error", ce.message)

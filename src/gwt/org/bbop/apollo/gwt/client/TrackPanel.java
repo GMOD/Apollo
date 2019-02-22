@@ -118,6 +118,8 @@ public class TrackPanel extends Composite {
     AnchorListItem selectGFF3Canvas;
     @UiField
     AnchorListItem selectVCFCanvas;
+    @UiField
+    com.google.gwt.user.client.ui.TextBox trackFileName;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -133,15 +135,9 @@ public class TrackPanel extends Composite {
 
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
-
         dataGrid.setWidth("100%");
-
-//        newTrackForm = new FormPanel();
         configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
 
-//        if(MainPanel.getInstance().getCurrentOrganism()){
-//            hiddenOrganism.setValue(MainPanel.getInstance().getCurrentOrganism().getId());
-//        }
         newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
         newTrackForm.setMethod(FormPanel.METHOD_POST);
         newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
@@ -149,14 +145,12 @@ public class TrackPanel extends Composite {
             @Override
             public void onSubmit(FormPanel.SubmitEvent event) {
                 GWT.log("induce submission:" + event.toString());
-//                Window.alert(event.toDebugString());
             }
         });
         newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-//                Window.alert(event.getResults());
-                GWT.log("handle completed submission: "+event.getResults());
+                Window.alert("handle completed submission successfully: "+event.getResults());
             }
         });
 
@@ -264,36 +258,42 @@ public class TrackPanel extends Composite {
 
     @UiHandler("selectBam")
     public void selectBam(ClickEvent clickEvent) {
-        configuration.setText("Bam text");
-        configuration.setText(TrackConfigurationTemplate.bamDefault);
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BAM,trackFileName.getText()).toString());
     }
+
+    @UiHandler("selectBamCanvas")
+    public void setSelectBamCanvas(ClickEvent clickEvent) {
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BAM_CANVAS,trackFileName.getText()).toString());
+    }
+
 
     @UiHandler("selectBigWig")
     public void selectBigWig(ClickEvent clickEvent) {
-        configuration.setText("BigWig text");
-        configuration.setText(TrackConfigurationTemplate.bigWig);
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BIGWIG_HEAT_MAP,trackFileName.getText()).toString());
+    }
+
+    @UiHandler("selectBigWigXY")
+    public void selectBigWigXY(ClickEvent clickEvent) {
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.BIGWIG_XY,trackFileName.getText()).toString());
     }
 
     @UiHandler("selectGFF3")
     public void selectGFF3(ClickEvent clickEvent) {
-        configuration.setText("GFF3 text");
-        configuration.setText(TrackConfigurationTemplate.gff3Default);
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3,trackFileName.getText()).toString());
     }
-    @UiHandler("selectGFF3 Canvas")
-    public void selectGFF3 Canvas(ClickEvent clickEvent) {
-        configuration.setText("GFF3 Canvas text");
-        configuration.setText(TrackConfigurationTemplate.gff3Default);
+    @UiHandler("selectGFF3Canvas")
+    public void selectGFF3Canvas(ClickEvent clickEvent) {
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3_CANVAS,trackFileName.getText()).toString());
     }
 
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
-        configuration.setText("VCF text");
-        configuration.setText(TrackConfigurationTemplate.vcf);
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF,trackFileName.getText()).toString());
     }
 
     @UiHandler("selectVCFCanvas")
     public void selectVCFCanvas(ClickEvent clickEvent) {
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF_CANVAS));
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF_CANVAS,trackFileName.getText()).toString());
     }
 
     @UiHandler("nameSearchBox")

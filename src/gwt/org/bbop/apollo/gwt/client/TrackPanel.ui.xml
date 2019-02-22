@@ -58,6 +58,8 @@
                                     </b:DropDownMenu>
                                 </b:ButtonGroup>
                                 <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
+                                <gwt:HTML text="Text Box (required)" styleName="{style.areaFile}"/>
+                                <gwt:TextBox ui:field="trackFileName" name="trackFileName"/>
                                 <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"/>
                                 <gwt:HTML text="Track File (*.bam,*.vcf,*.bw,*gff.gz"/>
