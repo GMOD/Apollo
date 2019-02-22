@@ -1,5 +1,8 @@
 package org.bbop.apollo.gwt.client.track;
 
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+
 public class TrackConfigurationTemplate {
 
     String storeClass;
@@ -19,9 +22,15 @@ public class TrackConfigurationTemplate {
         GFF3,
         GFF3_CANVAS,
     }
-    public TrackConfigurationTemplate(){ }
 
-    public TrackConfigurationTemplate(String storeClass, String urlTemplate, String label, String type, String key) {
+    public TrackConfigurationTemplate() {
+    }
+
+    public TrackConfigurationTemplate(String storeClass,
+                                      String urlTemplate,
+                                      String label,
+                                      String type,
+                                      String key) {
         this.storeClass = storeClass;
         this.urlTemplate = urlTemplate;
         this.label = label;
@@ -37,23 +46,88 @@ public class TrackConfigurationTemplate {
         return trackConfigurationTemplate;
     }
 
-    String toJSON() {
-        String returnString = "";
+    JSONObject toJSON() {
+        JSONObject returnObject = new JSONObject();
+        returnObject.put("storeClass", new JSONString(this.storeClass));
+        returnObject.put("urlTemplate", new JSONString(this.urlTemplate));
+        returnObject.put("label", new JSONString(this.label));
+        returnObject.put("type", new JSONString(this.type));
+        returnObject.put("key", new JSONString(this.key));
+        return returnObject;
+    }
 
+    static String generateString() {
+        String returnString = "";
+        for (int i = 0; i < 20; i++) {
+            returnString += String.valueOf(Math.round(Math.random() * 26));
+        }
 
         return returnString;
     }
 
-    public static String generateForTypeAndKey(TrackType type, String key) {
+    public static JSONObject generateForType(TrackType type) {
+        return generateForTypeAndKey(type, generateString());
+    }
+
+    public static JSONObject generateForTypeAndKey(TrackType type, String key) {
+        String randomFileName = generateString() ;
         switch (type) {
             case BAM:
-                new TrackConfigurationTemplate().toJSON();
+                new TrackConfigurationTemplate(
+                        "JBrowse/Store/SeqFeature/BAM",
+                        "raw/"+randomFileName+".bam",
+                        randomFileName,
+                        "JBrowse/View/Track/Alignments",
+                        randomFileName
+                ).toJSON();
             case BAM_CANVAS:
+                new TrackConfigurationTemplate(
+                        "JBrowse/Store/SeqFeature/BAM",
+                        "raw/"+randomFileName+".bam",
+                        randomFileName,
+                        "JBrowse/View/Track/Alignments2",
+                        randomFileName
+                ).toJSON();
             case BIGWIG_HEAT_MAP:
+                new TrackConfigurationTemplate(
+                        "JBrowse/Store/BigWig",
+                        "raw/"+randomFileName+".bw",
+                        randomFileName,
+                        "JBrowse/View/Track/Wiggle/Density",
+                        randomFileName
+                ).toJSON();
             case BIGWIG_XY:
+                new TrackConfigurationTemplate(
+                        "JBrowse/Store/BigWig",
+                        "raw/"+randomFileName+".bw",
+                        randomFileName,
+                        "JBrowse/View/Track/Wiggle/XYPlot",
+                        randomFileName
+                ).toJSON();
             case VCF:
+                new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/VCFTabix",
+                        "raw/"+randomFileName+".vcf.gz",
+                        randomFileName,
+                        "JBrowse/View/Track/HTMLVariants",
+                        randomFileName
+                ).toJSON();
             case VCF_CANVAS:
+                new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/VCFTabix",
+                        "raw/"+randomFileName+".vcf.gz",
+                        randomFileName,
+                        "JBrowse/View/Track/CanvasVariants",
+                        randomFileName
+                ).toJSON();
             case GFF3:
+                new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/VCFTabix",
+                        "raw/"+randomFileName+".vcf.gz",
+                        randomFileName,
+                        "JBrowse/View/Track/CanvasVariants",
+                        randomFileName
+                ).toJSON();
             case GFF3_CANVAS:
         }
 

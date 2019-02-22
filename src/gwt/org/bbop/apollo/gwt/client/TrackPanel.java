@@ -110,6 +110,14 @@ public class TrackPanel extends Composite {
     AnchorListItem selectGFF3;
     @UiField
     AnchorListItem selectVCF;
+    @UiField
+    AnchorListItem selectBamCanvas;
+    @UiField
+    AnchorListItem selectBigWigXY;
+    @UiField
+    AnchorListItem selectGFF3Canvas;
+    @UiField
+    AnchorListItem selectVCFCanvas;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -271,11 +279,21 @@ public class TrackPanel extends Composite {
         configuration.setText("GFF3 text");
         configuration.setText(TrackConfigurationTemplate.gff3Default);
     }
+    @UiHandler("selectGFF3 Canvas")
+    public void selectGFF3 Canvas(ClickEvent clickEvent) {
+        configuration.setText("GFF3 Canvas text");
+        configuration.setText(TrackConfigurationTemplate.gff3Default);
+    }
 
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
         configuration.setText("VCF text");
         configuration.setText(TrackConfigurationTemplate.vcf);
+    }
+
+    @UiHandler("selectVCFCanvas")
+    public void selectVCFCanvas(ClickEvent clickEvent) {
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.VCF_CANVAS));
     }
 
     @UiHandler("nameSearchBox")

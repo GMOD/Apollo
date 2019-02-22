@@ -48,9 +48,13 @@
                                     <b:Button dataToggle="DROPDOWN" text="Choose Configuration Template"/>
                                     <b:DropDownMenu >
                                         <b:AnchorListItem ui:field="selectBam">BAM</b:AnchorListItem>
-                                        <b:AnchorListItem ui:field="selectBigWig">BigWig</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectBamCanvas">BAM Canvas</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectBigWig">BigWig HeatMap </b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectBigWigXY">BigWig XY</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3">GFF3 Tabix</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Tabix Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectVCF">VCF</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectVCFCanvas">VCF Canvas</b:AnchorListItem>
                                     </b:DropDownMenu>
                                 </b:ButtonGroup>
                                 <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
