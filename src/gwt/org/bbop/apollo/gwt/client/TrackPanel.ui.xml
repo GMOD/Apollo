@@ -69,7 +69,7 @@
                             </gwt:FlowPanel>
                         </b:ModalBody>
                         <b:ModalFooter>
-                            <gwt:SubmitButton ui:field="saveNewTrack">Upload</gwt:SubmitButton>
+                            <gwt:Button ui:field="saveNewTrack">Upload</gwt:Button>
                             <b:Button ui:field="cancelNewTrack" text="Cancel"/>
                         </b:ModalFooter>
                     </b:Modal>

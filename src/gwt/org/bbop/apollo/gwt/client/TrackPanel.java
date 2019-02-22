@@ -41,6 +41,7 @@ import org.gwtbootstrap3.client.ui.constants.HeadingSize;
 import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.SimpleCallback;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class TrackPanel extends Composite {
     @UiField
     static Modal addTrackModal;
     @UiField
-    SubmitButton saveNewTrack;
+    com.google.gwt.user.client.ui.Button saveNewTrack;
     @UiField
     Button cancelNewTrack;
     @UiField
@@ -143,13 +144,21 @@ public class TrackPanel extends Composite {
         newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
             public void onSubmit(FormPanel.SubmitEvent event) {
-                GWT.log("induce submission:" + event.toString());
+                addTrackModal.hide();
             }
         });
         newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                Window.alert("handle completed submission successfully: " + event.getResults());
+                GWT.log("form submit complete:" + event.toString());
+                newTrackForm.reset();
+                Bootbox.alert("Track added successfully.", new SimpleCallback() {
+                    @Override
+                    public void callback() {
+                        loadTracks(200);
+                    }
+                });
+//                Window.alert("handle completed submission successfully: " + event.getResults());
             }
         });
 
@@ -161,6 +170,23 @@ public class TrackPanel extends Composite {
             }
         });
 
+    }
+
+    private String checkForm() {
+        if(configuration.getText().trim().length()<10){
+            return "Bad configuration.";
+        }
+        try {
+            JSONParser.parseStrict(configuration.getText().trim());
+        }
+        catch(Exception e){
+            return "Invalid JSON:\n"+e.getMessage() + "\n"+configuration.getText().trim();
+        }
+        if(uploadTrackFile.getFilename().trim().length()==0){
+            return "Data file needs to be specified.";
+        }
+
+        return null ;
     }
 
     public void loadTracks(int delay) {
@@ -259,9 +285,13 @@ public class TrackPanel extends Composite {
 
     @UiHandler("saveNewTrack")
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
-        newTrackForm.submit();
-//        Window.alert("saving new track");
-//        addTrackModal.hide();
+        String resultMessage = checkForm();
+        if(resultMessage==null){
+            newTrackForm.submit();
+        }
+        else{
+            Bootbox.alert(resultMessage);
+        }
     }
 
     @UiHandler("addTrackButton")
@@ -391,11 +421,16 @@ public class TrackPanel extends Composite {
                     }
                 });
                 label.add(editButton);
-
-
-//                inputGroup.add(editLabel);
-//                editLabel(new Button("Re"))
-//                editLabel.add(new HTML(trackInfo.getApollo()))
+                Button hideButton = new Button("Hide");
+                hideButton.setPull(Pull.RIGHT);
+                hideButton.addStyleName("track-edit-button");
+                hideButton.addClickHandler( new ClickHandler(){
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        Window.alert("hiding from public");
+                    }
+                });
+                label.add(hideButton);
             }
 
             add(inputGroup);
