@@ -45,7 +45,7 @@
                         <b:ModalBody>
                             <gwt:FlowPanel ui:field="flowPanel">
                                 <b:ButtonGroup>
-                                    <b:Button dataToggle="DROPDOWN" text="Choose Configuration Template"/>
+                                    <b:Button dataToggle="DROPDOWN" text="Choose Configuration Template" ui:field="configurationButton"/>
                                     <b:DropDownMenu >
                                         <b:AnchorListItem ui:field="selectBam">BAM</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBamCanvas">BAM Canvas</b:AnchorListItem>
@@ -58,7 +58,7 @@
                                     </b:DropDownMenu>
                                 </b:ButtonGroup>
                                 <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
-                                <gwt:HTML text="Text Box (required)" styleName="{style.areaFile}"/>
+                                <gwt:HTML text="Track Name" styleName="{style.areaFile}"/>
                                 <gwt:TextBox ui:field="trackFileName" name="trackFileName"/>
                                 <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"/>

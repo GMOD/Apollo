@@ -21,6 +21,12 @@ public class TrackConfigurationTemplate {
         VCF_CANVAS,
         GFF3,
         GFF3_CANVAS,
+        ;
+
+        @Override
+        public String toString() {
+            return name().replaceAll("_"," ");
+        }
     }
 
     public TrackConfigurationTemplate() {
@@ -75,7 +81,7 @@ public class TrackConfigurationTemplate {
             case BAM:
                 return new TrackConfigurationTemplate(
                         "JBrowse/Store/SeqFeature/BAM",
-                        "raw/"+randomFileName+".bam",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".bam",
                         randomFileName,
                         "JBrowse/View/Track/Alignments",
                         randomFileName
@@ -83,7 +89,7 @@ public class TrackConfigurationTemplate {
             case BAM_CANVAS:
                 return new TrackConfigurationTemplate(
                         "JBrowse/Store/SeqFeature/BAM",
-                        "raw/"+randomFileName+".bam",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".bam",
                         randomFileName,
                         "JBrowse/View/Track/Alignments2",
                         randomFileName
@@ -91,7 +97,7 @@ public class TrackConfigurationTemplate {
             case BIGWIG_HEAT_MAP:
                 return new TrackConfigurationTemplate(
                         "JBrowse/Store/BigWig",
-                        "raw/"+randomFileName+".bw",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".bw",
                         randomFileName,
                         "JBrowse/View/Track/Wiggle/Density",
                         randomFileName
@@ -99,7 +105,7 @@ public class TrackConfigurationTemplate {
             case BIGWIG_XY:
                 return new TrackConfigurationTemplate(
                         "JBrowse/Store/BigWig",
-                        "raw/"+randomFileName+".bw",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".bw",
                         randomFileName,
                         "JBrowse/View/Track/Wiggle/XYPlot",
                         randomFileName
@@ -107,7 +113,7 @@ public class TrackConfigurationTemplate {
             case VCF:
                 return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/VCFTabix",
-                        "raw/"+randomFileName+".vcf.gz",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".vcf.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLVariants",
                         randomFileName
@@ -115,7 +121,7 @@ public class TrackConfigurationTemplate {
             case VCF_CANVAS:
                 return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/VCFTabix",
-                        "raw/"+randomFileName+".vcf.gz",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".vcf.gz",
                         randomFileName,
                         "JBrowse/View/Track/CanvasVariants",
                         randomFileName
@@ -123,7 +129,7 @@ public class TrackConfigurationTemplate {
             case GFF3:
                 return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/GFF3Tabix",
-                        "raw/"+randomFileName+".gff.gz",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
                         randomFileName
@@ -131,7 +137,7 @@ public class TrackConfigurationTemplate {
             case GFF3_CANVAS:
                 return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/GFF3Tabix",
-                        "raw/"+randomFileName+".gff.gz",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
                         randomFileName
