@@ -542,12 +542,17 @@ class OrganismController {
                                     }
                                     else {
                                         try {
-                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
-                                            String trackDirectoryName = urlTemplate.split("/").first()
-                                            String path = organismDirectoryName + File.separator + trackDirectoryName
-                                            fileService.store(trackFile, path)
+//                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
+//                                            String trackDirectoryName = urlTemplate.split("/").first()
+//                                            String path = organismDirectoryName + File.separator + trackDirectoryName
+                                            String path = extendedDirectoryName + File.separator + "raw"
+                                            println "tranfer config object ${trackConfigObject as JSON}"
+                                            println "transfer key ${trackConfigObject.key}"
+                                            println "transfer key 2 ${trackConfigObject.get("key")}"
+                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.get("key"))
                                             if (trackFileIndex) {
-                                                fileService.store(trackFileIndex, path)
+//                                                fileService.store(trackFileIndex, path)
+                                                fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.get("key"))
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)

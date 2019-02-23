@@ -170,6 +170,24 @@ class FileService {
         }
     }
 
+    def storeWithNewName(CommonsMultipartFile file, String path, String directoryName,String newName = file.getOriginalFilename()) {
+        File pathFile = new File(path)
+        if (!pathFile.exists()) {
+            pathFile.mkdirs()
+        }
+        String destinationFileName = path + File.separator + directoryName + File.separator + newName
+        File destinationFile = new File(destinationFileName)
+        try {
+            println  "NEW NAME transferring track file to ${destinationFileName}"
+            file.transferTo(destinationFile)
+//            destinationFile.renameTo(new File())
+            println  "NEW NAME DONE transferringfile to ${destinationFileName.size()}"
+
+        } catch (Exception e) {
+            println e.message
+        }
+    }
+
 
     def store(CommonsMultipartFile file, String path, String directoryName = null, boolean tempDir = false) {
         File pathFile = new File(path)
@@ -182,10 +200,12 @@ class FileService {
 
         File destinationFile = new File(destinationFileName)
         try {
-            log.debug "transferring track file to ${destinationFileName}"
+            println  "transferring track file to ${destinationFileName}"
             file.transferTo(destinationFile)
+            println  "DONE transferringfile to ${destinationFileName.size()}"
+
         } catch (Exception e) {
-            log.error e.message
+            println e.message
         }
     }
 
