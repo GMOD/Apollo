@@ -20,7 +20,6 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.user.client.ui.SubmitButton;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
@@ -143,11 +142,10 @@ public class TrackPanel extends Composite {
         dataGrid.setWidth("100%");
 
 
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                if(canAdminTracks()){
+                if (canAdminTracks()) {
                     addTrackButton.setVisible(true);
                     configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
                     newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
@@ -186,29 +184,29 @@ public class TrackPanel extends Composite {
 
     }
 
-    private static boolean canAdminTracks(){
+    private static boolean canAdminTracks() {
         return MainPanel.getInstance().isCurrentUserAdmin();
     }
 
     private String checkForm() {
-        if(configurationButton.getText().startsWith("Choosing")){
+        if (configurationButton.getText().startsWith("Choosing")) {
             return "Specify a template.";
         }
-        if(configuration.getText().trim().length()<10){
+        if (configuration.getText().trim().length() < 10) {
             return "Bad configuration.";
         }
         try {
             JSONParser.parseStrict(configuration.getText().trim());
+        } catch (Exception e) {
+            return "Invalid JSON:\n" + e.getMessage() + "\n" + configuration.getText().trim();
         }
-        catch(Exception e){
-            return "Invalid JSON:\n"+e.getMessage() + "\n"+configuration.getText().trim();
-        }
-        if(uploadTrackFile.getFilename().trim().length()==0){
+        if (uploadTrackFile.getFilename().trim().length() == 0) {
             return "Data file needs to be specified.";
         }
 
-        return null ;
+        return null;
     }
+
 
     public void loadTracks(int delay) {
         filteredTrackInfoList.clear();
@@ -298,23 +296,16 @@ public class TrackPanel extends Composite {
 
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
-        if(uploadTrackFile.getFilename().endsWith(".bam")){
+        if (uploadTrackFile.getFilename().endsWith(".bam")) {
             selectBam(null);
-        }
-        else
-        if(uploadTrackFile.getFilename().endsWith(".vcf.gz")){
+        } else if (uploadTrackFile.getFilename().endsWith(".vcf.gz")) {
             selectVCF(null);
-        }
-        else
-        if(uploadTrackFile.getFilename().endsWith(".bw")){
+        } else if (uploadTrackFile.getFilename().endsWith(".bw")) {
             selectBigWig(null);
-        }
-        else
-        if(uploadTrackFile.getFilename().endsWith(".gff.gz")|| uploadTrackFile.getFilename().endsWith(".gff3.gz")){
+        } else if (uploadTrackFile.getFilename().endsWith(".gff.gz") || uploadTrackFile.getFilename().endsWith(".gff3.gz")) {
             selectGFF3(null);
-        }
-        else{
-            Bootbox.alert("Filetype suffix for "+uploadTrackFile.getFilename()+ " not recognized.");
+        } else {
+            Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " not recognized.");
         }
     }
 
@@ -332,10 +323,9 @@ public class TrackPanel extends Composite {
     @UiHandler("saveNewTrack")
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
         String resultMessage = checkForm();
-        if(resultMessage==null){
+        if (resultMessage == null) {
             newTrackForm.submit();
-        }
-        else{
+        } else {
             Bootbox.alert(resultMessage);
         }
     }
@@ -421,6 +411,7 @@ public class TrackPanel extends Composite {
     static class TrackBodyPanel extends PanelBody {
 
         private final TrackInfo trackInfo;
+        private final InputGroupAddon label = new InputGroupAddon();
 
 
         public TrackBodyPanel(TrackInfo trackInfo) {
@@ -430,7 +421,7 @@ public class TrackPanel extends Composite {
 
         private void decorate() {
 
-            InputGroup inputGroup = new InputGroup();
+            final InputGroup inputGroup = new InputGroup();
             addStyleName("track-entry");
             final CheckBoxButton selected = new CheckBoxButton();
             selected.setValue(trackInfo.getVisible());
@@ -439,18 +430,18 @@ public class TrackPanel extends Composite {
             inputGroupButton.add(selected);
             inputGroup.add(inputGroupButton);
 
-            InputGroupAddon label = new InputGroupAddon();
+//            final InputGroupAddon label = new InputGroupAddon();
             HTML trackNameHTML = new HTML(trackInfo.getName());
             trackNameHTML.addStyleName("text-html-left");
             label.add(trackNameHTML);
             label.addStyleName("text-left");
             inputGroup.add(label);
-            if(trackInfo.getApollo()!=null && canAdminTracks()){
+            if (trackInfo.getApollo() != null && canAdminTracks()) {
 //                InputGroupAddon editLabel = new InputGroupAddon();
                 Button removeButton = new Button("Remove");
                 removeButton.setPull(Pull.RIGHT);
                 removeButton.addStyleName("track-edit-button");
-                removeButton.addClickHandler( new ClickHandler(){
+                removeButton.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         Window.alert("removing");
@@ -460,7 +451,7 @@ public class TrackPanel extends Composite {
                 Button editButton = new Button("Edit");
                 editButton.setPull(Pull.RIGHT);
                 editButton.addStyleName("track-edit-button");
-                editButton.addClickHandler( new ClickHandler(){
+                editButton.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         Window.alert("editing");
@@ -470,7 +461,7 @@ public class TrackPanel extends Composite {
                 Button hideButton = new Button("Hide");
                 hideButton.setPull(Pull.RIGHT);
                 hideButton.addStyleName("track-edit-button");
-                hideButton.addClickHandler( new ClickHandler(){
+                hideButton.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         Window.alert("hiding from public");
@@ -497,6 +488,8 @@ public class TrackPanel extends Composite {
             label.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+                    // clear previous labels
+//                    label.addStyleName("selected-track-link");
                     MainPanel.getTrackPanel().setTrackInfo(trackInfo);
                 }
             }, ClickEvent.getType());

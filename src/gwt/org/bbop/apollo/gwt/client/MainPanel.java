@@ -1142,7 +1142,6 @@ public class MainPanel extends Composite {
     }
 
     public boolean isCurrentUserAdmin() {
-        GWT.log("current user: "+currentUser);
         return (currentUser != null && currentUser.getRole().equals(GlobalPermissionEnum.ADMIN.getLookupKey()));
     }
 

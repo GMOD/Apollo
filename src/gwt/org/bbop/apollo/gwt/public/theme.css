@@ -17,7 +17,7 @@
 .snackbarRight {
     position: fixed;
     right: 10px;
-    top :48%;
+    top: 48%;
     z-index: 1000;
     opacity: 80;
     /*rotation: 90deg;*/
@@ -52,7 +52,7 @@
     padding-bottom: 5px !important;
 }
 
-.track-edit-button{
+.track-edit-button {
     padding-bottom: 1px !important;
     padding-top: 0 !important;
     padding-left: 5px !important;
@@ -69,12 +69,11 @@
     font-size: medium;
 }
 
-.text-html-left{
+.text-html-left {
     padding: 0;
     margin: 0;
     display: inline;
 }
-
 
 .text-left {
     text-align: left !important;
@@ -83,7 +82,13 @@
 }
 
 .panel-select {
-    background-color: #f5f5f5 !important; 
+    background-color: #f5f5f5 !important;
     border: none !important;
     padding: 0 0 0 5px !important;
+}
+
+.selected-track-link {
+    font-weight: bolder;
+    background-color: lightgrey !important;
+    color: cadetblue !important;
 }
