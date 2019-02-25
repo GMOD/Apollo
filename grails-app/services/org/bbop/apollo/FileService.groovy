@@ -147,9 +147,9 @@ class FileService {
                 continue;
             }
 
-            FileOutputStream fos = new FileOutputStream(outputFile);
-            IOUtils.copy(tais, fos);
-            fos.close();
+            FileOutputStream fos = new FileOutputStream(outputFile)
+            IOUtils.copy(tais, fos)
+            fos.close()
         }
 
         if (tempDir) {
@@ -175,7 +175,15 @@ class FileService {
         if (!pathFile.exists()) {
             pathFile.mkdirs()
         }
-        String destinationFileName = path + File.separator + directoryName + File.separator + newName
+        int suffixIndex = newName.indexOf(".")
+        if(suffixIndex<1){
+            throw new RuntimeException("Invalid filename, must have a suffix: [" +newName+"]")
+        }
+        String suffix = newName.substring(suffixIndex)
+        String updatedName = directoryName + suffix
+//        /opt/temporary/apollo/6503-nf_test3/raw || test2 || volvox-sorted.bam
+//        /opt/temporary/apollo/6503-nf_test3/raw || test2 .bam
+        String destinationFileName = path + File.separator + updatedName
         File destinationFile = new File(destinationFileName)
         try {
             println  "NEW NAME transferring track file to ${destinationFileName}"
