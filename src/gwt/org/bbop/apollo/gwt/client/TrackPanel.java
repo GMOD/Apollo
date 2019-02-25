@@ -107,6 +107,8 @@ public class TrackPanel extends Composite {
     @UiField
     AnchorListItem selectGFF3;
     @UiField
+    AnchorListItem selectGFF3Tabix;
+    @UiField
     AnchorListItem selectVCF;
     @UiField
     AnchorListItem selectBamCanvas;
@@ -303,6 +305,8 @@ public class TrackPanel extends Composite {
         } else if (uploadTrackFile.getFilename().endsWith(".bw")) {
             selectBigWig(null);
         } else if (uploadTrackFile.getFilename().endsWith(".gff.gz") || uploadTrackFile.getFilename().endsWith(".gff3.gz")) {
+            selectGFF3Tabix(null);
+        } else if (uploadTrackFile.getFilename().endsWith(".gff") || uploadTrackFile.getFilename().endsWith(".gff3")) {
             selectGFF3(null);
         } else {
             Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " not recognized.");
@@ -370,6 +374,18 @@ public class TrackPanel extends Composite {
     public void selectGFF3Canvas(ClickEvent clickEvent) {
         configurationButton.setText(TrackConfigurationTemplate.TrackType.GFF3_CANVAS.toString());
         configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3_CANVAS, trackFileName.getText()).toString());
+    }
+
+    @UiHandler("selectGFF3Tabix")
+    public void selectGFF3Tabix(ClickEvent clickEvent) {
+        configurationButton.setText(TrackConfigurationTemplate.TrackType.GFF3_TABIX.toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3_TABIX, trackFileName.getText()).toString());
+    }
+
+    @UiHandler("selectGFF3TabixCanvas")
+    public void selectGFF3TabixCanvas(ClickEvent clickEvent) {
+        configurationButton.setText(TrackConfigurationTemplate.TrackType.GFF3_TABIX_CANVAS.toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(TrackConfigurationTemplate.TrackType.GFF3_TABIX_CANVAS, trackFileName.getText()).toString());
     }
 
     @UiHandler("selectVCF")

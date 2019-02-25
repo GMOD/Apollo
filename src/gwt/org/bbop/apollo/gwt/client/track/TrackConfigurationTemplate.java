@@ -22,6 +22,8 @@ public class TrackConfigurationTemplate {
         VCF_CANVAS,
         GFF3,
         GFF3_CANVAS,
+        GFF3_TABIX,
+        GFF3_TABIX_CANVAS,
         ;
 
         @Override
@@ -132,13 +134,29 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case GFF3:
                 return new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/GFF3",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".gff",
+                        randomFileName,
+                        "JBrowse/View/Track/HTMLFeatures",
+                        randomFileName
+                ).toJSON();
+            case GFF3_CANVAS:
+                return new TrackConfigurationTemplate(
+                        " JBrowse/Store/SeqFeature/GFF3",
+                        "raw/"+randomFileName.replaceAll(" ","_")+".gff",
+                        randomFileName,
+                        "JBrowse/View/Track/CanvasFeatures",
+                        randomFileName
+                ).toJSON();
+            case GFF3_TABIX:
+                return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/GFF3Tabix",
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
                         randomFileName
                 ).toJSON();
-            case GFF3_CANVAS:
+            case GFF3_TABIX_CANVAS:
                 return new TrackConfigurationTemplate(
                         " JBrowse/Store/SeqFeature/GFF3Tabix",
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",

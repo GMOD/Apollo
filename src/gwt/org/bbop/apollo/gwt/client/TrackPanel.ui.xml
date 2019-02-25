@@ -52,9 +52,10 @@
                                         <b:AnchorListItem ui:field="selectBamCanvas">BAM Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBigWig">BigWig HeatMap</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBigWigXY">BigWig XY</b:AnchorListItem>
-                                        <b:AnchorListItem ui:field="selectGFF3">GFF3 Tabix</b:AnchorListItem>
-                                        <b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Tabix Canvas
-                                        </b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3">GFF3 </b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Canvas</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3Tabix">GFF3 Tabix</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3TabixCanvas">GFF3 Tabix Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectVCF">VCF</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectVCFCanvas">VCF Canvas</b:AnchorListItem>
                                     </b:DropDownMenu>
@@ -64,9 +65,9 @@
                                 <gwt:TextBox ui:field="trackFileName" name="trackFileName"/>
                                 <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"/>
-                                <gwt:HTML text="Track File (*.bam,*.vcf,*.bw,*gff.gz"/>
+                                <gwt:HTML text="Track File (*.bam,*.vcf.gz,*.bw,*gff.gz"/>
                                 <gwt:FileUpload ui:field="uploadTrackFile" name="trackFile"/>
-                                <gwt:HTML text="Track File Index (*.bai,*.tbl)"/>
+                                <gwt:HTML text="Track File Index (*.bam.bai,*.vcf.gz.tbi,*gff3.gz.tbi)"/>
                                 <gwt:FileUpload ui:field="uploadTrackFileIndex" name="trackFileIndex"/>
                             </gwt:FlowPanel>
                         </b:ModalBody>
