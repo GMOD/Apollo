@@ -9,7 +9,7 @@ define([ 'dojo/_base/declare',
 function JSONUtils() {
 }
 
-JSONUtils.verbose_conversion = true;
+JSONUtils.verbose_conversion = false;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
 JSONUtils.regulatorTypes = [ "TERMINATOR" ];
 
