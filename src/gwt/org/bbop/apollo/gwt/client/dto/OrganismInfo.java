@@ -52,11 +52,14 @@ public class OrganismInfo implements HasJSON{
         this.blatdb = blatdb;
     }
 
-    public boolean getPublicMode() {
+    public Boolean getPublicMode() {
+        if(publicMode==null){
+            return false ;
+        }
         return publicMode;
     }
 
-    public void setPublicMode(boolean pm) {
+    public void setPublicMode(Boolean pm) {
         this.publicMode=pm;
     }
 
@@ -134,6 +137,9 @@ public class OrganismInfo implements HasJSON{
 
 
     public Boolean getObsolete() {
+        if(obsolete==null){
+            return false ;
+        }
         return obsolete;
     }
 

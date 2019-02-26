@@ -25,6 +25,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.client.track.TrackConfigurationTemplate;
@@ -115,7 +116,7 @@ public class TrackPanel extends Composite {
     AnchorListItem selectBamCanvas;
     @UiField
     AnchorListItem selectBigWigXY;
-//    @UiField
+    //    @UiField
 //    AnchorListItem selectGFF3Canvas;
     @UiField
     AnchorListItem selectVCFCanvas;
@@ -186,13 +187,13 @@ public class TrackPanel extends Composite {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
                 loadTracks(300);
-                resetNewTrackModel();
-                Bootbox.confirm("Track added successfully.  Reload to see?", new ConfirmCallback() {
+                Bootbox.confirm("Track '"+trackFileName.getText()+"' added successfully.  Reload to see?", new ConfirmCallback() {
                     @Override
                     public void callback(boolean result) {
-                       if(result){
-                           Window.Location.reload();
-                       }
+                        if (result) {
+                            Window.Location.reload();
+                        }
+                        resetNewTrackModel();
                     }
                 });
             }
@@ -310,12 +311,11 @@ public class TrackPanel extends Composite {
 
     private void setTrackTypeAndUpdate(TrackTypeEnum trackType) {
         configurationButton.setText(trackType.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(trackType, trackFileName.getText(),categoryName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(trackType, trackFileName.getText(), categoryName.getText()).toString());
         showFileOptions(trackType);
         if (trackType.isIndexed()) {
             showIndexOptions(trackType);
-        }
-        else{
+        } else {
             hideIndexOptions();
         }
     }
@@ -343,7 +343,7 @@ public class TrackPanel extends Composite {
 
     @UiHandler("trackFileName")
     public void updateTrackFileName(KeyUpEvent event) {
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(),categoryName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText()).toString());
     }
 
     @UiHandler("cancelNewTrack")
@@ -377,7 +377,7 @@ public class TrackPanel extends Composite {
         trackFileHTML.setVisible(true);
         uploadTrackFile.setVisible(true);
 
-        trackFileHTML.setText("*."+typeEnum.getSuffix());
+        trackFileHTML.setText("*." + typeEnum.getSuffix());
     }
 
     private void hideIndexOptions() {
@@ -390,7 +390,7 @@ public class TrackPanel extends Composite {
         trackFileIndexHTML.setVisible(true);
         uploadTrackFileIndex.setVisible(true);
 
-        trackFileIndexHTML.setText("*."+typeEnum.getSuffixIndex());
+        trackFileIndexHTML.setText("*." + typeEnum.getSuffixIndex());
     }
 
     private void resetNewTrackModel() {
@@ -496,6 +496,36 @@ public class TrackPanel extends Composite {
         renderFiltered();
     }
 
+    static void removeTrack(final String label) {
+        Bootbox.confirm("Remove track " + label + "?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    OrganismRestService.removeTrack(
+                            new RequestCallback() {
+                                @Override
+                                public void onResponseReceived(Request request, Response response) {
+                                    Bootbox.confirm("Track '"+label + "' removed, refresh?", new ConfirmCallback() {
+                                        @Override
+                                        public void callback(boolean result) {
+                                            if (result) {
+                                                Window.Location.reload();
+                                            }
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onError(Request request, Throwable exception) {
+                                    Bootbox.alert("Error removing track: " + exception.getMessage());
+                                }
+                            }
+                            , MainPanel.getInstance().getCurrentOrganism(), label);
+                }
+            }
+        });
+    }
+
     static class TrackBodyPanel extends PanelBody {
 
         private final TrackInfo trackInfo;
@@ -532,30 +562,31 @@ public class TrackPanel extends Composite {
                 removeButton.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        Window.alert("removing");
+                        removeTrack(trackInfo.getName());
+//                        Window.alert("removing");
                     }
                 });
                 label.add(removeButton);
-                Button editButton = new Button("Edit");
-                editButton.setPull(Pull.RIGHT);
-                editButton.addStyleName("track-edit-button");
-                editButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        Window.alert("editing");
-                    }
-                });
-                label.add(editButton);
-                Button hideButton = new Button("Hide");
-                hideButton.setPull(Pull.RIGHT);
-                hideButton.addStyleName("track-edit-button");
-                hideButton.addClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        Window.alert("hiding from public");
-                    }
-                });
-                label.add(hideButton);
+//                Button editButton = new Button("Edit");
+//                editButton.setPull(Pull.RIGHT);
+//                editButton.addStyleName("track-edit-button");
+//                editButton.addClickHandler(new ClickHandler() {
+//                    @Override
+//                    public void onClick(ClickEvent event) {
+//                        Window.alert("editing");
+//                    }
+//                });
+//                label.add(editButton);
+//                Button hideButton = new Button("Hide");
+//                hideButton.setPull(Pull.RIGHT);
+//                hideButton.addStyleName("track-edit-button");
+//                hideButton.addClickHandler(new ClickHandler() {
+//                    @Override
+//                    public void onClick(ClickEvent event) {
+//                        Window.alert("hiding from public");
+//                    }
+//                });
+//                label.add(hideButton);
             }
 
             add(inputGroup);

@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
@@ -90,6 +91,14 @@ public class OrganismRestService {
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
         RestService.sendRequest(requestCallback,"organism/deleteOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
+    }
+
+    public static void removeTrack(RequestCallback requestCallback, OrganismInfo organismInfo,String trackName) {
+        JSONObject data = new JSONObject();
+        JSONObject organismObject = OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),organismObject);
+        data.put(FeatureStringEnum.TRACK_LABEL.getValue(),new JSONString(trackName));
+        RestService.sendRequest(requestCallback,"organism/removeTrackFromOrganism", data);
     }
 
     public static void switchOrganismById(String newOrganismId) {

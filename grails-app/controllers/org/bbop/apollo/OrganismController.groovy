@@ -300,6 +300,67 @@ class OrganismController {
         render returnObject as JSON
     }
 
+    @RestApiMethod(description = "Removes an added track from an existing organism returning a JSON object containing all tracks for the current organism.", path = "/organism/removeTrackFromOrganism", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
+            , @RestApiParam(name = "trackLabel", type = "string", paramType = RestApiParamType.QUERY, description = "Name of track")
+    ])
+    @Transactional
+    def removeTrackFromOrganism() {
+        JSONObject returnObject = new JSONObject()
+        JSONObject requestObject = permissionService.handleInput(request, params)
+        println "removing track from organism with ${requestObject}"
+
+        if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
+            returnObject.put("error", "/removeTrackFromOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+            render returnObject as JSON
+            return
+        }
+
+        if (!requestObject.containsKey(FeatureStringEnum.TRACK_LABEL.value)) {
+            returnObject.put("error", "/removeTrackFromOrganism requires '${FeatureStringEnum.TRACK_LABEL.value}'.")
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+            render returnObject as JSON
+            return
+        }
+
+        try {
+            permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
+            Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value)?.id)
+            println "organism ${organism}"
+            // find in the extended track list and remove
+            String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
+            File extendedDirectory = new File(extendedDirectoryName)
+            if (!extendedDirectory.exists()) {
+                returnObject.put("error", "No temporary directory found to remove tracks from ${extendedDirectoryName}")
+                render returnObject as JSON
+                return
+            }
+            File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
+            JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
+            println "input tracks ${extendedTracksArray as JSON}"
+
+            extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
+            println "output tracks ${extendedTracksArray as JSON}"
+            extendedTrackListObject.put(FeatureStringEnum.TRACKS.value,extendedTracksArray)
+            extendedTrackListJsonFile.write(extendedTrackListObject.toString())
+            println "final object ${extendedTrackListObject as JSON}"
+            println "write to file ${extendedTrackListJsonFile.absolutePath}"
+            render returnObject as JSON
+        } catch (Exception ce) {
+            log.error ce.message
+            returnObject.put("error", ce.message)
+            render returnObject as JSON
+            return
+        }
+
+    }
+
+
     @RestApiMethod(description = "Adds a track to an existing organism returning a JSON object containing all tracks for the current organism.", path = "/organism/addTrackToOrganism", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
