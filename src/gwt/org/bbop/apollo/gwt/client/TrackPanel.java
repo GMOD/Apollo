@@ -27,9 +27,9 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
-import org.bbop.apollo.gwt.shared.track.TrackTypeEnum;
 import org.bbop.apollo.gwt.client.track.TrackConfigurationTemplate;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.track.TrackTypeEnum;
 import org.gwtbootstrap3.client.shared.event.HiddenEvent;
 import org.gwtbootstrap3.client.shared.event.HiddenHandler;
 import org.gwtbootstrap3.client.shared.event.ShowEvent;
@@ -42,6 +42,7 @@ import org.gwtbootstrap3.client.ui.constants.HeadingSize;
 import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import org.gwtbootstrap3.extras.bootbox.client.callback.SimpleCallback;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
@@ -145,6 +146,7 @@ public class TrackPanel extends Composite {
     private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
     private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
 
+
     public TrackPanel() {
         exportStaticMethod();
 
@@ -163,32 +165,34 @@ public class TrackPanel extends Composite {
                     newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
                     newTrackForm.setMethod(FormPanel.METHOD_POST);
                     newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
-                    newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
-                        @Override
-                        public void onSubmit(FormPanel.SubmitEvent event) {
-                            addTrackModal.hide();
-                        }
-                    });
-                    newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
-                        @Override
-                        public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                            newTrackForm.reset();
-                            Bootbox.alert("Track added successfully.", new SimpleCallback() {
-                                @Override
-                                public void callback() {
-                                    loadTracks(200);
-                                }
-                            });
-                        }
-                    });
-                }
-                else{
+                } else {
                     GWT.log("can not admin tracks");
                 }
-                return true;
+                return false;
             }
-        },200);
+        }, 200);
 
+        newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+            @Override
+            public void onSubmit(FormPanel.SubmitEvent event) {
+                addTrackModal.hide();
+            }
+        });
+        newTrackForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+            @Override
+            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+                loadTracks(300);
+                resetNewTrackModel();
+                Bootbox.confirm("Track added successfully.  Reload to see?", new ConfirmCallback() {
+                    @Override
+                    public void callback(boolean result) {
+                       if(result){
+                           Window.Location.reload();
+                       }
+                    }
+                });
+            }
+        });
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
             @Override
@@ -304,7 +308,7 @@ public class TrackPanel extends Composite {
         configurationButton.setText(trackType.toString());
         configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(trackType, trackFileName.getText()).toString());
         showOtherOptions();
-        if(trackType.isIndexed()){
+        if (trackType.isIndexed()) {
             showIndexOptions();
         }
     }
@@ -351,7 +355,7 @@ public class TrackPanel extends Composite {
         }
     }
 
-    private void showOtherOptions(){
+    private void showOtherOptions() {
         saveNewTrack.setEnabled(true);
 
         trackNameHTML.setVisible(true);
@@ -364,12 +368,14 @@ public class TrackPanel extends Composite {
         uploadTrackFile.setVisible(true);
     }
 
-    private void showIndexOptions(){
+    private void showIndexOptions() {
         trackFileIndexHTML.setVisible(true);
         uploadTrackFileIndex.setVisible(true);
     }
 
-    private void resetNewTrackModel(){
+    private void resetNewTrackModel() {
+        configurationButton.setText("Select Track Type");
+
         saveNewTrack.setEnabled(false);
 
         trackNameHTML.setVisible(false);
