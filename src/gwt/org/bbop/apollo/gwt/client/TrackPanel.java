@@ -152,9 +152,9 @@ public class TrackPanel extends Composite {
         dataGrid.setWidth("100%");
 
 
-        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
-            public void execute() {
+            public boolean execute() {
                 if (canAdminTracks()) {
                     addTrackButton.setVisible(true);
                     configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
@@ -181,9 +181,12 @@ public class TrackPanel extends Composite {
                         }
                     });
                 }
-
+                else{
+                    GWT.log("can not admin tracks");
+                }
+                return true;
             }
-        });
+        },200);
 
 
         Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
