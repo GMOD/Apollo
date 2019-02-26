@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client.track;
 
-import com.google.gwt.json.client.JSONBoolean;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 
@@ -14,17 +13,31 @@ public class TrackConfigurationTemplate {
     // key is entered
 
     public enum TrackType {
-        BAM,
-        BAM_CANVAS,
+        BAM(true),
+        BAM_CANVAS(true),
         BIGWIG_HEAT_MAP,
         BIGWIG_XY,
-        VCF,
-        VCF_CANVAS,
+        VCF(true),
+        VCF_CANVAS(true),
         GFF3,
         GFF3_CANVAS,
-        GFF3_TABIX,
-        GFF3_TABIX_CANVAS,
+        GFF3_TABIX(true),
+        GFF3_TABIX_CANVAS(true),
         ;
+
+        private boolean indexed = false ;
+
+        TrackType(){
+            this(false);
+        }
+
+        TrackType(boolean indexed){
+            this.indexed = indexed ;
+        }
+
+        public boolean isIndexed() {
+            return indexed;
+        }
 
         @Override
         public String toString() {

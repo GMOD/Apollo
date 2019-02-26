@@ -61,14 +61,18 @@
                                     </b:DropDownMenu>
                                 </b:ButtonGroup>
                                 <gwt:Hidden ui:field="hiddenOrganism" name="organism"/>
-                                <gwt:HTML text="Track Name" styleName="{style.areaFile}"/>
-                                <gwt:TextBox ui:field="trackFileName" name="trackFileName"/>
-                                <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"/>
-                                <gwt:TextArea ui:field="configuration" name="trackConfig"/>
-                                <gwt:HTML text="Track File (*.bam,*.vcf.gz,*.bw,*gff.gz"/>
-                                <gwt:FileUpload ui:field="uploadTrackFile" name="trackFile"/>
-                                <gwt:HTML text="Track File Index (*.bam.bai,*.vcf.gz.tbi,*gff3.gz.tbi)"/>
-                                <gwt:FileUpload ui:field="uploadTrackFileIndex" name="trackFileIndex"/>
+
+                                <gwt:HTML text="Track Name" styleName="{style.areaFile}" visible="false" ui:field="trackNameHTML"/>
+                                <gwt:TextBox ui:field="trackFileName" name="trackFileName"  visible="false"/>
+
+                                <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"  visible="false" ui:field="trackConfigurationHTML"/>
+                                <gwt:TextArea ui:field="configuration" name="trackConfig"  visible="false"/>
+
+                                <gwt:HTML text="Track File (*.bam,*.vcf.gz,*.bw,*gff.gz"  visible="false" ui:field="trackFileHTML"/>
+                                <gwt:FileUpload ui:field="uploadTrackFile" name="trackFile"  visible="false"/>
+
+                                <gwt:HTML text="Track File Index (*.bam.bai,*.vcf.gz.tbi,*gff3.gz.tbi)"  visible="false"  ui:field="trackFileIndexHTML"/>
+                                <gwt:FileUpload ui:field="uploadTrackFileIndex" name="trackFileIndex"  visible="false"/>
                             </gwt:FlowPanel>
                         </b:ModalBody>
                         <b:ModalFooter>
