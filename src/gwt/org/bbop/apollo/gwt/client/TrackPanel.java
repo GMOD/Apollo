@@ -43,7 +43,6 @@ import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
-import org.gwtbootstrap3.extras.bootbox.client.callback.SimpleCallback;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.ArrayList;
@@ -307,9 +306,12 @@ public class TrackPanel extends Composite {
     private void setTrackTypeAndUpdate(TrackTypeEnum trackType) {
         configurationButton.setText(trackType.toString());
         configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(trackType, trackFileName.getText()).toString());
-        showOtherOptions();
+        showFileOptions(trackType);
         if (trackType.isIndexed()) {
-            showIndexOptions();
+            showIndexOptions(trackType);
+        }
+        else{
+            hideIndexOptions();
         }
     }
 
@@ -355,7 +357,7 @@ public class TrackPanel extends Composite {
         }
     }
 
-    private void showOtherOptions() {
+    private void showFileOptions(TrackTypeEnum typeEnum) {
         saveNewTrack.setEnabled(true);
 
         trackNameHTML.setVisible(true);
@@ -366,11 +368,21 @@ public class TrackPanel extends Composite {
 
         trackFileHTML.setVisible(true);
         uploadTrackFile.setVisible(true);
+
+        trackFileHTML.setText("*."+typeEnum.getSuffix());
     }
 
-    private void showIndexOptions() {
+    private void hideIndexOptions() {
+        trackFileIndexHTML.setVisible(false);
+        uploadTrackFileIndex.setVisible(false);
+        trackFileIndexHTML.setText("");
+    }
+
+    private void showIndexOptions(TrackTypeEnum typeEnum) {
         trackFileIndexHTML.setVisible(true);
         uploadTrackFileIndex.setVisible(true);
+
+        trackFileIndexHTML.setText("*."+typeEnum.getSuffixIndex());
     }
 
     private void resetNewTrackModel() {

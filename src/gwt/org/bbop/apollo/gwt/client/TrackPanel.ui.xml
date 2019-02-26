@@ -53,9 +53,9 @@
                                         <b:AnchorListItem ui:field="selectBigWig">BigWig HeatMap</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBigWigXY">BigWig XY</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3">GFF3 </b:AnchorListItem>
-                                        <b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Canvas</b:AnchorListItem>
+                                        <!--<b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Canvas</b:AnchorListItem>-->
                                         <b:AnchorListItem ui:field="selectGFF3Tabix">GFF3 Tabix</b:AnchorListItem>
-                                        <b:AnchorListItem ui:field="selectGFF3TabixCanvas">GFF3 Tabix Canvas</b:AnchorListItem>
+                                        <!--<b:AnchorListItem ui:field="selectGFF3TabixCanvas">GFF3 Tabix Canvas</b:AnchorListItem>-->
                                         <b:AnchorListItem ui:field="selectVCF">VCF</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectVCFCanvas">VCF Canvas</b:AnchorListItem>
                                     </b:DropDownMenu>
@@ -65,13 +65,13 @@
                                 <gwt:HTML text="Track Name" styleName="{style.areaFile}" visible="false" ui:field="trackNameHTML"/>
                                 <gwt:TextBox ui:field="trackFileName" name="trackFileName"  visible="false"/>
 
-                                <gwt:HTML text="Track Configuration JSON (required)" styleName="{style.areaFile}"  visible="false" ui:field="trackConfigurationHTML"/>
+                                <gwt:HTML text="Track Configuration JSON" styleName="{style.areaFile}"  visible="false" ui:field="trackConfigurationHTML"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"  visible="false"/>
 
-                                <gwt:HTML text="Track File (*.bam,*.vcf.gz,*.bw,*gff.gz"  visible="false" ui:field="trackFileHTML"/>
+                                <gwt:HTML   visible="false" ui:field="trackFileHTML"/>
                                 <gwt:FileUpload ui:field="uploadTrackFile" name="trackFile"  visible="false"/>
 
-                                <gwt:HTML text="Track File Index (*.bam.bai,*.vcf.gz.tbi,*gff3.gz.tbi)"  visible="false"  ui:field="trackFileIndexHTML"/>
+                                <gwt:HTML visible="false"  ui:field="trackFileIndexHTML"/>
                                 <gwt:FileUpload ui:field="uploadTrackFileIndex" name="trackFileIndex"  visible="false"/>
                             </gwt:FlowPanel>
                         </b:ModalBody>
