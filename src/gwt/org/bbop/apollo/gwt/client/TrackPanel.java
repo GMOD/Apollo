@@ -234,7 +234,7 @@ public class TrackPanel extends Composite {
         }, delay);
     }
 
-    public void reloadIfEmpty() {
+    void reloadIfEmpty() {
         if (dataProvider.getList().isEmpty()) {
             loadTracks(7000);
         }
@@ -348,6 +348,8 @@ public class TrackPanel extends Composite {
     }
 
     private void showOtherOptions(){
+        saveNewTrack.setEnabled(true);
+
         trackNameHTML.setVisible(true);
         trackFileName.setVisible(true);
 
@@ -364,6 +366,8 @@ public class TrackPanel extends Composite {
     }
 
     private void resetNewTrackModel(){
+        saveNewTrack.setEnabled(false);
+
         trackNameHTML.setVisible(false);
         trackFileName.setVisible(false);
 

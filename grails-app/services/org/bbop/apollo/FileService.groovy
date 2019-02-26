@@ -180,7 +180,7 @@ class FileService {
             throw new RuntimeException("Invalid filename, must have a suffix: [" +newName+"]")
         }
         String suffix = newName.substring(suffixIndex)
-        String updatedName = directoryName + suffix
+        String updatedName = directoryName.replaceAll(" ","_") + suffix
 //        /opt/temporary/apollo/6503-nf_test3/raw || test2 || volvox-sorted.bam
 //        /opt/temporary/apollo/6503-nf_test3/raw || test2 .bam
         String destinationFileName = path + File.separator + updatedName
