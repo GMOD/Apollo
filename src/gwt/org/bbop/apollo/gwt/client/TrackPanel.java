@@ -764,6 +764,9 @@ public class TrackPanel extends Composite {
             if (object.get("urlTemplate") != null)
                 trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
 
+            if (object.get("storeClass") != null)
+                trackInfo.setStoreClass(object.get("storeClass").isString().stringValue());
+
             if (object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
             else trackInfo.setVisible(false);
 

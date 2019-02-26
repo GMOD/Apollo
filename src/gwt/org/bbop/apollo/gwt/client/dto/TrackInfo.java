@@ -16,6 +16,7 @@ public class TrackInfo implements Comparable<TrackInfo> {
     private Boolean visible;
     private String urlTemplate ;
     private String category;
+    private String storeClass ;
     private JSONObject apollo;
 
     private JSONObject payload ;
@@ -81,6 +82,14 @@ public class TrackInfo implements Comparable<TrackInfo> {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getStoreClass() {
+        return storeClass;
+    }
+
+    public void setStoreClass(String storeClass) {
+        this.storeClass = storeClass;
     }
 
     public String getStandardCategory(){

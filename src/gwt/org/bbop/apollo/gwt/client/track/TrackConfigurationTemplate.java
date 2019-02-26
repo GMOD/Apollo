@@ -131,7 +131,7 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case VCF:
                 return new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/VCFTabix",
+                        "JBrowse/Store/SeqFeature/VCFTabix",
                         "raw/"+randomFileName.replaceAll(" ","_")+".vcf.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLVariants",
@@ -139,7 +139,7 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case VCF_CANVAS:
                 return new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/VCFTabix",
+                        "JBrowse/Store/SeqFeature/VCFTabix",
                         "raw/"+randomFileName.replaceAll(" ","_")+".vcf.gz",
                         randomFileName,
                         "JBrowse/View/Track/CanvasVariants",
@@ -147,7 +147,7 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case GFF3:
                 return new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/GFF3",
+                        "JBrowse/Store/SeqFeature/GFF3",
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff",
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
@@ -155,7 +155,7 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case GFF3_CANVAS:
                 return new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/GFF3",
+                        "JBrowse/Store/SeqFeature/GFF3",
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff",
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
@@ -163,7 +163,7 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/GFF3Tabix",
+                        "JBrowse/Store/SeqFeature/GFF3Tabix",
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
@@ -171,7 +171,7 @@ public class TrackConfigurationTemplate {
                 ).toJSON();
             case GFF3_TABIX_CANVAS:
                 return new TrackConfigurationTemplate(
-                        " JBrowse/Store/SeqFeature/GFF3Tabix",
+                        "JBrowse/Store/SeqFeature/GFF3Tabix",
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
