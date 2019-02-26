@@ -29,6 +29,14 @@ public enum TrackTypeEnum {
         return this.suffixIndex!=null ;
     }
 
+    public String getSuffix() {
+        return suffix;
+    }
+
+    public String getSuffixIndex() {
+        return suffixIndex;
+    }
+
     @Override
     public String toString() {
         return name().replaceAll("_"," ");
