@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.track;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.shared.track.TrackTypeEnum;
 
 public class TrackConfigurationTemplate {
 
@@ -12,38 +13,6 @@ public class TrackConfigurationTemplate {
     String key;
     // key is entered
 
-    public enum TrackType {
-        BAM(true),
-        BAM_CANVAS(true),
-        BIGWIG_HEAT_MAP,
-        BIGWIG_XY,
-        VCF(true),
-        VCF_CANVAS(true),
-        GFF3,
-        GFF3_CANVAS,
-        GFF3_TABIX(true),
-        GFF3_TABIX_CANVAS(true),
-        ;
-
-        private boolean indexed = false ;
-
-        TrackType(){
-            this(false);
-        }
-
-        TrackType(boolean indexed){
-            this.indexed = indexed ;
-        }
-
-        public boolean isIndexed() {
-            return indexed;
-        }
-
-        @Override
-        public String toString() {
-            return name().replaceAll("_"," ");
-        }
-    }
 
     public TrackConfigurationTemplate() {
     }
@@ -90,11 +59,11 @@ public class TrackConfigurationTemplate {
         return returnString;
     }
 
-    public static JSONObject generateForType(TrackType type) {
+    public static JSONObject generateForType(TrackTypeEnum type) {
         return generateForTypeAndKey(type, generateString());
     }
 
-    public static JSONObject generateForTypeAndKey(TrackType type, String key) {
+    public static JSONObject generateForTypeAndKey(TrackTypeEnum type, String key) {
         String randomFileName = key!=null && key.trim().length()>1 ? key : generateString() ;
         switch (type) {
             case BAM:

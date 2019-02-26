@@ -27,6 +27,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.shared.track.TrackTypeEnum;
 import org.bbop.apollo.gwt.client.track.TrackConfigurationTemplate;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.shared.event.HiddenEvent;
@@ -299,7 +300,7 @@ public class TrackPanel extends Composite {
         return treeItem;
     }
 
-    private void setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType trackType) {
+    private void setTrackTypeAndUpdate(TrackTypeEnum trackType) {
         configurationButton.setText(trackType.toString());
         configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(trackType, trackFileName.getText()).toString());
         showOtherOptions();
@@ -308,8 +309,8 @@ public class TrackPanel extends Composite {
         }
     }
 
-    private TrackConfigurationTemplate.TrackType getTrackType() {
-        return TrackConfigurationTemplate.TrackType.valueOf(configurationButton.getText().replaceAll(" ", "_"));
+    private TrackTypeEnum getTrackType() {
+        return TrackTypeEnum.valueOf(configurationButton.getText().replaceAll(" ", "_"));
     }
 
     @UiHandler("uploadTrackFile")
@@ -393,53 +394,53 @@ public class TrackPanel extends Composite {
 
     @UiHandler("selectBam")
     public void selectBam(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.BAM);
+        setTrackTypeAndUpdate(TrackTypeEnum.BAM);
     }
 
     @UiHandler("selectBamCanvas")
     public void setSelectBamCanvas(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.BAM_CANVAS);
+        setTrackTypeAndUpdate(TrackTypeEnum.BAM_CANVAS);
     }
 
 
     @UiHandler("selectBigWig")
     public void selectBigWig(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.BIGWIG_HEAT_MAP);
+        setTrackTypeAndUpdate(TrackTypeEnum.BIGWIG_HEAT_MAP);
     }
 
     @UiHandler("selectBigWigXY")
     public void selectBigWigXY(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.BIGWIG_XY);
+        setTrackTypeAndUpdate(TrackTypeEnum.BIGWIG_XY);
     }
 
     @UiHandler("selectGFF3")
     public void selectGFF3(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.GFF3);
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3);
     }
 
     @UiHandler("selectGFF3Canvas")
     public void selectGFF3Canvas(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.GFF3_CANVAS);
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_CANVAS);
     }
 
     @UiHandler("selectGFF3Tabix")
     public void selectGFF3Tabix(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.GFF3_TABIX);
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX);
     }
 
     @UiHandler("selectGFF3TabixCanvas")
     public void selectGFF3TabixCanvas(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.GFF3_TABIX_CANVAS);
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX_CANVAS);
     }
 
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.VCF);
+        setTrackTypeAndUpdate(TrackTypeEnum.VCF);
     }
 
     @UiHandler("selectVCFCanvas")
     public void selectVCFCanvas(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackConfigurationTemplate.TrackType.VCF_CANVAS);
+        setTrackTypeAndUpdate(TrackTypeEnum.VCF_CANVAS);
     }
 
     @UiHandler("nameSearchBox")
