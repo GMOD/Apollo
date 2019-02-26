@@ -267,6 +267,22 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
     return feature;
 };
 
+JSONUtils.getPreferredSubFeature = function(type,test_feature){
+    if (JSONUtils.verbose_conversion)  {
+        console.log('parent type',type,'subfeature type',test_feature.get('type'))
+    }
+    if(  (type==='mRNA' && test_feature.get('type')==='gene')
+        || (type.endsWith('RNA') && test_feature.get('type').endsWith('gene') )
+        || (type.endsWith('transcript') && test_feature.get('type').endsWith('gene') )
+    ){
+        var subfeatures = test_feature.get('subfeatures');
+        if(subfeatures && subfeatures.length===1){
+            return subfeatures[0];
+        }
+    }
+    return null ;
+};
+
 /**
 *  creates a feature in ApolloEditorService JSON format
 *  takes as argument:
@@ -298,9 +314,10 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
     if (diagnose)  {
-        console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type);
+        console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type + " " + specified_subtype);
         console.log(jfeature);
     }
+
 
     var afeature = {};
     var astrand;
@@ -326,18 +343,23 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     var typename;
     if (specified_type)  {
         typename = specified_type;
+        var preferredSubFeature = this.getPreferredSubFeature(specified_type,jfeature);
+        if(preferredSubFeature){
+            return this.createApolloFeature(preferredSubFeature,specified_type,useName,specified_subtype)
+        }
     }
-    else if ( jfeature.get('type') ) {
+    else
+    if ( jfeature.get('type') ) {
         typename = jfeature.get('type');
     }
 
     if (typename)  {
         afeature.type = {
             "cv": {
-            "name": "sequence"
-        }
-    };
-    afeature.type.name = typename;
+                "name": "sequence"
+            }
+        };
+        afeature.type.name = typename;
     }
 
     // if (useName && name) {
