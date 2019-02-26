@@ -170,7 +170,7 @@ class FileService {
         }
     }
 
-    def storeWithNewName(CommonsMultipartFile file, String path, String directoryName,String newName = file.getOriginalFilename()) {
+    def storeWithNewName(CommonsMultipartFile file, String path, String directoryName,String newName ) {
         File pathFile = new File(path)
         if (!pathFile.exists()) {
             pathFile.mkdirs()

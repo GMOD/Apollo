@@ -6,6 +6,7 @@ import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.gwt.shared.track.TrackTypeEnum
 import org.bbop.apollo.report.OrganismSummary
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONArray
@@ -549,12 +550,18 @@ class OrganismController {
                                             println "tranfer config object ${trackConfigObject as JSON}"
                                             println "transfer key ${trackConfigObject.key}"
                                             println "transfer key 2 ${trackConfigObject.get("key")}"
-                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.get("key"))
+                                            TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
+                                            println "track type enum ${trackTypeEnum}"
+
+                                            String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix  :  trackFile.originalFilename
+
+                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.key,newFileName)
                                             println "trying to store with track file index ${trackFileIndex.getOriginalFilename()}"
                                             if (trackFileIndex.getOriginalFilename()) {
+                                                String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex  :  trackFileIndex.originalFilename
                                                 println "Storing with track file index ${trackFileIndex.getOriginalFilename()}"
 //                                                fileService.store(trackFileIndex, path)
-                                                fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.get("key"))
+                                                fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key,newFileNameIndex)
                                                 println "STORED with track file index ${trackFileIndex}"
                                             }
 

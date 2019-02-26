@@ -11,6 +11,7 @@ public class TrackConfigurationTemplate {
     String label;
     String type;
     String key;
+    TrackTypeEnum typeEnum;
     // key is entered
 
 
@@ -21,12 +22,15 @@ public class TrackConfigurationTemplate {
                                       String urlTemplate,
                                       String label,
                                       String type,
-                                      String key) {
+                                      String key,
+                                      TrackTypeEnum typeEnum
+    ) {
         this.storeClass = storeClass;
         this.urlTemplate = urlTemplate;
         this.label = label;
         this.type = type;
         this.key = key;
+        this.typeEnum = typeEnum ;
     }
 
 
@@ -46,6 +50,7 @@ public class TrackConfigurationTemplate {
         returnObject.put("key", new JSONString(this.key));
         JSONObject apolloDetails = new JSONObject();
         apolloDetails.put("source", new JSONString("upload"));
+        apolloDetails.put("type", new JSONString(this.typeEnum.name()));
         returnObject.put("apollo", apolloDetails);
         return returnObject;
     }
@@ -72,7 +77,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".bam",
                         randomFileName,
                         "JBrowse/View/Track/Alignments",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case BAM_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -80,7 +86,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".bam",
                         randomFileName,
                         "JBrowse/View/Track/Alignments2",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case BIGWIG_HEAT_MAP:
                 return new TrackConfigurationTemplate(
@@ -88,7 +95,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".bw",
                         randomFileName,
                         "JBrowse/View/Track/Wiggle/Density",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case BIGWIG_XY:
                 return new TrackConfigurationTemplate(
@@ -96,7 +104,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".bw",
                         randomFileName,
                         "JBrowse/View/Track/Wiggle/XYPlot",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case VCF:
                 return new TrackConfigurationTemplate(
@@ -104,7 +113,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".vcf.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLVariants",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case VCF_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -112,7 +122,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".vcf.gz",
                         randomFileName,
                         "JBrowse/View/Track/CanvasVariants",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case GFF3:
                 return new TrackConfigurationTemplate(
@@ -120,7 +131,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff",
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case GFF3_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -128,7 +140,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff",
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(
@@ -136,7 +149,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
             case GFF3_TABIX_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -144,7 +158,8 @@ public class TrackConfigurationTemplate {
                         "raw/"+randomFileName.replaceAll(" ","_")+".gff.gz",
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
-                        randomFileName
+                        randomFileName,
+                        type
                 ).toJSON();
         }
 
