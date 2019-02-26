@@ -550,9 +550,12 @@ class OrganismController {
                                             println "transfer key ${trackConfigObject.key}"
                                             println "transfer key 2 ${trackConfigObject.get("key")}"
                                             fileService.storeWithNewName(trackFile, path, trackConfigObject.get("key"))
-                                            if (trackFileIndex) {
+                                            println "trying to store with track file index ${trackFileIndex.getOriginalFilename()}"
+                                            if (trackFileIndex.getOriginalFilename()) {
+                                                println "Storing with track file index ${trackFileIndex.getOriginalFilename()}"
 //                                                fileService.store(trackFileIndex, path)
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.get("key"))
+                                                println "STORED with track file index ${trackFileIndex}"
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)
