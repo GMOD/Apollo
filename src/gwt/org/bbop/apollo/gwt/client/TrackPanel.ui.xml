@@ -65,6 +65,9 @@
                                 <gwt:HTML text="Track Name" styleName="{style.areaFile}" visible="false" ui:field="trackNameHTML"/>
                                 <gwt:TextBox ui:field="trackFileName" name="trackFileName"  visible="false"/>
 
+                                <gwt:HTML text="Category" styleName="{style.areaFile}" visible="false" ui:field="categoryNameHTML"/>
+                                <gwt:TextBox ui:field="categoryName" name="categoryName"  visible="false"/>
+
                                 <gwt:HTML text="Track Configuration JSON" styleName="{style.areaFile}"  visible="false" ui:field="trackConfigurationHTML"/>
                                 <gwt:TextArea ui:field="configuration" name="trackConfig"  visible="false"/>
 

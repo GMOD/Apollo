@@ -11,18 +11,17 @@ public class TrackConfigurationTemplate {
     String label;
     String type;
     String key;
+    String category;
     TrackTypeEnum typeEnum;
     // key is entered
 
-
-    public TrackConfigurationTemplate() {
-    }
 
     public TrackConfigurationTemplate(String storeClass,
                                       String urlTemplate,
                                       String label,
                                       String type,
                                       String key,
+                                      String category,
                                       TrackTypeEnum typeEnum
     ) {
         this.storeClass = storeClass;
@@ -30,16 +29,10 @@ public class TrackConfigurationTemplate {
         this.label = label;
         this.type = type;
         this.key = key;
+        this.category = category ;
         this.typeEnum = typeEnum ;
     }
 
-
-    public static TrackConfigurationTemplate generateForType(String type) {
-        TrackConfigurationTemplate trackConfigurationTemplate = new TrackConfigurationTemplate();
-
-
-        return trackConfigurationTemplate;
-    }
 
     JSONObject toJSON() {
         JSONObject returnObject = new JSONObject();
@@ -48,6 +41,9 @@ public class TrackConfigurationTemplate {
         returnObject.put("label", new JSONString(this.label));
         returnObject.put("type", new JSONString(this.type));
         returnObject.put("key", new JSONString(this.key));
+        if(category!=null && category.trim().length()>0){
+            returnObject.put("category", new JSONString(this.category));
+        }
         JSONObject apolloDetails = new JSONObject();
         apolloDetails.put("source", new JSONString("upload"));
         apolloDetails.put("type", new JSONString(this.typeEnum.name()));
@@ -64,11 +60,8 @@ public class TrackConfigurationTemplate {
         return returnString;
     }
 
-    public static JSONObject generateForType(TrackTypeEnum type) {
-        return generateForTypeAndKey(type, generateString());
-    }
 
-    public static JSONObject generateForTypeAndKey(TrackTypeEnum type, String key) {
+    public static JSONObject generateForTypeAndKeyAndCategory(TrackTypeEnum type, String key,String category) {
         String randomFileName = key!=null && key.trim().length()>1 ? key : generateString() ;
         switch (type) {
             case BAM:
@@ -78,6 +71,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/Alignments",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case BAM_CANVAS:
@@ -87,6 +81,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/Alignments2",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case BIGWIG_HEAT_MAP:
@@ -96,6 +91,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/Wiggle/Density",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case BIGWIG_XY:
@@ -105,6 +101,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/Wiggle/XYPlot",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case VCF:
@@ -114,6 +111,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/HTMLVariants",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case VCF_CANVAS:
@@ -123,6 +121,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/CanvasVariants",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case GFF3:
@@ -132,6 +131,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case GFF3_CANVAS:
@@ -141,6 +141,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case GFF3_TABIX:
@@ -150,6 +151,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/HTMLFeatures",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
             case GFF3_TABIX_CANVAS:
@@ -159,6 +161,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         "JBrowse/View/Track/CanvasFeatures",
                         randomFileName,
+                        category,
                         type
                 ).toJSON();
         }

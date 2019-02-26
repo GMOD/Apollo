@@ -115,8 +115,8 @@ public class TrackPanel extends Composite {
     AnchorListItem selectBamCanvas;
     @UiField
     AnchorListItem selectBigWigXY;
-    @UiField
-    AnchorListItem selectGFF3Canvas;
+//    @UiField
+//    AnchorListItem selectGFF3Canvas;
     @UiField
     AnchorListItem selectVCFCanvas;
     @UiField
@@ -135,6 +135,10 @@ public class TrackPanel extends Composite {
     HTML trackFileHTML;
     @UiField
     HTML trackFileIndexHTML;
+    @UiField
+    HTML categoryNameHTML;
+    @UiField
+    com.google.gwt.user.client.ui.TextBox categoryName;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -161,6 +165,7 @@ public class TrackPanel extends Composite {
                     addTrackButton.setVisible(true);
                     configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
                     trackFileName.getElement().setPropertyString("placeholder", "Enter track name");
+                    categoryName.getElement().setPropertyString("placeholder", "Enter category name");
                     newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
                     newTrackForm.setMethod(FormPanel.METHOD_POST);
                     newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
@@ -169,7 +174,7 @@ public class TrackPanel extends Composite {
                 }
                 return false;
             }
-        }, 200);
+        }, 400);
 
         newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
@@ -305,7 +310,7 @@ public class TrackPanel extends Composite {
 
     private void setTrackTypeAndUpdate(TrackTypeEnum trackType) {
         configurationButton.setText(trackType.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(trackType, trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(trackType, trackFileName.getText(),categoryName.getText()).toString());
         showFileOptions(trackType);
         if (trackType.isIndexed()) {
             showIndexOptions(trackType);
@@ -338,7 +343,7 @@ public class TrackPanel extends Composite {
 
     @UiHandler("trackFileName")
     public void updateTrackFileName(KeyUpEvent event) {
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKey(getTrackType(), trackFileName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(),categoryName.getText()).toString());
     }
 
     @UiHandler("cancelNewTrack")
@@ -362,6 +367,9 @@ public class TrackPanel extends Composite {
 
         trackNameHTML.setVisible(true);
         trackFileName.setVisible(true);
+
+        categoryName.setVisible(true);
+        categoryNameHTML.setVisible(true);
 
         trackConfigurationHTML.setVisible(true);
         configuration.setVisible(true);
@@ -392,6 +400,9 @@ public class TrackPanel extends Composite {
 
         trackNameHTML.setVisible(false);
         trackFileName.setVisible(false);
+
+        categoryName.setVisible(false);
+        categoryNameHTML.setVisible(false);
 
         trackConfigurationHTML.setVisible(false);
         configuration.setVisible(false);
@@ -436,20 +447,20 @@ public class TrackPanel extends Composite {
         setTrackTypeAndUpdate(TrackTypeEnum.GFF3);
     }
 
-    @UiHandler("selectGFF3Canvas")
-    public void selectGFF3Canvas(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_CANVAS);
-    }
+//    @UiHandler("selectGFF3Canvas")
+//    public void selectGFF3Canvas(ClickEvent clickEvent) {
+//        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_CANVAS);
+//    }
 
     @UiHandler("selectGFF3Tabix")
     public void selectGFF3Tabix(ClickEvent clickEvent) {
         setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX);
     }
 
-    @UiHandler("selectGFF3TabixCanvas")
-    public void selectGFF3TabixCanvas(ClickEvent clickEvent) {
-        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX_CANVAS);
-    }
+//    @UiHandler("selectGFF3TabixCanvas")
+//    public void selectGFF3TabixCanvas(ClickEvent clickEvent) {
+//        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX_CANVAS);
+//    }
 
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
