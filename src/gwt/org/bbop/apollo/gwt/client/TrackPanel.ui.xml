@@ -45,7 +45,7 @@
                         <b:ModalBody>
                             <gwt:FlowPanel ui:field="flowPanel">
                                 <b:ButtonGroup>
-                                    <b:Button dataToggle="DROPDOWN" text="Choose Configuration Template"
+                                    <b:Button dataToggle="DROPDOWN" text="Select Track Type"
                                               ui:field="configurationButton"/>
                                     <b:DropDownMenu>
                                         <b:AnchorListItem ui:field="selectBam">BAM</b:AnchorListItem>

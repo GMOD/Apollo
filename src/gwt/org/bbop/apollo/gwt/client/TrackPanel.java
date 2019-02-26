@@ -201,7 +201,7 @@ public class TrackPanel extends Composite {
 
     private String checkForm() {
         if (configurationButton.getText().startsWith("Choosing")) {
-            return "Specify a template.";
+            return "Specify a track type.";
         }
         if (configuration.getText().trim().length() < 10) {
             return "Bad configuration.";
