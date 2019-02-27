@@ -19,6 +19,8 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+import htsjdk.samtools.reference.*
+import java.nio.file.*
 
 import javax.servlet.http.HttpServletResponse
 
@@ -365,10 +367,21 @@ class OrganismController {
 
 
                             // 3. create a properly index fasta
-                            File indexedFasta = new File(rawDirectory.parent+ "/" +  organismName+ ".fa.fai")
-                            println "indexed fastaa path ${indexedFasta.absolutePath} -> ${indexedFasta.exists()}"
+//                            File indexedFasta = new File(rawDirectory.parent+ "/" +  organismName+ ".fa.fai")
+//                            println "indexed fastaa path ${indexedFasta.absolutePath} -> ${indexedFasta.exists()}"
 
+//                            new java.nio.file.File(originalFasta)
+                            println "input file ${finalFasta.absolutePath}"
+//                            Path file2 = new Path(originalFasta)
+                            Path path = FileSystems.getDefault().getPath(finalFasta.absolutePath);
 
+                            println "file2 ${path}"
+                            FastaSequenceIndexCreator.create(path,true)
+
+                            dir = new File(directoryName)
+                            dir.eachFileRecurse { file ->
+                                println file.absolutePath
+                            }
 
 
 
