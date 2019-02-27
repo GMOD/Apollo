@@ -209,7 +209,7 @@ public class TrackPanel extends Composite {
     }
 
     private static boolean canAdminTracks() {
-        return MainPanel.getInstance().isCurrentUserInstructorOrBetter();
+        return MainPanel.getInstance().isCurrentUserAdmin();
     }
 
     private String checkForm() {
