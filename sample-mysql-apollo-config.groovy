@@ -60,6 +60,40 @@ environments {
     }
 }
 
+//apollo {
+//    only_owners_delete = true
+//    common_data_directory = "/opt/temporary/apollo"
+//    sequence_search_tools {
+//        blat_nuc {
+//            search_exe = "/usr/local/bin/blastn"
+//            search_class = "org.bbop.apollo.sequence.search.blast.BlastCommandLine"
+//            name = "Blast nucleotide"
+//            params = ""
+//        }
+//        blat_prot {
+//            search_exe = "/usr/local/bin/tblastn"
+//            search_class = "org.bbop.apollo.sequence.search.blast.BlastCommandLine"
+//            name = "Blast protein to translated nucleotide"
+//            params = ""
+//            //tmp_dir: "/opt/apollo/tmp" optional param
+//        }
+//    }
+//    extraTabs = [
+//            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
+//            ['title': 'extra2', 'content': '<b>Apollo</b> documentation <a href="http://genomearchitect.org" target="_blank">linked here</a>']
+//    ]
+//
+////    extraTabs = [
+////        tab1: [
+////            title : 'extra1',
+////            url : 'http://localhost:8080/apollo/annotator/report/'
+////        ],
+////        tab2: ['title': 'extra2',
+////               'content': '<b>Some content</b><a href="http://google.com" target="_blank">Google</a>'
+////        ]
+////    ]
+//}
+
 // Uncomment to change the default memory configurations
 //grails.project.fork = [
 //        test   : false,
