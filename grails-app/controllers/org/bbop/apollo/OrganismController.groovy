@@ -418,9 +418,28 @@ class OrganismController {
             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
             JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
 
+            JSONObject trackObject = trackService.findTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
             extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
             extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
             extendedTrackListJsonFile.write(extendedTrackListObject.toString())
+
+            TrackTypeEnum trackTypeEnum = TrackTypeEnum.valueOf(trackObject.apollo.type)
+            // delete any files with the patterns of key.suffix and key.suffixIndex
+
+            for(def suffix in trackTypeEnum.suffix){
+                File fileToDelete = new File(extendedDirectoryName+ File.separator + "raw/"+trackObject.label.replaceAll(" ","_")+".${suffix}")
+                if(fileToDelete.exists()){
+                    boolean deleted = fileToDelete.delete()
+                    println "deleted file ${fileToDelete.absolutePath} -> ${deleted}"
+                }
+            }
+            for(def suffix in trackTypeEnum.suffixIndex){
+                File fileToDelete = new File(extendedDirectoryName+ File.separator + "raw/"+trackObject.label.replaceAll(" ","_")+".${suffix}")
+                if(fileToDelete.exists()){
+                    boolean deleted = fileToDelete.delete()
+                    println "deleted file ${fileToDelete.absolutePath} -> ${deleted}"
+                }
+            }
             render returnObject as JSON
         } catch (Exception ce) {
             log.error ce.message
