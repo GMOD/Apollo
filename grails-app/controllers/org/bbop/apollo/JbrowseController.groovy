@@ -5,7 +5,7 @@ import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Range // this line is needed, even if hte import doesn't show it
+import org.bbop.apollo.sequence.Range // this line is needed, even if the import doesn't show it
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
