@@ -12,9 +12,9 @@ public class TrackConfigurationTemplate {
     String type;
     String key;
     String category;
+    String topLevelFeatures;
     TrackTypeEnum typeEnum;
     // key is entered
-
 
     public TrackConfigurationTemplate(String storeClass,
                                       String urlTemplate,
@@ -24,6 +24,19 @@ public class TrackConfigurationTemplate {
                                       String category,
                                       TrackTypeEnum typeEnum
     ) {
+        this(storeClass,urlTemplate,label,type,key,category,typeEnum,null);
+    }
+
+
+    public TrackConfigurationTemplate(String storeClass,
+                                      String urlTemplate,
+                                      String label,
+                                      String type,
+                                      String key,
+                                      String category,
+                                      TrackTypeEnum typeEnum,
+                                      String topLevelFeatures
+    ) {
         this.storeClass = storeClass;
         this.urlTemplate = urlTemplate;
         this.label = label;
@@ -31,6 +44,7 @@ public class TrackConfigurationTemplate {
         this.key = key;
         this.category = category ;
         this.typeEnum = typeEnum ;
+        this.topLevelFeatures = topLevelFeatures;
     }
 
 
@@ -41,6 +55,9 @@ public class TrackConfigurationTemplate {
         returnObject.put("label", new JSONString(this.label));
         returnObject.put("type", new JSONString(this.type));
         returnObject.put("key", new JSONString(this.key));
+        if(topLevelFeatures!=null && topLevelFeatures.trim().length()>0){
+            returnObject.put("topLevelFeatures", new JSONString(this.topLevelFeatures));
+        }
         if(category!=null && category.trim().length()>0){
             returnObject.put("category", new JSONString(this.category));
         }
@@ -132,7 +149,8 @@ public class TrackConfigurationTemplate {
                         "JBrowse/View/Track/HTMLFeatures",
                         randomFileName,
                         category,
-                        type
+                        type,
+                        "mRNA"
                 ).toJSON();
             case GFF3_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -142,7 +160,8 @@ public class TrackConfigurationTemplate {
                         "JBrowse/View/Track/CanvasFeatures",
                         randomFileName,
                         category,
-                        type
+                        type,
+                        "mRNA"
                 ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(
@@ -152,7 +171,8 @@ public class TrackConfigurationTemplate {
                         "JBrowse/View/Track/HTMLFeatures",
                         randomFileName,
                         category,
-                        type
+                        type,
+                        "mRNA"
                 ).toJSON();
             case GFF3_TABIX_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -162,7 +182,8 @@ public class TrackConfigurationTemplate {
                         "JBrowse/View/Track/CanvasFeatures",
                         randomFileName,
                         category,
-                        type
+                        type,
+                        "mRNA"
                 ).toJSON();
         }
 
