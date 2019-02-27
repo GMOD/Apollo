@@ -239,15 +239,12 @@ class OrganismController {
         CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
 
-        println "Z"
-
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM_NAME.value)) {
             returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_NAME.value}'.")
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
             render returnObject as JSON
             return
         }
-        println "Y"
 
         if (organismDataFile == null && sequenceDataFile == null) {
             returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_DATA.value}' or ${FeatureStringEnum.SEQUENCE_DATA.value}.")
@@ -255,7 +252,6 @@ class OrganismController {
             render returnObject as JSON
             return
         }
-        println "X"
 
         if (organismDataFile != null && sequenceDataFile != null) {
             returnObject.put("error", "/addOrganismWithSequence requires ONLY one (not both) of '${FeatureStringEnum.ORGANISM_DATA.value}' or ${FeatureStringEnum.SEQUENCE_DATA.value}.")
@@ -266,7 +262,6 @@ class OrganismController {
 
         try {
             if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
-                println "User is admin"
                 String organismName = requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)
                 def organism = new Organism(
                         commonName: organismName,
@@ -284,12 +279,9 @@ class OrganismController {
                 organism.addMetaData("creator", currentUser.id.toString())
                 directoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organismName
                 File directory = new File(directoryName)
-                println "1"
 
                 if (directory.mkdirs()) {
-                    println "2"
                     if (organismDataFile) {
-                        println "A"
                         log.debug "Successfully created directory ${directoryName}"
                         File archiveFile = new File(organismDataFile.getOriginalFilename())
                         organismDataFile.transferTo(archiveFile)
@@ -308,87 +300,51 @@ class OrganismController {
                             organism.delete()
                         }
                     } else if (sequenceDataFile) {
-                        println "B ${sequenceDataFile.originalFilename}"
                         String suffix = sequenceDataFile.getOriginalFilename().substring(sequenceDataFile.getOriginalFilename().indexOf("."))
+                        String actualSuffix
                         String newName = sequenceDataFile.originalFilename
                         // suffix could be *.fa.tgz, *.fa.tar.gz, *.fa.zip
                         String originalName
                         if (suffix.endsWith("fa.tgz")) {
                             newName = organismName + ".fa.tgz"
+                            actualSuffix = "fa.tgz"
                             originalName = sequenceDataFile.originalFilename.substring(0,sequenceDataFile.originalFilename.length()-7)
                         } else if (suffix.endsWith("fa.tar.gz")) {
                             newName = organismName + ".fa.tar.gz"
+                            actualSuffix = "fa.tar.gz"
                             originalName = sequenceDataFile.originalFilename.substring(0,sequenceDataFile.originalFilename.length()-10)
                         } else if (suffix.endsWith(".zip")) {
                             newName = organismName + ".zip"
+                            actualSuffix = "zip"
                             originalName = sequenceDataFile.originalFilename.substring(0,sequenceDataFile.originalFilename.length()-4)
                         } else {
                             throw new RuntimeException("Invalid suffix for filename: ${sequenceDataFile.originalFilename}")
                         }
-                        println "Generated newName ${newName}"
                         // TODO: put this in a temp directory? ? ?
-                        File archiveFile = new File(newName)
-                        println "archive file ${archiveFile.absolutePath}"
+                        File archiveFile = File.createTempFile(newName,".fa")
                         sequenceDataFile.transferTo(archiveFile)
                         try {
                             File rawDirectory = new File(directoryName + "/seq")
                             rawDirectory.mkdir()
                             fileService.decompress(archiveFile, rawDirectory.absolutePath)
-                            println "Adding ${organismName} with directory: ${directoryName}"
                             organism.directory = directoryName
                             organism.save()
 
-
-                            def dir = new File(directoryName)
-                            dir.eachFileRecurse { file ->
-                                println file.absolutePath
-                            }
-
-
                             // 1. create an appropriate fasta file this way
                             String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
-                            println "trackListJSON ${trackListJson}"
                             File trackListFile = new File(directoryName + "/" + "trackList.json")
                             trackListFile.write(trackListJson)
 
                             // 2. rename
                             File originalFasta = new File( rawDirectory.absolutePath + "/" +  originalName + ".fa" )
-                            println "original ${originalFasta.absolutePath} -> ${originalFasta.size()}"
                             File finalFasta = new File(originalFasta.parent + "/" + organismName+".fa")
-                            println "new name ${originalFasta.absolutePath} -> ${originalFasta.size()}"
-                            println "new name final ${finalFasta.absolutePath} -> ${finalFasta.size()}"
                             originalFasta.renameTo(finalFasta)
-                            println "renamed ${originalFasta.absolutePath} -> ${originalFasta.size()}"
 
-                            dir = new File(directoryName)
-                            dir.eachFileRecurse { file ->
-                                println file.absolutePath
-                            }
-
-
-                            // 3. create a properly index fasta
-//                            File indexedFasta = new File(rawDirectory.parent+ "/" +  organismName+ ".fa.fai")
-//                            println "indexed fastaa path ${indexedFasta.absolutePath} -> ${indexedFasta.exists()}"
-
-//                            new java.nio.file.File(originalFasta)
-                            println "input file ${finalFasta.absolutePath}"
-//                            Path file2 = new Path(originalFasta)
                             Path path = FileSystems.getDefault().getPath(finalFasta.absolutePath);
-
-                            println "file2 ${path}"
                             FastaSequenceIndexCreator.create(path,true)
-
-                            dir = new File(directoryName)
-                            dir.eachFileRecurse { file ->
-                                println file.absolutePath
-                            }
-
-
 
                             sequenceService.loadRefSeqs(organism)
                             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
-
-
                             findAllOrganisms()
                         }
                         catch (IOException e) {
@@ -401,7 +357,6 @@ class OrganismController {
                         throw new RuntimeException("Not sure how we got here ")
                     }
                 } else {
-                    println "3"
                     log.error "Could not create ${directoryName}"
                     returnObject.put("error", "Could not create ${directoryName}.")
                     organism.delete()
@@ -432,7 +387,7 @@ class OrganismController {
     def removeTrackFromOrganism() {
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        println "removing track from organism with ${requestObject}"
+        log.info "removing track from organism with ${requestObject}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/removeTrackFromOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -451,7 +406,6 @@ class OrganismController {
         try {
             permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
             Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value)?.id)
-            println "organism ${organism}"
             // find in the extended track list and remove
             String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
             File extendedDirectory = new File(extendedDirectoryName)
@@ -463,14 +417,10 @@ class OrganismController {
             File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
             JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-            println "input tracks ${extendedTracksArray as JSON}"
 
             extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
-            println "output tracks ${extendedTracksArray as JSON}"
             extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
             extendedTrackListJsonFile.write(extendedTrackListObject.toString())
-            println "final object ${extendedTrackListObject as JSON}"
-            println "write to file ${extendedTrackListJsonFile.absolutePath}"
             render returnObject as JSON
         } catch (Exception ce) {
             log.error ce.message
@@ -497,7 +447,7 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        println "input params ${params}"
+        log.info "input params ${params}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -559,10 +509,9 @@ class OrganismController {
                 CommonsMultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
                 CommonsMultipartFile trackFileIndex = request.getFile(FeatureStringEnum.TRACK_FILE_INDEX.value)
 
-                println "file paths? ${trackFile}"
                 if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
                     // organism data is in common data directory
-                    println "organism data is in common data directory"
+                    log.info "organism data is in common data directory"
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
