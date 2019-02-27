@@ -327,7 +327,7 @@ public class TrackPanel extends Composite {
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
         TrackTypeEnum trackTypeEnum = getTrackType();
-        if(!uploadTrackFile.getFilename().endsWith(trackTypeEnum.getSuffix())){
+        if(!trackTypeEnum.hasSuffix(uploadTrackFile.getFilename())){
             Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " should have the suffix '"+trackTypeEnum.getSuffix() + "' for track type '"+trackTypeEnum.name()+"'");
         }
     }
@@ -335,7 +335,7 @@ public class TrackPanel extends Composite {
     @UiHandler("uploadTrackFileIndex")
     public void uploadTrackFileIndex(ChangeEvent event) {
         TrackTypeEnum trackTypeEnum = getTrackType();
-        if(!uploadTrackFileIndex.getFilename().endsWith(trackTypeEnum.getSuffixIndex())){
+        if(!trackTypeEnum.hasSuffixIndex(uploadTrackFileIndex.getFilename())){
             Bootbox.alert("Filetype suffix for " + uploadTrackFileIndex.getFilename() + " should have the suffix '"+trackTypeEnum.getSuffixIndex() + "' for track type '"+trackTypeEnum.name()+"'");
         }
     }
@@ -381,7 +381,7 @@ public class TrackPanel extends Composite {
         trackFileHTML.setVisible(true);
         uploadTrackFile.setVisible(true);
 
-        trackFileHTML.setText("*." + typeEnum.getSuffix());
+        trackFileHTML.setText(typeEnum.getSuffixString());
     }
 
     private void hideIndexOptions() {
@@ -394,7 +394,7 @@ public class TrackPanel extends Composite {
         trackFileIndexHTML.setVisible(true);
         uploadTrackFileIndex.setVisible(true);
 
-        trackFileIndexHTML.setText("*." + typeEnum.getSuffixIndex());
+        trackFileIndexHTML.setText(typeEnum.getSuffixIndexString());
     }
 
     private void resetNewTrackModel() {

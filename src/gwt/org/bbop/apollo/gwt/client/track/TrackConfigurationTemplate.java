@@ -67,8 +67,6 @@ public class TrackConfigurationTemplate {
         apolloDetails.put("source", new JSONString("upload"));
         apolloDetails.put("type", new JSONString(this.typeEnum.name()));
         returnObject.put("apollo", apolloDetails);
-
-        Window.alert("returning JSON: "+returnObject.toString());
         return returnObject;
     }
 
