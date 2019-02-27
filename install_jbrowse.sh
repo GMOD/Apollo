@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./apollo install-tools
+./apollo jbrowse-tools
 
 #done_message () {
 #    if [ $? == 0 ]; then

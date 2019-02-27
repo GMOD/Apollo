@@ -147,9 +147,9 @@ class FileService {
                 continue;
             }
 
-            FileOutputStream fos = new FileOutputStream(outputFile);
-            IOUtils.copy(tais, fos);
-            fos.close();
+            FileOutputStream fos = new FileOutputStream(outputFile)
+            IOUtils.copy(tais, fos)
+            fos.close()
         }
 
         if (tempDir) {
@@ -170,6 +170,32 @@ class FileService {
         }
     }
 
+    def storeWithNewName(CommonsMultipartFile file, String path, String directoryName,String newName ) {
+        File pathFile = new File(path)
+        if (!pathFile.exists()) {
+            pathFile.mkdirs()
+        }
+        int suffixIndex = newName.indexOf(".")
+        if(suffixIndex<1){
+            throw new RuntimeException("Invalid filename, must have a suffix: [" +newName+"]")
+        }
+        String suffix = newName.substring(suffixIndex)
+        String updatedName = directoryName.replaceAll(" ","_") + suffix
+//        /opt/temporary/apollo/6503-nf_test3/raw || test2 || volvox-sorted.bam
+//        /opt/temporary/apollo/6503-nf_test3/raw || test2 .bam
+        String destinationFileName = path + File.separator + updatedName
+        File destinationFile = new File(destinationFileName)
+        try {
+            println  "NEW NAME transferring track file to ${destinationFileName}"
+            file.transferTo(destinationFile)
+//            destinationFile.renameTo(new File())
+            println  "NEW NAME DONE transferringfile to ${destinationFileName.size()}"
+
+        } catch (Exception e) {
+            println e.message
+        }
+    }
+
 
     def store(CommonsMultipartFile file, String path, String directoryName = null, boolean tempDir = false) {
         File pathFile = new File(path)
@@ -182,10 +208,12 @@ class FileService {
 
         File destinationFile = new File(destinationFileName)
         try {
-            log.debug "transferring track file to ${destinationFileName}"
+            println  "transferring track file to ${destinationFileName}"
             file.transferTo(destinationFile)
+            println  "DONE transferringfile to ${destinationFileName.size()}"
+
         } catch (Exception e) {
-            log.error e.message
+            println e.message
         }
     }
 

@@ -484,6 +484,26 @@ class TrackService {
     }
 
     /**
+     *
+     * @param tracksArray
+     * @param trackName
+     * @return
+     */
+    @NotTransactional
+    def removeTrackFromArray(JSONArray tracksArray, String trackName) {
+        JSONArray returnArray = new JSONArray()
+        for (int i = 0; i < tracksArray.size(); i++) {
+            JSONObject obj = tracksArray.getJSONObject(i)
+            println "obj ${obj.label} vs ${trackName}"
+            if (obj.getString("label") != trackName) {
+                returnArray.add(obj)
+            }
+        }
+
+        return returnArray
+    }
+
+    /**
      * Removes plugins included in annot.json (which is just WebApollo)
      * @param pluginsArray
      */

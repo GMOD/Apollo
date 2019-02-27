@@ -362,10 +362,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
         afeature.type.name = typename;
     }
 
-    // if (useName && name) {
-    //     afeature.name = name;
-    // }
-
     var id = jfeature.get('id');
     var name = jfeature.get('name');
     if (useName) {

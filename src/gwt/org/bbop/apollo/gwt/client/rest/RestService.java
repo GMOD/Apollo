@@ -29,7 +29,7 @@ public class RestService {
         sendRequest(requestCallback, url, data, RequestBuilder.POST);
     }
 
-    public static void sendRequest(RequestCallback requestCallback, String url, String data, RequestBuilder.Method method) {
+    public static String fixUrl(String url){
         String rootUrl = Annotator.getRootUrl();
         if (!url.startsWith(rootUrl)) {
             url = rootUrl + url;
@@ -41,6 +41,11 @@ public class RestService {
             url += "=";
             url += Annotator.getClientToken();
         }
+        return url ;
+    }
+
+    public static void sendRequest(RequestCallback requestCallback, String url, String data, RequestBuilder.Method method) {
+        url = fixUrl(url);
         RequestBuilder builder = new RequestBuilder(method, URL.encode(url));
         if (data != null) {
             builder.setRequestData(data);

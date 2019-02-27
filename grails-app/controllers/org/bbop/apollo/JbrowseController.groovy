@@ -1,12 +1,11 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
 import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Range
+import org.bbop.apollo.sequence.Range // this line is needed, even if the import doesn't show it
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -16,7 +15,6 @@ import java.text.SimpleDateFormat
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
-//@CompileStatic
 class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
@@ -395,7 +393,6 @@ class JbrowseController {
 
      * @param tracksArray
      */
-    @NotTransactional
     def pruneTracks(JSONArray tracksArray){
         JSONArray returnArray = new JSONArray()
 

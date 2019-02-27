@@ -330,7 +330,11 @@ define([
                         filteredTrack.type = trackConfig.type;
                         filteredTrack.category = trackConfig.category;
                         filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                        filteredTrack.storeClass = trackConfig.storeClass;
                         filteredTrack.visible = visible;
+                        if(trackConfig.apollo){
+                            filteredTrack.apollo = trackConfig.apollo;
+                        }
                         filteredTrackList.push(filteredTrack);
                     }
 
