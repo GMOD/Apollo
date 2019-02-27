@@ -614,12 +614,12 @@ class OrganismController {
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
                                             println "track type enum ${trackTypeEnum}"
 
-                                            String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix  :  trackFile.originalFilename
+                                            String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix[0]  :  trackFile.originalFilename
 
                                             fileService.storeWithNewName(trackFile, path, trackConfigObject.key,newFileName)
                                             println "trying to store with track file index ${trackFileIndex.getOriginalFilename()}"
                                             if (trackFileIndex.getOriginalFilename()) {
-                                                String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex  :  trackFileIndex.originalFilename
+                                                String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0]  :  trackFileIndex.originalFilename
                                                 println "Storing with track file index ${trackFileIndex.getOriginalFilename()}"
 //                                                fileService.store(trackFileIndex, path)
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key,newFileNameIndex)
