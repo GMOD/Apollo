@@ -3,7 +3,7 @@ package org.bbop.apollo.gwt.shared.track;
 public enum TrackTypeEnum {
     BAM("bam","bam.bai"),
     BAM_CANVAS("bam","bam.bai"),
-    BIGWIG_HEAT_MAP("*bw"),
+    BIGWIG_HEAT_MAP("bw"),
     BIGWIG_XY("bw"),
     VCF("vcf.gz","vcf.gz.tbi"),
     VCF_CANVAS("vcf.gz","vcf.gz.tbi"),

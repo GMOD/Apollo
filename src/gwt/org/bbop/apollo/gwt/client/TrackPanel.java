@@ -326,23 +326,27 @@ public class TrackPanel extends Composite {
 
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
-        if (uploadTrackFile.getFilename().endsWith(".bam")) {
-            selectBam(null);
-        } else if (uploadTrackFile.getFilename().endsWith(".vcf.gz")) {
-            selectVCF(null);
-        } else if (uploadTrackFile.getFilename().endsWith(".bw")) {
-            selectBigWig(null);
-        } else if (uploadTrackFile.getFilename().endsWith(".gff.gz") || uploadTrackFile.getFilename().endsWith(".gff3.gz")) {
-            selectGFF3Tabix(null);
-        } else if (uploadTrackFile.getFilename().endsWith(".gff") || uploadTrackFile.getFilename().endsWith(".gff3")) {
-            selectGFF3(null);
-        } else {
-            Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " not recognized.");
+        TrackTypeEnum trackTypeEnum = getTrackType();
+        if(!uploadTrackFile.getFilename().endsWith(trackTypeEnum.getSuffix())){
+            Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " should have the suffix '"+trackTypeEnum.getSuffix() + "' for track type '"+trackTypeEnum.name()+"'");
+        }
+    }
+
+    @UiHandler("uploadTrackFileIndex")
+    public void uploadTrackFileIndex(ChangeEvent event) {
+        TrackTypeEnum trackTypeEnum = getTrackType();
+        if(!uploadTrackFileIndex.getFilename().endsWith(trackTypeEnum.getSuffixIndex())){
+            Bootbox.alert("Filetype suffix for " + uploadTrackFileIndex.getFilename() + " should have the suffix '"+trackTypeEnum.getSuffixIndex() + "' for track type '"+trackTypeEnum.name()+"'");
         }
     }
 
     @UiHandler("trackFileName")
     public void updateTrackFileName(KeyUpEvent event) {
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText()).toString());
+    }
+
+    @UiHandler("categoryName")
+    public void updateCategoryName(KeyUpEvent event) {
         configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText()).toString());
     }
 
@@ -447,20 +451,20 @@ public class TrackPanel extends Composite {
         setTrackTypeAndUpdate(TrackTypeEnum.GFF3);
     }
 
-//    @UiHandler("selectGFF3Canvas")
-//    public void selectGFF3Canvas(ClickEvent clickEvent) {
-//        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_CANVAS);
-//    }
+    @UiHandler("selectGFF3Canvas")
+    public void selectGFF3Canvas(ClickEvent clickEvent) {
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_CANVAS);
+    }
 
     @UiHandler("selectGFF3Tabix")
     public void selectGFF3Tabix(ClickEvent clickEvent) {
         setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX);
     }
 
-//    @UiHandler("selectGFF3TabixCanvas")
-//    public void selectGFF3TabixCanvas(ClickEvent clickEvent) {
-//        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX_CANVAS);
-//    }
+    @UiHandler("selectGFF3TabixCanvas")
+    public void selectGFF3TabixCanvas(ClickEvent clickEvent) {
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX_CANVAS);
+    }
 
     @UiHandler("selectVCF")
     public void selectVCF(ClickEvent clickEvent) {
@@ -563,7 +567,6 @@ public class TrackPanel extends Composite {
                     @Override
                     public void onClick(ClickEvent event) {
                         removeTrack(trackInfo.getName());
-//                        Window.alert("removing");
                     }
                 });
                 label.add(removeButton);

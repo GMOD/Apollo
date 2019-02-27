@@ -53,9 +53,9 @@
                                         <b:AnchorListItem ui:field="selectBigWig">BigWig HeatMap</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBigWigXY">BigWig XY</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3">GFF3 </b:AnchorListItem>
-                                        <!--<b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Canvas</b:AnchorListItem>-->
+                                        <b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3Tabix">GFF3 Tabix</b:AnchorListItem>
-                                        <!--<b:AnchorListItem ui:field="selectGFF3TabixCanvas">GFF3 Tabix Canvas</b:AnchorListItem>-->
+                                        <b:AnchorListItem ui:field="selectGFF3TabixCanvas">GFF3 Tabix Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectVCF">VCF</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectVCFCanvas">VCF Canvas</b:AnchorListItem>
                                     </b:DropDownMenu>
