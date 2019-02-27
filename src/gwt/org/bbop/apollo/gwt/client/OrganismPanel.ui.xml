@@ -134,24 +134,6 @@
                         </b:Row>
                         <b:Row styleName="{style.row}">
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
-                                <b:Button ui:field="newButton" text="Add New Organism" enabled="true"/>
-                                <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true"/>
-                                <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"
-                                          styleName="{style.inline-button}"
-                                />
-                                <b:Button ui:field="createButton" text="Save New Organism" visible="false"
-                                          styleName="{style.inline-button}"
-                                />
-                                <b:Button ui:field="duplicateButton" text="Duplicate" visible="false"
-                                          styleName="{style.inline-button}"
-                                />
-                                <b:Button ui:field="cancelButton" text="Cancel" visible="false"
-                                          styleName="{style.inline-button}"
-                                />
-                            </b:Column>
-                        </b:Row>
-                        <b:Row styleName="{style.row}">
-                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:CheckBox ui:field="publicMode" text="Public" visible="false"
                                             styleName="{style.inline-button}"
                                 />
@@ -159,6 +141,24 @@
                                             styleName="{style.inline-button}"
                                 />
                                 <b:Label ui:field="organismIdLabel"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                                <b:Button ui:field="newButton" text="Add New Organism" enabled="true" icon="PLUS_CIRCLE"/>
+                                <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true" icon="UPLOAD"/>
+                                <b:Button ui:field="deleteButton" text="Delete Organism" visible="false" icon="TRASH_O"
+                                          styleName="{style.inline-button}"
+                                />
+                                <b:Button ui:field="createButton" text="Save New Organism" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
+                                <b:Button ui:field="duplicateButton" text="Duplicate" visible="false" icon="COPY"
+                                          styleName="{style.inline-button}"
+                                />
+                                <b:Button ui:field="cancelButton" text="Cancel" visible="false"
+                                          styleName="{style.inline-button}"
+                                />
                             </b:Column>
                         </b:Row>
                     </b:Container>
