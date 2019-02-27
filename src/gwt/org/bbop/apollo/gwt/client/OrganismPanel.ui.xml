@@ -51,10 +51,49 @@
                             </gwt:HTML>
                         </b:ModalHeader>
                         <b:ModalBody>
-                            <gwt:HTML text="fields"/>
+                            <gwt:FlowPanel>
+
+                                <b:InputGroup addStyleNames="{style.widgetPanel}">
+                                    <b:InputGroupAddon>Name</b:InputGroupAddon>
+                                    <b:TextBox autoComplete="false" ui:field="organismUploadName" name="commonName"/>
+                                </b:InputGroup>
+
+                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
+                                <!--<b:InputGroupAddon>Genus</b:InputGroupAddon>-->
+                                <!--<b:TextBox ui:field="organismUploadGenus" name="genus"/>-->
+                                <!--</b:InputGroup>-->
+
+                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
+                                <!--<b:InputGroupAddon>Species</b:InputGroupAddon>-->
+                                <!--<b:TextBox ui:field="organismUploadSpecies" name="species"/>-->
+                                <!--</b:InputGroup>-->
+
+                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
+                                <!--<b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>-->
+                                <!--<b:TextBox ui:field="organismUploadNonDefaultTranslationTable" name="nonDefaultTranslationTable"/>-->
+                                <!--</b:InputGroup>-->
+
+                                <b:InputGroup addStyleNames="{style.widgetPanel}">
+                                    <b:InputGroupAddon>Genome Sequence (*.fa.tgz,*.fa.tar.gz,*.fa.zip)</b:InputGroupAddon>
+                                    <gwt:FileUpload ui:field="organismUploadSequence" name="sequenceData"/>
+                                </b:InputGroup>
+
+                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
+                                    <!--<b:InputGroupAddon>Genome Sequence  (*.fa.fai)</b:InputGroupAddon>-->
+                                    <!--<gwt:FileUpload ui:field="organismUploadSequenceIndex"  name="sequenceDataIndex"/>-->
+                                <!--</b:InputGroup>-->
+
+                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
+                                    <!--<b:InputGroupAddon>Search Database (*.2bit)</b:InputGroupAddon>-->
+                                    <!--<gwt:FileUpload ui:field="organismUploadBlat"  name="searchDatabase"/>-->
+                                <!--</b:InputGroup>-->
+
+
+
+                            </gwt:FlowPanel>
                         </b:ModalBody>
                         <b:ModalFooter>
-                            <gwt:Button ui:field="saveNewOrganism" enabled="false">Upload</gwt:Button>
+                            <gwt:Button ui:field="saveNewOrganism" >Upload</gwt:Button>
                             <b:Button ui:field="cancelNewOrganism" text="Cancel"/>
                         </b:ModalFooter>
                     </b:Modal>
@@ -145,8 +184,10 @@
                         </b:Row>
                         <b:Row styleName="{style.row}">
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
-                                <b:Button ui:field="newButton" text="Add New Organism" enabled="true" icon="PLUS_CIRCLE"/>
-                                <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true" icon="UPLOAD"/>
+                                <b:Button ui:field="newButton" text="Add New Organism" enabled="true"
+                                          icon="PLUS_CIRCLE"/>
+                                <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true"
+                                          icon="UPLOAD"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false" icon="TRASH_O"
                                           styleName="{style.inline-button}"
                                 />

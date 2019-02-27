@@ -30,6 +30,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.bbop.apollo.gwt.client.rest.RestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
@@ -98,6 +99,18 @@ public class OrganismPanel extends Composite {
     Button uploadOrganismButton;
     @UiField
     FormPanel newOrganismForm;
+    @UiField
+    TextBox organismUploadName;
+    @UiField
+    FileUpload organismUploadSequence;
+//    @UiField
+//    FileUpload organismUploadSequenceIndex;
+//    @UiField
+//    TextBox organismUploadGenus;
+//    @UiField
+//    TextBox organismUploadSpecies;
+//    @UiField
+//    TextBox organismUploadNonDefaultTranslationTable;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -112,6 +125,33 @@ public class OrganismPanel extends Composite {
         initWidget(ourUiBinder.createAndBindUi(this));
         loadingDialog = new LoadingDialog("Processing ...", null, false);
         errorDialog = new ErrorDialog("Error", "Organism directory must be an absolute path pointing to 'trackList.json'", false, true);
+
+        organismUploadName.getElement().setPropertyString("placeholder", "Enter organism name");
+        newOrganismForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        newOrganismForm.setMethod(FormPanel.METHOD_POST);
+        newOrganismForm.setAction(RestService.fixUrl("organism/addOrganismWithSequence"));
+
+        newOrganismForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+            @Override
+            public void onSubmit(FormPanel.SubmitEvent event) {
+                addOrganismFromSequencePanel.hide();
+            }
+        });
+
+        newOrganismForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+            @Override
+            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+                Bootbox.confirm("Organism '"+organismUploadName.getText()+"' added successfully.  Reload to see?", new ConfirmCallback() {
+                    @Override
+                    public void callback(boolean result) {
+                        if (result) {
+                            Window.Location.reload();
+                        }
+                    }
+                });
+
+            }
+        });
 
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
@@ -315,7 +355,21 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("saveNewOrganism")
     public void saveNewOrganism(ClickEvent event){
-        addOrganismFromSequencePanel.hide();
+        String resultMessage = checkForm();
+        if (resultMessage == null) {
+            newOrganismForm.submit();
+            addOrganismFromSequencePanel.hide();
+        } else {
+            Bootbox.alert(resultMessage);
+        }
+    }
+
+    /**
+     * TODO: check the form ehre
+     * @return
+     */
+    private String checkForm() {
+        return null ;
     }
 
     @UiHandler("cancelNewOrganism")
