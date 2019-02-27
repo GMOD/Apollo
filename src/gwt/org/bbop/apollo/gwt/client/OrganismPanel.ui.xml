@@ -41,12 +41,32 @@
     </ui:style>
     <gwt:DockLayoutPanel>
         <gwt:north size="25">
-           <!--<gwt:FlowPanel>-->
-            <b:ButtonGroup dataToggle="BUTTONS">
-                <b:CheckBoxButton ui:field="showOnlyPublicOrganisms" visible="false" value="false" >Show Public Only</b:CheckBoxButton>
-                <b:CheckBoxButton ui:field="showObsoleteOrganisms" value="false" >Show Obsolete</b:CheckBoxButton>
-               </b:ButtonGroup>
-           <!--</gwt:FlowPanel>-->
+            <!--<gwt:FlowPanel>-->
+            <b:Container fluid="true" ui:field="northContainer">
+                <gwt:FormPanel ui:field="newOrganismForm">
+                    <b:Modal ui:field="addOrganismFromSequencePanel">
+                        <b:ModalHeader>
+                            <gwt:HTML>
+                                <b>Add Organism from Sequence</b>
+                            </gwt:HTML>
+                        </b:ModalHeader>
+                        <b:ModalBody>
+                            <gwt:HTML text="fields"/>
+                        </b:ModalBody>
+                        <b:ModalFooter>
+                            <gwt:Button ui:field="saveNewOrganism" enabled="false">Upload</gwt:Button>
+                            <b:Button ui:field="cancelNewOrganism" text="Cancel"/>
+                        </b:ModalFooter>
+                    </b:Modal>
+                </gwt:FormPanel>
+                <b:ButtonGroup dataToggle="BUTTONS">
+                    <b:CheckBoxButton ui:field="showOnlyPublicOrganisms" visible="false" value="false">Show Public
+                        Only
+                    </b:CheckBoxButton>
+                    <b:CheckBoxButton ui:field="showObsoleteOrganisms" value="false">Show Obsolete</b:CheckBoxButton>
+                </b:ButtonGroup>
+            </b:Container>
+            <!--</gwt:FlowPanel>-->
         </gwt:north>
         <gwt:center>
             <gwt:DockLayoutPanel>
@@ -115,6 +135,7 @@
                         <b:Row styleName="{style.row}">
                             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                                 <b:Button ui:field="newButton" text="Add New Organism" enabled="true"/>
+                                <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false"
                                           styleName="{style.inline-button}"
                                 />
@@ -135,7 +156,7 @@
                                             styleName="{style.inline-button}"
                                 />
                                 <b:CheckBox ui:field="obsoleteButton" text="Obsolete" visible="false"
-                                          styleName="{style.inline-button}"
+                                            styleName="{style.inline-button}"
                                 />
                                 <b:Label ui:field="organismIdLabel"/>
                             </b:Column>

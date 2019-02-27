@@ -17,11 +17,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -31,11 +30,10 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
-import org.gwtbootstrap3.client.ui.CheckBoxButton;
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -90,6 +88,16 @@ public class OrganismPanel extends Composite {
     CheckBoxButton showOnlyPublicOrganisms;
     @UiField
     CheckBoxButton showObsoleteOrganisms;
+    @UiField
+    Modal addOrganismFromSequencePanel;
+    @UiField
+    com.google.gwt.user.client.ui.Button saveNewOrganism;
+    @UiField
+    Button cancelNewOrganism;
+    @UiField
+    Button uploadOrganismButton;
+    @UiField
+    FormPanel newOrganismForm;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -299,6 +307,21 @@ public class OrganismPanel extends Composite {
         }
     }
 
+
+    @UiHandler("uploadOrganismButton")
+    public void uploadOrganismButton(ClickEvent event){
+        addOrganismFromSequencePanel.show();
+    }
+
+    @UiHandler("saveNewOrganism")
+    public void saveNewOrganism(ClickEvent event){
+        addOrganismFromSequencePanel.hide();
+    }
+
+    @UiHandler("cancelNewOrganism")
+    public void setCancelNewOrganism(ClickEvent event){
+        addOrganismFromSequencePanel.hide();
+    }
 
     @UiHandler("obsoleteButton")
     public void handleObsoleteButton(ChangeEvent changeEvent) {
