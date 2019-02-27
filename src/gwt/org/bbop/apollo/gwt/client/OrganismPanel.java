@@ -342,6 +342,7 @@ public class OrganismPanel extends Composite {
         createButton.setText("Create Organism");
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
+        uploadOrganismButton.setVisible(false);
         cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
         createButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
@@ -406,6 +407,7 @@ public class OrganismPanel extends Composite {
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
         newButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        uploadOrganismButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
         deleteButton.setVisible(false);
         createButton.setVisible(false);
         cancelButton.setVisible(false);
