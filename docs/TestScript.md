@@ -170,6 +170,8 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.3.5) Test a set of track categories can handle opening and closing, searching, and select / unselect all.
 
+13.2.4) Check that as administrator that you can both add and remove tracks and that removed track contents are deleted.
+
 13.3) Ref Sequence
 
 13.3.1) Use the search box to find a scaffold / chromosome and navigate to it by double clicking on one of them. 
@@ -187,6 +189,10 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 13.4.3) Test that you duplicate an organism and obsolete the duplicate and that the show obsolete works correctly.
 
 13.4.4) Delete the duplicated organism
+
+13.4.5) Check that you can add an organism by uploading a FASTA file and add / remove tracks to that organism
+
+13.4.6) Check that when removing a temporary organism that all associated files are also removed.
 
 13.5) Users 
 
