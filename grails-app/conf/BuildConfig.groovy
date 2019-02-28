@@ -79,7 +79,7 @@ grails.project.dependency.resolution = {
         // svg generation
         compile group: 'org.apache.xmlgraphics', name: 'batik-svg-dom', version: '1.9'
         compile group: 'org.apache.xmlgraphics', name: 'batik-svggen', version: '1.7'
-        compile group: 'org.apache.commons', name: 'commons-compress', version: '1.14'
+        compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
 
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'

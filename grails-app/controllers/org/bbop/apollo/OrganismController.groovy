@@ -7,6 +7,7 @@ import htsjdk.samtools.reference.*
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum
 import org.bbop.apollo.gwt.shared.track.TrackTypeEnum
 import org.bbop.apollo.report.OrganismSummary
 import org.bbop.apollo.track.TrackDefaults
@@ -299,44 +300,30 @@ class OrganismController {
                             log.error e.printStackTrace()
                             returnObject.put("error", e.message)
                             organism.delete()
+                            render returnObject
+                            return
                         }
                     } else if (sequenceDataFile) {
-                        String suffix = sequenceDataFile.getOriginalFilename().substring(sequenceDataFile.getOriginalFilename().indexOf("."))
-                        String actualSuffix
-                        String newName = sequenceDataFile.originalFilename
-                        // suffix could be *.fa.tgz, *.fa.tar.gz, *.fa.zip
-                        String originalName
-                        if (suffix.endsWith("fa")) {
-                            newName = organismName + ".fa"
-                            actualSuffix = "fa"
-                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 3)
-                        } else if (suffix.endsWith("fa.tgz")) {
-                            newName = organismName + ".fa.tgz"
-                            actualSuffix = "fa.tgz"
-                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 7)
-                        } else if (suffix.endsWith("fa.tar.gz")) {
-                            newName = organismName + ".fa.tar.gz"
-                            actualSuffix = "fa.tar.gz"
-                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 10)
-                        } else if (suffix.endsWith("fa.zip")) {
-                            newName = organismName + ".fa.zip"
-                            actualSuffix = "zip"
-                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 5)
-                        } else {
-                            throw new RuntimeException("Invalid suffix for filename: ${sequenceDataFile.originalFilename}")
+
+                        SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(sequenceDataFile.getOriginalFilename())
+                        if(sequenceTypeEnum==null){
+                            returnObject.put("error", "Bad file input: "+sequenceDataFile.originalFilename)
+                            render returnObject
+                            return
                         }
+
                         // TODO: put this in a temp directory? ? ?
                         try {
                             File rawDirectory = new File(directoryName + "/seq")
                             rawDirectory.mkdir()
-                            File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + actualSuffix)
+                            File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
                             sequenceDataFile.transferTo(archiveFile)
 
                             organism.directory = directoryName
                             organism.save()
 
                             // decompress if need be
-                            if (actualSuffix != "fa") {
+                            if (sequenceTypeEnum.compression!=null) {
                                 List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
                                 println "moving ${fileNames}"
                                 // move the filenames to the same original name, let's assume there is one

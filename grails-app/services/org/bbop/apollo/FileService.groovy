@@ -31,6 +31,8 @@ class FileService {
             return decompressZipArchive(archiveFile, path, directoryName, tempDir)
         } else if (archiveFile.name.contains(".tar.gz") || archiveFile.name.contains(".tgz")) {
             return decompressTarArchive(archiveFile, path, directoryName, tempDir)
+        } else if (archiveFile.name.contains(".gz")) {
+            return decompressGzipArchive(archiveFile, path, directoryName, tempDir)
         } else {
             throw new IOException("Cannot detect format (either *.zip, *.tar.gz or *.tgz) for file: ${archiveFile.name}")
         }
@@ -129,6 +131,7 @@ class FileService {
         TarArchiveInputStream tais = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(tarFile)))
         TarArchiveEntry entry = null
 
+
         while ((entry = (TarArchiveEntry) tais.getNextEntry()) != null) {
             if (atArchiveRoot) {
                 archiveRootDirectoryName = entry.getName()
@@ -179,6 +182,27 @@ class FileService {
 
             // delete temp folder
             new File(initialLocation).deleteDir()
+        }
+        return fileNames
+    }
+
+    List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {
+        List<String> fileNames = []
+        boolean atArchiveRoot = true
+        String archiveRootDirectoryName
+        String initialLocation = tempDir ? path + File.separator + "temp" : path
+        log.debug "initial location: ${initialLocation}"
+        GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
+        String tempFileName = UUID.randomUUID().toString()+".fa"
+
+        File outputFile = new File(initialLocation, tempFileName)
+        try {
+            FileOutputStream fos = new FileOutputStream(outputFile)
+            IOUtils.copy(tais, fos)
+            fos.close()
+            fileNames.add(outputFile.absolutePath)
+        } catch (IOException e) {
+                log.error("Problem decrompression file ${gzipFile} vs ${outputFile}", e)
         }
         return fileNames
     }

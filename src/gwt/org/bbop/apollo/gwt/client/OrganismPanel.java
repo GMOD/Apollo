@@ -31,6 +31,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
+import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
@@ -103,6 +104,8 @@ public class OrganismPanel extends Composite {
     TextBox organismUploadName;
     @UiField
     FileUpload organismUploadSequence;
+    @UiField
+    HTML uploadDescription;
 //    @UiField
 //    FileUpload organismUploadSequenceIndex;
 //    @UiField
@@ -131,6 +134,8 @@ public class OrganismPanel extends Composite {
         newOrganismForm.setMethod(FormPanel.METHOD_POST);
         newOrganismForm.setAction(RestService.fixUrl("organism/addOrganismWithSequence"));
 
+        uploadDescription.setHTML("<small>"+SequenceTypeEnum.generateSuffixDescription()+"</small>");
+
         newOrganismForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
             public void onSubmit(FormPanel.SubmitEvent event) {
@@ -141,7 +146,7 @@ public class OrganismPanel extends Composite {
         newOrganismForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                Bootbox.confirm("Organism '"+organismUploadName.getText()+"' added successfully.  Reload to see?", new ConfirmCallback() {
+                Bootbox.confirm("Organism '"+organismUploadName.getText()+"' submitted successfully.  Reload to see?", new ConfirmCallback() {
                     @Override
                     public void callback(boolean result) {
                         if (result) {
@@ -369,6 +374,10 @@ public class OrganismPanel extends Composite {
      * @return
      */
     private String checkForm() {
+        SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(organismUploadSequence.getFilename());
+        if(sequenceTypeEnum==null){
+            return "Bad suffix for filename "+organismUploadSequence.getFilename();
+        }
         return null ;
     }
 

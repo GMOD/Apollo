@@ -74,7 +74,8 @@
                                 <!--</b:InputGroup>-->
 
                                 <b:InputGroup addStyleNames="{style.widgetPanel}">
-                                    <b:InputGroupAddon>Genome Sequence (*.fa.tgz,*.fa.tar.gz,*.fa.zip)</b:InputGroupAddon>
+                                    <b:InputGroupAddon text="DNA"/>
+                                    <gwt:HTML ui:field="uploadDescription"/>
                                     <gwt:FileUpload ui:field="organismUploadSequence" name="sequenceData"/>
                                 </b:InputGroup>
 
