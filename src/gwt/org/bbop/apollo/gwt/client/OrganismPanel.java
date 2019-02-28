@@ -387,6 +387,9 @@ public class OrganismPanel extends Composite {
      * @return
      */
     private String checkForm() {
+        if(organismUploadName.getText().trim().length()==0){
+            return "Organism needs a name";
+        }
         SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(organismUploadSequence.getFilename());
         if (sequenceTypeEnum == null) {
             return "Bad suffix for filename " + organismUploadSequence.getFilename();
