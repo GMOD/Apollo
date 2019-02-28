@@ -474,7 +474,7 @@ class TrackService {
      * @return
      */
     @NotTransactional
-    def findTrackFromArray(JSONArray tracksArray, String trackName) {
+    JSONObject findTrackFromArray(JSONArray tracksArray, String trackName) {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
             if (obj.getString("label") == trackName) return obj

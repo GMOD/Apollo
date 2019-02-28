@@ -3,11 +3,14 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import htsjdk.samtools.reference.FastaSequenceIndexCreator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum
 import org.bbop.apollo.gwt.shared.track.TrackTypeEnum
 import org.bbop.apollo.report.OrganismSummary
+import org.bbop.apollo.track.TrackDefaults
 import org.codehaus.groovy.grails.web.converters.exceptions.ConverterException
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -20,6 +23,8 @@ import org.restapidoc.pojo.RestApiVerb
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
 import javax.servlet.http.HttpServletResponse
+import java.nio.file.FileSystems
+import java.nio.file.Path
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
@@ -78,6 +83,12 @@ class OrganismController {
             OrganismFilter.deleteAll(OrganismFilter.findAllByOrganism(organism))
             organism.delete()
             log.info "Success deleting organism: ${organismJson.organism}"
+
+            if (organism.directory.startsWith(configWrapperService.commonDataDirectory)) {
+                log.info "Directoy is part of the common data directory ${configWrapperService.commonDataDirectory}, so deleting ${organism.directory}"
+                File directoryToRemove = new File(organism.directory)
+                assert directoryToRemove.deleteDir()
+            }
 
             render findAllOrganisms()
 
@@ -222,15 +233,19 @@ class OrganismController {
             , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
             , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory")
+            , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "FASTA file (optionally compressed) to automatically upload with")
     ])
     @Transactional
     def addOrganismWithSequence() {
 
+
         JSONObject returnObject = new JSONObject()
         String directoryName
         JSONObject requestObject = permissionService.handleInput(request, params)
+        log.info "adding organismwith SEQUENDE ${requestObject as String}"
         String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
-        CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+        CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM_NAME.value)) {
             returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_NAME.value}'.")
@@ -239,8 +254,15 @@ class OrganismController {
             return
         }
 
-        if (sequenceDataFile == null) {
-            returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_DATA.value}'.")
+        if (organismDataFile == null && sequenceDataFile == null) {
+            returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_DATA.value}' or ${FeatureStringEnum.SEQUENCE_DATA.value}.")
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
+            render returnObject as JSON
+            return
+        }
+
+        if (organismDataFile != null && sequenceDataFile != null) {
+            returnObject.put("error", "/addOrganismWithSequence requires ONLY one (not both) of '${FeatureStringEnum.ORGANISM_DATA.value}' or ${FeatureStringEnum.SEQUENCE_DATA.value}.")
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST)
             render returnObject as JSON
             return
@@ -248,40 +270,96 @@ class OrganismController {
 
         try {
             if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
-                log.debug "User is admin"
+                String organismName = requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)
                 def organism = new Organism(
-                        commonName: requestObject.get(FeatureStringEnum.ORGANISM_NAME.value),
+                        commonName: organismName,
                         directory: configWrapperService.commonDataDirectory,
                         blatdb: requestObject.blatdb ?: "",
                         genus: requestObject.genus ?: "",
                         obsolete: false,
+                        valid: true,
                         species: requestObject.species ?: "",
                         metadata: requestObject.metadata ?: "",
                         publicMode: requestObject.publicMode ?: false,
+                        nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
                         dataAddedViaWebServices: true
                 ).save(failOnError: true, flush: true, insert: true)
                 def currentUser = permissionService.currentUser
                 organism.addMetaData("creator", currentUser.id.toString())
-                directoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)
+                directoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organismName
                 File directory = new File(directoryName)
 
                 if (directory.mkdirs()) {
-                    log.debug "Successfully created directory ${directoryName}"
-                    File archiveFile = new File(sequenceDataFile.getOriginalFilename())
-                    sequenceDataFile.transferTo(archiveFile)
-                    try {
-                        fileService.decompress(archiveFile, configWrapperService.commonDataDirectory, organism.id + "-" + requestObject.get(FeatureStringEnum.ORGANISM_NAME.value), true)
-                        log.debug "Adding ${requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)} with directory: ${directoryName}"
-                        organism.directory = directoryName
-                        organism.save()
-                        sequenceService.loadRefSeqs(organism)
-                        preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
-                        findAllOrganisms()
-                    }
-                    catch (IOException e) {
-                        log.error e.printStackTrace()
-                        returnObject.put("error", e.message)
-                        organism.delete()
+                    if (organismDataFile) {
+                        log.debug "Successfully created directory ${directoryName}"
+                        File archiveFile = new File(organismDataFile.getOriginalFilename())
+                        organismDataFile.transferTo(archiveFile)
+                        try {
+                            fileService.decompress(archiveFile, directoryName, null, false)
+                            log.debug "Adding ${organismName} with directory: ${directoryName}"
+                            organism.directory = directoryName
+                            organism.save()
+                            sequenceService.loadRefSeqs(organism)
+                            preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
+                            findAllOrganisms()
+                        }
+                        catch (IOException e) {
+                            log.error e.printStackTrace()
+                            returnObject.put("error", e.message)
+                            organism.delete()
+                            render returnObject
+                            return
+                        }
+                    } else if (sequenceDataFile) {
+
+                        SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(sequenceDataFile.getOriginalFilename())
+                        if (sequenceTypeEnum == null) {
+                            returnObject.put("error", "Bad file input: " + sequenceDataFile.originalFilename)
+                            render returnObject
+                            return
+                        }
+
+                        // TODO: put this in a temp directory? ? ?
+                        try {
+                            File rawDirectory = new File(directoryName + "/seq")
+                            rawDirectory.mkdir()
+                            File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
+                            sequenceDataFile.transferTo(archiveFile)
+
+                            organism.directory = directoryName
+                            organism.save()
+
+                            // decompress if need be
+                            if (sequenceTypeEnum.compression != null) {
+                                List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
+                                // move the filenames to the same original name, let's assume there is one
+                                File oldFile = new File(fileNames[0])
+                                assert oldFile.exists()
+                                assert oldFile.absolutePath.endsWith(".fa")
+                                File newFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+                                oldFile.renameTo(newFile)
+                            }
+
+                            String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
+                            File trackListFile = new File(directoryName + "/" + "trackList.json")
+                            trackListFile.write(trackListJson)
+
+                            // create an index
+                            Path path = FileSystems.getDefault().getPath(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+                            FastaSequenceIndexCreator.create(path, true)
+
+                            sequenceService.loadRefSeqs(organism)
+                            preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
+                            findAllOrganisms()
+                        }
+                        catch (IOException e) {
+                            log.error e.printStackTrace()
+                            returnObject.put("error", e.message)
+                            organism.delete()
+                        }
+
+                    } else {
+                        throw new RuntimeException("Not sure how we got here ")
                     }
                 } else {
                     log.error "Could not create ${directoryName}"
@@ -292,7 +370,8 @@ class OrganismController {
                 log.error "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms"
                 returnObject.put("error", "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms.")
             }
-        } catch (Exception e) {
+        }
+        catch (e) {
             log.error e.printStackTrace()
             returnObject.put("error", e.message)
         }
@@ -311,7 +390,7 @@ class OrganismController {
     def removeTrackFromOrganism() {
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        println "removing track from organism with ${requestObject}"
+        log.info "removing track from organism with ${requestObject}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/removeTrackFromOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -330,7 +409,6 @@ class OrganismController {
         try {
             permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
             Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value)?.id)
-            println "organism ${organism}"
             // find in the extended track list and remove
             String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
             File extendedDirectory = new File(extendedDirectoryName)
@@ -339,17 +417,43 @@ class OrganismController {
                 render returnObject as JSON
                 return
             }
-            File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            File extendedTrackListJsonFile
+//            = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            if (new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST).exists()) {
+                extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            } else {
+//                println "file does not ext ${extendedTrackListJsonFile.absolutePath}"
+                if (organism.directory.contains(configWrapperService.commonDataDirectory)) {
+                    extendedTrackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                } else {
+                    throw new RuntimeException("Can not delete tracks from a non-temporary directory: ${extendedTrackListJsonFile.absolutePath}")
+                }
+            }
+
             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
             JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
-            println "input tracks ${extendedTracksArray as JSON}"
 
-            extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
-            println "output tracks ${extendedTracksArray as JSON}"
-            extendedTrackListObject.put(FeatureStringEnum.TRACKS.value,extendedTracksArray)
+            String trackLabel = requestObject.getString(FeatureStringEnum.TRACK_LABEL.value)
+            JSONObject trackObject = trackService.findTrackFromArray(extendedTracksArray, trackLabel)
+            extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, trackLabel)
+            extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
             extendedTrackListJsonFile.write(extendedTrackListObject.toString())
-            println "final object ${extendedTrackListObject as JSON}"
-            println "write to file ${extendedTrackListJsonFile.absolutePath}"
+
+            TrackTypeEnum trackTypeEnum = TrackTypeEnum.valueOf(trackObject.apollo.type)
+            // delete any files with the patterns of key.suffix and key.suffixIndex
+
+            for (def suffix in trackTypeEnum.suffix) {
+                File fileToDelete = new File(extendedDirectoryName + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
+                if (fileToDelete.exists()) {
+                    assert fileToDelete.delete()
+                }
+            }
+            for (def suffix in trackTypeEnum.suffixIndex) {
+                File fileToDelete = new File(extendedDirectoryName + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
+                if (fileToDelete.exists()) {
+                    assert fileToDelete.delete()
+                }
+            }
             render returnObject as JSON
         } catch (Exception ce) {
             log.error ce.message
@@ -376,16 +480,7 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-//        println "input request object ${requestObject}"
-//        println "request ${request}"
-        println "input params ${params}"
-//        println "request trackFile: ${request.getFile("trackFile")}"
-//        if(request.getFile(FeatureStringEnum.TRACK_DATA.value)){
-////            File tempFile = File.createTempFile("trackFile","tmp")
-////            trackFileData.transferTo(tempFile)
-////            requestObject.put("trackFile")
-//        }
-
+        log.info "input params ${params}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -447,10 +542,9 @@ class OrganismController {
                 CommonsMultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
                 CommonsMultipartFile trackFileIndex = request.getFile(FeatureStringEnum.TRACK_FILE_INDEX.value)
 
-                println "file paths? ${trackFile}"
                 if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
                     // organism data is in common data directory
-                    println "organism data is in common data directory"
+                    log.info "organism data is in common data directory"
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
@@ -486,18 +580,21 @@ class OrganismController {
                     } else {
                         // trackDataFile is null; use data from trackFile and trackFileIndex, if available
                         if (trackFile) {
-                            println "using track file"
                             if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
-                                println "found track from array"
                                 // add track config to trackList.json
                                 tracksArray.add(trackConfigObject)
                                 try {
                                     String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
                                     String trackDirectoryName = urlTemplate.split("/").first()
                                     String path = organismDirectoryName + File.separator + trackDirectoryName
-                                    fileService.store(trackFile, path)
-                                    if (trackFileIndex) {
-                                        fileService.store(trackFileIndex, path)
+//                                    fileService.store(trackFile, path)
+                                    TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
+                                    String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
+                                    fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                    if (trackFileIndex.originalFilename) {
+                                        String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
+//                                        fileService.store(trackFileIndex, path)
+                                        fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                     }
 
                                     // write to trackList.json
@@ -518,7 +615,6 @@ class OrganismController {
                     }
                 } else {
                     // organism data is somewhere on the server where we don't want to modify anything
-                    println "adding to existing organism"
                     File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
@@ -526,22 +622,18 @@ class OrganismController {
                         log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                     } else {
-                        println "will be a new track"
                         String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
                         File extendedDirectory = new File(extendedDirectoryName)
                         if (extendedDirectory.exists()) {
                             // extended organism directory present in common data directory
-                            println "extended organism directory ${extendedDirectoryName} present in common data directory"
                         } else {
                             // make a new extended organism directory in common data directory
-                            println "creating extended organism directory ${extendedDirectoryName} in common data directory"
                             if (extendedDirectory.mkdirs()) {
                                 // write extendedTrackList.json
                                 File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
                                 def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                 trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                 trackListJsonWriter.close()
-                                println "added to the trackListJsonWriter ${extendedTrackListJsonFile.text}"
                             } else {
                                 log.error "Cannot create directory ${extendedDirectoryName}"
                                 returnObject.put("error", "Cannot create directory ${extendedDirectoryName}.")
@@ -581,55 +673,40 @@ class OrganismController {
                             }
                         } else {
                             if (trackFile) {
-                                println "using track file for existing organism"
                                 if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
-                                    println "found track from array"
                                     // add track config to trackList.json
                                     File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
-                                    if(!extendedTrackListJsonFile.exists()){
-                                        println "file does not exist so creating"
+                                    if (!extendedTrackListJsonFile.exists()) {
                                         def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                         trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                         trackListJsonWriter.close()
-                                        println "added to the trackListJsonWriter ${extendedTrackListJsonFile.text}"
-                                    }
-                                    else{
-                                        println "FILE EXISTS, so nothing to do ${extendedTrackListJsonFile.text}"
+                                    } else {
+                                        log.info "FILE EXISTS, so nothing to do ${extendedTrackListJsonFile.text}"
                                     }
                                     JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
                                     JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                                     if (trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
                                         log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
-                                    }
-                                    else {
+                                    } else {
                                         try {
 //                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
 //                                            String trackDirectoryName = urlTemplate.split("/").first()
 //                                            String path = organismDirectoryName + File.separator + trackDirectoryName
                                             String path = extendedDirectoryName + File.separator + "raw"
-                                            println "tranfer config object ${trackConfigObject as JSON}"
-                                            println "transfer key ${trackConfigObject.key}"
-                                            println "transfer key 2 ${trackConfigObject.get("key")}"
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
-                                            println "track type enum ${trackTypeEnum}"
 
-                                            String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix[0]  :  trackFile.originalFilename
+                                            String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
-                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.key,newFileName)
-                                            println "trying to store with track file index ${trackFileIndex.getOriginalFilename()}"
+                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             if (trackFileIndex.getOriginalFilename()) {
-                                                String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0]  :  trackFileIndex.originalFilename
-                                                println "Storing with track file index ${trackFileIndex.getOriginalFilename()}"
+                                                String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
 //                                                fileService.store(trackFileIndex, path)
-                                                fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key,newFileNameIndex)
-                                                println "STORED with track file index ${trackFileIndex}"
+                                                fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)
-                                            extendedTrackListObject.put(FeatureStringEnum.TRACKS.value,extendedTracksArray)
-                                            println "array ${extendedTracksArray as JSON}"
-                                            println "object ${extendedTrackListObject as JSON}"
+                                            extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
 
                                             // write to trackList.json
                                             def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
@@ -642,7 +719,7 @@ class OrganismController {
                                             returnObject.put("error", e.message)
                                         }
                                     }
-                                    println "trackJsonWriter: -> ${extendedTrackListJsonFile.absolutePath}, ${extendedTrackListJsonFile.text}"
+                                    log.debug "trackJsonWriter: -> ${extendedTrackListJsonFile.absolutePath}, ${extendedTrackListJsonFile.text}"
                                 } else {
                                     log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                                     returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
@@ -1066,6 +1143,8 @@ class OrganismController {
         File directory = new File(organism.directory)
         File trackListFile = new File(organism.getTrackList())
         File refSeqFile = new File(organism.getRefseqFile())
+        File genomeFastaFile = new File(organism.genomeFastaFileName)
+        File genomeFastaIndexFile = new File(organism.genomeFastaIndexFileName)
 
         if (!directory.exists() || !directory.isDirectory()) {
             organism.valid = false
@@ -1073,12 +1152,24 @@ class OrganismController {
         } else if (!trackListFile.exists()) {
             organism.valid = false
             throw new Exception("Track file does not exists: " + trackListFile.absolutePath)
+        }
+
+
+        if (organism.genomeFasta) {
+            if (!genomeFastaFile.exists()) {
+                organism.valid = false
+                throw new Exception("Invalid fasta file : " + genomeFastaFile.absolutePath)
+            }
+            if (!genomeFastaIndexFile.exists()) {
+                organism.valid = false
+                throw new Exception("Invalid index fasta file : " + genomeFastaIndexFile.absolutePath)
+            }
         } else if (!refSeqFile.exists()) {
             organism.valid = false
             throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
-        } else {
-            organism.valid = true
         }
+
+        organism.valid = true
         return organism.valid
     }
 
@@ -1103,7 +1194,7 @@ class OrganismController {
             JSONObject organismJson = permissionService.handleInput(request, params)
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
-            Boolean madeObsolete = false
+            Boolean madeObsolete
             if (organism) {
                 log.debug "Updating organism info ${organismJson as JSON}"
                 organism.commonName = organismJson.name
@@ -1289,10 +1380,10 @@ class OrganismController {
         }
     }
 
-    /**
-     * Permissions handled upstream
-     * @return
-     */
+/**
+ * Permissions handled upstream
+ * @return
+ */
     def report() {
         Map<Organism, OrganismSummary> organismSummaryListInstance = new TreeMap<>(new Comparator<Organism>() {
             @Override

@@ -17,11 +17,10 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -31,11 +30,12 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
+import org.bbop.apollo.gwt.client.rest.RestService;
+import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
-import org.gwtbootstrap3.client.ui.CheckBoxButton;
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -90,6 +90,28 @@ public class OrganismPanel extends Composite {
     CheckBoxButton showOnlyPublicOrganisms;
     @UiField
     CheckBoxButton showObsoleteOrganisms;
+    @UiField
+    Modal addOrganismFromSequencePanel;
+    @UiField
+    com.google.gwt.user.client.ui.Button saveNewOrganism;
+    @UiField
+    Button cancelNewOrganism;
+    @UiField
+    Button uploadOrganismButton;
+    @UiField
+    FormPanel newOrganismForm;
+    @UiField
+    TextBox organismUploadName;
+    @UiField
+    FileUpload organismUploadSequence;
+    @UiField
+    HTML uploadDescription;
+    @UiField
+    TextBox organismUploadGenus;
+    @UiField
+    TextBox organismUploadSpecies;
+    @UiField
+    TextBox organismUploadNonDefaultTranslationTable;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
@@ -105,11 +127,52 @@ public class OrganismPanel extends Composite {
         loadingDialog = new LoadingDialog("Processing ...", null, false);
         errorDialog = new ErrorDialog("Error", "Organism directory must be an absolute path pointing to 'trackList.json'", false, true);
 
+        organismUploadName.getElement().setPropertyString("placeholder", "Enter organism name");
+        newOrganismForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        newOrganismForm.setMethod(FormPanel.METHOD_POST);
+        newOrganismForm.setAction(RestService.fixUrl("organism/addOrganismWithSequence"));
+
+        uploadDescription.setHTML("<small>" + SequenceTypeEnum.generateSuffixDescription() + "</small>");
+
+        newOrganismForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+            @Override
+            public void onSubmit(FormPanel.SubmitEvent event) {
+                addOrganismFromSequencePanel.hide();
+            }
+        });
+
+        newOrganismForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+            @Override
+            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+                String results = event.getResults();
+                int errorResults1 = results.indexOf("\">{\"error\":\"");
+                int errorResults2 = results.indexOf("\"}</pre>");
+                if (results.startsWith("<pre") && errorResults1 > 0 && errorResults2 > errorResults1) {
+                    String jsonSubString = results.substring(errorResults1+2, errorResults2+2);
+                    GWT.log("Error response: " + jsonSubString);
+                    JSONObject errorObject = JSONParser.parseStrict(jsonSubString).isObject();
+                    GWT.log(errorObject.toString());
+                    Bootbox.alert("There was a problem adding the organism: "+errorObject.get("error").isString().stringValue());
+                    return;
+                }
+
+                Bootbox.confirm("Organism '" + organismUploadName.getText() + "' submitted successfully.  Reload to see?", new ConfirmCallback() {
+                    @Override
+                    public void callback(boolean result) {
+                        if (result) {
+                            Window.Location.reload();
+                        }
+                    }
+                });
+
+            }
+        });
+
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
             public String getValue(OrganismInfo organism) {
-                if(organism.getObsolete()){
-                    return "(obs) "+organism.getName();
+                if (organism.getObsolete()) {
+                    return "(obs) " + organism.getName();
                 }
                 return organism.getName();
             }
@@ -174,9 +237,9 @@ public class OrganismPanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 if (singleSelectionModel.getSelectedObject() != null) {
                     OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
-                    if(organismInfo.getObsolete()){
+                    if (organismInfo.getObsolete()) {
                         Bootbox.alert("You will have to make this organism 'active' by unselecting the 'Obsolete' checkbox in the Organism Details panel at the bottom.");
-                        return ;
+                        return;
                     }
                     String orgId = organismInfo.getId();
                     if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
@@ -300,6 +363,43 @@ public class OrganismPanel extends Composite {
     }
 
 
+    @UiHandler("uploadOrganismButton")
+    public void uploadOrganismButton(ClickEvent event) {
+        addOrganismFromSequencePanel.show();
+    }
+
+    @UiHandler("saveNewOrganism")
+    public void saveNewOrganism(ClickEvent event) {
+        String resultMessage = checkForm();
+        if (resultMessage == null) {
+            newOrganismForm.submit();
+            addOrganismFromSequencePanel.hide();
+        } else {
+            Bootbox.alert(resultMessage);
+        }
+    }
+
+    /**
+     * TODO: check the form ehre
+     *
+     * @return
+     */
+    private String checkForm() {
+        if(organismUploadName.getText().trim().length()==0){
+            return "Organism needs a name";
+        }
+        SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(organismUploadSequence.getFilename());
+        if (sequenceTypeEnum == null) {
+            return "Bad suffix for filename " + organismUploadSequence.getFilename();
+        }
+        return null;
+    }
+
+    @UiHandler("cancelNewOrganism")
+    public void setCancelNewOrganism(ClickEvent event) {
+        addOrganismFromSequencePanel.hide();
+    }
+
     @UiHandler("obsoleteButton")
     public void handleObsoleteButton(ChangeEvent changeEvent) {
         GWT.log("Handling obsolete change " + obsoleteButton.getValue());
@@ -319,6 +419,7 @@ public class OrganismPanel extends Composite {
         createButton.setText("Create Organism");
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
+        uploadOrganismButton.setVisible(false);
         cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
         createButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
@@ -361,14 +462,14 @@ public class OrganismPanel extends Composite {
     @UiHandler("showOnlyPublicOrganisms")
     public void handleShowOnlyPublicOrganisms(ClickEvent clickEvent) {
         showOnlyPublicOrganisms.setValue(!showOnlyPublicOrganisms.getValue());
-        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(), this.showObsoleteOrganisms.getValue(), new UpdateInfoListCallback());
     }
 
 
     @UiHandler("showObsoleteOrganisms")
     public void handleShowObsoleteOrganisms(ClickEvent clickEvent) {
         showObsoleteOrganisms.setValue(!showObsoleteOrganisms.getValue());
-        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(), this.showObsoleteOrganisms.getValue(), new UpdateInfoListCallback());
     }
 
     @UiHandler("duplicateButton")
@@ -383,6 +484,7 @@ public class OrganismPanel extends Composite {
     @UiHandler("cancelButton")
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
         newButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
+        uploadOrganismButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
         deleteButton.setVisible(false);
         createButton.setVisible(false);
         cancelButton.setVisible(false);

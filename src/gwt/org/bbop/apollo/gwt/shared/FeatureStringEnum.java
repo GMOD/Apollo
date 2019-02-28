@@ -67,6 +67,7 @@ public enum FeatureStringEnum {
         REMOTE_USER("REMOTE_USER"),
         CV,
         SEQUENCE,
+        SEQUENCE_DATA("sequenceData"),
         TRACK,
         DB,
         DBXREFS,

@@ -570,6 +570,17 @@ public class TrackPanel extends Composite {
                     }
                 });
                 label.add(removeButton);
+//                Button infoButton = new Button("?");
+//                infoButton.setPull(Pull.RIGHT);
+//                infoButton.addStyleName("track-edit-button");
+//                infoButton.addClickHandler(new ClickHandler() {
+//                    @Override
+//                    public void onClick(ClickEvent event) {
+////                        String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
+//                        Bootbox.alert("Track Location: " + File.separator + MainPanel.getInstance().getCurrentOrganism().get);
+//                    }
+//                });
+//                label.add(infoButton);
 //                Button editButton = new Button("Edit");
 //                editButton.setPull(Pull.RIGHT);
 //                editButton.addStyleName("track-edit-button");

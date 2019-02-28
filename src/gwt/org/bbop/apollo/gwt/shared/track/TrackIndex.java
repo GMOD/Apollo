@@ -29,6 +29,7 @@ public class TrackIndex {
     private String organism;
 
 
+
     public void fixCoordinates() {
         start = start == 0 ? null : start;
         end = end == 0 ? null : end;
