@@ -1143,8 +1143,6 @@ class OrganismController {
         File directory = new File(organism.directory)
         File trackListFile = new File(organism.getTrackList())
         File refSeqFile = new File(organism.getRefseqFile())
-        File genomeFastaFile = new File(organism.genomeFastaFileName)
-        File genomeFastaIndexFile = new File(organism.genomeFastaIndexFileName)
 
         if (!directory.exists() || !directory.isDirectory()) {
             organism.valid = false
@@ -1156,6 +1154,8 @@ class OrganismController {
 
 
         if (organism.genomeFasta) {
+            File genomeFastaFile = new File(organism.genomeFastaFileName)
+            File genomeFastaIndexFile = new File(organism.genomeFastaIndexFileName)
             if (!genomeFastaFile.exists()) {
                 organism.valid = false
                 throw new Exception("Invalid fasta file : " + genomeFastaFile.absolutePath)
