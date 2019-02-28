@@ -575,9 +575,14 @@ class OrganismController {
                                     String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
                                     String trackDirectoryName = urlTemplate.split("/").first()
                                     String path = organismDirectoryName + File.separator + trackDirectoryName
-                                    fileService.store(trackFile, path)
-                                    if (trackFileIndex) {
-                                        fileService.store(trackFileIndex, path)
+//                                    fileService.store(trackFile, path)
+                                    TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
+                                    String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix[0]  :  trackFile.originalFilename
+                                    fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                    if (trackFileIndex.originalFilename) {
+                                        String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0]  :  trackFileIndex.originalFilename
+//                                        fileService.store(trackFileIndex, path)
+                                        fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                     }
 
                                     // write to trackList.json
