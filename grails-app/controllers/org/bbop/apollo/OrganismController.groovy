@@ -84,6 +84,12 @@ class OrganismController {
             organism.delete()
             log.info "Success deleting organism: ${organismJson.organism}"
 
+            if (organism.directory.startsWith(configWrapperService.commonDataDirectory)) {
+                println "Directoy is part of the common data directory ${configWrapperService.commonDataDirectory}, so deleting ${organism.directory}"
+                File directoryToRemove = new File(organism.directory)
+                assert directoryToRemove.deleteDir()
+            }
+
             render findAllOrganisms()
 
         }
@@ -1181,11 +1187,11 @@ class OrganismController {
 
 
         if (organism.genomeFasta) {
-            if(!genomeFastaFile.exists()){
+            if (!genomeFastaFile.exists()) {
                 organism.valid = false
                 throw new Exception("Invalid fasta file : " + genomeFastaFile.absolutePath)
             }
-            if(!genomeFastaIndexFile.exists()){
+            if (!genomeFastaIndexFile.exists()) {
                 organism.valid = false
                 throw new Exception("Invalid index fasta file : " + genomeFastaIndexFile.absolutePath)
             }
