@@ -332,8 +332,8 @@ class SequenceService {
             if (genomeFastaIndexFile.exists()) {
                 organism.genomeFastaIndex = referenceTrackObject.faiUrlTemplate
                 FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
-                println "an indexed fasta ${index}"
-                println "an indexed fasta size ${index.size()}"
+                log.info "an indexed fasta ${index}"
+                log.info "an indexed fasta size ${index.size()}"
                 // reading the index
                 def iterator = index.iterator()
                 while(iterator.hasNext()) {
@@ -345,7 +345,7 @@ class SequenceService {
                             end: entry.size,
                             name: entry.contig
                     ).save(failOnError: true)
-                    println "added sequence ${sequence}"
+                    log.debug "added sequence ${sequence}"
                 }
 
                 organism.valid = true
