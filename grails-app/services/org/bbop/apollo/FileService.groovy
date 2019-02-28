@@ -25,17 +25,18 @@ class FileService {
      * @param tempDir
      * @return
      */
-    def decompress(File archiveFile, String path, String directoryName = null, boolean tempDir = false) {
+    List<String> decompress(File archiveFile, String path, String directoryName = null, boolean tempDir = false) {
         // decompressing
         if (archiveFile.name.contains(".zip")) {
-            decompressZipArchive(archiveFile, path, directoryName, tempDir)
+            return decompressZipArchive(archiveFile, path, directoryName, tempDir)
         }
         else if (archiveFile.name.contains(".tar.gz") || archiveFile.name.contains(".tgz")) {
-            decompressTarArchive(archiveFile, path, directoryName, tempDir)
+            return decompressTarArchive(archiveFile, path, directoryName, tempDir)
         }
         else {
             throw new IOException("Cannot detect format (either *.zip, *.tar.gz or *.tgz) for file: ${archiveFile.name}")
         }
+        return null
     }
 
     /**
@@ -46,7 +47,8 @@ class FileService {
      * @param tempDir
      * @return
      */
-    def decompressZipArchive(File zipFile, String path, String directoryName = null, boolean tempDir = false) {
+    List<String> decompressZipArchive(File zipFile, String path, String directoryName = null, boolean tempDir = false) {
+        List<String> fileNames =[]
         String archiveRootDirectoryName
         boolean atArchiveRoot = true
         String initialLocation = tempDir ? path + File.separator + "temp" : path
@@ -83,6 +85,7 @@ class FileService {
             OutputStream os = new FileOutputStream(outputFile);
             IOUtils.copy(ais, os);
             os.close();
+            fileNames.add(outputFile.absolutePath)
         }
 
         ais.close()
@@ -104,6 +107,7 @@ class FileService {
             // delete temp folder
             new File(initialLocation).deleteDir()
         }
+        return fileNames
     }
 
     /**
@@ -114,7 +118,8 @@ class FileService {
      * @param tempDir
      * @return
      */
-    def decompressTarArchive(File tarFile, String path, String directoryName = null, boolean tempDir = false) {
+    List<String> decompressTarArchive(File tarFile, String path, String directoryName = null, boolean tempDir = false) {
+        List<String> fileNames =[]
         boolean atArchiveRoot = true
         String archiveRootDirectoryName
         String initialLocation = tempDir ? path + File.separator + "temp" : path
@@ -150,6 +155,7 @@ class FileService {
             FileOutputStream fos = new FileOutputStream(outputFile)
             IOUtils.copy(tais, fos)
             fos.close()
+            fileNames.add(outputFile.absolutePath)
         }
 
         if (tempDir) {
@@ -168,6 +174,7 @@ class FileService {
             // delete temp folder
             new File(initialLocation).deleteDir()
         }
+        return fileNames
     }
 
     def storeWithNewName(CommonsMultipartFile file, String path, String directoryName,String newName ) {

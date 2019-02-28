@@ -326,16 +326,20 @@ class SequenceService {
         String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
         String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
         File genomeFastaFile = new File(genomeFastaFileName)
+        println "fasta file exists ${genomeFastaFile.exists()}"
         if(genomeFastaFile.exists()) {
             organism.genomeFasta = referenceTrackObject.urlTemplate
             File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
             if (genomeFastaIndexFile.exists()) {
                 organism.genomeFastaIndex = referenceTrackObject.faiUrlTemplate
                 FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
+                println "an indexed fasta ${index}"
+                println "an indexed fasta size ${index.size()}"
                 // reading the index
                 def iterator = index.iterator()
                 while(iterator.hasNext()) {
                     def entry = iterator.next()
+                    println "adding sequence "
                     Sequence sequence = new Sequence(
                             organism: organism,
                             length: entry.size,
@@ -343,6 +347,7 @@ class SequenceService {
                             end: entry.size,
                             name: entry.contig
                     ).save(failOnError: true)
+                    println "added sequence ${sequence}"
                 }
 
                 organism.valid = true

@@ -306,7 +306,11 @@ class OrganismController {
                         String newName = sequenceDataFile.originalFilename
                         // suffix could be *.fa.tgz, *.fa.tar.gz, *.fa.zip
                         String originalName
-                        if (suffix.endsWith("fa.tgz")) {
+                        if (suffix.endsWith("fa")) {
+                            newName = organismName + ".fa"
+                            actualSuffix = "fa"
+                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 3)
+                        } else if (suffix.endsWith("fa.tgz")) {
                             newName = organismName + ".fa.tgz"
                             actualSuffix = "fa.tgz"
                             originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 7)
@@ -314,34 +318,41 @@ class OrganismController {
                             newName = organismName + ".fa.tar.gz"
                             actualSuffix = "fa.tar.gz"
                             originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 10)
-                        } else if (suffix.endsWith(".zip")) {
-                            newName = organismName + ".zip"
+                        } else if (suffix.endsWith("fa.zip")) {
+                            newName = organismName + ".fa.zip"
                             actualSuffix = "zip"
-                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 4)
+                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 5)
                         } else {
                             throw new RuntimeException("Invalid suffix for filename: ${sequenceDataFile.originalFilename}")
                         }
                         // TODO: put this in a temp directory? ? ?
-                        File archiveFile = File.createTempFile(newName, ".fa")
-                        sequenceDataFile.transferTo(archiveFile)
                         try {
                             File rawDirectory = new File(directoryName + "/seq")
                             rawDirectory.mkdir()
-                            fileService.decompress(archiveFile, rawDirectory.absolutePath)
+                            File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + actualSuffix)
+                            sequenceDataFile.transferTo(archiveFile)
+
                             organism.directory = directoryName
                             organism.save()
 
-                            // 1. create an appropriate fasta file this way
+                            // decompress if need be
+                            if (actualSuffix != "fa") {
+                                List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
+                                println "moving ${fileNames}"
+                                // move the filenames to the same original name, let's assume there is one
+                                File oldFile = new File(fileNames[0])
+                                assert oldFile.exists()
+                                assert oldFile.absolutePath.endsWith(".fa")
+                                File newFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+                                oldFile.renameTo(newFile)
+                            }
+
                             String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
                             File trackListFile = new File(directoryName + "/" + "trackList.json")
                             trackListFile.write(trackListJson)
 
-                            // 2. rename
-                            File originalFasta = new File(rawDirectory.absolutePath + "/" + originalName + ".fa")
-                            File finalFasta = new File(originalFasta.parent + "/" + organismName + ".fa")
-                            originalFasta.renameTo(finalFasta)
-
-                            Path path = FileSystems.getDefault().getPath(finalFasta.absolutePath);
+                            // create an index
+                            Path path = FileSystems.getDefault().getPath(rawDirectory.absolutePath + File.separator + organismName + ".fa")
                             FastaSequenceIndexCreator.create(path, true)
 
                             sequenceService.loadRefSeqs(organism)
@@ -367,9 +378,7 @@ class OrganismController {
                 returnObject.put("error", "username ${requestObject.get(FeatureStringEnum.USERNAME.value)} is not authorized to add organisms.")
             }
         }
-        catch (
-                Exception e
-                ) {
+        catch (e) {
             log.error e.printStackTrace()
             returnObject.put("error", e.message)
         }
@@ -417,10 +426,9 @@ class OrganismController {
             }
             File extendedTrackListJsonFile
 //            = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
-            if(new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST).exists()){
+            if (new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST).exists()) {
                 extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
-            }
-            else {
+            } else {
 //                println "file does not ext ${extendedTrackListJsonFile.absolutePath}"
                 if (organism.directory.contains(configWrapperService.commonDataDirectory)) {
                     extendedTrackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
