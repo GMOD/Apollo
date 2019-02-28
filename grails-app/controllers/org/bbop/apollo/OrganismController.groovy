@@ -3,6 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import htsjdk.samtools.reference.*
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -19,10 +20,10 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.web.multipart.commons.CommonsMultipartFile
-import htsjdk.samtools.reference.*
-import java.nio.file.*
 
 import javax.servlet.http.HttpServletResponse
+import java.nio.file.FileSystems
+import java.nio.file.Path
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
@@ -308,20 +309,20 @@ class OrganismController {
                         if (suffix.endsWith("fa.tgz")) {
                             newName = organismName + ".fa.tgz"
                             actualSuffix = "fa.tgz"
-                            originalName = sequenceDataFile.originalFilename.substring(0,sequenceDataFile.originalFilename.length()-7)
+                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 7)
                         } else if (suffix.endsWith("fa.tar.gz")) {
                             newName = organismName + ".fa.tar.gz"
                             actualSuffix = "fa.tar.gz"
-                            originalName = sequenceDataFile.originalFilename.substring(0,sequenceDataFile.originalFilename.length()-10)
+                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 10)
                         } else if (suffix.endsWith(".zip")) {
                             newName = organismName + ".zip"
                             actualSuffix = "zip"
-                            originalName = sequenceDataFile.originalFilename.substring(0,sequenceDataFile.originalFilename.length()-4)
+                            originalName = sequenceDataFile.originalFilename.substring(0, sequenceDataFile.originalFilename.length() - 4)
                         } else {
                             throw new RuntimeException("Invalid suffix for filename: ${sequenceDataFile.originalFilename}")
                         }
                         // TODO: put this in a temp directory? ? ?
-                        File archiveFile = File.createTempFile(newName,".fa")
+                        File archiveFile = File.createTempFile(newName, ".fa")
                         sequenceDataFile.transferTo(archiveFile)
                         try {
                             File rawDirectory = new File(directoryName + "/seq")
@@ -336,12 +337,12 @@ class OrganismController {
                             trackListFile.write(trackListJson)
 
                             // 2. rename
-                            File originalFasta = new File( rawDirectory.absolutePath + "/" +  originalName + ".fa" )
-                            File finalFasta = new File(originalFasta.parent + "/" + organismName+".fa")
+                            File originalFasta = new File(rawDirectory.absolutePath + "/" + originalName + ".fa")
+                            File finalFasta = new File(originalFasta.parent + "/" + organismName + ".fa")
                             originalFasta.renameTo(finalFasta)
 
                             Path path = FileSystems.getDefault().getPath(finalFasta.absolutePath);
-                            FastaSequenceIndexCreator.create(path,true)
+                            FastaSequenceIndexCreator.create(path, true)
 
                             sequenceService.loadRefSeqs(organism)
                             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
@@ -414,28 +415,50 @@ class OrganismController {
                 render returnObject as JSON
                 return
             }
-            File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            File extendedTrackListJsonFile
+//            = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            if(new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST).exists()){
+                extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            }
+            else {
+//                println "file does not ext ${extendedTrackListJsonFile.absolutePath}"
+                if (organism.directory.contains(configWrapperService.commonDataDirectory)) {
+                    extendedTrackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                    println "redid file ${extendedTrackListJsonFile.absolutePath}"
+                } else {
+                    throw new RuntimeException("Can not delete tracks from a non-temporary directory: ${extendedTrackListJsonFile.absolutePath}")
+                }
+            }
+
+            println "ext file ${extendedTrackListJsonFile.text}"
             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
+            println "object file out ${extendedTrackListObject as JSON}"
             JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
 
-            JSONObject trackObject = trackService.findTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
-            extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, requestObject.get(FeatureStringEnum.TRACK_LABEL.value))
+            println "array out ${extendedTracksArray as JSON}"
+            String trackLabel = requestObject.getString(FeatureStringEnum.TRACK_LABEL.value)
+            println "track label ${trackLabel} from ${extendedTracksArray as JSON}"
+            JSONObject trackObject = trackService.findTrackFromArray(extendedTracksArray, trackLabel)
+            println "track object ${trackObject as JSON}"
+            extendedTracksArray = trackService.removeTrackFromArray(extendedTracksArray, trackLabel)
+            println "removed ${trackObject as JSON}"
             extendedTrackListObject.put(FeatureStringEnum.TRACKS.value, extendedTracksArray)
             extendedTrackListJsonFile.write(extendedTrackListObject.toString())
 
+            println "track object ${trackObject as JSON}"
             TrackTypeEnum trackTypeEnum = TrackTypeEnum.valueOf(trackObject.apollo.type)
             // delete any files with the patterns of key.suffix and key.suffixIndex
 
-            for(def suffix in trackTypeEnum.suffix){
-                File fileToDelete = new File(extendedDirectoryName+ File.separator + "raw/"+trackObject.label.replaceAll(" ","_")+".${suffix}")
-                if(fileToDelete.exists()){
+            for (def suffix in trackTypeEnum.suffix) {
+                File fileToDelete = new File(extendedDirectoryName + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
+                if (fileToDelete.exists()) {
                     boolean deleted = fileToDelete.delete()
                     println "deleted file ${fileToDelete.absolutePath} -> ${deleted}"
                 }
             }
-            for(def suffix in trackTypeEnum.suffixIndex){
-                File fileToDelete = new File(extendedDirectoryName+ File.separator + "raw/"+trackObject.label.replaceAll(" ","_")+".${suffix}")
-                if(fileToDelete.exists()){
+            for (def suffix in trackTypeEnum.suffixIndex) {
+                File fileToDelete = new File(extendedDirectoryName + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
+                if (fileToDelete.exists()) {
                     boolean deleted = fileToDelete.delete()
                     println "deleted file ${fileToDelete.absolutePath} -> ${deleted}"
                 }
@@ -577,10 +600,10 @@ class OrganismController {
                                     String path = organismDirectoryName + File.separator + trackDirectoryName
 //                                    fileService.store(trackFile, path)
                                     TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
-                                    String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix[0]  :  trackFile.originalFilename
+                                    String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
                                     fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                     if (trackFileIndex.originalFilename) {
-                                        String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0]  :  trackFileIndex.originalFilename
+                                        String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
 //                                        fileService.store(trackFileIndex, path)
                                         fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                     }
@@ -697,12 +720,12 @@ class OrganismController {
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
                                             println "track type enum ${trackTypeEnum}"
 
-                                            String newFileName = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffix[0]  :  trackFile.originalFilename
+                                            String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
                                             fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             println "trying to store with track file index ${trackFileIndex.getOriginalFilename()}"
                                             if (trackFileIndex.getOriginalFilename()) {
-                                                String newFileNameIndex = trackTypeEnum ?  trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0]  :  trackFileIndex.originalFilename
+                                                String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
                                                 println "Storing with track file index ${trackFileIndex.getOriginalFilename()}"
 //                                                fileService.store(trackFileIndex, path)
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
