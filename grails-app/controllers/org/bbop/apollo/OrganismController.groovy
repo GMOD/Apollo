@@ -275,6 +275,7 @@ class OrganismController {
                         species: requestObject.species ?: "",
                         metadata: requestObject.metadata ?: "",
                         publicMode: requestObject.publicMode ?: false,
+                        nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
                         dataAddedViaWebServices: true
                 ).save(failOnError: true, flush: true, insert: true)
                 def currentUser = permissionService.currentUser

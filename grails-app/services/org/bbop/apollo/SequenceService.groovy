@@ -326,7 +326,6 @@ class SequenceService {
         String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
         String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
         File genomeFastaFile = new File(genomeFastaFileName)
-        println "fasta file exists ${genomeFastaFile.exists()}"
         if(genomeFastaFile.exists()) {
             organism.genomeFasta = referenceTrackObject.urlTemplate
             File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
@@ -339,7 +338,6 @@ class SequenceService {
                 def iterator = index.iterator()
                 while(iterator.hasNext()) {
                     def entry = iterator.next()
-                    println "adding sequence "
                     Sequence sequence = new Sequence(
                             organism: organism,
                             length: entry.size,

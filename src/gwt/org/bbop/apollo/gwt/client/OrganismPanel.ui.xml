@@ -58,31 +58,28 @@
                                     <b:TextBox autoComplete="false" ui:field="organismUploadName" name="commonName"/>
                                 </b:InputGroup>
 
-                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
-                                <!--<b:InputGroupAddon>Genus</b:InputGroupAddon>-->
-                                <!--<b:TextBox ui:field="organismUploadGenus" name="genus"/>-->
-                                <!--</b:InputGroup>-->
-
-                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
-                                <!--<b:InputGroupAddon>Species</b:InputGroupAddon>-->
-                                <!--<b:TextBox ui:field="organismUploadSpecies" name="species"/>-->
-                                <!--</b:InputGroup>-->
-
-                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
-                                <!--<b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>-->
-                                <!--<b:TextBox ui:field="organismUploadNonDefaultTranslationTable" name="nonDefaultTranslationTable"/>-->
-                                <!--</b:InputGroup>-->
-
                                 <b:InputGroup addStyleNames="{style.widgetPanel}">
                                     <b:InputGroupAddon text="DNA"/>
                                     <gwt:HTML ui:field="uploadDescription"/>
                                     <gwt:FileUpload ui:field="organismUploadSequence" name="sequenceData"/>
                                 </b:InputGroup>
 
-                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
-                                    <!--<b:InputGroupAddon>Genome Sequence  (*.fa.fai)</b:InputGroupAddon>-->
-                                    <!--<gwt:FileUpload ui:field="organismUploadSequenceIndex"  name="sequenceDataIndex"/>-->
-                                <!--</b:InputGroup>-->
+
+                                <b:InputGroup addStyleNames="{style.widgetPanel}">
+                                <b:InputGroupAddon>Genus</b:InputGroupAddon>
+                                <b:TextBox ui:field="organismUploadGenus" name="genus"/>
+                                </b:InputGroup>
+
+                                <b:InputGroup addStyleNames="{style.widgetPanel}">
+                                <b:InputGroupAddon>Species</b:InputGroupAddon>
+                                <b:TextBox ui:field="organismUploadSpecies" name="species"/>
+                                </b:InputGroup>
+
+                                <b:InputGroup addStyleNames="{style.widgetPanel}">
+                                <b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>
+                                <b:TextBox ui:field="organismUploadNonDefaultTranslationTable" name="nonDefaultTranslationTable"/>
+                                </b:InputGroup>
+
 
                                 <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
                                     <!--<b:InputGroupAddon>Search Database (*.2bit)</b:InputGroupAddon>-->

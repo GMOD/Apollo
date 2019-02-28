@@ -106,14 +106,12 @@ public class OrganismPanel extends Composite {
     FileUpload organismUploadSequence;
     @UiField
     HTML uploadDescription;
-//    @UiField
-//    FileUpload organismUploadSequenceIndex;
-//    @UiField
-//    TextBox organismUploadGenus;
-//    @UiField
-//    TextBox organismUploadSpecies;
-//    @UiField
-//    TextBox organismUploadNonDefaultTranslationTable;
+    @UiField
+    TextBox organismUploadGenus;
+    @UiField
+    TextBox organismUploadSpecies;
+    @UiField
+    TextBox organismUploadNonDefaultTranslationTable;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
