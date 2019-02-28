@@ -3,7 +3,7 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
-import htsjdk.samtools.reference.*
+import htsjdk.samtools.reference.FastaSequenceIndexCreator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -307,8 +307,8 @@ class OrganismController {
                     } else if (sequenceDataFile) {
 
                         SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(sequenceDataFile.getOriginalFilename())
-                        if(sequenceTypeEnum==null){
-                            returnObject.put("error", "Bad file input: "+sequenceDataFile.originalFilename)
+                        if (sequenceTypeEnum == null) {
+                            returnObject.put("error", "Bad file input: " + sequenceDataFile.originalFilename)
                             render returnObject
                             return
                         }
@@ -324,7 +324,7 @@ class OrganismController {
                             organism.save()
 
                             // decompress if need be
-                            if (sequenceTypeEnum.compression!=null) {
+                            if (sequenceTypeEnum.compression != null) {
                                 List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
                                 println "moving ${fileNames}"
                                 // move the filenames to the same original name, let's assume there is one
@@ -1168,6 +1168,8 @@ class OrganismController {
         File directory = new File(organism.directory)
         File trackListFile = new File(organism.getTrackList())
         File refSeqFile = new File(organism.getRefseqFile())
+        File genomeFastaFile = new File(organism.genomeFastaFileName)
+        File genomeFastaIndexFile = new File(organism.genomeFastaIndexFileName)
 
         if (!directory.exists() || !directory.isDirectory()) {
             organism.valid = false
@@ -1175,12 +1177,24 @@ class OrganismController {
         } else if (!trackListFile.exists()) {
             organism.valid = false
             throw new Exception("Track file does not exists: " + trackListFile.absolutePath)
+        }
+
+
+        if (organism.genomeFasta) {
+            if(!genomeFastaFile.exists()){
+                organism.valid = false
+                throw new Exception("Invalid fasta file : " + genomeFastaFile.absolutePath)
+            }
+            if(!genomeFastaIndexFile.exists()){
+                organism.valid = false
+                throw new Exception("Invalid index fasta file : " + genomeFastaIndexFile.absolutePath)
+            }
         } else if (!refSeqFile.exists()) {
             organism.valid = false
             throw new Exception("Reference sequence file does not exists: " + refSeqFile.absolutePath)
-        } else {
-            organism.valid = true
         }
+
+        organism.valid = true
         return organism.valid
     }
 
@@ -1205,7 +1219,7 @@ class OrganismController {
             JSONObject organismJson = permissionService.handleInput(request, params)
             permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
             Organism organism = Organism.findById(organismJson.id)
-            Boolean madeObsolete = false
+            Boolean madeObsolete
             if (organism) {
                 log.debug "Updating organism info ${organismJson as JSON}"
                 organism.commonName = organismJson.name
