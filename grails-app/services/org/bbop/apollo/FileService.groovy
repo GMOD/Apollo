@@ -188,8 +188,6 @@ class FileService {
 
     List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
-        boolean atArchiveRoot = true
-        String archiveRootDirectoryName
         String initialLocation = tempDir ? path + File.separator + "temp" : path
         log.debug "initial location: ${initialLocation}"
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))

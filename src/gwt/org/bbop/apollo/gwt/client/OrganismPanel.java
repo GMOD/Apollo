@@ -134,7 +134,7 @@ public class OrganismPanel extends Composite {
         newOrganismForm.setMethod(FormPanel.METHOD_POST);
         newOrganismForm.setAction(RestService.fixUrl("organism/addOrganismWithSequence"));
 
-        uploadDescription.setHTML("<small>"+SequenceTypeEnum.generateSuffixDescription()+"</small>");
+        uploadDescription.setHTML("<small>" + SequenceTypeEnum.generateSuffixDescription() + "</small>");
 
         newOrganismForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
@@ -146,7 +146,19 @@ public class OrganismPanel extends Composite {
         newOrganismForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
-                Bootbox.confirm("Organism '"+organismUploadName.getText()+"' submitted successfully.  Reload to see?", new ConfirmCallback() {
+                String results = event.getResults();
+                int errorResults1 = results.indexOf("\">{\"error\":\"");
+                int errorResults2 = results.indexOf("\"}</pre>");
+                if (results.startsWith("<pre") && errorResults1 > 0 && errorResults2 > errorResults1) {
+                    String jsonSubString = results.substring(errorResults1+2, errorResults2+2);
+                    GWT.log("Error response: " + jsonSubString);
+                    JSONObject errorObject = JSONParser.parseStrict(jsonSubString).isObject();
+                    GWT.log(errorObject.toString());
+                    Bootbox.alert("There was a problem adding the organism: "+errorObject.get("error").isString().stringValue());
+                    return;
+                }
+
+                Bootbox.confirm("Organism '" + organismUploadName.getText() + "' submitted successfully.  Reload to see?", new ConfirmCallback() {
                     @Override
                     public void callback(boolean result) {
                         if (result) {
@@ -161,8 +173,8 @@ public class OrganismPanel extends Composite {
         TextColumn<OrganismInfo> organismNameColumn = new TextColumn<OrganismInfo>() {
             @Override
             public String getValue(OrganismInfo organism) {
-                if(organism.getObsolete()){
-                    return "(obs) "+organism.getName();
+                if (organism.getObsolete()) {
+                    return "(obs) " + organism.getName();
                 }
                 return organism.getName();
             }
@@ -227,9 +239,9 @@ public class OrganismPanel extends Composite {
             public void onDoubleClick(DoubleClickEvent event) {
                 if (singleSelectionModel.getSelectedObject() != null) {
                     OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
-                    if(organismInfo.getObsolete()){
+                    if (organismInfo.getObsolete()) {
                         Bootbox.alert("You will have to make this organism 'active' by unselecting the 'Obsolete' checkbox in the Organism Details panel at the bottom.");
-                        return ;
+                        return;
                     }
                     String orgId = organismInfo.getId();
                     if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
@@ -354,12 +366,12 @@ public class OrganismPanel extends Composite {
 
 
     @UiHandler("uploadOrganismButton")
-    public void uploadOrganismButton(ClickEvent event){
+    public void uploadOrganismButton(ClickEvent event) {
         addOrganismFromSequencePanel.show();
     }
 
     @UiHandler("saveNewOrganism")
-    public void saveNewOrganism(ClickEvent event){
+    public void saveNewOrganism(ClickEvent event) {
         String resultMessage = checkForm();
         if (resultMessage == null) {
             newOrganismForm.submit();
@@ -371,18 +383,19 @@ public class OrganismPanel extends Composite {
 
     /**
      * TODO: check the form ehre
+     *
      * @return
      */
     private String checkForm() {
         SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(organismUploadSequence.getFilename());
-        if(sequenceTypeEnum==null){
-            return "Bad suffix for filename "+organismUploadSequence.getFilename();
+        if (sequenceTypeEnum == null) {
+            return "Bad suffix for filename " + organismUploadSequence.getFilename();
         }
-        return null ;
+        return null;
     }
 
     @UiHandler("cancelNewOrganism")
-    public void setCancelNewOrganism(ClickEvent event){
+    public void setCancelNewOrganism(ClickEvent event) {
         addOrganismFromSequencePanel.hide();
     }
 
@@ -448,14 +461,14 @@ public class OrganismPanel extends Composite {
     @UiHandler("showOnlyPublicOrganisms")
     public void handleShowOnlyPublicOrganisms(ClickEvent clickEvent) {
         showOnlyPublicOrganisms.setValue(!showOnlyPublicOrganisms.getValue());
-        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(), this.showObsoleteOrganisms.getValue(), new UpdateInfoListCallback());
     }
 
 
     @UiHandler("showObsoleteOrganisms")
     public void handleShowObsoleteOrganisms(ClickEvent clickEvent) {
         showObsoleteOrganisms.setValue(!showObsoleteOrganisms.getValue());
-        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(),this.showObsoleteOrganisms.getValue(),new UpdateInfoListCallback());
+        OrganismRestService.loadOrganisms(this.showOnlyPublicOrganisms.getValue(), this.showObsoleteOrganisms.getValue(), new UpdateInfoListCallback());
     }
 
     @UiHandler("duplicateButton")
