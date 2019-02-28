@@ -227,7 +227,7 @@ class OrganismController {
             , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
             , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory")
-            , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "Compressed fasta file to automatically upload with")
+            , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "FASTA file (optionally compressed) to automatically upload with")
     ])
     @Transactional
     def addOrganismWithSequence() {
