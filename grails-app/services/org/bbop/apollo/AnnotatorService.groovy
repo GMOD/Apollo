@@ -124,21 +124,20 @@ class AnnotatorService {
         try {
             if (commonDataPreference) {
                 directory = commonDataPreference.value
-                println "Preference exists in database [${directory}]."
+                log.debug "Preference exists in database [${directory}]."
                 File testDirectory = new File(directory)
-                println "database path: ${testDirectory.absolutePath}"
                 if (!testDirectory.exists()) {
-                    println "directory does not exist so trying to make? "
+                    log.warn "Directory does not exist so trying to make"
                     assert testDirectory.mkdirs()
                 }
                 if (testDirectory.exists() && testDirectory.canWrite()) {
-                    println "its all there so returning "
+                    log.debug "Directory ${directory} exists and is writable so returning"
                     return null
                 }
             }
 
             // if all of the tests fail, then do the next thing
-            println "Unable to write to the database directory, so checking the config"
+            log.warn "Unable to write to the database directory, so checking the config file"
             directory = configWrapperService.commonDataDirectory
             File testDirectory = new File(directory)
             if (!testDirectory.exists()) {
@@ -150,11 +149,11 @@ class AnnotatorService {
                         value: directory
 
                 ).save(failOnError: true, flush: true)
-                println("Saving new preference for common data directory ${directory}")
+                log.info("Saving new preference for common data directory ${directory}")
                 return null
             }
         } catch (Throwable e) {
-            log.error e
+            log.error "Unable to write to directory ${directory}. ${e}"
             return "Unable to write to directory ${directory}."
         }
     }
