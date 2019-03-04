@@ -22,6 +22,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
+import org.bbop.apollo.gwt.client.dto.OrganismInfo;
 import org.bbop.apollo.gwt.client.dto.TrackInfo;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
@@ -140,6 +141,10 @@ public class TrackPanel extends Composite {
     HTML categoryNameHTML;
     @UiField
     com.google.gwt.user.client.ui.TextBox categoryName;
+    @UiField
+    Row locationRow;
+    @UiField
+    HTML locationView;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -187,7 +192,7 @@ public class TrackPanel extends Composite {
             @Override
             public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
                 loadTracks(300);
-                Bootbox.confirm("Track '"+trackFileName.getText()+"' added successfully.  Reload to see?", new ConfirmCallback() {
+                Bootbox.confirm("Track '" + trackFileName.getText() + "' added successfully.  Reload to see?", new ConfirmCallback() {
                     @Override
                     public void callback(boolean result) {
                         if (result) {
@@ -262,8 +267,9 @@ public class TrackPanel extends Composite {
             trackName.setText("");
             trackType.setText("");
             optionTree.clear();
+            locationRow.setVisible(false);
         } else {
-            trackName.setText(selectedObject.getName());
+            trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
             JSONObject jsonObject = selectedObject.getPayload();
@@ -271,6 +277,18 @@ public class TrackPanel extends Composite {
             trackName.setVisible(true);
             trackType.setVisible(true);
             optionTree.setVisible(true);
+            if (canAdminTracks()) {
+                OrganismInfo currentOrganism = MainPanel.getInstance().getCurrentOrganism();
+                if (selectedObject.getApollo() != null) {
+                    locationView.setHTML(MainPanel.getInstance().getCommonDataDirectory() + "/" + currentOrganism.getId() + "-" + currentOrganism.getName());
+                } else {
+                    locationView.setHTML(MainPanel.getInstance().getCurrentOrganism().getDirectory());
+                }
+                locationRow.setVisible(true);
+            }
+            else{
+                locationRow.setVisible(false);
+            }
         }
     }
 
@@ -327,16 +345,16 @@ public class TrackPanel extends Composite {
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
         TrackTypeEnum trackTypeEnum = getTrackType();
-        if(!trackTypeEnum.hasSuffix(uploadTrackFile.getFilename())){
-            Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " should have the suffix '"+trackTypeEnum.getSuffix() + "' for track type '"+trackTypeEnum.name()+"'");
+        if (!trackTypeEnum.hasSuffix(uploadTrackFile.getFilename())) {
+            Bootbox.alert("Filetype suffix for " + uploadTrackFile.getFilename() + " should have the suffix '" + trackTypeEnum.getSuffix() + "' for track type '" + trackTypeEnum.name() + "'");
         }
     }
 
     @UiHandler("uploadTrackFileIndex")
     public void uploadTrackFileIndex(ChangeEvent event) {
         TrackTypeEnum trackTypeEnum = getTrackType();
-        if(!trackTypeEnum.hasSuffixIndex(uploadTrackFileIndex.getFilename())){
-            Bootbox.alert("Filetype suffix for " + uploadTrackFileIndex.getFilename() + " should have the suffix '"+trackTypeEnum.getSuffixIndex() + "' for track type '"+trackTypeEnum.name()+"'");
+        if (!trackTypeEnum.hasSuffixIndex(uploadTrackFileIndex.getFilename())) {
+            Bootbox.alert("Filetype suffix for " + uploadTrackFileIndex.getFilename() + " should have the suffix '" + trackTypeEnum.getSuffixIndex() + "' for track type '" + trackTypeEnum.name() + "'");
         }
     }
 
@@ -509,7 +527,7 @@ public class TrackPanel extends Composite {
                             new RequestCallback() {
                                 @Override
                                 public void onResponseReceived(Request request, Response response) {
-                                    Bootbox.confirm("Track '"+label + "' removed, refresh?", new ConfirmCallback() {
+                                    Bootbox.confirm("Track '" + label + "' removed, refresh?", new ConfirmCallback() {
                                         @Override
                                         public void callback(boolean result) {
                                             if (result) {
