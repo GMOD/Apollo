@@ -57,6 +57,7 @@ public class MainPanel extends Composite {
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static SequenceInfo currentSequence;
+    private String commonDataDirectory;
     private static Integer currentStartBp; // start base pair
     private static Integer currentEndBp; // end base pair
     private static Map<String, List<String>> currentQueryParams; // list of organisms for user
@@ -443,6 +444,12 @@ public class MainPanel extends Composite {
         Annotator.eventBus.fireEvent(userChangeEvent);
     }
 
+    protected void updateCommonDir(String current,String suggested){
+        updateAdminAlertText.setText(current);
+        adminTextBox.setText(suggested);
+        editAdminModal.show();
+    }
+
     private void loginUser() {
         String url = Annotator.getRootUrl() + "user/checkLogin";
         url += "?clientToken=" + Annotator.getClientToken();
@@ -454,9 +461,7 @@ public class MainPanel extends Composite {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
                     if(returnValue.containsKey("badCommonPath")){
-                        updateAdminAlertText.setText(returnValue.get("badCommonPath").isString().stringValue());
-                        adminTextBox.setText("apollo_data");
-                        editAdminModal.show();
+                        updateCommonDir(returnValue.get("badCommonPath").isString().stringValue(),"apollo_data");
                     }
                     else
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
@@ -672,7 +677,7 @@ public class MainPanel extends Composite {
             organismInfoList = appStateInfo.getOrganismList();
         }
 
-
+        commonDataDirectory = appStateInfo.getCommonDataDirectory();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
@@ -1221,6 +1226,11 @@ public class MainPanel extends Composite {
 
     public static SequenceInfo getCurrentSequence() {
         return currentSequence;
+    }
+
+
+    public String getCommonDataDirectory() {
+        return commonDataDirectory;
     }
 
     SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {

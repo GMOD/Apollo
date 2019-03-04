@@ -30,6 +30,7 @@
 
     </ui:style>
     <b:Container fluid="true" styleName="{style.preferenceContainer}">
+        <b:Button ui:field="updateCommonDirectoryButton" text="Update Common Directory"/>
         <gwt:HTML ui:field="adminPanel">
 
         </gwt:HTML>

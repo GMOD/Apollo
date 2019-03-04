@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.preference.OrganismDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
@@ -81,6 +82,7 @@ class AnnotatorService {
                     appStateObject.put("currentEndBp", currentUserOrganismPreferenceDTO.endbp)
                 }
             }
+            appStateObject.put(FeatureStringEnum.COMMON_DATA_DIRECTORY.value,getCommonDataDirectory())
         }
         catch (PermissionException e) {
             def error = [error: "Error: " + e]
@@ -95,8 +97,8 @@ class AnnotatorService {
 
 
     String getCommonDataDirectory() {
-        ApplicationPreference commonDataPreference = ApplicationPreference.findByName("common_data_directory")
-        return commonDataPreference.directory
+        ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
+        return commonDataPreference.value
     }
 
     /**
@@ -118,7 +120,7 @@ class AnnotatorService {
      * @return
      */
     def checkCommonDataDirectory() {
-        ApplicationPreference commonDataPreference = ApplicationPreference.findByName("common_data_directory")
+        ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
         String directory
 
         try {

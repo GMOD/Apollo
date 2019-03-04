@@ -50,6 +50,8 @@ public enum FeatureStringEnum {
         AVAILABLE_STATUSES,
         NOTES,
         TAG,
+        COMMON_DATA_DIRECTORY("common_data_directory"),
+        BAD_COMMON_PATH("badCommonPath"),
         NON_RESERVED_PROPERTIES,
         OLD_NON_RESERVED_PROPERTIES,
         NEW_NON_RESERVED_PROPERTIES,

@@ -1,11 +1,13 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -18,12 +20,19 @@ public class PreferencePanel extends Composite {
     private static PreferencePanelUiBinder ourUiBinder = GWT.create(PreferencePanelUiBinder.class);
     @UiField
     HTML adminPanel;
+    @UiField
+    Button updateCommonDirectoryButton;
 //    @UiField
 //    FlexTable statusList;
 //    @UiField
 //    TextBox newStatusField;
 //    @UiField
 //    Button newStatusButton;
+
+    @UiHandler("updateCommonDirectoryButton")
+    public void updateCommonDirectoryButton(ClickEvent clickEvent){
+        MainPanel.getInstance().updateCommonDir(MainPanel.getInstance().getCommonDataDirectory(),MainPanel.getInstance().getCommonDataDirectory());
+    }
 
     public void reload(){
         String url = "annotator/adminPanel";
@@ -35,7 +44,6 @@ public class PreferencePanel extends Composite {
 
         try {
             Request request = builder.sendRequest(null, new RequestCallback() {
-
                 public void onResponseReceived(Request request, Response response) {
                     if (200 == response.getStatusCode()) {
                         adminPanel.setHTML(response.getText());
