@@ -453,7 +453,6 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
-                    GWT.log(returnValue.toString());
                     if(returnValue.containsKey("badCommonPath")){
                         updateAdminAlertText.setText(returnValue.get("badCommonPath").isString().stringValue());
                         adminTextBox.setText("apollo_data");
@@ -1116,8 +1115,6 @@ public class MainPanel extends Composite {
             }
         };
         AnnotationRestService.updateCommonPath(requestCallback,adminTextBox.getText());
-//        useNativeTracklist = !trackListToggle.isActive();
-//        trackPanel.updateTrackToggle(useNativeTracklist);
     }
 
     @UiHandler("cancelAdminButton")
