@@ -3,6 +3,8 @@ package org.bbop.apollo.gwt.client.dto;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ public class AppStateInfo implements HasJSON{
     private SequenceInfo currentSequence ;
     private Integer currentStartBp;
     private Integer currentEndBp;
+    private String commonDataDirectory ;
 
     public OrganismInfo getCurrentOrganism() {
         return currentOrganism;
@@ -51,6 +54,9 @@ public class AppStateInfo implements HasJSON{
         }
         if(currentSequence!=null){
             returnObject.put("currentSequence",currentSequence.toJSON());
+        }
+        if(commonDataDirectory!=null){
+            returnObject.put(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue(),new JSONString(commonDataDirectory));
         }
 //        if(currentSequenceList!=null){
 //            JSONArray sequenceListArray = new JSONArray();
@@ -91,5 +97,13 @@ public class AppStateInfo implements HasJSON{
 
     public void setCurrentEndBp(Integer currentEndBp) {
         this.currentEndBp = currentEndBp;
+    }
+
+    public String getCommonDataDirectory() {
+        return commonDataDirectory;
+    }
+
+    public void setCommonDataDirectory(String commonDataDirectory) {
+        this.commonDataDirectory = commonDataDirectory;
     }
 }

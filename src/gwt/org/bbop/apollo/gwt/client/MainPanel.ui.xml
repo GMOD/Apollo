@@ -108,6 +108,23 @@
                             <b:Button ui:field="userName" icon="USER"/>
                             <b:Button ui:field="logoutButton" styleName="{style.logout-button}" icon="SIGN_OUT" title="Logout"/>
                         </b:Panel>
+                        <b:Modal ui:field="editAdminModal" closable="true" fade="true"  dataBackdrop="FALSE">
+                            <b:ModalHeader>
+                                <gwt:HTML>
+                                    <b>Temporary Data Path</b>
+                                </gwt:HTML>
+                            </b:ModalHeader>
+                            <b:ModalBody>
+                                <b:Alert type="WARNING" ui:field="updateAdminAlertText">
+                                    <b:Icon type="WARNING"/>
+                                </b:Alert>
+                                <b:TextBox ui:field="adminTextBox"/>
+                            </b:ModalBody>
+                            <b:ModalFooter>
+                                <b:Button text="Update Common Data Path" ui:field="updateAdminButton" styleName="{style.logout-button}" />
+                                <b:Button text="Cancel" ui:field="cancelAdminButton" styleName="{style.logout-button}" />
+                            </b:ModalFooter>
+                        </b:Modal>
                         <b:Modal ui:field="notificationModal" closable="true" fade="true"  dataBackdrop="FALSE">
                             <b:ModalHeader>
                                 <gwt:HTML>

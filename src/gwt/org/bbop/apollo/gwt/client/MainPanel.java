@@ -22,10 +22,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.bbop.apollo.gwt.client.rest.RestService;
-import org.bbop.apollo.gwt.client.rest.SequenceRestService;
-import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.client.rest.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -33,6 +30,7 @@ import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.SuggestBox;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -59,6 +57,7 @@ public class MainPanel extends Composite {
     private static UserInfo currentUser;
     private static OrganismInfo currentOrganism;
     private static SequenceInfo currentSequence;
+    private String commonDataDirectory;
     private static Integer currentStartBp; // start base pair
     private static Integer currentEndBp; // end base pair
     private static Map<String, List<String>> currentQueryParams; // list of organisms for user
@@ -137,6 +136,16 @@ public class MainPanel extends Composite {
     HTML editUserHeader;
     @UiField
     Button trackListToggle;
+    @UiField
+    Modal editAdminModal;
+    @UiField
+    Button updateAdminButton;
+    @UiField
+    Button cancelAdminButton;
+    @UiField
+    TextBox adminTextBox;
+    @UiField
+    Alert updateAdminAlertText;
 
 
     private LoginDialog loginDialog = new LoginDialog();
@@ -435,6 +444,12 @@ public class MainPanel extends Composite {
         Annotator.eventBus.fireEvent(userChangeEvent);
     }
 
+    protected void updateCommonDir(String current,String suggested){
+        updateAdminAlertText.setText(current);
+        adminTextBox.setText(suggested);
+        editAdminModal.show();
+    }
+
     private void loginUser() {
         String url = Annotator.getRootUrl() + "user/checkLogin";
         url += "?clientToken=" + Annotator.getClientToken();
@@ -445,12 +460,17 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
+                    if(returnValue.containsKey("badCommonPath")){
+                        updateCommonDir(returnValue.get("badCommonPath").isString().stringValue(),"apollo_data");
+                    }
+                    else
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
                         String errorText = returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
                         alertText.setText(errorText);
                         detailTabs.setVisible(false);
                         notificationModal.show();
-                    } else {
+                    }
+                    else {
                         detailTabs.setVisible(true);
                         getAppState();
                         logoutButton.setVisible(true);
@@ -657,7 +677,7 @@ public class MainPanel extends Composite {
             organismInfoList = appStateInfo.getOrganismList();
         }
 
-
+        commonDataDirectory = appStateInfo.getCommonDataDirectory();
         currentSequence = appStateInfo.getCurrentSequence();
         currentOrganism = appStateInfo.getCurrentOrganism();
         currentStartBp = appStateInfo.getCurrentStartBp();
@@ -1084,6 +1104,29 @@ public class MainPanel extends Composite {
         trackPanel.updateTrackToggle(useNativeTracklist);
     }
 
+    @UiHandler("updateAdminButton")
+    public void updateAdminButton(ClickEvent event) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Bootbox.alert("Successfully updated, reloading");
+                Window.Location.reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("There was a problem: "+exception.getMessage());
+            }
+        };
+        AnnotationRestService.updateCommonPath(requestCallback,adminTextBox.getText());
+    }
+
+    @UiHandler("cancelAdminButton")
+    public void cancelAdminButton(ClickEvent event) {
+        editAdminModal.hide();
+    }
+
 
     public static native void exportStaticMethod() /*-{
         $wnd.reloadAnnotations = $entry(@org.bbop.apollo.gwt.client.MainPanel::reloadAnnotator());
@@ -1183,6 +1226,11 @@ public class MainPanel extends Composite {
 
     public static SequenceInfo getCurrentSequence() {
         return currentSequence;
+    }
+
+
+    public String getCommonDataDirectory() {
+        return commonDataDirectory;
     }
 
     SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {

@@ -580,6 +580,23 @@ class AnnotatorController {
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
     }
 
+    @Transactional
+    String updateCommonPath(String directory) {
+        log.debug "Updating the common path for ${directory}"
+        JSONObject returnObject = new JSONObject()
+
+        try {
+            String returnString = annotatorService.updateCommonDataDirectory(directory) as String
+            log.info "Returning common data directory ${returnString}"
+            if(returnString){
+                returnObject.error = returnString
+            }
+        } catch (e) {
+            returnObject.error = e.getMessage()
+        }
+        render returnObject as JSON
+    }
+
 /**
  */
     @Transactional

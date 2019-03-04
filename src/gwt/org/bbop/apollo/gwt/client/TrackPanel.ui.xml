@@ -108,7 +108,7 @@
                                 <b:Column size="MD_3">
                                     <gwt:HTML text="Name" styleName="{style.tableKeyName}"/>
                                 </b:Column>
-                                <b:Column size="MD_4">
+                                <b:Column size="MD_9">
                                     <gwt:HTML ui:field="trackName" visible="false"/>
                                 </b:Column>
                             </b:Row>
@@ -116,8 +116,16 @@
                                 <b:Column size="MD_3">
                                     <gwt:HTML styleName="{style.tableKeyName}" text="Type"/>
                                 </b:Column>
-                                <b:Column size="MD_4">
+                                <b:Column size="MD_9">
                                     <gwt:HTML ui:field="trackType"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row ui:field="locationRow" visible="false">
+                                <b:Column size="MD_3">
+                                    <gwt:HTML styleName="{style.tableKeyName}" text="Location"/>
+                                </b:Column>
+                                <b:Column size="MD_9">
+                                    <gwt:HTML ui:field="locationView"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row visible="true">
@@ -126,7 +134,7 @@
                                         Configuration
                                     </gwt:HTML>
                                 </b:Column>
-                                <b:Column size="MD_7">
+                                <b:Column size="MD_9">
                                     <gwt:Tree ui:field="optionTree"/>
                                 </b:Column>
                             </b:Row>
@@ -137,7 +145,7 @@
                                         Feature Count
                                     </gwt:HTML>
                                 </b:Column>
-                                <b:Column size="MD_4">
+                                <b:Column size="MD_9">
                                     <gwt:HTML ui:field="trackCount"/>
                                 </b:Column>
                             </b:Row>
@@ -147,7 +155,7 @@
                                         Feature Density
                                     </gwt:HTML>
                                 </b:Column>
-                                <b:Column size="MD_4">
+                                <b:Column size="MD_9">
                                     <gwt:HTML ui:field="trackDensity"/>
                                 </b:Column>
                             </b:Row>
