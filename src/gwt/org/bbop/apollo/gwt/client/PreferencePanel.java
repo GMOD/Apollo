@@ -6,7 +6,9 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -30,15 +32,17 @@ public class PreferencePanel extends Composite {
 //    Button newStatusButton;
 
     @UiHandler("updateCommonDirectoryButton")
-    public void updateCommonDirectoryButton(ClickEvent clickEvent){
-        MainPanel.getInstance().updateCommonDir(MainPanel.getInstance().getCommonDataDirectory(),MainPanel.getInstance().getCommonDataDirectory());
+    public void updateCommonDirectoryButton(ClickEvent clickEvent) {
+        MainPanel.getInstance().updateCommonDir(
+                "If you update this path, please move pertinent files: " + MainPanel.getInstance().getCommonDataDirectory()
+                , MainPanel.getInstance().getCommonDataDirectory());
     }
 
-    public void reload(){
+    public void reload() {
         String url = "annotator/adminPanel";
         String rootUrl = Annotator.getRootUrl();
-        if(!url.startsWith(rootUrl)){
-            url = rootUrl+url;
+        if (!url.startsWith(rootUrl)) {
+            url = rootUrl + url;
         }
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
 
@@ -71,7 +75,6 @@ public class PreferencePanel extends Composite {
 
 
 //        /annotator/adminPanel
-
 
 
     }

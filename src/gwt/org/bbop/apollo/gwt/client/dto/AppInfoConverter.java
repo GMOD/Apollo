@@ -29,7 +29,7 @@ public class AppInfoConverter {
             appStateInfo.setCurrentEndBp((int) object.get("currentEndBp").isNumber().doubleValue());
         }
         if(object.containsKey(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue())) {
-            appStateInfo.setCommonDataDirectory( object.get(FeatureStringEnum.COMMON_DATA_DIRECTORY).isString().stringValue());
+            appStateInfo.setCommonDataDirectory( object.get(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue()).isString().stringValue());
         }
 
         return appStateInfo ;
