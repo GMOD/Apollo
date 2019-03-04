@@ -146,4 +146,5 @@ class ConfigWrapperService {
     boolean getNativeTrackSelectorDefaultOn(){
         return grailsApplication.config.apollo.native_track_selector_default_on
     }
+
 }

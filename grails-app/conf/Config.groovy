@@ -218,7 +218,8 @@ apollo {
     store_orig_id = false // sets the orig_id to the original evidence id when first created
 
     // used for uploading
-    common_data_directory = "/opt/apollo"
+//    common_data_directory = "/opt/apollo"
+    common_data_directory = "apollo_data"
 
     // settings for Chado export
     // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database
