@@ -123,11 +123,10 @@ class AnnotatorService {
 
         if (commonDataPreference) {
             directory = commonDataPreference.value
-            println "Can write to ${directory}"
-
+            println "Preference exists in database [${directory}]."
             File testDirectory = new File(directory)
             if (!testDirectory.exists()) {
-                assert testDirectory.createNewFile()
+                assert testDirectory.mkdirs()
             }
             if (testDirectory.exists() && testDirectory.canWrite()) {
                 return null
@@ -139,7 +138,7 @@ class AnnotatorService {
         directory = configWrapperService.commonDataDirectory
         File testDirectory = new File(directory)
         if (!testDirectory.exists()) {
-            assert testDirectory.createNewFile()
+            assert testDirectory.mkdirs()
         }
         if (testDirectory.exists() && testDirectory.canWrite()) {
             ApplicationPreference applicationPreference = new ApplicationPreference(
@@ -158,7 +157,7 @@ class AnnotatorService {
     def updateCommonDataDirectory(String newDirectory) {
         File testDirectory = new File(newDirectory)
         if (!testDirectory.exists()) {
-            assert testDirectory.createNewFile()
+            assert testDirectory.mkdirs()
         }
         if (!testDirectory.exists() || !testDirectory.canWrite()) {
             return "Unable to write to directory ${newDirectory}"
