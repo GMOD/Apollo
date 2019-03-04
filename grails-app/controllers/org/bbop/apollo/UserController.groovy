@@ -24,6 +24,7 @@ class UserController {
     def permissionService
     def preferenceService
     def userService
+    def annotatorService
 
 
     @RestApiMethod(description = "Load all users and their permissions", path = "/user/loadUsers", verb = RestApiVerb.POST)
@@ -256,6 +257,15 @@ class UserController {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
+            }
+
+            println "checking if global admin"
+            if(permissionService.isUserGlobalAdmin(currentUser)){
+                String badCommonPath = annotatorService.checkCommonDataDirectory()
+                println "bad common path ${badCommonPath}"
+                if(badCommonPath){
+                    userObject.badCommonPath = badCommonPath
+                }
             }
 
             render userObject as JSON

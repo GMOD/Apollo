@@ -121,36 +121,42 @@ class AnnotatorService {
         ApplicationPreference commonDataPreference = ApplicationPreference.findByName("common_data_directory")
         String directory
 
-        if (commonDataPreference) {
-            directory = commonDataPreference.value
-            println "Preference exists in database [${directory}]."
+        try {
+            if (commonDataPreference) {
+                directory = commonDataPreference.value
+                println "Preference exists in database [${directory}]."
+                File testDirectory = new File(directory)
+                println "database path: ${testDirectory.absolutePath}"
+                if (!testDirectory.exists()) {
+                    println "directory does not exist so trying to make? "
+                    assert testDirectory.mkdirs()
+                }
+                if (testDirectory.exists() && testDirectory.canWrite()) {
+                    println "its all there so returning "
+                    return null
+                }
+            }
+
+            // if all of the tests fail, then do the next thing
+            println "Unable to write to the database directory, so checking the config"
+            directory = configWrapperService.commonDataDirectory
             File testDirectory = new File(directory)
             if (!testDirectory.exists()) {
                 assert testDirectory.mkdirs()
             }
             if (testDirectory.exists() && testDirectory.canWrite()) {
+                ApplicationPreference applicationPreference = new ApplicationPreference(
+                        name: "common_data_directory",
+                        value: directory
+
+                ).save(failOnError: true, flush: true)
+                println("Saving new preference for common data directory ${directory}")
                 return null
             }
+        } catch (Throwable e) {
+            log.error e
+            return "Unable to write to directory ${directory}."
         }
-
-        // if all of the tests fail, then do the next thing
-        log.warn "Unable to write to the database directory, so checking the config"
-        directory = configWrapperService.commonDataDirectory
-        File testDirectory = new File(directory)
-        if (!testDirectory.exists()) {
-            assert testDirectory.mkdirs()
-        }
-        if (testDirectory.exists() && testDirectory.canWrite()) {
-            ApplicationPreference applicationPreference = new ApplicationPreference(
-                    name: "common_data_directory",
-                    value: directory
-
-            ).save(failOnError: true, flush: true)
-            println("Saving new preference for common data directory ${directory}")
-            return null
-        }
-
-        return "Unable to write to directory ${directory}."
     }
 
 

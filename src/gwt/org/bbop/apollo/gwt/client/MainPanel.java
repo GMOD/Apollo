@@ -22,10 +22,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
-import org.bbop.apollo.gwt.client.rest.RestService;
-import org.bbop.apollo.gwt.client.rest.SequenceRestService;
-import org.bbop.apollo.gwt.client.rest.UserRestService;
+import org.bbop.apollo.gwt.client.rest.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -33,6 +30,7 @@ import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Anchor;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.SuggestBox;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -137,6 +135,16 @@ public class MainPanel extends Composite {
     HTML editUserHeader;
     @UiField
     Button trackListToggle;
+    @UiField
+    Modal editAdminModal;
+    @UiField
+    Button updateAdminButton;
+    @UiField
+    Button cancelAdminButton;
+    @UiField
+    TextBox adminTextBox;
+    @UiField
+    Alert updateAdminAlertText;
 
 
     private LoginDialog loginDialog = new LoginDialog();
@@ -445,12 +453,20 @@ public class MainPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnValue = JSONParser.parseStrict(response.getText()).isObject();
                 if (returnValue.containsKey(FeatureStringEnum.USER_ID.getValue())) {
+                    GWT.log(returnValue.toString());
+                    if(returnValue.containsKey("badCommonPath")){
+                        updateAdminAlertText.setText(returnValue.get("badCommonPath").isString().stringValue());
+                        adminTextBox.setText("apollo_data");
+                        editAdminModal.show();
+                    }
+                    else
                     if (returnValue.containsKey(FeatureStringEnum.ERROR.getValue())) {
                         String errorText = returnValue.get(FeatureStringEnum.ERROR.getValue()).isString().stringValue();
                         alertText.setText(errorText);
                         detailTabs.setVisible(false);
                         notificationModal.show();
-                    } else {
+                    }
+                    else {
                         detailTabs.setVisible(true);
                         getAppState();
                         logoutButton.setVisible(true);
@@ -1082,6 +1098,31 @@ public class MainPanel extends Composite {
     public void trackListToggleButtonHandler(ClickEvent event) {
         useNativeTracklist = !trackListToggle.isActive();
         trackPanel.updateTrackToggle(useNativeTracklist);
+    }
+
+    @UiHandler("updateAdminButton")
+    public void updateAdminButton(ClickEvent event) {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Bootbox.alert("Successfully updated, reloading");
+                Window.Location.reload();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("There was a problem: "+exception.getMessage());
+            }
+        };
+        AnnotationRestService.updateCommonPath(requestCallback,adminTextBox.getText());
+//        useNativeTracklist = !trackListToggle.isActive();
+//        trackPanel.updateTrackToggle(useNativeTracklist);
+    }
+
+    @UiHandler("cancelAdminButton")
+    public void cancelAdminButton(ClickEvent event) {
+        editAdminModal.hide();
     }
 
 
