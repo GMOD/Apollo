@@ -582,12 +582,12 @@ class AnnotatorController {
 
     @Transactional
     String updateCommonPath(String directory) {
-        println "update common path "
+        log.debug "Updating the common path for ${directory}"
         JSONObject returnObject = new JSONObject()
 
         try {
             String returnString = annotatorService.updateCommonDataDirectory(directory) as String
-            println "return string ${returnString}"
+            log.info "Returning common data directory ${returnString}"
             if(returnString){
                 returnObject.error = returnString
             }

@@ -259,10 +259,9 @@ class UserController {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
             }
 
-            println "checking if global admin"
             if(permissionService.isUserGlobalAdmin(currentUser)){
                 String badCommonPath = annotatorService.checkCommonDataDirectory()
-                println "bad common path ${badCommonPath}"
+                log.debug "bad common path ${badCommonPath}"
                 if(badCommonPath){
                     userObject.badCommonPath = badCommonPath
                 }
