@@ -189,14 +189,18 @@ class FileService {
     List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         String initialLocation = tempDir ? path + File.separator + "temp" : path
-        log.debug "initial location: ${initialLocation}"
+
+        println "initial location: ${initialLocation}"
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
-        String tempFileName = UUID.randomUUID().toString()+".fa"
+        String tempFileName = UUID.randomUUID().toString()+".temp"
 
         File outputFile = new File(initialLocation, tempFileName)
+        assert outputFile.createNewFile()
+        println "${initialLocation} -> can write: ${outputFile.absolutePath} -> ${outputFile.exists()} -> ${outputFile.canWrite()}"
         try {
             FileOutputStream fos = new FileOutputStream(outputFile)
             IOUtils.copy(tais, fos)
+            tais.close()
             fos.close()
             fileNames.add(outputFile.absolutePath)
         } catch (IOException e) {
@@ -216,6 +220,7 @@ class FileService {
         }
         String suffix = newName.substring(suffixIndex)
         String updatedName = directoryName.replaceAll(" ", "_") + suffix
+        println "newName ${newName}, directoryNaem ${directoryName}, updated name, ${updatedName}, suffix ${suffix}, path ${path}"
 //        /opt/temporary/apollo/6503-nf_test3/raw || test2 || volvox-sorted.bam
 //        /opt/temporary/apollo/6503-nf_test3/raw || test2 .bam
         String destinationFileName = path + File.separator + updatedName

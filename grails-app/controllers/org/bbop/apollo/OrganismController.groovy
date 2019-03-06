@@ -336,7 +336,7 @@ class OrganismController {
                             }
 
                             String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
-                            File trackListFile = new File(directoryName + "/" + "trackList.json")
+                            File trackListFile = new File(directory.absolutePath+ File.separator + "trackList.json")
                             trackListFile.write(trackListJson)
 
                             // create an index
@@ -473,7 +473,7 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        log.info "input params ${params}"
+        println "input params ${params}"
         String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
         println "path to JBrowse binaries ${pathToJBrowseBinaries}"
 
@@ -528,7 +528,7 @@ class OrganismController {
             Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value))
 
             if (organism) {
-                log.debug "Adding track to organism: ${organism.commonName}"
+                println "Adding track to organism: ${organism.commonName}"
                 String organismDirectoryName = organism.directory
                 File organismDirectory = new File(organismDirectoryName)
                 File commonDataDirectory = new File(trackService.commonDataDirectory)
@@ -620,6 +620,7 @@ class OrganismController {
                     }
                 } else {
                     // organism data is somewhere on the server where we don't want to modify anything
+                    println "data is on the server and proteded"
                     File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
@@ -628,9 +629,7 @@ class OrganismController {
                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                     } else {
                         File extendedDirectory = trackService.getExtendedDataDirectory(organism)
-                        if (extendedDirectory.exists()) {
-                            // extended organism directory present in common data directory
-                        } else {
+                        if (!extendedDirectory.exists()) {
                             // make a new extended organism directory in common data directory
                             if (extendedDirectory.mkdirs()) {
                                 // write extendedTrackList.json
@@ -677,10 +676,13 @@ class OrganismController {
                             }
                         } else {
                             if (trackFile) {
+                                println "A"
                                 if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
+                                    println "B"
                                     // add track config to trackList.json
                                     File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                                     if (!extendedTrackListJsonFile.exists()) {
+                                        println "C"
                                         def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                         trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                         trackListJsonWriter.close()
@@ -696,9 +698,28 @@ class OrganismController {
                                         try {
                                             String path = extendedDirectory.absolutePath + File.separator + "raw"
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
-                                            String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
-                                            File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                            // TODO: if the suffix is 0 does not end with gzip, then we need to run it throutgh the decrompressor
+                                            String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
+                                            println "original name ${trackFile.originalFilename}"
+                                            File destinationFile
+                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
+                                                File archiveFile = new File(trackFile.originalFilename)
+                                                trackFile.transferTo(archiveFile)
+                                                println "decompressing to ${path} from ${archiveFile.absolutePath}"
+//                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
+                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
+                                                println "output file path ${outputFilePath}"
+                                                destinationFile = new File(outputFilePath)
+//                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
+                                            }
+                                            else{
+                                                println "not decompression "
+                                                destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                            }
+
+                                            println "storing with name, ${newFileName} from  ${trackFile.originalFilename}"
+//                                            File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             if (trackFileIndex.getOriginalFilename()) {
                                                 String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
