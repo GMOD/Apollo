@@ -15,7 +15,7 @@ class BootStrap {
     def proxyService
     def userService
     def roleService
-    def annotatorService
+    def trackService
     def phoneHomeService
 
 
@@ -45,7 +45,7 @@ class BootStrap {
             userService.registerAdmin(admin.username,admin.password,admin.firstName,admin.lastName)
         }
 
-        annotatorService.checkCommonDataDirectory()
+        trackService.checkCommonDataDirectory()
 
         phoneHomeService.pingServerAsync(org.bbop.apollo.PhoneHomeEnum.START.value)
 

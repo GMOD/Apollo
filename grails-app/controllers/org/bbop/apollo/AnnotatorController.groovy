@@ -31,6 +31,7 @@ class AnnotatorController {
     def requestHandlingService
     def permissionService
     def annotatorService
+    def trackService
     def preferenceService
     def reportService
     def featureRelationshipService
@@ -586,7 +587,7 @@ class AnnotatorController {
         JSONObject returnObject = new JSONObject()
 
         try {
-            String returnString = annotatorService.updateCommonDataDirectory(directory) as String
+            String returnString = trackService.updateCommonDataDirectory(directory) as String
             log.info "Returning common data directory ${returnString}"
             if(returnString){
                 returnObject.error = returnString

@@ -227,7 +227,7 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName.replaceAll(" ","_"))
+            File extendedOrganismDataDirectory = trackService.getExtendedDataDirectory(currentOrganism)
 
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
@@ -511,7 +511,8 @@ class JbrowseController {
 
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
-            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName.replaceAll(" ","_") + File.separator + OrganismController.EXTENDED_TRACKLIST)
+
+            File extendedTrackListFile = trackService.getExtendedTrackList(currentOrganism)
             println "${extendedTrackListFile.absolutePath} -> ${extendedTrackListFile.exists()} -> can write ${extendedTrackListFile.canWrite()}"
             if (extendedTrackListFile.exists()) {
                 println  "augmenting track JSON Object with extendedTrackList.json contents"
@@ -579,7 +580,7 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = trackService.getExtendedDataDirectory(currentOrganism)
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug "track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
                 String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
