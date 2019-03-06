@@ -5,6 +5,7 @@ import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.gwt.shared.track.TrackIndex
+import org.bbop.apollo.gwt.shared.track.TrackTypeEnum
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONElement
@@ -608,5 +609,28 @@ class TrackService {
             response.status = HttpServletResponse.SC_FORBIDDEN
             return false
         }
+    }
+
+    @NotTransactional
+    def generateJSONForGff3(File inputFile, String trackPath, String jbrowseBinariesPath){
+//        println "ping ${servletContext.getRealPath("/jbrowse/bin/flatfile-to-json.pl")}"
+        File fileToExecute = new File(jbrowseBinariesPath + "/flatfile-to-json.pl")
+        println "file to execute ${fileToExecute}"
+        println "file exists ${fileToExecute.exists()}"
+        println "file can execute ${fileToExecute.canExecute()}"
+        if(!fileToExecute.canExecute()){
+            fileToExecute.setExecutable(true,true)
+            println "file can execute ${fileToExecute.canExecute()}"
+        }
+//        bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name>
+        String outputName = inputFile.getName().substring(0,inputFile.getName().lastIndexOf("."))
+
+        def arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type","mRNA","--trackLabel",outputName,"--out",trackPath]
+        String executionString = arguments.join(" ")
+        println "execitugin ${executionString}"
+
+        def proc = executionString.execute()
+        println "err3: ${proc.err.text}"
+        println "output2: ${proc.out}"
     }
 }

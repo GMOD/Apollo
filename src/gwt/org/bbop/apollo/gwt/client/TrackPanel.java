@@ -474,6 +474,16 @@ public class TrackPanel extends Composite {
         setTrackTypeAndUpdate(TrackTypeEnum.GFF3_CANVAS);
     }
 
+    @UiHandler("selectGFF3Json")
+    public void selectGFF3Json(ClickEvent clickEvent) {
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_JSON);
+    }
+
+    @UiHandler("selectGFF3JsonCanvas")
+    public void selectGFF3JsonCanvas(ClickEvent clickEvent) {
+        setTrackTypeAndUpdate(TrackTypeEnum.GFF3_JSON_CANVAS);
+    }
+
     @UiHandler("selectGFF3Tabix")
     public void selectGFF3Tabix(ClickEvent clickEvent) {
         setTrackTypeAndUpdate(TrackTypeEnum.GFF3_TABIX);

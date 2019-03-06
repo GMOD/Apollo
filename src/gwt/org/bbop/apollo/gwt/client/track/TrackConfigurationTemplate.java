@@ -165,6 +165,28 @@ public class TrackConfigurationTemplate {
                         type,
                         "mRNA"
                 ).toJSON();
+            case GFF3_JSON:
+                return new TrackConfigurationTemplate(
+                        "JBrowse/Store/SeqFeature/NCList",
+                        "tracks/"+randomFileName.replaceAll(" ","_")+"/{refseq}/trackData.jsonz",
+                        randomFileName,
+                        "JBrowse/View/Track/HTMLFeatures",
+                        randomFileName,
+                        category,
+                        type,
+                        "mRNA"
+                ).toJSON();
+            case GFF3_JSON_CANVAS:
+                return new TrackConfigurationTemplate(
+                        "JBrowse/Store/SeqFeature/NCList",
+                        "tracks/"+randomFileName.replaceAll(" ","_")+"/{refseq}/trackData.jsonz",
+                        randomFileName,
+                        "JBrowse/View/Track/CanvasFeatures",
+                        randomFileName,
+                        category,
+                        type,
+                        "mRNA"
+                ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(
                         "JBrowse/Store/SeqFeature/GFF3Tabix",

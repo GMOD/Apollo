@@ -471,7 +471,7 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
             , @RestApiParam(name = "trackData", type = "string", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed track data")
-            , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw)")
+            , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw, *gff)")
             , @RestApiParam(name = "trackFileIndex", type = "string", paramType = RestApiParamType.QUERY, description = "index (*.bai, *.tbi)")
             , @RestApiParam(name = "trackConfig", type = "string", paramType = RestApiParamType.QUERY, description = "Track configuration (JBrowse JSON)")
     ])
@@ -481,6 +481,8 @@ class OrganismController {
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
         log.info "input params ${params}"
+        String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
+        println "path to JBrowse binaries ${pathToJBrowseBinaries}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -590,11 +592,21 @@ class OrganismController {
 //                                    fileService.store(trackFile, path)
                                     TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
                                     String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
-                                    fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                    File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                     if (trackFileIndex.originalFilename) {
                                         String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
 //                                        fileService.store(trackFileIndex, path)
                                         fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
+                                    }
+
+                                    println "B track type enum ${trackTypeEnum.name()} vs ${TrackTypeEnum.GFF3_JSON.name()}"
+                                    if(trackTypeEnum==TrackTypeEnum.GFF3_JSON || trackTypeEnum==TrackTypeEnum.GFF3_JSON_CANVAS){
+                                        println "B is a json type so generating"
+                                        trackService.generateJSONForGff3(destinationFile,organismDirectoryName,pathToJBrowseBinaries)
+                                        println "B GENERATED"
+                                    }
+                                    else{
+                                        println "B not a JSON Type"
                                     }
 
                                     // write to trackList.json
@@ -690,6 +702,7 @@ class OrganismController {
                                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                                     } else {
                                         try {
+
 //                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
 //                                            String trackDirectoryName = urlTemplate.split("/").first()
 //                                            String path = organismDirectoryName + File.separator + trackDirectoryName
@@ -698,11 +711,21 @@ class OrganismController {
 
                                             String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
-                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                            File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             if (trackFileIndex.getOriginalFilename()) {
                                                 String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
 //                                                fileService.store(trackFileIndex, path)
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
+                                            }
+
+                                            println "track type enum ${trackTypeEnum.name()} vs ${TrackTypeEnum.GFF3_JSON.name()}"
+                                            if(trackTypeEnum==TrackTypeEnum.GFF3_JSON || trackTypeEnum==TrackTypeEnum.GFF3_JSON_CANVAS){
+                                                println "is a json type so generating"
+                                                trackService.generateJSONForGff3(destinationFile,extendedDirectoryName,pathToJBrowseBinaries)
+                                                println "GENERATED"
+                                            }
+                                            else{
+                                                println "not a JSON Type"
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)
