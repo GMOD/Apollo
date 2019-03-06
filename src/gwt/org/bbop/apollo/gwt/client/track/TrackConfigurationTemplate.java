@@ -46,7 +46,9 @@ public class TrackConfigurationTemplate {
         this.key = key;
         this.category = category ;
         this.typeEnum = typeEnum ;
-        this.topLevelFeatures = topLevelFeatures;
+        if(topLevelFeatures!=null){
+            this.topLevelFeatures = topLevelFeatures;
+        }
     }
 
 
@@ -174,7 +176,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        "mRNA"
+                        null
                 ).toJSON();
             case GFF3_JSON_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -185,7 +187,7 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        "mRNA"
+                        null
                 ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(
