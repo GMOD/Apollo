@@ -216,6 +216,9 @@ JSONUtils.handleCigarSubFeatures = function(feature,type){
     type = type ? type : feature.get('type');
     if(type.endsWith('RNA') && JSONUtils.isAlignment(feature)){
         feature = JSONUtils.generateSubFeaturesFromCigar(feature)
+        if(!feature.get('type')){
+            feature.set('type',type)
+        }
     }
     return feature ;
 };
@@ -341,6 +344,7 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     };
 
     var typename;
+    console.log("specified type",specified_subtype,jfeature)
     if (specified_type)  {
         typename = specified_type;
         var preferredSubFeature = this.getPreferredSubFeature(specified_type,jfeature);
