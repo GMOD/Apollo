@@ -344,7 +344,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     };
 
     var typename;
-    console.log("specified type",specified_subtype,jfeature)
     if (specified_type)  {
         typename = specified_type;
         var preferredSubFeature = this.getPreferredSubFeature(specified_type,jfeature);
