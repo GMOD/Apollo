@@ -618,6 +618,8 @@ class TrackService {
         println "file to execute ${fileToExecute}"
         println "file exists ${fileToExecute.exists()}"
         println "file can execute ${fileToExecute.canExecute()}"
+        File trackPathFile = new File(trackPath)
+        println "track path ${trackPath} -> exissts ${trackPathFile.exists()} and can write ${trackPathFile.canWrite()}"
         if(!fileToExecute.canExecute()){
             fileToExecute.setExecutable(true,true)
             println "file can execute ${fileToExecute.canExecute()}"

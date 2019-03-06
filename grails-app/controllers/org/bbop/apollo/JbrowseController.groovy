@@ -227,7 +227,7 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName.replaceAll(" ","_"))
 
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
@@ -507,15 +507,21 @@ class JbrowseController {
 
         trackService.removeIncludedPlugins(jsonObject.plugins)
 
+        println "data added web service  ${currentOrganism?.dataAddedViaWebServices}"
+
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
-            log.info "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
-            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName.replaceAll(" ","_") + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            println "${extendedTrackListFile.absolutePath} -> ${extendedTrackListFile.exists()} -> can write ${extendedTrackListFile.canWrite()}"
             if (extendedTrackListFile.exists()) {
-                log.debug "augmenting track JSON Object with extendedTrackList.json contents"
+                println  "augmenting track JSON Object with extendedTrackList.json contents"
                 JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
+                println "extended ${extendedTrackListObject as JSON}"
                 jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
             }
+        }
+        else{
+            println "was added via web servies "
         }
 
 

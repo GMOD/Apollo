@@ -634,7 +634,7 @@ class OrganismController {
                         log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                     } else {
-                        String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
+                        String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName.replaceAll(" ","_")
                         File extendedDirectory = new File(extendedDirectoryName)
                         if (extendedDirectory.exists()) {
                             // extended organism directory present in common data directory
@@ -702,19 +702,13 @@ class OrganismController {
                                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                                     } else {
                                         try {
-
-//                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
-//                                            String trackDirectoryName = urlTemplate.split("/").first()
-//                                            String path = organismDirectoryName + File.separator + trackDirectoryName
                                             String path = extendedDirectoryName + File.separator + "raw"
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
-
                                             String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 
                                             File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             if (trackFileIndex.getOriginalFilename()) {
                                                 String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
-//                                                fileService.store(trackFileIndex, path)
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                             }
 
@@ -806,7 +800,7 @@ class OrganismController {
                 if (trackObject == null) {
                     // track not found in trackList.json
                     log.debug "Track with label '${trackLabel}' not found; searching in extendedTrackList.json"
-                    File extendedTrackListJsonFile = new File(configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName + File.separator + EXTENDED_TRACKLIST)
+                    File extendedTrackListJsonFile = new File(configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName.replaceAll(" ","_") + File.separator + EXTENDED_TRACKLIST)
                     if (extendedTrackListJsonFile.exists()) {
                         JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text) as JSONObject
                         trackObject = trackService.findTrackFromArray(extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value), trackLabel)
@@ -819,7 +813,7 @@ class OrganismController {
                             extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value).remove(trackObject)
                             String urlTemplate = trackObject.get(FeatureStringEnum.URL_TEMPLATE.value)
                             String trackDirectory = urlTemplate.split("/").first()
-                            File trackDir = new File(configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName + File.separator + trackDirectory + File.separator + trackObject.get(FeatureStringEnum.LABEL.value))
+                            File trackDir = new File(configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName.replaceAll(" ","_") + File.separator + trackDirectory + File.separator + trackObject.get(FeatureStringEnum.LABEL.value))
                             if (trackDir.exists()) {
                                 log.debug "Deleting ${trackDir.getAbsolutePath()}"
                                 if (trackDir.deleteDir()) {
