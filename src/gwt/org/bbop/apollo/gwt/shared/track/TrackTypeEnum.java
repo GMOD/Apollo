@@ -9,10 +9,10 @@ public enum TrackTypeEnum {
     BIGWIG_XY("bw"),
     VCF("vcf.gz","vcf.gz.tbi"),
     VCF_CANVAS("vcf.gz","vcf.gz.tbi"),
-    GFF3_JSON(new String[]{"gff","gff3"}),
-    GFF3_JSON_CANVAS(new String[]{"gff","gff3"}),
-    GFF3(new String[]{"gff","gff3"}),
-    GFF3_CANVAS(new String[]{"gff","gff3"}),
+    GFF3_JSON(new String[]{"gff","gff3","gff.gz","gff3.gz"}),
+    GFF3_JSON_CANVAS(new String[]{"gff","gff3","gff.gz","gff3.gz"}),
+    GFF3(new String[]{"gff","gff3","gff.gz","gff3.gz"}),
+    GFF3_CANVAS(new String[]{"gff","gff3","gff.gz","gff3.gz"}),
     GFF3_TABIX(new String[]{"gff.gz","gff3.gz"},new String[]{"gff.gz.tbi","gff3.gz.tbi"}),
     GFF3_TABIX_CANVAS(new String[]{"gff.gz","gff3.gz"},new String[]{"gff.gz.tbi","gff3.gz.tbi"});
 
