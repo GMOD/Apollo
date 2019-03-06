@@ -216,6 +216,9 @@ JSONUtils.handleCigarSubFeatures = function(feature,type){
     type = type ? type : feature.get('type');
     if(type.endsWith('RNA') && JSONUtils.isAlignment(feature)){
         feature = JSONUtils.generateSubFeaturesFromCigar(feature)
+        if(!feature.get('type')){
+            feature.set('type',type)
+        }
     }
     return feature ;
 };
