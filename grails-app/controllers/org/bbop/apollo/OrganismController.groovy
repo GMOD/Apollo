@@ -336,7 +336,7 @@ class OrganismController {
                             }
 
                             String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
-                            File trackListFile = new File(directory.absolutePath+ File.separator + "trackList.json")
+                            File trackListFile = new File(directory.absolutePath + File.separator + "trackList.json")
                             trackListFile.write(trackListJson)
 
                             // create an index
@@ -413,7 +413,7 @@ class OrganismController {
             }
             File extendedTrackListJsonFile
             if (new File(extendedDirectory.absolutePath + File.separator + TrackService.EXTENDED_TRACKLIST).exists()) {
-                extendedTrackListJsonFile = new File(extendedDirectory.absolutePath+ File.separator + TrackService.EXTENDED_TRACKLIST)
+                extendedTrackListJsonFile = new File(extendedDirectory.absolutePath + File.separator + TrackService.EXTENDED_TRACKLIST)
             } else {
 //                println "file does not ext ${extendedTrackListJsonFile.absolutePath}"
                 if (organism.directory.contains(trackService.commonDataDirectory)) {
@@ -592,14 +592,8 @@ class OrganismController {
                                         fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                     }
 
-                                    println "B track type enum ${trackTypeEnum.name()} vs ${TrackTypeEnum.GFF3_JSON.name()}"
-                                    if(trackTypeEnum==TrackTypeEnum.GFF3_JSON || trackTypeEnum==TrackTypeEnum.GFF3_JSON_CANVAS){
-                                        println "B is a json type so generating"
-                                        trackService.generateJSONForGff3(destinationFile,organismDirectoryName,pathToJBrowseBinaries)
-                                        println "B GENERATED"
-                                    }
-                                    else{
-                                        println "B not a JSON Type"
+                                    if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
+                                        trackService.generateJSONForGff3(destinationFile, organismDirectoryName, pathToJBrowseBinaries)
                                     }
 
                                     // write to trackList.json
@@ -702,37 +696,30 @@ class OrganismController {
                                             // TODO: if the suffix is 0 does not end with gzip, then we need to run it throutgh the decrompressor
                                             String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
                                             println "original name ${trackFile.originalFilename}"
-                                            File destinationFile
-                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
-                                                File archiveFile = new File(trackFile.originalFilename)
-                                                trackFile.transferTo(archiveFile)
-                                                println "decompressing to ${path} from ${archiveFile.absolutePath}"
-//                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
-                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
-                                                println "output file path ${outputFilePath}"
-                                                destinationFile = new File(outputFilePath)
-//                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
-                                            }
-                                            else{
-                                                println "not decompression "
-                                                destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
-                                            }
+//                                            File destinationFile
+//                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
+//                                                File archiveFile = new File(trackFile.originalFilename)
+//                                                trackFile.transferTo(archiveFile)
+//                                                println "decompressing to ${path} from ${archiveFile.absolutePath}"
+////                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
+//                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
+//                                                println "output file path ${outputFilePath}"
+//                                                destinationFile = new File(outputFilePath)
+////                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
+//                                            }
+//                                            else{
+//                                                println "not decompression "
+//                                            destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+//                                            }
 
-                                            println "storing with name, ${newFileName} from  ${trackFile.originalFilename}"
-//                                            File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                            File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             if (trackFileIndex.getOriginalFilename()) {
                                                 String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
                                             }
 
-                                            println "track type enum ${trackTypeEnum.name()} vs ${TrackTypeEnum.GFF3_JSON.name()}"
-                                            if(trackTypeEnum==TrackTypeEnum.GFF3_JSON || trackTypeEnum==TrackTypeEnum.GFF3_JSON_CANVAS){
-                                                println "is a json type so generating"
-                                                trackService.generateJSONForGff3(destinationFile,extendedDirectory.absolutePath,pathToJBrowseBinaries)
-                                                println "GENERATED"
-                                            }
-                                            else{
-                                                println "not a JSON Type"
+                                            if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
+                                                trackService.generateJSONForGff3(destinationFile, extendedDirectory.absolutePath, pathToJBrowseBinaries)
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)
