@@ -283,8 +283,9 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
                 openExon = false ;
             }
         }
+
+
         // we ignore insertions when calculating potential exon length
-        else
         if( op !== 'I' ) {
             currOffset += len;
         }
