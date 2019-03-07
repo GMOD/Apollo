@@ -1174,13 +1174,13 @@ define([
                     }
 
                     var afeat ;
-                    featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
+                        featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
                     }
                     else {
