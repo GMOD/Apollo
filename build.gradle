@@ -435,7 +435,7 @@ task installJBrowseWebOnly {
         tasks.installJBrowsePlugins2.execute()
         exec {
             workingDir 'jbrowse'
-            commandLine 'npm', 'run', 'build'
+            commandLine './setup.sh'
         }
         tasks.copyJBrowseDirectory.execute()
     }
