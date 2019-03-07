@@ -284,7 +284,8 @@ class OrganismController {
                 organism.addMetaData("creator", currentUser.id.toString())
                 File directory = trackService.getExtendedDataDirectory(organism)
 
-                if (directory.mkdirs()) {
+                if (directory.mkdirs() && directory.setWritable(true)) {
+
                     if (organismDataFile) {
                         log.debug "Successfully created directory ${directory.absolutePath}"
                         File archiveFile = new File(organismDataFile.getOriginalFilename())
@@ -317,7 +318,8 @@ class OrganismController {
                         // TODO: put this in a temp directory? ? ?
                         try {
                             File rawDirectory = new File(directory.absolutePath + "/seq")
-                            rawDirectory.mkdir()
+                            assert rawDirectory.mkdir()
+                            assert rawDirectory.setWritable(true)
                             File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
                             sequenceDataFile.transferTo(archiveFile)
 
@@ -625,7 +627,7 @@ class OrganismController {
                         File extendedDirectory = trackService.getExtendedDataDirectory(organism)
                         if (!extendedDirectory.exists()) {
                             // make a new extended organism directory in common data directory
-                            if (extendedDirectory.mkdirs()) {
+                            if (extendedDirectory.mkdirs() && extendedDirectory.setWritable(true)) {
                                 // write extendedTrackList.json
                                 File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                                 def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
