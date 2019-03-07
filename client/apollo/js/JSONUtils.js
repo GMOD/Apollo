@@ -238,6 +238,16 @@ JSONUtils.parseCigar = function( cigar ) {
    });
 };
 
+JSONUtils.createExonSubFeature = function (feature,start,end){
+    var exon = new SimpleFeature({parent:feature});
+    exon.set('start', start);
+    exon.set('end', end );
+    exon.set('strand', feature.get('strand'));
+    exon.set('type', 'exon');
+    var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
+    feature.get("subfeatures").push(subfeature);
+};
+
 /**
 * Generate exon subfeatures only from M vs N.
 * @param feature
@@ -256,65 +266,30 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
     array.forEach( ops, function( oprec ) {
         op  = oprec[0];
         len = oprec[1];
-        console.log('op',op,'len',len,'open',openExon,'current offset',currOffset);
-
         // 1. open or continue open
         if( op === 'M' || op === '=' || op === 'E' ) {
             // if it was closed, then open with start, strand, type
             if(!openExon){
-                console.log('opening closed with ',openExon,openStart,currOffset,len, (currOffset+len+start))
                 // add subfeature
                 openStart = currOffset + start ;
                 openExon = true ;
             }
-            else{
-                console.log('already open, so doing nothing ',openExon,openStart,currOffset,len, (currOffset+len+start))
-            }
-            // if it was open, then  do nothing
-
        }
        else
         if( op === 'N' ) {
             // if it was open, then close and add the subfeature
             if(openExon){
-                console.log('N was open so adding a feature and closing',openExon,openStart,currOffset,len,start, (currOffset+len+start))
-                var exon = new SimpleFeature({parent:feature});
-                exon.set('start', openStart);
-                exon.set('end', currOffset + start);
-                exon.set('strand', feature.get('strand'));
-                exon.set('type', 'exon');
-                // create an exon subfeature for each
-                var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
-                feature.get("subfeatures").push(subfeature);
-
+                JSONUtils.createExonSubFeature(feature,openStart,currOffset+start);
                 openExon = false ;
             }
-            else{
-                console.log('was closed already so not sure why here ',openExon,openStart,currOffset,len)
-            }
-
         }
         currOffset += len;
     });
 
     // F. if we are still open, then close with the final length and add subfeature
     if(openExon && openStart!==undefined){
-        console.log('FINAL set open so adding a feature and closing',openExon,openStart,currOffset,(currOffset+len+start))
-        var exon = new SimpleFeature({parent:feature});
-        exon.set('start', openStart);
-        exon.set('end', currOffset +  start );
-        exon.set('strand', feature.get('strand'));
-        exon.set('type', 'exon');
-        // create an exon subfeature for each
-        var subfeature = JSONUtils.makeSimpleFeature(exon,feature);
-        feature.get("subfeatures").push(subfeature);
-
+        JSONUtils.createExonSubFeature(feature,openStart,currOffset+start);
     }
-
-    array.forEach(feature.get("subfeatures"), function (sf) {
-        console.log(sf,sf.get('start'),sf.get('end'),sf.get('type'))
-       // console.log(sf.start,sf.end,sf.type)
-    });
 
     return feature;
 };
