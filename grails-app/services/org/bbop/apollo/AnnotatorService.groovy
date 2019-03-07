@@ -1,6 +1,5 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -16,6 +15,7 @@ class AnnotatorService {
     def preferenceService
     def requestHandlingService
     def configWrapperService
+    def trackService
 
     def getAppState(String token) {
         JSONObject appStateObject = new JSONObject()
@@ -82,7 +82,7 @@ class AnnotatorService {
                     appStateObject.put("currentEndBp", currentUserOrganismPreferenceDTO.endbp)
                 }
             }
-            appStateObject.put(FeatureStringEnum.COMMON_DATA_DIRECTORY.value,getCommonDataDirectory())
+            appStateObject.put(FeatureStringEnum.COMMON_DATA_DIRECTORY.value,trackService.commonDataDirectory)
         }
         catch (PermissionException e) {
             def error = [error: "Error: " + e]
@@ -93,86 +93,6 @@ class AnnotatorService {
 
 
         return appStateObject
-    }
-
-
-    String getCommonDataDirectory() {
-        ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
-        return commonDataPreference.value
-    }
-
-    /**
-     *
-     * 1. Determine the preferred version
-     *    1a. The database one has the source of user, config, or ??  If it is user, then the database is always the default.
-     *    1b.
-     * 2. See if that version is valid (exists and can write)
-     *    2a. Use the next backup (config)
-     *    2b. Use the next backup (find a home writeable directory)
-     *    2c. Ask the user for help
-     * 3. Notify the admin user the first time of where that directory is.
-     *
-     * The reason for using the database is to remove the configuration detail if startup is easier.
-     *
-     * If both exist and they match and they are both writeable, then return
-     *
-     *
-     * @return
-     */
-    def checkCommonDataDirectory() {
-        ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
-        String directory
-
-        try {
-            if (commonDataPreference) {
-                directory = commonDataPreference.value
-                log.debug "Preference exists in database [${directory}]."
-                File testDirectory = new File(directory)
-                if (!testDirectory.exists()) {
-                    log.warn "Directory does not exist so trying to make"
-                    assert testDirectory.mkdirs()
-                }
-                if (testDirectory.exists() && testDirectory.canWrite()) {
-                    log.debug "Directory ${directory} exists and is writable so returning"
-                    return null
-                }
-            }
-
-            // if all of the tests fail, then do the next thing
-            log.warn "Unable to write to the database directory, so checking the config file"
-            directory = configWrapperService.commonDataDirectory
-            File testDirectory = new File(directory)
-            if (!testDirectory.exists()) {
-                assert testDirectory.mkdirs()
-            }
-            if (testDirectory.exists() && testDirectory.canWrite()) {
-                ApplicationPreference applicationPreference = new ApplicationPreference(
-                        name: "common_data_directory",
-                        value: directory
-
-                ).save(failOnError: true, flush: true)
-                log.info("Saving new preference for common data directory ${directory}")
-                return null
-            }
-        } catch (Throwable e) {
-            log.error "Unable to write to directory ${directory}. ${e}"
-            return "Unable to write to directory ${directory}."
-        }
-    }
-
-
-    def updateCommonDataDirectory(String newDirectory) {
-        File testDirectory = new File(newDirectory)
-        if (!testDirectory.exists()) {
-            assert testDirectory.mkdirs()
-        }
-        if (!testDirectory.exists() || !testDirectory.canWrite()) {
-            return "Unable to write to directory ${newDirectory}"
-        }
-        ApplicationPreference commonDataPreference = ApplicationPreference.findOrSaveByName("common_data_directory")
-        commonDataPreference.value = newDirectory
-        commonDataPreference.save()
-        return null
     }
 
 

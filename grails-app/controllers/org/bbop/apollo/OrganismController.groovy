@@ -33,8 +33,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND
 class OrganismController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
-    static final String TRACKLIST = "trackList.json"
-    static final String EXTENDED_TRACKLIST = "extendedTrackList.json"
 
     def sequenceService
     def permissionService
@@ -84,8 +82,8 @@ class OrganismController {
             organism.delete()
             log.info "Success deleting organism: ${organismJson.organism}"
 
-            if (organism.directory.startsWith(configWrapperService.commonDataDirectory)) {
-                log.info "Directoy is part of the common data directory ${configWrapperService.commonDataDirectory}, so deleting ${organism.directory}"
+            if (organism.directory.startsWith(trackService.commonDataDirectory)) {
+                log.info "Directoy is part of the common data directory ${trackService.commonDataDirectory}, so deleting ${organism.directory}"
                 File directoryToRemove = new File(organism.directory)
                 assert directoryToRemove.deleteDir()
             }
@@ -138,10 +136,9 @@ class OrganismController {
                     } else {
                         log.warn "organism ${organism.id} was not added via web services; Organism deleted but cannot delete data directory ${organismDirectory}"
                         responseObject.put("warn", "Organism ${organism.id} was not added via web services; Organism deleted but cannot delete data directory ${organismDirectory}.")
-                        String extendedDataDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
-                        File extendedDataDirectory = new File(extendedDataDirectoryName)
+                        File extendedDataDirectory = trackService.getExtendedDataDirectory(organism)
                         if (extendedDataDirectory.exists()) {
-                            log.info "Extended data directory found: ${extendedDataDirectoryName}"
+                            log.info "Extended data directory found: ${extendedDataDirectory.absolutePath}"
                             if (extendedDataDirectory.deleteDir()) {
                                 log.info "extended data directory found and deleted"
                             } else {
@@ -240,7 +237,6 @@ class OrganismController {
 
 
         JSONObject returnObject = new JSONObject()
-        String directoryName
         JSONObject requestObject = permissionService.handleInput(request, params)
         log.info "adding organismwith SEQUENDE ${requestObject as String}"
         String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -273,7 +269,7 @@ class OrganismController {
                 String organismName = requestObject.get(FeatureStringEnum.ORGANISM_NAME.value)
                 def organism = new Organism(
                         commonName: organismName,
-                        directory: configWrapperService.commonDataDirectory,
+                        directory: trackService.commonDataDirectory,
                         blatdb: requestObject.blatdb ?: "",
                         genus: requestObject.genus ?: "",
                         obsolete: false,
@@ -286,18 +282,18 @@ class OrganismController {
                 ).save(failOnError: true, flush: true, insert: true)
                 def currentUser = permissionService.currentUser
                 organism.addMetaData("creator", currentUser.id.toString())
-                directoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organismName
-                File directory = new File(directoryName)
+                File directory = trackService.getExtendedDataDirectory(organism)
 
-                if (directory.mkdirs()) {
+                if (directory.mkdirs() && directory.setWritable(true)) {
+
                     if (organismDataFile) {
-                        log.debug "Successfully created directory ${directoryName}"
+                        log.debug "Successfully created directory ${directory.absolutePath}"
                         File archiveFile = new File(organismDataFile.getOriginalFilename())
                         organismDataFile.transferTo(archiveFile)
                         try {
-                            fileService.decompress(archiveFile, directoryName, null, false)
-                            log.debug "Adding ${organismName} with directory: ${directoryName}"
-                            organism.directory = directoryName
+                            fileService.decompress(archiveFile, directory.absolutePath, null, false)
+                            log.debug "Adding ${organismName} with directory: ${directory.absolutePath}"
+                            organism.directory = directory.absolutePath
                             organism.save()
                             sequenceService.loadRefSeqs(organism)
                             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
@@ -321,12 +317,13 @@ class OrganismController {
 
                         // TODO: put this in a temp directory? ? ?
                         try {
-                            File rawDirectory = new File(directoryName + "/seq")
-                            rawDirectory.mkdir()
+                            File rawDirectory = new File(directory.absolutePath + "/seq")
+                            assert rawDirectory.mkdir()
+                            assert rawDirectory.setWritable(true)
                             File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
                             sequenceDataFile.transferTo(archiveFile)
 
-                            organism.directory = directoryName
+                            organism.directory = directory.absolutePath
                             organism.save()
 
                             // decompress if need be
@@ -341,7 +338,7 @@ class OrganismController {
                             }
 
                             String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
-                            File trackListFile = new File(directoryName + "/" + "trackList.json")
+                            File trackListFile = new File(directory.absolutePath + File.separator + "trackList.json")
                             trackListFile.write(trackListJson)
 
                             // create an index
@@ -362,8 +359,8 @@ class OrganismController {
                         throw new RuntimeException("Not sure how we got here ")
                     }
                 } else {
-                    log.error "Could not create ${directoryName}"
-                    returnObject.put("error", "Could not create ${directoryName}.")
+                    log.error "Could not create ${directory.absolutePath}"
+                    returnObject.put("error", "Could not create ${directory.absolutePath}.")
                     organism.delete()
                 }
             } else {
@@ -410,21 +407,18 @@ class OrganismController {
             permissionService.checkPermissions(requestObject, PermissionEnum.ADMINISTRATE)
             Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value)?.id)
             // find in the extended track list and remove
-            String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
-            File extendedDirectory = new File(extendedDirectoryName)
+            File extendedDirectory = trackService.getExtendedDataDirectory(organism)
             if (!extendedDirectory.exists()) {
-                returnObject.put("error", "No temporary directory found to remove tracks from ${extendedDirectoryName}")
+                returnObject.put("error", "No temporary directory found to remove tracks from ${extendedDirectory.absolutePath}")
                 render returnObject as JSON
                 return
             }
             File extendedTrackListJsonFile
-//            = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
-            if (new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST).exists()) {
-                extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+            if (new File(extendedDirectory.absolutePath + File.separator + TrackService.EXTENDED_TRACKLIST).exists()) {
+                extendedTrackListJsonFile = new File(extendedDirectory.absolutePath + File.separator + TrackService.EXTENDED_TRACKLIST)
             } else {
-//                println "file does not ext ${extendedTrackListJsonFile.absolutePath}"
-                if (organism.directory.contains(configWrapperService.commonDataDirectory)) {
-                    extendedTrackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                if (organism.directory.contains(trackService.commonDataDirectory)) {
+                    extendedTrackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                 } else {
                     throw new RuntimeException("Can not delete tracks from a non-temporary directory: ${extendedTrackListJsonFile.absolutePath}")
                 }
@@ -443,13 +437,13 @@ class OrganismController {
             // delete any files with the patterns of key.suffix and key.suffixIndex
 
             for (def suffix in trackTypeEnum.suffix) {
-                File fileToDelete = new File(extendedDirectoryName + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
+                File fileToDelete = new File(extendedDirectory.absolutePath + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
                 if (fileToDelete.exists()) {
                     assert fileToDelete.delete()
                 }
             }
             for (def suffix in trackTypeEnum.suffixIndex) {
-                File fileToDelete = new File(extendedDirectoryName + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
+                File fileToDelete = new File(extendedDirectory.absolutePath + File.separator + "raw/" + trackObject.label.replaceAll(" ", "_") + ".${suffix}")
                 if (fileToDelete.exists()) {
                     assert fileToDelete.delete()
                 }
@@ -471,7 +465,7 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
             , @RestApiParam(name = "trackData", type = "string", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed track data")
-            , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw)")
+            , @RestApiParam(name = "trackFile", type = "string", paramType = RestApiParamType.QUERY, description = "track file (*.bam, *.vcf, *.bw, *gff)")
             , @RestApiParam(name = "trackFileIndex", type = "string", paramType = RestApiParamType.QUERY, description = "index (*.bai, *.tbi)")
             , @RestApiParam(name = "trackConfig", type = "string", paramType = RestApiParamType.QUERY, description = "Track configuration (JBrowse JSON)")
     ])
@@ -480,7 +474,8 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        log.info "input params ${params}"
+        String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
+        log.debug "path to JBrowse binaries ${pathToJBrowseBinaries}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -536,7 +531,7 @@ class OrganismController {
                 log.debug "Adding track to organism: ${organism.commonName}"
                 String organismDirectoryName = organism.directory
                 File organismDirectory = new File(organismDirectoryName)
-                File commonDataDirectory = new File(configWrapperService.commonDataDirectory)
+                File commonDataDirectory = new File(trackService.commonDataDirectory)
 
                 CommonsMultipartFile trackDataFile = request.getFile(FeatureStringEnum.TRACK_DATA.value)
                 CommonsMultipartFile trackFile = request.getFile(FeatureStringEnum.TRACK_FILE.value)
@@ -545,7 +540,7 @@ class OrganismController {
                 if (organismDirectory.getParentFile().getCanonicalPath() == commonDataDirectory.getCanonicalPath()) {
                     // organism data is in common data directory
                     log.info "organism data is in common data directory"
-                    File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                    File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
 
@@ -590,11 +585,15 @@ class OrganismController {
 //                                    fileService.store(trackFile, path)
                                     TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
                                     String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
-                                    fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                    File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                     if (trackFileIndex.originalFilename) {
                                         String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
 //                                        fileService.store(trackFileIndex, path)
                                         fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
+                                    }
+
+                                    if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
+                                        trackService.generateJSONForGff3(destinationFile, organismDirectoryName, pathToJBrowseBinaries)
                                     }
 
                                     // write to trackList.json
@@ -615,39 +614,36 @@ class OrganismController {
                     }
                 } else {
                     // organism data is somewhere on the server where we don't want to modify anything
-                    File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                    File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                     if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
                         log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}"
                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                     } else {
-                        String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
-                        File extendedDirectory = new File(extendedDirectoryName)
-                        if (extendedDirectory.exists()) {
-                            // extended organism directory present in common data directory
-                        } else {
+                        File extendedDirectory = trackService.getExtendedDataDirectory(organism)
+                        if (!extendedDirectory.exists()) {
                             // make a new extended organism directory in common data directory
-                            if (extendedDirectory.mkdirs()) {
+                            if (extendedDirectory.mkdirs() && extendedDirectory.setWritable(true)) {
                                 // write extendedTrackList.json
-                                File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+                                File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                                 def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                 trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                 trackListJsonWriter.close()
                             } else {
-                                log.error "Cannot create directory ${extendedDirectoryName}"
-                                returnObject.put("error", "Cannot create directory ${extendedDirectoryName}.")
+                                log.error "Cannot create directory ${extendedDirectory.absolutePath}"
+                                returnObject.put("error", "Cannot create directory ${extendedDirectory.absolutePath}.")
                             }
                         }
 
                         if (trackDataFile) {
-                            File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+                            File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
                             JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                             // check if track exists in extendedTrackList.json
                             if (trackService.findTrackFromArray(extendedTracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) != null) {
-                                log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectoryName}/${EXTENDED_TRACKLIST}"
-                                returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectoryName}/${EXTENDED_TRACKLIST}.")
+                                log.error "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectory.absolutePath}/${trackService.EXTENDED_TRACKLIST}"
+                                returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${extendedDirectory.absolutePath}/${trackService.EXTENDED_TRACKLIST}.")
                             } else {
                                 // add track config to extendedTrackList.json
                                 extendedTracksArray.add(trackConfigObject)
@@ -657,7 +653,7 @@ class OrganismController {
                                 try {
                                     String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
                                     String trackDirectoryName = urlTemplate.split("/").first()
-                                    String path = extendedDirectoryName + File.separator + trackDirectoryName
+                                    String path = extendedDirectory.absolutePath + File.separator + trackDirectoryName
                                     fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)
 
                                     // write to trackList.json
@@ -675,7 +671,7 @@ class OrganismController {
                             if (trackFile) {
                                 if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
                                     // add track config to trackList.json
-                                    File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+                                    File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                                     if (!extendedTrackListJsonFile.exists()) {
                                         def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                         trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
@@ -690,19 +686,35 @@ class OrganismController {
                                         returnObject.put("error", "an entry for track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' already exists in ${organism.directory}/${TRACKLIST}.")
                                     } else {
                                         try {
-//                                            String urlTemplate = trackConfigObject.get(FeatureStringEnum.URL_TEMPLATE.value)
-//                                            String trackDirectoryName = urlTemplate.split("/").first()
-//                                            String path = organismDirectoryName + File.separator + trackDirectoryName
-                                            String path = extendedDirectoryName + File.separator + "raw"
+                                            String path = extendedDirectory.absolutePath + File.separator + "raw"
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
 
+                                            // TODO: if the suffix is 0 does not end with gzip, then we need to run it throutgh the decrompressor
                                             String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
+//                                            File destinationFile
+//                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
+//                                                File archiveFile = new File(trackFile.originalFilename)
+//                                                trackFile.transferTo(archiveFile)
+//                                                println "decompressing to ${path} from ${archiveFile.absolutePath}"
+////                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
+//                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
+//                                                println "output file path ${outputFilePath}"
+//                                                destinationFile = new File(outputFilePath)
+////                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
+//                                            }
+//                                            else{
+//                                                println "not decompression "
+//                                            destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+//                                            }
 
-                                            fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
+                                            File destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
                                             if (trackFileIndex.getOriginalFilename()) {
                                                 String newFileNameIndex = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffixIndex[0] : trackFileIndex.originalFilename
-//                                                fileService.store(trackFileIndex, path)
                                                 fileService.storeWithNewName(trackFileIndex, path, trackConfigObject.key, newFileNameIndex)
+                                            }
+
+                                            if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
+                                                trackService.generateJSONForGff3(destinationFile, extendedDirectory.absolutePath, pathToJBrowseBinaries)
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)
@@ -783,7 +795,7 @@ class OrganismController {
                 if (trackObject == null) {
                     // track not found in trackList.json
                     log.debug "Track with label '${trackLabel}' not found; searching in extendedTrackList.json"
-                    File extendedTrackListJsonFile = new File(configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName + File.separator + EXTENDED_TRACKLIST)
+                    File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                     if (extendedTrackListJsonFile.exists()) {
                         JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text) as JSONObject
                         trackObject = trackService.findTrackFromArray(extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value), trackLabel)
@@ -796,7 +808,8 @@ class OrganismController {
                             extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value).remove(trackObject)
                             String urlTemplate = trackObject.get(FeatureStringEnum.URL_TEMPLATE.value)
                             String trackDirectory = urlTemplate.split("/").first()
-                            File trackDir = new File(configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName + File.separator + trackDirectory + File.separator + trackObject.get(FeatureStringEnum.LABEL.value))
+                            File commonDirectory = trackService.getExtendedDataDirectory(organism)
+                            File trackDir = new File(commonDirectory.absolutePath + File.separator + trackDirectory + File.separator + trackObject.get(FeatureStringEnum.LABEL.value))
                             if (trackDir.exists()) {
                                 log.debug "Deleting ${trackDir.getAbsolutePath()}"
                                 if (trackDir.deleteDir()) {
@@ -917,12 +930,12 @@ class OrganismController {
             if (organism) {
                 String organismDirectoryName = organism.directory
                 File organismDirectory = new File(organismDirectoryName)
-                File commonDataDirectory = new File(configWrapperService.commonDataDirectory)
+                File commonDataDirectory = new File(trackService.commonDataDirectory)
 
                 if (organismDirectory.getParentFile().getAbsolutePath() == commonDataDirectory.getAbsolutePath()) {
                     // organism data is in common data directory
                     log.debug "organism data is in common data directory"
-                    File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                    File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                     // check if track exists in trackList.json
@@ -946,7 +959,7 @@ class OrganismController {
                 } else {
                     // organism data is somewhere on the server where we don't want to modify anything
                     log.debug "organism data is somewhere on the FS"
-                    File trackListJsonFile = new File(organism.directory + File.separator + TRACKLIST)
+                    File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                     // check if track exists in trackList.json
@@ -956,12 +969,11 @@ class OrganismController {
                         log.error "Track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' found but is part of the main data directory and cannot be updated."
                         returnObject.put("error", "Track with label '${trackConfigObject.get(FeatureStringEnum.LABEL.value)}' found but is part of the main data directory and cannot be updated.")
                     } else {
-                        String extendedDirectoryName = configWrapperService.commonDataDirectory + File.separator + organism.id + "-" + organism.commonName
-                        File extendedDirectory = new File(extendedDirectoryName)
+                        File extendedDirectory = trackService.getExtendedDataDirectory(organism)
                         if (extendedDirectory.exists()) {
                             // extended organism directory present in common data directory
-                            log.debug "extended organism directory ${extendedDirectoryName} present in common data directory"
-                            File extendedTrackListJsonFile = new File(extendedDirectoryName + File.separator + EXTENDED_TRACKLIST)
+                            log.debug "extended organism directory ${extendedDirectory.absolutePath} present in common data directory"
+                            File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                             JSONObject extendedTrackListObject = JSON.parse(extendedTrackListJsonFile.text)
                             JSONArray extendedTracksArray = extendedTrackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
                             // check if track exists in extendedTrackList.json

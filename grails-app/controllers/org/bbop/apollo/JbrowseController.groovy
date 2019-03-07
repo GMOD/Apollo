@@ -227,7 +227,7 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = trackService.getExtendedDataDirectory(currentOrganism)
 
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
@@ -509,15 +509,15 @@ class JbrowseController {
 
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
-            log.info "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
-            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            File extendedTrackListFile = trackService.getExtendedTrackList(currentOrganism)
+            log.debug "${extendedTrackListFile.absolutePath} -> ${extendedTrackListFile.exists()} -> can write ${extendedTrackListFile.canWrite()}"
             if (extendedTrackListFile.exists()) {
                 log.debug "augmenting track JSON Object with extendedTrackList.json contents"
                 JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
+                log.debug "extended ${extendedTrackListObject as JSON}"
                 jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
             }
         }
-
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()
@@ -573,7 +573,7 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = trackService.getExtendedDataDirectory(currentOrganism)
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug "track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
                 String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path

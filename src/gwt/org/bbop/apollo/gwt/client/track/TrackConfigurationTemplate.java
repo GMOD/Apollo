@@ -46,7 +46,9 @@ public class TrackConfigurationTemplate {
         this.key = key;
         this.category = category ;
         this.typeEnum = typeEnum ;
-        this.topLevelFeatures = topLevelFeatures;
+        if(topLevelFeatures!=null){
+            this.topLevelFeatures = topLevelFeatures;
+        }
     }
 
 
@@ -164,6 +166,28 @@ public class TrackConfigurationTemplate {
                         category,
                         type,
                         "mRNA"
+                ).toJSON();
+            case GFF3_JSON:
+                return new TrackConfigurationTemplate(
+                        "JBrowse/Store/SeqFeature/NCList",
+                        "tracks/"+randomFileName.replaceAll(" ","_")+"/{refseq}/trackData.jsonz",
+                        randomFileName,
+                        "JBrowse/View/Track/HTMLFeatures",
+                        randomFileName,
+                        category,
+                        type,
+                        null
+                ).toJSON();
+            case GFF3_JSON_CANVAS:
+                return new TrackConfigurationTemplate(
+                        "JBrowse/Store/SeqFeature/NCList",
+                        "tracks/"+randomFileName.replaceAll(" ","_")+"/{refseq}/trackData.jsonz",
+                        randomFileName,
+                        "JBrowse/View/Track/CanvasFeatures",
+                        randomFileName,
+                        category,
+                        type,
+                        null
                 ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(

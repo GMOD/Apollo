@@ -24,7 +24,7 @@ class UserController {
     def permissionService
     def preferenceService
     def userService
-    def annotatorService
+    def trackService
 
 
     @RestApiMethod(description = "Load all users and their permissions", path = "/user/loadUsers", verb = RestApiVerb.POST)
@@ -260,7 +260,7 @@ class UserController {
             }
 
             if(permissionService.isUserGlobalAdmin(currentUser)){
-                String badCommonPath = annotatorService.checkCommonDataDirectory()
+                String badCommonPath = trackService.checkCommonDataDirectory()
                 log.debug "bad common path ${badCommonPath}"
                 if(badCommonPath){
                     userObject.badCommonPath = badCommonPath

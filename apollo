@@ -271,7 +271,7 @@ elif [[ $1 == "test-unit" ]];then
 elif [[ $1 == "deploy" ]];then
     check_configs
     copy_configs
-    $gradle_executable installJBrowseWebOnly gwtc &&  $grails_executable war && link_jbrowse_tools
+    $gradle_executable installJBrowse gwtc &&  $grails_executable war && link_jbrowse_tools
     deploy_message
 elif [[ $1 == "compile" ]];then
     check_configs

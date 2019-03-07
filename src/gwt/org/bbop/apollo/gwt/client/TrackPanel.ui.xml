@@ -45,6 +45,8 @@
                                         <b:AnchorListItem ui:field="selectBamCanvas">BAM Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBigWig">BigWig HeatMap</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectBigWigXY">BigWig XY</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3Json">GFF3 Json</b:AnchorListItem>
+                                        <b:AnchorListItem ui:field="selectGFF3JsonCanvas">GFF3 Json Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3">GFF3 </b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3Canvas">GFF3 Canvas</b:AnchorListItem>
                                         <b:AnchorListItem ui:field="selectGFF3Tabix">GFF3 Tabix</b:AnchorListItem>
