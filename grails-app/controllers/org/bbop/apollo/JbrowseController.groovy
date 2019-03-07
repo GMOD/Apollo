@@ -507,24 +507,17 @@ class JbrowseController {
 
         trackService.removeIncludedPlugins(jsonObject.plugins)
 
-        println "data added web service  ${currentOrganism?.dataAddedViaWebServices}"
-
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
-
             File extendedTrackListFile = trackService.getExtendedTrackList(currentOrganism)
-            println "${extendedTrackListFile.absolutePath} -> ${extendedTrackListFile.exists()} -> can write ${extendedTrackListFile.canWrite()}"
+            log.debug "${extendedTrackListFile.absolutePath} -> ${extendedTrackListFile.exists()} -> can write ${extendedTrackListFile.canWrite()}"
             if (extendedTrackListFile.exists()) {
-                println  "augmenting track JSON Object with extendedTrackList.json contents"
+                log.debug "augmenting track JSON Object with extendedTrackList.json contents"
                 JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
-                println "extended ${extendedTrackListObject as JSON}"
+                log.debug "extended ${extendedTrackListObject as JSON}"
                 jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
             }
         }
-        else{
-            println "was added via web servies "
-        }
-
 
         response.outputStream << jsonObject.toString()
         response.outputStream.close()

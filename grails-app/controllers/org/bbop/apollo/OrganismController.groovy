@@ -417,7 +417,6 @@ class OrganismController {
             if (new File(extendedDirectory.absolutePath + File.separator + TrackService.EXTENDED_TRACKLIST).exists()) {
                 extendedTrackListJsonFile = new File(extendedDirectory.absolutePath + File.separator + TrackService.EXTENDED_TRACKLIST)
             } else {
-//                println "file does not ext ${extendedTrackListJsonFile.absolutePath}"
                 if (organism.directory.contains(trackService.commonDataDirectory)) {
                     extendedTrackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                 } else {
@@ -475,9 +474,8 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-        println "input params ${params}"
         String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
-        println "path to JBrowse binaries ${pathToJBrowseBinaries}"
+        log.debug "path to JBrowse binaries ${pathToJBrowseBinaries}"
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM.value)) {
             returnObject.put("error", "/addTrackToOrganism requires '${FeatureStringEnum.ORGANISM.value}'.")
@@ -530,7 +528,7 @@ class OrganismController {
             Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.get(FeatureStringEnum.ORGANISM.value))
 
             if (organism) {
-                println "Adding track to organism: ${organism.commonName}"
+                log.debug "Adding track to organism: ${organism.commonName}"
                 String organismDirectoryName = organism.directory
                 File organismDirectory = new File(organismDirectoryName)
                 File commonDataDirectory = new File(trackService.commonDataDirectory)
@@ -616,7 +614,6 @@ class OrganismController {
                     }
                 } else {
                     // organism data is somewhere on the server where we don't want to modify anything
-                    println "data is on the server and proteded"
                     File trackListJsonFile = new File(organism.directory + File.separator + trackService.TRACKLIST)
                     JSONObject trackListObject = JSON.parse(trackListJsonFile.text)
                     JSONArray tracksArray = trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)
@@ -672,13 +669,10 @@ class OrganismController {
                             }
                         } else {
                             if (trackFile) {
-                                println "A"
                                 if (trackService.findTrackFromArray(tracksArray, trackConfigObject.get(FeatureStringEnum.LABEL.value)) == null) {
-                                    println "B"
                                     // add track config to trackList.json
                                     File extendedTrackListJsonFile = trackService.getExtendedTrackList(organism)
                                     if (!extendedTrackListJsonFile.exists()) {
-                                        println "C"
                                         def trackListJsonWriter = extendedTrackListJsonFile.newWriter()
                                         trackListJsonWriter << "{'${FeatureStringEnum.TRACKS.value}':[]}"
                                         trackListJsonWriter.close()
@@ -697,7 +691,6 @@ class OrganismController {
 
                                             // TODO: if the suffix is 0 does not end with gzip, then we need to run it throutgh the decrompressor
                                             String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
-                                            println "original name ${trackFile.originalFilename}"
 //                                            File destinationFile
 //                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
 //                                                File archiveFile = new File(trackFile.originalFilename)

@@ -190,13 +190,13 @@ class FileService {
         List<String> fileNames = []
         String initialLocation = tempDir ? path + File.separator + "temp" : path
 
-        println "initial location: ${initialLocation}"
+        log.debug "initial location: ${initialLocation}"
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
         String tempFileName = UUID.randomUUID().toString()+".temp"
 
         File outputFile = new File(initialLocation, tempFileName)
         assert outputFile.createNewFile()
-        println "${initialLocation} -> can write: ${outputFile.absolutePath} -> ${outputFile.exists()} -> ${outputFile.canWrite()}"
+        log.debug "${initialLocation} -> can write: ${outputFile.absolutePath} -> ${outputFile.exists()} -> ${outputFile.canWrite()}"
         try {
             FileOutputStream fos = new FileOutputStream(outputFile)
             IOUtils.copy(tais, fos)
@@ -220,19 +220,15 @@ class FileService {
         }
         String suffix = newName.substring(suffixIndex)
         String updatedName = directoryName.replaceAll(" ", "_") + suffix
-        println "newName ${newName}, directoryNaem ${directoryName}, updated name, ${updatedName}, suffix ${suffix}, path ${path}"
+        log.debug "newName ${newName}, directoryNaem ${directoryName}, updated name, ${updatedName}, suffix ${suffix}, path ${path}"
 //        /opt/temporary/apollo/6503-nf_test3/raw || test2 || volvox-sorted.bam
 //        /opt/temporary/apollo/6503-nf_test3/raw || test2 .bam
         String destinationFileName = path + File.separator + updatedName
         File destinationFile = new File(destinationFileName)
         try {
-            println "NEW NAME transferring track file to ${destinationFileName}"
             file.transferTo(destinationFile)
-//            destinationFile.renameTo(new File())
-            println "NEW NAME DONE transferringfile to ${destinationFileName.size()}"
-
         } catch (Exception e) {
-            println e.message
+            log.error e.message
         }
         return destinationFile
     }
@@ -249,12 +245,12 @@ class FileService {
 
         File destinationFile = new File(destinationFileName)
         try {
-            println "transferring track file to ${destinationFileName}"
+            log.debug "transferring track file to ${destinationFileName}"
             file.transferTo(destinationFile)
-            println "DONE transferringfile to ${destinationFileName.size()}"
+            log.debug "DONE transferringfile to ${destinationFileName.size()}"
 
         } catch (Exception e) {
-            println e.message
+            log.error e.message
         }
     }
 
@@ -266,12 +262,10 @@ class FileService {
      * @throws IOException
      */
     def validateFileName(String fileName, String intendedOutputDirectory) throws IOException {
-        println "input ${fileName} vs ${intendedOutputDirectory}"
         File file = new File(fileName)
         String canonicalPath = file.getCanonicalPath()
         File intendedOutputDirectoryFile = new File(intendedOutputDirectory)
         String canonicalIntendedOutputDirectoryPath = intendedOutputDirectoryFile.getCanonicalPath()
-        println "par 2 ${canonicalPath} vs ${canonicalIntendedOutputDirectoryPath}"
         if (canonicalPath.startsWith(canonicalIntendedOutputDirectoryPath)) {
             return canonicalPath
         } else {

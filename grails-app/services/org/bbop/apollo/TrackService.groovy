@@ -497,7 +497,6 @@ class TrackService {
         JSONArray returnArray = new JSONArray()
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
-            println "obj ${obj.label} vs ${trackName}"
             if (obj.getString("label") != trackName) {
                 returnArray.add(obj)
             }
@@ -728,26 +727,25 @@ class TrackService {
 
     @NotTransactional
     def generateJSONForGff3(File inputFile, String trackPath, String jbrowseBinariesPath){
-//        println "ping ${servletContext.getRealPath("/jbrowse/bin/flatfile-to-json.pl")}"
         File fileToExecute = new File(jbrowseBinariesPath + "/flatfile-to-json.pl")
-        println "file to execute ${fileToExecute}"
-        println "file exists ${fileToExecute.exists()}"
-        println "file can execute ${fileToExecute.canExecute()}"
+        log.debug "file to execute ${fileToExecute}"
+        log.debug "file exists ${fileToExecute.exists()}"
+        log.debug "file can execute ${fileToExecute.canExecute()}"
         File trackPathFile = new File(trackPath)
-        println "track path ${trackPath} -> exissts ${trackPathFile.exists()} and can write ${trackPathFile.canWrite()}"
+        log.debug "track path ${trackPath} -> exissts ${trackPathFile.exists()} and can write ${trackPathFile.canWrite()}"
         if(!fileToExecute.canExecute()){
             fileToExecute.setExecutable(true,true)
-            println "file can execute ${fileToExecute.canExecute()}"
+            log.debug "file can execute ${fileToExecute.canExecute()}"
         }
 //        bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name>
         String outputName = inputFile.getName().substring(0,inputFile.getName().lastIndexOf("."))
 
         def arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type","mRNA","--trackLabel",outputName,"--out",trackPath]
         String executionString = arguments.join(" ")
-        println "execitugin ${executionString}"
+        log.info "generating NCList with ${executionString}"
 
         def proc = executionString.execute()
-        println "err3: ${proc.err.text}"
-        println "output2: ${proc.out}"
+        log.debug "error: ${proc.err.text}"
+//        log.debug "output: ${proc.out}"
     }
 }
