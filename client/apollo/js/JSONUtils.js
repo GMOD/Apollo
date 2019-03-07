@@ -283,7 +283,9 @@ JSONUtils.generateSubFeaturesFromCigar = function(feature){
                 openExon = false ;
             }
         }
-        currOffset += len;
+        if( op !== 'I' ) {
+            currOffset += len;
+        }
     });
 
     // F. if we are still open, then close with the final length and add subfeature
