@@ -388,6 +388,9 @@ public class OrganismPanel extends Composite {
         if(organismUploadName.getText().trim().length()==0){
             return "Organism needs a name";
         }
+        if(organismUploadName.getText().contains(" ")){
+            return "Organism name must not have spaces";
+        }
         SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(organismUploadSequence.getFilename());
         if (sequenceTypeEnum == null) {
             return "Bad suffix for filename " + organismUploadSequence.getFilename();
