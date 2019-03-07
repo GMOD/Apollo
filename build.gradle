@@ -407,7 +407,7 @@ task updateRepo2(dependsOn: evaluateJBrowseConfigs) {
     }
 }
 
-task installJBrowseWebOnly {
+task installJBrowse {
     doLast {
         if (!file('jbrowse').exists()) {
             println "Cloning a new JBrowse"
@@ -436,6 +436,40 @@ task installJBrowseWebOnly {
         exec {
             workingDir 'jbrowse'
             commandLine './setup.sh'
+        }
+        tasks.copyJBrowseDirectory.execute()
+    }
+}
+
+task installJBrowseWebOnly {
+    doLast {
+        if (!file('jbrowse').exists()) {
+            println "Cloning a new JBrowse"
+            tasks.cloneRepo3.execute()
+        } else {
+            println "JBrowse already exists"
+            tasks.updateRepo2.execute()
+        }
+        exec {
+            workingDir 'jbrowse'
+            commandLine 'yarn'
+        }
+        exec {
+            workingDir 'jbrowse'
+            executable 'rm' args '-rf','plugins/WebApollo'
+        }
+        exec {
+            workingDir 'jbrowse'
+            executable 'cp' args '-r', '../client/apollo', 'plugins/WebApollo'
+        }
+        exec {
+            workingDir 'jbrowse/plugins/WebApollo'
+            commandLine 'yarn'
+        }
+        tasks.installJBrowsePlugins2.execute()
+        exec {
+            workingDir 'jbrowse'
+            commandLine 'npm', 'run', 'build'
         }
         tasks.copyJBrowseDirectory.execute()
     }
