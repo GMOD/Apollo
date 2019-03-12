@@ -108,6 +108,7 @@ environments {
 //apollo {
 //    only_owners_delete = true
 //    common_data_directory = "/opt/temporary/apollo"
+//    store_orig_id = false
 //    sequence_search_tools {
 //        blat_nuc {
 //            search_exe = "/usr/local/bin/blastn"
