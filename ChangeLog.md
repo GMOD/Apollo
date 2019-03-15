@@ -1,5 +1,30 @@
 
+## 2.4.0
+
+ Features
+
+- Allow upload of genomic data to create new organisms. [2023](https://github.com/GMOD/Apollo/pull/2023)
+- Allow upload of track data to create new removable tracks. [2024](https://github.com/GMOD/Apollo/pull/2024)
+- Automatically index GFF3 tracks with coverage on upload. [2084](https://github.com/GMOD/Apollo/pull/2084)
+- Provide community level private evidence tracks [17](https://github.com/GMOD/Apollo/pull/17)
+- Automatically kill or disable server if a common directory is now defined [2079](https://github.com/GMOD/Apollo/pull/2079)
+ 
+ Bug Fixes
+ 
+- Fix issue with rendering neat features [2063](https://github.com/GMOD/Apollo/pull/2063) 
+- Fix issue with creating annotations for reads with indels in them [2085](https://github.com/GMOD/Apollo/pull/2085) 
+ 
+
 ## 2.3.1
+
+Features
+
+
+- Allowed duplication of organism from the Organism Panel [1968](https://github.com/GMOD/Apollo/pull/1968)
+- Allows making an organism obsolete [1967](https://github.com/GMOD/Apollo/pull/1967)
+- Create a filter and flag for inactive users [1937](https://github.com/GMOD/Apollo/pull/1937)
+- Allowed deletion of feature from the Sequence and Annotator Panels [2040](https://github.com/GMOD/Apollo/pull/2040)
+- Allow export of orig_id as an optional attribute [2002](https://github.com/GMOD/Apollo/pull/2002)
 
 Bug Fixes
 
@@ -15,12 +40,6 @@ Bug Fixes
 - Setting gene description puts UcA into a bad state [2056](https://github.com/GMOD/Apollo/issues/2056)
 - Fixes plugin inclusion error by reverting prior fix [2055](https://github.com/GMOD/Apollo/issues/2055)
 
-Minor Features
-- Allowed duplication of organism from the Organism Panel [1968](https://github.com/GMOD/Apollo/pull/1968)
-- Allows making an organism obsolete [1967](https://github.com/GMOD/Apollo/pull/1967)
-- Create a filter and flag for inactive users [1937](https://github.com/GMOD/Apollo/pull/1937)
-- Allowed deletion of feature from the Sequence and Annotator Panels [2040](https://github.com/GMOD/Apollo/pull/2040)
-- Allow export of orig_id as an optional attribute [2002](https://github.com/GMOD/Apollo/pull/2002)
 
 
 ## 2.3.0
