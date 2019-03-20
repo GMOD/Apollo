@@ -142,7 +142,7 @@ return declare( [JBPlugin, HelpMixin],
         // that the open-file dialog and other things will have them
         // as options
         browser.registerTrackType({
-            type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
+            type:                 'WebApollo/View/Track/DraggableNeatHTMLFeatures',
             defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
                                     'JBrowse/Store/SeqFeature/GFF3',
                                     'WebApollo/Store/SeqFeature/ApolloGFF3'
