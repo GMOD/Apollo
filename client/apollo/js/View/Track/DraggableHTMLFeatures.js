@@ -893,7 +893,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     /*
      * WARNING: assumes one level (featdiv has feature)
-     *                  or two-level (featdiv has feature, subdivs have subfeature) feature hierarchy
+     *                  or two-level (featdiv has feature, subdivs have subfeature)
+     *                  or three-level (gene>mRNA>exon/CDS if inferHTMLSubfeatures is true) feature hierarchy
      * attaching ghost to pinned AnnotTrack or SequenceTrack to ensure that stays on top
      */
     handleFeatureDragSetup: function(event)  {
@@ -1058,6 +1059,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         var fdiv = featdiv;
         while (fdiv.feature || fdiv.subfeature) {
             if (fdiv.parentNode.block) { return fdiv.parentNode.block; }
+            if (fdiv.parentNode.parentNode.block) { return fdiv.parentNode.parentNode.block; }
             fdiv = fdiv.parentNode;
         }
         return null;  // should never get here...
