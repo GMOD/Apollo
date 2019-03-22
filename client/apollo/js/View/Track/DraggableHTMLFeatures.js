@@ -1058,8 +1058,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
     getBlock: function( featdiv ) {
         var fdiv = featdiv;
         while (fdiv.feature || fdiv.subfeature) {
-            if (fdiv.parentNode.block) { return fdiv.parentNode.block; }
-            if (fdiv.parentNode.parentNode.block) { return fdiv.parentNode.parentNode.block; }
+            if (fdiv.parentNode && fdiv.parentNode.block) { return fdiv.parentNode.block; }
+            if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true)
+                && fdiv.parentNode && fdiv.parentNode.parentNode && fdiv.parentNode.parentNode.block) {
+                    return fdiv.parentNode.parentNode.block;
+            }
             fdiv = fdiv.parentNode;
         }
         return null;  // should never get here...
