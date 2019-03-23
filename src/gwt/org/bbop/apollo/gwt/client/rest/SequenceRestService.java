@@ -50,6 +50,14 @@ public class SequenceRestService {
             jsonObject.put("exportGff3Fasta", new JSONString(""));
             jsonObject.put("chadoExportType", new JSONString(""));
         }
+        else if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
+            GWT.log("type is TYPE_JBROWSE");
+            jsonObject.put("output", new JSONString("file"));
+            jsonObject.put("format", new JSONString("gzip"));
+            jsonObject.put("seqType", new JSONString(""));
+            jsonObject.put("exportGff3Fasta", new JSONString(""));
+            jsonObject.put("chadoExportType", new JSONString(""));
+        }
         else {
             jsonObject.put("chadoExportType", new JSONString(""));
             jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));

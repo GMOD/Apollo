@@ -5,6 +5,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -47,6 +48,9 @@ public class ExportPanel extends Modal {
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
     RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
+    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "Export JBrowse Track", true);
+    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Export entire JBrowse Directory", true);
+    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Export as full JBrowse instance", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
@@ -89,6 +93,12 @@ public class ExportPanel extends Modal {
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
             buttonGroup.add(chadoExportButton1);
             buttonGroup.add(chadoExportButton2);
+        }
+        else
+        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
+            buttonGroup.add(jbrowseExportButton1);
+            buttonGroup.add(jbrowseExportButton2);
+            buttonGroup.add(jbrowseExportButton3);
         }
         modalBody.add(buttonGroup);
 
@@ -157,6 +167,27 @@ public class ExportPanel extends Modal {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 setExportAllSequencesToChado(true);
+                exportButton.setEnabled(true);
+            }
+        });
+
+        jbrowseExportButton1.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                exportButton.setEnabled(true);
+            }
+        });
+
+        jbrowseExportButton2.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                exportButton.setEnabled(true);
+            }
+        });
+
+        jbrowseExportButton3.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
                 exportButton.setEnabled(true);
             }
         });

@@ -194,7 +194,8 @@ class IOServiceController extends AbstractApolloController {
                 else{
                     fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT,region)
                 }
-            } else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()) {
+            }
+            else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()) {
                 if (sequences) {
                     render chadoHandlerService.writeFeatures(organism, sequenceList, features)
                 } else {

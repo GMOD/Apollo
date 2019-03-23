@@ -113,6 +113,7 @@ public enum FeatureStringEnum {
         TYPE_GFF3("GFF3"),
         TYPE_VCF("VCF"),
         TYPE_CHADO("CHADO"),
+        TYPE_JBROWSE("JBROWSE"),
         EXPORT_CHADO_CLEAN("chado_clean"),
         EXPORT_CHADO_UPDATE("chado_update"),
         EXPORT_ID("ID"),
