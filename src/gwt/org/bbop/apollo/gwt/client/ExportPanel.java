@@ -34,6 +34,8 @@ public class ExportPanel extends Modal {
     private Boolean exportAll = false;
     private OrganismInfo currentOrganismInfo;
     private Boolean exportAllSequencesToChado = false;
+    private Boolean exportFullJBrowse = false;
+    private Boolean exportJBrowseSequence = false;
     HTML sequenceInfoLabel = new HTML();
     HTML typeLabel = new HTML();
     HTML sequenceTypeLabel = new HTML();
@@ -181,6 +183,7 @@ public class ExportPanel extends Modal {
         jbrowseExportButton2.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
+                exportJBrowseSequence = true ;
                 exportButton.setEnabled(true);
             }
         });
@@ -188,6 +191,8 @@ public class ExportPanel extends Modal {
         jbrowseExportButton3.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
+                exportJBrowseSequence = true ;
+                exportFullJBrowse = true ;
                 exportButton.setEnabled(true);
             }
         });
@@ -332,5 +337,13 @@ public class ExportPanel extends Modal {
 
     public void setExportAllSequencesToChado(Boolean value) {
         this.exportAllSequencesToChado = value;
+    }
+
+    public Boolean getExportFullJBrowse() {
+        return exportFullJBrowse;
+    }
+
+    public Boolean getExportJBrowseSequence() {
+        return exportJBrowseSequence;
     }
 }

@@ -26,6 +26,7 @@ class IOServiceController extends AbstractApolloController {
     def featureService
     def gff3HandlerService
     def fastaHandlerService
+    def jbrowseHandlerService
     def chadoHandlerService
     def preferenceService
     def permissionService
@@ -63,6 +64,8 @@ class IOServiceController extends AbstractApolloController {
             , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
             , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
             , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export reference sequence when exporting GFF3 annotations.")
+            , @RestApiParam(name = "exportFullJBrowse", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export Full JBrowse installation when exporting as track (default false).")
+            , @RestApiParam(name = "exportJBrowseSequence", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export JBrowse sequence when exporting JBrowse track (default false).")
             , @RestApiParam(name = "region", type = "String", paramType = RestApiParamType.QUERY, description = "Highlighted genomic region to export in form sequence:min..max  e.g., chr3:1001..1034")
     ]
     )
@@ -79,6 +82,13 @@ class IOServiceController extends AbstractApolloController {
             String typeOfExport = dataObject.type
             String sequenceType = dataObject.seqType
             Boolean exportAllSequences = dataObject.exportAllSequences ? Boolean.valueOf(dataObject.exportAllSequences) : false
+//            // always export all
+//            if(typeOfExport == FeatureStringEnum.TYPE_JBROWSE.value){
+//                exportAllSequences = true
+//            }
+
+            Boolean exportFullJBrowse = dataObject.exportFullJBrowse ?  Boolean.valueOf(dataObject.exportFullJBrowse) : false
+            Boolean exportJBrowseSequence = dataObject.exportJBrowseSequence ?  Boolean.valueOf(dataObject.exportJBrowseSequence) : false
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
             String output = dataObject.output
             String adapter = dataObject.adapter
@@ -202,6 +212,19 @@ class IOServiceController extends AbstractApolloController {
                     render chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences)
                 }
                  return // ??
+            }
+            else if (typeOfExport == FeatureStringEnum.TYPE_JBROWSE.getValue()) {
+                if(exportFullJBrowse){
+                    render jbrowseHandlerService.writeFullJBrowse(organism)
+                }
+                else
+                if(exportJBrowseSequence){
+                    render jbrowseHandlerService.writeJBrowseDirectory(organism)
+                }
+                else{
+                    render jbrowseHandlerService.writeTrackOnly(organism)
+                }
+                return // ??
             }
 
             //generating a html fragment with the link for download that can be rendered on client side

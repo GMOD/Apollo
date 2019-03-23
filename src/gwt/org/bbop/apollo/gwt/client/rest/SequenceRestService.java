@@ -4,10 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.*;
 import org.bbop.apollo.gwt.client.Annotator;
 import org.bbop.apollo.gwt.client.ExportPanel;
 import org.bbop.apollo.gwt.client.SequencePanel;
@@ -57,6 +54,8 @@ public class SequenceRestService {
             jsonObject.put("seqType", new JSONString(""));
             jsonObject.put("exportGff3Fasta", new JSONString(""));
             jsonObject.put("chadoExportType", new JSONString(""));
+            jsonObject.put("exportJBrowseSequence", JSONBoolean.getInstance(exportPanel.getExportJBrowseSequence()));
+            jsonObject.put("exportFullJBrowse", JSONBoolean.getInstance(exportPanel.getExportFullJBrowse()));
         }
         else {
             jsonObject.put("chadoExportType", new JSONString(""));
