@@ -943,7 +943,7 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     height: 16px;
     border-width: 0px 0px 0px 0px;
     border-style: none;
-    background-color: transparent;
+    background-color: #ffa000;
     z-index: 10;
 }
 
