@@ -1690,6 +1690,50 @@ define([
                 var track = this;
                 var trackName = this.getUniqueTrackName();
                 var selected = this.selectionManager.getSelection();
+                console.log('selected',selected)
+                var feature = selected[0].feature ;
+                // var location = feature.afeature.location ;
+                var variant_type = feature.data.type;
+
+                // TODO: may have to get review the alteration data to see
+
+                // an array
+                var alternate_alleles = feature.afeature.alternate_alleles[0].bases;
+                var reference_allele = feature.afeature.reference_allele.bases;
+                var residues = '';
+                var inputLength = 0;
+
+
+
+                var alteration_type = '';
+                switch(variant_type){
+                    case 'SNV':
+                    case 'SNP':
+                    case 'indel':
+                    case 'MNV':
+                    case 'MNP':
+                    case 'substitution':
+                        alteration_type = 'substitution_artifact';
+                        residues = alternate_alleles;
+                        break;
+                    case 'insertion':
+                        alteration_type = 'insertion_artifact';
+                        var foundIndex = alternate_alleles.indexOf(reference_allele);
+                        residues = alternate_alleles.substr(foundIndex);
+                        break;
+                    case 'deletion':
+                        alteration_type = 'deletion_artifact';
+                        break;
+                    default:
+                        alert('I do not know what to do with type: '+variant_type);
+                        return ;
+                }
+
+
+
+
+
+
                 // this.selectionManager.clearSelection();
                 // var transcriptUniqueName;
                 // if (selected[0].feature.parent()) {
@@ -1701,12 +1745,40 @@ define([
                 //     transcriptUniqueName = selected[0].feature.afeature.uniquename;
                 // }
                 //
-                // var postData = {
-                //     track: trackName,
-                //     features: [{ uniquename: transcriptUniqueName }],
-                //     operation: 'dissociate_transcript_from_gene'
-                // };
-                // track.executeUpdateOperation(JSON.stringify(postData));
+                var description = 'Effect of ('+variant_type+') '  + feature.data.name;
+
+                var feature = {
+                    location: {
+                        fmin: feature.data.start,
+                        fmax: feature.data.end,
+                        strand: 1
+                    },
+                    type: {
+                        name: alteration_type,
+                        cv: {
+                            name: "sequence"
+                        }
+                    },
+                    non_reserved_properties : [
+                        {
+                            tag: "justification",
+                            value: description
+                        }
+                    ]
+                };
+                if (alteration_type !== "deletion_artifact") {
+                // get alternate_alleles . . .s omehow
+                    feature.residues = residues ;
+                }
+
+                var features = [feature];
+                var postData = {
+                    "track": trackName,
+                    "features": features,
+                    "operation": "add_sequence_alteration",
+                    "clientToken": track.getClientToken()
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
             },
 
             hideVariantEffect: function() {
