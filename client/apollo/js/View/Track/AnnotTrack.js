@@ -1686,6 +1686,52 @@ define([
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
+            viewVariantEffect: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                // this.selectionManager.clearSelection();
+                // var transcriptUniqueName;
+                // if (selected[0].feature.parent()) {
+                //     //selected is an exon, get its parent
+                //     var parent = selected[0].feature.parent();
+                //     transcriptUniqueName = parent.afeature.uniquename;
+                // }
+                // else {
+                //     transcriptUniqueName = selected[0].feature.afeature.uniquename;
+                // }
+                //
+                // var postData = {
+                //     track: trackName,
+                //     features: [{ uniquename: transcriptUniqueName }],
+                //     operation: 'dissociate_transcript_from_gene'
+                // };
+                // track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+            hideVariantEffect: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                // this.selectionManager.clearSelection();
+                // var transcriptUniqueName;
+                // if (selected[0].feature.parent()) {
+                //     //selected is an exon, get its parent
+                //     var parent = selected[0].feature.parent();
+                //     transcriptUniqueName = parent.afeature.uniquename;
+                // }
+                // else {
+                //     transcriptUniqueName = selected[0].feature.afeature.uniquename;
+                // }
+                //
+                // var postData = {
+                //     track: trackName,
+                //     features: [{ uniquename: transcriptUniqueName }],
+                //     operation: 'dissociate_transcript_from_gene'
+                // };
+                // track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
             mergeAnnotations: function (selection) {
                 var track = this;
                 var annots = [];
@@ -6833,7 +6879,27 @@ define([
                     });
                     annot_context_menu.addChild(dissociateTranscriptToGeneItem);
                     contextMenuItems["dissociate_transcript_from_gene"] = index++;
+
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+
+                    var viewVariantEffect = new dijit.MenuItem({
+                        label: "View Variant Effect",
+                        onClick: function () {
+                            thisB.viewVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(viewVariantEffect);
+                    contextMenuItems["view_variant_effect"] = index++;
                     //
+                    var hideVariantEffect = new dijit.MenuItem({
+                        label: "Hide Variant Effect",
+                        onClick: function () {
+                            thisB.hideVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(hideVariantEffect);
+                    contextMenuItems["hide_variant_effect"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -7237,6 +7303,8 @@ define([
                 this.updateSetLongestOrfMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
+                this.updateViewVariantEffect();
+                this.updateHideVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7296,6 +7364,49 @@ define([
                 }
                 else {
                     menuItem.set("disabled", true);
+                }
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateViewVariantEffect: function(){
+                var menuItem = this.getMenuItem("view_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length !== 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    var viewing_effect = selected[0].feature.get('viewing_effect');
+                    // check if view type is set
+                    if(!viewing_effect){
+                        menuItem.set("disabled", false);
+                        return;
+                    }
+                }
+
+                menuItem.set("disabled", true);
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateHideVariantEffect: function(){
+                var menuItem = this.getMenuItem("hide_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length !== 1) {
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    var viewing_effect = selected[0].feature.get('viewing_effect');
+                    // check if view type is set
+                    if(viewing_effect){
+                        menuItem.set("disabled", false);
+                    }
                 }
             },
 
