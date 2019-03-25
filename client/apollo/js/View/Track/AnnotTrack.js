@@ -7373,21 +7373,15 @@ define([
             updateViewVariantEffect: function(){
                 var menuItem = this.getMenuItem("view_variant_effect");
                 var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
                 if (selected.length !== 1) {
-                    menuItem.set("disabled", true);
                     return;
                 }
                 var currentType = selected[0].feature.get('type');
                 if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
-                    var viewing_effect = selected[0].feature.get('viewing_effect');
-                    // check if view type is set
-                    if(!viewing_effect){
-                        menuItem.set("disabled", false);
-                        return;
-                    }
+                    // TODO: search for sequence alterations in that space?
+                    menuItem.set("disabled", false);
                 }
-
-                menuItem.set("disabled", true);
             },
 
             /**
@@ -7402,11 +7396,8 @@ define([
                 }
                 var currentType = selected[0].feature.get('type');
                 if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
-                    var viewing_effect = selected[0].feature.get('viewing_effect');
-                    // check if view type is set
-                    if(viewing_effect){
-                        menuItem.set("disabled", false);
-                    }
+                    // TODO: search for sequence alterations in that space?
+                    menuItem.set("disabled", false);
                 }
             },
 
