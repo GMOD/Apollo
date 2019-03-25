@@ -1701,8 +1701,6 @@ define([
                 var alternate_alleles = feature.afeature.alternate_alleles[0].bases;
                 var reference_allele = feature.afeature.reference_allele.bases;
                 var residues = '';
-                var inputLength = 0;
-
 
 
                 var alteration_type = '';
@@ -1729,22 +1727,6 @@ define([
                         return ;
                 }
 
-
-
-
-
-
-                // this.selectionManager.clearSelection();
-                // var transcriptUniqueName;
-                // if (selected[0].feature.parent()) {
-                //     //selected is an exon, get its parent
-                //     var parent = selected[0].feature.parent();
-                //     transcriptUniqueName = parent.afeature.uniquename;
-                // }
-                // else {
-                //     transcriptUniqueName = selected[0].feature.afeature.uniquename;
-                // }
-                //
                 var description = 'Effect of ('+variant_type+') '  + feature.data.name;
 
                 var feature = {
@@ -1778,7 +1760,9 @@ define([
                     "operation": "add_sequence_alteration",
                     "clientToken": track.getClientToken()
                 };
+                this.selectionManager.clearSelection();
                 track.executeUpdateOperation(JSON.stringify(postData));
+                track.changed();
             },
 
             hideVariantEffect: function() {
