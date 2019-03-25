@@ -1767,7 +1767,7 @@ define([
                     ]
                 };
                 if (alteration_type !== "deletion_artifact") {
-                // get alternate_alleles . . .s omehow
+                // get alternate_alleles . . . somehow
                     feature.residues = residues ;
                 }
 
