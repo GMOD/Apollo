@@ -187,7 +187,6 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
 *      afeature: sequence alteration in ApolloEditorService JSON format,
 */
 JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
-    console.log('input feature justification',afeature);
     var loc = afeature.location;
     var uid = afeature.uniquename;
     var justification;
