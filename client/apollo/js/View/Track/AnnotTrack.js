@@ -1769,29 +1769,6 @@ define([
                 track.changed();
             },
 
-            hideVariantEffect: function() {
-                var track = this;
-                var trackName = this.getUniqueTrackName();
-                var selected = this.selectionManager.getSelection();
-                // this.selectionManager.clearSelection();
-                // var transcriptUniqueName;
-                // if (selected[0].feature.parent()) {
-                //     //selected is an exon, get its parent
-                //     var parent = selected[0].feature.parent();
-                //     transcriptUniqueName = parent.afeature.uniquename;
-                // }
-                // else {
-                //     transcriptUniqueName = selected[0].feature.afeature.uniquename;
-                // }
-                //
-                // var postData = {
-                //     track: trackName,
-                //     features: [{ uniquename: transcriptUniqueName }],
-                //     operation: 'dissociate_transcript_from_gene'
-                // };
-                // track.executeUpdateOperation(JSON.stringify(postData));
-            },
-
             mergeAnnotations: function (selection) {
                 var track = this;
                 var annots = [];
@@ -6951,15 +6928,6 @@ define([
                     });
                     annot_context_menu.addChild(viewVariantEffect);
                     contextMenuItems["view_variant_effect"] = index++;
-                    // //
-                    // var hideVariantEffect = new dijit.MenuItem({
-                    //     label: "Hide Variant Effect",
-                    //     onClick: function () {
-                    //         thisB.hideVariantEffect();
-                    //     }
-                    // });
-                    // annot_context_menu.addChild(hideVariantEffect);
-                    // contextMenuItems["hide_variant_effect"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;

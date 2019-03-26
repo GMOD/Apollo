@@ -1324,7 +1324,6 @@ class RequestHandlingService {
             // TODO: If so, then we should change all of our integration tests for sequence alterations to have comments
             if (jsonFeature.has(FeatureStringEnum.NON_RESERVED_PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.NON_RESERVED_PROPERTIES.value);
-                println "adding properties ${properties as JSON}"
                 for (int j = 0; j < properties.length(); ++j) {
                     JSONObject property = properties.getJSONObject(j)
                     String tag = property.getString(FeatureStringEnum.TAG.value)
@@ -1334,7 +1333,6 @@ class RequestHandlingService {
                             value: value,
                             tag: tag
                     ).save()
-                    println "adding property ${tag} ${value}"
                     featurePropertyService.addProperty(sequenceAlteration, featureProperty)
                     sequenceAlteration.save(flush: true)
                 }
