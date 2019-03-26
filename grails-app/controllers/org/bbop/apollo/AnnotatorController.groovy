@@ -31,6 +31,7 @@ class AnnotatorController {
     def requestHandlingService
     def permissionService
     def annotatorService
+    def trackService
     def preferenceService
     def reportService
     def featureRelationshipService
@@ -579,6 +580,23 @@ class AnnotatorController {
     def getAppState() {
         preferenceService.evaluateSaves(true)
         render annotatorService.getAppState(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString()) as JSON
+    }
+
+    @Transactional
+    String updateCommonPath(String directory) {
+        log.debug "Updating the common path for ${directory}"
+        JSONObject returnObject = new JSONObject()
+
+        try {
+            String returnString = trackService.updateCommonDataDirectory(directory) as String
+            log.info "Returning common data directory ${returnString}"
+            if(returnString){
+                returnObject.error = returnString
+            }
+        } catch (e) {
+            returnObject.error = e.getMessage()
+        }
+        render returnObject as JSON
     }
 
 /**

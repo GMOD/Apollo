@@ -59,12 +59,15 @@
         <gwt:north size="60">
             <b:Container fluid="true" addStyleNames="{style.northPanel}">
                 <b:Row>
-                    <b:Column size="MD_6" addStyleNames="{style.widgetPanel}">
+                    <b:Column size="MD_5" addStyleNames="{style.widgetPanel}">
                         <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
                     </b:Column>
                     <b:Column size="MD_2" addStyleNames="{style.widgetPanel}">
                         <!--<b:TextBox placeholder="Search" width="300px" ui:field="nameSearchBox"/>-->
                         <b:Button text="Create User" icon="PLUS" ui:field="createButton"/>
+                    </b:Column>
+                    <b:Column size="MD_4" addStyleNames="{style.widgetPanel}">
+                        <b:CheckBoxButton ui:field="showInactiveUsersButton" value="false" >Show Inactive Users</b:CheckBoxButton>
                     </b:Column>
                 </b:Row>
             </b:Container>
@@ -130,6 +133,7 @@
                                 <b:Button text="Cancel" ui:field="cancelButton" enabled="false" visible="false" marginRight="5"/>
                                 <b:Button text="Delete" icon="REMOVE" type="WARNING" ui:field="deleteButton" enabled="false" visible="false" marginRight="5"/>
                                 <b:Button text="Inactivate" icon="REMOVE" type="WARNING" ui:field="inactivateButton" enabled="false" visible="false" marginRight="5"/>
+                                <b:Button text="Activate" icon="REMOVE" type="WARNING" ui:field="activateButton" enabled="false" visible="false" marginRight="5"/>
                                 <b:Label ui:field="saveLabel" visible="false"/>
                             </b:Column>
                         </b:Row>

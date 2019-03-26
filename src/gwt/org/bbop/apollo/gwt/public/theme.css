@@ -5,6 +5,9 @@
 
 .input-group-addon {
     font-size: 12px !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
 }
 
 .btn {
@@ -14,7 +17,7 @@
 .snackbarRight {
     position: fixed;
     right: 10px;
-    top :48%;
+    top: 48%;
     z-index: 1000;
     opacity: 80;
     /*rotation: 90deg;*/
@@ -48,19 +51,44 @@
     padding-top: 1px !important;
     padding-bottom: 5px !important;
 }
+
+.track-edit-button {
+    padding-bottom: 1px !important;
+    padding-top: 0 !important;
+    padding-left: 5px !important;
+    padding-right: 5px !important;
+    margin: 0 !important;
+    display: inline;
+    height: 15px;
+
+}
+
 .track-header {
     display: inline;
     cursor: pointer;
     font-size: medium;
 }
 
+.text-html-left {
+    padding: 0;
+    margin: 0;
+    display: inline;
+}
+
 .text-left {
     text-align: left !important;
     background-color: white !important;
+    padding-top: 4px !important;
 }
 
 .panel-select {
-    background-color: #f5f5f5 !important; 
+    background-color: #f5f5f5 !important;
     border: none !important;
     padding: 0 0 0 5px !important;
+}
+
+.selected-track-link {
+    font-weight: bolder;
+    background-color: lightgrey !important;
+    color: cadetblue !important;
 }

@@ -81,7 +81,7 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.export_subfeature_attrs
     }
 
-    def getCommonDataDirectory() {
+    String getCommonDataDirectory() {
         return grailsApplication.config.apollo.common_data_directory
     }
 
@@ -113,6 +113,10 @@ class ConfigWrapperService {
         grailsApplication.config.apollo.authentications
     }
 
+    def storeOrigId() {
+        grailsApplication.config.apollo.store_orig_id
+    }
+
     def getPingUrl() {
         Boolean phoneHome =  grailsApplication.config.apollo.phone.phoneHome
         if(phoneHome){
@@ -142,4 +146,5 @@ class ConfigWrapperService {
     boolean getNativeTrackSelectorDefaultOn(){
         return grailsApplication.config.apollo.native_track_selector_default_on
     }
+
 }

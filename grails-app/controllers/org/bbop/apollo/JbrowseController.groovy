@@ -5,7 +5,7 @@ import liquibase.util.file.FilenameUtils
 import org.apache.shiro.SecurityUtils
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Range
+import org.bbop.apollo.sequence.Range // this line is needed, even if the import doesn't show it
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -15,7 +15,6 @@ import java.text.SimpleDateFormat
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
-//@CompileStatic
 class JbrowseController {
 
     private static final int DEFAULT_BUFFER_SIZE = 10240; // ..bytes = 10KB.
@@ -228,7 +227,7 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = trackService.getExtendedDataDirectory(currentOrganism)
 
             if (extendedOrganismDataDirectory.exists()) {
                 log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
@@ -283,9 +282,9 @@ class JbrowseController {
 
         String range = request.getHeader("range");
         long length = file.length();
-        Range full = new Range(0, length - 1, length);
+        Range full = new Range(0, length - 1, length)
 
-        List<Range> ranges = new ArrayList<Range>();
+        List<Range> ranges = new ArrayList<Range>()
 
         // from http://balusc.blogspot.com/2009/02/fileservlet-supporting-resume-and.html#sublong
         if (range != null) {
@@ -385,6 +384,25 @@ class JbrowseController {
 
     }
 
+    /**
+     "apollo":{
+         "permission":{
+             "level":"private"
+         }
+     },
+
+     * @param tracksArray
+     */
+    def pruneTracks(JSONArray tracksArray){
+        JSONArray returnArray = new JSONArray()
+
+        for(track in tracksArray){
+            if(track?.apollo?.permission?.level==null || track?.apollo?.permission?.level=="public"){
+                returnArray.add(track)
+            }
+        }
+        return returnArray
+    }
 
     def trackList() {
         String clientToken = params.get(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -407,6 +425,14 @@ class JbrowseController {
         // add datasets to the configuration
         JSONObject jsonObject = JSON.parse(file.text) as JSONObject
 
+        /**
+         * remove private tracks #17
+         */
+        if (!permissionService.currentUser || !clientToken) {
+            jsonObject.tracks = pruneTracks(jsonObject.tracks)
+        }
+
+
         Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
         if (currentOrganism != null) {
             jsonObject.put("dataset_id", currentOrganism.id)
@@ -414,7 +440,7 @@ class JbrowseController {
             id = request.session.getAttribute(FeatureStringEnum.ORGANISM_ID.value);
             jsonObject.put("dataset_id", id);
         }
-        List<Organism> list = permissionService.getOrganismsForCurrentUser()
+        List<Organism> list = permissionService.getOrganismsForCurrentUser().findAll(){ o -> !o.obsolete}
         JSONObject organismObjectContainer = new JSONObject()
         for (organism in list) {
             JSONObject organismObject = new JSONObject()
@@ -462,7 +488,10 @@ class JbrowseController {
             pluginKeys.add("WebApollo")
             // see https://github.com/GMOD/jbrowse/issues/897
             // https://github.com/GMOD/Apollo/issues/2014
-            jsonObject.plugins.add("stub")
+            // if it is empty, we need to add a single bogus plugin because of the bug
+            if(!jsonObject.plugins){
+                jsonObject.plugins.add("stub")
+            }
             for (plugin in plugins) {
                 if (!pluginKeys.contains(plugin.key)) {
                     pluginKeys.add(plugin.key)
@@ -480,11 +509,12 @@ class JbrowseController {
 
         // add extendedTrackList.json, if available
         if (!currentOrganism.dataAddedViaWebServices) {
-            log.info "${configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST}"
-            File extendedTrackListFile = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName + File.separator + OrganismController.EXTENDED_TRACKLIST)
+            File extendedTrackListFile = trackService.getExtendedTrackList(currentOrganism)
+            log.debug "${extendedTrackListFile.absolutePath} -> ${extendedTrackListFile.exists()} -> can write ${extendedTrackListFile.canWrite()}"
             if (extendedTrackListFile.exists()) {
                 log.debug "augmenting track JSON Object with extendedTrackList.json contents"
                 JSONObject extendedTrackListObject = JSON.parse(extendedTrackListFile.text) as JSONObject
+                log.debug "extended ${extendedTrackListObject as JSON}"
                 jsonObject.getJSONArray("tracks").addAll(extendedTrackListObject.getJSONArray("tracks"))
             }
         }
@@ -543,9 +573,9 @@ class JbrowseController {
 
         if (!file.exists()) {
             Organism currentOrganism = preferenceService.getCurrentOrganismForCurrentUser(params.get(FeatureStringEnum.CLIENT_TOKEN.value).toString())
-            File extendedOrganismDataDirectory = new File(configWrapperService.commonDataDirectory + File.separator + currentOrganism.id + "-" + currentOrganism.commonName)
+            File extendedOrganismDataDirectory = trackService.getExtendedDataDirectory(currentOrganism)
             if (extendedOrganismDataDirectory.exists()) {
-                log.debug"track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
+                log.debug "track found in common data directory ${extendedOrganismDataDirectory.absolutePath}"
                 String newPath = extendedOrganismDataDirectory.getCanonicalPath() + File.separator + params.path
                 dataFileName = newPath
                 dataFileName += params.fileType ? ".${params.fileType}" : ""

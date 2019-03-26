@@ -50,6 +50,8 @@ public enum FeatureStringEnum {
         AVAILABLE_STATUSES,
         NOTES,
         TAG,
+        COMMON_DATA_DIRECTORY("common_data_directory"),
+        BAD_COMMON_PATH("badCommonPath"),
         NON_RESERVED_PROPERTIES,
         OLD_NON_RESERVED_PROPERTIES,
         NEW_NON_RESERVED_PROPERTIES,
@@ -67,6 +69,7 @@ public enum FeatureStringEnum {
         REMOTE_USER("REMOTE_USER"),
         CV,
         SEQUENCE,
+        SEQUENCE_DATA("sequenceData"),
         TRACK,
         DB,
         DBXREFS,
@@ -140,6 +143,8 @@ public enum FeatureStringEnum {
         LABEL,
         URL_TEMPLATE("urlTemplate"),
         TRACK_DATA("trackData"),
+        TRACK_FILE("trackFile"),
+        TRACK_FILE_INDEX("trackFileIndex"),
         TRACK_CONFIG("trackConfig"),
         TRACK_LABEL("trackLabel"),
         CREATOR("creator"),
@@ -167,6 +172,7 @@ public enum FeatureStringEnum {
         VARIANT_INFO,
         OLD_VARIANT_INFO,
         NEW_VARIANT_INFO,
+        ORIG_ID,
         ;
 
 

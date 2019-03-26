@@ -68,6 +68,7 @@ class IOServiceController extends AbstractApolloController {
     )
     @Timed
     def write() {
+        File outputFile = null
         try {
             long current = System.currentTimeMillis()
             JSONObject dataObject = permissionService.handleInput(request,params)
@@ -143,7 +144,7 @@ class IOServiceController extends AbstractApolloController {
                 }
             }
 
-            File outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
+            outputFile = File.createTempFile("Annotations", "." + typeOfExport.toLowerCase())
             String fileName
 
             if (typeOfExport == FeatureStringEnum.TYPE_GFF3.getValue()) {
@@ -231,6 +232,9 @@ class IOServiceController extends AbstractApolloController {
             def error = [error: e.message]
             e.printStackTrace()
             render error as JSON
+        }
+        if(outputFile?.exists()){
+            outputFile.deleteOnExit()
         }
     }
 

@@ -23,7 +23,7 @@ import java.util.zip.CRC32
 
 @Transactional
 class SequenceService {
-    
+
     def configWrapperService
     def grailsApplication
     def featureService
@@ -84,7 +84,7 @@ class SequenceService {
         if(strand==Strand.NEGATIVE){
             residueString = SequenceTranslationHandler.reverseComplementSequence(residueString)
         }
-        
+
         StringBuilder residues = new StringBuilder(residueString);
         List<SequenceAlterationArtifact> sequenceAlterationList = SequenceAlterationArtifact.withCriteria {
             createAlias('featureLocations', 'fl', JoinType.INNER_JOIN)
@@ -248,7 +248,7 @@ class SequenceService {
         int startChunkNumber = fmin / sequence.seqChunkSize;
         int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
 
-        
+
         for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
             sequenceString.append(loadResidueForSequence(sequence,i))
         }
@@ -274,7 +274,7 @@ class SequenceService {
 
     def loadRefSeqs(Organism organism) {
         JSONObject referenceTrackObject = getReferenceTrackObject(organism)
-        if (referenceTrackObject.storeClass == "JBrowse/Store/Sequence/IndexedFasta") {
+        if ((referenceTrackObject.storeClass == "JBrowse/Store/SeqFeature/IndexedFasta") || (referenceTrackObject.storeClass == "JBrowse/Store/Sequence/IndexedFasta")) {
             loadGenomeFasta(organism, referenceTrackObject)
         }
         else {
@@ -332,6 +332,8 @@ class SequenceService {
             if (genomeFastaIndexFile.exists()) {
                 organism.genomeFastaIndex = referenceTrackObject.faiUrlTemplate
                 FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
+                log.info "an indexed fasta ${index}"
+                log.info "an indexed fasta size ${index.size()}"
                 // reading the index
                 def iterator = index.iterator()
                 while(iterator.hasNext()) {
@@ -343,6 +345,7 @@ class SequenceService {
                             end: entry.size,
                             name: entry.contig
                     ).save(failOnError: true)
+                    log.debug "added sequence ${sequence}"
                 }
 
                 organism.valid = true
@@ -401,8 +404,8 @@ class SequenceService {
         FeatureLocation featureLocation = deletion.featureLocation
         deletion.alterationResidue = getResidueFromFeatureLocation(featureLocation)
     }
-    
-    
+
+
     def getSequenceForFeature(Feature gbolFeature, String type, int flank = 0) {
         // Method returns the sequence for a single feature
         // Directly called for FASTA Export
@@ -531,7 +534,7 @@ class SequenceService {
     }
 
     def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
-        // Method returns a JSONObject 
+        // Method returns a JSONObject
         // Suitable for 'get sequence' operation from AEC
         log.debug "input at getSequenceForFeature: ${inputObject}"
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -556,7 +559,7 @@ class SequenceService {
             return outFeature
         }
     }
-    
+
     def getGff3ForFeature(JSONObject inputObject, File outputFile) {
         List<Feature> featuresToWrite = new ArrayList<>();
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)

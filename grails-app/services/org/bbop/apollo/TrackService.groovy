@@ -5,6 +5,7 @@ import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.gwt.shared.track.TrackIndex
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceDTO
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONElement
@@ -19,8 +20,10 @@ class TrackService {
     def preferenceService
     def trackMapperService
     def permissionService
+    def configWrapperService
 
-    public static String TRACK_NAME_SPLITTER = "::"
+    static final String TRACKLIST = "trackList.json"
+    static final String EXTENDED_TRACKLIST = "extendedTrackList.json"
 
     JSONObject getTrackList(String jbrowseDirectory) {
         log.debug "got data directory of . . . ? ${jbrowseDirectory}"
@@ -474,13 +477,32 @@ class TrackService {
      * @return
      */
     @NotTransactional
-    def findTrackFromArray(JSONArray tracksArray, String trackName) {
+    JSONObject findTrackFromArray(JSONArray tracksArray, String trackName) {
         for (int i = 0; i < tracksArray.size(); i++) {
             JSONObject obj = tracksArray.getJSONObject(i)
             if (obj.getString("label") == trackName) return obj
         }
 
         return null
+    }
+
+    /**
+     *
+     * @param tracksArray
+     * @param trackName
+     * @return
+     */
+    @NotTransactional
+    def removeTrackFromArray(JSONArray tracksArray, String trackName) {
+        JSONArray returnArray = new JSONArray()
+        for (int i = 0; i < tracksArray.size(); i++) {
+            JSONObject obj = tracksArray.getJSONObject(i)
+            if (obj.getString("label") != trackName) {
+                returnArray.add(obj)
+            }
+        }
+
+        return returnArray
     }
 
     /**
@@ -588,5 +610,142 @@ class TrackService {
             response.status = HttpServletResponse.SC_FORBIDDEN
             return false
         }
+    }
+
+    @Transactional(readOnly = true)
+    File getExtendedTrackList(Organism organism){
+        File returnFile = new File(getExtendedDataDirectory(organism).absolutePath + File.separator + EXTENDED_TRACKLIST)
+        if(!returnFile.exists()){
+            log.warn("File ${returnFile.absolutePath} does not exist")
+        }
+        if(!returnFile.canRead()){
+            log.warn("File ${returnFile.absolutePath} can not be read")
+        }
+        if(!returnFile.canWrite()){
+            log.warn("File ${returnFile.absolutePath} can not be written to")
+        }
+        return returnFile
+    }
+
+    @Transactional(readOnly = true)
+    File getExtendedDataDirectory(Organism organism){
+        File returnFile = new File(commonDataDirectory + File.separator + organism.id + "-" + organism.commonName.replaceAll(" ","_"))
+        if(!returnFile.exists()){
+            log.warn("File ${returnFile.absolutePath} does not exist")
+        }
+        if(!returnFile.canRead()){
+            log.warn("File ${returnFile.absolutePath} can not be read")
+        }
+        if(!returnFile.canWrite()){
+            log.warn("File ${returnFile.absolutePath} can not be written to")
+        }
+        return returnFile
+    }
+
+
+    @Transactional(readOnly = true)
+    String getCommonDataDirectory() {
+        // TODO: cache?
+        ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
+        return commonDataPreference.value
+    }
+
+    /**
+     *
+     * 1. Determine the preferred version
+     *    1a. The database one has the source of user, config, or ??  If it is user, then the database is always the default.
+     *    1b.
+     * 2. See if that version is valid (exists and can write)
+     *    2a. Use the next backup (config)
+     *    2b. Use the next backup (find a home writeable directory)
+     *    2c. Ask the user for help
+     * 3. Notify the admin user the first time of where that directory is.
+     *
+     * The reason for using the database is to remove the configuration detail if startup is easier.
+     *
+     * If both exist and they match and they are both writeable, then return
+     *
+     *
+     * @return
+     */
+    def checkCommonDataDirectory() {
+        ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
+        String directory
+
+        try {
+            if (commonDataPreference) {
+                directory = commonDataPreference.value
+                log.debug "Preference exists in database [${directory}]."
+                File testDirectory = new File(directory)
+                if (!testDirectory.exists()) {
+                    log.warn "Directory does not exist so trying to make"
+                    assert testDirectory.mkdirs()
+                }
+                if (testDirectory.exists() && testDirectory.canWrite()) {
+                    log.debug "Directory ${directory} exists and is writable so returning"
+                    return null
+                }
+            }
+
+            // if all of the tests fail, then do the next thing
+            log.warn "Unable to write to the database directory, so checking the config file"
+            directory = configWrapperService.commonDataDirectory
+            File testDirectory = new File(directory)
+            if (!testDirectory.exists()) {
+                assert testDirectory.mkdirs()
+            }
+            if (testDirectory.exists() && testDirectory.canWrite()) {
+                ApplicationPreference applicationPreference = new ApplicationPreference(
+                        name: "common_data_directory",
+                        value: directory
+
+                ).save(failOnError: true, flush: true)
+                log.info("Saving new preference for common data directory ${directory}")
+                return null
+            }
+        } catch (Throwable e) {
+            log.error "Unable to write to directory ${directory}. ${e}"
+            return "Unable to write to directory ${directory}."
+        }
+    }
+
+
+    def updateCommonDataDirectory(String newDirectory) {
+        File testDirectory = new File(newDirectory)
+        if (!testDirectory.exists()) {
+            assert testDirectory.mkdirs()
+        }
+        if (!testDirectory.exists() || !testDirectory.canWrite()) {
+            return "Unable to write to directory ${newDirectory}"
+        }
+        ApplicationPreference commonDataPreference = ApplicationPreference.findOrSaveByName("common_data_directory")
+        commonDataPreference.value = newDirectory
+        commonDataPreference.save()
+        return null
+    }
+
+
+    @NotTransactional
+    def generateJSONForGff3(File inputFile, String trackPath, String jbrowseBinariesPath){
+        File fileToExecute = new File(jbrowseBinariesPath + "/flatfile-to-json.pl")
+        log.debug "file to execute ${fileToExecute}"
+        log.debug "file exists ${fileToExecute.exists()}"
+        log.debug "file can execute ${fileToExecute.canExecute()}"
+        File trackPathFile = new File(trackPath)
+        log.debug "track path ${trackPath} -> exissts ${trackPathFile.exists()} and can write ${trackPathFile.canWrite()}"
+        if(!fileToExecute.canExecute()){
+            fileToExecute.setExecutable(true,true)
+            log.debug "file can execute ${fileToExecute.canExecute()}"
+        }
+//        bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name>
+        String outputName = inputFile.getName().substring(0,inputFile.getName().lastIndexOf("."))
+
+        def arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type","mRNA","--trackLabel",outputName,"--out",trackPath]
+        String executionString = arguments.join(" ")
+        log.info "generating NCList with ${executionString}"
+
+        def proc = executionString.execute()
+        log.debug "error: ${proc.err.text}"
+//        log.debug "output: ${proc.out}"
     }
 }

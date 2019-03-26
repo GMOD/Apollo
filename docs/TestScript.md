@@ -2,24 +2,6 @@
 
 Note: The following steps are meant for testing purposes only, not for training manual annotators.
 
-## Apollo General Information
-- The Apollo website:
-http://GenomeArchitect.org
-- The article describing Apollo can be found at:  
-http://genomebiology.com/2013/14/8/R93/abstract
-- The public Apollo honey bee (_Apis mellifera_) demonstration site is available at: 
-http://genomearchitect.org/demo/
-- You may find our user guide at:
-http://genomearchitect.org/users-guide/
-- You may find a few slide presentations on the 'How Tos' of Apollo at:
-http://www.slideshare.net/MonicaMunozTorres/
-- Apollo at GMOD page: 
-http://www.gmod.org/wiki/WebApollo 
-- Apollo installation and configuration guide
-http://genomearchitect.readthedocs.io/en/latest/
-
-
-
 ### A) Testing functions in the main window
 
 1) Switch between organisms:
@@ -88,7 +70,13 @@ http://genomearchitect.readthedocs.io/en/latest/
 
 3.1) Search for an indexed gene (e.g. in honey bee demo CSN2_DANRE (it's on Group1.37:152689..155265)) by typing the gene name on the search box in the middle of the navigation bar in the main window. 
 
-4) Drag and drop a gene onto the “User-created Annotations” (U-cA) area.
+4) Drag and drop a gene onto the “User-created Annotations” (U-cA) area. 
+
+4.1) Drag and drop an HTML BAM read to the “User-created Annotations” (U-cA) area.
+
+4.2) Drag and drop an HTML BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under HTML Alignment).
+
+4.1) Drag and drop an Canvas BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under Canvas Alignment).
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
@@ -162,6 +150,8 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.3) Find an annotation using the _Annotation Name_ search box, and use the filters from the drop down menus. 
 
+13.1.4) Test that you can delete an annotation from the Details menu.
+
 13.2) Tracks
 
 13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" from the list of available tracks.
@@ -180,11 +170,15 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.3.5) Test a set of track categories can handle opening and closing, searching, and select / unselect all.
 
+13.2.4) Check that as administrator that you can both add and remove tracks and that removed track contents are deleted.
+
 13.3) Ref Sequence
 
 13.3.1) Use the search box to find a scaffold / chromosome and navigate to it by double clicking on one of them. 
 
 13.3.2) Test that you can export GFF3, FASTA, and CHADO files for one or more selected scaffolds at a time. 
+
+13.3.3) Test that you can delete all annotations from 2 or more sequences.
 
 13.4) Organism
 
@@ -192,11 +186,24 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.4.2) Test that you can switch between organisms by double clicking on one of them. 
 
+13.4.3) Test that you duplicate an organism and obsolete the duplicate and that the show obsolete works correctly.
+
+13.4.4) Delete the duplicated organism
+
+13.4.5) Check that you can add an organism by uploading a FASTA file and add / remove tracks to that organism
+
+13.4.6) Check that when removing a temporary organism that all associated files are also removed.
+
 13.5) Users 
 
 13.5.1) Create a new user and grant read, write, and publish permissions.
 
 13.5.2) Test altering information and permissions and group membership for users. 
+
+13.5.3) Make a user 'inactive' and confirm that they are listed as such and they have no permissions and they only show up when "Show inactive" is selected.
+
+13.5.3) Make an 'inactive' user active and assign them permissions.
+
 
 13.6) Groups
 

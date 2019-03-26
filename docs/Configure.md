@@ -18,46 +18,44 @@ that are defined in the Config.groovy file:
 ``` 
 // default apollo settings
 apollo {
-  default_minimum_intron_size = 1
-  history_size = 0
-  overlapper_class = "org.bbop.apollo.sequence.OrfOverlapper"
-  track_name_comparator = "/config/track_name_comparator.js"
-  use_cds_for_new_transcripts = true
-  user_pure_memory_store = true
-  translation_table = "/config/translation_tables/ncbi_1_translation_table.txt"
-  is_partial_translation_allowed = false // unused so far
-  get_translation_code = 1
-  only_owners_delete = false
-  sequence_search_tools = [
-    blat_nuc: [
-      search_exe: "/usr/local/bin/blat",
-      search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
-      name: "Blat nucleotide",
-      params: ""
-    ],
-    blat_prot: [
-      search_exe: "/usr/local/bin/blat",
-      search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
-      name: "Blat protein",
-      params: ""
+
+    // other translation codes are of the form ncbi_KEY_translation_table.txt
+    // under the web-app/translation_tables  directory
+    // to add your own add them to that directory and over-ride the translation code here
+    get_translation_code = 1
+    proxies = [
+            [
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.geneontology.org/solr/select',
+                    active       : true,
+                    fallbackOrder: 0,
+                    replace      : true
+            ]
+            ,
+            [
+                    referenceUrl : 'http://golr.geneontology.org/select',
+                    targetUrl    : 'http://golr.berkeleybop.org/solr/select',
+                    active       : false,
+                    fallbackOrder: 1,
+                    replace      : false
+            ]
     ]
-  ]    
-      
-
-
-  splice_donor_sites = [ "GT" ]
-  splice_acceptor_sites = [ "AG"]
-  gff3.source= "." 
-  bootstrap = false
-
-  info_editor = {
-    feature_types = "default"
-    attributes = true
-    dbxrefs = true
-    pubmed_ids = true
-    go_ids = true
-    comments = true
-  }
+    sequence_search_tools = [
+            blat_nuc : [
+                    search_exe  : "/usr/local/bin/blat",
+                    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+                    name        : "Blat nucleotide",
+                    params      : ""
+            ],
+            blat_prot: [
+                    search_exe  : "/usr/local/bin/blat",
+                    search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+                    name        : "Blat protein",
+                    params      : ""
+                    //tmp_dir: "/opt/apollo/tmp" optional param
+            ]
+    ]
+    ...
 }
 ```
 
@@ -156,6 +154,12 @@ Additional links for log4j:
 - Advanced log4j configuration:
   http://blog.andresteingress.com/2012/03/22/grails-adding-more-than-one-log4j-configurations/
 - Grails log4j guide: http://grails.github.io/grails-doc/2.4.x/guide/single.html#logging
+
+### Add attribute for the original id of the object
+
+In the apollo config override set `store_orig_id=true` to store an `orid_id` attribute on the top-level feature that 
+represents the original id from the genomic evidence.  This is useful for re-merging code as Apollo will generate its own IDs because 
+annotations will be based on multiple evidence sources.
 
 
 ### Canned Elements
@@ -591,6 +595,28 @@ Following are a few recommendations for adding tracks via dot notation in Apollo
 
 Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
 
+### Hiding JBrowse tracks from the public
+
+To hide public tracks from public organisms add `apollo.permission.level.private` line to your JBrowse track:
+
+```
+      {
+         "compress" : 0,
+         "key" : "GeneData_hidden",
+         "label" : "GeneData_hidden",
+         "storeClass" : "JBrowse/Store/SeqFeature/NCList",
+         ... 
+         "apollo":{
+             "permission":{
+                 "level":"private"
+             }
+         },
+         ... 
+         "trackType" : null,
+         "type" : "FeatureTrack",
+         "urlTemplate" : "tracks/GeneData/{refseq}/trackData.json"
+      },
+```
 
 ### Phone Home
 

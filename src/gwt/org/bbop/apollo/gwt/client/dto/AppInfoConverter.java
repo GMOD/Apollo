@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
 import java.util.List;
 
@@ -26,6 +27,9 @@ public class AppInfoConverter {
         }
         if(object.containsKey("currentEndBp")) {
             appStateInfo.setCurrentEndBp((int) object.get("currentEndBp").isNumber().doubleValue());
+        }
+        if(object.containsKey(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue())) {
+            appStateInfo.setCommonDataDirectory( object.get(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue()).isString().stringValue());
         }
 
         return appStateInfo ;

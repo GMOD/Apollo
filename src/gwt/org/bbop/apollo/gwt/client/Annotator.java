@@ -2,9 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -14,7 +12,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.core.java.util.HashMap_CustomFieldSerializer;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.shared.ClientTokenGenerator;

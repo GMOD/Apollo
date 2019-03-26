@@ -215,9 +215,11 @@ apollo {
     user_pure_memory_store = true
     is_partial_translation_allowed = false // unused so far
     export_subfeature_attrs = false
+    store_orig_id = true // sets the orig_id to the original evidence id when first created
 
     // used for uploading
-    common_data_directory = "/opt/apollo"
+//    common_data_directory = "/opt/apollo"
+    common_data_directory = "apollo_data"
 
     // settings for Chado export
     // set chado_export_fasta_for_sequence if you want the reference sequence FASTA to be exported into the database
@@ -399,8 +401,8 @@ auditLog {
 jbrowse {
     git {
         url = "https://github.com/gmod/jbrowse"
-        branch = "1.16.2-release"
-//        branch = "dev"
+//        branch = "1.16.3-release"
+		branch = "dev"
 //        tag = "15dfd2309f2d508d8bed782d0f68b38dd9927bb4"
         alwaysPull = true
         alwaysRecheck = true

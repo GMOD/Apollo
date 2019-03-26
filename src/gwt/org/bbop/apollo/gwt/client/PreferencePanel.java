@@ -1,11 +1,15 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Widget;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -18,6 +22,8 @@ public class PreferencePanel extends Composite {
     private static PreferencePanelUiBinder ourUiBinder = GWT.create(PreferencePanelUiBinder.class);
     @UiField
     HTML adminPanel;
+    @UiField
+    Button updateCommonDirectoryButton;
 //    @UiField
 //    FlexTable statusList;
 //    @UiField
@@ -25,17 +31,23 @@ public class PreferencePanel extends Composite {
 //    @UiField
 //    Button newStatusButton;
 
-    public void reload(){
+    @UiHandler("updateCommonDirectoryButton")
+    public void updateCommonDirectoryButton(ClickEvent clickEvent) {
+        MainPanel.getInstance().updateCommonDir(
+                "If you update this path, please move pertinent files: " + MainPanel.getInstance().getCommonDataDirectory()
+                , MainPanel.getInstance().getCommonDataDirectory());
+    }
+
+    public void reload() {
         String url = "annotator/adminPanel";
         String rootUrl = Annotator.getRootUrl();
-        if(!url.startsWith(rootUrl)){
-            url = rootUrl+url;
+        if (!url.startsWith(rootUrl)) {
+            url = rootUrl + url;
         }
         RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, URL.encode(url));
 
         try {
             Request request = builder.sendRequest(null, new RequestCallback() {
-
                 public void onResponseReceived(Request request, Response response) {
                     if (200 == response.getStatusCode()) {
                         adminPanel.setHTML(response.getText());
@@ -63,7 +75,6 @@ public class PreferencePanel extends Composite {
 
 
 //        /annotator/adminPanel
-
 
 
     }

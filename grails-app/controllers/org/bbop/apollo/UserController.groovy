@@ -24,6 +24,7 @@ class UserController {
     def permissionService
     def preferenceService
     def userService
+    def trackService
 
 
     @RestApiMethod(description = "Load all users and their permissions", path = "/user/loadUsers", verb = RestApiVerb.POST)
@@ -37,6 +38,7 @@ class UserController {
             , @RestApiParam(name = "sortColumn", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sort column, default 'name'")
             , @RestApiParam(name = "sortAscending", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Sort column is ascending if true (default false)")
             , @RestApiParam(name = "omitEmptyOrganisms", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Omits empty organism permissions from return (default false)")
+            , @RestApiParam(name = "showInactiveUsers", type = "boolean", paramType = RestApiParamType.QUERY, description = "(optional) Shows inactive users without permissions (default false)")
     ])
     def loadUsers() {
         try {
@@ -77,6 +79,7 @@ class UserController {
             def searchName = dataObject.name ?: null
             def sortName = dataObject.sortColumn ?: 'name'
             def sortAscending = dataObject.sortAscending ?: true
+            def showInactiveUsers = dataObject.showInactiveUsers ?: false
             def omitEmptyOrganisms = dataObject.omitEmptyOrganisms != null ? dataObject.omitEmptyOrganisms : false
 
             def users = c.list(max: maxResults, offset: offset) {
@@ -92,6 +95,9 @@ class UserController {
                         ilike('lastName', '%' + searchName + '%')
                         ilike('username', '%' + searchName + '%')
                     }
+                }
+                if(!showInactiveUsers){
+                    eq('inactive',false)
                 }
                 if (sortName) {
                     switch (sortName) {
@@ -115,6 +121,9 @@ class UserController {
                 if (dataObject.userId && dataObject.userId in String) {
                     eq('username', dataObject.userId)
                 }
+                if(!showInactiveUsers){
+                    eq('inactive',false)
+                }
                 if (searchName) {
                     or {
                         ilike('firstName', '%' + searchName + '%')
@@ -122,6 +131,7 @@ class UserController {
                         ilike('username', '%' + searchName + '%')
                     }
                 }
+
             }.unique { a, b ->
                 a.id <=> b.id
             }.size()
@@ -133,6 +143,7 @@ class UserController {
                 userObject.username = it.username
                 userObject.firstName = it.firstName
                 userObject.lastName = it.lastName
+                userObject.inactive = it.inactive ?: false
                 Role role = userService.getHighestRole(it)
                 userObject.role = role?.name
 
@@ -246,6 +257,14 @@ class UserController {
                 userObject.put(FeatureStringEnum.ERROR.value, "You do not have access to any organism on this server.  Please contact your administrator.")
             } else if (userOrganismPreference) {
                 userObject.put("tracklist", userOrganismPreference.nativeTrackList)
+            }
+
+            if(permissionService.isUserGlobalAdmin(currentUser)){
+                String badCommonPath = trackService.checkCommonDataDirectory()
+                log.debug "bad common path ${badCommonPath}"
+                if(badCommonPath){
+                    userObject.badCommonPath = badCommonPath
+                }
             }
 
             render userObject as JSON
@@ -398,7 +417,7 @@ class UserController {
 
     }
 
-    @RestApiMethod(description = "Delete user", path = "/user/inactivateUser", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Inactivate user, removing all permsissions and setting flag", path = "/user/inactivateUser", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -408,7 +427,7 @@ class UserController {
     @Transactional
     def inactivateUser() {
         try {
-            log.info "Removing user"
+            log.info "Inactivating user"
             JSONObject dataObject = permissionService.handleInput(request, params)
             User user = null
             if (dataObject.has('userId')) {
@@ -445,14 +464,70 @@ class UserController {
             UserTrackPermission.deleteAll(UserTrackPermission.findAllByUser(user))
             UserOrganismPermission.deleteAll(UserOrganismPermission.findAllByUser(user))
             UserOrganismPreference.deleteAll(UserOrganismPreference.findAllByUser(user))
+            user.inactive = true
 
             log.info "Inactivated user ${user.username}"
+            user.save(flush: true )
 
             render new JSONObject() as JSON
         } catch (e) {
             log.error(e.fillInStackTrace())
             JSONObject jsonObject = new JSONObject()
-            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the user " + e.message)
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to inactivate the user " + e.message+". Remove users and groups first.")
+            render jsonObject as JSON
+        }
+    }
+
+    @RestApiMethod(description = "Activate user", path = "/user/activateUser", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "userId", type = "long", paramType = RestApiParamType.QUERY, description = "User ID to delete")
+            , @RestApiParam(name = "userToActivate", type = "email", paramType = RestApiParamType.QUERY, description = "Username (email) to inactivate")
+    ])
+    @Transactional
+    def activateUser() {
+        try {
+            log.info "Removing user"
+            JSONObject dataObject = permissionService.handleInput(request, params)
+            User user = null
+            if (dataObject.has('userId')) {
+                user = User.findById(dataObject.userId)
+            }
+            // to support the webservice
+            if (!user && dataObject.has("userToActivate")) {
+                user = User.findByUsername(dataObject.userToActivate)
+            }
+
+            if (!user) {
+                def error = [error: 'The user does not exist']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+            String creatorMetaData = user.getMetaData(FeatureStringEnum.CREATOR.value)
+            // to support webservice, get current user from session or input object
+            def currentUser = permissionService.getCurrentUser(dataObject)
+
+            // instead of using !permissionService.isAdmin() because it only works for login user but doesn't work for webservice
+            // allow delete a user if the current user is global admin or the current user is the creator of the user
+            if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData)) {
+                //render status: HttpStatus.UNAUTHORIZED
+                def error = [error: 'not authorized to activate the user']
+                log.error(error.error)
+                render error as JSON
+                return
+            }
+
+            user.inactive = false
+            log.info "Activated user ${user.username}"
+            user.save(flush: true )
+
+            render new JSONObject() as JSON
+        } catch (e) {
+            log.error(e.fillInStackTrace())
+            JSONObject jsonObject = new JSONObject()
+            jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to activate the user " + e.message)
             render jsonObject as JSON
         }
     }

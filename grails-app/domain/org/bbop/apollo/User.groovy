@@ -14,6 +14,7 @@ class User implements Ontological, JsonMetadata{
     String firstName
     String lastName
     String metadata // this is JSON metadata
+    boolean inactive
 
     static String cvTerm = "Owner"
     static String ontologyId = "Owner"
@@ -31,6 +32,7 @@ class User implements Ontological, JsonMetadata{
         username(nullable: false, blank: false, unique: true)
         passwordHash(display: false, blank: false, null: false,minSize: 5)
         metadata(display: false, blank: true,nullable: true)
+        inactive(nullable: true)
     }
 
     static mapping = {

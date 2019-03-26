@@ -330,7 +330,11 @@ define([
                         filteredTrack.type = trackConfig.type;
                         filteredTrack.category = trackConfig.category;
                         filteredTrack.urlTemplate = trackConfig.urlTemplate;
+                        filteredTrack.storeClass = trackConfig.storeClass;
                         filteredTrack.visible = visible;
+                        if(trackConfig.apollo){
+                            filteredTrack.apollo = trackConfig.apollo;
+                        }
                         filteredTrackList.push(filteredTrack);
                     }
 
@@ -692,7 +696,7 @@ define([
                      * setting up annotation resizing via pulling of left/right edges but if
                      * subfeature is not selectable, do not bind mouse down
                      */
-                    if (subdiv && subdiv != null && (!this.selectionManager.unselectableTypes[subfeature.get('type')])) {
+                    if (subdiv && (!this.selectionManager.unselectableTypes[subfeature.get('type')])) {
                         $(subdiv).bind("mousedown", this.annotMouseDown);
                     }
                 }
@@ -853,7 +857,7 @@ define([
                 event = event || window.event;
                 var elem = (event.currentTarget || event.srcElement);
                 var featdiv = this.getLowestFeatureDiv(elem);
-                if (featdiv && (featdiv != null)) {
+                if (featdiv) {
                     if (this.verbose_click) {
                         console.log(featdiv);
                     }
@@ -893,13 +897,13 @@ define([
                         subfeats.push(featToAdd);
                     }
                     else {  // top-level feature
-                        var source_track = feature_record.track;
+                        var feat = JSONUtils.handleCigarSubFeatures(feat, annot.get('type'));
                         var subs = feat.get('subfeatures');
                         if (subs && subs.length > 0) {  // top-level
                             // feature with
                             // subfeatures
-                            for (var i = 0; i < subs.length; ++i) {
-                                var subfeat = subs[i];
+                            for (var j = 0; j < subs.length; ++j) {
+                                var subfeat = subs[j];
                                 var featStrand = subfeat.get('strand');
                                 var featToAdd = subfeat;
                                 if (featStrand != annotStrand) {
@@ -908,7 +912,6 @@ define([
                                 }
                                 subfeats.push(featToAdd);
                             }
-                            // $.merge(subfeats, subs);
                         }
                         else {  // top-level feature without subfeatures
                             // make exon feature
@@ -1036,7 +1039,7 @@ define([
                 var subfeatures = [];
                 var strand;
                 var parentFeature;
-                var variantSelectionRecords = new Array();
+                var variantSelectionRecords = [];
 
                 for (var i in selection_records) {
                     var type = selection_records[i].feature.get("type").toUpperCase();
@@ -1045,9 +1048,9 @@ define([
                         variantSelectionRecords.push(selection_records[i]);
                         continue;
                     }
-                    else if (type == "indel") {
+                    else if (type == "INDEL") {
                         // feature is an indel and is not supported
-                        console.log("unsupported variant type: indel");
+                        console.log("unsupported variant type: INDEL");
                         continue;
                     }
 
@@ -1108,8 +1111,10 @@ define([
                         featureToAdd = new SimpleFeature({data: {strand: strand}});
                     }
                     if (!featureToAdd.get('name')) {
+                        // TODO: We can't guarantee that the featureToAdd has an id, this may end up undefined.
                         featureToAdd.set('name', featureToAdd.get('id'));
                     }
+                    featureToAdd.set('orig_id', featureToAdd.get('id'));
                     featureToAdd.set("strand", strand);
                     var fmin;
                     var fmax;
@@ -1171,10 +1176,12 @@ define([
 
                     var afeat ;
                     if(biotype === 'mRNA'){
+                        featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
+                        featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
                         target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
                     }
                     else {
@@ -1226,7 +1233,6 @@ define([
                         }
                     });
                     this.openDialog("Confirm", content);
-                    return;
                 }
                 else {
                     process();
@@ -1248,11 +1254,12 @@ define([
                                 function (seq) {
                                     if (seq.toUpperCase() != dragfeat.get('reference_allele').toUpperCase()) {
                                         var variantPosition = dragfeat.get('start') + 1;
-                                        var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position."
+                                        var message = "Cannot add variant at position: " + variantPosition + " since the REF allele does not match the genomic residues at that position.";
                                         target_track.openDialog( 'Cannot Add Variant', message );
                                     }
                                     else {
                                         var afeat = JSONUtils.createApolloVariant(dragfeat, true);
+                                        afeat.orig_id = dojo.clone(dragfeat.id);
                                         featuresToAdd.push(afeat);
 
                                         var postData = {
@@ -1317,11 +1324,12 @@ define([
                         featureToAdd.set("end", fmax);
                         var afeat = JSONUtils.createApolloFeature(featureToAdd, type, true, subfeatType);
                         if (topLevelType) {
-                            var topLevel = new Object();
+                            var topLevel = {};
+                            topLevel.orig_id = dojo.clone(afeat.id);
                             topLevel.location = dojo.clone(afeat.location);
                             topLevel.type = dojo.clone(afeat.type);
                             topLevel.type.name = topLevelType;
-                            topLevel.children = new Array();
+                            topLevel.children = [];
                             topLevel.children.push(afeat);
                             afeat = topLevel;
                         }
@@ -1333,6 +1341,7 @@ define([
                             var afeat = JSONUtils.createApolloFeature(dragfeat, type, true, subfeatType);
                             if (topLevelType) {
                                 var topLevel = new Object();
+                                topLevel.orig_id = dojo.clone(afeat.id);
                                 topLevel.location = dojo.clone(afeat.location);
                                 topLevel.type = dojo.clone(afeat.type);
                                 topLevel.type.name = topLevelType;
@@ -2513,7 +2522,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
                     label: pubmedss,
@@ -2650,7 +2659,7 @@ define([
                     if (!node) {
                         setTimeout(function () {
                             initTable(domNode, tableNode, table, timeout);
-                            return;
+
                         }, timeout);
                         return;
                     }
@@ -4390,7 +4399,7 @@ define([
                     innerHTML: "Delete",
                     'class': "annotation_info_editor_button"
                 }, pubmedIdButtons);
-                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations using GO IDs. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
+                var pubmedss = "Use this field to indicate that this genomic element has been mentioned in a publication, or that a publication supports your functional annotations. Do not use this field to list publications containing related or similar genomic elements from other species that you may have used as evidence for this annotation.";
                 new Tooltip({
                     connectId: pubmedIdsDiv,
                     label: pubmedss,
@@ -4512,7 +4521,6 @@ define([
                     if (!node) {
                         setTimeout(function () {
                             initTable(domNode, tableNode, table, timeout);
-                            return;
                         }, timeout);
                         return;
                     }
@@ -5605,8 +5613,7 @@ define([
                     current = selectedIndex;
                     cleanUpHistoryTable();
                     displayHistory();
-                };
-
+                }
                 var cleanUpHistoryTable = function() {
                     while (historyRows.hasChildNodes()) {
                         historyRows.removeChild(historyRows.lastChild);
@@ -5882,12 +5889,16 @@ define([
                             information += "Unique id: " + feature.uniquename + "<br/>";
                             information += "Date of creation: " + feature.time_accessioned + "<br/>";
                             information += "Owner: " + feature.owner + "<br/>";
+                            information += "Location: " + feature.location+ "<br/>";
+                            if(feature.length){
+                                information += "Length: " + feature.length+ "<br/>";
+                            }
                             if (feature.parent_ids) {
                                 information += "Parent ids: " + feature.parent_ids + "<br/>";
                             }
                         }
                         if (feature.justification) {
-                            information += "Justification: " + feature.justification + "<br/>";
+                            information += "Comment: " + feature.justification + "<br/>";
                         }
                         track.openDialog("Annotation information", information);
                     },
@@ -5945,8 +5956,8 @@ define([
                         handleAs: "text",
                         timeout: 5000 * 1000, // Time in milliseconds
                         load: function (response, ioArgs) {
-                            var textAreaContent = response;
-                            dojo.attr(textArea, "innerHTML", textAreaContent);
+                            // Response is the textarea content;
+                            dojo.attr(textArea, "innerHTML", response);
                         },
                         // The ERROR function will be called in an error case.
                         error: function (response, ioArgs) {
@@ -6198,7 +6209,11 @@ define([
                     load: function (response, ioArgs) {
                         dojo.create("a", {
                             innerHTML: response.filename,
-                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format
+                            href: context_path + "/IOService/download?uuid=" + response.uuid + "&exportType=" + response.exportType + "&seqType=" + response.sequenceType + "&format=" + response.format,
+                            onclick:  function(){
+                                track.closeDialog();
+                            }
+
                         }, content);
                         dojo.style(waitingDiv, {display: "none"});
                     },
@@ -6242,7 +6257,7 @@ define([
                             break;
                         }
                     }
-                };
+                }
                 if (selected && (selected.length > 0)) {
 
 
@@ -6314,7 +6329,7 @@ define([
                             break;
                         }
                     }
-                };
+                }
                 if (selected && (selected.length > 0)) {
 
 

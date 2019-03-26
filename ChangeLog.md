@@ -1,4 +1,46 @@
 
+## 2.4.0
+
+ Features
+
+- Allow upload of genomic data to create new organisms. [2023](https://github.com/GMOD/Apollo/pull/2023)
+- Allow upload of track data to create new removable tracks. [2024](https://github.com/GMOD/Apollo/pull/2024)
+- Automatically index GFF3 tracks with coverage on upload. [2084](https://github.com/GMOD/Apollo/pull/2084)
+- Provide community level private evidence tracks [17](https://github.com/GMOD/Apollo/pull/17)
+- Automatically kill or disable server if a common directory is now defined [2079](https://github.com/GMOD/Apollo/pull/2079)
+ 
+ Bug Fixes
+ 
+- Fix issue with rendering neat features [2063](https://github.com/GMOD/Apollo/pull/2063) 
+- Fix issue with creating annotations for reads with indels in them [2085](https://github.com/GMOD/Apollo/pull/2085) 
+ 
+
+## 2.3.1
+
+Features
+
+
+- Allowed duplication of organism from the Organism Panel [1968](https://github.com/GMOD/Apollo/pull/1968)
+- Allows making an organism obsolete [1967](https://github.com/GMOD/Apollo/pull/1967)
+- Create a filter and flag for inactive users [1937](https://github.com/GMOD/Apollo/pull/1937)
+- Allowed deletion of feature from the Sequence and Annotator Panels [2040](https://github.com/GMOD/Apollo/pull/2040)
+- Allow export of orig_id as an optional attribute [2002](https://github.com/GMOD/Apollo/pull/2002)
+
+Bug Fixes
+
+- Fixed issue when dragging features to resize was not providing an indicator box [1988](https://github.com/GMOD/Apollo/pull/1988)
+- Fixed issue when sequence alterations were not rendering the full height of the sequence track [2049](https://github.com/GMOD/Apollo/pull/2049)
+- Making organisms obsolete should remove associated permissions [2043](https://github.com/GMOD/Apollo/pull/2043)
+- User-created features taken from split reads should create features with introns [2036](https://github.com/GMOD/Apollo/pull/2036)
+- Should indicate split reads properly in evidence [2034](https://github.com/GMOD/Apollo/pull/2034)[2054](https://github.com/GMOD/Apollo/pull/2054)
+- Temporary files not removed during export of GFF3 or other file types [1966](https://github.com/GMOD/Apollo/pull/1966)
+- Fixed issue where you could not alter an isoform after deleting a gene name [1961](https://github.com/GMOD/Apollo/pull/1961)
+- Fixed some minor issues associated with sequence alterations [1497](https://github.com/GMOD/Apollo/pull/1497)
+- Multiple owners tagged on GFF3 export [29](https://github.com/GMOD/Apollo/pull/29)
+- Setting gene description puts UcA into a bad state [2056](https://github.com/GMOD/Apollo/issues/2056)
+- Fixes plugin inclusion error by reverting prior fix [2055](https://github.com/GMOD/Apollo/issues/2055)
+
+
 
 ## 2.3.0
 
@@ -7,7 +49,7 @@ Features
 
 - Moved to JBrowse 1.16.2 by default [1988](https://github.com/GMOD/Apollo/pull/1988), which also fixed track styling issues [#1942](https://github.com/GMOD/Apollo/pull/1942)
 - Moved to Neat Features as the default  [2021](https://github.com/GMOD/Apollo/pull/2021)
-- Improved terminator annoation [1997](https://github.com/GMOD/Apollo/pull/1997)
+- Improved terminator annotation [1997](https://github.com/GMOD/Apollo/pull/1997)
 
 
 Bug Fixes

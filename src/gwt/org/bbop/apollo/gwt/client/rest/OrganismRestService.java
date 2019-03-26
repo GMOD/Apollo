@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
@@ -26,6 +27,12 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback, "organism/findAllOrganisms");
     }
 
+    public static void loadOrganisms(Boolean publicOnly, Boolean showObsoletes, RequestCallback requestCallback) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("publicOnly",JSONBoolean.getInstance(publicOnly));
+        jsonObject.put("showObsolete",JSONBoolean.getInstance(showObsoletes));
+        RestService.sendRequest(requestCallback, "organism/findAllOrganisms","data="+jsonObject.toString());
+    }
 
     public static void loadOrganisms(final List<OrganismInfo> organismInfoList) {
         RequestCallback requestCallback = new RequestCallback() {
@@ -84,6 +91,14 @@ public class OrganismRestService {
 
     public static void deleteOrganism(RequestCallback requestCallback, OrganismInfo organismInfo) {
         RestService.sendRequest(requestCallback,"organism/deleteOrganism", OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo));
+    }
+
+    public static void removeTrack(RequestCallback requestCallback, OrganismInfo organismInfo,String trackName) {
+        JSONObject data = new JSONObject();
+        JSONObject organismObject = OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo);
+        data.put(FeatureStringEnum.ORGANISM.getValue(),organismObject);
+        data.put(FeatureStringEnum.TRACK_LABEL.getValue(),new JSONString(trackName));
+        RestService.sendRequest(requestCallback,"organism/removeTrackFromOrganism", data);
     }
 
     public static void switchOrganismById(String newOrganismId) {

@@ -39,31 +39,14 @@
             word-wrap: break-word;
         }
 
-        .assemblage-buttons {
+        .action-buttons {
             margin-right: 10px;
+            display: inline;
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
         <gwt:north size="120">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
-                <!--<b:Row styleName="{style.rowPadding}">-->
-                    <!--<b:Column size="MD_6">-->
-                        <!--<b:TextBox placeholder="Annotation Name"-->
-                                   <!--ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_5">-->
-                        <!--<b:ListBox ui:field="typeList"  addStyleNames="{style.widgetBox}"/>-->
-                    <!--</b:Column>-->
-                    <!--<b:Column size="MD_6">-->
-                        <!--<b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>-->
-                    <!--</b:Column>-->
-                <!--&lt;!&ndash;</b:Row>&ndash;&gt;-->
-                <!--&lt;!&ndash;<b:Row styleName="{style.rowPadding}">&ndash;&gt;-->
-                    <!--<b:Column size="MD_5">-->
-                        <!--<b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>-->
-                    <!--</b:Column>-->
-                <!--</b:Row>-->
-
                 <b:Row styleName="{style.rowPadding}">
                     <b:Column size="MD_6">
                         <b:TextBox placeholder="Annotation Name"
@@ -83,106 +66,96 @@
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_4">
-                        <!--<gwt:SuggestBox ui:field="sequenceList" width="200px"/>-->
-                        <!--<b:Button type="PRIMARY" icon="BOOKMARK" text="+" size="EXTRA_SMALL" title="Add new assemblage"-->
-                                  <!--ui:field="addNewAssemblage" enabled="false"-->
-                                  <!--addStyleNames="{style.assemblage-buttons}"/>-->
-
-                        <!--<b:ButtonGroup>-->
-                            <!--<b:Button type="PRIMARY" icon="EYE" text="+" size="EXTRA_SMALL" title="Add to view"-->
-                                      <!--ui:field="addToView" enabled="false" addStyleNames="{style.assemblage-buttons}"/>-->
-                            <!--<b:Button type="PRIMARY" icon="EYE" title="View" size="EXTRA_SMALL"-->
-                                      <!--ui:field="viewAnnotation" enabled="false"-->
-                                      <!--addStyleNames="{style.assemblage-buttons}"/>-->
-                        <!--</b:ButtonGroup>-->
-                        <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE" text="Go to Annotation"
-                                  ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.assemblage-buttons}"/>
+                </b:Row>
+                <b:Row>
+                    <b:Column size="MD_10">
+                        <b:ButtonGroup>
+                            <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"
+                                      text="Go to Annotation"
+                                      ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.action-buttons}"/>
+                            <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
+                                      text="Delete Annotation"
+                                      ui:field="deleteAnnotation" enabled="false"
+                                      addStyleNames="{style.action-buttons}"/>
+                        </b:ButtonGroup>
                     </b:Column>
                 </b:Row>
-            </b:Container>
-        </gwt:north>
-        <gwt:center>
-            <gwt:DockLayoutPanel>
-                <gwt:north size="30">
-                    <gwt:HTMLPanel>
-                        <table style="width:100%">
-                            <tr>
-                                <td style="width:20%">
-                                    <!--<b:Button ui:field="selectSelectedButton" size="EXTRA_SMALL" enabled="false" icon="CHECK_CIRCLE" marginLeft="10"/>-->
-                                </td>
-                                <td align="center">
-                                    <apollo:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
-                                </td>
-                                <td style="width:20%"/>
-                            </tr>
-                        </table>
-                    </gwt:HTMLPanel>
-                </gwt:north>
-                <gwt:center>
-                    <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
-                </gwt:center>
-            </gwt:DockLayoutPanel>
-        </gwt:center>
-        <gwt:south size="280">
-            <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
-                <gwt:tab>
-                    <gwt:header>Details</gwt:header>
-                    <b:Container fluid="true" width="100%">
-                        <b:Row>
-                            <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
-                            <apollo:VariantDetailPanel ui:field="variantDetailPanel" visible="false"/>
-                            <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
-                            <apollo:RepeatRegionDetailPanel ui:field="repeatRegionDetailPanel" visible="false"/>
-                            <!--<apollo:ExonDetailPanel ui:field="exonDetailPanel" visible="false"/>-->
-                            <!--<apollo:CDSDetailPanel ui:field="cdsDetailPanel" visible="false"/>-->
-                        </b:Row>
-                    </b:Container>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Coding</gwt:header>
-                    <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Alternate Alleles</gwt:header>
-                    <apollo:VariantAllelesPanel ui:field="variantAllelesPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Variant Info</gwt:header>
-                    <apollo:VariantInfoPanel ui:field="variantInfoPanel"/>
-                </gwt:tab>
-                <gwt:tab>
-                    <gwt:header>Allele Info</gwt:header>
-                    <apollo:AlleleInfoPanel ui:field="alleleInfoPanel"/>
-                </gwt:tab>
+        </b:Container>
+    </gwt:north>
+    <gwt:center>
+        <gwt:DockLayoutPanel>
+            <gwt:north size="30">
+                <gwt:HTMLPanel>
+                    <table style="width:100%">
+                        <tr>
+                            <td style="width:20%">
+                            </td>
+                            <td align="center">
+                                <apollo:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
+                            </td>
+                            <td style="width:20%"/>
+                        </tr>
+                    </table>
+                </gwt:HTMLPanel>
+            </gwt:north>
+            <gwt:center>
+                <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
+            </gwt:center>
+        </gwt:DockLayoutPanel>
+    </gwt:center>
+    <gwt:south size="280">
+        <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
+            <gwt:tab>
+                <gwt:header>Details</gwt:header>
+                <b:Container fluid="true" width="100%">
+                    <b:Row>
+                        <apollo:GeneDetailPanel ui:field="geneDetailPanel" visible="false"/>
+                        <apollo:VariantDetailPanel ui:field="variantDetailPanel" visible="false"/>
+                        <apollo:TranscriptDetailPanel ui:field="transcriptDetailPanel" visible="false"/>
+                        <apollo:RepeatRegionDetailPanel ui:field="repeatRegionDetailPanel" visible="false"/>
+                    </b:Row>
+                </b:Container>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>Coding</gwt:header>
+                <apollo:ExonDetailPanel ui:field="exonDetailPanel"/>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>Alternate Alleles</gwt:header>
+                <apollo:VariantAllelesPanel ui:field="variantAllelesPanel"/>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>Variant Info</gwt:header>
+                <apollo:VariantInfoPanel ui:field="variantInfoPanel"/>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>Allele Info</gwt:header>
+                <apollo:AlleleInfoPanel ui:field="alleleInfoPanel"/>
+            </gwt:tab>
 
-                <!--TODO: 2.1-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>DbXref</gwt:header>-->
-                <!--<gwt:HTML text="dbxref"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>PubMed</gwt:header>-->
-                <!--<gwt:HTML text="pubmed stuf"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Attributes</gwt:header>-->
-                <!--<gwt:HTML text="attributes"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>GO Evidence</gwt:header>-->
-                <!--<gwt:HTML text="go evidence"/>-->
-                <!--</gwt:tab>-->
-                <!--<gwt:tab>-->
-                <!--<gwt:header>Comments</gwt:header>-->
-                <!--<gwt:HTML text="comments"/>-->
-                <!--</gwt:tab>-->
+            <!--TODO: 2.1-->
+            <!--<gwt:tab>-->
+            <!--<gwt:header>DbXref</gwt:header>-->
+            <!--<gwt:HTML text="dbxref"/>-->
+            <!--</gwt:tab>-->
+            <!--<gwt:tab>-->
+            <!--<gwt:header>PubMed</gwt:header>-->
+            <!--<gwt:HTML text="pubmed stuf"/>-->
+            <!--</gwt:tab>-->
+            <!--<gwt:tab>-->
+            <!--<gwt:header>Attributes</gwt:header>-->
+            <!--<gwt:HTML text="attributes"/>-->
+            <!--</gwt:tab>-->
+            <!--<gwt:tab>-->
+            <!--<gwt:header>GO Evidence</gwt:header>-->
+            <!--<gwt:HTML text="go evidence"/>-->
+            <!--</gwt:tab>-->
+            <!--<gwt:tab>-->
+            <!--<gwt:header>Comments</gwt:header>-->
+            <!--<gwt:HTML text="comments"/>-->
+            <!--</gwt:tab>-->
 
-            </gwt:TabLayoutPanel>
-            <!--</gwt:VerticalPanel>-->
-        </gwt:south>
-    </gwt:DockLayoutPanel>
-    <!--<gwt:HTMLPanel>-->
-
-    <!--</gwt:HTMLPanel>-->
-</ui:UiBinder>
+        </gwt:TabLayoutPanel>
+    </gwt:south>
+</gwt:DockLayoutPanel>
+        </ui:UiBinder>

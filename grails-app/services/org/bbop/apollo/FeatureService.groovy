@@ -156,6 +156,19 @@ class FeatureService {
         }
     }
 
+    @Transactional
+    def addOwnersByString(def username,Feature... features){
+        User owner = User.findByUsername(username as String)
+        if (owner && features) {
+            log.debug "setting owner for feature ${features} to ${owner}"
+            features.each{
+                it.addToOwners(owner)
+            }
+        } else {
+            log.warn "user ${owner} or feature ${features} is null so not setting"
+        }
+    }
+
     /**
      * From Gene.addTranscript
      * @return
@@ -281,7 +294,7 @@ class FeatureService {
                         }
 
                         if (!suppressHistory) {
-                            tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene.name)
+                            tmpTranscript.name = nameService.generateUniqueName(tmpTranscript, tmpGene?.name)
                         }
 
                         // setting back the original name for transcript
@@ -1409,6 +1422,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 gsolFeature.setLastUpdated(new Date(jsonFeature.getInt(FeatureStringEnum.TIMELASTMODIFIED.value)));
             } else {
                 gsolFeature.setLastUpdated(new Date());
+            }
+            if(configWrapperService.storeOrigId()){
+                if (jsonFeature.has(FeatureStringEnum.ORIG_ID.value)) {
+                    FeatureProperty gsolProperty = new FeatureProperty()
+                    gsolProperty.setTag(FeatureStringEnum.ORIG_ID.value)
+                    gsolProperty.setValue(jsonFeature.get(FeatureStringEnum.ORIG_ID.value))
+                    gsolProperty.setFeature(gsolFeature)
+                    gsolProperty.save()
+                    gsolFeature.addToFeatureProperties(gsolProperty)
+                }
             }
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
