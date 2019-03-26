@@ -1686,6 +1686,89 @@ define([
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
+            viewVariantEffect: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                console.log('selected',selected)
+                var feature = selected[0].feature ;
+                // var location = feature.afeature.location ;
+                var variant_type = feature.data.type;
+
+                // TODO: may have to get review the alteration data to see
+
+                // an array
+                var alternate_alleles = feature.afeature.alternate_alleles[0].bases;
+                var reference_allele = feature.afeature.reference_allele.bases;
+                var residues = '';
+
+
+                var alteration_type = '';
+                switch(variant_type){
+                    case 'SNV':
+                    case 'SNP':
+                    case 'indel':
+                    case 'MNV':
+                    case 'MNP':
+                    case 'substitution':
+                        alteration_type = 'substitution_artifact';
+                        residues = alternate_alleles;
+                        break;
+                    case 'insertion':
+                        alteration_type = 'insertion_artifact';
+                        var foundIndex = alternate_alleles.indexOf(reference_allele);
+                        residues = alternate_alleles.substr(foundIndex);
+                        break;
+                    case 'deletion':
+                        alteration_type = 'deletion_artifact';
+                        break;
+                    default:
+                        alert('I do not know what to do with type: '+variant_type);
+                        return ;
+                }
+
+                var description = 'Effect of ' + variant_type + ' '  + feature.data.name;
+
+                var feature = {
+                    location: {
+                        fmin: feature.data.start,
+                        fmax: feature.data.end,
+                        strand: 1
+                    },
+                    type: {
+                        name: alteration_type,
+                        cv: {
+                            name: "sequence"
+                        }
+                    },
+                    non_reserved_properties : [
+                        {
+                            tag: "justification",
+                            value: description
+                        },
+                        {
+                            tag: "variant_effect",
+                            value: true
+                        }
+                    ]
+                };
+                if (alteration_type !== "deletion_artifact") {
+                // get alternate_alleles . . . somehow
+                    feature.residues = residues ;
+                }
+
+                var features = [feature];
+                var postData = {
+                    "track": trackName,
+                    "features": features,
+                    "operation": "add_sequence_alteration",
+                    "clientToken": track.getClientToken()
+                };
+                this.selectionManager.clearSelection();
+                track.executeUpdateOperation(JSON.stringify(postData));
+                track.changed();
+            },
+
             mergeAnnotations: function (selection) {
                 var track = this;
                 var annots = [];
@@ -6833,7 +6916,18 @@ define([
                     });
                     annot_context_menu.addChild(dissociateTranscriptToGeneItem);
                     contextMenuItems["dissociate_transcript_from_gene"] = index++;
-                    //
+
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+
+                    var viewVariantEffect = new dijit.MenuItem({
+                        label: "View Variant Effect",
+                        onClick: function () {
+                            thisB.viewVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(viewVariantEffect);
+                    contextMenuItems["view_variant_effect"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -7237,6 +7331,7 @@ define([
                 this.updateSetLongestOrfMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
+                this.updateViewVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7296,6 +7391,23 @@ define([
                 }
                 else {
                     menuItem.set("disabled", true);
+                }
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateViewVariantEffect: function(){
+                var menuItem = this.getMenuItem("view_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length !== 1) {
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    // TODO: search for sequence alterations in that space?
+                    menuItem.set("disabled", false);
                 }
             },
 
