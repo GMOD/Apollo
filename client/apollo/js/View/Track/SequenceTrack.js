@@ -528,6 +528,7 @@ function( declare,
                                              containerStart, containerEnd) {
                     var featDiv =
                         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
+                    console.log('rendering feature',feature,featDiv)
                     $(featDiv).addClass("sequence-alteration-artifact");
 
                     var charSize = this.webapollo.getSequenceCharacterSize();

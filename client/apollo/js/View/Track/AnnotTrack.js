@@ -7364,7 +7364,6 @@ define([
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
                 this.updateViewVariantEffect();
-                this.updateHideVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7432,23 +7431,6 @@ define([
              */
             updateViewVariantEffect: function(){
                 var menuItem = this.getMenuItem("view_variant_effect");
-                var selected = this.selectionManager.getSelection();
-                menuItem.set("disabled", true);
-                if (selected.length !== 1) {
-                    return;
-                }
-                var currentType = selected[0].feature.get('type');
-                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
-                    // TODO: search for sequence alterations in that space?
-                    menuItem.set("disabled", false);
-                }
-            },
-
-            /**
-             * TODO, scale to multiple, just one for right now
-             */
-            updateHideVariantEffect: function(){
-                var menuItem = this.getMenuItem("hide_variant_effect");
                 var selected = this.selectionManager.getSelection();
                 menuItem.set("disabled", true);
                 if (selected.length !== 1) {

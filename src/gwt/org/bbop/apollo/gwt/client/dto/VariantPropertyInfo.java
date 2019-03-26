@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONValue;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONObject;
@@ -18,7 +19,11 @@ public class VariantPropertyInfo {
 
     public VariantPropertyInfo(JSONObject variantPropertyInfoJsonObject) {
         String tag = variantPropertyInfoJsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue();
-        String value = variantPropertyInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue();
+        JSONValue testValue = variantPropertyInfoJsonObject.get(FeatureStringEnum.VALUE.getValue());
+        String value = null ;
+        if(testValue!=null){
+            value = variantPropertyInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue();
+        }
         this.tag = tag;
         this.value = value;
     }
