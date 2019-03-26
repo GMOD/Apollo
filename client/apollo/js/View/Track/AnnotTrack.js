@@ -1727,7 +1727,7 @@ define([
                         return ;
                 }
 
-                var description = 'Effect of ('+variant_type+') '  + feature.data.name;
+                var description = 'Effect of ' + variant_type + ' '  + feature.data.name;
 
                 var feature = {
                     location: {
@@ -1745,6 +1745,10 @@ define([
                         {
                             tag: "justification",
                             value: description
+                        },
+                        {
+                            tag: "variant_effect",
+                            value: true
                         }
                     ]
                 };
@@ -6947,15 +6951,15 @@ define([
                     });
                     annot_context_menu.addChild(viewVariantEffect);
                     contextMenuItems["view_variant_effect"] = index++;
-                    //
-                    var hideVariantEffect = new dijit.MenuItem({
-                        label: "Hide Variant Effect",
-                        onClick: function () {
-                            thisB.hideVariantEffect();
-                        }
-                    });
-                    annot_context_menu.addChild(hideVariantEffect);
-                    contextMenuItems["hide_variant_effect"] = index++;
+                    // //
+                    // var hideVariantEffect = new dijit.MenuItem({
+                    //     label: "Hide Variant Effect",
+                    //     onClick: function () {
+                    //         thisB.hideVariantEffect();
+                    //     }
+                    // });
+                    // annot_context_menu.addChild(hideVariantEffect);
+                    // contextMenuItems["hide_variant_effect"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
