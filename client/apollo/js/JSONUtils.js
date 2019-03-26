@@ -190,9 +190,13 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
     var loc = afeature.location;
     var uid = afeature.uniquename;
     var justification;
+    var variant_effect = false ;
     for (var i = 0; i < afeature.properties.length; i++) {
-        if (afeature.properties[i].type.name === "justification") {
+        if (afeature.properties[i].name === "justification") {
             justification = afeature.properties[i].value;
+        }
+        if (afeature.properties[i].name === "variant_effect") {
+            variant_effect = afeature.properties[i].value;
         }
     }
 
@@ -205,7 +209,8 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
             type:     afeature.type.name,
             residues: afeature.residues,
             seq:      afeature.residues,
-            justification: justification
+            justification: justification,
+            variant_effect: variant_effect
         },
         id: uid
     });
