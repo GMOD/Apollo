@@ -178,7 +178,7 @@
                                           icon="PLUS_CIRCLE"/>
                                 <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true"
                                           icon="UPLOAD"/>
-                                <b:Button ui:field="downloadOrganismButton" text="Download" enabled="true"
+                                <b:Button ui:field="downloadOrganismButton" text="Download" enabled="true" visible="false"
                                           icon="DOWNLOAD"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false" icon="TRASH_O"
                                           styleName="{style.inline-button}"
