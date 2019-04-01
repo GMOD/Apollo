@@ -141,4 +141,7 @@ public class OrganismRestService {
 
         RestService.sendRequest(requestCallback,"annotator/setCurrentSequence/"+ newSequenceId);
     }
+
+    public static void downloadOrganism(OrganismInfo selectedObject, RequestCallback requestCallback) {
+    }
 }

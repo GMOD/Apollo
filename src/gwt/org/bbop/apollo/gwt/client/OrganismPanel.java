@@ -99,6 +99,8 @@ public class OrganismPanel extends Composite {
     @UiField
     Button uploadOrganismButton;
     @UiField
+    Button downloadOrganismButton;
+    @UiField
     FormPanel newOrganismForm;
     @UiField
     TextBox organismUploadName;
@@ -314,6 +316,7 @@ public class OrganismPanel extends Composite {
         nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
         nonDefaultTranslationTable.setEnabled(isEditable);
 
+        downloadOrganismButton.setVisible(true);
         deleteButton.setVisible(isEditable);
         deleteButton.setEnabled(isEditable);
     }
@@ -366,6 +369,22 @@ public class OrganismPanel extends Composite {
     @UiHandler("uploadOrganismButton")
     public void uploadOrganismButton(ClickEvent event) {
         addOrganismFromSequencePanel.show();
+    }
+
+    @UiHandler("downloadOrganismButton")
+    public void downloadOrganismButton(ClickEvent event) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Window.alert("organism: "+response.getText());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Failed to download organism track: "+exception.getMessage());
+            }
+        };
+        OrganismRestService.downloadOrganism( singleSelectionModel.getSelectedObject(), requestCallback );
     }
 
     @UiHandler("saveNewOrganism")
@@ -423,6 +442,7 @@ public class OrganismPanel extends Composite {
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
         uploadOrganismButton.setVisible(false);
+        downloadOrganismButton.setVisible(singleSelectionModel.getSelectedObject()!=null);
         cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
         createButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
@@ -488,6 +508,7 @@ public class OrganismPanel extends Composite {
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
         newButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
         uploadOrganismButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
+        downloadOrganismButton.setVisible(singleSelectionModel.getSelectedObject()!=null);
         deleteButton.setVisible(false);
         createButton.setVisible(false);
         cancelButton.setVisible(false);
@@ -596,6 +617,7 @@ public class OrganismPanel extends Composite {
         setTextEnabled(false);
 
         deleteButton.setVisible(false);
+        downloadOrganismButton.setVisible(false);
     }
 
     private void changeButtonSelection() {
@@ -605,12 +627,13 @@ public class OrganismPanel extends Composite {
     // Set the button states/visibility depending on whether there is a selection or not
     private void changeButtonSelection(boolean selection) {
         //Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
-        Boolean isAdmin = MainPanel.getInstance().isCurrentUserInstructorOrBetter();
+        boolean isAdmin = MainPanel.getInstance().isCurrentUserInstructorOrBetter();
         if (selection) {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
             deleteButton.setVisible(isAdmin);
             createButton.setVisible(false);
+            downloadOrganismButton.setVisible(true);
             cancelButton.setVisible(false);
             duplicateButton.setVisible(isAdmin);
             publicMode.setVisible(isAdmin);
@@ -619,6 +642,7 @@ public class OrganismPanel extends Composite {
             newButton.setEnabled(isAdmin);
             newButton.setVisible(isAdmin);
             createButton.setVisible(false);
+            downloadOrganismButton.setVisible(false);
             cancelButton.setVisible(false);
             deleteButton.setVisible(false);
             duplicateButton.setVisible(false);
