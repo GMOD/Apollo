@@ -88,6 +88,9 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
+See `sample-*.groovy` for example sections: https://github.com/GMOD/Apollo/blob/develop/sample-h2-apollo-config.groovy#L112-L146
+
+
 
 ### Translation tables
 
