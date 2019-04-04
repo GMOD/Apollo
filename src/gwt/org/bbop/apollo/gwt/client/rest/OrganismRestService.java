@@ -142,6 +142,36 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback,"annotator/setCurrentSequence/"+ newSequenceId);
     }
 
-    public static void downloadOrganism(OrganismInfo selectedObject, RequestCallback requestCallback) {
+    public static void downloadOrganism(final OrganismInfo organismInfo) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("organismId",new JSONString(organismInfo.getId()));
+        jsonObject.put("organismName",new JSONString(organismInfo.getId()));
+        jsonObject.put("directory",new JSONString(organismInfo.getDirectory()));
+        jsonObject.put("organism",organismInfo.toJSON());
+//        String type = exportPanel.getType();
+//        jsonObject.put("type", new JSONString(exportPanel.getType()));
+//        jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                GWT.log("Responded: "+responseObject.toString());
+                String uuid = responseObject.get("uuid").isString().stringValue();
+                String exportType = responseObject.get("exportType").isString().stringValue();
+                String sequenceType = responseObject.get("seqType").isString().stringValue();
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType+"&format=gzip";
+//                exportPanel.setExportUrl(exportUrl);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error: " + exception);
+            }
+        };
+
+
+        RestService.sendRequest(requestCallback, "organism/download", "data=" + jsonObject.toString());
     }
+
 }

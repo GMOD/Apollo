@@ -373,18 +373,18 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("downloadOrganismButton")
     public void downloadOrganismButton(ClickEvent event) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                Window.alert("organism: "+response.getText());
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Failed to download organism track: "+exception.getMessage());
-            }
-        };
-        OrganismRestService.downloadOrganism( singleSelectionModel.getSelectedObject(), requestCallback );
+//        RequestCallback requestCallback = new RequestCallback() {
+//            @Override
+//            public void onResponseReceived(Request request, Response response) {
+//                Window.alert("organism: "+response.getText());
+//            }
+//
+//            @Override
+//            public void onError(Request request, Throwable exception) {
+//                Bootbox.alert("Failed to download organism track: "+exception.getMessage());
+//            }
+//        };
+        OrganismRestService.downloadOrganism( singleSelectionModel.getSelectedObject());
     }
 
     @UiHandler("saveNewOrganism")
