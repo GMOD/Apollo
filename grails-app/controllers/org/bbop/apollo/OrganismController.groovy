@@ -1443,7 +1443,7 @@ class OrganismController {
             , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
     ]
     )
-    def downloadOrganism(){
+    def download(){
         println "pramas "
         println params
         println request.JSON
@@ -1468,10 +1468,11 @@ class OrganismController {
 //        return tarFile;
 
         File downloadFile = File.createTempFile("prefix","suffix")
-        def file = new File(downloadFile+".gzip")
-        response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
+        downloadFile.write("asdfadsf")
+//        def file = new File(downloadFile+".gzip")
+        response.setHeader("Content-disposition", "attachment; filename=${downloadFile.name}.gzip")
 //        if (params.format == "gzip") {
-        new GZIPOutputStream(response.outputStream).withWriter { it << file.text }
+        new GZIPOutputStream(response.outputStream).withWriter { it << downloadFile.text }
 //            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
 //            output << file.text
 //        }
@@ -1482,6 +1483,6 @@ class OrganismController {
 //            outputStream.close()
 //        }
 
-        file.delete()
+        downloadFile.delete()
     }
 }
