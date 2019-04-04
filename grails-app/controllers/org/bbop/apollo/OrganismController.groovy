@@ -1467,22 +1467,23 @@ class OrganismController {
 //
 //        return tarFile;
 
-        File downloadFile = File.createTempFile("prefix","suffix")
+        File downloadFile = File.createTempFile("prefix","suffix").deleteOnExit()
         downloadFile.write("asdfadsf")
 //        def file = new File(downloadFile+".gzip")
-        response.setHeader("Content-disposition", "attachment; filename=${downloadFile.name}.gzip")
+        response.setContentType("application/octet-stream") // or or image/JPEG or text/xml or whatever type the file is
+        response.setHeader("Content-disposition", "attachment; filename=abcd.gzip")
 //        if (params.format == "gzip") {
-        new GZIPOutputStream(response.outputStream).withWriter { it << downloadFile.text }
+//        new GZIPOutputStream(response.outputStream).withWriter { it << downloadFile.text }
 //            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
 //            output << file.text
 //        }
 //    else {
-//            def outputStream = response.outputStream
-//            outputStream << file.text
-//            outputStream.flush()
-//            outputStream.close()
+            def outputStream = response.outputStream
+            outputStream << downloadFile.text
+            outputStream.flush()
+            outputStream.close()
 //        }
 
-        downloadFile.delete()
+//        downloadFile.delete()
     }
 }
