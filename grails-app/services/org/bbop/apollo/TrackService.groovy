@@ -647,7 +647,7 @@ class TrackService {
     String getCommonDataDirectory() {
         // TODO: cache?
         ApplicationPreference commonDataPreference = ApplicationPreference.findByName(FeatureStringEnum.COMMON_DATA_DIRECTORY.value)
-        return commonDataPreference.value
+        return commonDataPreference?.value
     }
 
     /**
