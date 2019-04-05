@@ -571,6 +571,17 @@ By default the native tracklist is off, but can be added.  For new users if you 
        native_track_selector_default_on = true
     }
 
+### Set Common Data Directory in the config
+
+The `common_data_directory` is where uploaded and processed jbrowse tracks will go. 
+
+This should be server-writable space on your system that is not deleted (note `/tmp` is deleted periodically on most unix systems). 
+
+    common_data_directory = "/opt/temporary/apollo"
+
+If you don't plan to use these features, then `/tmp` might be fine.  
+
+In general it will create a directory for you at `$HOME/apollo_data` if not otherwise specified or will allow you to set one from the command-line.
 
 ### Adding tracks via addStores
 
