@@ -6078,7 +6078,8 @@ define([
 
                 var copyValueLabel = dojo.create("div", {
                     innerHTML: "",
-                    id: 'copy_value_id'
+                    id: 'copy_value_id',
+                    className: "copy_value_label"
                 }, content);
 
                 var textArea = dojo.create("textarea", {id:'sequence_text_area',className: "sequence_area", readonly: true}, content);
@@ -6132,16 +6133,11 @@ define([
                 }, genomicWithFlankButtonDiv);
 
                 dojo.connect(copyButton,'onclick',function(){
-                    // var sequence_value_area = document.getElementById("sequence_text_area").value
                     var el = document.getElementById("sequence_text_area")
                     el.select();
                     document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
-                    // el.unselect();
                     document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
                     copyValueLabel.innerHTML = 'Copied!';
-                    // document.getSelection().addRange(selected);
-                    // document.body.removeChild(el);
-                    // alert('copying'+sequence_value_area)
                 });
 
                 var fetchSequence = function (type) {
@@ -6213,22 +6209,27 @@ define([
                     if (target == peptideButton || target == peptideButtonLabel) {
                         dojo.attr(peptideButton, "checked", true);
                         type = "peptide";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == cdnaButton || target == cdnaButtonLabel) {
                         dojo.attr(cdnaButton, "checked", true);
                         type = "cdna";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == cdsButton || target == cdsButtonLabel) {
                         dojo.attr(cdsButton, "checked", true);
                         type = "cds";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == genomicButton || target == genomicButtonLabel) {
                         dojo.attr(genomicButton, "checked", true);
                         type = "genomic";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == genomicWithFlankButton || target == genomicWithFlankButtonLabel) {
                         dojo.attr(genomicWithFlankButton, "checked", true);
                         type = "genomic_with_flank";
+                        copyValueLabel.innerHTML = '';
                     }
                     fetchSequence(type);
                 };
