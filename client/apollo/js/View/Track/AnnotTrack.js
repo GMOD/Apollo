@@ -665,6 +665,12 @@ define([
                             if (event.altKey) {
                                 track.getAnnotationInfoEditor();
                             }
+                            if (event.metaKey) {
+                                track.getSequence();
+                            }
+                            if (event.metaKey && event.altKey) {
+                                track.getGff3();
+                            }
                         })
                     ;
                 }
@@ -2249,6 +2255,9 @@ define([
             getAnnotationInfoEditorForSelectedFeatures: function (records) {
                 var track = this;
                 var record = records[0];
+                if(!record){
+                    console.log('No record selected');
+                }
                 var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
                 var seltrack = record.track;
                 // just checking to ensure that all features in selection are from this
@@ -6742,7 +6751,7 @@ define([
                 var permission = thisB.permission;
                 var index = 0;
                 annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "Get Sequence",
+                    label: "Get Sequence (meta-click)",
                     onClick: function (event) {
                         thisB.getSequence();
                     }
@@ -6750,7 +6759,7 @@ define([
                 contextMenuItems["get_sequence"] = index++;
 
                 annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "Get GFF3",
+                    label: "Get GFF3 (alt-meta-click)",
                     onClick: function (event) {
                         thisB.getGff3();
                     }
