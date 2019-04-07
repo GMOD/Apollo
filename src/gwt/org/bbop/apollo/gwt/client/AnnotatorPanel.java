@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -48,6 +49,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -80,7 +82,7 @@ public class AnnotatorPanel extends Composite {
     private static String selectedChildUniqueName = null;
 
     private static int selectedSubTabIndex = 0;
-
+    private static int pageSize = 25;
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
@@ -93,7 +95,7 @@ public class AnnotatorPanel extends Composite {
     private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
     @UiField(provided = true)
-    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
+    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(pageSize, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = null;
 
@@ -127,6 +129,10 @@ public class AnnotatorPanel extends Composite {
     static Button gotoAnnotation;
     @UiField
     static Button deleteAnnotation;
+    @UiField
+    CheckBox toggleAnnotation;
+    @UiField
+    com.google.gwt.user.client.ui.ListBox pageSizeSelector;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -308,6 +314,12 @@ public class AnnotatorPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
 
+        pageSizeSelector.addItem("10");
+        pageSizeSelector.addItem("25");
+        pageSizeSelector.addItem("50");
+        pageSizeSelector.addItem("100");
+        pageSizeSelector.addItem("500");
+        pageSizeSelector.setSelectedIndex(1);
 
         initializeTypes();
 
@@ -708,6 +720,12 @@ public class AnnotatorPanel extends Composite {
         reload(false);
     }
 
+    @UiHandler(value = {"pageSizeSelector"})
+    public void changePageSize(ChangeEvent changeEvent) {
+        pageSize = Integer.parseInt(pageSizeSelector.getSelectedValue());
+        dataGrid.setPageSize(pageSize);
+        reload();
+    }
 
     @UiHandler(value = {"typeList", "userField"})
     public void searchType(ChangeEvent changeEvent) {
@@ -732,6 +750,11 @@ public class AnnotatorPanel extends Composite {
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
+    }
+
+    @UiHandler("toggleAnnotation")
+    void toggleAnnotation(ClickEvent clickEvent) {
+        tabPanel.setVisible(toggleAnnotation.getValue());
     }
 
     @UiHandler("deleteAnnotation")
