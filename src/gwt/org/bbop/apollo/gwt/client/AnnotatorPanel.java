@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -95,7 +96,7 @@ public class AnnotatorPanel extends Composite {
     private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
     @UiField(provided = true)
-    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
+    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(30, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = null;
 
@@ -131,6 +132,8 @@ public class AnnotatorPanel extends Composite {
     static Button deleteAnnotation;
     @UiField
     CheckBox toggleAnnotation;
+    @UiField
+    com.google.gwt.user.client.ui.ListBox pageSizeSelector;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -312,6 +315,11 @@ public class AnnotatorPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
 
+        pageSizeSelector.addItem("10");
+        pageSizeSelector.addItem("25");
+        pageSizeSelector.addItem("50");
+        pageSizeSelector.addItem("100");
+        pageSizeSelector.addItem("500");
 
         initializeTypes();
 
@@ -712,6 +720,11 @@ public class AnnotatorPanel extends Composite {
         reload(false);
     }
 
+    @UiHandler(value = {"pageSizeSelector"})
+    public void changePageSize(ChangeEvent changeEvent) {
+        Window.alert("changing page size");
+//        reload();
+    }
 
     @UiHandler(value = {"typeList", "userField"})
     public void searchType(ChangeEvent changeEvent) {
