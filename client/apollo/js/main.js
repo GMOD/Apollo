@@ -436,7 +436,10 @@ return declare( [JBPlugin, HelpMixin],
                                             {
                                                     label: 'Logout',
                                                     onClick: function()  {
+                                                        var confirm_logout = confirm('Logout?')
+                                                        if(confirm_logout){
                                                             webapollo.getAnnotTrack().logout();
+                                                        }
                                                     }
                                             })
             );

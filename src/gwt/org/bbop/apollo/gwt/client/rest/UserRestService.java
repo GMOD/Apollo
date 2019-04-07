@@ -16,6 +16,7 @@ import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -113,7 +114,14 @@ public class UserRestService {
     }
 
     public static void logout() {
-        logout(null);
+        Bootbox.confirm("Logout?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    logout(null);
+                }
+            }
+        });
     }
 
     public static void logout(final String redirectUrl) {
