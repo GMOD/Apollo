@@ -6076,6 +6076,11 @@ define([
                     className:"copy_clipboard_button"
                 }, content);
 
+                var copyValueLabel = dojo.create("div", {
+                    innerHTML: "",
+                    id: 'copy_value_id'
+                }, content);
+
                 var textArea = dojo.create("textarea", {id:'sequence_text_area',className: "sequence_area", readonly: true}, content);
                 var form = dojo.create("form", {}, content);
                 var peptideButtonDiv = dojo.create("div", {className: "first_button_div"}, form);
@@ -6133,6 +6138,7 @@ define([
                     document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
                     // el.unselect();
                     document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+                    copyValueLabel.innerHTML = 'Copied!';
                     // document.getSelection().addRange(selected);
                     // document.body.removeChild(el);
                     // alert('copying'+sequence_value_area)
