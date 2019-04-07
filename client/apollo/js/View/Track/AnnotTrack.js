@@ -7908,7 +7908,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7935,7 +7935,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7962,7 +7962,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
