@@ -79,7 +79,7 @@ public class UserRestService {
     public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length, String searchNameString, String searchColumnString, Boolean sortAscending, Boolean showInactiveUsers) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("start", new JSONNumber(start < 0 ? 0 : start));
-        jsonObject.put("length", new JSONNumber(length < 0 ? 20 : length));
+        jsonObject.put("length", new JSONNumber(length < 0 ? 1000 : length));
         jsonObject.put("name", new JSONString(searchNameString));
         jsonObject.put("sortColumn", new JSONString(searchColumnString));
         jsonObject.put("sortAscending", JSONBoolean.getInstance(sortAscending));
