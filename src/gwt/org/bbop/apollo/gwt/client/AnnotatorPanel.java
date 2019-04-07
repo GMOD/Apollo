@@ -48,11 +48,13 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -127,6 +129,8 @@ public class AnnotatorPanel extends Composite {
     static Button gotoAnnotation;
     @UiField
     static Button deleteAnnotation;
+    @UiField
+    CheckBox toggleAnnotation;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -732,6 +736,11 @@ public class AnnotatorPanel extends Composite {
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
+    }
+
+    @UiHandler("toggleAnnotation")
+    void toggleAnnotation(ClickEvent clickEvent) {
+        tabPanel.setVisible(toggleAnnotation.getValue());
     }
 
     @UiHandler("deleteAnnotation")
