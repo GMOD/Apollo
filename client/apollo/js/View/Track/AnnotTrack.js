@@ -6162,7 +6162,7 @@ define([
                                 var residues = feature.residues;
                                 var loc = feature.location;
                                 textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
-                                var lineLength = 70;
+                                var lineLength = 60;
                                 for (var j = 0; j < residues.length; j += lineLength) {
                                     textAreaContent += residues.substr(j, lineLength) + "\n";
                                 }

@@ -1198,7 +1198,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             // Just in case the 5' end is missing, check to see if a longer
-            // translation can be obatained without looking for a start codon
+            // translation can be obtained without looking for a start codon
             startIndex = 0
             while (startIndex < 3) {
                 String mrnaSubstring = mrna.substring(startIndex)
