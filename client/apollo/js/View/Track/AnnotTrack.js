@@ -6069,7 +6069,14 @@ define([
                 var track = this;
 
                 var content = dojo.create("div", {className: "get_sequence"});
-                var textArea = dojo.create("textarea", {className: "sequence_area", readonly: true}, content);
+
+                var copyButton = dojo.create("button", {
+                    title: "Copy to Clipboard",
+                    innerHTML: "Copy to Clipboard",
+                    className:"copy_clipboard_button"
+                }, content);
+
+                var textArea = dojo.create("textarea", {id:'sequence_text_area',className: "sequence_area", readonly: true}, content);
                 var form = dojo.create("form", {}, content);
                 var peptideButtonDiv = dojo.create("div", {className: "first_button_div"}, form);
                 var peptideButton = dojo.create("input", {
@@ -6118,6 +6125,18 @@ define([
                     innerHTML: "bases",
                     className: "button_label"
                 }, genomicWithFlankButtonDiv);
+
+                dojo.connect(copyButton,'onclick',function(){
+                    // var sequence_value_area = document.getElementById("sequence_text_area").value
+                    var el = document.getElementById("sequence_text_area")
+                    el.select();
+                    document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+                    // el.unselect();
+                    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+                    // document.getSelection().addRange(selected);
+                    // document.body.removeChild(el);
+                    // alert('copying'+sequence_value_area)
+                });
 
                 var fetchSequence = function (type) {
                     var features = '"features": [';
