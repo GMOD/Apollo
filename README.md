@@ -21,8 +21,6 @@ Complete Apollo installation and configuration instructions are available from t
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
-[Planning Board](https://waffle.io/GMOD/Apollo)
-
 
 ## Setup guide
 
