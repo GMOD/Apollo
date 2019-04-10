@@ -4696,8 +4696,7 @@ define([
                         }
                         for (var i = 0; i < status.length; ++i) {
                             var statusRadioDiv = dojo.create("span", {
-                                'class': "annotation_info_editor_radio",
-                                style: "width:" + (maxLength * 0.75) + "em; display: inline;"
+                                'class': "annotation_info_editor_radio"
                             }, statusFlags);
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
