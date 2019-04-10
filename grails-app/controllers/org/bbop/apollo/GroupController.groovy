@@ -171,7 +171,7 @@ class GroupController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add, or a comma-delimited list of names")
     ]
     )
     @Transactional
@@ -186,27 +186,40 @@ class GroupController {
         // permissionService.currentUser is None when accessing by webservice
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
-        UserGroup group = new UserGroup(
-                name: dataObject.name,
-                // add metadata from webservice
-                metadata: dataObject.metadata ? dataObject.metadata.toString() : null
-        )
-        group.save(flush: true)
-        // allow specify the metadata creator through webservice, if not specified, take current user as the creator
-        if (!group.getMetaData(FeatureStringEnum.CREATOR.value)) {
-            log.debug "creator does not exist, set current user as the creator"
-            group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
+        println "input dataObject ${dataObject as JSON}"
+        String[] names = dataObject.name.split(",")
+        List<UserGroup> groups = []
+        println "adding groups ${names as JSON}"
+
+        for(name in names){
+            UserGroup group = new UserGroup(
+                    name: name,
+                    // add metadata from webservice
+                    metadata: dataObject.metadata ? dataObject.metadata.toString() : null
+            )
+            group.save()
+            // allow specify the metadata creator through webservice, if not specified, take current user as the creator
+            if (!group.getMetaData(FeatureStringEnum.CREATOR.value)) {
+                log.debug "creator does not exist, set current user as the creator"
+                group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
+            }
+            // assign group creator as group admin
+            def creatorId = group.getMetaData(FeatureStringEnum.CREATOR.value)
+            User creator = User.findById(creatorId)
+            group.addToAdmin(creator)
+            log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
+
+            log.info "Added group ${group.name}"
+            groups.add(group)
         }
-        // assign group creator as group admin
-        def creatorId = group.getMetaData(FeatureStringEnum.CREATOR.value)
-        User creator = User.findById(creatorId)
-        group.addToAdmin(creator)
-        log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
-
-        log.info "Added group ${group.name}"
-
-        render group as JSON
-
+        println "usring add groups ${groups as JSON}"
+//        groups[0].save(flush:true,failOnError: true)
+        if(groups.size()==1){
+            render groups[0] as JSON
+        }
+        else{
+            render groups as JSON
+        }
     }
 
     @RestApiMethod(description = "Delete a group", path = "/group/deleteGroup", verb = RestApiVerb.POST)
