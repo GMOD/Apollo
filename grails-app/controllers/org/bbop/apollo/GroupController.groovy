@@ -186,10 +186,9 @@ class GroupController {
         // permissionService.currentUser is None when accessing by webservice
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
-        println "input dataObject ${dataObject as JSON}"
         String[] names = dataObject.name.split(",")
         List<UserGroup> groups = []
-        println "adding groups ${names as JSON}"
+        log.info( "adding groups ${names as JSON}")
 
         for(name in names){
             UserGroup group = new UserGroup(
@@ -233,6 +232,9 @@ class GroupController {
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+
+
+
         UserGroup group = UserGroup.findById(dataObject.id)
         if (!group) {
             group = UserGroup.findByName(dataObject.name)
