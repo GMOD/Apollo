@@ -21,8 +21,6 @@ Complete Apollo installation and configuration instructions are available from t
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
-[Planning Board](https://waffle.io/GMOD/Apollo)
-
 
 ## Setup guide
 
@@ -36,6 +34,7 @@ Apollo may be launched from [Docker](docs/Setup.md#configure-for-docker) as well
 
 The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
 
+[Python library over web services](https://pypi.org/project/apollo/) and other [web services examples](https://github.com/GMOD/Apollo/tree/develop/docs/web_services/examples).
 
 ## Migrating data from older versions
 
