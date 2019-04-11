@@ -14,7 +14,7 @@ String usageString = "\nUSAGE: add_group.groovy <options>\n" +
 
 def cli = new CliBuilder(usage: usageString)
 cli.setStopAtNonOption(true)
-cli.name('group name that may be a comma separated list', required: true , args: 1)
+cli.name('group name that may be a comma separated list', required: true, args: 1)
 cli.url('Apollo URL', required: true, args: 1)
 cli.adminusername('Admin username', required: false, args: 1)
 cli.adminpassword('Admin password', required: false, args: 1)
@@ -27,11 +27,11 @@ def admin_password
 
 try {
     options = cli.parse(args)
-    if (options.url==null) {
+    if (options.url == null) {
         println "NOTE: Requires URL\n" + usageString
         return
     }
-    if (options.name==null) {
+    if (options.name == null) {
         println "NOTE: Requires a group name, organism and permissions as arguments\n" + usageString
         return
     }
@@ -74,8 +74,10 @@ def response = client.post(
         path: path,
         body: userArgument
 )
-if (response.data.error !=null ) {
-    println "Error while ading group: ${userArgument.name}\n${response.data.error}"
+if (response.status != 200) {
+    if (response.data.error != null) {
+        println "Error while ading group: ${userArgument.name}\n${response.data.error}"
+    }
 }
-assert response.status == 200
+println "added ${groupObject.name}"
 

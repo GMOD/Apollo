@@ -228,7 +228,10 @@ class GroupController {
         }
         else
         if(dataObject.name){
-            groupList = UserGroup.findAllByNameInList(dataObject.name.split(','))
+            List<String> splitGroups = dataObject.name.split(",") as List<String>
+            println splitGroups
+            println splitGroups.size()
+            groupList = UserGroup.findAllByNameInList(splitGroups)
         }
         if (!groupList) {
             def error = [error: "Group ${dataObject.name} not found"]
@@ -236,8 +239,6 @@ class GroupController {
             render error as JSON
             return
         }
-
-        log.info "group list to remove ${groupList.name}"
 
         groupService.deleteGroups(dataObject,currentUser,groupList)
 

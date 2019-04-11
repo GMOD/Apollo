@@ -74,8 +74,12 @@ def response = client.post(
         path: path,
         body: userArgument
 )
-if (response.data.error !=null ) {
-    println "Error while ading group: ${userArgument.name}\n${response.data.error}"
+if(response.status!=200){
+    if (response.data.error !=null ) {
+        println "Error while ading group: ${userArgument.name}\n${response.data.error}"
+    }
 }
-assert response.status == 200
+else{
+    println "Removed groups ${groupObject.name} successfully."
+}
 

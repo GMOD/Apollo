@@ -40,8 +40,9 @@ class GroupService {
 
     List<UserGroup> deleteGroups(JSONObject dataObject, User currentUser, List<UserGroup> groupList) {
 
+        println "rmoeving groups ${groupList as JSON}"
         for(UserGroup group in groupList){
-            log.info "Removing group ${group.name}"
+            println "Removing group ${group.name}"
             String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
             // to support webservice, get current user from session or input object
             // only allow global admin or group creator, or group admin to delete the group
@@ -65,7 +66,7 @@ class GroupService {
 
             group.save()
             group.delete()
-            log.info "Removed group ${group.name}"
+            println "Removed group ${group.name}"
         }
 
     }
