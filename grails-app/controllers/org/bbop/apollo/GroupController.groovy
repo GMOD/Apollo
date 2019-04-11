@@ -20,6 +20,7 @@ class GroupController {
 
     def permissionService
     def preferenceService
+    def groupService
 
     @RestApiMethod(description = "Get organism permissions for group", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
@@ -187,32 +188,11 @@ class GroupController {
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
         String[] names = dataObject.name.split(",")
-        List<UserGroup> groups = []
         log.info( "adding groups ${names as JSON}")
 
-        for(name in names){
-            UserGroup group = new UserGroup(
-                    name: name,
-                    // add metadata from webservice
-                    metadata: dataObject.metadata ? dataObject.metadata.toString() : null
-            )
-            group.save()
-            // allow specify the metadata creator through webservice, if not specified, take current user as the creator
-            if (!group.getMetaData(FeatureStringEnum.CREATOR.value)) {
-                log.debug "creator does not exist, set current user as the creator"
-                group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
-            }
-            // assign group creator as group admin
-            def creatorId = group.getMetaData(FeatureStringEnum.CREATOR.value)
-            User creator = User.findById(creatorId)
-            group.addToAdmin(creator)
-            log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
-
-            log.info "Added group ${group.name}"
-            groups.add(group)
-        }
+        List<UserGroup> groups = groupService.createGroups(dataObject.metadata,currentUser,names)
         println "usring add groups ${groups as JSON}"
-//        groups[0].save(flush:true,failOnError: true)
+
         if(groups.size()==1){
             render groups[0] as JSON
         }
@@ -226,52 +206,40 @@ class GroupController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to remove (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to remove")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name or comma-delimited list of names to remove")
     ]
     )
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
 
+        def currentUser = permissionService.getCurrentUser(dataObject)
 
-
-        UserGroup group = UserGroup.findById(dataObject.id)
-        if (!group) {
-            group = UserGroup.findByName(dataObject.name)
+        List<UserGroup> groupList
+        if(dataObject.id){
+            List<Long> ids
+            if(dataObject.id instanceof Integer){
+                ids = [dataObject.id as Integer]
+            }
+            if(dataObject.id instanceof String){
+                ids = dataObject.id.split(',').collect() as Long
+            }
+            groupList = UserGroup.findAllByIdInList(ids)
         }
-        if (!group) {
+        else
+        if(dataObject.name){
+            groupList = UserGroup.findAllByNameInList(dataObject.name.split(','))
+        }
+        if (!groupList) {
             def error = [error: "Group ${dataObject.name} not found"]
             log.error(error.error)
             render error as JSON
             return
         }
-        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
-        // to support webservice, get current user from session or input object
-        def currentUser = permissionService.getCurrentUser(dataObject)
-        // only allow global admin or group creator, or group admin to delete the group
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
-            //render status: HttpStatus.UNAUTHORIZED.value()
-            def error = [error: 'not authorized to delete the group']
-            log.error(error.error)
-            render error as JSON
-            return
-        }
-        log.info "Removing group"
 
-        List<User> users = group.users as List
-        users.each { it ->
-            it.removeFromUserGroups(group)
-            it.save()
-        }
+        log.info "group list to remove ${groupList.name}"
 
-        def groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
-        GroupOrganismPermission.deleteAll(groupOrganismPermissions)
-
-        log.info "Removing group ${group.name}"
-
-        group.save(flush: true)
-        group.delete(flush: true)
-
+        groupService.deleteGroups(dataObject,currentUser,groupList)
 
         render new JSONObject() as JSON
     }
