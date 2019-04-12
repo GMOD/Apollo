@@ -1,25 +1,22 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import htsjdk.samtools.reference.FastaSequenceFile
-import htsjdk.samtools.reference.FastaSequenceIndex
-import htsjdk.samtools.reference.FastaSequenceIndexCreator
-import htsjdk.samtools.reference.IndexedFastaSequenceFile
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-
 import grails.transaction.Transactional
+import groovy.json.JsonSlurper
+import htsjdk.samtools.reference.FastaSequenceIndex
+import htsjdk.samtools.reference.IndexedFastaSequenceFile
+import org.bbop.apollo.alteration.SequenceAlterationInContext
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.StandardTranslationTable
 import org.bbop.apollo.sequence.Strand
-import org.bbop.apollo.alteration.SequenceAlterationInContext
 import org.bbop.apollo.sequence.TranslationTable
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import groovy.json.JsonSlurper
-import org.hibernate.criterion.CriteriaSpecification
 import org.hibernate.sql.JoinType
 
 import java.util.zip.CRC32
+import java.util.zip.GZIPInputStream
 
 @Transactional
 class SequenceService {
@@ -37,8 +34,7 @@ class SequenceService {
     def trackService
 
 
-
-    List<FeatureLocation> getFeatureLocations(Sequence sequence){
+    List<FeatureLocation> getFeatureLocations(Sequence sequence) {
         FeatureLocation.findAllBySequence(sequence)
     }
 
@@ -50,12 +46,11 @@ class SequenceService {
     String getResiduesFromFeature(Feature feature) {
         String returnResidues = ""
         def orderedFeatureLocations = feature.featureLocations.sort { it.fmin }
-        for(FeatureLocation featureLocation in orderedFeatureLocations) {
+        for (FeatureLocation featureLocation in orderedFeatureLocations) {
             String residues = getResidueFromFeatureLocation(featureLocation)
-            if(featureLocation.strand == Strand.NEGATIVE.value) {
+            if (featureLocation.strand == Strand.NEGATIVE.value) {
                 returnResidues += SequenceTranslationHandler.reverseComplementSequence(residues)
-            }
-            else returnResidues += residues
+            } else returnResidues += residues
         }
 
 
@@ -63,12 +58,12 @@ class SequenceService {
     }
 
     String getResidueFromFeatureLocation(FeatureLocation featureLocation) {
-        return getRawResiduesFromSequence(featureLocation.sequence,featureLocation.fmin,featureLocation.fmax)
+        return getRawResiduesFromSequence(featureLocation.sequence, featureLocation.fmin, featureLocation.fmax)
     }
 
 
     String getGenomicResiduesFromSequenceWithAlterations(FlankingRegion flankingRegion) {
-        return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence,flankingRegion.fmin,flankingRegion.fmax,flankingRegion.strand)
+        return getGenomicResiduesFromSequenceWithAlterations(flankingRegion.sequence, flankingRegion.fmin, flankingRegion.fmax, flankingRegion.strand)
     }
 
     /**
@@ -79,9 +74,9 @@ class SequenceService {
      * @param strand
      * @return
      */
-    String getGenomicResiduesFromSequenceWithAlterations(Sequence sequence, int fmin, int fmax,Strand strand) {
-        String residueString = getRawResiduesFromSequence(sequence,fmin,fmax)
-        if(strand==Strand.NEGATIVE){
+    String getGenomicResiduesFromSequenceWithAlterations(Sequence sequence, int fmin, int fmax, Strand strand) {
+        String residueString = getRawResiduesFromSequence(sequence, fmin, fmax)
+        if (strand == Strand.NEGATIVE) {
             residueString = SequenceTranslationHandler.reverseComplementSequence(residueString)
         }
 
@@ -100,7 +95,7 @@ class SequenceService {
                         le("fl.fmax", fmax)
                     }
                 }
-                eq("s.id",sequence.id)
+                eq("s.id", sequence.id)
             }
         }.unique()
         log.debug "sequence alterations found ${sequenceAlterationList.size()}"
@@ -115,11 +110,9 @@ class SequenceService {
                 sa.fmax = alterationFmax
                 if (sequenceAlteration instanceof InsertionArtifact) {
                     sa.instanceOf = InsertionArtifact.canonicalName
-                }
-                else if (sequenceAlteration instanceof DeletionArtifact) {
+                } else if (sequenceAlteration instanceof DeletionArtifact) {
                     sa.instanceOf = DeletionArtifact.canonicalName
-                }
-                else if (sequenceAlteration instanceof SubstitutionArtifact) {
+                } else if (sequenceAlteration instanceof SubstitutionArtifact) {
                     sa.instanceOf = SubstitutionArtifact.canonicalName
                 }
                 sa.type = 'within'
@@ -129,19 +122,16 @@ class SequenceService {
                 sa.offset = sequenceAlteration.offset
                 sa.alterationResidue = sequenceAlteration.alterationResidue
                 sequenceAlterationsInContextList.add(sa)
-            }
-            else if ((alterationFmin >= fmin && alterationFmin <= fmax) && (alterationFmax >= fmin && alterationFmax >= fmax)) {
+            } else if ((alterationFmin >= fmin && alterationFmin <= fmax) && (alterationFmax >= fmin && alterationFmax >= fmax)) {
                 // alteration starts in exon but ends in an intron
                 int difference = alterationFmax - fmax
                 sa.fmin = alterationFmin
-                sa.fmax = Math.min(fmax,alterationFmax)
+                sa.fmax = Math.min(fmax, alterationFmax)
                 if (sequenceAlteration instanceof InsertionArtifact) {
                     sa.instanceOf = InsertionArtifact.canonicalName
-                }
-                else if (sequenceAlteration instanceof DeletionArtifact) {
+                } else if (sequenceAlteration instanceof DeletionArtifact) {
                     sa.instanceOf = DeletionArtifact.canonicalName
-                }
-                else if (sequenceAlteration instanceof SubstitutionArtifact) {
+                } else if (sequenceAlteration instanceof SubstitutionArtifact) {
                     sa.instanceOf = SubstitutionArtifact.canonicalName
                 }
                 sa.type = 'exon-to-intron'
@@ -151,19 +141,16 @@ class SequenceService {
                 sa.offset = sequenceAlteration.offset - difference
                 sa.alterationResidue = sequenceAlteration.alterationResidue.substring(0, sequenceAlteration.alterationResidue.length() - difference)
                 sequenceAlterationsInContextList.add(sa)
-            }
-            else if ((alterationFmin <= fmin && alterationFmin <= fmax) && (alterationFmax >= fmin && alterationFmax <= fmax)) {
+            } else if ((alterationFmin <= fmin && alterationFmin <= fmax) && (alterationFmax >= fmin && alterationFmax <= fmax)) {
                 // alteration starts within intron but ends in an exon
                 int difference = fmin - alterationFmin
                 sa.fmin = Math.max(fmin, alterationFmin)
                 sa.fmax = alterationFmax
                 if (sequenceAlteration instanceof InsertionArtifact) {
                     sa.instanceOf = InsertionArtifact.canonicalName
-                }
-                else if (sequenceAlteration instanceof DeletionArtifact) {
+                } else if (sequenceAlteration instanceof DeletionArtifact) {
                     sa.instanceOf = DeletionArtifact.canonicalName
-                }
-                else if (sequenceAlteration instanceof SubstitutionArtifact) {
+                } else if (sequenceAlteration instanceof SubstitutionArtifact) {
                     sa.instanceOf = SubstitutionArtifact.canonicalName
                 }
                 sa.type = 'intron-to-exon'
@@ -185,7 +172,7 @@ class SequenceService {
 
         int currentOffset = 0;
         for (SequenceAlterationInContext sequenceAlteration in orderedSequenceAlterationInContextList) {
-            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin,fmax,strand, sequenceAlteration.fmin);
+            int localCoordinate = featureService.convertSourceCoordinateToLocalCoordinate(fmin, fmax, strand, sequenceAlteration.fmin);
             String sequenceAlterationResidues = sequenceAlteration.alterationResidue
             int alterationLength = sequenceAlteration.alterationResidue.length()
             if (strand == Strand.NEGATIVE) {
@@ -193,7 +180,7 @@ class SequenceService {
             }
             // Insertions
             if (sequenceAlteration.instanceOf == InsertionArtifact.canonicalName) {
-                if (strand==Strand.NEGATIVE) {
+                if (strand == Strand.NEGATIVE) {
                     ++localCoordinate;
                 }
                 residues.insert(localCoordinate + currentOffset, sequenceAlterationResidues);
@@ -223,10 +210,9 @@ class SequenceService {
     }
 
     String getRawResiduesFromSequence(Sequence sequence, int fmin, int fmax) {
-        if(sequence.organism.genomeFasta) {
+        if (sequence.organism.genomeFasta) {
             getRawResiduesFromSequenceFasta(sequence, fmin, fmax)
-        }
-        else {
+        } else {
             getRawResiduesFromSequenceChunks(sequence, fmin, fmax)
         }
     }
@@ -246,26 +232,39 @@ class SequenceService {
         StringBuilder sequenceString = new StringBuilder()
 
         int startChunkNumber = fmin / sequence.seqChunkSize;
-        int endChunkNumber = (fmax - 1 ) / sequence.seqChunkSize;
+        int endChunkNumber = (fmax - 1) / sequence.seqChunkSize;
 
 
-        for(int i = startChunkNumber ; i<= endChunkNumber ; i++){
-            sequenceString.append(loadResidueForSequence(sequence,i))
+        for (int i = startChunkNumber; i <= endChunkNumber; i++) {
+            sequenceString.append(loadResidueForSequence(sequence, i))
         }
 
         int startPosition = fmin - (startChunkNumber * sequence.seqChunkSize);
-        return sequenceString.substring(startPosition,startPosition + (fmax-fmin))
+        return sequenceString.substring(startPosition, startPosition + (fmax - fmin))
     }
 
     String loadResidueForSequence(Sequence sequence, int chunkNumber) {
         CRC32 crc = new CRC32();
         crc.update(sequence.name.getBytes());
         String hex = String.format("%08x", crc.getValue())
-        String []dirs = splitStringByNumberOfCharacters(hex, 3)
+        String[] dirs = splitStringByNumberOfCharacters(hex, 3)
         String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
-        String filePath = seqDir+ "/"+ sequence.name + "-" + chunkNumber + ".txt"
+        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt"
+        File file = new File(filePath)
+        if (file.exists()) {
+            return new File(filePath).text.toUpperCase()
+        }
+        // attempt with gzip
+        filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
+        file = new File(filePath)
+        if (file.exists()) {
+            def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
+            def uncompressedStr = inflaterStream.getText('UTF-8')
+            return uncompressedStr.toUpperCase()
+        }
 
-        return new File(filePath).getText().toUpperCase()
+        throw new RuntimeException("File not found on server: " + filePath)
+
     }
 
     String[] splitStringByNumberOfCharacters(String label, int size) {
@@ -276,45 +275,43 @@ class SequenceService {
         JSONObject referenceTrackObject = getReferenceTrackObject(organism)
         if ((referenceTrackObject.storeClass == "JBrowse/Store/SeqFeature/IndexedFasta") || (referenceTrackObject.storeClass == "JBrowse/Store/Sequence/IndexedFasta")) {
             loadGenomeFasta(organism, referenceTrackObject)
-        }
-        else {
+        } else {
             loadRefSeqsJson(organism)
         }
     }
 
     def loadRefSeqsJson(Organism organism) {
         log.info "loading refseq ${organism.refseqFile}"
-        organism.valid = false ;
-        organism.save(flush: true, failOnError: true,insert:false)
+        organism.valid = false;
+        organism.save(flush: true, failOnError: true, insert: false)
 
         File refSeqsFile = new File(organism.refseqFile);
-        if(refSeqsFile.exists()) {
-            def refSeqs=refSeqsFile.withReader { r ->
-                new JsonSlurper().parse( r )
+        if (refSeqsFile.exists()) {
+            def refSeqs = refSeqsFile.withReader { r ->
+                new JsonSlurper().parse(r)
             }
 
             Sequence.deleteAll(Sequence.findAllByOrganism(organism))
             refSeqs.each { refSeq ->
                 int length;
-                if(refSeq.length) {
+                if (refSeq.length) {
                     length = refSeq.length
-                }
-                else {
+                } else {
                     //workaround for jbrowse refSeqs that have no length element
-                    length = refSeq.end-refSeq.start
+                    length = refSeq.end - refSeq.start
                 }
                 Sequence sequence = new Sequence(
                         organism: organism
-                        ,length: length
-                        ,seqChunkSize: refSeq.seqChunkSize
-                        ,start: refSeq.start
-                        ,end: refSeq.end
-                        ,name: refSeq.name
+                        , length: length
+                        , seqChunkSize: refSeq.seqChunkSize
+                        , start: refSeq.start
+                        , end: refSeq.end
+                        , name: refSeq.name
                 ).save(failOnError: true)
             }
 
             organism.valid = true
-            organism.save(flush: true,insert:false,failOnError: true)
+            organism.save(flush: true, insert: false, failOnError: true)
 
         }
     }
@@ -326,7 +323,7 @@ class SequenceService {
         String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
         String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
         File genomeFastaFile = new File(genomeFastaFileName)
-        if(genomeFastaFile.exists()) {
+        if (genomeFastaFile.exists()) {
             organism.genomeFasta = referenceTrackObject.urlTemplate
             File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
             if (genomeFastaIndexFile.exists()) {
@@ -336,7 +333,7 @@ class SequenceService {
                 log.info "an indexed fasta size ${index.size()}"
                 // reading the index
                 def iterator = index.iterator()
-                while(iterator.hasNext()) {
+                while (iterator.hasNext()) {
                     def entry = iterator.next()
                     Sequence sequence = new Sequence(
                             organism: organism,
@@ -350,12 +347,10 @@ class SequenceService {
 
                 organism.valid = true
                 organism.save(flush: true, insert: false, failOnError: true)
+            } else {
+                throw new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
             }
-            else {
-                throw  new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
-            }
-        }
-        else {
+        } else {
             throw new FileNotFoundException("Genome fasta ${genomeFastaFile.getCanonicalPath()} does not exist!")
         }
     }
@@ -367,7 +362,7 @@ class SequenceService {
         String genomeFastaFileName = organism.directory + File.separator + referenceTrackObject.urlTemplate
         String genomeFastaIndexFileName = organism.directory + File.separator + referenceTrackObject.faiUrlTemplate
         File genomeFastaFile = new File(genomeFastaFileName)
-        if(genomeFastaFile.exists()) {
+        if (genomeFastaFile.exists()) {
             organism.genomeFasta = referenceTrackObject.urlTemplate
             File genomeFastaIndexFile = new File(genomeFastaIndexFileName)
             if (genomeFastaIndexFile.exists()) {
@@ -375,12 +370,10 @@ class SequenceService {
                 FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
                 organism.valid = true
                 organism.save(flush: true, insert: false, failOnError: true)
+            } else {
+                throw new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
             }
-            else {
-                throw  new FileNotFoundException("Genome fasta index ${genomeFastaIndexFile.getCanonicalPath()} does not exist!")
-            }
-        }
-        else {
+        } else {
             throw new FileNotFoundException("Genome fasta ${genomeFastaFile.getCanonicalPath()} does not exist!")
         }
     }
@@ -441,7 +434,7 @@ class SequenceService {
                     readThroughStop = true
                 }
                 featureResidues = SequenceTranslationHandler.translateSequence(rawSequence, translationTable, true, readThroughStop)
-                if (featureResidues.length()>0 && featureResidues.charAt(featureResidues.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
+                if (featureResidues.length() > 0 && featureResidues.charAt(featureResidues.length() - 1) == StandardTranslationTable.STOP.charAt(0)) {
                     featureResidues = featureResidues.substring(0, featureResidues.length() - 1)
                 }
                 int idx
@@ -462,7 +455,7 @@ class SequenceService {
                 if (cdsService.getStopCodonReadThrough(transcriptService.getCDS((Transcript) gbolFeature)).size() > 0) {
                     hasStopCodonReadThrough = true
                 }
-                String verifiedResidues = checkForInFrameStopCodon(featureResidues, 0, hasStopCodonReadThrough,translationTable)
+                String verifiedResidues = checkForInFrameStopCodon(featureResidues, 0, hasStopCodonReadThrough, translationTable)
                 featureResidues = verifiedResidues
             } else if (gbolFeature instanceof Exon && transcriptService.isProteinCoding(exonService.getTranscript((Exon) gbolFeature))) {
                 log.debug "Fetching CDS sequence for selected exon: ${gbolFeature}"
@@ -475,7 +468,7 @@ class SequenceService {
                     }
                 }
                 int phase = exonService.getPhaseForExon((Exon) gbolFeature)
-                String verifiedResidues = checkForInFrameStopCodon(featureResidues, phase, hasStopCodonReadThrough,translationTable)
+                String verifiedResidues = checkForInFrameStopCodon(featureResidues, phase, hasStopCodonReadThrough, translationTable)
                 featureResidues = verifiedResidues
             } else {
                 featureResidues = ""
@@ -506,12 +499,12 @@ class SequenceService {
                 }
 
             }
-            featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence,fmin,fmax,Strand.getStrandForValue(gbolFeature.strand))
+            featureResidues = getGenomicResiduesFromSequenceWithAlterations(gbolFeature.featureLocation.sequence, fmin, fmax, Strand.getStrandForValue(gbolFeature.strand))
         }
         return featureResidues
     }
 
-    def checkForInFrameStopCodon(String residues, int phase, boolean hasStopCodonReadThrough ,TranslationTable translationTable) {
+    def checkForInFrameStopCodon(String residues, int phase, boolean hasStopCodonReadThrough, TranslationTable translationTable) {
         String codon;
         def stopCodons = translationTable.stopCodons
         for (int i = phase; i < residues.length(); i += 3) {
@@ -523,8 +516,7 @@ class SequenceService {
             if (stopCodons.contains(codon)) {
                 if (hasStopCodonReadThrough) {
                     hasStopCodonReadThrough = false
-                }
-                else {
+                } else {
                     return residues.substring(0, i + 3)
                 }
             }
@@ -533,7 +525,7 @@ class SequenceService {
         return residues
     }
 
-    def getSequenceForFeatures(JSONObject inputObject, File outputFile=null) {
+    def getSequenceForFeatures(JSONObject inputObject, File outputFile = null) {
         // Method returns a JSONObject
         // Suitable for 'get sequence' operation from AEC
         log.debug "input at getSequenceForFeature: ${inputObject}"
@@ -576,7 +568,7 @@ class SequenceService {
             Sequence sequence = gbolFeature.featureLocation.sequence
 
             // TODO: does strand and alteration length matter here?
-            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations,fmin:fmin,fmax:fmax])
+            List<Feature> listOfSequenceAlterations = Feature.executeQuery("select distinct f from Feature f join f.featureLocations fl join fl.sequence s where s = :sequence and f.class in :sequenceTypes and fl.fmin >= :fmin and fl.fmax <= :fmax ", [sequence: sequence, sequenceTypes: requestHandlingService.viewableAlterations, fmin: fmin, fmax: fmax])
             featuresToWrite += listOfSequenceAlterations
         }
         gff3HandlerService.writeFeaturesToText(outputFile.absolutePath, featuresToWrite, grailsApplication.config.apollo.gff3.source as String)
@@ -587,7 +579,7 @@ class SequenceService {
         return SequenceCache.findByOrganismNameAndSequenceNameAndFeatureNameAndTypeAndParamMap(organismString, sequenceName, featureName, type, mapString)?.response
     }
 
-    String checkCache(String organismString, String sequenceName, Long fmin, Long fmax,  Map paramMap) {
+    String checkCache(String organismString, String sequenceName, Long fmin, Long fmax, Map paramMap) {
         String mapString = paramMap ? (paramMap as JSON).toString() : null
         return SequenceCache.findByOrganismNameAndSequenceNameAndFminAndFmaxAndParamMap(organismString, sequenceName, fmin, fmax, mapString)?.response
     }
