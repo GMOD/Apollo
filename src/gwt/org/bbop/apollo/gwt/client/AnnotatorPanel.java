@@ -133,6 +133,8 @@ public class AnnotatorPanel extends Composite {
     CheckBox toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
+    @UiField
+    GoPanel goPanel;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();

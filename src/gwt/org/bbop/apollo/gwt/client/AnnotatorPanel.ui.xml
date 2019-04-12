@@ -156,6 +156,10 @@
                 <gwt:header>Allele Info</gwt:header>
                 <apollo:AlleleInfoPanel ui:field="alleleInfoPanel"/>
             </gwt:tab>
+            <gwt:tab>
+                <gwt:header>GO</gwt:header>
+                <apollo:GoPanel ui:field="goPanel"/>
+            </gwt:tab>
 
             <!--TODO: 2.1-->
             <!--<gwt:tab>-->
