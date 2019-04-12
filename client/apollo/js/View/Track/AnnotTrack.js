@@ -680,7 +680,7 @@ define([
                     new Tooltip({
                         connectId: featDiv,
                         label: label,
-                        position: ["after"],
+                        position: ["after","before","below","above"],
                         showDelay: 0
                     });
                 }
