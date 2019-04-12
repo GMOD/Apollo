@@ -387,7 +387,7 @@ class GroupController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to alter membership of")
             , @RestApiParam(name = "users", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "A JSON array of strings of emails of users the now belong to the group")
-            , @RestApiParam(name = "memberships", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "Bulk memberships (instead of users and groupId) to update of the form: [ {groupId: <groupId>,users: [\"user1\", \"user2\", \"user3\"]}, {groupId:<another-groupId>, users: [\"user2\", \"user8\"]}")
+            , @RestApiParam(name = "memberships", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "Bulk memberships (instead of users and groupId) to update of the form: [ {groupId: <groupId>,users: [\"user1\", \"user2\", \"user3\"]}, {groupId:<another-groupId>, users: [\"user2\", \"user8\"]}]")
     ]
     )
     @Transactional
