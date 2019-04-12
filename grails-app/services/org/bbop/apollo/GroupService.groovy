@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
@@ -35,14 +36,13 @@ class GroupService {
             groups.add(group)
         }
         return groups
-//        groups[0].save(flush:true,failOnError: true)
     }
 
     List<UserGroup> deleteGroups(JSONObject dataObject, User currentUser, List<UserGroup> groupList) {
 
-        println "rmoeving groups ${groupList as JSON}"
+        log.info "Removing groups ${groupList as JSON}"
         for(UserGroup group in groupList){
-            println "Removing group ${group.name}"
+            log.info "Removing group ${group.name}"
             String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
             // to support webservice, get current user from session or input object
             // only allow global admin or group creator, or group admin to delete the group
@@ -66,8 +66,47 @@ class GroupService {
 
             group.save()
             group.delete()
-            println "Removed group ${group.name}"
+            log.info "Removed group ${group.name}"
         }
+
+    }
+
+    def updateMembership(JSONObject dataObject,User currentUser,Long groupId,JSONArray users){
+        UserGroup groupInstance = UserGroup.findById(groupId)
+        // to support webservice, get current user from session or input object
+        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
+        // allow global admin, group creator, and group admin to update the group membership
+        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
+            throw new AnnotationException("Unauthorized access of group ${groupInstance.name}")
+//
+//            render status: HttpStatus.UNAUTHORIZED.value()
+//            return
+        }
+        log.info "Trying to update user group membership"
+
+        List<User> oldUsers = groupInstance.users as List
+        JSONArray arr = new JSONArray(users)
+        List<String> usernames = new ArrayList<String>()
+        for (int i = 0; i < arr.length(); i++) {
+            usernames.add(arr.getString(i))
+        }
+        List<User> newUsers = User.findAllByUsernameInList(usernames)
+
+        List<User> usersToAdd = newUsers - oldUsers
+        List<User> usersToRemove = oldUsers - newUsers
+        usersToAdd.each {
+            groupInstance.addToUsers(it)
+            it.addToUserGroups(groupInstance)
+            it.save()
+        }
+
+        usersToRemove.each {
+            groupInstance.removeFromUsers(it)
+            it.removeFromUserGroups(groupInstance)
+            it.save()
+        }
+        groupInstance.save()
+        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
 
     }
 }

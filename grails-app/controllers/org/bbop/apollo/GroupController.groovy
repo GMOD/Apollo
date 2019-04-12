@@ -387,51 +387,26 @@ class GroupController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to alter membership of")
             , @RestApiParam(name = "users", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "A JSON array of strings of emails of users the now belong to the group")
+            , @RestApiParam(name = "memberships", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "Bulk memberships (instead of users and groupId) to update of the form: [ {groupId: <groupId>,users: [\"user1\", \"user2\", \"user3\"]}, {groupId:<another-groupId>, users: [\"user2\", \"user8\"]}")
     ]
     )
     @Transactional
     def updateMembership() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
-        // to support webservice, get current user from session or input object
+
         def currentUser = permissionService.getCurrentUser(dataObject)
-        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
-        // allow global admin, group creator, and group admin to update the group membership
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
-            render status: HttpStatus.UNAUTHORIZED.value()
-            return
+        if(dataObject.memberships) {
+
+            JSONObject memberships = dataObject.memberships
+
+            memberships.each { membership ->
+                groupService.updateMembership(dataObject,currentUser,membership.groupId,membership.users)
+            }
         }
-        log.info "Trying to update user group membership"
-
-
-        List<User> oldUsers = groupInstance.users as List
-        //List<String> usernames = dataObject.users
-        //Fixed bug on passing array through web services: cannot cast String to List
-        JSONArray arr = new JSONArray(dataObject.users)
-        List<String> usernames = new ArrayList<String>()
-        for (int i = 0; i < arr.length(); i++){
-            usernames.add(arr.getString(i))
+        else{
+            groupService.updateMembership(dataObject,currentUser,dataObject.groupId,dataObject.users)
         }
-        List<User> newUsers = User.findAllByUsernameInList(usernames)
-
-        List<User> usersToAdd = newUsers - oldUsers
-        List<User> usersToRemove = oldUsers - newUsers
-        usersToAdd.each {
-            groupInstance.addToUsers(it)
-            it.addToUserGroups(groupInstance)
-            it.save()
-        }
-
-        usersToRemove.each {
-            groupInstance.removeFromUsers(it)
-            it.removeFromUserGroups(groupInstance)
-            it.save()
-        }
-
-        groupInstance.save(flush: true)
-
-        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
         loadGroups()
     }
 
