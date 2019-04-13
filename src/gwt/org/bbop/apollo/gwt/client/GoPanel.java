@@ -79,7 +79,7 @@ public class GoPanel extends Composite {
         withColumn = new TextColumn<GoAnnotation>(){
             @Override
             public String getValue(GoAnnotation annotationInfo) {
-                return annotationInfo.getWithOrFrom().getId();
+                return annotationInfo.getWithOrFrom().getName();
             }
         };
         withColumn.setSortable(true);
