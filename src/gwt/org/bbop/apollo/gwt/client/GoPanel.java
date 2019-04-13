@@ -7,13 +7,16 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 import org.gwtbootstrap3.client.ui.Container;
+import org.gwtbootstrap3.client.ui.TextBox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +38,15 @@ public class GoPanel extends Composite {
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<GoAnnotation> dataGrid = new DataGrid<>(200, tablecss);
-//    @UiField
+    @UiField
+    TextBox referenceField;
+    @UiField
+    TextBox goTermField;
+    @UiField
+    TextBox evidenceCodeField;
+    @UiField
+    TextBox withField;
+    //    @UiField
 //    HTML notePanel;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
@@ -52,16 +63,24 @@ public class GoPanel extends Composite {
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
-//        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-//            @Override
-//            public void onSelectionChange(SelectionChangeEvent event) {
-//                if (selectionModel.getSelectedSet().isEmpty()) {
-//                    goEditContainer.setVisible(false);
-//                } else {
-//                    goEditContainer.setVisible(true);
-//                }
-//            }
-//        });
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                if (selectionModel.getSelectedSet().isEmpty()) {
+                    goTermField.setText("");
+                    withField.setText("");
+                    referenceField.setText("");
+                    evidenceCodeField.setText("");
+                    goEditContainer.setVisible(false);
+                } else {
+                    goTermField.setText(selectionModel.getSelectedObject().getGoTerm().getName());
+                    withField.setText(selectionModel.getSelectedObject().getWithOrFrom().getName());
+                    referenceField.setText(selectionModel.getSelectedObject().getReference().getRefereneString());
+                    evidenceCodeField.setText(selectionModel.getSelectedObject().getEvidenceCode().getName());
+                    goEditContainer.setVisible(true);
+                }
+            }
+        });
 
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -107,8 +126,8 @@ public class GoPanel extends Composite {
         dataGrid.addColumn(referenceColumn, "Ref");
         dataGrid.addColumn(evidenceColumn, "Evidence");
 
-        ColumnSortEvent.ListHandler<GoAnnotation> sortHandler = new ColumnSortEvent.ListHandler<GoAnnotation>(annotationInfoList);
-        dataGrid.addColumnSortHandler(sortHandler);
+//        ColumnSortEvent.ListHandler<GoAnnotation> sortHandler = new ColumnSortEvent.ListHandler<GoAnnotation>(annotationInfoList);
+//        dataGrid.addColumnSortHandler(sortHandler);
 
 //        sortHandler.setComparator(goTermColumn, new Comparator<GoAnnotation>() {
 //            @Override

@@ -28,20 +28,30 @@
         </gwt:west>
         <gwt:center>
             <b:Container ui:field="goEditContainer" fluid="true" width="100%" styleName="{style.container}" visible="false">
-                <!--<b:Row styleName="{style.row}">-->
-                    <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
-                        <!--<b:InputGroup>-->
-                            <!--<b:InputGroupAddon>5' End</b:InputGroupAddon>-->
-                            <!--<b:InputGroupButton>-->
-                                <!--<b:Button ui:field="decreaseFivePrime" icon="ARROW_LEFT"/>-->
-                            <!--</b:InputGroupButton>-->
-                            <!--<b:TextBox ui:field="fivePrimeField" text="-"/>-->
-                            <!--<b:InputGroupButton>-->
-                                <!--<b:Button ui:field="increaseFivePrime" icon="ARROW_RIGHT"/>-->
-                            <!--</b:InputGroupButton>-->
-                        <!--</b:InputGroup>-->
-                    <!--</b:Column>-->
-                <!--</b:Row>-->
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:Label>Go Term</b:Label>
+                        <b:TextBox ui:field="goTermField"/>
+                    </b:Column>
+                </b:Row>
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:Label>With</b:Label>
+                        <b:TextBox ui:field="withField"/>
+                    </b:Column>
+                </b:Row>
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:Label>Evidence Code</b:Label>
+                        <b:TextBox ui:field="evidenceCodeField"/>
+                    </b:Column>
+                </b:Row>
+                <b:Row styleName="{style.row}">
+                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                        <b:Label>Reference</b:Label>
+                        <b:TextBox ui:field="referenceField"/>
+                    </b:Column>
+                </b:Row>
                 <!--<b:Row styleName="{style.row}">-->
                     <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
                         <!--<b:InputGroup>-->
