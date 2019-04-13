@@ -27,7 +27,7 @@
             <cellview:DataGrid ui:field="dataGrid"/>
         </gwt:west>
         <gwt:center>
-            <b:Container ui:field="exonEditContainer" fluid="true" width="100%" styleName="{style.container}" visible="false">
+            <b:Container ui:field="goEditContainer" fluid="true" width="100%" styleName="{style.container}" visible="false">
                 <!--<b:Row styleName="{style.row}">-->
                     <!--<b:Column size="MD_4" styleName="{style.widgetPanel}">-->
                         <!--<b:InputGroup>-->

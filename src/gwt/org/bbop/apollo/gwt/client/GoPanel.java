@@ -10,10 +10,12 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 import org.gwtbootstrap3.client.ui.Container;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,7 +31,7 @@ public class GoPanel extends Composite {
     private static GoPanelUiBinder ourUiBinder = GWT.create(GoPanelUiBinder.class);
 
     @UiField
-    Container exonEditContainer;
+    Container goEditContainer;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<GoAnnotation> dataGrid = new DataGrid<>(200, tablecss);
@@ -54,9 +56,9 @@ public class GoPanel extends Composite {
 //            @Override
 //            public void onSelectionChange(SelectionChangeEvent event) {
 //                if (selectionModel.getSelectedSet().isEmpty()) {
-//                    exonEditContainer.setVisible(false);
+//                    goEditContainer.setVisible(false);
 //                } else {
-//                    exonEditContainer.setVisible(true);
+//                    goEditContainer.setVisible(true);
 //                }
 //            }
 //        });
@@ -135,6 +137,19 @@ public class GoPanel extends Composite {
 //                return o1.getLength() - o2.getLength();
 //            }
 //        });
+    }
+
+    public void updateData() {
+        updateData(null);
+    }
+
+    public void updateData(AnnotationInfo selectedAnnotationInfo) {
+        if(selectedAnnotationInfo==null){
+            dataProvider.setList(new ArrayList<GoAnnotation>());
+        }
+        else{
+            dataProvider.setList(selectedAnnotationInfo.getGoAnnotations());
+        }
     }
 
 }

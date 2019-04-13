@@ -680,10 +680,12 @@ public class AnnotatorPanel extends Composite {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
+                    goPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
                     deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
+                    goPanel.updateData();
                     gotoAnnotation.setEnabled(false);
                     deleteAnnotation.setEnabled(false);
                 }
