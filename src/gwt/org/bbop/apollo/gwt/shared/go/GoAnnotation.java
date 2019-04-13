@@ -4,7 +4,8 @@ package org.bbop.apollo.gwt.shared.go;
 public class GoAnnotation {
 
 
-    GoGene goGene ;
+    GoGene goGene ; // I think tis is the gene it refers to?
+    GoTerm goTerm;
     EvidenceCode evidenceCode;
     Qualifier qualifier ;
     Reference reference;
@@ -16,6 +17,14 @@ public class GoAnnotation {
 
     public void setGoGene(GoGene goGene) {
         this.goGene = goGene;
+    }
+
+    public GoTerm getGoTerm() {
+        return goTerm;
+    }
+
+    public void setGoTerm(GoTerm goTerm) {
+        this.goTerm = goTerm;
     }
 
     public EvidenceCode getEvidenceCode() {

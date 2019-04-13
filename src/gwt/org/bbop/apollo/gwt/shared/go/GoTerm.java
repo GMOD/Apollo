@@ -1,9 +1,12 @@
 package org.bbop.apollo.gwt.shared.go;
 
-public class EvidenceCode {
+/**
+ * Placeholder for a feature
+ */
+public class GoTerm {
 
     Long id;
-    String name;
+    String name ;
 
     public Long getId() {
         return id;
