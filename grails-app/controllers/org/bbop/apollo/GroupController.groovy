@@ -398,7 +398,7 @@ class GroupController {
 
         if(dataObject.memberships) {
 
-            JSONObject memberships = dataObject.memberships
+            def memberships = dataObject.memberships
 
             memberships.each { membership ->
                 groupService.updateMembership(dataObject,currentUser,membership.groupId,membership.users)
