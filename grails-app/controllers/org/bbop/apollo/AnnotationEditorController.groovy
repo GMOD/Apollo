@@ -1076,7 +1076,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             log.debug "input json feature ${jsonFeature}"
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-//            JSONObject newFeature = featureService.convertFeatureToJSON(feature, false)
             JSONObject newFeature = new JSONObject()
 
             if (feature.symbol) {
@@ -1104,12 +1103,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 for (Allele allele : feature.alleles) {
                     JSONObject alleleObject = new JSONObject()
                     alleleObject.put(FeatureStringEnum.BASES.value, allele.bases)
-//                    if (allele.alleleFrequency) {
-//                        alternateAlleleObject.put(FeatureStringEnum.ALLELE_FREQUENCY.value, String.valueOf(allele.alleleFrequency))
-//                    }
-//                    if (allele.provenance) {
-//                        alternateAlleleObject.put(FeatureStringEnum.PROVENANCE.value, allele.provenance)
-//                    }
                     if (allele.alleleInfo) {
                         JSONArray alleleInfoArray = new JSONArray()
                         allele.alleleInfo.each { alleleInfo ->
@@ -1159,9 +1152,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
                 List<AvailableStatus> availableStatusList = new ArrayList<>()
                 if (featureTypeList) {
-                    availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
+                    availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc join cc.featureTypes ft where ft in (:featureTypeList) order by cc.value asc", [featureTypeList: featureTypeList]))
                 }
-                availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc where cc.featureTypes is empty"))
+                availableStatusList.addAll(AvailableStatus.executeQuery("select cc from AvailableStatus cc where cc.featureTypes is empty order by cc.value asc"))
 
 //                // if there are organism filters for these statuses for this organism, then apply them
                 List<AvailableStatusOrganismFilter> availableStatusOrganismFilters = AvailableStatusOrganismFilter.findAllByAvailableStatusInList(availableStatusList)

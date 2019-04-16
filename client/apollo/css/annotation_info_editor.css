@@ -152,16 +152,17 @@
 	border-style: solid;
 	border-color: lightgray;
 	padding: 0.5em;
-	overflow-y: auto;
-	max-height: 2em;
+	/*overflow-y: auto;*/
+	/*max-height: 2em;*/
 }
 
 .annotation_info_editor_radio {
 /*	padding-right: 1em; */
-	display: inline-block;
+	display: block;
 }
 
 .annotation_info_editor_radio_label {
+	display: inline;
 }
 
 .ui-autocomplete {

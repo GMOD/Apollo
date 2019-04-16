@@ -665,6 +665,12 @@ define([
                             if (event.altKey) {
                                 track.getAnnotationInfoEditor();
                             }
+                            if (event.metaKey) {
+                                track.getSequence();
+                            }
+                            if (event.metaKey && event.altKey) {
+                                track.getGff3();
+                            }
                         })
                     ;
                 }
@@ -674,8 +680,8 @@ define([
                     new Tooltip({
                         connectId: featDiv,
                         label: label,
-                        position: ["above"],
-                        showDelay: 400
+                        position: ["after","before","below","above"],
+                        showDelay: 0
                     });
                 }
 
@@ -2249,6 +2255,9 @@ define([
             getAnnotationInfoEditorForSelectedFeatures: function (records) {
                 var track = this;
                 var record = records[0];
+                if(!record){
+                    console.log('No record selected');
+                }
                 var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
                 var seltrack = record.track;
                 // just checking to ensure that all features in selection are from this
@@ -4687,8 +4696,7 @@ define([
                         }
                         for (var i = 0; i < status.length; ++i) {
                             var statusRadioDiv = dojo.create("span", {
-                                'class': "annotation_info_editor_radio",
-                                style: "width:" + (maxLength * 0.75) + "em; display: inline;"
+                                'class': "annotation_info_editor_radio"
                             }, statusFlags);
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
@@ -6069,7 +6077,20 @@ define([
                 var track = this;
 
                 var content = dojo.create("div", {className: "get_sequence"});
-                var textArea = dojo.create("textarea", {className: "sequence_area", readonly: true}, content);
+
+                var copyButton = dojo.create("button", {
+                    title: "Copy to Clipboard",
+                    innerHTML: "Copy to Clipboard",
+                    className:"copy_clipboard_button"
+                }, content);
+
+                var copyValueLabel = dojo.create("div", {
+                    innerHTML: "",
+                    id: 'copy_value_id',
+                    className: "copy_value_label"
+                }, content);
+
+                var textArea = dojo.create("textarea", {id:'sequence_text_area',className: "sequence_area", readonly: true}, content);
                 var form = dojo.create("form", {}, content);
                 var peptideButtonDiv = dojo.create("div", {className: "first_button_div"}, form);
                 var peptideButton = dojo.create("input", {
@@ -6119,6 +6140,14 @@ define([
                     className: "button_label"
                 }, genomicWithFlankButtonDiv);
 
+                dojo.connect(copyButton,'onclick',function(){
+                    var el = document.getElementById("sequence_text_area")
+                    el.select();
+                    document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+                    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+                    copyValueLabel.innerHTML = 'Copied!';
+                });
+
                 var fetchSequence = function (type) {
                     var features = '"features": [';
                     for (var i = 0; i < records.length; ++i) {
@@ -6162,7 +6191,7 @@ define([
                                 var residues = feature.residues;
                                 var loc = feature.location;
                                 textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
-                                var lineLength = 70;
+                                var lineLength = 60;
                                 for (var j = 0; j < residues.length; j += lineLength) {
                                     textAreaContent += residues.substr(j, lineLength) + "\n";
                                 }
@@ -6188,22 +6217,27 @@ define([
                     if (target == peptideButton || target == peptideButtonLabel) {
                         dojo.attr(peptideButton, "checked", true);
                         type = "peptide";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == cdnaButton || target == cdnaButtonLabel) {
                         dojo.attr(cdnaButton, "checked", true);
                         type = "cdna";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == cdsButton || target == cdsButtonLabel) {
                         dojo.attr(cdsButton, "checked", true);
                         type = "cds";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == genomicButton || target == genomicButtonLabel) {
                         dojo.attr(genomicButton, "checked", true);
                         type = "genomic";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == genomicWithFlankButton || target == genomicWithFlankButtonLabel) {
                         dojo.attr(genomicWithFlankButton, "checked", true);
                         type = "genomic_with_flank";
+                        copyValueLabel.innerHTML = '';
                     }
                     fetchSequence(type);
                 };
@@ -6716,7 +6750,7 @@ define([
                 var permission = thisB.permission;
                 var index = 0;
                 annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "Get Sequence",
+                    label: "Get Sequence (meta-click)",
                     onClick: function (event) {
                         thisB.getSequence();
                     }
@@ -6724,7 +6758,7 @@ define([
                 contextMenuItems["get_sequence"] = index++;
 
                 annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "Get GFF3",
+                    label: "Get GFF3 (alt-meta-click)",
                     onClick: function (event) {
                         thisB.getGff3();
                     }
@@ -7873,7 +7907,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7900,7 +7934,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7927,7 +7961,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }

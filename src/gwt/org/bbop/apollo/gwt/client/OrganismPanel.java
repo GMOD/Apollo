@@ -412,7 +412,12 @@ public class OrganismPanel extends Composite {
         }
         SequenceTypeEnum sequenceTypeEnum = SequenceTypeEnum.getSequenceTypeForFile(organismUploadSequence.getFilename());
         if (sequenceTypeEnum == null) {
-            return "Bad suffix for filename " + organismUploadSequence.getFilename();
+            String filename = organismUploadSequence.getFilename();
+            String suffix = null ;
+            if (filename != null && filename.contains(".")) {
+               suffix = filename.substring(filename.lastIndexOf("."));
+            }
+            return "Filename extension not supported"+ (suffix!=null ? "'"+suffix+"'": "" ) ;
         }
         return null;
     }

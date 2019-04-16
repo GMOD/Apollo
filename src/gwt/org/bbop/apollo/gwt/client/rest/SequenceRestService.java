@@ -55,7 +55,7 @@ public class SequenceRestService {
             jsonObject.put("exportGff3Fasta", new JSONString(""));
             jsonObject.put("chadoExportType", new JSONString(""));
             jsonObject.put("exportJBrowseSequence", JSONBoolean.getInstance(exportPanel.getExportJBrowseSequence()));
-            jsonObject.put("exportFullJBrowse", JSONBoolean.getInstance(exportPanel.getExportFullJBrowse()));
+            jsonObject.put("exportToThisOrganism", JSONBoolean.getInstance(exportPanel.getExportToThisOrganism()));
         }
         else {
             jsonObject.put("chadoExportType", new JSONString(""));
