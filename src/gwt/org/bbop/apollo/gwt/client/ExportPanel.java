@@ -5,7 +5,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -18,10 +17,8 @@ import org.gwtbootstrap3.client.ui.html.Div;
 import org.gwtbootstrap3.client.ui.html.Paragraph;
 import org.gwtbootstrap3.client.ui.html.Span;
 
-import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONString;
 
 import java.util.List;
 
@@ -34,7 +31,7 @@ public class ExportPanel extends Modal {
     private Boolean exportAll = false;
     private OrganismInfo currentOrganismInfo;
     private Boolean exportAllSequencesToChado = false;
-    private Boolean exportFullJBrowse = false;
+    private Boolean exportToThisOrganism = false;
     private Boolean exportJBrowseSequence = false;
     HTML sequenceInfoLabel = new HTML();
     HTML typeLabel = new HTML();
@@ -52,7 +49,7 @@ public class ExportPanel extends Modal {
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
     RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "Export JBrowse Track", true);
     RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Export entire JBrowse Directory", true);
-    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Export as full JBrowse instance", true);
+    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Export as new evidence track", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
@@ -192,7 +189,7 @@ public class ExportPanel extends Modal {
             @Override
             public void onClick(ClickEvent clickEvent) {
                 exportJBrowseSequence = true ;
-                exportFullJBrowse = true ;
+                exportToThisOrganism = true ;
                 exportButton.setEnabled(true);
             }
         });
@@ -339,8 +336,8 @@ public class ExportPanel extends Modal {
         this.exportAllSequencesToChado = value;
     }
 
-    public Boolean getExportFullJBrowse() {
-        return exportFullJBrowse;
+    public Boolean getExportToThisOrganism() {
+        return exportToThisOrganism;
     }
 
     public Boolean getExportJBrowseSequence() {

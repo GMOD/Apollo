@@ -60,7 +60,7 @@ class JbrowseHandlerService {
      * @param organism
      * @return
      */
-    def writeFullJBrowse(Organism organism) {
+    def writeExportToThisOrganism(Organism organism) {
         JSONObject returnObject = new JSONObject()
         return returnObject
     }
