@@ -26,7 +26,6 @@ class IOServiceController extends AbstractApolloController {
     def featureService
     def gff3HandlerService
     def fastaHandlerService
-    def jbrowseHandlerService
     def chadoHandlerService
     def preferenceService
     def permissionService
@@ -34,6 +33,7 @@ class IOServiceController extends AbstractApolloController {
     def requestHandlingService
     def vcfHandlerService
     def trackService
+    def fileService
 
     // fileMap of uuid / filename
     // see #464
@@ -211,31 +211,20 @@ class IOServiceController extends AbstractApolloController {
                 } else {
                     render chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences)
                 }
-                return // ??
+                return // no other export neeed
             } else if (typeOfExport == FeatureStringEnum.TYPE_JBROWSE.getValue()) {
-//                outputFile = File.createTempFile("JBrowse", "." + typeOfExport.toLowerCase() + ".tar")
-//                outputFile = File.createTempFile("JBrowse", "." + typeOfExport.toLowerCase() + ".tar.gz")
-//                println "outpufEile = ${outputFile.path}"
-//                fileName = "JBrowse-" + organism.commonName.replaceAll(" ", "_") + ".tar.gz"
-//                format = "tar.gz"
-//                if (exportFullJBrowse) {
-//                    println "exporting JBrowse full for organism"
-//                    jbrowseHandlerService.writeExportToThisOrganism(organism, outputFile)
-//                }
+                // does not quite work correctly
+                fileName = "JBrowse-" + organism.commonName.replaceAll(" ", "_") + ".tar.gz"
                 String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
                 if (exportJBrowseSequence) {
-                    println "exporting annotation track + full organism"
-                    gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
-                    trackService.generateJSONForGff3(outputFile, trackService.commonDataDirectory, pathToJBrowseBinaries)
-//                    jbrowseHandlerService.writeJBrowseDirectory(organism)
-                    println "added to a common driectory"
+                    File inputGff3File = File.createTempFile("temp",".gff")
+                    gff3HandlerService.writeFeaturesToText(inputGff3File.absolutePath, features, grailsApplication.config.apollo.gff3.source as String)
+                    File outputJsonDir = File.createTempDir()
+                    trackService.generateJSONForGff3(inputGff3File, outputJsonDir.absolutePath, pathToJBrowseBinaries)
+                    fileService.compressTarArchive(outputFile,outputJsonDir,".")
                 } else {
-                    println "adding track locally "
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                     trackService.generateJSONForGff3(outputFile, organism.directory, pathToJBrowseBinaries)
-                    println "ADDED"
-                    // convert GFF3 to JSON
-//                    jbrowseHandlerService.writeTrackOnly(organism)
                 }
             }
 

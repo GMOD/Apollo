@@ -213,27 +213,27 @@ class FileService {
     }
 
     boolean allowableSuffix(File file) {
-//        if(file.absolutePath.startsWith(".")) return false
-//        return true
-        String suffix = file.absolutePath.substring(file.absolutePath.lastIndexOf(".")+1)
-        println "suffix: ${suffix}"
-        switch (suffix){
-            case "json": return true
-            case "txt": return true
-            case "conf": return true
-//            case "bam": return true
-//            case "bai": return true
-//            case "bw": return true
-//            case "vcf": return true
-//            case "tgz": return true
-//            case "gz": return true
-//            case "gff3": return true
-//            case "tabix": return true
-//            case "gff": return true
-//            case "fa": return true
-//            case "fai": return true
-        }
-        return false
+        if(file.absolutePath.startsWith(".")) return false
+        return true
+//        String suffix = file.absolutePath.substring(file.absolutePath.lastIndexOf(".")+1)
+//        println "suffix: ${suffix}"
+//        switch (suffix){
+//            case "json": return true
+//            case "txt": return true
+//            case "conf": return true
+////            case "bam": return true
+////            case "bai": return true
+////            case "bw": return true
+////            case "vcf": return true
+////            case "tgz": return true
+////            case "gz": return true
+////            case "gff3": return true
+////            case "tabix": return true
+////            case "gff": return true
+////            case "fa": return true
+////            case "fai": return true
+//        }
+//        return false
     }
 
     def compressTarArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{

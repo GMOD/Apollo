@@ -47,9 +47,9 @@ public class ExportPanel extends Modal {
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
     RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
-    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "JSON Track", true);
+//    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "JSON Track", true);
 //    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Annotations and Evidence", true);
-    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Add Track as Evidence", true);
+//    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Add Track as Evidence", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
@@ -93,12 +93,12 @@ public class ExportPanel extends Modal {
             buttonGroup.add(chadoExportButton1);
             buttonGroup.add(chadoExportButton2);
         }
-        else
-        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
-            buttonGroup.add(jbrowseExportButton1);
-//            buttonGroup.add(jbrowseExportButton2);
-            buttonGroup.add(jbrowseExportButton3);
-        }
+//        else
+//        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
+////            buttonGroup.add(jbrowseExportButton1);
+////            buttonGroup.add(jbrowseExportButton2);
+////            buttonGroup.add(jbrowseExportButton3);
+//        }
         modalBody.add(buttonGroup);
 
         modalBody.add(sequenceTypeLabel);
@@ -170,29 +170,30 @@ public class ExportPanel extends Modal {
             }
         });
 
-        jbrowseExportButton1.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                exportButton.setEnabled(true);
-            }
-        });
-
-//        jbrowseExportButton2.addClickHandler(new ClickHandler() {
+//        jbrowseExportButton1.addClickHandler(new ClickHandler() {
 //            @Override
 //            public void onClick(ClickEvent clickEvent) {
 //                exportJBrowseSequence = true ;
 //                exportButton.setEnabled(true);
 //            }
 //        });
-
-        jbrowseExportButton3.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-//                exportJBrowseSequence = true ;
-                exportToThisOrganism = true ;
-                exportButton.setEnabled(true);
-            }
-        });
+//
+////        jbrowseExportButton2.addClickHandler(new ClickHandler() {
+////            @Override
+////            public void onClick(ClickEvent clickEvent) {
+////                exportJBrowseSequence = true ;
+////                exportButton.setEnabled(true);
+////            }
+////        });
+//
+//        jbrowseExportButton3.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent clickEvent) {
+////                exportJBrowseSequence = true ;
+//                exportToThisOrganism = true ;
+//                exportButton.setEnabled(true);
+//            }
+//        });
     }
 
 
