@@ -75,7 +75,7 @@ class IOServiceController extends AbstractApolloController {
         try {
             long current = System.currentTimeMillis()
             println "input ${request} ${params}"
-            JSONObject dataObject = permissionService.handleInput(request,params)
+            JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
@@ -89,8 +89,8 @@ class IOServiceController extends AbstractApolloController {
 //                exportAllSequences = true
 //            }
 
-            Boolean exportFullJBrowse = dataObject.exportFullJBrowse ?  Boolean.valueOf(dataObject.exportFullJBrowse) : false
-            Boolean exportJBrowseSequence = dataObject.exportJBrowseSequence ?  Boolean.valueOf(dataObject.exportJBrowseSequence) : false
+            Boolean exportFullJBrowse = dataObject.exportFullJBrowse ? Boolean.valueOf(dataObject.exportFullJBrowse) : false
+            Boolean exportJBrowseSequence = dataObject.exportJBrowseSequence ? Boolean.valueOf(dataObject.exportJBrowseSequence) : false
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
             String output = dataObject.output
             String adapter = dataObject.adapter
@@ -103,7 +103,7 @@ class IOServiceController extends AbstractApolloController {
             def queryParams = [organism: organism]
             def features = []
 
-            if(exportAllSequences){
+            if (exportAllSequences) {
                 sequences = []
             }
             if (sequences) {
@@ -125,8 +125,7 @@ class IOServiceController extends AbstractApolloController {
                 }
 
                 log.debug "IOService query: ${System.currentTimeMillis() - st}ms"
-            }
-            else {
+            } else {
                 queryParams['viewableAnnotationList'] = requestHandlingService.viewableAnnotationList
 
                 // caputures 3 level indirection, joins feature locations only. joining other things slows it down
@@ -161,7 +160,7 @@ class IOServiceController extends AbstractApolloController {
 
             if (typeOfExport == FeatureStringEnum.TYPE_GFF3.getValue()) {
                 // adding sequence alterations to list of features to export
-                if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
+                if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
@@ -173,7 +172,7 @@ class IOServiceController extends AbstractApolloController {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
             } else if (typeOfExport == FeatureStringEnum.TYPE_VCF.value) {
-                if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
+                if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
@@ -181,7 +180,7 @@ class IOServiceController extends AbstractApolloController {
                 // call vcfHandlerService
                 vcfHandlerService.writeVariantsToText(organism, features, outputFile.path, grailsApplication.config.apollo.gff3.source as String)
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
-                if (!exportAllSequences  && sequences != null && !(sequences.class == JSONArray.class)) {
+                if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
                     String regionString = (region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value) ? region : ""
                     fileName = "Annotations-" + sequences + "${regionString}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
@@ -189,43 +188,40 @@ class IOServiceController extends AbstractApolloController {
                 }
 
                 // call fastaHandlerService
-                if(region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value){
+                if (region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value) {
                     String track = region.split(":")[0]
                     String locationString = region.split(":")[1]
                     Integer min = locationString.split("\\.\\.")[0] as Integer
                     Integer max = locationString.split("\\.\\.")[1] as Integer
                     // its an exclusive fmin, so must subtract one
                     --min
-                    Sequence sequence = Sequence.findByOrganismAndName(organism,track)
+                    Sequence sequence = Sequence.findByOrganismAndName(organism, track)
 
-                    String defline = String.format(">Genomic region %s - %s\n",region,sequence.organism.commonName);
+                    String defline = String.format(">Genomic region %s - %s\n", region, sequence.organism.commonName);
                     String genomicSequence = defline
-                    genomicSequence += Splitter.fixedLength(FastaHandlerService.NUM_RESIDUES_PER_LINE).split(sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence,min,max, Strand.POSITIVE)).join("\n")
+                    genomicSequence += Splitter.fixedLength(FastaHandlerService.NUM_RESIDUES_PER_LINE).split(sequenceService.getGenomicResiduesFromSequenceWithAlterations(sequence, min, max, Strand.POSITIVE)).join("\n")
                     outputFile.text = genomicSequence
+                } else {
+                    fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT, region)
                 }
-                else{
-                    fastaHandlerService.writeFeatures(features, sequenceType, ["name"] as Set, outputFile.path, FastaHandlerService.Mode.WRITE, FastaHandlerService.Format.TEXT,region)
-                }
-            }
-            else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()) {
+            } else if (typeOfExport == FeatureStringEnum.TYPE_CHADO.getValue()) {
                 if (sequences) {
                     render chadoHandlerService.writeFeatures(organism, sequenceList, features)
                 } else {
                     render chadoHandlerService.writeFeatures(organism, [], features, exportAllSequences)
                 }
-                 return // ??
-            }
-            else if (typeOfExport == FeatureStringEnum.TYPE_JBROWSE.getValue()) {
-                if(exportFullJBrowse){
+                return // ??
+            } else if (typeOfExport == FeatureStringEnum.TYPE_JBROWSE.getValue()) {
+                outputFile = File.createTempFile("JBrowse", "." + typeOfExport.toLowerCase() + ".tar")
+                println "outpufEile = ${outputFile.path}"
+                fileName = "JBrowse-" + organism.commonName.replaceAll(" ", "_") + ".tar.gz"
+                if (exportFullJBrowse) {
                     println "exporting JBrowse full for organism"
-                    jbrowseHandlerService.writeExportToThisOrganism(organism,outputFile)
-                }
-                else
-                if(exportJBrowseSequence){
+                    jbrowseHandlerService.writeExportToThisOrganism(organism, outputFile)
+                } else if (exportJBrowseSequence) {
                     println "exporting annotation track + full organism"
                     jbrowseHandlerService.writeJBrowseDirectory(organism)
-                }
-                else{
+                } else {
                     println "exporting just annotation tracks"
                     jbrowseHandlerService.writeTrackOnly(organism)
                 }
@@ -261,7 +257,7 @@ class IOServiceController extends AbstractApolloController {
             e.printStackTrace()
             render error as JSON
         }
-        if(outputFile?.exists()){
+        if (outputFile?.exists()) {
             outputFile.deleteOnExit()
         }
     }
@@ -291,10 +287,35 @@ class IOServiceController extends AbstractApolloController {
             render text: "Error: uuid did not map to file. Please try to re-download"
             return
         }
+//        byte[] buffer = new byte[1024];
 
         response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
         if (params.format == "gzip") {
-            new GZIPOutputStream(response.outputStream).withWriter { it << file.text }
+//            println "gzipping"
+
+
+//            ByteArrayOutputStream bytes = new ByteArrayOutputStream()
+//            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(bytes)
+//            gzipOutputStream.write(new FileOutputStream(downloadFile))
+//            gzipOutputStream.close();
+            new GZIPOutputStream(new BufferedOutputStream(response.outputStream)).withWriter { it << file.text }
+
+//            GZIPOutputStream gzis =
+//                    new GZIPOutputStream(response.outputStream);
+//
+//            FileOutputStream out =
+//                    new FileOutputStream(file);
+//
+//            int len;
+//            while ((len = gzis.write(buffer)) > 0) {
+//                out.write(buffer, 0, len);
+//            }
+//
+//            gzis.close();
+//            out.close();
+
+
+            println "GZIPPED"
 //            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
 //            output << file.text
         } else {

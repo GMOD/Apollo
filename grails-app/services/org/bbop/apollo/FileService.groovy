@@ -5,6 +5,7 @@ import org.apache.commons.compress.archivers.ArchiveInputStream
 import org.apache.commons.compress.archivers.ArchiveStreamFactory
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.io.IOUtils
@@ -186,13 +187,78 @@ class FileService {
         return fileNames
     }
 
+    private void addFileToTar(TarArchiveOutputStream tOut, File file, String dir) throws IOException {
+        String entry = dir + File.separator + file.name
+        if (file.isFile() && allowableSuffix(file)) {
+            TarArchiveEntry tarEntry = new TarArchiveEntry(file, entry)
+            tOut.putArchiveEntry(tarEntry)
+            FileInputStream fileInputStream = new FileInputStream(file)
+            IOUtils.copy(fileInputStream, tOut)
+            tOut.closeArchiveEntry()
+        }
+        else if (file.isDirectory()) {
+//            tOut.closeArchiveEntry();
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    System.out.println(child.absolutePath)
+                    addFileToTar(tOut, child, entry)
+                }
+            }
+        }
+        else{
+            System.out.println(file.name + " is not supported");
+        }
+    }
+
+    boolean allowableSuffix(File file) {
+        if(file.absolutePath.startsWith(".")) return false
+        return true
+//        String suffix = file.absolutePath.substring(file.absolutePath.lastIndexOf(".")+1)
+//        println "suffix: ${suffix}"
+//        switch (suffix){
+//            case "json": return true
+//            case "txt": return true
+//        }
+//        return false
+    }
+
+    def compressTarArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
+
+//        Collection<File> filesToArchive = inputDirectory.listFiles()
+        FileOutputStream fileOutputStream
+//        BufferedOutputStream bufferedOutputStream
+        TarArchiveOutputStream tarArchiveOutputStream
+        try {
+            fileOutputStream = new FileOutputStream(outputTarFile)
+//            bufferedOutputStream = new BufferedOutputStream(fileOutputStream)
+            tarArchiveOutputStream = new TarArchiveOutputStream(fileOutputStream)
+            tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
+            tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+            tarArchiveOutputStream.setAddPaxHeadersForNonAsciiNames(true)
+
+            addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
+        }
+        catch (e) {
+            println "e ${e}"
+        }
+        finally {
+            if (tarArchiveOutputStream) {
+                tarArchiveOutputStream.finish()
+                tarArchiveOutputStream.close()
+            }
+            if (fileOutputStream) fileOutputStream.close()
+//            if (bufferedOutputStream) bufferedOutputStream.close()
+        }
+    }
+
     List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         String initialLocation = tempDir ? path + File.separator + "temp" : path
 
         log.debug "initial location: ${initialLocation}"
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
-        String tempFileName = UUID.randomUUID().toString()+".temp"
+        String tempFileName = UUID.randomUUID().toString() + ".temp"
 
         File outputFile = new File(initialLocation, tempFileName)
         assert outputFile.createNewFile()
@@ -204,7 +270,7 @@ class FileService {
             fos.close()
             fileNames.add(outputFile.absolutePath)
         } catch (IOException e) {
-                log.error("Problem decrompression file ${gzipFile} vs ${outputFile}", e)
+            log.error("Problem decrompression file ${gzipFile} vs ${outputFile}", e)
         }
         return fileNames
     }

@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.transaction.Transactional
+import org.apache.commons.io.FileUtils
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 import java.security.MessageDigest
@@ -32,6 +33,7 @@ class JbrowseHandlerService {
     def featureRelationshipService
     def transcriptService
     def cdsService
+    def fileService
 
     /**
      * Track only
@@ -65,8 +67,19 @@ class JbrowseHandlerService {
 
 
 //        File downloadFile = File.createTempFile("prefix","suffix").deleteOnExit()
-        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(downloadFile, true)))
-        downloadFile.write("asdfadsf")
+//        PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(downloadFile, true)))
+
+        File organismDirectory = new File(organism.directory)
+
+        // write contents of tar file
+        println "download file ${downloadFile.absolutePath}"
+
+        fileService.compressTarArchive(downloadFile,organismDirectory)
+
+
+//        FileUtils.copyDirectory(organismDirectory,downloadFile)
+
+//        downloadFile.write("asdfadsf")
 //        def file = new File(downloadFile+".gzip")
 //        out.setContentType("application/octet-stream") // or or image/JPEG or text/xml or whatever type the file is
 //        out.setHeader("Content-disposition", "attachment; filename=abcd.gzip")
@@ -76,8 +89,8 @@ class JbrowseHandlerService {
 //            output << file.text
 //        }
 //    else {
-        out.flush()
-        out.close()
+//        out.flush()
+//        out.close()
 //        def outputStream = out.outputStream
 //        outputStream << downloadFile.text
 //        outputStream.flush()
