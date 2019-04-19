@@ -80,14 +80,6 @@
                                 <b:TextBox ui:field="organismUploadNonDefaultTranslationTable" name="nonDefaultTranslationTable"/>
                                 </b:InputGroup>
 
-
-                                <!--<b:InputGroup addStyleNames="{style.widgetPanel}">-->
-                                    <!--<b:InputGroupAddon>Search Database (*.2bit)</b:InputGroupAddon>-->
-                                    <!--<gwt:FileUpload ui:field="organismUploadBlat"  name="searchDatabase"/>-->
-                                <!--</b:InputGroup>-->
-
-
-
                             </gwt:FlowPanel>
                         </b:ModalBody>
                         <b:ModalFooter>
@@ -186,6 +178,8 @@
                                           icon="PLUS_CIRCLE"/>
                                 <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true"
                                           icon="UPLOAD"/>
+                                <b:Button ui:field="downloadOrganismButton" text="Download" enabled="true" visible="false"
+                                          icon="DOWNLOAD"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false" icon="TRASH_O"
                                           styleName="{style.inline-button}"
                                 />

@@ -738,6 +738,7 @@ class TrackService {
             log.debug "file can execute ${fileToExecute.canExecute()}"
         }
 //        bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name>
+        println "input fie ${inputFile}"
         String outputName = inputFile.getName().substring(0,inputFile.getName().lastIndexOf("."))
 
         def arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type","mRNA","--trackLabel",outputName,"--out",trackPath]

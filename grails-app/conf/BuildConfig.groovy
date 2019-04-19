@@ -83,6 +83,8 @@ grails.project.dependency.resolution = {
         compile 'org.json:json:20140107'
         compile 'org.hibernate:hibernate-tools:3.2.0.ga'
         compile 'commons-beanutils:commons-beanutils:1.8.3'
+        compile group: 'org.codehaus.plexus', name: 'plexus-archiver', version: '4.1.0'
+
         //compile 'asm:asm:3.1'
         //compile  'edu.sdsc:scigraph-core:1.1-SNAPSHOT'
         //compile 'org.biojava:biojava3-core:3.1.0'

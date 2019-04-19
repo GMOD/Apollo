@@ -25,7 +25,7 @@ public class Gff3HandlerService {
 
     static final def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
     @Timed
-    public void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
+    void writeFeaturesToText(String path, Collection<? extends Feature> features, String source, Boolean exportSequence = false, Collection<Sequence> sequences = null) throws IOException {
         WriteObject writeObject = new WriteObject()
 
         writeObject.mode = Mode.WRITE
