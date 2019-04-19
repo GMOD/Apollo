@@ -74,11 +74,13 @@ class IOServiceController extends AbstractApolloController {
         File outputFile = null
         try {
             long current = System.currentTimeMillis()
+            println "input ${request} ${params}"
             JSONObject dataObject = permissionService.handleInput(request,params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
+            println "output dat a object ${dataObject.organism} ${dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)}"
             String typeOfExport = dataObject.type
             String sequenceType = dataObject.seqType
             Boolean exportAllSequences = dataObject.exportAllSequences ? Boolean.valueOf(dataObject.exportAllSequences) : false
@@ -215,16 +217,18 @@ class IOServiceController extends AbstractApolloController {
             }
             else if (typeOfExport == FeatureStringEnum.TYPE_JBROWSE.getValue()) {
                 if(exportFullJBrowse){
-                    render jbrowseHandlerService.writeExportToThisOrganism(organism)
+                    println "exporting JBrowse full for organism"
+                    jbrowseHandlerService.writeExportToThisOrganism(organism,outputFile)
                 }
                 else
                 if(exportJBrowseSequence){
-                    render jbrowseHandlerService.writeJBrowseDirectory(organism)
+                    println "exporting annotation track + full organism"
+                    jbrowseHandlerService.writeJBrowseDirectory(organism)
                 }
                 else{
-                    render jbrowseHandlerService.writeTrackOnly(organism)
+                    println "exporting just annotation tracks"
+                    jbrowseHandlerService.writeTrackOnly(organism)
                 }
-                return // ??
             }
 
             //generating a html fragment with the link for download that can be rendered on client side

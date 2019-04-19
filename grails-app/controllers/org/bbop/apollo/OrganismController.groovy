@@ -25,6 +25,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 import javax.servlet.http.HttpServletResponse
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.util.zip.GZIPOutputStream
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
@@ -1431,4 +1432,58 @@ class OrganismController {
         }
     }
 
+
+    @RestApiMethod(description = "This is used to retrieve the a download link once the write operation was initialized using output: file."
+            , path = "/organism/download", verb = RestApiVerb.POST
+    )
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "uuid", type = "string", paramType = RestApiParamType.QUERY, description = "UUID that holds the key to the stored download.")
+            , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
+    ]
+    )
+    def download(){
+        println "pramas "
+        println params
+        println request.JSON
+
+        // use https://www.programcreek.com/java-api-examples/?api=org.codehaus.plexus.archiver.tar.TarArchiver
+
+//        TarArchiver tarArchive = new TarArchiver();
+//        tarArchive.enableLogging(new ConsoleLogger(Logger.LEVEL_DISABLED, "console"));
+//        for (File file : files) {
+//            // The starting ./ in the folder name is required for Heroku to be able to unpack the files correctly.
+//            if (file.isFile()) {
+//                tarArchive.addFile(file, "./" + folder + "/" + file.getName());
+//            } else if (file.isDirectory()) {
+//                tarArchive.addDirectory(file, "./" + folder + "/" + file.getName() + "/");
+//            }
+//        }
+//
+//        File tarFile = File.createTempFile("TarGzArchive", ".tar");
+//        tarArchive.setDestFile(tarFile);
+//        tarArchive.createArchive();
+//
+//        return tarFile;
+
+        File downloadFile = File.createTempFile("prefix","suffix").deleteOnExit()
+        downloadFile.write("asdfadsf")
+//        def file = new File(downloadFile+".gzip")
+        response.setContentType("application/octet-stream") // or or image/JPEG or text/xml or whatever type the file is
+        response.setHeader("Content-disposition", "attachment; filename=abcd.gzip")
+//        if (params.format == "gzip") {
+//        new GZIPOutputStream(response.outputStream).withWriter { it << downloadFile.text }
+//            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
+//            output << file.text
+//        }
+//    else {
+            def outputStream = response.outputStream
+            outputStream << downloadFile.text
+            outputStream.flush()
+            outputStream.close()
+//        }
+
+//        downloadFile.delete()
+    }
 }

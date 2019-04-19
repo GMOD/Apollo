@@ -47,9 +47,9 @@ public class ExportPanel extends Modal {
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
     RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
-    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "Export JBrowse Track", true);
-    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Export entire JBrowse Directory", true);
-    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Export as new evidence track", true);
+    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "Only Annotations", true);
+    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Annotations and Evidence", true);
+    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Add Track as Evidence", true);
 
     ModalBody modalBody = new ModalBody();
     ModalHeader modalHeader = new ModalHeader();
