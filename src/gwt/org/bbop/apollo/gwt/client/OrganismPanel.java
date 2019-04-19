@@ -315,7 +315,7 @@ public class OrganismPanel extends Composite {
         nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
         nonDefaultTranslationTable.setEnabled(isEditable);
 
-        downloadOrganismButton.setVisible(true);
+        downloadOrganismButton.setVisible(false);
         deleteButton.setVisible(isEditable);
         deleteButton.setEnabled(isEditable);
     }
@@ -473,7 +473,8 @@ public class OrganismPanel extends Composite {
         deleteButton.setText("Delete Organism");
         newButton.setEnabled(false);
         uploadOrganismButton.setVisible(false);
-        downloadOrganismButton.setVisible(singleSelectionModel.getSelectedObject()!=null);
+//        downloadOrganismButton.setVisible(singleSelectionModel.getSelectedObject()!=null);
+        downloadOrganismButton.setVisible(false);
         cancelButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
         createButton.setEnabled(MainPanel.getInstance().isCurrentUserInstructorOrBetter());
 
@@ -539,7 +540,8 @@ public class OrganismPanel extends Composite {
     public void handleCancelNewOrganism(ClickEvent clickEvent) {
         newButton.setEnabled(MainPanel.getInstance().isCurrentUserAdmin());
         uploadOrganismButton.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
-        downloadOrganismButton.setVisible(singleSelectionModel.getSelectedObject()!=null);
+//        downloadOrganismButton.setVisible(singleSelectionModel.getSelectedObject()!=null);
+        downloadOrganismButton.setVisible(false);
         deleteButton.setVisible(false);
         createButton.setVisible(false);
         cancelButton.setVisible(false);
@@ -664,7 +666,8 @@ public class OrganismPanel extends Composite {
             newButton.setVisible(isAdmin);
             deleteButton.setVisible(isAdmin);
             createButton.setVisible(false);
-            downloadOrganismButton.setVisible(true);
+//            downloadOrganismButton.setVisible(true);
+            downloadOrganismButton.setVisible(false);
             cancelButton.setVisible(false);
             duplicateButton.setVisible(isAdmin);
             publicMode.setVisible(isAdmin);
