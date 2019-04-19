@@ -64,9 +64,9 @@ class IOServiceController extends AbstractApolloController {
             , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism that sequences belong to (will default to last organism).")
             , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
             , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
-            , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export reference sequence when exporting GFF3 annotations.")
-            , @RestApiParam(name = "exportToThisOrganism", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export Full JBrowse installation when exporting as track (default false).")
-            , @RestApiParam(name = "exportJBrowseSequence", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export JBrowse sequence when exporting JBrowse track (default false).")
+//            , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export reference sequence when exporting GFF3 annotations.")
+//            , @RestApiParam(name = "exportToThisOrganism", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export Full JBrowse installation when exporting as track (default false).")
+//            , @RestApiParam(name = "exportJBrowseSequence", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export JBrowse sequence when exporting JBrowse track (default false).")
             , @RestApiParam(name = "region", type = "String", paramType = RestApiParamType.QUERY, description = "Highlighted genomic region to export in form sequence:min..max  e.g., chr3:1001..1034")
     ]
     )
@@ -75,13 +75,11 @@ class IOServiceController extends AbstractApolloController {
         File outputFile = null
         try {
             long current = System.currentTimeMillis()
-            println "input ${request} ${params}"
             JSONObject dataObject = permissionService.handleInput(request, params)
             if (!permissionService.hasPermissions(dataObject, PermissionEnum.READ)) {
                 render status: HttpStatus.UNAUTHORIZED
                 return
             }
-            println "output dat a object ${dataObject.organism} ${dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)}"
             String typeOfExport = dataObject.type
             String sequenceType = dataObject.seqType
             Boolean exportAllSequences = dataObject.exportAllSequences ? Boolean.valueOf(dataObject.exportAllSequences) : false
@@ -90,7 +88,7 @@ class IOServiceController extends AbstractApolloController {
 //                exportAllSequences = true
 //            }
 
-            Boolean exportFullJBrowse = dataObject.exportFullJBrowse ? Boolean.valueOf(dataObject.exportFullJBrowse) : false
+//            Boolean exportFullJBrowse = dataObject.exportFullJBrowse ? Boolean.valueOf(dataObject.exportFullJBrowse) : false
             Boolean exportJBrowseSequence = dataObject.exportJBrowseSequence ? Boolean.valueOf(dataObject.exportJBrowseSequence) : false
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
             String output = dataObject.output
@@ -288,9 +286,6 @@ class IOServiceController extends AbstractApolloController {
             render text: "Error: uuid did not map to file. Please try to re-download"
             return
         }
-//        byte[] buffer = new byte[1024];
-        println "input data ${params}"
-        println "input format ${params.format}"
 
         response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
 //        if (params.format == "tar.gz") {
@@ -302,33 +297,7 @@ class IOServiceController extends AbstractApolloController {
 //        }
 //        else
         if (params.format == "gzip") {
-            println "gzipping"
-
-
-//            ByteArrayOutputStream bytes = new ByteArrayOutputStream()
-//            GZIPOutputStream gzipOutputStream = new GZIPOutputStream(bytes)
-//            gzipOutputStream.write(new FileOutputStream(downloadFile))
-//            gzipOutputStream.close();
             new GZIPOutputStream(new BufferedOutputStream(response.outputStream)).withWriter { it << file.text }
-
-//            GZIPOutputStream gzis =
-//                    new GZIPOutputStream(response.outputStream);
-//
-//            FileOutputStream out =
-//                    new FileOutputStream(file);
-//
-//            int len;
-//            while ((len = gzis.write(buffer)) > 0) {
-//                out.write(buffer, 0, len);
-//            }
-//
-//            gzis.close();
-//            out.close();
-
-
-            println "GZIPPED"
-//            def output = new BufferedOutputStream(new GZIPOutputStream(response.outputStream))
-//            output << file.text
         } else {
             def outputStream = response.outputStream
             outputStream << file.text

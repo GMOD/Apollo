@@ -198,53 +198,28 @@ class FileService {
             tOut.closeArchiveEntry()
         }
         else if (file.isDirectory()) {
-//            tOut.closeArchiveEntry();
             File[] children = file.listFiles();
             if (children != null) {
                 for (File child : children) {
-                    System.out.println(child.absolutePath)
                     addFileToTar(tOut, child, entry)
                 }
             }
         }
         else{
-            System.out.println(file.name + " is not supported");
+            log.error(file.name + " is not supported");
         }
     }
 
     boolean allowableSuffix(File file) {
-        if(file.absolutePath.startsWith(".")) return false
-        return true
-//        String suffix = file.absolutePath.substring(file.absolutePath.lastIndexOf(".")+1)
-//        println "suffix: ${suffix}"
-//        switch (suffix){
-//            case "json": return true
-//            case "txt": return true
-//            case "conf": return true
-////            case "bam": return true
-////            case "bai": return true
-////            case "bw": return true
-////            case "vcf": return true
-////            case "tgz": return true
-////            case "gz": return true
-////            case "gff3": return true
-////            case "tabix": return true
-////            case "gff": return true
-////            case "fa": return true
-////            case "fai": return true
-//        }
-//        return false
+        return !file.absolutePath.startsWith(".")
     }
 
     def compressTarArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
 
-//        Collection<File> filesToArchive = inputDirectory.listFiles()
         FileOutputStream fileOutputStream
-//        BufferedOutputStream bufferedOutputStream
         TarArchiveOutputStream tarArchiveOutputStream
         try {
             fileOutputStream = new FileOutputStream(outputTarFile)
-//            bufferedOutputStream = new BufferedOutputStream(fileOutputStream)
             tarArchiveOutputStream = new TarArchiveOutputStream(fileOutputStream)
             tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
             tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
@@ -253,28 +228,17 @@ class FileService {
             addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
         }
         catch (e) {
-            println "e ${e}"
+            log.error "${e}"
         }
-//        finally {
-//            if (tarArchiveOutputStream) {
-//                tarArchiveOutputStream.finish()
-//                tarArchiveOutputStream.close()
-//            }
-//            if (fileOutputStream) fileOutputStream.close()
-////            if (bufferedOutputStream) bufferedOutputStream.close()
-//        }
     }
 
     def compressTarGzArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
 
-//        Collection<File> filesToArchive = inputDirectory.listFiles()
         FileOutputStream fileOutputStream
-//        BufferedOutputStream bufferedOutputStream
         TarArchiveOutputStream tarArchiveOutputStream
         GzipCompressorOutputStream gzipCompressorOutputStream
         try {
             fileOutputStream = new FileOutputStream(outputTarFile)
-//            bufferedOutputStream = new BufferedOutputStream(fileOutputStream)
             gzipCompressorOutputStream = new GzipCompressorOutputStream(fileOutputStream)
             tarArchiveOutputStream = new TarArchiveOutputStream(gzipCompressorOutputStream)
             tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
@@ -284,16 +248,8 @@ class FileService {
             addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
         }
         catch (e) {
-            println "e ${e}"
+            log.error "${e}"
         }
-//        finally {
-//            if (tarArchiveOutputStream) {
-//                tarArchiveOutputStream.finish()
-//                tarArchiveOutputStream.close()
-//            }
-//            if (fileOutputStream) fileOutputStream.close()
-////            if (bufferedOutputStream) bufferedOutputStream.close()
-//        }
     }
 
     List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {
