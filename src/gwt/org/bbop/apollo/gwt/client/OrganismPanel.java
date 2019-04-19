@@ -9,9 +9,7 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.json.client.*;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -31,6 +29,7 @@ import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.track.SequenceTypeEnum;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.Button;
@@ -373,18 +372,43 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("downloadOrganismButton")
     public void downloadOrganismButton(ClickEvent event) {
-//        RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                Window.alert("organism: "+response.getText());
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Bootbox.alert("Failed to download organism track: "+exception.getMessage());
-//            }
-//        };
-        OrganismRestService.downloadOrganism( singleSelectionModel.getSelectedObject());
+
+        OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("organism",new JSONString(organismInfo.getId()));
+        jsonObject.put("directory",new JSONString(organismInfo.getDirectory()));
+        jsonObject.put("type", new JSONString(FeatureStringEnum.TYPE_JBROWSE.getValue()));
+        jsonObject.put("output", new JSONString("file"));
+        jsonObject.put("format", new JSONString("gzip"));
+        jsonObject.put("exportFullJBrowse", JSONBoolean.getInstance(true));
+        jsonObject.put("exportJBrowseSequence", JSONBoolean.getInstance(false));
+//        String type = exportPanel.getType();
+//        jsonObject.put("type", new JSONString(exportPanel.getType()));
+//        jsonObject.put("exportAllSequences", new JSONString(exportPanel.getExportAll().toString()));
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+                GWT.log("Responded: "+responseObject.toString());
+                String uuid = responseObject.get("uuid").isString().stringValue();
+                String exportType = responseObject.get("exportType").isString().stringValue();
+//                String sequenceType = responseObject.get("seqType").isString().stringValue();
+//                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType+"&format=gzip";
+                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&format=gzip";
+
+                Window.Location.assign(exportUrl);
+//                exportPanel.setExportUrl(exportUrl);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error: " + exception);
+            }
+        };
+
+
+        RestService.sendRequest(requestCallback, "IOService/write", "data=" + jsonObject.toString());
     }
 
     @UiHandler("saveNewOrganism")
