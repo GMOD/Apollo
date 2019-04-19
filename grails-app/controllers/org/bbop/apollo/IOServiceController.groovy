@@ -212,9 +212,11 @@ class IOServiceController extends AbstractApolloController {
                 }
                 return // ??
             } else if (typeOfExport == FeatureStringEnum.TYPE_JBROWSE.getValue()) {
-                outputFile = File.createTempFile("JBrowse", "." + typeOfExport.toLowerCase() + ".tar")
+//                outputFile = File.createTempFile("JBrowse", "." + typeOfExport.toLowerCase() + ".tar")
+                outputFile = File.createTempFile("JBrowse", "." + typeOfExport.toLowerCase() + ".tar.gz")
                 println "outpufEile = ${outputFile.path}"
                 fileName = "JBrowse-" + organism.commonName.replaceAll(" ", "_") + ".tar.gz"
+                format = "tar.gz"
                 if (exportFullJBrowse) {
                     println "exporting JBrowse full for organism"
                     jbrowseHandlerService.writeExportToThisOrganism(organism, outputFile)
@@ -288,10 +290,20 @@ class IOServiceController extends AbstractApolloController {
             return
         }
 //        byte[] buffer = new byte[1024];
+        println "input data ${params}"
+        println "input format ${params.format}"
 
         response.setHeader("Content-disposition", "attachment; filename=${downloadFile.fileName}")
+//        if (params.format == "tar.gz") {
+//            println "just downloading the bytes directly "
+//            def outputStream = response.outputStream
+//            outputStream << file.bytes
+//            outputStream.flush()
+//            outputStream.close()
+//        }
+//        else
         if (params.format == "gzip") {
-//            println "gzipping"
+            println "gzipping"
 
 
 //            ByteArrayOutputStream bytes = new ByteArrayOutputStream()

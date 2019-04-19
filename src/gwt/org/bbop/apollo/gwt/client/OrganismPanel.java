@@ -380,6 +380,7 @@ public class OrganismPanel extends Composite {
         jsonObject.put("type", new JSONString(FeatureStringEnum.TYPE_JBROWSE.getValue()));
         jsonObject.put("output", new JSONString("file"));
         jsonObject.put("format", new JSONString("gzip"));
+//        jsonObject.put("format", new JSONString("tar.gz"));
         jsonObject.put("exportFullJBrowse", JSONBoolean.getInstance(true));
         jsonObject.put("exportJBrowseSequence", JSONBoolean.getInstance(false));
 //        String type = exportPanel.getType();
@@ -395,6 +396,7 @@ public class OrganismPanel extends Composite {
                 String exportType = responseObject.get("exportType").isString().stringValue();
 //                String sequenceType = responseObject.get("seqType").isString().stringValue();
 //                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&seqType=" + sequenceType+"&format=gzip";
+//                String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&format=tar.gz";
                 String exportUrl = Annotator.getRootUrl() + "IOService/download?uuid=" + uuid + "&exportType=" + exportType + "&format=gzip";
 
                 Window.Location.assign(exportUrl);

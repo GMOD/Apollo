@@ -8,6 +8,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.io.IOUtils
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
@@ -212,15 +213,27 @@ class FileService {
     }
 
     boolean allowableSuffix(File file) {
-        if(file.absolutePath.startsWith(".")) return false
-        return true
-//        String suffix = file.absolutePath.substring(file.absolutePath.lastIndexOf(".")+1)
-//        println "suffix: ${suffix}"
-//        switch (suffix){
-//            case "json": return true
-//            case "txt": return true
-//        }
-//        return false
+//        if(file.absolutePath.startsWith(".")) return false
+//        return true
+        String suffix = file.absolutePath.substring(file.absolutePath.lastIndexOf(".")+1)
+        println "suffix: ${suffix}"
+        switch (suffix){
+            case "json": return true
+            case "txt": return true
+            case "conf": return true
+//            case "bam": return true
+//            case "bai": return true
+//            case "bw": return true
+//            case "vcf": return true
+//            case "tgz": return true
+//            case "gz": return true
+//            case "gff3": return true
+//            case "tabix": return true
+//            case "gff": return true
+//            case "fa": return true
+//            case "fai": return true
+        }
+        return false
     }
 
     def compressTarArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
@@ -242,14 +255,45 @@ class FileService {
         catch (e) {
             println "e ${e}"
         }
-        finally {
-            if (tarArchiveOutputStream) {
-                tarArchiveOutputStream.finish()
-                tarArchiveOutputStream.close()
-            }
-            if (fileOutputStream) fileOutputStream.close()
-//            if (bufferedOutputStream) bufferedOutputStream.close()
+//        finally {
+//            if (tarArchiveOutputStream) {
+//                tarArchiveOutputStream.finish()
+//                tarArchiveOutputStream.close()
+//            }
+//            if (fileOutputStream) fileOutputStream.close()
+////            if (bufferedOutputStream) bufferedOutputStream.close()
+//        }
+    }
+
+    def compressTarGzArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
+
+//        Collection<File> filesToArchive = inputDirectory.listFiles()
+        FileOutputStream fileOutputStream
+//        BufferedOutputStream bufferedOutputStream
+        TarArchiveOutputStream tarArchiveOutputStream
+        GzipCompressorOutputStream gzipCompressorOutputStream
+        try {
+            fileOutputStream = new FileOutputStream(outputTarFile)
+//            bufferedOutputStream = new BufferedOutputStream(fileOutputStream)
+            gzipCompressorOutputStream = new GzipCompressorOutputStream(fileOutputStream)
+            tarArchiveOutputStream = new TarArchiveOutputStream(gzipCompressorOutputStream)
+            tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
+            tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+            tarArchiveOutputStream.setAddPaxHeadersForNonAsciiNames(true)
+
+            addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
         }
+        catch (e) {
+            println "e ${e}"
+        }
+//        finally {
+//            if (tarArchiveOutputStream) {
+//                tarArchiveOutputStream.finish()
+//                tarArchiveOutputStream.close()
+//            }
+//            if (fileOutputStream) fileOutputStream.close()
+////            if (bufferedOutputStream) bufferedOutputStream.close()
+//        }
     }
 
     List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {

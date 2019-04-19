@@ -75,6 +75,7 @@ class JbrowseHandlerService {
         println "download file ${downloadFile.absolutePath}"
 
         fileService.compressTarArchive(downloadFile,organismDirectory)
+//        fileService.compressTarGzArchive(downloadFile,organismDirectory)
 
 
 //        FileUtils.copyDirectory(organismDirectory,downloadFile)
