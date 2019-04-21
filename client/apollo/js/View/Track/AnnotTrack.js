@@ -1692,6 +1692,19 @@ define([
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
+            /**
+             * allow removal for
+             */
+            removeVariantEffect: function(){
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                console.log('selected',selected);
+                var feature = selected[0].feature ;
+                // var location = feature.afeature.location ;
+                var variant_type = feature.data.type;
+            },
+
             viewVariantEffect: function() {
                 var track = this;
                 var trackName = this.getUniqueTrackName();
@@ -6963,6 +6976,15 @@ define([
                     annot_context_menu.addChild(viewVariantEffect);
                     contextMenuItems["view_variant_effect"] = index++;
 
+                    var removeVariantEffect = new dijit.MenuItem({
+                        label: "Remove Variant Effect",
+                        onClick: function () {
+                            thisB.removeVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(removeVariantEffect);
+                    contextMenuItems["remove_variant_effect"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
 
@@ -7366,6 +7388,7 @@ define([
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
                 this.updateViewVariantEffect();
+                this.updateRemoveVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7443,6 +7466,23 @@ define([
                     // TODO: search for sequence alterations in that space?
                     menuItem.set("disabled", false);
                 }
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateRemoveVariantEffect: function(){
+                var menuItem = this.getMenuItem("remove_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length !== 1) {
+                    return;
+                }
+                // var currentType = selected[0].feature.get('type');
+                // if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                //     // TODO: search for sequence alterations in that space?
+                menuItem.set("disabled", false);
+                // }
             },
 
             updateDissociateTranscriptFromGeneItem: function() {
