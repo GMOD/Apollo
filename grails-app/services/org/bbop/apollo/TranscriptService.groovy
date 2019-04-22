@@ -78,9 +78,7 @@ class TranscriptService {
     @Transactional
     def removeCDS(Transcript transcript) {
         CDS cds = getCDS(transcript)
-        println "cds found ${cds}"
         featureRelationshipService.removeFeatureRelationship(transcript,cds)
-//        featureService.deleteFeature(cds)
         cds.delete()
         return transcript
     }

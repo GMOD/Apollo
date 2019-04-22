@@ -63,7 +63,6 @@ class FeatureService {
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
     Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
-        println "overlapping transcripts ${location}"
         List<Transcript> transcriptList = new ArrayList<>()
         List<Transcript> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
 
@@ -939,7 +938,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         // if the start is set, then we make sure we are going to set a legal coordinate
         if (cdsService.isManuallySetTranslationStart(cds)) {
-            println "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
+            log.info "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
             if (transcript.strand == Strand.NEGATIVE.value) {
                 if (translationEnd  >= cds.featureLocation.fmax ) {
                     throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmax} (smaller)")
@@ -2323,7 +2322,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def handleDynamicIsoformOverlap(Transcript transcript) {
         // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
-        println "handling dynamic isoform overlap ${transcript}"
         ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
         List<Transcript> allOverlappingTranscripts = getOverlappingTranscripts(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
@@ -2528,8 +2526,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     def getOverlappingTranscripts(Transcript transcript) {
-        println "transcript ${transcript}"
-        println "locaations ${transcript.featureLocations}"
         ArrayList<Transcript> overlappingTranscripts = getOverlappingTranscripts(transcript.featureLocation)
         overlappingTranscripts.remove(transcript) // removing itself
         ArrayList<Transcript> transcriptsWithOverlapCriteria = new ArrayList<Transcript>()

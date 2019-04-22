@@ -1540,9 +1540,7 @@ class RequestHandlingService {
             Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
 
             if (feature instanceof Transcript && transcriptService.isProteinCoding((Transcript) feature)) {
-                println "A ${feature}"
                 feature = transcriptService.removeCDS((Transcript) feature)
-                println "B"
                 def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
                 featureService.addOwnersByString(inputObject.username,feature)
                 if (transcriptService.getGene((Transcript) feature)) {
@@ -1569,27 +1567,15 @@ class RequestHandlingService {
             else{
                 log.warn("Type can not have CDS")
             }
-            println "B.1"
             featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
-            println "B.2"
         }
-
-        println "C"
-
         AnnotationEvent annotationEvent = new AnnotationEvent(
                 features: featureContainer
                 , sequence: sequence
                 , operation: AnnotationEvent.Operation.UPDATE
         )
-
-        println "D"
-
         fireAnnotationEvent(annotationEvent)
-
-        println "E"
-
         return featureContainer
-
     }
 
     @Timed
