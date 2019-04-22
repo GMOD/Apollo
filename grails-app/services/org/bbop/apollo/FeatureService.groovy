@@ -63,6 +63,7 @@ class FeatureService {
      * @return Collection of Feature objects that overlap the FeatureLocation
      */
     Collection<Transcript> getOverlappingTranscripts(FeatureLocation location, boolean compareStrands = true) {
+        println "overlapping transcripts ${location}"
         List<Transcript> transcriptList = new ArrayList<>()
         List<Transcript> overlappingFeaturesList = getOverlappingFeatures(location, compareStrands)
 
@@ -2101,30 +2102,30 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                 jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
 
-                jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
-                jsonProperty.put(FeatureStringEnum.NAME.value, property.getTag());
-                jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
-                properties.put(jsonProperty);
+                jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType)
+                jsonProperty.put(FeatureStringEnum.NAME.value, property.getTag())
+                jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue())
+                properties.put(jsonProperty)
             }
         }
 //        JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
 //        properties.put(ownerProperty)
 
 
-        Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
+        Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs()
         if (gsolFeatureDbxrefs) {
             JSONArray dbxrefs = new JSONArray();
-            jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
+            jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs)
             for (DBXref gsolDbxref : gsolFeatureDbxrefs) {
-                JSONObject dbxref = new JSONObject();
-                dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getAccession());
-                dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDb().getName()));
-                dbxrefs.put(dbxref);
+                JSONObject dbxref = new JSONObject()
+                dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getAccession())
+                dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDb().getName()))
+                dbxrefs.put(dbxref)
             }
         }
-        jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
-        jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
-        return jsonFeature;
+        jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time)
+        jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time)
+        return jsonFeature
     }
 
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
@@ -2322,6 +2323,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Transactional
     def handleDynamicIsoformOverlap(Transcript transcript) {
         // Get all transcripts that overlap transcript and verify if they have the proper parent gene assigned
+        println "handling dynamic isoform overlap ${transcript}"
         ArrayList<Transcript> transcriptsToUpdate = new ArrayList<Transcript>()
         List<Transcript> allOverlappingTranscripts = getOverlappingTranscripts(transcript)
         List<Transcript> allTranscriptsForCurrentGene = transcriptService.getTranscripts(transcriptService.getGene(transcript))
@@ -2526,6 +2528,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
     def getOverlappingTranscripts(Transcript transcript) {
+        println "transcript ${transcript}"
+        println "locaations ${transcript.featureLocations}"
         ArrayList<Transcript> overlappingTranscripts = getOverlappingTranscripts(transcript.featureLocation)
         overlappingTranscripts.remove(transcript) // removing itself
         ArrayList<Transcript> transcriptsWithOverlapCriteria = new ArrayList<Transcript>()

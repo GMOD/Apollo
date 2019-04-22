@@ -31,7 +31,7 @@ class TranscriptService {
      *
      * @return CDS associated with this transcript
      */
-    public CDS getCDS(Transcript transcript) {
+    CDS getCDS(Transcript transcript) {
         return (CDS) featureRelationshipService.getChildForFeature(transcript, CDS.ontologyId)
 
     }
@@ -42,11 +42,11 @@ class TranscriptService {
      *
      * @return Collection of exons associated with this transcript
      */
-    public Collection<Exon> getExons(Transcript transcript) {
+    Collection<Exon> getExons(Transcript transcript) {
         return (Collection<Exon>) featureRelationshipService.getChildrenForFeatureAndTypes(transcript, Exon.ontologyId)
     }
 
-    public Collection<Exon> getSortedExons(Transcript transcript, boolean sortByStrand ) {
+    Collection<Exon> getSortedExons(Transcript transcript, boolean sortByStrand ) {
         Collection<Exon> exons = getExons(transcript)
         List<Exon> sortedExons = new LinkedList<Exon>(exons);
         Collections.sort(sortedExons, new FeaturePositionComparator<Exon>(sortByStrand))
@@ -59,20 +59,30 @@ class TranscriptService {
      *
      * @return Gene that this Transcript is associated with
      */
-    public Gene getGene(Transcript transcript) {
+    Gene getGene(Transcript transcript) {
         return (Gene) featureRelationshipService.getParentForFeature(transcript, Gene.ontologyId, Pseudogene.ontologyId)
     }
 
-    public Pseudogene getPseudogene(Transcript transcript) {
+    Pseudogene getPseudogene(Transcript transcript) {
         return (Pseudogene) featureRelationshipService.getParentForFeature(transcript, Pseudogene.ontologyId)
     }
 
-    public boolean isProteinCoding(Transcript transcript) {
+    boolean isProteinCoding(Transcript transcript) {
         return transcript instanceof MRNA
 //        if (getGene(transcript) != null && getGene(transcript) instanceof Pseudogene) {
 //            return false;
 //        }
 //        return true;
+    }
+
+    @Transactional
+    def removeCDS(Transcript transcript) {
+        CDS cds = getCDS(transcript)
+        println "cds found ${cds}"
+        featureRelationshipService.removeFeatureRelationship(transcript,cds)
+//        featureService.deleteFeature(cds)
+        cds.delete()
+        return transcript
     }
 
     @Transactional
@@ -134,7 +144,7 @@ class TranscriptService {
      *
      * @return Collection of transcripts associated with this gene
      */
-    public Collection<Transcript> getTranscripts(Gene gene) {
+    Collection<Transcript> getTranscripts(Gene gene) {
         return (Collection<Transcript>) featureRelationshipService.getChildrenForFeatureAndTypes(gene, ontologyIds as String[])
     }
 
@@ -143,7 +153,7 @@ class TranscriptService {
     }
 
     @Transactional
-    public void setFmin(Transcript transcript, Integer fmin) {
+    void setFmin(Transcript transcript, Integer fmin) {
         transcript.getFeatureLocation().setFmin(fmin);
         Gene gene = getGene(transcript)
         if (gene != null && fmin < gene.getFmin()) {
@@ -152,7 +162,7 @@ class TranscriptService {
     }
 
     @Transactional
-    public void setFmax(Transcript transcript, Integer fmax) {
+    void setFmax(Transcript transcript, Integer fmax) {
         transcript.getFeatureLocation().setFmax(fmax);
         Gene gene = getGene(transcript)
         if (gene != null && fmax > gene.getFmax()) {
