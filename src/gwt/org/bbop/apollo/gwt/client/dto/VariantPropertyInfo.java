@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONValue;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.json.client.JSONObject;

@@ -10,11 +10,9 @@ databaseChangeLog = {
             column(autoIncrement: "true", name: "id", type: "bigint") {
                 constraints(nullable: "false", primaryKey: "true", primaryKeyName: "analysisPK")
             }
-
             column(name: "version", type: "bigint") {
                 constraints(nullable: "false")
             }
-
             column(name: "name", type: "string") {
                 constraints(nullable: "false",unique:"true")
             }
@@ -22,6 +20,11 @@ databaseChangeLog = {
                 constraints(nullable: "true")
             }
         }
+
+    }
+
+    changeSet(author: "nathandunn", id: "1459788030178-2") {
+        dropNotNullConstraint(tableName: "variant_info", columnName:"value", columnDataType:"text")
     }
 
 }

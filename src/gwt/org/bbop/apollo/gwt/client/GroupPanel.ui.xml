@@ -75,7 +75,7 @@
                 </gwt:center>
             </gwt:DockLayoutPanel>
         </gwt:center>
-        <gwt:south size="300">
+        <gwt:south size="200">
             <gwt:TabLayoutPanel barHeight="35" ui:field="userDetailTab" visible="false">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>

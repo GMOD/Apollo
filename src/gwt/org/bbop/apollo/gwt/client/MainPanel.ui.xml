@@ -49,7 +49,7 @@
             color: white;
             font-size: smaller;
             height: 25px;
-            width: 100px;
+            width: 200px;
         }
 
         .lookup-display:focus {
@@ -64,7 +64,7 @@
             color: white;
             font-size: smaller;
             height: 25px;
-            width: 100px;
+            width: 150px;
         }
 
         .northPanel {

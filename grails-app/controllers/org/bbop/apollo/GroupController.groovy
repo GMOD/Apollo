@@ -20,6 +20,7 @@ class GroupController {
 
     def permissionService
     def preferenceService
+    def groupService
 
     @RestApiMethod(description = "Get organism permissions for group", path = "/group/getOrganismPermissionsForGroup", verb = RestApiVerb.POST)
     @RestApiParams(params = [
@@ -171,7 +172,7 @@ class GroupController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to add, or a comma-delimited list of names")
     ]
     )
     @Transactional
@@ -186,27 +187,18 @@ class GroupController {
         // permissionService.currentUser is None when accessing by webservice
         // to support webservice, get current user from session or input object
         def currentUser = permissionService.getCurrentUser(dataObject)
-        UserGroup group = new UserGroup(
-                name: dataObject.name,
-                // add metadata from webservice
-                metadata: dataObject.metadata ? dataObject.metadata.toString() : null
-        )
-        group.save(flush: true)
-        // allow specify the metadata creator through webservice, if not specified, take current user as the creator
-        if (!group.getMetaData(FeatureStringEnum.CREATOR.value)) {
-            log.debug "creator does not exist, set current user as the creator"
-            group.addMetaData(FeatureStringEnum.CREATOR.value, currentUser.id.toString())
+        String[] names = dataObject.name.split(",")
+        log.info( "adding groups ${names as JSON}")
+
+        List<UserGroup> groups = groupService.createGroups(dataObject.metadata,currentUser,names)
+        println "usring add groups ${groups as JSON}"
+
+        if(groups.size()==1){
+            render groups[0] as JSON
         }
-        // assign group creator as group admin
-        def creatorId = group.getMetaData(FeatureStringEnum.CREATOR.value)
-        User creator = User.findById(creatorId)
-        group.addToAdmin(creator)
-        log.debug "Add metadata creator: ${group.getMetaData(FeatureStringEnum.CREATOR.value)}"
-
-        log.info "Added group ${group.name}"
-
-        render group as JSON
-
+        else{
+            render groups as JSON
+        }
     }
 
     @RestApiMethod(description = "Delete a group", path = "/group/deleteGroup", verb = RestApiVerb.POST)
@@ -214,49 +206,41 @@ class GroupController {
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "id", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to remove (or specify the name)")
-            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name to remove")
+            , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Group name or comma-delimited list of names to remove")
     ]
     )
     @Transactional
     def deleteGroup() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        UserGroup group = UserGroup.findById(dataObject.id)
-        if (!group) {
-            group = UserGroup.findByName(dataObject.name)
+
+        def currentUser = permissionService.getCurrentUser(dataObject)
+
+        List<UserGroup> groupList
+        if(dataObject.id){
+            List<Long> ids
+            if(dataObject.id instanceof Integer){
+                ids = [dataObject.id as Integer]
+            }
+            if(dataObject.id instanceof String){
+                ids = dataObject.id.split(',').collect() as Long
+            }
+            groupList = UserGroup.findAllByIdInList(ids)
         }
-        if (!group) {
+        else
+        if(dataObject.name){
+            List<String> splitGroups = dataObject.name.split(",") as List<String>
+            println splitGroups
+            println splitGroups.size()
+            groupList = UserGroup.findAllByNameInList(splitGroups)
+        }
+        if (!groupList) {
             def error = [error: "Group ${dataObject.name} not found"]
             log.error(error.error)
             render error as JSON
             return
         }
-        String creatorMetaData = group.getMetaData(FeatureStringEnum.CREATOR.value)
-        // to support webservice, get current user from session or input object
-        def currentUser = permissionService.getCurrentUser(dataObject)
-        // only allow global admin or group creator, or group admin to delete the group
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(group, currentUser)) {
-            //render status: HttpStatus.UNAUTHORIZED.value()
-            def error = [error: 'not authorized to delete the group']
-            log.error(error.error)
-            render error as JSON
-            return
-        }
-        log.info "Removing group"
 
-        List<User> users = group.users as List
-        users.each { it ->
-            it.removeFromUserGroups(group)
-            it.save()
-        }
-
-        def groupOrganismPermissions = GroupOrganismPermission.findAllByGroup(group)
-        GroupOrganismPermission.deleteAll(groupOrganismPermissions)
-
-        log.info "Removing group ${group.name}"
-
-        group.save(flush: true)
-        group.delete(flush: true)
-
+        groupService.deleteGroups(dataObject,currentUser,groupList)
 
         render new JSONObject() as JSON
     }
@@ -403,51 +387,26 @@ class GroupController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "groupId", type = "long", paramType = RestApiParamType.QUERY, description = "Group ID to alter membership of")
             , @RestApiParam(name = "users", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "A JSON array of strings of emails of users the now belong to the group")
+            , @RestApiParam(name = "memberships", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "Bulk memberships (instead of users and groupId) to update of the form: [ {groupId: <groupId>,users: [\"user1\", \"user2\", \"user3\"]}, {groupId:<another-groupId>, users: [\"user2\", \"user8\"]}]")
     ]
     )
     @Transactional
     def updateMembership() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        UserGroup groupInstance = UserGroup.findById(dataObject.groupId)
-        // to support webservice, get current user from session or input object
+
         def currentUser = permissionService.getCurrentUser(dataObject)
-        String creatorMetaData = groupInstance.getMetaData(FeatureStringEnum.CREATOR.value)
-        // allow global admin, group creator, and group admin to update the group membership
-        if (!permissionService.hasGlobalPermissions(dataObject, GlobalPermissionEnum.ADMIN) && !(creatorMetaData && currentUser.id.toString() == creatorMetaData) && !permissionService.isGroupAdmin(groupInstance, currentUser)) {
 
-            render status: HttpStatus.UNAUTHORIZED.value()
-            return
+        if(dataObject.memberships) {
+
+            def memberships = dataObject.memberships
+
+            memberships.each { membership ->
+                groupService.updateMembership(dataObject,currentUser,membership.groupId,membership.users)
+            }
         }
-        log.info "Trying to update user group membership"
-
-
-        List<User> oldUsers = groupInstance.users as List
-        //List<String> usernames = dataObject.users
-        //Fixed bug on passing array through web services: cannot cast String to List
-        JSONArray arr = new JSONArray(dataObject.users)
-        List<String> usernames = new ArrayList<String>()
-        for (int i = 0; i < arr.length(); i++){
-            usernames.add(arr.getString(i))
+        else{
+            groupService.updateMembership(dataObject,currentUser,dataObject.groupId,dataObject.users)
         }
-        List<User> newUsers = User.findAllByUsernameInList(usernames)
-
-        List<User> usersToAdd = newUsers - oldUsers
-        List<User> usersToRemove = oldUsers - newUsers
-        usersToAdd.each {
-            groupInstance.addToUsers(it)
-            it.addToUserGroups(groupInstance)
-            it.save()
-        }
-
-        usersToRemove.each {
-            groupInstance.removeFromUsers(it)
-            it.removeFromUserGroups(groupInstance)
-            it.save()
-        }
-
-        groupInstance.save(flush: true)
-
-        log.info "Updated group ${groupInstance.name} membership setting users ${newUsers.join(' ')}"
         loadGroups()
     }
 
