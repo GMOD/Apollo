@@ -80,7 +80,6 @@ class OverlapperService implements Overlapper{
 
             CDS cds = transcriptService.getCDS(transcript1);
             CDS cds2 = transcriptService.getCDS(transcript2)
-            if(cds==null || cds2==null) return false
             if (cds2 && cds && overlaps(cds,cds2) &&  (overlaps(cds2,cds)))  {
                 List<Exon> exons1 = transcriptService.getSortedExons(transcript1,true);
                 List<Exon> exons2 = transcriptService.getSortedExons(transcript2,true);
