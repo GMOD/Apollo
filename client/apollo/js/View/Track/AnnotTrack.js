@@ -7616,7 +7616,7 @@ define([
                 }
 
                 // TODO: if one is a parent gene and the other is a regulator, then it is not disabled, otherwise it is disabled
-                
+
 
                 // if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
                 //     menuItem.set("disabled", false);

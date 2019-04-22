@@ -3832,8 +3832,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Transcript.count == 10
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
-        assert Terminator.count == 1
         assert ShineDalgarnoSequence.count == 1
+        assert Terminator.count == 1
 
         when: "we add some modifications"
         MRNA mrna = MRNA.findByName("GB40819-RA-00001")
