@@ -7519,6 +7519,8 @@ define([
                 this.updateRemoveCDSMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
+                this.updateAssociateFeatureToGeneItem();
+                this.updateDissociateFeatureFromGeneItem();
                 this.updateViewVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
@@ -7582,6 +7584,49 @@ define([
                 }
             },
 
+
+            updateAssociateFeatureToGeneItem: function() {
+                var menuItem = this.getMenuItem("associate_feature_to_gene");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                if (AnnotTrack.getTopLevelAnnotation(selected[0].feature).data.parent_id === AnnotTrack.getTopLevelAnnotation(selected[1].feature).data.parent_id) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE)
+                    || JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[1].feature), JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                // TODO: if one is a parent gene and the other is a regulator, then it is not disabled, otherwise it is disabled
+                
+
+                // if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
+                //     menuItem.set("disabled", false);
+                // }
+                // else {
+                //     menuItem.set("disabled", true);
+                // }
+                menuItem.set("disabled", false);
+            },
+
             /**
              * TODO, scale to multiple, just one for right now
              */
@@ -7616,6 +7661,30 @@ define([
                     return;
                 }
                 if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                menuItem.set("disabled", false);
+            },
+
+            updateDissociateFeatureFromGeneItem: function() {
+                var menuItem = this.getMenuItem("dissociate_feature_from_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (!JSONUtils.regulatorTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (!this.canEdit(selected[0].feature)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)) {
                     menuItem.set("disabled", true);
                     return;
                 }
