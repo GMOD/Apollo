@@ -938,7 +938,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         // if the start is set, then we make sure we are going to set a legal coordinate
         if (cdsService.isManuallySetTranslationStart(cds)) {
-            println "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
+            log.info "${transcript.strand} min ${cds.featureLocation.fmin} vs transl end ${translationEnd}"
             if (transcript.strand == Strand.NEGATIVE.value) {
                 if (translationEnd  >= cds.featureLocation.fmax ) {
                     throw new AnnotationException("Translation end ${translationEnd} must be downstream of the start ${cds.featureLocation.fmax} (smaller)")
@@ -2101,30 +2101,30 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 jsonPropertyTypeCv.put(FeatureStringEnum.NAME.value, FeatureStringEnum.FEATURE_PROPERTY.value)
                 jsonPropertyType.put(FeatureStringEnum.CV.value, jsonPropertyTypeCv)
 
-                jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType);
-                jsonProperty.put(FeatureStringEnum.NAME.value, property.getTag());
-                jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue());
-                properties.put(jsonProperty);
+                jsonProperty.put(FeatureStringEnum.TYPE.value, jsonPropertyType)
+                jsonProperty.put(FeatureStringEnum.NAME.value, property.getTag())
+                jsonProperty.put(FeatureStringEnum.VALUE.value, property.getValue())
+                properties.put(jsonProperty)
             }
         }
 //        JSONObject ownerProperty = JSON.parse("{value: ${finalOwnerString}, type: {name: 'owner', cv: {name: 'feature_property'}}}") as JSONObject
 //        properties.put(ownerProperty)
 
 
-        Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs();
+        Collection<DBXref> gsolFeatureDbxrefs = gsolFeature.getFeatureDBXrefs()
         if (gsolFeatureDbxrefs) {
             JSONArray dbxrefs = new JSONArray();
-            jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs);
+            jsonFeature.put(FeatureStringEnum.DBXREFS.value, dbxrefs)
             for (DBXref gsolDbxref : gsolFeatureDbxrefs) {
-                JSONObject dbxref = new JSONObject();
-                dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getAccession());
-                dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDb().getName()));
-                dbxrefs.put(dbxref);
+                JSONObject dbxref = new JSONObject()
+                dbxref.put(FeatureStringEnum.ACCESSION.value, gsolDbxref.getAccession())
+                dbxref.put(FeatureStringEnum.DB.value, new JSONObject().put(FeatureStringEnum.NAME.value, gsolDbxref.getDb().getName()))
+                dbxrefs.put(dbxref)
             }
         }
-        jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time);
-        jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time);
-        return jsonFeature;
+        jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time)
+        jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time)
+        return jsonFeature
     }
 
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
