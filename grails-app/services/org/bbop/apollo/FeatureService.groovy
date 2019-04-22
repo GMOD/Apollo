@@ -36,7 +36,7 @@ class FeatureService {
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
     public static final
     def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
-    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm,Terminator.cvTerm]
+    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm,Terminator.cvTerm,ShineDalgarnoSequence.cvTerm]
 
     @Timed
     @Transactional
@@ -1551,6 +1551,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             case Transcript.ontologyId: return new Transcript()
             case TransposableElement.ontologyId: return new TransposableElement()
             case Terminator.ontologyId: return new Terminator()
+            case ShineDalgarnoSequence.ontologyId: return new ShineDalgarnoSequence()
             case RepeatRegion.ontologyId: return new RepeatRegion()
             case InsertionArtifact.ontologyId: return new InsertionArtifact()
             case DeletionArtifact.ontologyId: return new DeletionArtifact()
@@ -1596,6 +1597,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                 case TransposableElement.cvTerm.toUpperCase(): return TransposableElement.ontologyId
                 case Terminator.alternateCvTerm.toUpperCase():
                 case Terminator.cvTerm.toUpperCase(): return Terminator.ontologyId
+                case ShineDalgarnoSequence.alternateCvTerm.toUpperCase():
+                case ShineDalgarnoSequence.cvTerm.toUpperCase(): return ShineDalgarnoSequence.ontologyId
                 case RepeatRegion.alternateCvTerm.toUpperCase():
                 case RepeatRegion.cvTerm.toUpperCase(): return RepeatRegion.ontologyId
                 case InsertionArtifact.cvTerm.toUpperCase(): return InsertionArtifact.ontologyId

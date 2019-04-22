@@ -857,6 +857,14 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     background-color: magenta;
 }
 
+.jbrowse .Shine_Dalgarno_sequence,
+.jbrowse .plus-Shine_Dalgarno_sequence,
+.jbrowse .minus-Shine_Dalgarno_sequence {
+    height: 12px;
+    margin-top: 2px;
+    background-color: orangered;
+}
+
 
 .jbrowse .terminator {
     position: absolute;
