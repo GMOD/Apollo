@@ -3307,7 +3307,17 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 0
 
+        when: "we change the annotation type to shine dalgarno"
+        changeAnnotationTypeForTranscriptString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "Shine_Dalgarno_sequence")
+        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeForTranscriptString) as JSONObject)
+
+        then: "we should have 1 RepeatRegion"
+        assert ShineDalgarnoSequence.count == 1
+        assert RepeatRegion.count == 0
+        assert TransposableElement.count == 0
+
         when: "we undo thrice"
+        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
@@ -3796,6 +3806,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         String addNcRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":719298,\"fmax\":719709},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"au12.g310.t1\",\"location\":{\"strand\":1,\"fmin\":719298,\"fmax\":719709},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"ncRNA\"}}],\"location\":{\"strand\":1,\"fmin\":719298,\"fmax\":719709},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addRRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":725218,\"fmax\":725849},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"au12.g312.t1\",\"location\":{\"strand\":-1,\"fmin\":725218,\"fmax\":725849},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"rRNA\"}}],\"location\":{\"strand\":-1,\"fmin\":725218,\"fmax\":725849},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addMiRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":731922,\"fmax\":732539},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":732909,\"fmax\":733259},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":732023,\"fmax\":733182},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"au12.g313.t1\",\"location\":{\"strand\":-1,\"fmin\":731922,\"fmax\":733259},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"miRNA\"}}],\"location\":{\"strand\":-1,\"fmin\":731922,\"fmax\":733259},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String addTerminatorString = "{${testCredentials} \"features\":[{\"name\":\"gnomon_1494033_mRNA\",\"location\":{\"strand\":0,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"terminator\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String addShineDalgarnoSequenceString = "{${testCredentials} \"features\":[{\"name\":\"gnomon_1494033_mRNA\",\"location\":{\"strand\":0,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"Shine_Dalgarno_sequence\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addRepeatRegionString = "{${testCredentials} \"features\":[{\"name\":\"gnomon_1494033_mRNA\",\"location\":{\"strand\":0,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"repeat_region\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addTransposableElementString = "{ ${testCredentials} \"features\":[{\"name\":\"gnomon_1984033_mRNA\",\"location\":{\"strand\":0,\"fmin\":729894,\"fmax\":730446},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"transposable_element\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
 
@@ -3812,12 +3824,16 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addFeature(JSON.parse(addMiRNAString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addRepeatRegionString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addTransposableElementString) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addTerminatorString) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addShineDalgarnoSequenceString) as JSONObject)
 
         then: "we should see these features"
         assert Gene.count == 10
         assert Transcript.count == 10
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
+        assert Terminator.count == 1
+        assert ShineDalgarnoSequence.count == 1
 
         when: "we add some modifications"
         MRNA mrna = MRNA.findByName("GB40819-RA-00001")
@@ -3856,7 +3872,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we delete all features"
         Feature.all.each {
-            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm]) {
+            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm,Terminator.cvTerm,ShineDalgarnoSequence.cvTerm]) {
                 featureRelationshipService.deleteFeatureAndChildren(it)
             }
         }
@@ -3890,6 +3906,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
+        assert Terminator.count == 1
+        assert ShineDalgarnoSequence.count == 1
     }
 
     void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {

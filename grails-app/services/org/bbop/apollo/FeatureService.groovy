@@ -1919,38 +1919,39 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
-        JSONObject jsonFeature = new JSONObject();
+        JSONObject jsonFeature = new JSONObject()
+        println "input gsolfeature ${gsolFeature}"
         if (gsolFeature.id) {
-            jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id);
+            jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id)
         }
-        jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId));
-        jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName());
+        jsonFeature.put(FeatureStringEnum.TYPE.value, generateJSONFeatureStringForType(gsolFeature.ontologyId))
+        jsonFeature.put(FeatureStringEnum.UNIQUENAME.value, gsolFeature.getUniqueName())
         if (gsolFeature.getName() != null) {
-            jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName());
+            jsonFeature.put(FeatureStringEnum.NAME.value, gsolFeature.getName())
         }
         if (gsolFeature.symbol) {
-            jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol);
+            jsonFeature.put(FeatureStringEnum.SYMBOL.value, gsolFeature.symbol)
         }
         if (gsolFeature.status) {
-            jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value);
+            jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value)
         }
         if (gsolFeature.description) {
-            jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
+            jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description)
         }
 
-        long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis()
         String finalOwnerString = generateOwnerString(gsolFeature)
-        jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString);
+        jsonFeature.put(FeatureStringEnum.OWNER.value.toLowerCase(), finalOwnerString)
 
-        long durationInMilliseconds = System.currentTimeMillis() - start;
+        long durationInMilliseconds = System.currentTimeMillis() - start
 
-        start = System.currentTimeMillis();
+        start = System.currentTimeMillis()
         if (gsolFeature.featureLocation) {
             Sequence sequence = gsolFeature.featureLocation.sequence
-            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name);
+            jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name)
         }
 
-        durationInMilliseconds = System.currentTimeMillis() - start;
+        durationInMilliseconds = System.currentTimeMillis() - start
 
 
         start = System.currentTimeMillis();
@@ -3050,6 +3051,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
+        println "singleton feature type ${singletonFeatureTypes} vs ${type} vs ${originalType} -> ${singletonFeatureTypes.contains(type)} and ${singletonFeatureTypes.contains(originalType)}"
 
         if (!singletonFeatureTypes.contains(originalType) && rnaFeatureTypes.contains(type)) {
             // *RNA to *RNA
@@ -3124,7 +3126,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Feature singleton = addFeature(currentFeatureJsonObject, sequence, user, true)
             newFeature = singleton
         } else {
-            log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+            log.error "A Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
         }
 
         // TODO: synonyms, featureSynonyms, featureGenotypes, featurePhenotypes

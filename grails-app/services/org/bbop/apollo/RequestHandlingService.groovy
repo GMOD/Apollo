@@ -2440,10 +2440,12 @@ class RequestHandlingService {
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
             } else if (originalType in singletonFeatureTypes && type in rnaFeatureTypes) {
-                log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+                log.error "B Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             } else {
-                log.info "Changing ${uniqueName} from ${originalType} to ${type}"
+                println "Changing ${uniqueName} from ${originalType} to ${type}"
+                println "feature ${feature}"
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
+                println "new feature ${newFeature}"
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                 log.debug "New feature json object: ${newFeatureJsonObject.toString()}"
                 JSONArray oldFeatureJsonArray = new JSONArray()
