@@ -1694,6 +1694,63 @@ define([
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
+            associateFeatureToGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var featureUniqueName;
+                var geneUniqueName;
+                if (selected[0].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                if (selected[1].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[1].feature.parent();
+                    geneUniqueName = parent.afeature.parent_id;
+                }
+                else {
+                    geneUniqueName = selected[1].feature.afeature.parent_id;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: featureUniqueName }, { uniquename: geneUniqueName }],
+                    operation: 'associate_feature_to_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+            dissociateFeatureFromGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var featureUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: featureUniqueName }],
+                    operation: 'dissociate_feature_from_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+
             viewVariantEffect: function() {
                 var track = this;
                 var trackName = this.getUniqueTrackName();
@@ -7018,6 +7075,24 @@ define([
                     });
                     annot_context_menu.addChild(dissociateTranscriptToGeneItem);
                     contextMenuItems["dissociate_transcript_from_gene"] = index++;
+
+                    var associateFeatureToGeneItem = new dijit.MenuItem({
+                        label: "Associate Feature to Gene",
+                        onClick: function () {
+                            thisB.associateFeatureToGene();
+                        }
+                    });
+                    annot_context_menu.addChild(associateFeatureToGeneItem);
+                    contextMenuItems["associate_feature_to_gene"] = index++;
+
+                    var dissociateFeatureToGeneItem = new dijit.MenuItem({
+                        label: "Dissociate Feature from Gene",
+                        onClick: function () {
+                            thisB.dissociateFeatureFromGene();
+                        }
+                    });
+                    annot_context_menu.addChild(dissociateFeatureToGeneItem);
+                    contextMenuItems["dissociate_feature_from_gene"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;

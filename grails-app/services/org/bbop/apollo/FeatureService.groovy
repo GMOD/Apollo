@@ -34,6 +34,8 @@ class FeatureService {
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
+    public static final String MANUALLY_ASSOCIATE_FEATURE_TO_GENE = "Manually associate feature to gene"
+    public static final String MANUALLY_DISSOCIATE_FEATURE_FROM_GENE = "Manually dissociate feature from gene"
     public static final
     def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
     public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm,Terminator.cvTerm,ShineDalgarnoSequence.cvTerm]
@@ -2456,6 +2458,80 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         return transcriptsToUpdate
     }
+
+
+    def associateFeatureToGene(Feature feature, Gene gene) {
+        log.debug "associateFeatureToGene: ${feature.name} -> ${gene.name}"
+        Gene originalGene = featureService.getGene(feature)
+        log.debug "removing feature ${feature.name} from its own gene: ${originalGene.name}"
+        featureRelationshipService.removeFeatureRelationship(originalGene, feature)
+        addFeatureToGene(gene, feature)
+        feature.name = nameService.generateUniqueName(feature, gene.name)
+        // check if original gene has any additional isoforms; if not then delete original gene
+        if (featureService.getFeatures(originalGene).size() == 0) {
+            originalGene.delete()
+        }
+
+        if (checkForComment(feature, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)) {
+            featurePropertyService.deleteComment(feature, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)
+        }
+
+        featurePropertyService.addComment(feature, MANUALLY_ASSOCIATE_FEATURE_TO_GENE)
+        return feature
+    }
+
+    def dissociateFeatureFromGene(Feature feature) {
+        Gene gene = featureService.getGene(feature)
+        log.debug "dissociateFeatureFromGene: ${feature.name} -> ${gene.name}"
+        featureRelationshipService.removeFeatureRelationship(gene, feature)
+        Gene newGene
+        if (gene.cvTerm == Pseudogene.cvTerm) {
+            newGene = new Pseudogene(
+                    uniqueName: nameService.generateUniqueName(),
+                    name: nameService.generateUniqueName(gene)
+            ).save()
+        } else {
+            newGene = new Gene(
+                    uniqueName: nameService.generateUniqueName(),
+                    name: nameService.generateUniqueName(gene)
+            ).save()
+        }
+
+        log.debug "New gene name: ${newGene.name}"
+        feature.owners.each {
+            newGene.addToOwners(it)
+        }
+
+        FeatureLocation newGeneFeatureLocation = new FeatureLocation(
+                feature: newGene,
+                fmin: feature.fmin,
+                fmax: feature.fmax,
+                strand: feature.strand,
+                sequence: feature.featureLocation.sequence,
+                residueInfo: feature.featureLocation.residueInfo,
+                locgroup: feature.featureLocation.locgroup,
+                rank: feature.featureLocation.rank
+        ).save(flush: true)
+        newGene.addToFeatureLocations(newGeneFeatureLocation)
+
+        if (checkForComment(feature, MANUALLY_ASSOCIATE_FEATURE_TO_GENE)) {
+            featurePropertyService.deleteComment(feature, MANUALLY_ASSOCIATE_FEATURE_TO_GENE)
+        }
+
+        featurePropertyService.addComment(newGene, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)
+
+        addFeatureToGene(newGene, feature)
+        feature.name = nameService.generateUniqueName(feature, newGene.name)
+
+        if (featureService.getFeatures(gene).size() == 0) {
+            // check if original gene has any additional isoforms; if not then delete original gene
+            gene.delete()
+        }
+
+        featurePropertyService.addComment(feature, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)
+        return feature
+    }
+
 
     def associateTranscriptToGene(Transcript transcript, Gene gene) {
         log.debug "associateTranscriptToGene: ${transcript.name} -> ${gene.name}"

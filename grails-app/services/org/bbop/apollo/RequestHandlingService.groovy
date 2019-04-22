@@ -2480,6 +2480,98 @@ class RequestHandlingService {
         return featureContainer
     }
 
+
+    def associateFeatureToGene(JSONObject inputObject) {
+        log.debug "associateFeatureToGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        String featureUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(featureUniqueName)
+        Gene gene = Gene.findByUniqueName(geneUniqueName)
+        log.debug "feature: ${feature}"
+        log.debug "gene: ${gene}"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+        feature = featureService.associateFeatureToGene(feature, gene)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        featureService.addOwnersByString(inputObject.username,feature)
+        featureEventService.addNewFeatureEvent(FeatureOperation.ASSOCIATE_FEATURE_TO_GENE, feature.name,
+                featureUniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
+    def dissociateFeatureFromGene(JSONObject inputObject) {
+        log.debug "dissociateFeatureFromGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        String uniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+
+        Feature feature = Feature.findByUniqueName(uniqueName)
+        log.debug "feature: ${feature}"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+        feature = featureService.dissociateFeatureFromGene(feature)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONObject jsonObject = featureService.convertFeatureToJSON(featureService.getGene(feature))
+        JSONObject mrnaObject = jsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value).getJSONObject(0)
+        JSONObject parentObject = new JSONObject()
+        jsonObject.keySet().each { key ->
+            if (key != FeatureStringEnum.CHILDREN.value) {
+                parentObject.put(key, jsonObject.get(key))
+            }
+        }
+        mrnaObject.put(FeatureStringEnum.PARENT.value, parentObject)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        newFeaturesJsonArray.add(mrnaObject)
+        featureService.addOwnersByString(inputObject.username,feature)
+        featureEventService.addNewFeatureEvent(FeatureOperation.DISSOCIATE_FEATURE_FROM_GENE, feature.name,
+                uniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
+
+
+
+
     def associateTranscriptToGene(JSONObject inputObject) {
         log.debug "associateTranscriptToGene: ${inputObject.toString()}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
