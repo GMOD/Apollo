@@ -3906,8 +3906,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
-        assert ShineDalgarnoSequence.count == 1
-        assert Terminator.count == 1
     }
 
     void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {
