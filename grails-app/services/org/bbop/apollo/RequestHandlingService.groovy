@@ -2526,13 +2526,14 @@ class RequestHandlingService {
     def dissociateFeatureFromGene(JSONObject inputObject) {
         log.debug "dissociateFeatureFromGene: ${inputObject.toString()}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
-        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         User user = permissionService.getCurrentUser(inputObject)
         String featureUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
-        String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
         Feature feature = Feature.findByUniqueName(featureUniqueName)
-        Gene gene = Gene.findByUniqueName(geneUniqueName)
+
+        Gene gene = featureRelationshipService.getParentForFeature(feature,Gene.ontologyId)
+        String geneUniqueName = gene.uniqueName
         log.debug "feature: ${feature}"
         log.debug "gene: ${gene}"
 
