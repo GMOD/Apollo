@@ -2481,17 +2481,6 @@ class RequestHandlingService {
         return featureContainer
     }
 
-    @NotTransactional
-    private JSONObject getJSONObjectForType(JSONArray jsonArray, String... types){
-
-        for(JSONObject obj in jsonArray){
-            if(obj.type in types){
-                return obj
-            }
-        }
-        return null
-
-    }
 
     def associateFeatureToGene(JSONObject inputObject) {
         log.debug "associateFeatureToGene: ${inputObject.toString()}"
