@@ -1954,6 +1954,43 @@ define([
                 this.flipStrandForSelectedFeatures(selected);
             },
 
+            removeCDS: function () {
+                var records = this.selectionManager.getSelection();
+                var track = this;
+                var uniqueNames = new Object();
+                for (var i in records) {
+                    var record = records[i];
+                    var selfeat = record.feature;
+                    // console.log('this feagture',selfeat)
+                    var seltrack = record.track;
+                    var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+                    // console.log('top feature',topfeat)
+                    // var uniqueName = topfeat.id();
+                    var uniqueName = topfeat.id();
+                    // just checking to ensure that all features in selection are from
+                    // this track
+                    if (seltrack === track) {
+                        uniqueNames[uniqueName] = 1;
+                    }
+                }
+                var features = '"features": [';
+                var i = 0;
+                for (var uniqueName in uniqueNames) {
+                    // var trackdiv = track.div;
+                    // var trackName = track.getUniqueTrackName();
+                    if (i > 0) {
+                        features += ',';
+                    }
+                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    ++i;
+                }
+                features += ']';
+                var operation = "remove_cds";
+                var trackName = track.getUniqueTrackName();
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                track.executeUpdateOperation(postData);
+            },
+
             flipStrandForSelectedFeatures: function (records) {
                 var track = this;
                 var uniqueNames = new Object();
@@ -7042,6 +7079,7 @@ define([
                         }
                     }));
                     contextMenuItems["flip_strand"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
 
@@ -7078,6 +7116,15 @@ define([
                         }
                     }));
                     contextMenuItems["set_longest_orf"] = index++;
+
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Remove CDS",
+                        onClick: function (event) {
+                            thisB.removeCDS();
+                        }
+                    }));
+                    contextMenuItems["remove_cds"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set Readthrough Stop Codon",
                         onClick: function (event) {
@@ -7385,6 +7432,7 @@ define([
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
                 this.updateSetLongestOrfMenuItem();
+                this.updateRemoveCDSMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
                 this.updateViewVariantEffect();
@@ -7662,6 +7710,27 @@ define([
                 else {
                     menuItem.set("label", "Set Translation End");
                 }
+            },
+
+            updateRemoveCDSMenuItem: function () {
+                var menuItem = this.getMenuItem("remove_cds");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length > 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.isProteinCoding(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                menuItem.set("disabled", false);
             },
 
             updateSetLongestOrfMenuItem: function () {
