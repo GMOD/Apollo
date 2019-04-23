@@ -5,7 +5,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.IgnoreRest
 
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -3825,8 +3824,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addFeature(JSON.parse(addMiRNAString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addRepeatRegionString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addTransposableElementString) as JSONObject)
-        requestHandlingService.addFeature(JSON.parse(addTerminatorString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addShineDalgarnoSequenceString) as JSONObject)
+        requestHandlingService.addFeature(JSON.parse(addTerminatorString) as JSONObject)
 
         then: "we should see these features"
         assert Gene.count == 10
@@ -3907,8 +3906,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
         assert StopCodonReadThrough.count == 1
-        assert Terminator.count == 1
         assert ShineDalgarnoSequence.count == 1
+        assert Terminator.count == 1
     }
 
     void "while adding a transcript, Apollo should not recalculate its CDS if the JSONObject has the proper flag"() {
