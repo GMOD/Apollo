@@ -1162,7 +1162,7 @@ define([
                     var recognizedBioType = [
                         'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator','Shine_Dalgarno_sequence'
                     ];
-                    var strandedOneLevelTypes = ['terminator'];
+                    var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence'];
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
