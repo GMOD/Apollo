@@ -1531,6 +1531,54 @@ class RequestHandlingService {
     }
 
     @Timed
+    def removeCds(JSONObject inputObject){
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        JSONObject featureContainer = createJSONFeatureContainer()
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        for (int i = 0; i < features.length(); ++i) {
+            JSONObject jsonFeature = features.getJSONObject(i)
+            Feature feature = Feature.findByUniqueName(jsonFeature.getString(FeatureStringEnum.UNIQUENAME.value))
+
+            if (feature instanceof Transcript && transcriptService.isProteinCoding((Transcript) feature)) {
+                feature = transcriptService.removeCDS((Transcript) feature)
+                def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(feature)
+                featureService.addOwnersByString(inputObject.username,feature)
+                if (transcriptService.getGene((Transcript) feature)) {
+                    featureEventService.addNewFeatureEventWithUser(FeatureOperation.REMOVE_CDS, transcriptService.getGene((Transcript) feature).name, feature.uniqueName, inputObject, featureService.convertFeatureToJSON((Transcript) feature), permissionService.getCurrentUser(inputObject))
+                    if (transcriptsToUpdate.size()>0) {
+                        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+                        transcriptsToUpdate.each {
+                            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
+                        }
+                        if (sequence) {
+                            AnnotationEvent annotationEvent = new AnnotationEvent(
+                                    features: updateFeatureContainer,
+                                    sequence: sequence,
+                                    operation: AnnotationEvent.Operation.UPDATE
+                            )
+                            fireAnnotationEvent(annotationEvent)
+                        }
+                    }
+                }
+                else{
+                    log.error("Transcript failed to produce gene with moving to opposite strand: "+feature.name)
+                }
+            }
+            else{
+                log.warn("Type can not have CDS")
+            }
+            featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature, false));
+        }
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+                features: featureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+        fireAnnotationEvent(annotationEvent)
+        return featureContainer
+    }
+
+    @Timed
     def flipStrand(JSONObject inputObject) {
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         JSONObject featureContainer = createJSONFeatureContainer()

@@ -93,6 +93,8 @@ public class SequencePanel extends Composite {
     Button selectSelectedButton;
     @UiField
     Button exportChadoButton;
+//    @UiField
+//    Button exportJbrowseButton;
     @UiField
     Button deleteSequencesButton;
 
@@ -331,12 +333,13 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportVcfButton", "exportFastaButton", "exportChadoButton"})
+    @UiHandler(value = {"exportGff3Button", "exportVcfButton", "exportFastaButton", "exportChadoButton" })
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportVcfButton.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
         exportChadoButton.setType(ButtonType.DEFAULT);
+//        exportJbrowseButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
         switch (selectedButton.getText()) {
             case "GFF3":
@@ -351,6 +354,9 @@ public class SequencePanel extends Composite {
             case "CHADO":
                 exportChadoButton.setType(ButtonType.PRIMARY);
                 break;
+//            case "JBROWSE":
+//                exportJbrowseButton.setType(ButtonType.PRIMARY);
+//                break;
         }
     }
 
@@ -398,6 +404,9 @@ public class SequencePanel extends Composite {
         } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
             type = exportChadoButton.getText();
         }
+//        else if (exportJbrowseButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+//            type = exportJbrowseButton.getText();
+//        }
 
         ExportPanel exportPanel = new ExportPanel(organismInfo, type, exportAll, sequenceInfoList);
         exportPanel.show();
@@ -415,7 +424,7 @@ public class SequencePanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("There was a problem with deleting the sequences: "+exception.getMessage());
+                Bootbox.alert("There was a problem with deleting the sequences: " + exception.getMessage());
             }
         };
 
@@ -423,7 +432,7 @@ public class SequencePanel extends Composite {
             @Override
             public void callback(boolean result) {
                 // block here
-                if (result){
+                if (result) {
                     final LoadingDialog loadingDialog = new LoadingDialog("Deleting Annotations ...", null, false);
                     JSONObject returnObject = AnnotationRestService.deleteAnnotationsFromSequences(requestCallback, sequenceInfoSet);
                     loadingDialog.hide();

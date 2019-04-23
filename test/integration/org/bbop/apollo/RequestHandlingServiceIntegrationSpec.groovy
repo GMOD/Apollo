@@ -5,7 +5,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
-import spock.lang.IgnoreRest
 
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -2692,6 +2691,61 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         Gene updatedTranscript1Gene = transcriptService.getGene(MRNA.findByUniqueName(transcript1UniqueName))
         Gene updatedTranscript2Gene = transcriptService.getGene(MRNA.findByUniqueName(modifiedTranscript2UniqueName))
         assert updatedTranscript1Gene.uniqueName != updatedTranscript2Gene.uniqueName
+    }
+
+    void "when we remove a CDS, we expect the CDS to be gone"() {
+
+        given: "A transcript"
+        String transcript = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String removeCdsForTranscript = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"remove_cds\"}"
+
+        when: "we add the transcript"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+
+        then: "we have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert CDS.count == 1
+        String transcript1Name = addTranscript1ReturnObject.name
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+
+        when: "we remove the CDS"
+        String removeCdsForTranscript1 = removeCdsForTranscript.replace("@UNIQUENAME@", transcript1UniqueName)
+        JSONObject removeCdsForTranscript1ReturnObject = requestHandlingService.removeCds(JSON.parse(removeCdsForTranscript1) as JSONObject).get("features")
+
+        then: "the transcript should be on the negative strand"
+        String removeCds1UniqueName = removeCdsForTranscript1ReturnObject.uniquename
+        assert Gene.count == 1
+        assert MRNA.count == 1
+        assert CDS.count == 0
+    }
+
+    void "when we remove one of two CDS we expect two genes because no overlap"() {
+
+        given: "A transcript"
+        String transcript = "{${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":404044},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":405031,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40812-RA\",\"location\":{\"strand\":1,\"fmin\":403882,\"fmax\":405154},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
+        String removeCdsForTranscript = "{${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"remove_cds\"}"
+
+        when: "we add the transcript"
+        JSONObject addTranscript1ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+        JSONObject addTranscript2ReturnObject = requestHandlingService.addTranscript(JSON.parse(transcript) as JSONObject).get("features")
+
+        then: "we have 1 Gene and 1 MRNA"
+        assert Gene.count == 1
+        assert MRNA.count == 2
+        assert CDS.count == 2
+        String transcript1Name = addTranscript1ReturnObject.name
+        String transcript1UniqueName = addTranscript1ReturnObject.uniquename
+
+        when: "we remove the CDS "
+        String removeCdsForTranscript1 = removeCdsForTranscript.replace("@UNIQUENAME@", transcript1UniqueName)
+        JSONObject removeCdsForTranscript1ReturnObject = requestHandlingService.removeCds(JSON.parse(removeCdsForTranscript1) as JSONObject).get("features")
+
+        then: "the transcript should be on the negative strand"
+        String removeCds1UniqueName = removeCdsForTranscript1ReturnObject.uniquename
+        assert Gene.count == 2
+        assert MRNA.count == 2
+        assert CDS.count == 1
     }
 
     void "when a flipStrand action is performed on a transcript, there should be a check for overlapping isoforms"() {

@@ -25,6 +25,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile
 import javax.servlet.http.HttpServletResponse
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.util.zip.GZIPOutputStream
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 

@@ -59,7 +59,7 @@ public class GroupPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<GroupInfo> dataGrid = new DataGrid<GroupInfo>(10, tablecss);
+    DataGrid<GroupInfo> dataGrid = new DataGrid<GroupInfo>(25, tablecss);
     @UiField
     Button deleteButton;
     @UiField
@@ -73,7 +73,7 @@ public class GroupPanel extends Composite {
     @UiField(provided = true)
     WebApolloSimplePager organismPager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField(provided = true)
-    DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(4, tablecss);
+    DataGrid<GroupOrganismPermissionInfo> organismPermissionsGrid = new DataGrid<>(25, tablecss);
     @UiField
     TextBox createGroupField;
     @UiField
