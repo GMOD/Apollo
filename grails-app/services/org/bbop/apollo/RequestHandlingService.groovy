@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -47,6 +48,7 @@ class RequestHandlingService {
     public static final List<String> viewableAnnotationFeatureList = [
             RepeatRegion.class.name,
             Terminator.class.name,
+            ShineDalgarnoSequence.class.name,
             TransposableElement.class.name
     ]
     public static final List<String> viewableAnnotationTranscriptParentList = [
@@ -2423,7 +2425,7 @@ class RequestHandlingService {
         User user = permissionService.getCurrentUser(inputObject)
         JSONObject featureContainer = createJSONFeatureContainer()
 
-        def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm, Terminator.cvTerm]
+        def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm, Terminator.cvTerm,ShineDalgarnoSequence.cvTerm]
         def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
 
         for (int i = 0; i < features.length(); i++) {
@@ -2439,9 +2441,8 @@ class RequestHandlingService {
             if (originalType == type) {
                 log.warn "Cannot change ${uniqueName} from ${originalType} -> ${type}. Nothing to do."
             } else if (originalType in singletonFeatureTypes && type in rnaFeatureTypes) {
-                log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+                log.error "B Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             } else {
-                log.info "Changing ${uniqueName} from ${originalType} to ${type}"
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                 log.debug "New feature json object: ${newFeatureJsonObject.toString()}"
@@ -2476,6 +2477,105 @@ class RequestHandlingService {
 
         return featureContainer
     }
+
+
+    def associateFeatureToGene(JSONObject inputObject) {
+        log.debug "associateFeatureToGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer()
+        JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+
+
+        String featureUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(featureUniqueName)
+        Gene gene = Gene.findByUniqueName(geneUniqueName)
+        log.debug "feature: ${feature}"
+        log.debug "gene: ${gene}"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+        feature = featureService.associateFeatureToGene(feature, gene)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        featureService.addOwnersByString(inputObject.username,feature)
+        featureEventService.addNewFeatureEvent(FeatureOperation.ASSOCIATE_FEATURE_TO_GENE, feature.name,
+                featureUniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
+    def dissociateFeatureFromGene(JSONObject inputObject) {
+        log.debug "dissociateFeatureFromGene: ${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(inputObject)
+        String featureUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(featureUniqueName)
+
+        Gene gene = featureRelationshipService.getParentForFeature(feature,Gene.ontologyId)
+        String geneUniqueName = gene.uniqueName
+        log.debug "feature: ${feature}"
+        log.debug "gene: ${gene}"
+
+        JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+        feature = featureService.dissociateFeatureFromGene(feature,gene)
+        JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+        JSONObject jsonObject = featureService.convertFeatureToJSON(gene)
+        JSONObject mrnaObject = jsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value).getJSONObject(0)
+        JSONObject parentObject = new JSONObject()
+        jsonObject.keySet().each { key ->
+            if (key != FeatureStringEnum.CHILDREN.value) {
+                parentObject.put(key, jsonObject.get(key))
+            }
+        }
+        mrnaObject.put(FeatureStringEnum.PARENT.value, parentObject)
+
+        JSONArray oldFeaturesJsonArray = new JSONArray()
+        JSONArray newFeaturesJsonArray = new JSONArray()
+        oldFeaturesJsonArray.add(originalFeatureJsonObject)
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        newFeaturesJsonArray.add(jsonObject)
+
+        featureService.addOwnersByString(inputObject.username,feature)
+        featureEventService.addNewFeatureEvent(FeatureOperation.DISSOCIATE_FEATURE_FROM_GENE, feature.name,
+                featureUniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+
+        updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
+
+        if (sequence) {
+            AnnotationEvent annotationEvent = new AnnotationEvent(
+                    features: updateFeatureContainer,
+                    sequence: sequence,
+                    operation: AnnotationEvent.Operation.UPDATE
+            )
+            fireAnnotationEvent(annotationEvent)
+        }
+
+        log.debug "Return object: ${updateFeatureContainer.toString()}"
+        return updateFeatureContainer
+    }
+
+
+
+
 
     def associateTranscriptToGene(JSONObject inputObject) {
         log.debug "associateTranscriptToGene: ${inputObject.toString()}"
@@ -2608,7 +2708,6 @@ class RequestHandlingService {
     }
 
     def addAlternateAlleles(JSONObject inputObject) {
-        println "@addAlternateAlleles: ${inputObject.toString()}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
