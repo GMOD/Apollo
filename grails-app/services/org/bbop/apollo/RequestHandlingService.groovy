@@ -2443,10 +2443,7 @@ class RequestHandlingService {
             } else if (originalType in singletonFeatureTypes && type in rnaFeatureTypes) {
                 log.error "B Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
             } else {
-                println "Changing ${uniqueName} from ${originalType} to ${type}"
-                println "feature ${feature}"
                 Feature newFeature = featureService.changeAnnotationType(inputObject, feature, sequence, user, type)
-                println "new feature ${newFeature}"
                 JSONObject newFeatureJsonObject = featureService.convertFeatureToJSON(newFeature)
                 log.debug "New feature json object: ${newFeatureJsonObject.toString()}"
                 JSONArray oldFeatureJsonArray = new JSONArray()
@@ -2711,7 +2708,6 @@ class RequestHandlingService {
     }
 
     def addAlternateAlleles(JSONObject inputObject) {
-        println "@addAlternateAlleles: ${inputObject.toString()}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer()
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)

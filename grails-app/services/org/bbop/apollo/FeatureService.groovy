@@ -3108,8 +3108,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
         }
 
-        println "singleton feature type ${singletonFeatureTypes} vs ${type} vs ${originalType} -> ${singletonFeatureTypes.contains(type)} and ${singletonFeatureTypes.contains(originalType)}"
-
         if (!singletonFeatureTypes.contains(originalType) && rnaFeatureTypes.contains(type)) {
             // *RNA to *RNA
             if (transcriptList.size() == 1) {
@@ -3183,7 +3181,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Feature singleton = addFeature(currentFeatureJsonObject, sequence, user, true)
             newFeature = singleton
         } else {
-            log.error "A Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
+            log.error "Not enough information available to change ${uniqueName} from ${originalType} -> ${type}."
         }
 
         // TODO: synonyms, featureSynonyms, featureGenotypes, featurePhenotypes
