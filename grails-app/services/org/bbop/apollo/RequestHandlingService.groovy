@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
@@ -2480,6 +2481,17 @@ class RequestHandlingService {
         return featureContainer
     }
 
+    @NotTransactional
+    private JSONObject getJSONObjectForType(JSONArray jsonArray, String... types){
+
+        for(JSONObject obj in jsonArray){
+            if(obj.type in types){
+                return obj
+            }
+        }
+        return null
+
+    }
 
     def associateFeatureToGene(JSONObject inputObject) {
         log.debug "associateFeatureToGene: ${inputObject.toString()}"
@@ -2487,6 +2499,8 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         User user = permissionService.getCurrentUser(inputObject)
+
+
         String featureUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
         String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
         Feature feature = Feature.findByUniqueName(featureUniqueName)
@@ -2526,16 +2540,18 @@ class RequestHandlingService {
         JSONArray featuresArray = inputObject.get(FeatureStringEnum.FEATURES.value)
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
         User user = permissionService.getCurrentUser(inputObject)
-        String uniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
-
-        Feature feature = Feature.findByUniqueName(uniqueName)
+        String featureUniqueName = featuresArray.getJSONObject(0).get(FeatureStringEnum.UNIQUENAME.value)
+        String geneUniqueName = featuresArray.getJSONObject(1).get(FeatureStringEnum.UNIQUENAME.value)
+        Feature feature = Feature.findByUniqueName(featureUniqueName)
+        Gene gene = Gene.findByUniqueName(geneUniqueName)
         log.debug "feature: ${feature}"
+        log.debug "gene: ${gene}"
 
         JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
-        feature = featureService.dissociateFeatureFromGene(feature)
+        feature = featureService.dissociateFeatureFromGene(feature,gene)
         JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
-        JSONObject jsonObject = featureService.convertFeatureToJSON(featureService.getGene(feature))
+        JSONObject jsonObject = featureService.convertFeatureToJSON(gene)
         JSONObject mrnaObject = jsonObject.getJSONArray(FeatureStringEnum.CHILDREN.value).getJSONObject(0)
         JSONObject parentObject = new JSONObject()
         jsonObject.keySet().each { key ->
@@ -2548,10 +2564,12 @@ class RequestHandlingService {
         JSONArray oldFeaturesJsonArray = new JSONArray()
         JSONArray newFeaturesJsonArray = new JSONArray()
         oldFeaturesJsonArray.add(originalFeatureJsonObject)
-        newFeaturesJsonArray.add(mrnaObject)
+        newFeaturesJsonArray.add(currentFeatureJsonObject)
+        newFeaturesJsonArray.add(jsonObject)
+
         featureService.addOwnersByString(inputObject.username,feature)
         featureEventService.addNewFeatureEvent(FeatureOperation.DISSOCIATE_FEATURE_FROM_GENE, feature.name,
-                uniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
+                featureUniqueName, inputObject, oldFeaturesJsonArray, newFeaturesJsonArray, user)
 
         updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(currentFeatureJsonObject)
 

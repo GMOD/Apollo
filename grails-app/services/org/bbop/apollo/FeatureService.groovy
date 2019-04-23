@@ -2460,16 +2460,25 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     }
 
 
-    def associateFeatureToGene(Feature feature, Gene gene) {
-        log.debug "associateFeatureToGene: ${feature.name} -> ${gene.name}"
-        Gene originalGene = featureService.getGene(feature)
-        log.debug "removing feature ${feature.name} from its own gene: ${originalGene.name}"
-        featureRelationshipService.removeFeatureRelationship(originalGene, feature)
-        addFeatureToGene(gene, feature)
-        feature.name = nameService.generateUniqueName(feature, gene.name)
-        // check if original gene has any additional isoforms; if not then delete original gene
-        if (featureService.getFeatures(originalGene).size() == 0) {
-            originalGene.delete()
+    /**
+     *
+     * @param feature
+     * @param gene
+     * @return
+     */
+    def associateFeatureToGene(Feature feature, Gene originalGene) {
+        log.debug "associateFeatureToGene: ${feature.name} -> ${originalGene.name}"
+        if(!singletonFeatureTypes.contains(feature.cvTerm)){
+            log.error("Feature type can not be associated with a gene with this method: ${feature.cvTerm}")
+            return
+        }
+        featureRelationshipService.addChildFeature(originalGene,feature)
+        // set max and min
+        if(feature.fmax > originalGene.fmax){
+           featureService.setFmax(originalGene,feature.fmax)
+        }
+        if(feature.fmin < originalGene.fmin){
+            featureService.setFmin(originalGene,feature.fmin)
         }
 
         if (checkForComment(feature, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)) {
@@ -2480,53 +2489,25 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         return feature
     }
 
-    def dissociateFeatureFromGene(Feature feature) {
-        Gene gene = featureService.getGene(feature)
+    def dissociateFeatureFromGene(Feature feature,Gene gene) {
         log.debug "dissociateFeatureFromGene: ${feature.name} -> ${gene.name}"
         featureRelationshipService.removeFeatureRelationship(gene, feature)
-        Gene newGene
-        if (gene.cvTerm == Pseudogene.cvTerm) {
-            newGene = new Pseudogene(
-                    uniqueName: nameService.generateUniqueName(),
-                    name: nameService.generateUniqueName(gene)
-            ).save()
-        } else {
-            newGene = new Gene(
-                    uniqueName: nameService.generateUniqueName(),
-                    name: nameService.generateUniqueName(gene)
-            ).save()
-        }
-
-        log.debug "New gene name: ${newGene.name}"
-        feature.owners.each {
-            newGene.addToOwners(it)
-        }
-
-        FeatureLocation newGeneFeatureLocation = new FeatureLocation(
-                feature: newGene,
-                fmin: feature.fmin,
-                fmax: feature.fmax,
-                strand: feature.strand,
-                sequence: feature.featureLocation.sequence,
-                residueInfo: feature.featureLocation.residueInfo,
-                locgroup: feature.featureLocation.locgroup,
-                rank: feature.featureLocation.rank
-        ).save(flush: true)
-        newGene.addToFeatureLocations(newGeneFeatureLocation)
 
         if (checkForComment(feature, MANUALLY_ASSOCIATE_FEATURE_TO_GENE)) {
             featurePropertyService.deleteComment(feature, MANUALLY_ASSOCIATE_FEATURE_TO_GENE)
         }
 
-        featurePropertyService.addComment(newGene, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)
+        featurePropertyService.addComment(gene, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)
 
-        addFeatureToGene(newGene, feature)
-        feature.name = nameService.generateUniqueName(feature, newGene.name)
-
-        if (featureService.getFeatures(gene).size() == 0) {
+        if (featureRelationshipService.getChildren(gene).size() == 0) {
             // check if original gene has any additional isoforms; if not then delete original gene
             gene.delete()
         }
+        else{
+            featureService.updateGeneBoundaries(gene)
+        }
+
+        // redo ?
 
         featurePropertyService.addComment(feature, MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)
         return feature

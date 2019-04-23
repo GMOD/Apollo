@@ -7671,7 +7671,7 @@ define([
             updateDissociateFeatureFromGeneItem: function() {
                 var menuItem = this.getMenuItem("dissociate_feature_from_gene");
                 var selected = this.selectionManager.getSelection();
-                if (selected.length != 1) {
+                if (selected.length != 2) {
                     menuItem.set("disabled", true);
                     return;
                 }

@@ -5,6 +5,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.Strand
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
+import spock.lang.IgnoreRest
 
 class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
@@ -4339,11 +4340,11 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
     void "associate an feature to an overlapping isoform's gene and then dissociate it back"() {
 
         given: "GB40805-RA"
-        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":199844},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199954,\"fmax\":200239},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200317,\"fmax\":200676},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200841,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":199844},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199954,\"fmax\":200239},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200317,\"fmax\":200676},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200841,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
         // TODO: we can add a Shine Dalgarno from a close exon
-        String addFeatureString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":199844},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199954,\"fmax\":200239},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200317,\"fmax\":200676},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200841,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String addFeatureString = "{ ${testCredentials} \"features\":[{\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":200933,\"fmax\":201017},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"Shine_Dalgarno_sequence\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String associateFeatureToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_feature_to_gene\"}"
-        String dissociateFeatureFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_feature_from_gene\"}"
+        String dissociateFeatureFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_feature_from_gene\"}"
 
         when: "we add  transcript and a feature"
         requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
@@ -4351,111 +4352,57 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         then: "we should see 1 gene and 3 features"
         assert Gene.count == 1
-        assert MRNA.count == 3
+        assert MRNA.count == 1
         assert ShineDalgarnoSequence.count == 1
-        assert false // twe need to set things properly here,
 
-//        when: "we associate the feature to its original gene"
-//        requestHandlingService.associateFeatureToGene(JSON.parse(associateFeatureToGeneString.replace("@UNIQUENAME1@", mrna.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
-
-//        then: "we should see the feature associated with the original gene"
-//        assert featureService.getGene(mrna) == originalGene
-//
-//        then: "we should also see feature property assigned to the feature"
-//        assert mrna.featureProperties.size() == 1
-//        assert mrna.featureProperties.first() instanceof Comment
-//        assert mrna.featureProperties.first().value == featureService.MANUALLY_ASSOCIATE_FEATURE_TO_GENE
-//
-//        when: "we dissociate the feature from its original gene"
-//        requestHandlingService.dissociateFeatureFromGene(JSON.parse(dissociateFeatureFromGeneString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
-//
-//        then: "we should see the feature dissociated from its original gene"
-//        assert Gene.count == 2
-//        assert MRNA.count == 3
-//
-//        Gene gene2 = featureService.getGene(mrna)
-//
-//        assert gene2.featureProperties.size() == 1
-//        assert gene2.featureProperties.first() instanceof Comment
-//        assert gene2.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE
-//
-//        assert featureService.getGene(mrna) != originalGene
-//        assert mrna.featureProperties.size() == 1
-//        assert mrna.featureProperties.first() instanceof Comment
-//        assert mrna.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE
-    }
-
-    void "disassociate transcript from its gene, undo and redo"() {
-
-        given: "GB40804-RA"
-        String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":190047},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":190714,\"fmax\":190834},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191151,\"fmax\":191271},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191354,\"fmax\":191649},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":191735,\"fmax\":192254},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192344,\"fmax\":192529},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192598,\"fmax\":192765},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":192828,\"fmax\":193580},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":193076},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40804-RA\",\"location\":{\"strand\":1,\"fmin\":190024,\"fmax\":193580},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        String dissociateTranscriptFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_transcript_from_gene\"}"
-        String undoOperationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"undo\"}"
-        String redoOperationString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME@\"}],\"count\":1,\"track\":\"Group1.10\",\"operation\":\"redo\"}"
-
-        when: "we add transcript thrice"
-        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
-        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
-        requestHandlingService.addTranscript(JSON.parse(addTranscriptString) as JSONObject)
-
-        then: "we should see 1 gene and 3 transcripts"
-        assert Gene.count == 1
-        assert MRNA.count == 3
-
-        when: "we get GB40804-RA-00003 and dissociate it from its parent"
-        MRNA mrna = MRNA.findByName("GB40804-RA-00003")
+        when: "we collect them"
+        MRNA mrna = MRNA.first()
+        ShineDalgarnoSequence  shineDalgarnoSequence = ShineDalgarnoSequence.first()
         Gene originalGene = transcriptService.getGene(mrna)
-        assert mrna != null
+        Feature parentFeature = featureRelationshipService.getParentForFeature(shineDalgarnoSequence)
 
-        requestHandlingService.dissociateTranscriptFromGene(JSON.parse(dissociateTranscriptFromGeneString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
+        then: "we can confirm the shine dalgarno and gene locations"
+        assert mrna.featureLocation.fmin == originalGene.featureLocation.fmin
+        assert mrna.featureLocation.fmax == originalGene.featureLocation.fmax
+        assert shineDalgarnoSequence.featureLocation.fmin == 200933
+        assert shineDalgarnoSequence.featureLocation.fmax == 201017
+        assert parentFeature == null
 
-        then: "we should see 2 genes and that the transcript is dissociated from its original gene"
-        assert Gene.count == 2
-        assert MRNA.count == 3
 
-        Gene newGene = transcriptService.getGene(mrna)
-        assert newGene != originalGene
+        when: "we associate the feature to its original gene"
+        requestHandlingService.associateFeatureToGene(JSON.parse(associateFeatureToGeneString.replace("@UNIQUENAME1@", shineDalgarnoSequence.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+        mrna = MRNA.first()
+        shineDalgarnoSequence = ShineDalgarnoSequence.first()
+        parentFeature = featureRelationshipService.getParentForFeature(shineDalgarnoSequence)
+        originalGene = transcriptService.getGene(mrna)
 
-        then: "we should also see feature property assigned to the transcript and its new gene"
-        assert newGene.featureProperties.size() == 1
-        assert newGene.featureProperties.first() instanceof Comment
-        assert newGene.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
-
-        assert mrna.featureProperties.size() == 1
-        assert mrna.featureProperties.first() instanceof Comment
-        assert mrna.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
-
-        when: "we undo the Dissociate transcript from gene operation"
-        requestHandlingService.undo(JSON.parse(undoOperationString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
-
-        then: "we should see 1 gene and 3 transcripts again"
+        then: "we should see the feature associated with the original gene"
         assert Gene.count == 1
-        assert MRNA.count == 3
-
-        MRNA mrnaAfterUndo = MRNA.findByName("GB40804-RA-00003")
-        assert transcriptService.getGene(mrnaAfterUndo) == originalGene
-        assert mrnaAfterUndo.featureProperties == null
-
-        when: "we redo the Dissociate transcript from gene operation"
-        requestHandlingService.redo(JSON.parse(redoOperationString.replace("@UNIQUENAME@", mrna.uniqueName)) as JSONObject)
-
-        then: "we should see 2 genes and 3 transcripts"
-        assert Gene.count == 2
-        assert MRNA.count == 3
-
-        MRNA mrnaAfterRedo = MRNA.findByName("GB40804-RAa-00001")
-        Gene geneAfterRedo = transcriptService.getGene(mrnaAfterRedo)
-        assert geneAfterRedo != originalGene
-
-        assert geneAfterRedo.featureProperties.size() == 1
-        assert geneAfterRedo.featureProperties.first() instanceof Comment
-        assert geneAfterRedo.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
-
-        assert mrnaAfterRedo.featureProperties.size() == 1
-        assert mrnaAfterRedo.featureProperties.first() instanceof Comment
-        assert mrnaAfterRedo.featureProperties.first().value == featureService.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE
+        assert MRNA.count == 1
+        assert ShineDalgarnoSequence.count == 1
+        assert mrna.featureLocation.fmin == originalGene.featureLocation.fmin
+        assert shineDalgarnoSequence.featureLocation.fmax == originalGene.featureLocation.fmax
+        assert shineDalgarnoSequence.featureLocation.fmin == 200933
+        assert shineDalgarnoSequence.featureLocation.fmax == 201017
+        assert parentFeature != null
+        assert parentFeature == originalGene
+//
+        when: "we dissociate the feature from its original gene"
+        requestHandlingService.dissociateFeatureFromGene(JSON.parse(dissociateFeatureFromGeneString.replace("@UNIQUENAME1@", shineDalgarnoSequence.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+        mrna = MRNA.first()
+        shineDalgarnoSequence = ShineDalgarnoSequence.first()
+        parentFeature = featureRelationshipService.getParentForFeature(shineDalgarnoSequence)
+        originalGene = transcriptService.getGene(mrna)
+//
+        then: "we can confirm the shine dalgarno and gene locations"
+        assert mrna.featureLocation.fmin == originalGene.featureLocation.fmin
+        assert mrna.featureLocation.fmax == originalGene.featureLocation.fmax
+        assert shineDalgarnoSequence.featureLocation.fmin == 200933
+        assert shineDalgarnoSequence.featureLocation.fmax == 201017
+        assert parentFeature == null
 
     }
+
 
     void "associate a non coding RNA type to an overlapping coding transcript's gene 1"() {
 
