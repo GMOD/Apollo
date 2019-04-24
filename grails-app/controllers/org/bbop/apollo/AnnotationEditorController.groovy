@@ -840,6 +840,38 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     }
 
 
+    @RestApiMethod(description = "Delete variant effects for sequences", path = "/annotationEditor/deleteVariantEffectsForSequences", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Sequence name")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "(optional) Organism ID or common name")
+            , @RestApiParam(name = "sequence", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray of sequence id object to delete defined by {id:<sequence.id>} ")
+    ])
+    def deleteVariantEffectsForSequences() {
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
+
+            println "deleting variant affects for ${inputObject as JSON}"
+            // create features from sequences
+//            JSONArray features = new JSONArray()
+//            inputObject.features = features
+//            List<Long> sequenceList = inputObject.sequence.collect{
+//                return Long.valueOf(it.id)
+//            }
+//            List<String> featureUniqueNames = Feature.executeQuery("select f.uniqueName from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s   where f.childFeatureRelationships is empty and s.id in (:sequenceList) and f.class in (:viewableTypes) ", [sequenceList: sequenceList, viewableTypes: requestHandlingService.viewableAnnotationList])
+//            featureUniqueNames.each{
+//                def jsonObject = new JSONObject()
+//                jsonObject.put(FeatureStringEnum.UNIQUENAME.value,it)
+//                features.add(jsonObject)
+//            }
+//            inputObject.remove("sequence")
+            render requestHandlingService.removeVariantEffect(inputObject)
+        } else {
+            render status: HttpStatus.UNAUTHORIZED
+        }
+    }
+
     @RestApiMethod(description = "Delete features for sequences", path = "/annotationEditor/deleteFeaturesForSequences", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)

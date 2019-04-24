@@ -1922,7 +1922,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
         JSONObject jsonFeature = new JSONObject()
-        println "input gsolfeature ${gsolFeature}"
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id)
         }

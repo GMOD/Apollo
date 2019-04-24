@@ -10,9 +10,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -97,6 +95,8 @@ public class SequencePanel extends Composite {
 //    Button exportJbrowseButton;
     @UiField
     Button deleteSequencesButton;
+    @UiField
+    Button deleteVariantEffectsButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -412,6 +412,47 @@ public class SequencePanel extends Composite {
         exportPanel.show();
     }
 
+    @UiHandler("deleteVariantEffectsButton")
+    public void deleteVariantEffectsButton(ClickEvent clickEvent) {
+        // get all sequences for annotation
+        final Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                GWT.log(response.getText() + " " + response.getStatusCode());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("There was a problem with deleting the variant effects: " + exception.getMessage());
+            }
+        };
+
+        Bootbox.confirm("Remove Variant Effects from " + sequenceInfoSet.size() + " sequences (this could take a VERY long time for large sets?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                // block here
+                if (result) {
+                    final LoadingDialog loadingDialog = new LoadingDialog("Deleting Annotations ...", null, false);
+                    JSONArray sequenceArray = new JSONArray();
+                    for(SequenceInfo sequenceInfo : sequenceInfoSet){
+                        sequenceArray.set(sequenceArray.size(),new JSONNumber(sequenceInfo.getId()));
+                    }
+                    JSONObject returnObject = AnnotationRestService.deleteVariantAnnotationsFromSequences(requestCallback, sequenceInfoSet);
+                    loadingDialog.hide();
+                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences, reloading");
+//                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences, reloading", new SimpleCallback() {
+//                        @Override
+//                        public void callback() {
+//                            Window.Location.reload();
+//                        }
+//                    });
+                }
+            }
+        });
+
+    }
+
     @UiHandler("deleteSequencesButton")
     public void deleteSequencesButton(ClickEvent clickEvent) {
         // get all sequences for annotation
@@ -472,8 +513,12 @@ public class SequencePanel extends Composite {
         selectedSequenceDisplay.clear();
         if (selectedSequenceInfoList.size() == 0) {
             selectedSequenceDisplay.setEnabled(false);
+            deleteSequencesButton.setEnabled(false);
+            deleteVariantEffectsButton.setEnabled(false);
         } else {
             selectedSequenceDisplay.setEnabled(true);
+            deleteSequencesButton.setEnabled(true);
+            deleteVariantEffectsButton.setEnabled(true);
             for (SequenceInfo s : selectedSequenceInfoList) {
                 Option option = new Option();
                 option.setValue(s.getName());
