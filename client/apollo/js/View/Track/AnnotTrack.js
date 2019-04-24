@@ -7092,7 +7092,7 @@ define([
                     contextMenuItems["view_variant_effect"] = index++;
 
                     var removeVariantEffect = new dijit.MenuItem({
-                        label: "Remove Variant Effect",
+                        label: "Remove Variant Effects",
                         onClick: function () {
                             thisB.removeVariantEffect();
                         }
@@ -7514,6 +7514,7 @@ define([
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
                 this.updateViewVariantEffect();
+                this.updateRemoveVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7591,6 +7592,23 @@ define([
                     // TODO: search for sequence alterations in that space?
                     menuItem.set("disabled", false);
                 }
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateRemoveVariantEffect: function(){
+                var menuItem = this.getMenuItem("remove_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length === 0) {
+                    return;
+                }
+                // var currentType = selected[0].feature.get('type');
+                // if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                //     // TODO: search for sequence alterations in that space?
+                menuItem.set("disabled", false);
+                // }
             },
 
             updateDissociateTranscriptFromGeneItem: function() {

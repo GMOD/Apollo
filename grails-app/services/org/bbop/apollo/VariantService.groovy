@@ -296,6 +296,7 @@ class VariantService {
         }
     }
 
+    @Transactional(readOnly = true)
     def getAlleleFrequencyFromJsonObject(String alleleFrequencyString) {
         try {
             Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
@@ -310,6 +311,7 @@ class VariantService {
         }
     }
 
+    @Transactional(readOnly = true)
     def getAlleleForVariant(String variantUniqueName, String alleleBase) {
         Allele allele
         def results = Allele.executeQuery(
@@ -337,6 +339,7 @@ class VariantService {
         return (refString == genomicResidues)
     }
 
+    @Transactional(readOnly = true)
     def getReferenceAllele(def variant) {
         for (Allele a : variant.alleles) {
             if (a.reference) {
@@ -345,6 +348,7 @@ class VariantService {
         }
     }
 
+    @Transactional(readOnly = true)
     def getAlternateAlleles(def variant) {
         def alts = []
         for (Allele a : variant.alleles) {
@@ -355,16 +359,18 @@ class VariantService {
         return alts
     }
 
-    List<SequenceAlteration> geSequenceAlterationEffectsForFeature(Feature feature) {
+    @Transactional(readOnly = true)
+    def getSequenceAlterationEffectsForFeature(Integer fmin,Integer fmax,Sequence sequence) {
+        return SequenceAlterationArtifact.executeQuery(
+                "select distinct sa from SequenceAlterationArtifact sa join sa.featureLocations fl join fl.sequence as s join sa.featureProperties as fp where fl.fmin >= :fmin and fl.fmax <= :fmax and s.id=:sequenceId and fp.tag = :fptag and fp.value like :fpvalue  "
+                ,[fmin:fmin,fmax:fmax,sequenceId:sequence.id,fptag:'justification',fpvalue:'Effect of %']
+        )
+    }
+
+    @Transactional(readOnly = true)
+    def getSequenceAlterationEffectsForFeature(Feature feature) {
         Integer fmin = feature.fmin
         Integer fmax = feature.fmax
-
-        def results = SequenceAlteration.executeQuery(
-                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence as s join sa.featureProperties as fp where fl.fmin >= :fmin and fl.fmax <= :fmax and s.id=:sequenceId and fp.tag = :fptag and fp.value like :fpvalue  "
-                ,[fmin:fmin,fmax:fmax,sequenceId:feature.featureLocation.sequenceId,fptag:'justification',fpvalue:'Effect of %']
-        )
-
-        return results
-
+        return getSequenceAlterationEffectsForFeature(fmin,fmax,feature.featureLocation.sequence)
     }
 }

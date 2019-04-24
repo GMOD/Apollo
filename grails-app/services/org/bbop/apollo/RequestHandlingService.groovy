@@ -2680,10 +2680,10 @@ class RequestHandlingService {
             println "B ${topLevelFeature}"
 
 
-            def sequenceAlterations = variantService.geSequenceAlterationEffectsForFeature( topLevelFeature)
+            def sequenceAlterations = variantService.getSequenceAlterationEffectsForFeature( topLevelFeature)
             println "C ${sequenceAlterations as JSON}"
 
-            for(SequenceAlteration sequenceAlteration in sequenceAlterations ){
+            for(SequenceAlterationArtifact sequenceAlteration in sequenceAlterations ){
                 FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
                 deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
                 FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
