@@ -1230,13 +1230,13 @@ class RequestHandlingService {
 
     @Timed
     JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
-        JSONObject jsonFeatureContainer = new JSONObject();
-        JSONArray jsonFeatures = new JSONArray();
-        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
+        JSONObject jsonFeatureContainer = new JSONObject()
+        JSONArray jsonFeatures = new JSONArray()
+        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures)
         for (JSONObject feature : features) {
-            jsonFeatures.put(feature);
+            jsonFeatures.put(feature)
         }
-        return jsonFeatureContainer;
+        return jsonFeatureContainer
     }
 
     @Timed
@@ -2662,6 +2662,62 @@ class RequestHandlingService {
 
         log.debug "Return object: ${updateFeatureContainer.toString()}"
         return updateFeatureContainer
+    }
+
+    def removeVariantEffect(JSONObject inputObject){
+        println "REMOVING VARIANT EFFECT${inputObject.toString()}"
+        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject deleteFeatureContainer = createJSONFeatureContainer();
+        JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+        for (int i = 0; i < features.length(); ++i) {
+            String uniqueName = features.getString(i)
+
+            println "A ${uniqueName}"
+            Feature topLevelFeature = Feature.findByUniqueName(uniqueName)
+            println "B ${topLevelFeature}"
+
+
+            def sequenceAlterations = variantService.geSequenceAlterationEffectsForFeature( topLevelFeature)
+            println "C ${sequenceAlterations as JSON}"
+
+            for(SequenceAlteration sequenceAlteration in sequenceAlterations ){
+                FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
+                deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));
+                FeatureLocation.deleteAll(sequenceAlteration.featureLocations)
+                sequenceAlteration.delete(flush: true)
+
+                for (Feature feature : featureService.getOverlappingFeatures(sequenceAlterationFeatureLocation, false)) {
+                    if (feature instanceof Gene) {
+                        for (Transcript transcript : transcriptService.getTranscripts((Gene) feature)) {
+                            CDS cds = transcriptService.getCDS(transcript)
+                            featureService.setLongestORF(transcript, cdsService.hasStopCodonReadThrough(cds))
+                            nonCanonicalSplitSiteService.findNonCanonicalAcceptorDonorSpliceSites(transcript)
+                            updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript, true));
+                        }
+                        feature.save(flush: true)
+                    }
+                }
+            }
+        }
+
+        AnnotationEvent deleteAnnotationEvent = new AnnotationEvent(
+                features: deleteFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.DELETE
+                , sequenceAlterationEvent: true
+        )
+        AnnotationEvent updateAnnotationEvent = new AnnotationEvent(
+                features: updateFeatureContainer
+                , sequence: sequence
+                , operation: AnnotationEvent.Operation.UPDATE
+        )
+        fireAnnotationEvent(deleteAnnotationEvent)
+        fireAnnotationEvent(updateAnnotationEvent)
+
+        return createJSONFeatureContainer()
     }
 
     def addVariant(JSONObject inputObject) {

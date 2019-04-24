@@ -354,4 +354,17 @@ class VariantService {
         }
         return alts
     }
+
+    List<SequenceAlteration> geSequenceAlterationEffectsForFeature(Feature feature) {
+        Integer fmin = feature.fmin
+        Integer fmax = feature.fmax
+
+        def results = SequenceAlteration.executeQuery(
+                "select distinct sa from SequenceAlteration sa join sa.featureLocations fl join fl.sequence as s join sa.featureProperties as fp where fl.fmin >= :fmin and fl.fmax <= :fmax and s.id=:sequenceId and fp.tag = :fptag and fp.value like :fpvalue  "
+                ,[fmin:fmin,fmax:fmax,sequenceId:feature.featureLocation.sequenceId,fptag:'justification',fpvalue:'Effect of %']
+        )
+
+        return results
+
+    }
 }
