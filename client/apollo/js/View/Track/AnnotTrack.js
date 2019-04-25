@@ -1692,6 +1692,97 @@ define([
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
+            associateFeatureToGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var featureUniqueName;
+                var geneUniqueName;
+                if (selected[0].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                if (selected[1].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[1].feature.parent();
+                    geneUniqueName = parent.afeature.parent_id;
+                }
+                else {
+                    geneUniqueName = selected[1].feature.afeature.parent_id;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: featureUniqueName }, { uniquename: geneUniqueName }],
+                    operation: 'associate_feature_to_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+            dissociateFeatureFromGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var featureUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: featureUniqueName }],
+                    operation: 'dissociate_feature_from_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+
+            /**
+             * allow removal for
+             */
+            removeVariantEffect: function(){
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                console.log('selected',selected);
+                // var feature = selected[0].feature ;
+                // var location = feature.afeature.location ;
+                // var variant_type = feature.data.type;
+                console.log('feature to remove variant from',selected);
+                var featureUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var features = [featureUniqueName];
+                var postData = {
+                    "track": trackName,
+                    "features": features,
+                    "operation": "remove_variant_effect",
+                    "clientToken": track.getClientToken()
+                };
+                this.selectionManager.clearSelection();
+                track.executeUpdateOperation(JSON.stringify(postData));
+                track.changed();
+            },
+
             viewVariantEffect: function() {
                 var track = this;
                 var trackName = this.getUniqueTrackName();
@@ -7000,6 +7091,15 @@ define([
                     annot_context_menu.addChild(viewVariantEffect);
                     contextMenuItems["view_variant_effect"] = index++;
 
+                    var removeVariantEffect = new dijit.MenuItem({
+                        label: "Remove Variant Effects",
+                        onClick: function () {
+                            thisB.removeVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(removeVariantEffect);
+                    contextMenuItems["remove_variant_effect"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
 
@@ -7414,6 +7514,7 @@ define([
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
                 this.updateViewVariantEffect();
+                this.updateRemoveVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7491,6 +7592,23 @@ define([
                     // TODO: search for sequence alterations in that space?
                     menuItem.set("disabled", false);
                 }
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateRemoveVariantEffect: function(){
+                var menuItem = this.getMenuItem("remove_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length === 0) {
+                    return;
+                }
+                // var currentType = selected[0].feature.get('type');
+                // if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                //     // TODO: search for sequence alterations in that space?
+                menuItem.set("disabled", false);
+                // }
             },
 
             updateDissociateTranscriptFromGeneItem: function() {

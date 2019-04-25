@@ -28,6 +28,11 @@ public class OrganismInfoConverter {
         } else {
             organismInfo.setNumFeatures(0);
         }
+        if (object.get("variantEffectCount") != null) {
+            organismInfo.setVariantEffectCount((int) object.get("variantEffectCount").isNumber().doubleValue());
+        } else {
+            organismInfo.setVariantEffectCount(0);
+        }
         organismInfo.setDirectory(object.get("directory").isString().stringValue());
         if (object.get("valid") != null) {
             organismInfo.setValid(object.get("valid").isBoolean().booleanValue());

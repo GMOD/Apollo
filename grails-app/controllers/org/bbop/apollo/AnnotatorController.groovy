@@ -317,9 +317,13 @@ class AnnotatorController {
                         break
                     case "terminator": viewableTypes.add(Terminator.class.canonicalName)
                         break
+                    case "Shine_Dalgarno_sequence": viewableTypes.add(ShineDalgarnoSequence.class.canonicalName)
+                        break
                     case "transposable_element": viewableTypes.add(TransposableElement.class.canonicalName)
                         break
-                    case "sequence_alteration": viewableTypes.add(SequenceAlteration.class.canonicalName)
+                    case "sequence_alteration":
+                        viewableTypes = requestHandlingService.viewableSequenceAlterationList
+                        break
                     default:
                         log.info "Type not found for annotation filter '${type}'"
                         viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList

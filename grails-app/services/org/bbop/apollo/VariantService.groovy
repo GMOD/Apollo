@@ -2,9 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
@@ -296,6 +294,7 @@ class VariantService {
         }
     }
 
+    @Transactional(readOnly = true)
     def getAlleleFrequencyFromJsonObject(String alleleFrequencyString) {
         try {
             Float alleleFrequency = Float.parseFloat(alleleFrequencyString)
@@ -310,6 +309,7 @@ class VariantService {
         }
     }
 
+    @Transactional(readOnly = true)
     def getAlleleForVariant(String variantUniqueName, String alleleBase) {
         Allele allele
         def results = Allele.executeQuery(
@@ -337,6 +337,7 @@ class VariantService {
         return (refString == genomicResidues)
     }
 
+    @Transactional(readOnly = true)
     def getReferenceAllele(def variant) {
         for (Allele a : variant.alleles) {
             if (a.reference) {
@@ -345,6 +346,7 @@ class VariantService {
         }
     }
 
+    @Transactional(readOnly = true)
     def getAlternateAlleles(def variant) {
         def alts = []
         for (Allele a : variant.alleles) {
@@ -353,5 +355,28 @@ class VariantService {
             }
         }
         return alts
+    }
+
+    @Transactional(readOnly = true)
+    def getSequenceAlterationEffectsCountForOrgansim(Organism organism) {
+        return SequenceAlterationArtifact.executeQuery(
+                "select count(distinct sa) from SequenceAlterationArtifact sa join sa.featureLocations fl join fl.sequence as s join s.organism as o join sa.featureProperties as fp where  fp.tag = :fptag and fp.value like :fpvalue and o = :organism "
+                ,[organism:organism,fptag:'justification',fpvalue:'Effect of %']
+        )[0]
+    }
+
+    @Transactional(readOnly = true)
+    def getSequenceAlterationEffectsForLocation(Integer fmin, Integer fmax, Sequence sequence) {
+        return SequenceAlterationArtifact.executeQuery(
+                "select distinct sa from SequenceAlterationArtifact sa join sa.featureLocations fl join fl.sequence as s join sa.featureProperties as fp where fl.fmin >= :fmin and fl.fmax <= :fmax and s.id=:sequenceId and fp.tag = :fptag and fp.value like :fpvalue  "
+                ,[fmin:fmin,fmax:fmax,sequenceId:sequence.id,fptag:'justification',fpvalue:'Effect of %']
+        )
+    }
+
+    @Transactional(readOnly = true)
+    def getSequenceAlterationEffectsForFeature(Feature feature) {
+        Integer fmin = feature.fmin
+        Integer fmax = feature.fmax
+        return getSequenceAlterationEffectsForLocation(fmin,fmax,feature.featureLocation.sequence)
     }
 }
