@@ -2705,7 +2705,7 @@ class RequestHandlingService {
             JSONArray sequences = inputObject.get(FeatureStringEnum.SEQUENCE.value)
             for(JSONObject seqObj in sequences){
                 Sequence sequence = Sequence.findById(seqObj.id)
-                def sequenceAlterations = variantService.getSequenceAlterationEffectsForFeature(0, sequence.end, sequence)
+                def sequenceAlterations = variantService.getSequenceAlterationEffectsForLocation(0, sequence.end, sequence)
                 for (SequenceAlterationArtifact sequenceAlteration in sequenceAlterations) {
                     FeatureLocation sequenceAlterationFeatureLocation = sequenceAlteration.getFeatureLocation()
                     deleteFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(sequenceAlteration, true));

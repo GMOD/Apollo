@@ -2,9 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.Transactional
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import grails.converters.JSON
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
@@ -360,7 +358,15 @@ class VariantService {
     }
 
     @Transactional(readOnly = true)
-    def getSequenceAlterationEffectsForFeature(Integer fmin,Integer fmax,Sequence sequence) {
+    def getSequenceAlterationEffectsCountForOrgansim(Organism organism) {
+        return SequenceAlterationArtifact.executeQuery(
+                "select count(distinct sa) from SequenceAlterationArtifact sa join sa.featureLocations fl join fl.sequence as s join s.organism as o join sa.featureProperties as fp where  fp.tag = :fptag and fp.value like :fpvalue and o = :organism "
+                ,[organism:organism,fptag:'justification',fpvalue:'Effect of %']
+        )[0]
+    }
+
+    @Transactional(readOnly = true)
+    def getSequenceAlterationEffectsForLocation(Integer fmin, Integer fmax, Sequence sequence) {
         return SequenceAlterationArtifact.executeQuery(
                 "select distinct sa from SequenceAlterationArtifact sa join sa.featureLocations fl join fl.sequence as s join sa.featureProperties as fp where fl.fmin >= :fmin and fl.fmax <= :fmax and s.id=:sequenceId and fp.tag = :fptag and fp.value like :fpvalue  "
                 ,[fmin:fmin,fmax:fmax,sequenceId:sequence.id,fptag:'justification',fpvalue:'Effect of %']
@@ -371,6 +377,6 @@ class VariantService {
     def getSequenceAlterationEffectsForFeature(Feature feature) {
         Integer fmin = feature.fmin
         Integer fmax = feature.fmax
-        return getSequenceAlterationEffectsForFeature(fmin,fmax,feature.featureLocation.sequence)
+        return getSequenceAlterationEffectsForLocation(fmin,fmax,feature.featureLocation.sequence)
     }
 }

@@ -851,21 +851,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def deleteVariantEffectsForSequences() {
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (permissionService.hasPermissions(inputObject, PermissionEnum.WRITE)) {
-
-            println "deleting variant affects for ${inputObject as JSON}"
-            // create features from sequences
-//            JSONArray features = new JSONArray()
-//            inputObject.features = features
-//            List<Long> sequenceList = inputObject.sequence.collect{
-//                return Long.valueOf(it.id)
-//            }
-//            List<String> featureUniqueNames = Feature.executeQuery("select f.uniqueName from Feature f left join f.parentFeatureRelationships pfr  join f.featureLocations fl join fl.sequence s   where f.childFeatureRelationships is empty and s.id in (:sequenceList) and f.class in (:viewableTypes) ", [sequenceList: sequenceList, viewableTypes: requestHandlingService.viewableAnnotationList])
-//            featureUniqueNames.each{
-//                def jsonObject = new JSONObject()
-//                jsonObject.put(FeatureStringEnum.UNIQUENAME.value,it)
-//                features.add(jsonObject)
-//            }
-//            inputObject.remove("sequence")
             render requestHandlingService.removeVariantEffect(inputObject)
         } else {
             render status: HttpStatus.UNAUTHORIZED
