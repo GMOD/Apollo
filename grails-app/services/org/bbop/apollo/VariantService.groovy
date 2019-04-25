@@ -358,7 +358,7 @@ class VariantService {
     }
 
     @Transactional(readOnly = true)
-    def getSequenceAlterationEffectsCountForOrgansim(Organism organism) {
+    Integer getSequenceAlterationEffectsCountForOrgansim(Organism organism) {
         return SequenceAlterationArtifact.executeQuery(
                 "select count(distinct sa) from SequenceAlterationArtifact sa join sa.featureLocations fl join fl.sequence as s join s.organism as o join sa.featureProperties as fp where  fp.tag = :fptag and fp.value like :fpvalue and o = :organism "
                 ,[organism:organism,fptag:'justification',fpvalue:'Effect of %']
