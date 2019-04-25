@@ -440,13 +440,7 @@ public class SequencePanel extends Composite {
                     }
                     JSONObject returnObject = AnnotationRestService.deleteVariantAnnotationsFromSequences(requestCallback, sequenceInfoSet);
                     loadingDialog.hide();
-                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences, reloading");
-//                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences, reloading", new SimpleCallback() {
-//                        @Override
-//                        public void callback() {
-//                            Window.Location.reload();
-//                        }
-//                    });
+                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences");
                 }
             }
         });
