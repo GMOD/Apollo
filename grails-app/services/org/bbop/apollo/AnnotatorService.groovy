@@ -18,10 +18,10 @@ class AnnotatorService {
     def trackService
     def variantService
 
-    def getAnnotationCount(Organism organism){
+    Integer getAnnotationCount(Organism organism){
         def viewableTypes = requestHandlingService.viewableAnnotationList + requestHandlingService.viewableSequenceAlterationList
         def results = Feature.executeQuery(" select count(f) from Feature f join f.featureLocations fl join fl.sequence s join s.organism o where o = :organism and f.class in :viewableTypes ",[organism:organism,viewableTypes: viewableTypes])
-        return results[0]
+        return results[0] as Integer
     }
 
     def getAppState(String token) {
@@ -73,10 +73,10 @@ class AnnotatorService {
             if (currentUserOrganismPreferenceDTO) {
                 OrganismDTO currentOrganism = currentUserOrganismPreferenceDTO?.organism
 
-
-                currentOrganism.annotationCount = getAnnotationCount(userOrganismPreference.organism)
-                currentOrganism.variantEffectCount = variantService.getSequenceAlterationEffectsCountForOrgansim(userOrganismPreference.organism)
-
+                if(userOrganismPreference?.organism){
+                    currentOrganism.annotationCount = getAnnotationCount(userOrganismPreference.organism)
+                    currentOrganism.variantEffectCount = variantService.getSequenceAlterationEffectsCountForOrgansim(userOrganismPreference.organism)
+                }
                 appStateObject.put("currentOrganism", currentOrganism)
 
 
