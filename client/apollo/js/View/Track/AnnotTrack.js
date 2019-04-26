@@ -1160,9 +1160,9 @@ define([
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
                     var recognizedBioType = [
-                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
+                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator','Shine_Dalgarno_sequence'
                     ];
-                    var strandedOneLevelTypes = ['terminator'];
+                    var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence'];
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
@@ -1363,6 +1363,8 @@ define([
             },
 
             createGenericOneLevelAnnotations: function (feats, type, strandless) {
+
+
                 var target_track = this;
                 var featuresToAdd = new Array();
                 var parentFeatures = new Object();
@@ -6870,7 +6872,7 @@ define([
             initAnnotContextMenu: function () {
 
                 // TODO: this list is duplicated
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator','Shine_Dalgarno_sequence'];
 
                 var thisB = this;
                 contextMenuItems = new Array();
@@ -7003,12 +7005,13 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "terminator",
-                        onclick: function(event) {
+                        label: "Terminator",
+                        onClick: function(event) {
+                            console.log('selecting terminator')
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region") {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region" && selectedFeatureType != "Shine_Dalgarno_sequence") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "terminator", message);
                             }
@@ -7018,12 +7021,27 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "repeat_region",
+                        label: "Shine Dalgarno sequence",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" ) {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region"  && selectedFeatureType != "terminator") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "Shine_Dalgarno_sequence", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("Shine_Dalgarno_sequence");
+                            }
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "Repeat region",
+                        onClick: function(event) {
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" && selectedFeatureType != "Shine_Dalgarno_sequence" ) {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
                             }
@@ -7033,12 +7051,12 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "transposable_element",
+                        label: "Transposable element",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator") {
+                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator" && selectedFeatureType != "Shine_Dalgarno_sequence") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
                             }
@@ -7078,6 +7096,24 @@ define([
                     });
                     annot_context_menu.addChild(dissociateTranscriptToGeneItem);
                     contextMenuItems["dissociate_transcript_from_gene"] = index++;
+
+                    var associateFeatureToGeneItem = new dijit.MenuItem({
+                        label: "Associate Feature to Gene",
+                        onClick: function () {
+                            thisB.associateFeatureToGene();
+                        }
+                    });
+                    annot_context_menu.addChild(associateFeatureToGeneItem);
+                    contextMenuItems["associate_feature_to_gene"] = index++;
+
+                    var dissociateFeatureToGeneItem = new dijit.MenuItem({
+                        label: "Dissociate Feature from Gene",
+                        onClick: function () {
+                            thisB.dissociateFeatureFromGene();
+                        }
+                    });
+                    annot_context_menu.addChild(dissociateFeatureToGeneItem);
+                    contextMenuItems["dissociate_feature_from_gene"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -7513,6 +7549,8 @@ define([
                 this.updateRemoveCDSMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
+                this.updateAssociateFeatureToGeneItem();
+                this.updateDissociateFeatureFromGeneItem();
                 this.updateViewVariantEffect();
                 this.updateRemoveVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
@@ -7577,6 +7615,49 @@ define([
                 }
             },
 
+
+            updateAssociateFeatureToGeneItem: function() {
+                var menuItem = this.getMenuItem("associate_feature_to_gene");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                if (AnnotTrack.getTopLevelAnnotation(selected[0].feature).data.parent_id === AnnotTrack.getTopLevelAnnotation(selected[1].feature).data.parent_id) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE)
+                    || JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[1].feature), JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                // TODO: if one is a parent gene and the other is a regulator, then it is not disabled, otherwise it is disabled
+
+
+                // if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
+                //     menuItem.set("disabled", false);
+                // }
+                // else {
+                //     menuItem.set("disabled", true);
+                // }
+                menuItem.set("disabled", false);
+            },
+
             /**
              * TODO, scale to multiple, just one for right now
              */
@@ -7635,6 +7716,33 @@ define([
                 menuItem.set("disabled", false);
             },
 
+            updateDissociateFeatureFromGeneItem: function() {
+                var menuItem = this.getMenuItem("dissociate_feature_from_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (!JSONUtils.regulatorTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (!this.canEdit(selected[0].feature)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                menuItem.set("disabled", false);
+            },
+
+            isSingleFeatureLabel:function(label){
+                return (label === "Transposable element" || label === "Terminator"  || label === "Shine Dalgarno sequence" || label === "Repeat region" ) ;
+            },
+
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
                 var selected = this.selectionManager.getSelection();
                 var selectedType = selected[0].feature.afeature.type.name === "exon" ?
@@ -7666,21 +7774,17 @@ define([
                             menuItems[i].setDisabled(false);
                         }
                     }
+                    else if (selectedType === "terminator") {
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
+                    }
+                    else if (selectedType === "Shine_Dalgarno_sequence") {
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
+                    }
                     else if (selectedType === "repeat_region") {
-                        if (menuItems[i].label === "transposable_element") {
-                            menuItems[i].setDisabled(false);
-                        }
-                        else {
-                            menuItems[i].setDisabled(true);
-                        }
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
                     }
                     else if (selectedType === "transposable_element") {
-                        if (menuItems[i].label === "repeat_region") {
-                            menuItems[i].setDisabled(false);
-                        }
-                        else {
-                            menuItems[i].setDisabled(true);
-                        }
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
                     }
                     else if (JSONUtils.variantTypes.includes(selectedType.toUpperCase())) {
                         menuItems[i].setDisabled(true);
@@ -8455,8 +8559,6 @@ define([
                                             for (var i = 0; i < sindex; i++) {
                                                 var sdiv = $seqdivs[i];
                                                 if ($(sdiv).position().top === ypos) {
-                                                    // console.log("residues already present
-                                                    // in block: " + bindex);
                                                     add_residues = false;
                                                 }
                                             }
@@ -8469,7 +8571,6 @@ define([
                                                 seq = track.getSequenceTrack().complement(seq);
                                             }
                                             seqNode.appendChild(document.createTextNode(seq));
-                                            // console.log("ypos: " + ypos);
                                             seqNode.style.cssText = "top: " + ypos + "px;";
                                             block.domNode.appendChild(seqNode);
                                             if (track.FADEIN_RESIDUES) {
@@ -8485,14 +8586,12 @@ define([
             },
 
             selectionRemoved: function (selected_record, smanager) {
-                // console.log("AnnotTrack.selectionRemoved() called");
                 this.inherited(arguments);
                 var track = this;
                 if (selected_record.track === track) {
                     var feat = selected_record.feature;
                     var featdiv = this.getFeatDiv(feat);
                     // remove sequence text nodes
-                    // console.log("removing base residued text from selected annot");
                     $("div.annot-sequence", track.div).remove();
                     delete this.currentResizableFeature;
                     if ($(featdiv).hasClass("resizable")) {
