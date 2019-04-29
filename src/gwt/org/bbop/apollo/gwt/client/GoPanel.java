@@ -15,6 +15,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.TextBox;
 
@@ -46,6 +47,10 @@ public class GoPanel extends Composite {
     TextBox evidenceCodeField;
     @UiField
     TextBox withField;
+    @UiField
+    Button deleteGoButton;
+    @UiField
+    Button newGoButton;
     //    @UiField
 //    HTML notePanel;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
