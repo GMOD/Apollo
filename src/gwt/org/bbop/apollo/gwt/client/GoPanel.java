@@ -58,12 +58,6 @@ public class GoPanel extends Composite {
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
 
-    // TODO: probably want a link here
-    private TextColumn<GoAnnotation> goTermColumn;
-    private TextColumn<GoAnnotation> evidenceColumn;
-    private TextColumn<GoAnnotation> withColumn;
-    private TextColumn<GoAnnotation> referenceColumn;
-
     public GoPanel() {
         dataGrid.setWidth("100%");
         initializeTable();
@@ -92,7 +86,7 @@ public class GoPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        addFakeData();
+        addFakeData(50);
         redraw();
 
     }
@@ -101,22 +95,25 @@ public class GoPanel extends Composite {
         dataGrid.redraw();
     }
 
-    private void addFakeData() {
-
-        GoAnnotation goAnnotation = new GoAnnotation();
-        goAnnotation.setGoTerm(new GoTerm("GO:12312"));
-        goAnnotation.setEvidenceCode(EvidenceCode.IEA);
-        goAnnotation.addQualifier(Qualifier.NOT);
-        goAnnotation.addWithOrFrom(new WithOrFrom("UniProtKB-KW:KW-0067"));
-        goAnnotation.addWithOrFrom(new WithOrFrom("InterPro:IPR000719"));
-        goAnnotation.addReference(new Reference("PMID:21873635"));
-        goAnnotation.addReference(new Reference("GO_REF:0000002"));
-
-        annotationInfoList.add(goAnnotation);
+    private void addFakeData(int amountOfData) {
+        annotationInfoList.clear();
+        for(int i = 0 ; i < amountOfData ; i++){
+            GoAnnotation goAnnotation = new GoAnnotation();
+            goAnnotation.setGoTerm(new GoTerm("GO:12312","green blood"));
+            goAnnotation.setEvidenceCode(EvidenceCode.IEA);
+            goAnnotation.addQualifier(Qualifier.NOT);
+            goAnnotation.addWithOrFrom(new WithOrFrom("UniProtKB-KW:KW-0067"));
+            goAnnotation.addWithOrFrom(new WithOrFrom("InterPro:IPR000719"));
+            goAnnotation.addReference(new Reference("PMID:21873635"));
+            goAnnotation.addReference(new Reference("GO_REF:0000002"));
+            annotationInfoList.add(goAnnotation);
+        }
+        GWT.log("fake data size: "+annotationInfoList.size());
     }
 
     private void initializeTable() {
-        goTermColumn = new TextColumn<GoAnnotation>() {
+        // TODO: probably want a link here
+        TextColumn<GoAnnotation> goTermColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
                 return annotationInfo.getGoTerm().getName();
@@ -124,7 +121,7 @@ public class GoPanel extends Composite {
         };
         goTermColumn.setSortable(true);
 
-        withColumn = new TextColumn<GoAnnotation>(){
+        TextColumn<GoAnnotation> withColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
                 return annotationInfo.getWithOrFromString();
@@ -132,7 +129,7 @@ public class GoPanel extends Composite {
         };
         withColumn.setSortable(true);
 
-        referenceColumn = new TextColumn<GoAnnotation>(){
+        TextColumn<GoAnnotation> referenceColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
                 return annotationInfo.getReferenceString();
@@ -140,7 +137,7 @@ public class GoPanel extends Composite {
         };
         referenceColumn.setSortable(true);
 
-        evidenceColumn = new TextColumn<GoAnnotation>(){
+        TextColumn<GoAnnotation> evidenceColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
                 return annotationInfo.getEvidenceCode().name();
@@ -151,9 +148,9 @@ public class GoPanel extends Composite {
 
 
         dataGrid.addColumn(goTermColumn, "Name");
-        dataGrid.addColumn(withColumn, "With");
-        dataGrid.addColumn(referenceColumn, "Ref");
         dataGrid.addColumn(evidenceColumn, "Evidence");
+        dataGrid.addColumn(withColumn, "Based On");
+        dataGrid.addColumn(referenceColumn, "Reference");
 
 //        ColumnSortEvent.ListHandler<GoAnnotation> sortHandler = new ColumnSortEvent.ListHandler<GoAnnotation>(annotationInfoList);
 //        dataGrid.addColumnSortHandler(sortHandler);
@@ -192,12 +189,13 @@ public class GoPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
-        if(selectedAnnotationInfo==null){
-            dataProvider.setList(new ArrayList<GoAnnotation>());
-        }
-        else{
-            dataProvider.setList(selectedAnnotationInfo.getGoAnnotations());
-        }
+        addFakeData(50);
+//        if(selectedAnnotationInfo==null){
+//            dataProvider.setList(new ArrayList<GoAnnotation>());
+//        }
+//        else{
+//            dataProvider.setList(selectedAnnotationInfo.getGoAnnotations());
+//        }
     }
 
 }

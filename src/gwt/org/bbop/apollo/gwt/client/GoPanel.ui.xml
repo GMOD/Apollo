@@ -30,7 +30,7 @@
         <gwt:center>
             <cellview:DataGrid ui:field="dataGrid"/>
         </gwt:center>
-        <gwt:south size="200">
+        <gwt:south size="30">
             <b:Container width="100%" addStyleNames="{style.goButtons}">
                 <b:Modal ui:field="editGoModal" closable="true" fade="true" dataBackdrop="FALSE">
                     <b:Container ui:field="goEditContainer" fluid="true" width="100%" styleName="{style.container}"

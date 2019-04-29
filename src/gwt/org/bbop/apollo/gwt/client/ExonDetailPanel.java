@@ -79,11 +79,6 @@ public class ExonDetailPanel extends Composite {
     private static List<AnnotationInfo> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<AnnotationInfo> selectionModel = new SingleSelectionModel<>();
 
-    private TextColumn<AnnotationInfo> typeColumn;
-    private Column<AnnotationInfo, Number> startColumn;
-    private Column<AnnotationInfo, Number> stopColumn;
-    private Column<AnnotationInfo, Number> lengthColumn;
-
     private Boolean editable = false;
 
     public ExonDetailPanel() {
@@ -108,7 +103,7 @@ public class ExonDetailPanel extends Composite {
     }
 
     private void initializeTable() {
-        typeColumn = new TextColumn<AnnotationInfo>() {
+        TextColumn<AnnotationInfo> typeColumn = new TextColumn<AnnotationInfo>() {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
                 String annotationTypeString = annotationInfo.getType();
@@ -122,7 +117,7 @@ public class ExonDetailPanel extends Composite {
         };
         typeColumn.setSortable(true);
 
-        startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
+        Column<AnnotationInfo, Number> startColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
                 return getDisplayMin(annotationInfo.getMin());
@@ -130,7 +125,7 @@ public class ExonDetailPanel extends Composite {
         };
         startColumn.setSortable(true);
 
-        stopColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
+        Column<AnnotationInfo, Number> stopColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getMax();
@@ -138,7 +133,7 @@ public class ExonDetailPanel extends Composite {
         };
         stopColumn.setSortable(true);
 
-        lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
+        Column<AnnotationInfo, Number> lengthColumn = new Column<AnnotationInfo, Number>(new NumberCell()) {
             @Override
             public Integer getValue(AnnotationInfo annotationInfo) {
                 return annotationInfo.getLength();
