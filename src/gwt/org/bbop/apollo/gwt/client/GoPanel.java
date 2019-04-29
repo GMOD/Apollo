@@ -93,6 +93,22 @@ public class GoPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
+
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            @Override
+            public void onSelectionChange(SelectionChangeEvent event) {
+                if(selectionModel.getSelectedObject()!=null){
+                    deleteGoButton.setEnabled(true);
+                }
+                else{
+                    deleteGoButton.setEnabled(false);
+                }
+            }
+        });
+
+
+
+
         addFakeData(50);
         redraw();
 
