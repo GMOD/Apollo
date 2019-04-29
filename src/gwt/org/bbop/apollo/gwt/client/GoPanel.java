@@ -1,10 +1,13 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
@@ -14,11 +17,11 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.go.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.Container;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,11 +33,11 @@ public class GoPanel extends Composite {
     interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
     }
 
-    private GoAnnotation internalGoAnnotation;
+//    private GoAnnotation internalGoAnnotation;
     private static GoPanelUiBinder ourUiBinder = GWT.create(GoPanelUiBinder.class);
 
-    @UiField
-    Container goEditContainer;
+//    @UiField
+//    Container goEditContainer;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<GoAnnotation> dataGrid = new DataGrid<>(200, tablecss);
@@ -52,6 +55,10 @@ public class GoPanel extends Composite {
     Button newGoButton;
     @UiField
     Modal editGoModal;
+    @UiField
+    Button saveNewGoAnnotation;
+    @UiField
+    Button cancelNewGoAnnotation;
     //    @UiField
 //    HTML notePanel;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
@@ -71,14 +78,14 @@ public class GoPanel extends Composite {
                     withField.setText("");
                     referenceField.setText("");
                     evidenceCodeField.setText("");
-                    goEditContainer.setVisible(false);
+//                    goEditContainer.setVisible(false);
                 } else {
                     goTermField.setText(selectionModel.getSelectedObject().getGoTerm().getName());
                     withField.setText(selectionModel.getSelectedObject().getWithOrFromString());
                     referenceField.setText(selectionModel.getSelectedObject().getReferenceString());
 
                     evidenceCodeField.setText(selectionModel.getSelectedObject().getEvidenceCode().name());
-                    goEditContainer.setVisible(true);
+//                    goEditContainer.setVisible(true);
                 }
             }
         });
@@ -110,6 +117,34 @@ public class GoPanel extends Composite {
         }
         GWT.log("fake data size: "+annotationInfoList.size());
     }
+
+    @UiHandler("newGoButton")
+    public void newGoAnnotation(ClickEvent e) {
+        editGoModal.show();
+    }
+
+    @UiHandler("saveNewGoAnnotation")
+    public void saveNewGoAnnotationButton(ClickEvent e) {
+        editGoModal.hide();
+    }
+
+    @UiHandler("cancelNewGoAnnotation")
+    public void cancelNewGoAnnotationButton(ClickEvent e) {
+        editGoModal.hide();
+    }
+
+    @UiHandler("deleteGoButton")
+    public void deleteGoAnnotation(ClickEvent e) {
+        GoAnnotation goAnnotation = selectionModel.getSelectedObject();
+        Bootbox.confirm("Remove GO Annotation: " + goAnnotation.getGoTerm().getName(), new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                Window.alert("removed: "+result);
+            }
+        });
+    }
+
+
 
     private void initializeTable() {
         // TODO: probably want a link here
@@ -146,11 +181,15 @@ public class GoPanel extends Composite {
         evidenceColumn.setSortable(true);
 
 
-
         dataGrid.addColumn(goTermColumn, "Name");
         dataGrid.addColumn(evidenceColumn, "Evidence");
         dataGrid.addColumn(withColumn, "Based On");
         dataGrid.addColumn(referenceColumn, "Reference");
+
+        dataGrid.setColumnWidth(0, "70px");
+        dataGrid.setColumnWidth(1, "30px");
+        dataGrid.setColumnWidth(2, "90px");
+        dataGrid.setColumnWidth(3, "90px");
 
 //        ColumnSortEvent.ListHandler<GoAnnotation> sortHandler = new ColumnSortEvent.ListHandler<GoAnnotation>(annotationInfoList);
 //        dataGrid.addColumnSortHandler(sortHandler);
