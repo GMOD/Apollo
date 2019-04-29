@@ -2,22 +2,36 @@ package org.bbop.apollo.gwt.shared.go;
 
 public class WithOrFrom {
 
-    String id;
-    String name;
+    String prefix;
+    String lookupId;
 
-    public String getId() {
-        return id;
+    public WithOrFrom(String prefix, String lookup) {
+        this.prefix = prefix;
+        this.lookupId = lookup;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public WithOrFrom(String lookup) {
+        this.prefix = lookup.split(":")[0];
+        this.lookupId = lookup.split(":")[1];
     }
 
-    public String getName() {
-        return name;
+    public String getPrefix() {
+        return prefix;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public String getLookupId() {
+        return lookupId;
+    }
+
+    public void setLookupId(String lookupId) {
+        this.lookupId = lookupId;
+    }
+
+    public String getDisplay() {
+        return prefix + ":" + lookupId;
     }
 }

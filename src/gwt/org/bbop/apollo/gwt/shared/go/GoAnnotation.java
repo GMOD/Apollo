@@ -1,15 +1,18 @@
 package org.bbop.apollo.gwt.shared.go;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class GoAnnotation {
 
 
     GoGene goGene ; // I think tis is the gene it refers to?
     GoTerm goTerm;
     EvidenceCode evidenceCode;
-    Qualifier qualifier ;
-    Reference reference;
-    WithOrFrom withOrFrom;
+    List<Qualifier> qualifierList;
+    List<WithOrFrom> withOrFromList;
+    List<Reference> referenceList;
 
     public GoGene getGoGene() {
         return goGene;
@@ -35,28 +38,66 @@ public class GoAnnotation {
         this.evidenceCode = evidenceCode;
     }
 
-    public Qualifier getQualifier() {
-        return qualifier;
+    public List<Qualifier> getQualifierList() {
+        return qualifierList;
     }
 
-    public void setQualifier(Qualifier qualifier) {
-        this.qualifier = qualifier;
+    public void setQualifierList(List<Qualifier> qualifierList) {
+        this.qualifierList = qualifierList;
     }
 
-    public Reference getReference() {
-        return reference;
+    public List<Reference> getReferenceList() {
+        return referenceList;
     }
 
-    public void setReference(Reference reference) {
-        this.reference = reference;
+    public void setReferenceList(List<Reference> referenceList) {
+        this.referenceList = referenceList;
     }
 
-    public WithOrFrom getWithOrFrom() {
-        return withOrFrom;
+    public void addQualifier(Qualifier qualifier) {
+        if(qualifierList ==null){
+            qualifierList = new ArrayList<Qualifier>();
+        }
+        qualifierList.add(qualifier);
     }
 
-    public void setWithOrFrom(WithOrFrom withOrFrom) {
-        this.withOrFrom = withOrFrom;
+    public List<WithOrFrom> getWithOrFromList() {
+        return withOrFromList;
     }
 
+    public void setWithOrFromList(List<WithOrFrom> withOrFromList) {
+        this.withOrFromList = withOrFromList;
+    }
+
+    public void addWithOrFrom(WithOrFrom withOrFrom) {
+        if(withOrFromList==null){
+            withOrFromList = new ArrayList<>();
+        }
+        withOrFromList.add(withOrFrom);
+    }
+
+    public void addReference(Reference reference) {
+        if(referenceList==null){
+            referenceList = new ArrayList<>();
+        }
+        referenceList.add(reference);
+    }
+
+    public String getWithOrFromString(){
+        StringBuilder withOrFromStringBuilder = new StringBuilder();
+        for(WithOrFrom withOrFrom : getWithOrFromList()){
+            withOrFromStringBuilder.append(withOrFrom.getDisplay()) ;
+            withOrFromStringBuilder.append(" ") ;
+        }
+        return withOrFromStringBuilder.toString();
+    }
+
+    public String getReferenceString(){
+        StringBuilder referenceStringBuilder = new StringBuilder();
+        for(Reference reference: getReferenceList()){
+            referenceStringBuilder.append(reference.getRefereneString());
+            referenceStringBuilder.append(" ");
+        }
+        return referenceStringBuilder.toString();
+    }
 }

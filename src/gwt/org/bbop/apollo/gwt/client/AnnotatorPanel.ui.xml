@@ -51,7 +51,7 @@
         }
         .pageSizeSelector {
             display: inline;
-            width: 100px;
+            width: 40px;
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
@@ -78,7 +78,7 @@
                     </b:Column>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="MD_9">
+                    <b:Column size="MD_8">
                         <b:ButtonGroup>
                             <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"
                                       text="Go to Annotation"
@@ -88,14 +88,14 @@
                                       ui:field="deleteAnnotation" enabled="false"
                                       addStyleNames="{style.action-buttons}"/>
                         </b:ButtonGroup>
-                        <gwt:Label text="Page Size" styleName="{style.pageSizeLabel}"/>
-                        <gwt:ListBox title="Page Size"
+                        <b:Label text="Rows" styleName="{style.pageSizeLabel}"/>
+                        <b:ListBox title="Rows"
                                        ui:field="pageSizeSelector" styleName="{style.pageSizeSelector}"
                         >
-                        </gwt:ListBox>
+                        </b:ListBox>
                     </b:Column>
-                    <b:Column size="MD_3">
-                        <b:CheckBox title="Show Details" text="Show Details"
+                    <b:Column size="MD_1">
+                        <b:CheckBox title="Show Details" text="Details"
                                   ui:field="toggleAnnotation" enabled="true" value="true"
                                   addStyleNames="{style.action-buttons}"/>
                     </b:Column>

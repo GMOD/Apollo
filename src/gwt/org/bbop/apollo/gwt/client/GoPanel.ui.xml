@@ -20,56 +20,57 @@
             margin-left: 5px;
             margin-right: 5px;
         }
-        .goButtons{
+
+        .goButtons {
             margin-top: 5px;
         }
     </ui:style>
 
     <gwt:DockLayoutPanel>
-        <gwt:west size="350">
-            <cellview:DataGrid ui:field="dataGrid"/>
-        </gwt:west>
         <gwt:center>
-            <b:Container ui:field="goEditContainer" fluid="true" width="100%" styleName="{style.container}"
-                         visible="true">
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:Label>Go Term</b:Label>
-                        <b:TextBox ui:field="goTermField"/>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:Label>With</b:Label>
-                        <b:TextBox ui:field="withField"/>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:Label>Evidence Code</b:Label>
-                        <b:TextBox ui:field="evidenceCodeField"/>
-                    </b:Column>
-                </b:Row>
-                <b:Row styleName="{style.row}">
-                    <b:Column size="MD_4" styleName="{style.widgetPanel}">
-                        <b:Label>Reference</b:Label>
-                        <b:TextBox ui:field="referenceField"/>
-                    </b:Column>
-                </b:Row>
-            </b:Container>
+            <cellview:DataGrid ui:field="dataGrid"/>
         </gwt:center>
-        <gwt:south size="35">
+        <gwt:south size="200">
             <b:Container width="100%" addStyleNames="{style.goButtons}">
+                <b:Modal ui:field="editGoModal" closable="true" fade="true" dataBackdrop="FALSE">
+                    <b:Container ui:field="goEditContainer" fluid="true" width="100%" styleName="{style.container}"
+                                 visible="true">
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                                <b:Label>Go Term</b:Label>
+                                <b:TextBox ui:field="goTermField"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                                <b:Label>With</b:Label>
+                                <b:TextBox ui:field="withField"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                                <b:Label>Evidence Code</b:Label>
+                                <b:TextBox ui:field="evidenceCodeField"/>
+                            </b:Column>
+                        </b:Row>
+                        <b:Row styleName="{style.row}">
+                            <b:Column size="MD_4" styleName="{style.widgetPanel}">
+                                <b:Label>Reference</b:Label>
+                                <b:TextBox ui:field="referenceField"/>
+                            </b:Column>
+                        </b:Row>
+                    </b:Container>
+                </b:Modal>
                 <b:Row>
                     <b:Column size="MD_3">
                         <b:Button text="New" ui:field="newGoButton"/>
                     </b:Column>
                     <b:Column size="MD_3">
-                        <b:Button text="Delete"  ui:field="deleteGoButton"/>
+                        <b:Button text="Delete" ui:field="deleteGoButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
         </gwt:south>
-    </gwt:DockLayoutPanel>
 
+    </gwt:DockLayoutPanel>
 </ui:UiBinder>

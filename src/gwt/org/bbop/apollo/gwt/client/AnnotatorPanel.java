@@ -536,7 +536,7 @@ public class AnnotatorPanel extends Composite {
     }
 
     private static void reselectSubTab() {
-        // attempt to selectt the last tab
+        // attempt to select the last tab
         if (tabPanel.getSelectedIndex() != selectedSubTabIndex) {
             tabPanel.selectTab(selectedSubTabIndex);
         }
@@ -546,6 +546,9 @@ public class AnnotatorPanel extends Composite {
             --selectedSubTabIndex;
             tabPanel.selectTab(selectedSubTabIndex);
         }
+
+        // TODO: remove
+        tabPanel.selectTab(5);
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
@@ -844,12 +847,7 @@ public class AnnotatorPanel extends Composite {
     public void displayTranscript(int geneIndex, String uniqueName) {
 
         // for some reason doesn't like call enableGoto
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
-        selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
-        exonDetailPanel.updateData(selectedAnnotationInfo);
-        gotoAnnotation.setEnabled(true);
-        deleteAnnotation.setEnabled(true);
-        selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
+        enableGoto(geneIndex,uniqueName);
 
         // for some reason doesn't like call gotoAnnotation
         Integer min = selectedAnnotationInfo.getMin() - 50;
@@ -876,11 +874,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
-        var that = this;
         $wnd.displayTranscript = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
         $wnd.displayFeature = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayFeature(I));
         $wnd.enableGoto = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;));
-//        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {

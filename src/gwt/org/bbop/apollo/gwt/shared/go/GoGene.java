@@ -5,7 +5,32 @@ package org.bbop.apollo.gwt.shared.go;
  */
 public class GoGene {
 
+    // points to annotation features
     Long id;
     String name ;
+    String uniqueName ;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getUniqueName() {
+        return uniqueName;
+    }
+
+    public void setUniqueName(String uniqueName) {
+        this.uniqueName = uniqueName;
+    }
 }

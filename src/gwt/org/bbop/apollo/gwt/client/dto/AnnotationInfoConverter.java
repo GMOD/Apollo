@@ -92,25 +92,13 @@ public class AnnotationInfoConverter {
     private static GoAnnotation generateGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
 
-        GoTerm goTerm = new GoTerm();
-        goTerm.setName("red blood");
-        goAnnotation.setGoTerm(goTerm);
+        goAnnotation.setGoTerm(new GoTerm("GO:12321","red blood"));
+        goAnnotation.setEvidenceCode(EvidenceCode.IEA);
+        goAnnotation.addQualifier(Qualifier.NOT);
 
-        EvidenceCode evidenceCode = new EvidenceCode();
-        evidenceCode.setName("IEA");
-        goAnnotation.setEvidenceCode(evidenceCode);
+        goAnnotation.addReference(new Reference("PMID:123123"));
 
-        Qualifier qualifier = new Qualifier();
-        qualifier.setName("not");
-        goAnnotation.setQualifier(qualifier);
-
-        Reference reference = new Reference();
-        reference.setRefereneString("PMID:123123");
-        goAnnotation.setReference(reference);
-
-        WithOrFrom withOrFrom = new WithOrFrom();
-        withOrFrom.setName("UnitProt:K12312");
-        goAnnotation.setWithOrFrom(withOrFrom);
+        goAnnotation.addWithOrFrom(new WithOrFrom("UnitProt:K12312"));
 
         return goAnnotation;
     }
