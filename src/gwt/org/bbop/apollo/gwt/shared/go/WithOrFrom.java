@@ -2,8 +2,8 @@ package org.bbop.apollo.gwt.shared.go;
 
 public class WithOrFrom {
 
-    String prefix;
-    String lookupId;
+    private String prefix;
+    private String lookupId;
 
     public WithOrFrom(String prefix, String lookup) {
         this.prefix = prefix;

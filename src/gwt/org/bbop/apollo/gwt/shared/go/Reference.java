@@ -2,8 +2,8 @@ package org.bbop.apollo.gwt.shared.go;
 
 public class Reference {
 
-    String prefix;
-    String lookupId;
+    private String prefix;
+    private String lookupId;
 
 
     public Reference(String lookup) {
@@ -31,7 +31,4 @@ public class Reference {
         return prefix + ":" + lookupId;
     }
 //
-//    public void setRefereneString(String refereneString) {
-//        this.refereneString = refereneString;
-//    }
 }

@@ -6,9 +6,9 @@ package org.bbop.apollo.gwt.shared.go;
 public class GoTerm {
 
     //    Long id;
-    String name;
-    String prefix;
-    String lookupId;
+    private String name;
+    private String prefix;
+    private String lookupId;
 
     public GoTerm(String lookup) {
         if(lookup.contains(":")){

@@ -6,9 +6,9 @@ package org.bbop.apollo.gwt.shared.go;
 public class GoGene {
 
     // points to annotation features
-    Long id;
-    String name ;
-    String uniqueName ;
+    private Long id;
+    private String name ;
+    private String uniqueName ;
 
     public Long getId() {
         return id;
