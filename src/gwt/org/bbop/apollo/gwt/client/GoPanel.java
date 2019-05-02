@@ -59,6 +59,8 @@ public class GoPanel extends Composite {
     Button saveNewGoAnnotation;
     @UiField
     Button cancelNewGoAnnotation;
+    @UiField
+    Button editGoButton;
     //    @UiField
 //    HTML notePanel;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
@@ -73,20 +75,7 @@ public class GoPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if (selectionModel.getSelectedSet().isEmpty()) {
-                    goTermField.setText("");
-                    withField.setText("");
-                    referenceField.setText("");
-                    evidenceCodeField.setText("");
-//                    goEditContainer.setVisible(false);
-                } else {
-                    goTermField.setText(selectionModel.getSelectedObject().getGoTerm().getName());
-                    withField.setText(selectionModel.getSelectedObject().getWithOrFromString());
-                    referenceField.setText(selectionModel.getSelectedObject().getReferenceString());
-
-                    evidenceCodeField.setText(selectionModel.getSelectedObject().getEvidenceCode().name());
-//                    goEditContainer.setVisible(true);
-                }
+                handleSelection();
             }
         });
 
@@ -99,9 +88,11 @@ public class GoPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 if(selectionModel.getSelectedObject()!=null){
                     deleteGoButton.setEnabled(true);
+                    editGoButton.setEnabled(true);
                 }
                 else{
                     deleteGoButton.setEnabled(false);
+                    editGoButton.setEnabled(false);
                 }
             }
         });
@@ -111,6 +102,24 @@ public class GoPanel extends Composite {
 
         addFakeData(50);
         redraw();
+
+    }
+
+    private void handleSelection(){
+        if (selectionModel.getSelectedSet().isEmpty()) {
+            goTermField.setText("");
+            withField.setText("");
+            referenceField.setText("");
+            evidenceCodeField.setText("");
+//                    goEditContainer.setVisible(false);
+        } else {
+            goTermField.setText(selectionModel.getSelectedObject().getGoTerm().getName());
+            withField.setText(selectionModel.getSelectedObject().getWithOrFromString());
+            referenceField.setText(selectionModel.getSelectedObject().getReferenceString());
+
+            evidenceCodeField.setText(selectionModel.getSelectedObject().getEvidenceCode().name());
+//                    goEditContainer.setVisible(true);
+        }
 
     }
 
@@ -136,6 +145,12 @@ public class GoPanel extends Composite {
 
     @UiHandler("newGoButton")
     public void newGoAnnotation(ClickEvent e) {
+        selectionModel.clear();
+        editGoModal.show();
+    }
+
+    @UiHandler("editGoButton")
+    public void editGoAnnotation(ClickEvent e) {
         editGoModal.show();
     }
 

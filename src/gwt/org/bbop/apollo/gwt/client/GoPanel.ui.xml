@@ -102,6 +102,9 @@
                         <b:Button text="New" ui:field="newGoButton"/>
                     </b:Column>
                     <b:Column size="MD_3">
+                        <b:Button text="Edit" ui:field="editGoButton" enabled="false"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
                         <b:Button text="Delete" ui:field="deleteGoButton" enabled="false"/>
                     </b:Column>
                 </b:Row>
