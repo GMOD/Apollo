@@ -15,22 +15,6 @@ class WithOrFrom {
         this.lookupId = lookup.split(":")[1]
     }
 
-    String getPrefix() {
-        return prefix
-    }
-
-    void setPrefix(String prefix) {
-        this.prefix = prefix
-    }
-
-    String getLookupId() {
-        return lookupId
-    }
-
-    void setLookupId(String lookupId) {
-        this.lookupId = lookupId
-    }
-
     String getDisplay() {
         return prefix + ":" + lookupId
     }

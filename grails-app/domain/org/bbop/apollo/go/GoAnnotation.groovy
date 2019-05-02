@@ -1,32 +1,26 @@
 package org.bbop.apollo.go
 
+import org.bbop.apollo.Feature
+import org.bbop.apollo.gwt.shared.go.EvidenceCode
+import org.bbop.apollo.gwt.shared.go.Qualifier
+
 
 class GoAnnotation {
 
 
+    Feature feature
     GoTerm goTerm
     EvidenceCode evidenceCode
-    List<Qualifier> qualifierList
-    List<WithOrFrom> withOrFromList
-    List<Reference> referenceList
 
-    void addWithOrFrom(WithOrFrom withOrFrom) {
-        if(withOrFromList==null){
-            withOrFromList = new ArrayList<>()
-        }
-        withOrFromList.add(withOrFrom)
-    }
-
-    void addReference(Reference reference) {
-        if(referenceList==null){
-            referenceList = new ArrayList<>()
-        }
-        referenceList.add(reference)
-    }
+    static hasMany = [
+            qualifiers: Qualifier
+            ,withOrFroms: WithOrFrom
+            ,references: Reference
+    ]
 
     String getWithOrFromString(){
         StringBuilder withOrFromStringBuilder = new StringBuilder()
-        for(WithOrFrom withOrFrom : getWithOrFromList()){
+        for(WithOrFrom withOrFrom : withOrFroms){
             withOrFromStringBuilder.append(withOrFrom.getDisplay())
             withOrFromStringBuilder.append(" ")
         }
@@ -35,7 +29,7 @@ class GoAnnotation {
 
     String getReferenceString(){
         StringBuilder referenceStringBuilder = new StringBuilder()
-        for(Reference reference: getReferenceList()){
+        for(Reference reference: references){
             referenceStringBuilder.append(reference.getReferenceString())
             referenceStringBuilder.append(" ")
         }
