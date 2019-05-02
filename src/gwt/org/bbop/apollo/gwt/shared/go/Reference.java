@@ -27,7 +27,7 @@ public class Reference {
         this.lookupId = lookupId;
     }
 
-    public String getRefereneString() {
+    public String getReferenceString() {
         return prefix + ":" + lookupId;
     }
 //

@@ -95,7 +95,7 @@ public class GoAnnotation {
     public String getReferenceString(){
         StringBuilder referenceStringBuilder = new StringBuilder();
         for(Reference reference: getReferenceList()){
-            referenceStringBuilder.append(reference.getRefereneString());
+            referenceStringBuilder.append(reference.getReferenceString());
             referenceStringBuilder.append(" ");
         }
         return referenceStringBuilder.toString();
