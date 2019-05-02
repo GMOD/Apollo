@@ -2,6 +2,9 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -15,6 +18,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.shared.go.*;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Modal;
@@ -154,9 +158,31 @@ public class GoPanel extends Composite {
         editGoModal.show();
     }
 
+
+
     @UiHandler("saveNewGoAnnotation")
     public void saveNewGoAnnotationButton(ClickEvent e) {
+        GoAnnotation goAnnotation = getEditedGoAnnotation();
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                Window.alert("Sucessfull save : TODO update model");
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Failed to save new go anntation");
+            }
+        };
+        GoRestService.createGoAnnotation(requestCallback,goAnnotation);
         editGoModal.hide();
+    }
+
+    private GoAnnotation getEditedGoAnnotation() {
+        GoAnnotation goAnnotation = new GoAnnotation();
+
+
+        return goAnnotation ;
     }
 
     @UiHandler("cancelNewGoAnnotation")
@@ -171,6 +197,19 @@ public class GoPanel extends Composite {
             @Override
             public void callback(boolean result) {
                 Window.alert("removed: "+result);
+                GoAnnotation goAnnotation = getEditedGoAnnotation();
+                RequestCallback requestCallback = new RequestCallback() {
+                    @Override
+                    public void onResponseReceived(Request request, Response response) {
+                        Window.alert("Sucessfull save : TODO update model");
+                    }
+
+                    @Override
+                    public void onError(Request request, Throwable exception) {
+                        Bootbox.alert("Failed to save new go anntation");
+                    }
+                };
+                GoRestService.deleteGoAnnotation(requestCallback,goAnnotation);
             }
         });
     }

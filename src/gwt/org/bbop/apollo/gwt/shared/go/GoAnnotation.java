@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.shared.go;
 
 
+import com.google.gwt.json.client.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
