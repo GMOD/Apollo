@@ -113,12 +113,12 @@ jbrowse {
        WebApollo{
            included = true
        }
-    //    NeatHTMLFeatures{
-    //        included = true
-    //    }
-    //    NeatCanvasFeatures{
-    //        included = true
-    //    }
+        NeatHTMLFeatures{
+            included = false
+        }
+        NeatCanvasFeatures{
+            included = false
+        }
        RegexSequenceSearch{
            included = true
        }
@@ -149,6 +149,7 @@ jbrowse {
            alwaysPull = true
            alwaysRecheck = true
        }
+
 //        Header {
 //           git = 'https://github.com/NAL-i5K/workspace_header_footer'
 //               branch = 'master'
