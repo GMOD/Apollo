@@ -2,6 +2,8 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -102,6 +104,12 @@ public class GoPanel extends Composite {
         });
 
 
+        dataGrid.addDomHandler(new DoubleClickHandler() {
+            @Override
+            public void onDoubleClick(DoubleClickEvent event) {
+                editGoModal.show();
+            }
+        }, DoubleClickEvent.getType());
 
 
         addFakeData(50);
