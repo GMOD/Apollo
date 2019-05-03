@@ -1,20 +1,18 @@
 package org.bbop.apollo.gwt.shared.go;
 
 
-import com.google.gwt.json.client.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class GoAnnotation {
 
 
-    GoGene goGene ; // I think tis is the gene it refers to?
-    GoTerm goTerm;
-    EvidenceCode evidenceCode;
-    List<Qualifier> qualifierList;
-    List<WithOrFrom> withOrFromList;
-    List<Reference> referenceList;
+    private GoGene goGene; // I think tis is the gene it refers to?
+    private GoTerm goTerm;
+    private EvidenceCode evidenceCode;
+    private List<Qualifier> qualifierList;
+    private List<WithOrFrom> withOrFromList;
+    private List<Reference> referenceList;
 
     public GoGene getGoGene() {
         return goGene;
@@ -57,7 +55,7 @@ public class GoAnnotation {
     }
 
     public void addQualifier(Qualifier qualifier) {
-        if(qualifierList ==null){
+        if (qualifierList == null) {
             qualifierList = new ArrayList<Qualifier>();
         }
         qualifierList.add(qualifier);
@@ -72,31 +70,31 @@ public class GoAnnotation {
     }
 
     public void addWithOrFrom(WithOrFrom withOrFrom) {
-        if(withOrFromList==null){
+        if (withOrFromList == null) {
             withOrFromList = new ArrayList<>();
         }
         withOrFromList.add(withOrFrom);
     }
 
     public void addReference(Reference reference) {
-        if(referenceList==null){
+        if (referenceList == null) {
             referenceList = new ArrayList<>();
         }
         referenceList.add(reference);
     }
 
-    public String getWithOrFromString(){
+    public String getWithOrFromString() {
         StringBuilder withOrFromStringBuilder = new StringBuilder();
-        for(WithOrFrom withOrFrom : getWithOrFromList()){
-            withOrFromStringBuilder.append(withOrFrom.getDisplay()) ;
-            withOrFromStringBuilder.append(" ") ;
+        for (WithOrFrom withOrFrom : getWithOrFromList()) {
+            withOrFromStringBuilder.append(withOrFrom.getDisplay());
+            withOrFromStringBuilder.append(" ");
         }
         return withOrFromStringBuilder.toString();
     }
 
-    public String getReferenceString(){
+    public String getReferenceString() {
         StringBuilder referenceStringBuilder = new StringBuilder();
-        for(Reference reference: getReferenceList()){
+        for (Reference reference : getReferenceList()) {
             referenceStringBuilder.append(reference.getReferenceString());
             referenceStringBuilder.append(" ");
         }
