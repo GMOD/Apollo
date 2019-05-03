@@ -77,8 +77,6 @@ sample-postgres-apollo-config.groovy) to make sure you use your preferred databa
    
 
 ### Thanks to
-[![IntelliJ](https://lh6.googleusercontent.com/--QIIJfKrjSk/UJJ6X-UohII/AAAAAAAAAVM/cOW7EjnH778/s800/banner_IDEA.png)](
-http://www.jetbrains.com/idea/index.html)
 
 [![YourKit](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
 
@@ -87,6 +85,5 @@ for monitoring and profiling Java and .NET applications.
 YourKit is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>,
 <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
 and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
-
 
 
