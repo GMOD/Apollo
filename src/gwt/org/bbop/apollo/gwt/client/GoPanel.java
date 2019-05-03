@@ -14,6 +14,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -67,8 +68,10 @@ public class GoPanel extends Composite {
     Button cancelNewGoAnnotation;
     @UiField
     Button editGoButton;
-    //    @UiField
-//    HTML notePanel;
+    @UiField
+    FlexTable withEntriesFlexTable  = new FlexTable();
+    @UiField
+    FlexTable referencesFlexTable  = new FlexTable();
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -78,16 +81,23 @@ public class GoPanel extends Composite {
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
+
+        TextColumn<WithOrFrom> withOrFromTextColumn = new TextColumn<WithOrFrom>() {
+            @Override
+            public String getValue(WithOrFrom withOrFrom) {
+                return withOrFrom.getDisplay();
+            }
+        };
+
+
+        initWidget(ourUiBinder.createAndBindUi(this));
+
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 handleSelection();
             }
         });
-
-
-        initWidget(ourUiBinder.createAndBindUi(this));
-
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -125,9 +135,24 @@ public class GoPanel extends Composite {
             evidenceCodeField.setText("");
 //                    goEditContainer.setVisible(false);
         } else {
-            goTermField.setText(selectionModel.getSelectedObject().getGoTerm().getName());
-            withField.setText(selectionModel.getSelectedObject().getWithOrFromString());
-            referenceField.setText(selectionModel.getSelectedObject().getReferenceString());
+            GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
+            goTermField.setText(selectedGoAnnotation.getGoTerm().getName());
+            int withRow = 0 ;
+            for(WithOrFrom withOrFrom: selectedGoAnnotation.getWithOrFromList()){
+                withEntriesFlexTable.setHTML(withRow,0,withOrFrom.getDisplay());
+                withEntriesFlexTable.setWidget(withRow,1,new Button("X"));
+                ++withRow ;
+            }
+
+            withField.setText("");
+
+            int referenceRow = 0 ;
+            for(Reference reference: selectedGoAnnotation.getReferenceList()){
+                referencesFlexTable.setHTML(referenceRow,0,reference.getReferenceString());
+                referencesFlexTable.setWidget(referenceRow,1,new Button("X"));
+                ++referenceRow;
+            }
+            referenceField.setText("");
 
             evidenceCodeField.setText(selectionModel.getSelectedObject().getEvidenceCode().name());
 //                    goEditContainer.setVisible(true);

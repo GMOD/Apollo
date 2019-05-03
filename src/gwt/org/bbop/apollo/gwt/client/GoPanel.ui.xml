@@ -66,13 +66,10 @@
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_10">
-                                    <gwt:FlexTable />
-                                </b:Column>
+                                <gwt:FlexTable ui:field="withEntriesFlexTable" width="100%" visible="true"/>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_8"
-                                >
+                                <b:Column size="MD_8">
                                     <b:Label>Reference</b:Label>
                                     <b:TextBox ui:field="referenceField"/>
                                 </b:Column>
@@ -82,7 +79,7 @@
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_10">
-                                    <gwt:FlexTable />
+                                    <gwt:FlexTable ui:field="referencesFlexTable" width="100%" visible="true"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
