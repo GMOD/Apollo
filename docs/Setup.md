@@ -25,33 +25,20 @@ Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configu
      
 ### Install node if not present
 
-Node versions 608 have been tested.  
+Node versions 6+ have been tested.   I would recommend using [nvm](https://github.com/creationix/nvm) and ``nvm install 8```
 
-Option 1 (preferred):
+### Install python
 
-1. Install [nvm](https://github.com/creationix/nvm) 
-2. Install node with ```nvm install node 8```
+Node has a python dependency. `sudo apt-get install python`
 
-Option 2:
-
-[stable versions of node.js](https://nodejs.org/en/download/package-manager/) will supply this.  
-
-     curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-     sudo apt-get install nodejs 
-     
-NOTE: you may need to link nodejs to to node if your system installs it as a ```nodejs``` binary instead of a node one.  E.g., 
-
-    sudo ln -s /usr/bin/nodejs /usr/bin/node
-
-
-### 
+### Install jdk
      
 Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat8 is preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
      
     sudo apt-get install ant openjdk-8-jdk 
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
     
-Install yarn:
+### Install yarn
 
     npm install -g yarn
 
