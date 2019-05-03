@@ -27,9 +27,9 @@ Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configu
 
 Node versions 6+ have been tested.   I would recommend using [nvm](https://github.com/creationix/nvm) and ``nvm install 8```
 
-### Install python
+### Install python, make 
 
-Node has a python dependency. `sudo apt-get install python`
+Node has a python dependency. `sudo apt-get install python make`
 
 ### Install jdk
      
