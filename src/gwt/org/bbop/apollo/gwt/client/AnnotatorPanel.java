@@ -53,6 +53,7 @@ import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -130,11 +131,15 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static Button deleteAnnotation;
     @UiField
-    CheckBox toggleAnnotation;
+    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
     GoPanel goPanel;
+
+
+    // manage UI-state
+    private Boolean showDetails = true ;
 
     private static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -175,6 +180,8 @@ public class AnnotatorPanel extends Composite {
 
 
         initWidget(ourUiBinder.createAndBindUi(this));
+
+        handleDetails();
 
         dataProvider = new AsyncDataProvider<AnnotationInfo>() {
             @Override
@@ -710,6 +717,7 @@ public class AnnotatorPanel extends Composite {
         dataGrid.setColumnWidth(5, 30.0, Unit.PX);
 
         dataGrid.setSelectionModel(singleSelectionModel);
+
     }
 
     private String getType(JSONObject internalData) {
@@ -760,9 +768,23 @@ public class AnnotatorPanel extends Composite {
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
+
+    private void handleDetails(){
+        if(showDetails) {
+            toggleAnnotation.setText("Hide Details");
+            toggleAnnotation.setIcon(IconType.EYE_SLASH);
+        } else{
+            toggleAnnotation.setText("Show Details");
+            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
+        }
+
+        tabPanel.setVisible(showDetails);
+    }
+
     @UiHandler("toggleAnnotation")
     void toggleAnnotation(ClickEvent clickEvent) {
-        tabPanel.setVisible(toggleAnnotation.getValue());
+        showDetails = !showDetails;
+        handleDetails();
     }
 
     @UiHandler("deleteAnnotation")

@@ -94,9 +94,9 @@
                         >
                         </b:ListBox>
                     </b:Column>
-                    <b:Column size="MD_1">
-                        <b:CheckBox title="Show Details" text="Details"
-                                  ui:field="toggleAnnotation" enabled="true" value="true"
+                    <b:Column size="MD_2">
+                        <b:Button  text="Details"
+                                  ui:field="toggleAnnotation" enabled="true" dataToggle="BUTTON"
                                   addStyleNames="{style.action-buttons}"/>
                     </b:Column>
 
