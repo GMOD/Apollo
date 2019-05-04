@@ -15,6 +15,7 @@ import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -28,6 +29,7 @@ import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.select.client.ui.Select;
 
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class GoPanel extends Composite {
     @UiField
     TextBox goTermField;
     @UiField
-    TextBox evidenceCodeField;
+    ListBox evidenceCodeField;
     @UiField
     TextBox withField;
     @UiField
@@ -122,6 +124,14 @@ public class GoPanel extends Composite {
         }, DoubleClickEvent.getType());
 
 
+//        List<EvidenceCode> evidenceItems = evidenceCodeField.get();
+        evidenceCodeField.clear();
+        evidenceCodeField.addItem("");
+        for(EvidenceCode evidenceCode : EvidenceCode.values()){
+//            evidenceCodeField.getItems().set
+            evidenceCodeField.addItem(evidenceCode.name());
+        }
+
         addFakeData(50);
         redraw();
 
@@ -132,7 +142,7 @@ public class GoPanel extends Composite {
             goTermField.setText("");
             withField.setText("");
             referenceField.setText("");
-            evidenceCodeField.setText("");
+//            evidenceCodeField.setText("");
 //                    goEditContainer.setVisible(false);
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
@@ -154,8 +164,13 @@ public class GoPanel extends Composite {
             }
             referenceField.setText("");
 
-            evidenceCodeField.setText(selectionModel.getSelectedObject().getEvidenceCode().name());
-//                    goEditContainer.setVisible(true);
+            String evidenceName = selectedGoAnnotation.getEvidenceCode().name();
+            for(int i = 0 ; i < evidenceCodeField.getItemCount(); i++){
+                if(evidenceCodeField.getItemText(i).equals(evidenceName)){
+                    evidenceCodeField.setSelectedIndex(i);
+                    break ;
+                }
+            }
         }
 
     }
