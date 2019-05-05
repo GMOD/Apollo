@@ -25,11 +25,11 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.shared.go.*;
 import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
-import org.gwtbootstrap3.extras.select.client.ui.Select;
 
 import java.util.List;
 
@@ -74,6 +74,10 @@ public class GoPanel extends Composite {
     FlexTable withEntriesFlexTable  = new FlexTable();
     @UiField
     FlexTable referencesFlexTable  = new FlexTable();
+    @UiField
+    Button addWithButton;
+    @UiField
+    Button addRefButton;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -137,6 +141,18 @@ public class GoPanel extends Composite {
 
     }
 
+    private void addWithSelection(String with){
+        withEntriesFlexTable.insertRow(0);
+        withEntriesFlexTable.setHTML(0,0,with);
+        withEntriesFlexTable.setWidget(0,1,new Button("X"));
+    }
+
+    private void addReferenceSelection(String with){
+        referencesFlexTable.insertRow(0);
+        referencesFlexTable.setHTML(0,0,with);
+        referencesFlexTable.setWidget(0,1,new Button("X"));
+    }
+
     private void handleSelection(){
         if (selectionModel.getSelectedSet().isEmpty()) {
             goTermField.setText("");
@@ -149,18 +165,16 @@ public class GoPanel extends Composite {
             goTermField.setText(selectedGoAnnotation.getGoTerm().getName());
             int withRow = 0 ;
             for(WithOrFrom withOrFrom: selectedGoAnnotation.getWithOrFromList()){
-                withEntriesFlexTable.setHTML(withRow,0,withOrFrom.getDisplay());
-                withEntriesFlexTable.setWidget(withRow,1,new Button("X"));
+                addWithSelection(withOrFrom.getDisplay());
+//                withEntriesFlexTable.setHTML(withRow,0,withOrFrom.getDisplay());
+//                withEntriesFlexTable.setWidget(withRow,1,new Button("X"));
                 ++withRow ;
             }
 
             withField.setText("");
 
-            int referenceRow = 0 ;
             for(Reference reference: selectedGoAnnotation.getReferenceList()){
-                referencesFlexTable.setHTML(referenceRow,0,reference.getReferenceString());
-                referencesFlexTable.setWidget(referenceRow,1,new Button("X"));
-                ++referenceRow;
+                addReferenceSelection(reference.getReferenceString());
             }
             referenceField.setText("");
 
@@ -206,6 +220,17 @@ public class GoPanel extends Composite {
         editGoModal.show();
     }
 
+    @UiHandler("addWithButton")
+    public void addWith(ClickEvent e) {
+        addWithSelection(withField.getText());
+        withField.clear();
+    }
+
+    @UiHandler("addRefButton")
+    public void addReference(ClickEvent e) {
+        addReferenceSelection(referenceField.getText());
+        referenceField.clear();
+    }
 
 
     @UiHandler("saveNewGoAnnotation")

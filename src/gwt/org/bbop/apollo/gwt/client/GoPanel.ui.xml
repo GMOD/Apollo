@@ -63,7 +63,7 @@
                                     <b:TextBox ui:field="withField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
-                                    <b:Button>Add</b:Button>
+                                    <b:Button ui:field="addWithButton">Add</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
@@ -75,7 +75,7 @@
                                     <b:TextBox ui:field="referenceField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
-                                    <b:Button>Add</b:Button>
+                                    <b:Button ui:field="addRefButton">Add</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
@@ -94,13 +94,13 @@
                     <!--                    </b:Container>-->
                 </b:Modal>
                 <b:Row>
-                    <b:Column size="MD_3">
+                    <b:Column size="MD_1">
                         <b:Button text="New" ui:field="newGoButton"/>
                     </b:Column>
-                    <b:Column size="MD_3">
+                    <b:Column size="MD_1">
                         <b:Button text="Edit" ui:field="editGoButton" enabled="false"/>
                     </b:Column>
-                    <b:Column size="MD_3">
+                    <b:Column size="MD_1">
                         <b:Button text="Delete" ui:field="deleteGoButton" enabled="false"/>
                     </b:Column>
                 </b:Row>
