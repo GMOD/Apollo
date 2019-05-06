@@ -31,6 +31,7 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -279,12 +280,12 @@ public class GoPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.alert("Sucessfull save : TODO update model");
+                Window.alert("Sucessfull save : TODO update model: " + response.getText());
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Failed to save new go anntation");
+                Bootbox.alert("Failed to save new go annotation: " + exception.getMessage());
             }
         };
         GoRestService.createGoAnnotation(requestCallback, goAnnotation);
@@ -293,14 +294,27 @@ public class GoPanel extends Composite {
 
     private GoAnnotation getEditedGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
-//        goAnnotation.setGoTerm(goTermField.getText());
-//        goAnnotation.setEvidenceCode(evidenceCodeField.getSelectedValue());
-////        goAnnotation.setQualifierList(evidenceCodeField.getSelectedValue());
-//        goAnnotation.setWithOrFromList(getWithList());
-//        goAnnotation.setReferenceList(getReferencesValues());
-
-
+        goAnnotation.setGoTerm(new GoTerm(goTermField.getText()));
+        goAnnotation.setEvidenceCode(EvidenceCode.findCode(evidenceCodeField.getSelectedValue()));
+        goAnnotation.setWithOrFromList(getWithList());
+        goAnnotation.setReferenceList(getReferenceList());
         return goAnnotation;
+    }
+
+    private List<WithOrFrom> getWithList() {
+        List<WithOrFrom> withOrFromList = new ArrayList<>();
+        for(int i = 0 ; i < withEntriesFlexTable.getRowCount() ; i++){
+            withOrFromList.add(new WithOrFrom(withEntriesFlexTable.getHTML(i,0)));
+        }
+        return  withOrFromList ;
+    }
+
+    private List<Reference> getReferenceList() {
+        List<Reference> referenceList = new ArrayList<>();
+        for(int i = 0 ; i < referencesFlexTable.getRowCount() ; i++){
+            referenceList.add(new Reference(referencesFlexTable.getHTML(i,0)));
+        }
+        return  referenceList ;
     }
 
     @UiHandler("cancelNewGoAnnotation")

@@ -7,6 +7,7 @@ import java.util.List;
 public class GoAnnotation {
 
 
+    private Long id ;
     private GoGene goGene; // I think tis is the gene it refers to?
     private GoTerm goTerm;
     private EvidenceCode evidenceCode;
@@ -99,5 +100,13 @@ public class GoAnnotation {
             referenceStringBuilder.append(" ");
         }
         return referenceStringBuilder.toString();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -1,6 +1,8 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 
@@ -11,6 +13,8 @@ public class GoConverter {
 
     public static GoAnnotation convertFromJson(JSONObject object){
         GoAnnotation goAnnotation = new GoAnnotation();
+
+
 
 //        if(object.get("currentOrganism")!=null) {
 //            appStateInfo.setCurrentOrganism(OrganismInfoConverter.convertFromJson(object.isObject().get("currentOrganism").isObject()));
@@ -34,8 +38,19 @@ public class GoConverter {
     }
 
     public static JSONObject convertToJson(GoAnnotation goAnnotation){
-        JSONObject jsonObject = new JSONObject();
+        JSONObject object = new JSONObject();
 
-        return jsonObject;
+        if (goAnnotation.getId() != null) {
+            object.put("id", new JSONNumber(goAnnotation.getId()));
+        }
+
+        object.put("go",new JSONString(goAnnotation.getGoTerm().getLinkDisplay()));
+
+        // TODO: finish this
+
+
+
+
+        return object;
     }
 }

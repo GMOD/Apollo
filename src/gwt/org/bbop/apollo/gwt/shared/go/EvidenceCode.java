@@ -71,4 +71,12 @@ public enum EvidenceCode {
     private String link = null;
 
 
+    public static EvidenceCode findCode(String selectedValue) {
+        for(EvidenceCode evidenceCode : values()){
+            if(evidenceCode.name.equals(selectedValue)){
+                return evidenceCode ;
+            }
+        }
+        return null ;
+    }
 }
