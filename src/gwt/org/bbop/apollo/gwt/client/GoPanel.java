@@ -42,10 +42,10 @@ public class GoPanel extends Composite {
     interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
     }
 
-//    private GoAnnotation internalGoAnnotation;
+    //    private GoAnnotation internalGoAnnotation;
     private static GoPanelUiBinder ourUiBinder = GWT.create(GoPanelUiBinder.class);
 
-//    @UiField
+    //    @UiField
 //    Container goEditContainer;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -71,13 +71,17 @@ public class GoPanel extends Composite {
     @UiField
     Button editGoButton;
     @UiField
-    FlexTable withEntriesFlexTable  = new FlexTable();
+    FlexTable withEntriesFlexTable = new FlexTable();
     @UiField
-    FlexTable referencesFlexTable  = new FlexTable();
+    FlexTable referencesFlexTable = new FlexTable();
     @UiField
     Button addWithButton;
     @UiField
     Button addRefButton;
+    @UiField
+    org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
+    @UiField
+    org.gwtbootstrap3.client.ui.CheckBox contributesToCheckBox;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -108,11 +112,10 @@ public class GoPanel extends Composite {
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
-                if(selectionModel.getSelectedObject()!=null){
+                if (selectionModel.getSelectedObject() != null) {
                     deleteGoButton.setEnabled(true);
                     editGoButton.setEnabled(true);
-                }
-                else{
+                } else {
                     deleteGoButton.setEnabled(false);
                     editGoButton.setEnabled(false);
                 }
@@ -131,7 +134,7 @@ public class GoPanel extends Composite {
 //        List<EvidenceCode> evidenceItems = evidenceCodeField.get();
         evidenceCodeField.clear();
         evidenceCodeField.addItem("");
-        for(EvidenceCode evidenceCode : EvidenceCode.values()){
+        for (EvidenceCode evidenceCode : EvidenceCode.values()) {
 //            evidenceCodeField.getItems().set
             evidenceCodeField.addItem(evidenceCode.name());
         }
@@ -141,13 +144,13 @@ public class GoPanel extends Composite {
 
     }
 
-    private class RemoveTableEntryButton extends Button{
+    private class RemoveTableEntryButton extends Button {
 
         private final FlexTable parentTable;
 
-        RemoveTableEntryButton(final String removeField, final FlexTable parent){
+        RemoveTableEntryButton(final String removeField, final FlexTable parent) {
             super("X");
-            this.parentTable = parent ;
+            this.parentTable = parent;
 
             this.addClickHandler(new ClickHandler() {
                 @Override
@@ -158,60 +161,65 @@ public class GoPanel extends Composite {
             });
         }
 
-        private int findEntryRow(String entry){
-            for(int i = 0 ; i < this.parentTable.getRowCount() ; i++){
-                if(parentTable.getHTML(i,0).equals(entry)){
-                    return i ;
+        private int findEntryRow(String entry) {
+            for (int i = 0; i < this.parentTable.getRowCount(); i++) {
+                if (parentTable.getHTML(i, 0).equals(entry)) {
+                    return i;
                 }
             }
-            return -1 ;
+            return -1;
         }
 
 
     }
 
-    private void addWithSelection(String with){
+    private void addWithSelection(String with) {
         withEntriesFlexTable.insertRow(0);
-        withEntriesFlexTable.setHTML(0,0,with);
-        withEntriesFlexTable.setWidget(0,1,new RemoveTableEntryButton(with,withEntriesFlexTable));
+        withEntriesFlexTable.setHTML(0, 0, with);
+        withEntriesFlexTable.setWidget(0, 1, new RemoveTableEntryButton(with, withEntriesFlexTable));
     }
 
-    private void addReferenceSelection(String referenceString){
+    private void addReferenceSelection(String referenceString) {
         referencesFlexTable.insertRow(0);
-        referencesFlexTable.setHTML(0,0,referenceString);
-        referencesFlexTable.setWidget(0,1,new RemoveTableEntryButton(referenceString,referencesFlexTable));
+        referencesFlexTable.setHTML(0, 0, referenceString);
+        referencesFlexTable.setWidget(0, 1, new RemoveTableEntryButton(referenceString, referencesFlexTable));
     }
 
-    private void handleSelection(){
+    private void handleSelection() {
         if (selectionModel.getSelectedSet().isEmpty()) {
             goTermField.setText("");
             withField.setText("");
             referenceField.setText("");
+            notQualifierCheckBox.setValue(false);
+            contributesToCheckBox.setValue(false);
 //            evidenceCodeField.setText("");
 //                    goEditContainer.setVisible(false);
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
             goTermField.setText(selectedGoAnnotation.getGoTerm().getName());
-            int withRow = 0 ;
-            for(WithOrFrom withOrFrom: selectedGoAnnotation.getWithOrFromList()){
+            int withRow = 0;
+            for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom.getDisplay());
 //                withEntriesFlexTable.setHTML(withRow,0,withOrFrom.getDisplay());
 //                withEntriesFlexTable.setWidget(withRow,1,new Button("X"));
-                ++withRow ;
+                ++withRow;
             }
+
+            notQualifierCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.NOT));
+            contributesToCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.CONTRIBUTES_TO));
 
             withField.setText("");
 
-            for(Reference reference: selectedGoAnnotation.getReferenceList()){
+            for (Reference reference : selectedGoAnnotation.getReferenceList()) {
                 addReferenceSelection(reference.getReferenceString());
             }
             referenceField.setText("");
 
             String evidenceName = selectedGoAnnotation.getEvidenceCode().name();
-            for(int i = 0 ; i < evidenceCodeField.getItemCount(); i++){
-                if(evidenceCodeField.getItemText(i).equals(evidenceName)){
+            for (int i = 0; i < evidenceCodeField.getItemCount(); i++) {
+                if (evidenceCodeField.getItemText(i).equals(evidenceName)) {
                     evidenceCodeField.setSelectedIndex(i);
-                    break ;
+                    break;
                 }
             }
         }
@@ -224,9 +232,9 @@ public class GoPanel extends Composite {
 
     private void addFakeData(int amountOfData) {
         annotationInfoList.clear();
-        for(int i = 0 ; i < amountOfData ; i++){
+        for (int i = 0; i < amountOfData; i++) {
             GoAnnotation goAnnotation = new GoAnnotation();
-            goAnnotation.setGoTerm(new GoTerm("GO:12312","green blood"));
+            goAnnotation.setGoTerm(new GoTerm("GO:12312", "green blood"));
             goAnnotation.setEvidenceCode(EvidenceCode.IEA);
             goAnnotation.addQualifier(Qualifier.NOT);
             goAnnotation.addWithOrFrom(new WithOrFrom("UniProtKB-KW:KW-0067"));
@@ -235,7 +243,7 @@ public class GoPanel extends Composite {
             goAnnotation.addReference(new Reference("GO_REF:0000002"));
             annotationInfoList.add(goAnnotation);
         }
-        GWT.log("fake data size: "+annotationInfoList.size());
+        GWT.log("fake data size: " + annotationInfoList.size());
     }
 
     @UiHandler("newGoButton")
@@ -279,15 +287,20 @@ public class GoPanel extends Composite {
                 Bootbox.alert("Failed to save new go anntation");
             }
         };
-        GoRestService.createGoAnnotation(requestCallback,goAnnotation);
+        GoRestService.createGoAnnotation(requestCallback, goAnnotation);
         editGoModal.hide();
     }
 
     private GoAnnotation getEditedGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
+//        goAnnotation.setGoTerm(goTermField.getText());
+//        goAnnotation.setEvidenceCode(evidenceCodeField.getSelectedValue());
+////        goAnnotation.setQualifierList(evidenceCodeField.getSelectedValue());
+//        goAnnotation.setWithOrFromList(getWithList());
+//        goAnnotation.setReferenceList(getReferencesValues());
 
 
-        return goAnnotation ;
+        return goAnnotation;
     }
 
     @UiHandler("cancelNewGoAnnotation")
@@ -301,24 +314,23 @@ public class GoPanel extends Composite {
         Bootbox.confirm("Remove GO Annotation: " + goAnnotation.getGoTerm().getName(), new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
-                Window.alert("removed: "+result);
+                Window.alert("removed: " + result);
                 GoAnnotation goAnnotation = getEditedGoAnnotation();
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
-                        Window.alert("Sucessfull save : TODO update model");
+                        Window.alert("Sucessfull DELETE: TODO update model");
                     }
 
                     @Override
                     public void onError(Request request, Throwable exception) {
-                        Bootbox.alert("Failed to save new go anntation");
+                        Bootbox.alert("Failed to DELETE new go anntation");
                     }
                 };
-                GoRestService.deleteGoAnnotation(requestCallback,goAnnotation);
+                GoRestService.deleteGoAnnotation(requestCallback, goAnnotation);
             }
         });
     }
-
 
 
     private void initializeTable() {
@@ -326,7 +338,12 @@ public class GoPanel extends Composite {
         TextColumn<GoAnnotation> goTermColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
-                return annotationInfo.getGoTerm().getName();
+                String returnValue = annotationInfo.getGoTerm().getName();
+                for (Qualifier qualifier : annotationInfo.getQualifierList()) {
+                    returnValue += " ("+  qualifier.name().toLowerCase() +")" ;
+                }
+
+                return returnValue;
             }
         };
         goTermColumn.setSortable(true);
