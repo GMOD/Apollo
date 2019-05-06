@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
@@ -25,7 +26,6 @@ import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.shared.go.*;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -141,16 +141,45 @@ public class GoPanel extends Composite {
 
     }
 
+    private class RemoveTableEntryButton extends Button{
+
+        private final FlexTable parentTable;
+
+        RemoveTableEntryButton(final String removeField, final FlexTable parent){
+            super("X");
+            this.parentTable = parent ;
+
+            this.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    int foundRow = findEntryRow(removeField);
+                    parentTable.removeRow(foundRow);
+                }
+            });
+        }
+
+        private int findEntryRow(String entry){
+            for(int i = 0 ; i < this.parentTable.getRowCount() ; i++){
+                if(parentTable.getHTML(i,0).equals(entry)){
+                    return i ;
+                }
+            }
+            return -1 ;
+        }
+
+
+    }
+
     private void addWithSelection(String with){
         withEntriesFlexTable.insertRow(0);
         withEntriesFlexTable.setHTML(0,0,with);
-        withEntriesFlexTable.setWidget(0,1,new Button("X"));
+        withEntriesFlexTable.setWidget(0,1,new RemoveTableEntryButton(with,withEntriesFlexTable));
     }
 
-    private void addReferenceSelection(String with){
+    private void addReferenceSelection(String referenceString){
         referencesFlexTable.insertRow(0);
-        referencesFlexTable.setHTML(0,0,with);
-        referencesFlexTable.setWidget(0,1,new Button("X"));
+        referencesFlexTable.setHTML(0,0,referenceString);
+        referencesFlexTable.setWidget(0,1,new RemoveTableEntryButton(referenceString,referencesFlexTable));
     }
 
     private void handleSelection(){
