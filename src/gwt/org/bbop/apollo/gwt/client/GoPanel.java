@@ -242,6 +242,9 @@ public class GoPanel extends Composite {
     public void newGoAnnotation(ClickEvent e) {
         selectionModel.clear();
         editGoModal.show();
+        withEntriesFlexTable.removeAllRows();
+        referencesFlexTable.removeAllRows();
+        evidenceCodeField.setSelectedIndex(0);
     }
 
     @UiHandler("editGoButton")
