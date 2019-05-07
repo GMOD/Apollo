@@ -44,7 +44,7 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle{
             rb.sendRequest(null, new RequestCallback() {
                 @Override
                 public void onResponseReceived(com.google.gwt.http.client.Request request, com.google.gwt.http.client.Response response) {
-                    GWT.log(response.getText());
+//                    GWT.log(response.getText());
 //                    JSON.parse(response.get()).
                     JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isObject().get("docs").isArray();
 //                    createSuggestion(response.getText(), response.getText());
@@ -55,12 +55,13 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle{
                         Suggestion suggestion = new Suggestion() {
                             @Override
                             public String getDisplayString() {
-                                return jsonObject.get("highlight").isString().stringValue();
+                                String displayString = jsonObject.get("label").isArray().get(0).isString().stringValue();
+                                return displayString.replaceAll(suggestRequest.getQuery(),"<b><em>"+suggestRequest.getQuery()+"</em></b>");
                             }
 
                             @Override
                             public String getReplacementString() {
-                                return jsonObject.get("match").isString().stringValue();
+                                return jsonObject.get("id").isString().stringValue();
                             }
                         };
                         suggestionList.add(suggestion);
