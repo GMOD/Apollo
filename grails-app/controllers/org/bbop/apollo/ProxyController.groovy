@@ -61,12 +61,12 @@ class ProxyController {
         String targetUrl = proxy ? proxy.targetUrl : referenceUrl
 
         targetUrl += "?" + request.queryString
-        log.debug "target url: ${targetUrl}"
+        log.debug "target FINAL_URL: ${targetUrl}"
         URL returnUrl = new URL(targetUrl)
 
         log.debug "input URI ${request.requestURI}"
-        log.info "request url ${referenceUrl}?${request.getQueryString()}"
-        log.info "return url: ${returnUrl}"
+        log.info "request FINAL_URL ${referenceUrl}?${request.getQueryString()}"
+        log.info "return FINAL_URL: ${returnUrl}"
         render text: returnUrl.text
     }
 

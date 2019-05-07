@@ -28,12 +28,12 @@ environments {
         dataSource {
             //dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            // url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            // FINAL_URL = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             url = "jdbc:h2:AnnotationDatabase:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
         }
 //        dataSource_chado{
 //            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-//            url = "jdbc:h2:mem:chadoDevDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+//            FINAL_URL = "jdbc:h2:mem:chadoDevDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 //        }
     }
     test {
@@ -45,7 +45,7 @@ environments {
 //        dataSource_chado {
 //            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
 //            dialect = "org.bbop.apollo.ImprovedH2Dialect"
-//            url = "jdbc:h2:mem:chadoTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+//            FINAL_URL = "jdbc:h2:mem:chadoTestDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 //        }
     }
     production {
@@ -53,7 +53,7 @@ environments {
             dbCreate = "update"
             // NOTE: Not to be used for production.  Please see:  http://genomearchitect.readthedocs.io/en/latest/Configure/
             // you should copy over sample-XXX-config.groovy
-//            url = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+//            FINAL_URL = "jdbc:h2:/tmp/prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
             url = ""
             properties {
                // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
@@ -80,8 +80,8 @@ environments {
 //            dbCreate = "update"
 //            // NOTE: Not to be used for production.  Please see:  http://genomearchitect.readthedocs.io/en/latest/Configure/
 //            // you should copy over sample-XXX-config.groovy
-////            url = "jdbc:h2:/tmp/chadoProdDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
-//            url = ""
+////            FINAL_URL = "jdbc:h2:/tmp/chadoProdDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+//            FINAL_URL = ""
 //            properties {
 //                // See http://grails.org/doc/latest/guide/conf.html#dataSource for documentation
 //                jmxEnabled = true

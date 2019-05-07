@@ -36,7 +36,7 @@ class NcbiProxyServiceController {
         }
 
         URL url = new URL(urlString)
-//        String returnText = url.text
+//        String returnText = FINAL_URL.text
 
         // TODO: make
         DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()

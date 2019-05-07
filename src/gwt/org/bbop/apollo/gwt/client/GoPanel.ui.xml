@@ -45,7 +45,7 @@
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_10">
                                     <b:Label>Go Term</b:Label>
-                                    <b:TextBox ui:field="goTermField"/>
+                                    <b:SuggestBox ui:field="goTermField"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
