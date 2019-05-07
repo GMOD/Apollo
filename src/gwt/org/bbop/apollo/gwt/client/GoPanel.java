@@ -54,6 +54,8 @@ public class GoPanel extends Composite {
     TextBox referenceField;
     @UiField(provided = true)
     SuggestBox goTermField;
+    @UiField(provided = true)
+    SuggestBox geneProductRelationshipField;
     @UiField
     ListBox evidenceCodeField;
     @UiField
@@ -86,6 +88,7 @@ public class GoPanel extends Composite {
 
     public GoPanel() {
         goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
+        geneProductRelationshipField = new SuggestBox(new BiolinkOntologyOracle("RO"));
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);

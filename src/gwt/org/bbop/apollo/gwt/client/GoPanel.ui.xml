@@ -49,6 +49,12 @@
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
+                                <b:Column size="MD_10">
+                                    <b:Label>Gene Production Relationship</b:Label>
+                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_4">
                                     <b:Label>Evidence Code</b:Label>
                                     <gwt:ListBox width="100%" ui:field="evidenceCodeField"/>
