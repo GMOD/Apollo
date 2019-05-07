@@ -56,9 +56,6 @@
                                 <b:Column size="MD_2">
                                     <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>
                                 </b:Column>
-                                <b:Column size="MD_3">
-                                    <b:CheckBox text="Contributes_to" width="100%" ui:field="contributesToCheckBox"/>
-                                </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_8"

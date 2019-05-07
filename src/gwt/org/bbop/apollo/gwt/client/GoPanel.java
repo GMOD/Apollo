@@ -81,8 +81,8 @@ public class GoPanel extends Composite {
     Button addRefButton;
     @UiField
     org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
-    @UiField
-    org.gwtbootstrap3.client.ui.CheckBox contributesToCheckBox;
+//    @UiField
+//    org.gwtbootstrap3.client.ui.CheckBox contributesToCheckBox;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -192,7 +192,7 @@ public class GoPanel extends Composite {
             withField.setText("");
             referenceField.setText("");
             notQualifierCheckBox.setValue(false);
-            contributesToCheckBox.setValue(false);
+//            contributesToCheckBox.setValue(false);
 //            evidenceCodeField.setText("");
 //                    goEditContainer.setVisible(false);
         } else {
@@ -207,7 +207,7 @@ public class GoPanel extends Composite {
             }
 
             notQualifierCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.NOT));
-            contributesToCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.CONTRIBUTES_TO));
+//            contributesToCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.CONTRIBUTES_TO));
 
             withField.setText("");
 
