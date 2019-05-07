@@ -5,8 +5,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -140,7 +138,7 @@ public class GoPanel extends Composite {
             evidenceCodeField.addItem(evidenceCode.name());
         }
 
-        addFakeData(50);
+//        addFakeData(50);
         redraw();
 
     }
@@ -288,7 +286,7 @@ public class GoPanel extends Composite {
                 Bootbox.alert("Failed to save new go annotation: " + exception.getMessage());
             }
         };
-        GoRestService.createGoAnnotation(requestCallback, goAnnotation);
+        GoRestService.updateGoAnnotation(requestCallback, goAnnotation);
         editGoModal.hide();
     }
 
@@ -430,11 +428,11 @@ public class GoPanel extends Composite {
     }
 
     public void updateData() {
-        updateData(null);
+//        updateData(null);
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
-        addFakeData(50);
+//        addFakeData(50);
 //        if(selectedAnnotationInfo==null){
 //            dataProvider.setList(new ArrayList<GoAnnotation>());
 //        }

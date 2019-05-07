@@ -27,16 +27,16 @@ import java.util.List;
  * Created by ndunn on 1/14/15.
  */
 public class GoRestService {
-    public static void createGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
-        RestService.sendRequest(requestCallback, "go/create", "data=" + GoConverter.convertToJson(goAnnotation).toString());
+    public static void saveGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
+        RestService.sendRequest(requestCallback, "goAnnotation/save", "data=" + GoConverter.convertToJson(goAnnotation).toString());
     }
 
-    public static void saveGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
-        RestService.sendRequest(requestCallback, "go/update", "data=" + GoConverter.convertToJson(goAnnotation).toString());
+    public static void updateGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
+        RestService.sendRequest(requestCallback, "goAnnotation/update", "data=" + GoConverter.convertToJson(goAnnotation).toString());
     }
 
     public static void deleteGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
-        RestService.sendRequest(requestCallback, "go/delete", "data=" + GoConverter.convertToJson(goAnnotation).toString());
+        RestService.sendRequest(requestCallback, "goAnnotation/delete", "data=" + GoConverter.convertToJson(goAnnotation).toString());
     }
 
 //    public static void updateOrganismPermission(UserOrganismPermissionInfo object) {

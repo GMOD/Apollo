@@ -56,7 +56,9 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle{
                             @Override
                             public String getDisplayString() {
                                 String displayString = jsonObject.get("label").isArray().get(0).isString().stringValue();
-                                return displayString.replaceAll(suggestRequest.getQuery(),"<b><em>"+suggestRequest.getQuery()+"</em></b>");
+                                displayString = displayString.replaceAll(suggestRequest.getQuery(),"<b><em>"+suggestRequest.getQuery()+"</em></b>")  ;
+                                displayString += " ("+jsonObject.get("id").isString().stringValue()+") ";
+                                return displayString;
                             }
 
                             @Override
