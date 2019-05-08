@@ -57,7 +57,7 @@
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_4">
                                     <b:Label>Evidence Code</b:Label>
-                                    <gwt:ListBox width="100%" ui:field="evidenceCodeField"/>
+                                    <b:SuggestBox ui:field="evidenceCodeField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
                                     <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>

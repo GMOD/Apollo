@@ -10,7 +10,7 @@ public class GoAnnotation {
     private Long id ;
     private GoGene goGene; // I think tis is the gene it refers to?
     private GoTerm goTerm;
-    private EvidenceCode evidenceCode;
+    private String evidenceCode;
     private List<Qualifier> qualifierList;
     private List<WithOrFrom> withOrFromList;
     private List<Reference> referenceList;
@@ -31,11 +31,11 @@ public class GoAnnotation {
         this.goTerm = goTerm;
     }
 
-    public EvidenceCode getEvidenceCode() {
+    public String getEvidenceCode() {
         return evidenceCode;
     }
 
-    public void setEvidenceCode(EvidenceCode evidenceCode) {
+    public void setEvidenceCode(String evidenceCode) {
         this.evidenceCode = evidenceCode;
     }
 

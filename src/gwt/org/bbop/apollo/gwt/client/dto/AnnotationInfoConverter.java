@@ -93,7 +93,7 @@ public class AnnotationInfoConverter {
         GoAnnotation goAnnotation = new GoAnnotation();
 
         goAnnotation.setGoTerm(new GoTerm("GO:12321","red blood"));
-        goAnnotation.setEvidenceCode(EvidenceCode.IEA);
+//        goAnnotation.setEvidenceCode(EvidenceCode.IEA);
         goAnnotation.addQualifier(Qualifier.NOT);
 
         goAnnotation.addReference(new Reference("PMID:123123"));

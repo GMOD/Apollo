@@ -56,8 +56,8 @@ public class GoPanel extends Composite {
     SuggestBox goTermField;
     @UiField(provided = true)
     SuggestBox geneProductRelationshipField;
-    @UiField
-    ListBox evidenceCodeField;
+    @UiField(provided = true)
+    SuggestBox evidenceCodeField;
     @UiField
     TextBox withField;
     @UiField
@@ -89,6 +89,7 @@ public class GoPanel extends Composite {
     public GoPanel() {
         goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
         geneProductRelationshipField = new SuggestBox(new BiolinkOntologyOracle("RO"));
+        evidenceCodeField = new SuggestBox(new BiolinkOntologyOracle("ECO"));
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
@@ -132,16 +133,13 @@ public class GoPanel extends Composite {
             }
         }, DoubleClickEvent.getType());
 
+//
+//        evidenceCodeField.clear();
+//        evidenceCodeField.addItem("");
+//        for (EvidenceCode evidenceCode : EvidenceCode.values()) {
+//            evidenceCodeField.addItem(evidenceCode.name());
+//        }
 
-//        List<EvidenceCode> evidenceItems = evidenceCodeField.get();
-        evidenceCodeField.clear();
-        evidenceCodeField.addItem("");
-        for (EvidenceCode evidenceCode : EvidenceCode.values()) {
-//            evidenceCodeField.getItems().set
-            evidenceCodeField.addItem(evidenceCode.name());
-        }
-
-//        addFakeData(50);
         redraw();
 
     }
@@ -193,22 +191,18 @@ public class GoPanel extends Composite {
             withField.setText("");
             referenceField.setText("");
             notQualifierCheckBox.setValue(false);
-//            contributesToCheckBox.setValue(false);
-//            evidenceCodeField.setText("");
-//                    goEditContainer.setVisible(false);
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
             goTermField.setText(selectedGoAnnotation.getGoTerm().getName());
             int withRow = 0;
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom.getDisplay());
-//                withEntriesFlexTable.setHTML(withRow,0,withOrFrom.getDisplay());
-//                withEntriesFlexTable.setWidget(withRow,1,new Button("X"));
                 ++withRow;
             }
 
+            evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
+
             notQualifierCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.NOT));
-//            contributesToCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.CONTRIBUTES_TO));
 
             withField.setText("");
 
@@ -217,13 +211,6 @@ public class GoPanel extends Composite {
             }
             referenceField.setText("");
 
-            String evidenceName = selectedGoAnnotation.getEvidenceCode().name();
-            for (int i = 0; i < evidenceCodeField.getItemCount(); i++) {
-                if (evidenceCodeField.getItemText(i).equals(evidenceName)) {
-                    evidenceCodeField.setSelectedIndex(i);
-                    break;
-                }
-            }
         }
 
     }
@@ -237,7 +224,7 @@ public class GoPanel extends Composite {
         for (int i = 0; i < amountOfData; i++) {
             GoAnnotation goAnnotation = new GoAnnotation();
             goAnnotation.setGoTerm(new GoTerm("GO:12312", "green blood"));
-            goAnnotation.setEvidenceCode(EvidenceCode.IEA);
+//            goAnnotation.setEvidenceCode(EvidenceCode.IEA);
             goAnnotation.addQualifier(Qualifier.NOT);
             goAnnotation.addWithOrFrom(new WithOrFrom("UniProtKB-KW:KW-0067"));
             goAnnotation.addWithOrFrom(new WithOrFrom("InterPro:IPR000719"));
@@ -250,11 +237,12 @@ public class GoPanel extends Composite {
 
     @UiHandler("newGoButton")
     public void newGoAnnotation(ClickEvent e) {
-        selectionModel.clear();
-        editGoModal.show();
         withEntriesFlexTable.removeAllRows();
         referencesFlexTable.removeAllRows();
-        evidenceCodeField.setSelectedIndex(0);
+        selectionModel.clear();
+        editGoModal.show();
+//        evidenceCodeField.setText("");
+//        evidenceCodeField.setSelectedIndex(0);
     }
 
     @UiHandler("editGoButton")
@@ -296,7 +284,8 @@ public class GoPanel extends Composite {
     private GoAnnotation getEditedGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
         goAnnotation.setGoTerm(new GoTerm(goTermField.getText()));
-        goAnnotation.setEvidenceCode(EvidenceCode.findCode(evidenceCodeField.getSelectedValue()));
+//        goAnnotation.setEvidenceCode(EvidenceCode.findCode(evidenceCodeField.getSelectedValue()));
+        goAnnotation.setEvidenceCode(evidenceCodeField.getText());
         goAnnotation.setWithOrFromList(getWithList());
         goAnnotation.setReferenceList(getReferenceList());
         return goAnnotation;
@@ -382,7 +371,7 @@ public class GoPanel extends Composite {
         TextColumn<GoAnnotation> evidenceColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
-                return annotationInfo.getEvidenceCode().name();
+                return annotationInfo.getEvidenceCode();
             }
         };
         evidenceColumn.setSortable(true);
