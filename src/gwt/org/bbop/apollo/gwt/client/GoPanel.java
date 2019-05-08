@@ -5,6 +5,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -82,6 +84,12 @@ public class GoPanel extends Composite {
     Button addRefButton;
     @UiField
     org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
+    @UiField
+    Anchor goTermLink;
+    @UiField
+    Anchor geneProductRelationshipLink;
+    @UiField
+    Anchor evidenceCodeLink;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -95,13 +103,12 @@ public class GoPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
 
-        TextColumn<WithOrFrom> withOrFromTextColumn = new TextColumn<WithOrFrom>() {
-            @Override
-            public String getValue(WithOrFrom withOrFrom) {
-                return withOrFrom.getDisplay();
-            }
-        };
-
+//        TextColumn<WithOrFrom> withOrFromTextColumn = new TextColumn<WithOrFrom>() {
+//            @Override
+//            public String getValue(WithOrFrom withOrFrom) {
+//                return withOrFrom.getDisplay();
+//            }
+//        };
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
@@ -133,12 +140,33 @@ public class GoPanel extends Composite {
             }
         }, DoubleClickEvent.getType());
 
-//
-//        evidenceCodeField.clear();
-//        evidenceCodeField.addItem("");
-//        for (EvidenceCode evidenceCode : EvidenceCode.values()) {
-//            evidenceCodeField.addItem(evidenceCode.name());
-//        }
+
+        goTermField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            @Override
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                SuggestOracle.Suggestion suggestion = event.getSelectedItem();
+                goTermLink.setHTML(suggestion.getDisplayString());
+                goTermLink.setHref("http://amigo.geneontology.org/amigo/term/"+suggestion.getReplacementString());
+            }
+        });
+
+        evidenceCodeField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            @Override
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                SuggestOracle.Suggestion suggestion = event.getSelectedItem();
+                evidenceCodeLink.setHTML(suggestion.getDisplayString());
+                evidenceCodeLink.setHref("http://www.evidenceontology.org/term/"+suggestion.getReplacementString());
+            }
+        });
+
+        geneProductRelationshipField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            @Override
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                SuggestOracle.Suggestion suggestion = event.getSelectedItem();
+                geneProductRelationshipLink.setHTML(suggestion.getDisplayString());
+                geneProductRelationshipLink.setHref("http://purl.obolibrary.org/obo/"+suggestion.getReplacementString().replace(":","_"));
+            }
+        });
 
         redraw();
 

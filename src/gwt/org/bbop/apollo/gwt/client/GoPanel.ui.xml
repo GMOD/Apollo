@@ -46,18 +46,21 @@
                                 <b:Column size="MD_10">
                                     <b:Label>Go Term</b:Label>
                                     <b:SuggestBox ui:field="goTermField"/>
+                                    <gwt:Anchor ui:field="goTermLink" target="_blank"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_10">
                                     <b:Label>Gene Production Relationship</b:Label>
                                     <b:SuggestBox ui:field="geneProductRelationshipField"/>
+                                    <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_4">
                                     <b:Label>Evidence Code</b:Label>
                                     <b:SuggestBox ui:field="evidenceCodeField"/>
+                                    <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
                                     <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>
