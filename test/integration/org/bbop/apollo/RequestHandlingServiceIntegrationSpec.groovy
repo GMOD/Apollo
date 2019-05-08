@@ -3768,7 +3768,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         }
 
         when: "we import the same annotation via GFF3"
-        def process = "tools/data/add_features_from_gff3_to_annotations.pl --FINAL_URL http://localhost:8080/apollo --username test@test.com --password testPass --input ${filePath} --organism Amel --test".execute()
+        def process = "tools/data/add_features_from_gff3_to_annotations.pl --url http://localhost:8080/apollo --username test@test.com --password testPass --input ${filePath} --organism Amel --test".execute()
         then: "we should get a JSON representation of the feature from GFF3"
         JSONArray outputJsonArray = JSON.parse(process.text) as JSONArray
         String preparedJsonString = "{${testCredentials} \"operation\":\"add_transcript\", \"features\":${outputJsonArray.getJSONObject(0).getJSONArray("addTranscript").toString()}, \"track\":\"Group1.10\" }"
@@ -3881,7 +3881,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Feature.count == 0
 
         when: "we import this GFF3"
-        def process = "tools/data/add_features_from_gff3_to_annotations.pl --FINAL_URL http://localhost:8080/apollo --username test@test.com --password testPass --input ${filePath} --organism Amel --test a -X -x".execute()
+        def process = "tools/data/add_features_from_gff3_to_annotations.pl --url http://localhost:8080/apollo --username test@test.com --password testPass --input ${filePath} --organism Amel --test a -X -x".execute()
 
         then: "we should get a JSON representation of the features"
         JSONArray outputJsonArray = JSON.parse(process.text) as JSONArray
