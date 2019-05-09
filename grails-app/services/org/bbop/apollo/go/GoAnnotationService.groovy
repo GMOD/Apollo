@@ -33,6 +33,9 @@ class GoAnnotationService {
 //                }
         for (GoAnnotation goAnnotation in goAnnotations) {
             JSONObject goObject = new JSONObject()
+            if(goAnnotation.getId()){
+                goObject.put("id",goAnnotation.getId())
+            }
             goObject.put("gene",feature.uniqueName)
             goObject.put("goTerm",goAnnotation.goRef)
             goObject.put("geneRelationship",goAnnotation.geneProductRelationshipRef)

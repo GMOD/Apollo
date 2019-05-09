@@ -92,5 +92,14 @@ class GoAnnotationController {
 
     @Transactional
     def delete() {
+        JSONObject dataObject = permissionService.handleInput(request, params)
+
+        GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
+        goAnnotation.delete(flush: true)
+        Feature feature = Feature.findByUniqueName(dataObject.gene)
+
+
+        JSONObject annotations =  goAnnotationService.getAnnotations(feature)
+        render annotations as JSON
     }
 }

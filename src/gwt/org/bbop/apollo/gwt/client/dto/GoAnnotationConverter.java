@@ -23,7 +23,7 @@ public class GoAnnotationConverter {
 //                    "[\"adf:12312\"]"
         GWT.log("json object: "+object.toString());
 
-
+        goAnnotation.setId(Math.round(object.get("id").isNumber().doubleValue()));
         goAnnotation.setGene(object.get("gene").isString().stringValue());
         goAnnotation.setGoTerm(object.get("goTerm").isString().stringValue());
         goAnnotation.setGeneRelationship(object.get("geneRelationship").isString().stringValue());

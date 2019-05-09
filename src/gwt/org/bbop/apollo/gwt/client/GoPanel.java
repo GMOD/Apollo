@@ -428,16 +428,16 @@ public class GoPanel extends Composite {
 
     @UiHandler("deleteGoButton")
     public void deleteGoAnnotation(ClickEvent e) {
-        GoAnnotation goAnnotation = selectionModel.getSelectedObject();
+        final GoAnnotation goAnnotation = selectionModel.getSelectedObject();
         Bootbox.confirm("Remove GO Annotation: " + goAnnotation.getGoTerm(), new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
-                Window.alert("removed: " + result);
-                GoAnnotation goAnnotation = getEditedGoAnnotation();
                 RequestCallback requestCallback = new RequestCallback() {
                     @Override
                     public void onResponseReceived(Request request, Response response) {
-                        Window.alert("Sucessfull DELETE: TODO update model");
+                        JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                        loadAnnotationsFromResponse(jsonObject);
+                        redraw();
                     }
 
                     @Override
