@@ -52,12 +52,12 @@ public class AnnotationInfoConverter {
             }
         }
 
-        List<GoAnnotation> goAnnotationList = new ArrayList<>();
-        goAnnotationList.add(generateGoAnnotation());
-        goAnnotationList.add(generateGoAnnotation());
-        goAnnotationList.add(generateGoAnnotation());
-
-        annotationInfo.setGoAnnotations(goAnnotationList);
+//        List<GoAnnotation> goAnnotationList = new ArrayList<>();
+//        goAnnotationList.add(generateGoAnnotation());
+//        goAnnotationList.add(generateGoAnnotation());
+//        goAnnotationList.add(generateGoAnnotation());
+//
+//        annotationInfo.setGoAnnotations(goAnnotationList);
 
         annotationInfo.setMin((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
         annotationInfo.setMax((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
@@ -92,9 +92,8 @@ public class AnnotationInfoConverter {
     private static GoAnnotation generateGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
 
-        goAnnotation.setGoTerm(new GoTerm("GO:12321","red blood"));
-//        goAnnotation.setEvidenceCode(EvidenceCode.IEA);
-        goAnnotation.addQualifier(Qualifier.NOT);
+        goAnnotation.setGoTerm("GO:12321");
+        goAnnotation.setNegate(true);
 
         goAnnotation.addReference(new Reference("PMID:123123"));
 

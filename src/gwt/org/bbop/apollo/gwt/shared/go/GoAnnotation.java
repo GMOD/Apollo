@@ -8,28 +8,13 @@ public class GoAnnotation {
 
 
     private Long id ;
-    private GoGene goGene; // I think tis is the gene it refers to?
-    private GoTerm goTerm;
+    private String goGene; // I think tis is the gene it refers to?
+    private String goTerm;
+    private String geneRelationship;
     private String evidenceCode;
-    private List<Qualifier> qualifierList;
+    private boolean negate = false;
     private List<WithOrFrom> withOrFromList;
     private List<Reference> referenceList;
-
-    public GoGene getGoGene() {
-        return goGene;
-    }
-
-    public void setGoGene(GoGene goGene) {
-        this.goGene = goGene;
-    }
-
-    public GoTerm getGoTerm() {
-        return goTerm;
-    }
-
-    public void setGoTerm(GoTerm goTerm) {
-        this.goTerm = goTerm;
-    }
 
     public String getEvidenceCode() {
         return evidenceCode;
@@ -39,12 +24,36 @@ public class GoAnnotation {
         this.evidenceCode = evidenceCode;
     }
 
-    public List<Qualifier> getQualifierList() {
-        return qualifierList;
+    public String getGoGene() {
+        return goGene;
     }
 
-    public void setQualifierList(List<Qualifier> qualifierList) {
-        this.qualifierList = qualifierList;
+    public void setGoGene(String goGene) {
+        this.goGene = goGene;
+    }
+
+    public String getGoTerm() {
+        return goTerm;
+    }
+
+    public void setGoTerm(String goTerm) {
+        this.goTerm = goTerm;
+    }
+
+    public String getGeneRelationship() {
+        return geneRelationship;
+    }
+
+    public void setGeneRelationship(String geneRelationship) {
+        this.geneRelationship = geneRelationship;
+    }
+
+    public boolean isNegate() {
+        return negate;
+    }
+
+    public void setNegate(boolean negate) {
+        this.negate = negate;
     }
 
     public List<Reference> getReferenceList() {
@@ -53,13 +62,6 @@ public class GoAnnotation {
 
     public void setReferenceList(List<Reference> referenceList) {
         this.referenceList = referenceList;
-    }
-
-    public void addQualifier(Qualifier qualifier) {
-        if (qualifierList == null) {
-            qualifierList = new ArrayList<Qualifier>();
-        }
-        qualifierList.add(qualifier);
     }
 
     public List<WithOrFrom> getWithOrFromList() {

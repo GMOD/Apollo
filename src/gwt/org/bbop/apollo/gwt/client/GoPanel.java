@@ -103,13 +103,6 @@ public class GoPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
 
-//        TextColumn<WithOrFrom> withOrFromTextColumn = new TextColumn<WithOrFrom>() {
-//            @Override
-//            public String getValue(WithOrFrom withOrFrom) {
-//                return withOrFrom.getDisplay();
-//            }
-//        };
-
         initWidget(ourUiBinder.createAndBindUi(this));
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -213,24 +206,33 @@ public class GoPanel extends Composite {
         referencesFlexTable.setWidget(0, 1, new RemoveTableEntryButton(referenceString, referencesFlexTable));
     }
 
+    private void clearModal() {
+        goTermField.setText("");
+        goTermLink.setText("");
+        geneProductRelationshipField.setText("");
+        geneProductRelationshipLink.setText("");
+        withField.setText("");
+        withEntriesFlexTable.removeAllRows();
+        referenceField.setText("");
+        referencesFlexTable.removeAllRows();
+        notQualifierCheckBox.setValue(false);
+    }
+
     private void handleSelection() {
         if (selectionModel.getSelectedSet().isEmpty()) {
-            goTermField.setText("");
-            withField.setText("");
-            referenceField.setText("");
-            notQualifierCheckBox.setValue(false);
+            clearModal();
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
-            goTermField.setText(selectedGoAnnotation.getGoTerm().getName());
-            int withRow = 0;
+            goTermField.setText(selectedGoAnnotation.getGoTerm());
+//            int withRow = 0;
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom.getDisplay());
-                ++withRow;
+//                ++withRow;
             }
 
             evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
 
-            notQualifierCheckBox.setValue(selectedGoAnnotation.getQualifierList().contains(Qualifier.NOT));
+            notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
 
             withField.setText("");
 
@@ -251,9 +253,9 @@ public class GoPanel extends Composite {
         annotationInfoList.clear();
         for (int i = 0; i < amountOfData; i++) {
             GoAnnotation goAnnotation = new GoAnnotation();
-            goAnnotation.setGoTerm(new GoTerm("GO:12312", "green blood"));
+            goAnnotation.setGoTerm("GO:12312");
 //            goAnnotation.setEvidenceCode(EvidenceCode.IEA);
-            goAnnotation.addQualifier(Qualifier.NOT);
+            goAnnotation.setNegate(true);
             goAnnotation.addWithOrFrom(new WithOrFrom("UniProtKB-KW:KW-0067"));
             goAnnotation.addWithOrFrom(new WithOrFrom("InterPro:IPR000719"));
             goAnnotation.addReference(new Reference("PMID:21873635"));
@@ -298,22 +300,26 @@ public class GoPanel extends Composite {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 Window.alert("Sucessfull save : TODO update model: " + response.getText());
+                clearModal();
             }
+
 
             @Override
             public void onError(Request request, Throwable exception) {
                 Bootbox.alert("Failed to save new go annotation: " + exception.getMessage());
             }
         };
-        GoRestService.updateGoAnnotation(requestCallback, goAnnotation);
+        GoRestService.saveGoAnnotation(requestCallback, goAnnotation);
         editGoModal.hide();
     }
 
     private GoAnnotation getEditedGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
-        goAnnotation.setGoTerm(new GoTerm(goTermField.getText()));
-//        goAnnotation.setEvidenceCode(EvidenceCode.findCode(evidenceCodeField.getSelectedValue()));
+        goAnnotation.setGoGene("somegene");
+        goAnnotation.setGoTerm(goTermField.getText());
+        goAnnotation.setGeneRelationship(geneProductRelationshipField.getText());
         goAnnotation.setEvidenceCode(evidenceCodeField.getText());
+        goAnnotation.setNegate(notQualifierCheckBox.getValue());
         goAnnotation.setWithOrFromList(getWithList());
         goAnnotation.setReferenceList(getReferenceList());
         return goAnnotation;
@@ -343,7 +349,7 @@ public class GoPanel extends Composite {
     @UiHandler("deleteGoButton")
     public void deleteGoAnnotation(ClickEvent e) {
         GoAnnotation goAnnotation = selectionModel.getSelectedObject();
-        Bootbox.confirm("Remove GO Annotation: " + goAnnotation.getGoTerm().getName(), new ConfirmCallback() {
+        Bootbox.confirm("Remove GO Annotation: " + goAnnotation.getGoTerm(), new ConfirmCallback() {
             @Override
             public void callback(boolean result) {
                 Window.alert("removed: " + result);
@@ -370,9 +376,9 @@ public class GoPanel extends Composite {
         TextColumn<GoAnnotation> goTermColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
-                String returnValue = annotationInfo.getGoTerm().getName();
-                for (Qualifier qualifier : annotationInfo.getQualifierList()) {
-                    returnValue += " ("+  qualifier.name().toLowerCase() +")" ;
+                String returnValue = annotationInfo.getGoTerm();
+                if(annotationInfo.isNegate()){
+                    returnValue += " (not) ";
                 }
 
                 return returnValue;

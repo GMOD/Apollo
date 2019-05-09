@@ -1,15 +1,15 @@
 package org.bbop.apollo.gwt.client.dto;
 
-import com.google.gwt.json.client.JSONNumber;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.bbop.apollo.gwt.shared.go.Reference;
+import org.bbop.apollo.gwt.shared.go.WithOrFrom;
 
 /**
  * Created by ndunn on 3/31/15.
  */
-public class GoConverter {
+public class GoAnnotationConverter {
 
     public static GoAnnotation convertFromJson(JSONObject object){
         GoAnnotation goAnnotation = new GoAnnotation();
@@ -40,15 +40,30 @@ public class GoConverter {
     public static JSONObject convertToJson(GoAnnotation goAnnotation){
         JSONObject object = new JSONObject();
 
+        // TODO: an NPE in here, somehwere
         if (goAnnotation.getId() != null) {
             object.put("id", new JSONNumber(goAnnotation.getId()));
         }
-
-        object.put("go",new JSONString(goAnnotation.getGoTerm().getLinkDisplay()));
+        object.put("gene",new JSONString(goAnnotation.getGoGene()));
+        object.put("goTerm",new JSONString(goAnnotation.getGoTerm()));
+        object.put("geneRelationship",new JSONString(goAnnotation.getGeneRelationship()));
+        object.put("evidenceCode",new JSONString(goAnnotation.getEvidenceCode()));
+        object.put("negate",JSONBoolean.getInstance(goAnnotation.isNegate()));
 
         // TODO: finish this
+        JSONArray withArray = new JSONArray();
+        JSONArray referenceArray = new JSONArray();
 
+        for(WithOrFrom withOrFrom  : goAnnotation.getWithOrFromList()){
+            withArray.set(withArray.size(),new JSONString(withOrFrom.getDisplay()));
+        }
 
+        for(Reference reference : goAnnotation.getReferenceList()){
+            referenceArray.set(referenceArray.size(),new JSONString(reference.getReferenceString()));
+        }
+
+        object.put("withOrFrom",withArray);
+        object.put("references",referenceArray);
 
 
         return object;
