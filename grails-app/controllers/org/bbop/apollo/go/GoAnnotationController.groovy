@@ -27,7 +27,7 @@ class GoAnnotationController {
 //        respond GoAnnotation.list(params), [status: OK]
 //    }
 
-    @RestApiMethod(description = "Load Go Annotations for gene", path = "/go", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Load Go Annotations for gene", path = "/goAnnotation", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
@@ -53,11 +53,11 @@ class GoAnnotationController {
 //        "negate":false,
 //        "withOrFrom":["withprefix:12312321"],
 //        "references":["refprefix:44444444"]}
-    @RestApiMethod(description = "Save New Go Annotations for gene", path = "/go/save", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Save New Go Annotations for gene", path = "/goAnnotation/save", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+            , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
             , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
             , @RestApiParam(name = "geneRelationship", type = "string", paramType = RestApiParamType.QUERY, description = "Gene relationship (RO) CURIE")
             , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
@@ -85,12 +85,12 @@ class GoAnnotationController {
         render annotations as JSON
     }
 
-    @RestApiMethod(description = "Save New Go Annotations for gene", path = "/go/save", verb = RestApiVerb.POST)
+    @RestApiMethod(description = "Update existing Go Annotations for gene", path = "/goAnnotation/update", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID")
-            , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "Gene name to query on")
+            , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to update (required)")
+            , @RestApiParam(name = "gene", type = "string", paramType = RestApiParamType.QUERY, description = "uniqueName of gene feature to query on")
             , @RestApiParam(name = "goTerm", type = "string", paramType = RestApiParamType.QUERY, description = "GO CURIE")
             , @RestApiParam(name = "geneRelationship", type = "string", paramType = RestApiParamType.QUERY, description = "Gene relationship (RO) CURIE")
             , @RestApiParam(name = "evidenceCode", type = "string", paramType = RestApiParamType.QUERY, description = "Evidence (ECO) CURIE")
@@ -117,15 +117,20 @@ class GoAnnotationController {
         render annotations as JSON
     }
 
+    @RestApiMethod(description = "Delete existing Go Annotations for gene", path = "/goAnnotation/delete", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "GO Annotation ID to delete (required)")
+            , @RestApiParam(name = "uniqueName", type = "string", paramType = RestApiParamType.QUERY, description = "Gene uniqueName to remove feature from")
+    ]
+    )
     @Transactional
     def delete() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-
         GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
         goAnnotation.delete(flush: true)
         Feature feature = Feature.findByUniqueName(dataObject.gene)
-
-
         JSONObject annotations = goAnnotationService.getAnnotations(feature)
         render annotations as JSON
     }

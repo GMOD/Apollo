@@ -281,30 +281,12 @@ public class GoPanel extends Composite {
         dataGrid.redraw();
     }
 
-    private void addFakeData(int amountOfData) {
-        annotationInfoList.clear();
-        for (int i = 0; i < amountOfData; i++) {
-            GoAnnotation goAnnotation = new GoAnnotation();
-            goAnnotation.setGoTerm("GO:12312");
-//            goAnnotation.setEvidenceCode(EvidenceCode.IEA);
-            goAnnotation.setNegate(true);
-            goAnnotation.addWithOrFrom(new WithOrFrom("UniProtKB-KW:KW-0067"));
-            goAnnotation.addWithOrFrom(new WithOrFrom("InterPro:IPR000719"));
-            goAnnotation.addReference(new Reference("PMID:21873635"));
-            goAnnotation.addReference(new Reference("GO_REF:0000002"));
-            annotationInfoList.add(goAnnotation);
-        }
-        GWT.log("fake data size: " + annotationInfoList.size());
-    }
-
     @UiHandler("newGoButton")
     public void newGoAnnotation(ClickEvent e) {
         withEntriesFlexTable.removeAllRows();
         referencesFlexTable.removeAllRows();
         selectionModel.clear();
         editGoModal.show();
-//        evidenceCodeField.setText("");
-//        evidenceCodeField.setSelectedIndex(0);
     }
 
     @UiHandler("editGoButton")
@@ -324,6 +306,15 @@ public class GoPanel extends Composite {
         referenceField.clear();
     }
 
+    /**
+     //                {
+     //                    "annotations":[{
+     //                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
+     //                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
+     //                    "[\"adf:12312\"]"
+     //                }]}
+     * @param inputObject
+     */
     private void loadAnnotationsFromResponse(JSONObject inputObject) {
 
         JSONArray annotationsArray = inputObject.get("annotations").isArray();
@@ -332,15 +323,6 @@ public class GoPanel extends Composite {
             GoAnnotation goAnnotationInstance = GoAnnotationConverter.convertFromJson(annotationsArray.get(i).isObject());
             annotationInfoList.add(goAnnotationInstance);
         }
-        GWT.log("post list" + annotationInfoList.size());
-
-//                Window.alert("Sucessfull save : TODO update model: " + response.getText());
-//                {
-//                    "annotations":[{
-//                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
-//                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
-//                    "[\"adf:12312\"]"
-//                }]}
     }
 
 
