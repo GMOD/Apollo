@@ -8,7 +8,7 @@ public class GoAnnotation {
 
 
     private Long id ;
-    private String goGene; // I think tis is the gene it refers to?
+    private String gene; // I think tis is the gene it refers to? I think the uniquename
     private String goTerm;
     private String geneRelationship;
     private String evidenceCode;
@@ -24,12 +24,12 @@ public class GoAnnotation {
         this.evidenceCode = evidenceCode;
     }
 
-    public String getGoGene() {
-        return goGene;
+    public String getGene() {
+        return gene;
     }
 
-    public void setGoGene(String goGene) {
-        this.goGene = goGene;
+    public void setGene(String gene) {
+        this.gene = gene;
     }
 
     public String getGoTerm() {

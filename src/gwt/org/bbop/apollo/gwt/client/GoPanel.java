@@ -94,6 +94,8 @@ public class GoPanel extends Composite {
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
 
+    private AnnotationInfo annotationInfo ;
+
     public GoPanel() {
         goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
         geneProductRelationshipField = new SuggestBox(new BiolinkOntologyOracle("RO"));
@@ -315,7 +317,7 @@ public class GoPanel extends Composite {
 
     private GoAnnotation getEditedGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
-        goAnnotation.setGoGene("somegene");
+        goAnnotation.setGene(annotationInfo.getUniqueName());
         goAnnotation.setGoTerm(goTermField.getText());
         goAnnotation.setGeneRelationship(geneProductRelationshipField.getText());
         goAnnotation.setEvidenceCode(evidenceCodeField.getText());
@@ -458,6 +460,8 @@ public class GoPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
+        this.annotationInfo = selectedAnnotationInfo ;
+
 //        addFakeData(50);
 //        if(selectedAnnotationInfo==null){
 //            dataProvider.setList(new ArrayList<GoAnnotation>());

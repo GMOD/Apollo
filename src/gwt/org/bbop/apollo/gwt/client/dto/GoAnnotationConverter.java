@@ -44,7 +44,7 @@ public class GoAnnotationConverter {
         if (goAnnotation.getId() != null) {
             object.put("id", new JSONNumber(goAnnotation.getId()));
         }
-        object.put("gene",new JSONString(goAnnotation.getGoGene()));
+        object.put("gene",new JSONString(goAnnotation.getGene()));
         object.put("goTerm",new JSONString(goAnnotation.getGoTerm()));
         object.put("geneRelationship",new JSONString(goAnnotation.getGeneRelationship()));
         object.put("evidenceCode",new JSONString(goAnnotation.getEvidenceCode()));
