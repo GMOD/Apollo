@@ -103,6 +103,7 @@
                             <b:Button size="EXTRA_SMALL" ui:field="exportVcfButton" width="56px">VCF</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton" width="56px">FASTA</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton" width="56px">CHADO</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportGpadButton" width="56px">GPAD</b:Button>
                             <!--<b:Button size="EXTRA_SMALL" ui:field="exportJbrowseButton" width="80px">JBROWSE</b:Button>-->
                         </b:ButtonGroup>
                     </b:Column>

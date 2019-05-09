@@ -47,6 +47,7 @@ public class ExportPanel extends Modal {
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
     RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
+    RadioButton gpadExportButton = new RadioButton("GPAD", "GPAD", true);
 //    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "JSON Track", true);
 //    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Annotations and Evidence", true);
 //    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Add Track as Evidence", true);
@@ -92,6 +93,10 @@ public class ExportPanel extends Modal {
         if (type.equals(FeatureStringEnum.TYPE_CHADO.getValue())) {
             buttonGroup.add(chadoExportButton1);
             buttonGroup.add(chadoExportButton2);
+        }
+        else
+        if (type.equals(FeatureStringEnum.TYPE_GPAD.getValue())) {
+            buttonGroup.add(gpadExportButton);
         }
 //        else
 //        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
@@ -169,6 +174,7 @@ public class ExportPanel extends Modal {
                 exportButton.setEnabled(true);
             }
         });
+        gpadExportButton.addClickHandler(exportClickHandler);
 
 //        jbrowseExportButton1.addClickHandler(new ClickHandler() {
 //            @Override
