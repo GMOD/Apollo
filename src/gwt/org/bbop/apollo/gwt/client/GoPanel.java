@@ -298,6 +298,7 @@ public class GoPanel extends Composite {
     @UiHandler("saveNewGoAnnotation")
     public void saveNewGoAnnotationButton(ClickEvent e) {
         GoAnnotation goAnnotation = getEditedGoAnnotation();
+        validateGoAnnotation(goAnnotation);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -313,6 +314,21 @@ public class GoPanel extends Composite {
         };
         GoRestService.saveGoAnnotation(requestCallback, goAnnotation);
         editGoModal.hide();
+    }
+
+    private void validateGoAnnotation(GoAnnotation goAnnotation) {
+        assert goAnnotation.getGene()!=null ;
+        assert goAnnotation.getGoTerm()!=null && goAnnotation.getGoTerm().contains(":");
+        assert goAnnotation.getEvidenceCode()!=null && goAnnotation.getEvidenceCode().contains(":");
+        assert goAnnotation.getGeneRelationship()!=null && goAnnotation.getGeneRelationship().contains(":");
+
+        for(Reference reference : goAnnotation.getReferenceList()){
+            assert reference.getReferenceString()!=null && reference.getReferenceString().contains(":");
+        }
+
+        for(WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()){
+            assert withOrFrom.getDisplay()!=null && withOrFrom.getDisplay().contains(":");
+        }
     }
 
     private GoAnnotation getEditedGoAnnotation() {
