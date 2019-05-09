@@ -24,7 +24,9 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
-import org.bbop.apollo.gwt.shared.go.*;
+import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.bbop.apollo.gwt.shared.go.Reference;
+import org.bbop.apollo.gwt.shared.go.WithOrFrom;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.SuggestBox;
@@ -94,7 +96,7 @@ public class GoPanel extends Composite {
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
 
-    private AnnotationInfo annotationInfo ;
+    private AnnotationInfo annotationInfo;
 
     public GoPanel() {
         goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
@@ -141,7 +143,7 @@ public class GoPanel extends Composite {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 SuggestOracle.Suggestion suggestion = event.getSelectedItem();
                 goTermLink.setHTML(suggestion.getDisplayString());
-                goTermLink.setHref("http://amigo.geneontology.org/amigo/term/"+suggestion.getReplacementString());
+                goTermLink.setHref("http://amigo.geneontology.org/amigo/term/" + suggestion.getReplacementString());
             }
         });
 
@@ -150,7 +152,7 @@ public class GoPanel extends Composite {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 SuggestOracle.Suggestion suggestion = event.getSelectedItem();
                 evidenceCodeLink.setHTML(suggestion.getDisplayString());
-                evidenceCodeLink.setHref("http://www.evidenceontology.org/term/"+suggestion.getReplacementString());
+                evidenceCodeLink.setHref("http://www.evidenceontology.org/term/" + suggestion.getReplacementString());
             }
         });
 
@@ -159,7 +161,7 @@ public class GoPanel extends Composite {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 SuggestOracle.Suggestion suggestion = event.getSelectedItem();
                 geneProductRelationshipLink.setHTML(suggestion.getDisplayString());
-                geneProductRelationshipLink.setHref("http://purl.obolibrary.org/obo/"+suggestion.getReplacementString().replace(":","_"));
+                geneProductRelationshipLink.setHref("http://purl.obolibrary.org/obo/" + suggestion.getReplacementString().replace(":", "_"));
             }
         });
 
@@ -214,6 +216,7 @@ public class GoPanel extends Composite {
         geneProductRelationshipField.setText("");
         geneProductRelationshipLink.setText("");
         evidenceCodeField.setText("");
+        evidenceCodeLink.setText("");
         withField.setText("");
         withEntriesFlexTable.removeAllRows();
         referenceField.setText("");
@@ -318,17 +321,17 @@ public class GoPanel extends Composite {
     }
 
     private void validateGoAnnotation(GoAnnotation goAnnotation) {
-        assert goAnnotation.getGene()!=null ;
-        assert goAnnotation.getGoTerm()!=null && goAnnotation.getGoTerm().contains(":");
-        assert goAnnotation.getEvidenceCode()!=null && goAnnotation.getEvidenceCode().contains(":");
-        assert goAnnotation.getGeneRelationship()!=null && goAnnotation.getGeneRelationship().contains(":");
+        assert goAnnotation.getGene() != null;
+        assert goAnnotation.getGoTerm() != null && goAnnotation.getGoTerm().contains(":");
+        assert goAnnotation.getEvidenceCode() != null && goAnnotation.getEvidenceCode().contains(":");
+        assert goAnnotation.getGeneRelationship() != null && goAnnotation.getGeneRelationship().contains(":");
 
-        for(Reference reference : goAnnotation.getReferenceList()){
-            assert reference.getReferenceString()!=null && reference.getReferenceString().contains(":");
+        for (Reference reference : goAnnotation.getReferenceList()) {
+            assert reference.getReferenceString() != null && reference.getReferenceString().contains(":");
         }
 
-        for(WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()){
-            assert withOrFrom.getDisplay()!=null && withOrFrom.getDisplay().contains(":");
+        for (WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()) {
+            assert withOrFrom.getDisplay() != null && withOrFrom.getDisplay().contains(":");
         }
     }
 
@@ -346,18 +349,29 @@ public class GoPanel extends Composite {
 
     private List<WithOrFrom> getWithList() {
         List<WithOrFrom> withOrFromList = new ArrayList<>();
-        for(int i = 0 ; i < withEntriesFlexTable.getRowCount() ; i++){
-            withOrFromList.add(new WithOrFrom(withEntriesFlexTable.getHTML(i,0)));
+        for (int i = 0; i < withEntriesFlexTable.getRowCount(); i++) {
+            withOrFromList.add(new WithOrFrom(withEntriesFlexTable.getHTML(i, 0)));
         }
-        return  withOrFromList ;
+        String withString = withField.getText();
+        if (withString.length() > 0) {
+            withField.clear();
+            withOrFromList.add(new WithOrFrom(withString));
+        }
+
+        return withOrFromList;
     }
 
     private List<Reference> getReferenceList() {
         List<Reference> referenceList = new ArrayList<>();
-        for(int i = 0 ; i < referencesFlexTable.getRowCount() ; i++){
-            referenceList.add(new Reference(referencesFlexTable.getHTML(i,0)));
+        for (int i = 0; i < referencesFlexTable.getRowCount(); i++) {
+            referenceList.add(new Reference(referencesFlexTable.getHTML(i, 0)));
         }
-        return  referenceList ;
+        String referenceString = referenceField.getText();
+        if (referenceString.length() > 0) {
+            referenceField.clear();
+            referenceList.add(new Reference(referenceString));
+        }
+        return referenceList;
     }
 
     @UiHandler("cancelNewGoAnnotation")
@@ -396,7 +410,7 @@ public class GoPanel extends Composite {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
                 String returnValue = annotationInfo.getGoTerm();
-                if(annotationInfo.isNegate()){
+                if (annotationInfo.isNegate()) {
                     returnValue += " (not) ";
                 }
 
@@ -477,7 +491,7 @@ public class GoPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
-        this.annotationInfo = selectedAnnotationInfo ;
+        this.annotationInfo = selectedAnnotationInfo;
 
 //        addFakeData(50);
 //        if(selectedAnnotationInfo==null){
