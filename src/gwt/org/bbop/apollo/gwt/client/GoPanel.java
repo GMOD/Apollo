@@ -538,7 +538,7 @@ public class GoPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
-        Window.alert(selectedAnnotationInfo.getUniqueName());
+//        Window.alert(selectedAnnotationInfo.getUniqueName());
         this.annotationInfo = selectedAnnotationInfo;
         loadData();
 

@@ -21,7 +21,7 @@ class GoAnnotationService {
     }
 
     JSONObject getAnnotations(Feature feature) {
-        def goAnnotations = GoAnnotation.findByFeature(feature)
+        def goAnnotations = GoAnnotation.findAllByFeature(feature)
         JSONObject returnObject = new JSONObject()
 
         JSONArray annotations = new JSONArray()
