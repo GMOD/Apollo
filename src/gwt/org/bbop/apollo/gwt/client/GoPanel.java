@@ -10,6 +10,10 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -21,6 +25,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
@@ -165,8 +170,29 @@ public class GoPanel extends Composite {
             }
         });
 
-        redraw();
+//        loadData();
 
+        redraw();
+    }
+
+    private void loadData() {
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+                loadAnnotationsFromResponse(jsonObject);
+                redraw();
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Window.alert("A problem with request: "+request.toString()+ " "+exception.getMessage());
+            }
+        };
+        if(annotationInfo!=null){
+            GoRestService.getGoAnnotation(requestCallback,annotationInfo.getUniqueName());
+        }
     }
 
     private class RemoveTableEntryButton extends Button {
@@ -298,6 +324,25 @@ public class GoPanel extends Composite {
         referenceField.clear();
     }
 
+    private void loadAnnotationsFromResponse(JSONObject inputObject){
+
+        JSONArray annotationsArray = inputObject.get("annotations").isArray();
+        annotationInfoList.clear();
+        for(int i = 0 ; i < annotationsArray.size() ; i++){
+            GoAnnotation goAnnotationInstance = GoAnnotationConverter.convertFromJson(annotationsArray.get(i).isObject());
+            annotationInfoList.add(goAnnotationInstance);
+        }
+        GWT.log("post list"+annotationInfoList.size());
+
+//                Window.alert("Sucessfull save : TODO update model: " + response.getText());
+//                {
+//                    "annotations":[{
+//                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
+//                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
+//                    "[\"adf:12312\"]"
+//                }]}
+    }
+
 
     @UiHandler("saveNewGoAnnotation")
     public void saveNewGoAnnotationButton(ClickEvent e) {
@@ -306,7 +351,9 @@ public class GoPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                Window.alert("Sucessfull save : TODO update model: " + response.getText());
+                JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
+                GWT.log("returned data: " + response.getText());
+                loadAnnotationsFromResponse(returnObject);
                 clearModal();
             }
 
@@ -491,7 +538,9 @@ public class GoPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
+        Window.alert(selectedAnnotationInfo.getUniqueName());
         this.annotationInfo = selectedAnnotationInfo;
+        loadData();
 
 //        addFakeData(50);
 //        if(selectedAnnotationInfo==null){

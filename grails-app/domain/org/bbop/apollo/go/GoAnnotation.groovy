@@ -1,38 +1,26 @@
 package org.bbop.apollo.go
 
 import org.bbop.apollo.Feature
-import org.bbop.apollo.gwt.shared.go.EvidenceCode
-import org.bbop.apollo.gwt.shared.go.Qualifier
 
 
 class GoAnnotation {
 
+    static constraints = {
+        feature nullable: false
+        goRef nullable: false, blank: false
+        evidenceRef nullable: false, blank: false
+        geneProductRelationshipRef nullable: true, blank: false
+        negate nullable: false
+        withOrFromArray nullable: true, blank: true
+        referenceArray nullable: true, blank: true
+    }
 
     Feature feature
-    GoTerm goTerm
-    EvidenceCode evidenceCode
+    String goRef
+    String evidenceRef
+    String geneProductRelationshipRef
+    Boolean negate
+    String withOrFromArray
+    String referenceArray
 
-    static hasMany = [
-            qualifiers: Qualifier
-            ,withOrFroms: WithOrFrom
-            ,references: Reference
-    ]
-
-    String getWithOrFromString(){
-        StringBuilder withOrFromStringBuilder = new StringBuilder()
-        for(WithOrFrom withOrFrom : withOrFroms){
-            withOrFromStringBuilder.append(withOrFrom.getDisplay())
-            withOrFromStringBuilder.append(" ")
-        }
-        return withOrFromStringBuilder.toString()
-    }
-
-    String getReferenceString(){
-        StringBuilder referenceStringBuilder = new StringBuilder()
-        for(Reference reference: references){
-            referenceStringBuilder.append(reference.getReferenceString())
-            referenceStringBuilder.append(" ")
-        }
-        return referenceStringBuilder.toString()
-    }
 }
