@@ -13,7 +13,6 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -187,11 +186,11 @@ public class GoPanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Window.alert("A problem with request: "+request.toString()+ " "+exception.getMessage());
+                Bootbox.alert("A problem with request: " + request.toString() + " " + exception.getMessage());
             }
         };
-        if(annotationInfo!=null){
-            GoRestService.getGoAnnotation(requestCallback,annotationInfo.getUniqueName());
+        if (annotationInfo != null) {
+            GoRestService.getGoAnnotation(requestCallback, annotationInfo.getUniqueName());
         }
     }
 
@@ -256,6 +255,7 @@ public class GoPanel extends Composite {
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
             goTermField.setText(selectedGoAnnotation.getGoTerm());
+            geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
 //            int withRow = 0;
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom.getDisplay());
@@ -324,15 +324,15 @@ public class GoPanel extends Composite {
         referenceField.clear();
     }
 
-    private void loadAnnotationsFromResponse(JSONObject inputObject){
+    private void loadAnnotationsFromResponse(JSONObject inputObject) {
 
         JSONArray annotationsArray = inputObject.get("annotations").isArray();
         annotationInfoList.clear();
-        for(int i = 0 ; i < annotationsArray.size() ; i++){
+        for (int i = 0; i < annotationsArray.size(); i++) {
             GoAnnotation goAnnotationInstance = GoAnnotationConverter.convertFromJson(annotationsArray.get(i).isObject());
             annotationInfoList.add(goAnnotationInstance);
         }
-        GWT.log("post list"+annotationInfoList.size());
+        GWT.log("post list" + annotationInfoList.size());
 
 //                Window.alert("Sucessfull save : TODO update model: " + response.getText());
 //                {
@@ -347,23 +347,29 @@ public class GoPanel extends Composite {
     @UiHandler("saveNewGoAnnotation")
     public void saveNewGoAnnotationButton(ClickEvent e) {
         GoAnnotation goAnnotation = getEditedGoAnnotation();
+        GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
+        if (selectedGoAnnotation != null) {
+            goAnnotation.setId(selectedGoAnnotation.getId());
+        }
         validateGoAnnotation(goAnnotation);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
-                GWT.log("returned data: " + response.getText());
                 loadAnnotationsFromResponse(returnObject);
                 clearModal();
             }
-
 
             @Override
             public void onError(Request request, Throwable exception) {
                 Bootbox.alert("Failed to save new go annotation: " + exception.getMessage());
             }
         };
-        GoRestService.saveGoAnnotation(requestCallback, goAnnotation);
+        if (goAnnotation.getId() != null) {
+            GoRestService.updateGoAnnotation(requestCallback, goAnnotation);
+        } else {
+            GoRestService.saveGoAnnotation(requestCallback, goAnnotation);
+        }
         editGoModal.hide();
     }
 
@@ -501,54 +507,15 @@ public class GoPanel extends Composite {
         dataGrid.setColumnWidth(2, "90px");
         dataGrid.setColumnWidth(3, "90px");
 
-//        ColumnSortEvent.ListHandler<GoAnnotation> sortHandler = new ColumnSortEvent.ListHandler<GoAnnotation>(annotationInfoList);
-//        dataGrid.addColumnSortHandler(sortHandler);
-
-//        sortHandler.setComparator(goTermColumn, new Comparator<GoAnnotation>() {
-//            @Override
-//            public int compare(GoAnnotation o1, GoAnnotation o2) {
-//                return o1.getType().compareTo(o2.getType());
-//            }
-//        });
-//
-//        sortHandler.setComparator(withColumn, new Comparator<GoAnnotation>() {
-//            @Override
-//            public int compare(GoAnnotation o1, GoAnnotation o2) {
-//                return o1.getMin() - o2.getMin();
-//            }
-//        });
-//
-//        sortHandler.setComparator(referenceColumn, new Comparator<GoAnnotation>() {
-//            @Override
-//            public int compare(GoAnnotation o1, GoAnnotation o2) {
-//                return o1.getMax() - o2.getMax();
-//            }
-//        });
-//
-//        sortHandler.setComparator(lengthColumn, new Comparator<GoAnnotation>() {
-//            @Override
-//            public int compare(GoAnnotation o1, GoAnnotation o2) {
-//                return o1.getLength() - o2.getLength();
-//            }
-//        });
     }
 
     public void updateData() {
-//        updateData(null);
+        updateData(null);
     }
 
     public void updateData(AnnotationInfo selectedAnnotationInfo) {
-//        Window.alert(selectedAnnotationInfo.getUniqueName());
         this.annotationInfo = selectedAnnotationInfo;
         loadData();
-
-//        addFakeData(50);
-//        if(selectedAnnotationInfo==null){
-//            dataProvider.setList(new ArrayList<GoAnnotation>());
-//        }
-//        else{
-//            dataProvider.setList(selectedAnnotationInfo.getGoAnnotations());
-//        }
     }
 
 }
