@@ -213,6 +213,7 @@ public class GoPanel extends Composite {
         goTermLink.setText("");
         geneProductRelationshipField.setText("");
         geneProductRelationshipLink.setText("");
+        evidenceCodeField.setText("");
         withField.setText("");
         withEntriesFlexTable.removeAllRows();
         referenceField.setText("");
