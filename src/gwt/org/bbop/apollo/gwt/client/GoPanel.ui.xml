@@ -26,7 +26,14 @@
         .goButtons {
             margin-top: 5px;
         }
-    </ui:style>
+
+        .saveButton {
+            margin-right: 3px;
+        }
+
+        .addButton {
+            margin-top: 14px;
+        }</ui:style>
 
     <gwt:DockLayoutPanel>
         <gwt:center>
@@ -43,24 +50,22 @@
                     <b:ModalBody>
                         <b:Container fluid="true" width="100%">
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_10">
+                                <b:Column size="MD_6">
                                     <b:Label>Go Term</b:Label>
                                     <b:SuggestBox ui:field="goTermField"/>
                                     <gwt:Anchor ui:field="goTermLink" target="_blank"/>
                                 </b:Column>
-                            </b:Row>
-                            <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_10">
-                                    <b:Label>Gene Production Relationship</b:Label>
-                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>
-                                    <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
-                                </b:Column>
-                            </b:Row>
-                            <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_4">
                                     <b:Label>Evidence Code</b:Label>
                                     <b:SuggestBox ui:field="evidenceCodeField"/>
                                     <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row addStyleNames="{style.row}">
+                                <b:Column size="MD_8">
+                                    <b:Label>Gene Production Relationship</b:Label>
+                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>
+                                    <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
                                     <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>
@@ -73,7 +78,7 @@
                                     <b:TextBox ui:field="withField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
-                                    <b:Button ui:field="addWithButton">Add</b:Button>
+                                    <b:Button icon="PLUS" ui:field="addWithButton" addStyleNames="{style.addButton}">Add</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
@@ -85,7 +90,7 @@
                                     <b:TextBox ui:field="referenceField"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
-                                    <b:Button ui:field="addRefButton">Add</b:Button>
+                                    <b:Button icon="PLUS" ui:field="addRefButton" addStyleNames="{style.addButton}">Add</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
@@ -95,7 +100,7 @@
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_6">
-                                    <b:Button ui:field="saveNewGoAnnotation" type="PRIMARY">Save</b:Button>
+                                    <b:Button icon="SAVE" ui:field="saveNewGoAnnotation" type="PRIMARY" addStyleNames="{style.saveButton}">Save</b:Button>
                                     <b:Button  ui:field="cancelNewGoAnnotation">Cancel</b:Button>
                                 </b:Column>
                             </b:Row>
