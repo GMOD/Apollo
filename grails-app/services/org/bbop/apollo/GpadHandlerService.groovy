@@ -3,7 +3,6 @@ package org.bbop.apollo
 import groovy.json.JsonSlurper
 import org.bbop.apollo.go.GoAnnotation
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
 import java.text.SimpleDateFormat
@@ -19,9 +18,9 @@ class GpadHandlerService {
 //    def featureService
 //    def overlapperService
 //    def featurePropertyService
-    def goAnnotationService
+//    def goAnnotationService
 
-    SimpleDateFormat gff3DateFormat = new SimpleDateFormat("YYYY-MM-dd")
+    SimpleDateFormat gpadDateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
 //    static final def unusedStandardAttributes = ["Alias", "Target", "Gap", "Derives_from", "Ontology_term", "Is_circular"];
     @Timed
@@ -91,6 +90,9 @@ class GpadHandlerService {
             List<String> referenceList = referenceArray.collect( )
             writeObject.out.write(referenceList.join(","))
         }
+//        else{
+//            writeObject.out.write("")
+//        }
         writeObject.out.write("\t")
         //6	Evidence_type ::= OBO_ID	Evidence and Conclusion Ontology	1	ECO:0000315
         writeObject.out.write(goAnnotation.evidenceRef)
@@ -101,14 +103,16 @@ class GpadHandlerService {
             List<String> withList = withArray.collect( )
             writeObject.out.write(withList.join(","))
         }
+//        else{
+//            writeObject.out.write("")
+//        }
         writeObject.out.write("\t")
         //8	Interacting_taxon_ID ::= NCBITaxon:[Taxon_ID]		0 or greater	NCBITaxon:5476
         // TODO: add organism
         writeObject.out.write("taxon or organism name")
         writeObject.out.write("\t")
         //9	Date ::= YYYY-MM-DD		1	2019-01-30
-        // TODO: add date from lastUpdated
-        writeObject.out.write("Date needed")
+        writeObject.out.write(gpadDateFormat.format(goAnnotation.lastUpdated))
         writeObject.out.write("\t")
         //10	Assigned_by ::= Prefix		1	MGI
         writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
@@ -332,7 +336,7 @@ class GpadHandlerService {
 //    }
 
     String formatDate(Date date) {
-        return gff3DateFormat.format(date)
+        return gpadDateFormat.format(date)
     }
 
     static private String encodeString(String str) {

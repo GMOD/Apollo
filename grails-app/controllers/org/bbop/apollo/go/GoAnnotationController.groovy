@@ -78,7 +78,8 @@ class GoAnnotationController {
         goAnnotation.negate = dataObject.negate ?: false
         goAnnotation.withOrFromArray = dataObject.withOrFrom
         goAnnotation.referenceArray = dataObject.references
-
+        goAnnotation.lastUpdated = new Date()
+        goAnnotation.dateCreated = new Date()
         goAnnotation.save(flush: true, failOnError: true)
 
         JSONObject annotations = goAnnotationService.getAnnotations(feature)
@@ -110,6 +111,7 @@ class GoAnnotationController {
         goAnnotation.negate = dataObject.negate ?: false
         goAnnotation.withOrFromArray = dataObject.withOrFrom
         goAnnotation.referenceArray = dataObject.references
+        goAnnotation.lastUpdated = new Date()
         goAnnotation.save(flush: true, failOnError: true,insert: false)
 
         Feature feature = Feature.findByUniqueName(dataObject.gene)

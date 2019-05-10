@@ -13,6 +13,8 @@ class GoAnnotation {
         negate nullable: false
         withOrFromArray nullable: true, blank: true
         referenceArray nullable: true, blank: true
+        dateCreated nullable: false
+        lastUpdated nullable: false
     }
 
     Feature feature
@@ -22,5 +24,7 @@ class GoAnnotation {
     Boolean negate
     String withOrFromArray
     String referenceArray
+    Date lastUpdated
+    Date dateCreated
 
 }
