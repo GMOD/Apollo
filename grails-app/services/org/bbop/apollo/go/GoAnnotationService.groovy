@@ -8,18 +8,6 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 @Transactional
 class GoAnnotationService {
 
-    def addGoAnnotation(JSONObject jsonObject) {
-
-    }
-
-    def updateGoAnnotation(JSONObject jsonObject) {
-
-    }
-
-    def deleteGoAnnotation(JSONObject jsonObject) {
-
-    }
-
     JSONObject getAnnotations(Feature feature) {
         def goAnnotations = GoAnnotation.findAllByFeature(feature)
         JSONObject returnObject = new JSONObject()

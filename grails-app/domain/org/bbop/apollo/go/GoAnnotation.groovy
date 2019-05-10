@@ -1,6 +1,7 @@
 package org.bbop.apollo.go
 
 import org.bbop.apollo.Feature
+import org.bbop.apollo.User
 
 
 class GoAnnotation {
@@ -16,6 +17,10 @@ class GoAnnotation {
         dateCreated nullable: false
         lastUpdated nullable: false
     }
+
+    static hasMany = [
+            owners: User
+    ]
 
     Feature feature
     String goRef

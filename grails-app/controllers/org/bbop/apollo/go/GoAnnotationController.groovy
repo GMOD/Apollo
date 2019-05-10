@@ -3,12 +3,15 @@ package org.bbop.apollo.go
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
+import org.bbop.apollo.Organism
+import org.bbop.apollo.User
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
 import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
+import org.bbop.apollo.gwt.shared.PermissionEnum
 
 import static org.springframework.http.HttpStatus.NOT_FOUND
 
@@ -36,6 +39,7 @@ class GoAnnotationController {
     )
     def index() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        permissionService.checkPermissions(dataObject, PermissionEnum.READ)
         Feature feature = Feature.findByUniqueName(dataObject.uniqueName as String)
         if (feature) {
             JSONObject annotations = goAnnotationService.getAnnotations(feature)
@@ -69,6 +73,8 @@ class GoAnnotationController {
     @Transactional
     def save() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(dataObject)
         GoAnnotation goAnnotation = new GoAnnotation()
         Feature feature = Feature.findByUniqueName(dataObject.gene)
         goAnnotation.feature = feature
@@ -80,6 +86,7 @@ class GoAnnotationController {
         goAnnotation.referenceArray = dataObject.references
         goAnnotation.lastUpdated = new Date()
         goAnnotation.dateCreated = new Date()
+        goAnnotation.addToOwners(user)
         goAnnotation.save(flush: true, failOnError: true)
 
         JSONObject annotations = goAnnotationService.getAnnotations(feature)
@@ -103,8 +110,9 @@ class GoAnnotationController {
     @Transactional
     def update() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+        User user = permissionService.getCurrentUser(dataObject)
         GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
-//        goAnnotation.feature = feature
         goAnnotation.goRef = dataObject.goTerm
         goAnnotation.geneProductRelationshipRef = dataObject.geneRelationship
         goAnnotation.evidenceRef = dataObject.evidenceCode
@@ -112,6 +120,7 @@ class GoAnnotationController {
         goAnnotation.withOrFromArray = dataObject.withOrFrom
         goAnnotation.referenceArray = dataObject.references
         goAnnotation.lastUpdated = new Date()
+        goAnnotation.addToOwners(user)
         goAnnotation.save(flush: true, failOnError: true,insert: false)
 
         Feature feature = Feature.findByUniqueName(dataObject.gene)
@@ -130,6 +139,7 @@ class GoAnnotationController {
     @Transactional
     def delete() {
         JSONObject dataObject = permissionService.handleInput(request, params)
+        permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
         GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
         goAnnotation.delete(flush: true)
         Feature feature = Feature.findByUniqueName(dataObject.gene)

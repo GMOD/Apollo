@@ -173,7 +173,7 @@ class IOServiceController extends AbstractApolloController {
                 }
             } else if (typeOfExport == FeatureStringEnum.TYPE_GPAD.value) {
                 fileName = "GoAnnotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
-                gpadHandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
+                gpadHandlerService.writeFeaturesToText(outputFile.path, features)
             } else if (typeOfExport == FeatureStringEnum.TYPE_VCF.value) {
                 if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
