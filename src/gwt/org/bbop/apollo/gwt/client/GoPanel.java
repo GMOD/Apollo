@@ -45,6 +45,9 @@ import java.util.List;
  */
 public class GoPanel extends Composite {
 
+    private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
+    private final String ECO_BASE = "http://www.evidenceontology.org/term/";
+    private final String RO_BASE = "http://purl.obolibrary.org/obo/";
 
     interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
     }
@@ -146,7 +149,7 @@ public class GoPanel extends Composite {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 SuggestOracle.Suggestion suggestion = event.getSelectedItem();
                 goTermLink.setHTML(suggestion.getDisplayString());
-                goTermLink.setHref("http://amigo.geneontology.org/amigo/term/" + suggestion.getReplacementString());
+                goTermLink.setHref(GO_BASE + suggestion.getReplacementString());
             }
         });
 
@@ -155,7 +158,7 @@ public class GoPanel extends Composite {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 SuggestOracle.Suggestion suggestion = event.getSelectedItem();
                 evidenceCodeLink.setHTML(suggestion.getDisplayString());
-                evidenceCodeLink.setHref("http://www.evidenceontology.org/term/" + suggestion.getReplacementString());
+                evidenceCodeLink.setHref(ECO_BASE + suggestion.getReplacementString());
             }
         });
 
@@ -164,11 +167,9 @@ public class GoPanel extends Composite {
             public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
                 SuggestOracle.Suggestion suggestion = event.getSelectedItem();
                 geneProductRelationshipLink.setHTML(suggestion.getDisplayString());
-                geneProductRelationshipLink.setHref("http://purl.obolibrary.org/obo/" + suggestion.getReplacementString().replace(":", "_"));
+                geneProductRelationshipLink.setHref(RO_BASE + suggestion.getReplacementString().replace(":", "_"));
             }
         });
-
-//        loadData();
 
         redraw();
     }
@@ -254,7 +255,12 @@ public class GoPanel extends Composite {
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
             goTermField.setText(selectedGoAnnotation.getGoTerm());
+            goTermLink.setHref(GO_BASE+selectedGoAnnotation.getGoTerm());
+            goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
             geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
+            geneProductRelationshipLink.setHref(RO_BASE+selectedGoAnnotation.getGeneRelationship());
+            geneProductRelationshipLink.setHTML(selectedGoAnnotation.getGeneRelationship());
+            goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
 //            int withRow = 0;
             withEntriesFlexTable.removeAllRows();
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
@@ -263,6 +269,8 @@ public class GoPanel extends Composite {
             }
 
             evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
+            evidenceCodeLink.setHref(ECO_BASE+selectedGoAnnotation.getEvidenceCode());
+            evidenceCodeLink.setHTML(selectedGoAnnotation.getEvidenceCode());
 
             notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
 
@@ -298,9 +306,9 @@ public class GoPanel extends Composite {
     @UiHandler("addWithButton")
     public void addWith(ClickEvent e) {
         String withFieldString = withField.getText();
-        if(!withFieldString.contains(":") || withFieldString.length()<2){
-            Bootbox.alert("Invalid with/from value '"+withFieldString+"'");
-            return ;
+        if (!withFieldString.contains(":") || withFieldString.length() < 2) {
+            Bootbox.alert("Invalid with/from value '" + withFieldString + "'");
+            return;
         }
         addWithSelection(withField.getText());
         withField.clear();
@@ -309,9 +317,9 @@ public class GoPanel extends Composite {
     @UiHandler("addRefButton")
     public void addReference(ClickEvent e) {
         String referenceFieldString = referenceField.getText();
-        if(!referenceFieldString.contains(":") || referenceFieldString.length()<2){
-            Bootbox.alert("Invalid reference value '"+referenceFieldString+"'");
-            return ;
+        if (!referenceFieldString.contains(":") || referenceFieldString.length() < 2) {
+            Bootbox.alert("Invalid reference value '" + referenceFieldString + "'");
+            return;
         }
         addReferenceSelection(referenceFieldString);
         referenceField.clear();
@@ -349,7 +357,7 @@ public class GoPanel extends Composite {
         if (validationErrors.size() > 0) {
             String errorString = "Invalid GO Annotation <br/>";
             for (String error : validationErrors) {
-               errorString += "&bull; "+error + "<br/>";
+                errorString += "&bull; " + error + "<br/>";
             }
             Bootbox.alert(errorString);
             return;
@@ -399,7 +407,7 @@ public class GoPanel extends Composite {
             validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
         }
 
-        if(goAnnotation.getReferenceList().size()==0){
+        if (goAnnotation.getReferenceList().size() == 0) {
             validationErrors.add("You must provide at least one reference");
         }
 //        for (Reference reference : goAnnotation.getReferenceList()) {
