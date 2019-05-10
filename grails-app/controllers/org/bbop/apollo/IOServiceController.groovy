@@ -34,6 +34,7 @@ class IOServiceController extends AbstractApolloController {
     def vcfHandlerService
     def trackService
     def fileService
+    def gpadHandlerService
 
     // fileMap of uuid / filename
     // see #464
@@ -170,6 +171,9 @@ class IOServiceController extends AbstractApolloController {
                 } else {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
+            } else if (typeOfExport == FeatureStringEnum.TYPE_GPAD.value) {
+                fileName = "GoAnnotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                gpadHandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
             } else if (typeOfExport == FeatureStringEnum.TYPE_VCF.value) {
                 if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
