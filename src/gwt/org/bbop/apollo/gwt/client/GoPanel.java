@@ -18,7 +18,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -298,23 +297,34 @@ public class GoPanel extends Composite {
 
     @UiHandler("addWithButton")
     public void addWith(ClickEvent e) {
+        String withFieldString = withField.getText();
+        if(!withFieldString.contains(":") || withFieldString.length()<2){
+            Bootbox.alert("Invalid with/from value '"+withFieldString+"'");
+            return ;
+        }
         addWithSelection(withField.getText());
         withField.clear();
     }
 
     @UiHandler("addRefButton")
     public void addReference(ClickEvent e) {
-        addReferenceSelection(referenceField.getText());
+        String referenceFieldString = referenceField.getText();
+        if(!referenceFieldString.contains(":") || referenceFieldString.length()<2){
+            Bootbox.alert("Invalid reference value '"+referenceFieldString+"'");
+            return ;
+        }
+        addReferenceSelection(referenceFieldString);
         referenceField.clear();
     }
 
     /**
-     //                {
-     //                    "annotations":[{
-     //                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
-     //                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
-     //                    "[\"adf:12312\"]"
-     //                }]}
+     * //                {
+     * //                    "annotations":[{
+     * //                    "geneRelationship":"RO:0002326", "goTerm":"GO:0031084", "references":"[\"ref:12312\"]", "gene":
+     * //                    "1743ae6c-9a37-4a41-9b54-345065726d5f", "negate":false, "evidenceCode":"ECO:0000205", "withOrFrom":
+     * //                    "[\"adf:12312\"]"
+     * //                }]}
+     *
      * @param inputObject
      */
     private void loadAnnotationsFromResponse(JSONObject inputObject) {
@@ -335,7 +345,15 @@ public class GoPanel extends Composite {
         if (selectedGoAnnotation != null) {
             goAnnotation.setId(selectedGoAnnotation.getId());
         }
-        validateGoAnnotation(goAnnotation);
+        List<String> validationErrors = validateGoAnnotation(goAnnotation);
+        if (validationErrors.size() > 0) {
+            String errorString = "Invalid GO Annotation <br/>";
+            for (String error : validationErrors) {
+               errorString += "&bull; "+error + "<br/>";
+            }
+            Bootbox.alert(errorString);
+            return;
+        }
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -357,19 +375,41 @@ public class GoPanel extends Composite {
         editGoModal.hide();
     }
 
-    private void validateGoAnnotation(GoAnnotation goAnnotation) {
-        assert goAnnotation.getGene() != null;
-        assert goAnnotation.getGoTerm() != null && goAnnotation.getGoTerm().contains(":");
-        assert goAnnotation.getEvidenceCode() != null && goAnnotation.getEvidenceCode().contains(":");
-        assert goAnnotation.getGeneRelationship() != null && goAnnotation.getGeneRelationship().contains(":");
-
-        for (Reference reference : goAnnotation.getReferenceList()) {
-            assert reference.getReferenceString() != null && reference.getReferenceString().contains(":");
+    private List<String> validateGoAnnotation(GoAnnotation goAnnotation) {
+        List<String> validationErrors = new ArrayList<>();
+        if (goAnnotation.getGene() == null) {
+            validationErrors.add("You must provide a gene name");
+        }
+        if (goAnnotation.getGoTerm() == null) {
+            validationErrors.add("You must provide a GO term");
+        }
+        if (!goAnnotation.getGoTerm().contains(":")) {
+            validationErrors.add("You must provide a prefix and suffix for the GO term");
+        }
+        if (goAnnotation.getEvidenceCode() == null) {
+            validationErrors.add("You must provide an ECO evidence code ");
+        }
+        if (!goAnnotation.getEvidenceCode().contains(":")) {
+            validationErrors.add("You must provide a prefix and suffix for the ECO evidence code");
+        }
+        if (goAnnotation.getGeneRelationship() == null) {
+            validationErrors.add("You must provide a Gene Relationship");
+        }
+        if (!goAnnotation.getGeneRelationship().contains(":")) {
+            validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
         }
 
-        for (WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()) {
-            assert withOrFrom.getDisplay() != null && withOrFrom.getDisplay().contains(":");
+        if(goAnnotation.getReferenceList().size()==0){
+            validationErrors.add("You must provide at least one reference");
         }
+//        for (Reference reference : goAnnotation.getReferenceList()) {
+//
+//            assert reference.getReferenceString() != null && reference.getReferenceString().contains(":");
+//        }
+//        for (WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()) {
+//            assert withOrFrom.getDisplay() != null && withOrFrom.getDisplay().contains(":");
+//        }
+        return validationErrors;
     }
 
     private GoAnnotation getEditedGoAnnotation() {

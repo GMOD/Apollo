@@ -60,7 +60,7 @@ class GpadHandlerService {
         if (goAnnotation.referenceArray) {
             JSONArray referenceArray = new JsonSlurper().parseText(goAnnotation.referenceArray) as JSONArray
             List<String> referenceList = referenceArray.collect()
-            writeObject.out.write(referenceList.join(","))
+            writeObject.out.write(referenceList.join("|"))
         }
 //        else{
 //            writeObject.out.write("")
@@ -73,7 +73,7 @@ class GpadHandlerService {
         if (goAnnotation.withOrFromArray) {
             JSONArray withArray = new JsonSlurper().parseText(goAnnotation.withOrFromArray) as JSONArray
             List<String> withList = withArray.collect()
-            writeObject.out.write(withList.join(","))
+            writeObject.out.write(withList.join("|"))
         }
 //        else{
 //            writeObject.out.write("")
@@ -93,7 +93,7 @@ class GpadHandlerService {
         writeObject.out.write("")
         writeObject.out.write("\t")
         //12	Annotation_Properties ::= [Property_Value_Pair] ('|' Property_Value_Pair)*		0 or greater	contributor=https://orcid.org/0000-0002-1478-7671
-        writeObject.out.write(goAnnotation.owners.collect { it.username }.join(","))
+        writeObject.out.write(goAnnotation.owners.collect { it.username }.join("|"))
         writeObject.out.write("\t")
 
         writeObject.out.println()
