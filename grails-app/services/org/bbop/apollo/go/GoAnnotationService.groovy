@@ -40,4 +40,32 @@ class GoAnnotationService {
         return returnObject
 
     }
+
+    def deleteAnnotationsForFeature(Feature feature) {
+
+        println "going to del a delete for the feature ${feature}"
+
+        def goAnnotations = GoAnnotation.findAllByFeature(feature)
+        println "input ${feature } -> ${goAnnotations}"
+        def annotations = GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f  where f.id = :id",[id:feature.id])
+        println "annotations ${feature } -> ${annotations}"
+        feature.save(flush: true)
+        if(goAnnotations.size()==0) {
+            println "annotations not found so returning"
+            return 0
+        }
+
+        def goIds = goAnnotations.id
+        println "go ids ${goIds}"
+        int deletedCount = GoAnnotation.executeUpdate("delete from GoAnnotation where id in :goList",[goList:goAnnotations.id])
+        println "deleted ocunt ${deletedCount}"
+        return deletedCount
+//        for(GoAnnotation goAnnotation in goAnnotations){
+//            goAnnotation.owners = null
+//            goAnnotation.feature = null
+//            goAnnotation.delete()
+//        }
+//        GoAnnotation.deleteAll(goAnnotations)
+//        for(GoAnnotation goAnnotation in )
+    }
 }

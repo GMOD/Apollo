@@ -8,7 +8,6 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.Strand
-
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -41,6 +40,7 @@ class RequestHandlingService {
     def preferenceService
     def featurePropertyService
     def featureEventService
+    def goAnnotationService
     def brokerMessagingTemplate
 
 
@@ -1879,6 +1879,7 @@ class RequestHandlingService {
         // we have to hold transcripts if feature is an exon, etc. or a feature itself if not a transcript
         Map<String, JSONObject> oldFeatureMap = new HashMap<>()
         log.debug "features to delete: ${featuresArray.size()}"
+        println "A"
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
@@ -1895,7 +1896,22 @@ class RequestHandlingService {
             checkOwnersDelete(feature, inputObject)
 
             log.debug "feature found to delete ${feature?.name}"
+            println "B"
             if (feature) {
+                println "C"
+                if (feature instanceof Gene) {
+                    println "going to delete annotations for feature ${feature}"
+//                    def goAnnotations = goAnnotationService.getAnnotations(feature)
+                    def goAnnotations = GoAnnotation.findAllByFeature(feature)
+                    if (goAnnotations) {
+                        for (GoAnnotation goAnnotation : goAnnotations) {
+                            goAnnotation.delete(flush: true)
+                        }
+                    }
+//                    goAnnotationService.deleteAnnotationsForFeature()
+                    println "DELETED annotations for feature  ${feature}"
+                }
+                println "D"
                 if (feature instanceof Exon) {
                     Transcript transcript = exonService.getTranscript((Exon) feature)
                     // if its the same transcript, we don't want to overwrite it
@@ -1907,15 +1923,18 @@ class RequestHandlingService {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
                     }
                 }
+                println "E"
                 //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
                 // is this a bug?
                 isUpdateOperation = featureService.deleteFeature(feature, modifiedFeaturesUniqueNames) || isUpdateOperation;
+                println "F"
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
                 if (modifiedFeaturesList == null) {
                     modifiedFeaturesList = new ArrayList<>()
                 }
                 modifiedFeaturesList.add(feature)
                 modifiedFeaturesUniqueNames.put(uniqueName, modifiedFeaturesList)
+                println "G"
             }
 
         }
@@ -2703,7 +2722,7 @@ class RequestHandlingService {
             fireAnnotationEvent(updateAnnotationEvent)
         } else if (inputObject.containsKey(FeatureStringEnum.SEQUENCE.value)) {
             JSONArray sequences = inputObject.get(FeatureStringEnum.SEQUENCE.value)
-            for(JSONObject seqObj in sequences){
+            for (JSONObject seqObj in sequences) {
                 Sequence sequence = Sequence.findById(seqObj.id)
                 def sequenceAlterations = variantService.getSequenceAlterationEffectsForLocation(0, sequence.end, sequence)
                 for (SequenceAlterationArtifact sequenceAlteration in sequenceAlterations) {
