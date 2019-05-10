@@ -1,8 +1,6 @@
 package org.bbop.apollo
 
-import org.apache.commons.lang.WordUtils
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.bbop.apollo.sequence.Strand
+import org.bbop.apollo.go.GoAnnotation
 import org.grails.plugins.metrics.groovy.Timed
 
 import java.text.SimpleDateFormat
@@ -30,6 +28,8 @@ class GpadHandlerService {
         writeObject.mode = Mode.WRITE
         writeObject.file = new File(path)
         writeObject.format = Format.TEXT
+
+
 //
 //        // TODO: use specified metadata?
 //        writeObject.attributesToExport.add(FeatureStringEnum.NAME.value);
@@ -54,11 +54,65 @@ class GpadHandlerService {
         writeObject.out = out
         out.println("##gpad-version 2")
 //        writeFeatures(writeObject, features, source)
+
+//        def uniqueNames = features.uniqueName
+
+        def goAnnotations = GoAnnotation.findAllByFeatureInList(features as List<Feature>)
+
+        for (GoAnnotation goAnnotation in goAnnotations) {
+            writeGpadEntry(writeObject, goAnnotation)
+        }
+
+
         out.flush()
         out.close()
     }
 
+    def writeGpadEntry(WriteObject writeObject, GoAnnotation goAnnotation) {
+        // 1	DB_Object_ID ::= ID		1	UniProtKB:P11678
+        writeObject.out.write(goAnnotation.feature.name)
+        writeObject.out.write("\t")
+        //2	Negation ::= 'NOT'		0 or 1	NOT
+        writeObject.out.write(goAnnotation.negate ? "NOT" : "")
+        writeObject.out.write("\t")
+        //3	Relation ::= OBO_ID	Relations Ontology	1	RO:0002263
+        writeObject.out.write(goAnnotation.geneProductRelationshipRef)
+        writeObject.out.write("\t")
+        //4	Ontology_Class_ID ::= OBO_ID	Gene Ontology	1	GO:0050803
+        writeObject.out.write(goAnnotation.goRef)
+        writeObject.out.write("\t")
+        //5	Reference ::= ID		1	PMID:30695063
+        writeObject.out.write(goAnnotation.referenceArray)
+        writeObject.out.write("\t")
+        //6	Evidence_type ::= OBO_ID	Evidence and Conclusion Ontology	1	ECO:0000315
+        writeObject.out.write(goAnnotation.evidenceRef)
+        writeObject.out.write("\t")
+        //7	With_or_From ::= [ID] ('|' | ‘,’ ID)*		0 or greater	WB:WBVar00000510
+        writeObject.out.write(goAnnotation.withOrFromArray)
+        writeObject.out.write("\t")
+        //8	Interacting_taxon_ID ::= NCBITaxon:[Taxon_ID]		0 or greater	NCBITaxon:5476
+        // TODO: add organism
+        writeObject.out.write("taxon or organism name")
+        writeObject.out.write("\t")
+        //9	Date ::= YYYY-MM-DD		1	2019-01-30
+        // TODO: add date from lastUpdated
+        writeObject.out.write("Date needed")
+        writeObject.out.write("\t")
+        //10	Assigned_by ::= Prefix		1	MGI
+        writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
+        writeObject.out.write("\t")
+        //11	Annotation_Extensions ::= [Extension_Conj] ('|' Extension_Conj)*		0 or greater	BFO:0000066
+        writeObject.out.write("")
+        writeObject.out.write("\t")
+        //12	Annotation_Properties ::= [Property_Value_Pair] ('|' Property_Value_Pair)*		0 or greater	contributor=https://orcid.org/0000-0002-1478-7671
+        // TODO: add owners . . contriburor  -
+        writeObject.out.write("")
+        writeObject.out.write("\t")
 
+
+        writeObject.out.println()
+
+    }
 //    @Timed
 //    private void convertToEntry(WriteObject writeObject, Feature feature, String source, Collection<GFF3Entry> gffEntries) {
 //
@@ -265,12 +319,12 @@ class GpadHandlerService {
 //        return attributes;
 //    }
 
-    String formatDate(Date date){
+    String formatDate(Date date) {
         return gff3DateFormat.format(date)
     }
 
     static private String encodeString(String str) {
-        return str ? str.replaceAll(",", "%2C").replaceAll("\n","%0A").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09") : ""
+        return str ? str.replaceAll(",", "%2C").replaceAll("\n", "%0A").replaceAll("=", "%3D").replaceAll(";", "%3B").replaceAll("\t", "%09") : ""
     }
 
 
@@ -283,7 +337,7 @@ class GpadHandlerService {
         TEXT,
         GZIP
     }
-    
+
 //    private boolean isBlank(String attributeValue) {
 //        if (attributeValue == "") {
 //            return true
