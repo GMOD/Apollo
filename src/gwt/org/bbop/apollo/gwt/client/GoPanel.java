@@ -257,6 +257,7 @@ public class GoPanel extends Composite {
             goTermField.setText(selectedGoAnnotation.getGoTerm());
             geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
 //            int withRow = 0;
+            withEntriesFlexTable.removeAllRows();
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom.getDisplay());
 //                ++withRow;
@@ -268,6 +269,7 @@ public class GoPanel extends Composite {
 
             withField.setText("");
 
+            referencesFlexTable.removeAllRows();
             for (Reference reference : selectedGoAnnotation.getReferenceList()) {
                 addReferenceSelection(reference.getReferenceString());
             }

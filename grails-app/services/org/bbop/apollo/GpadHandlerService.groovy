@@ -1,6 +1,9 @@
 package org.bbop.apollo
 
+import groovy.json.JsonSlurper
 import org.bbop.apollo.go.GoAnnotation
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
 import java.text.SimpleDateFormat
@@ -82,13 +85,22 @@ class GpadHandlerService {
         writeObject.out.write(goAnnotation.goRef)
         writeObject.out.write("\t")
         //5	Reference ::= ID		1	PMID:30695063
-        writeObject.out.write(goAnnotation.referenceArray)
+//        writeObject.out.write(goAnnotation.referenceArray)
+        if(goAnnotation.referenceArray){
+            JSONArray referenceArray = new JsonSlurper().parseText(goAnnotation.referenceArray) as JSONArray
+            List<String> referenceList = referenceArray.collect( )
+            writeObject.out.write(referenceList.join(","))
+        }
         writeObject.out.write("\t")
         //6	Evidence_type ::= OBO_ID	Evidence and Conclusion Ontology	1	ECO:0000315
         writeObject.out.write(goAnnotation.evidenceRef)
         writeObject.out.write("\t")
         //7	With_or_From ::= [ID] ('|' | ‘,’ ID)*		0 or greater	WB:WBVar00000510
-        writeObject.out.write(goAnnotation.withOrFromArray)
+        if(goAnnotation.withOrFromArray){
+            JSONArray withArray = new JsonSlurper().parseText(goAnnotation.withOrFromArray) as JSONArray
+            List<String> withList = withArray.collect( )
+            writeObject.out.write(withList.join(","))
+        }
         writeObject.out.write("\t")
         //8	Interacting_taxon_ID ::= NCBITaxon:[Taxon_ID]		0 or greater	NCBITaxon:5476
         // TODO: add organism
