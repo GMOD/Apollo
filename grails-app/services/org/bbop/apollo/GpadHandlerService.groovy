@@ -23,10 +23,15 @@ class GpadHandlerService {
             throw new IOException("Cannot write GFF3 to: " + writeObject.file.getAbsolutePath());
         }
 
+
         PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(writeObject.file, true)));
         writeObject.out = out
         out.println("##gpad-version 2")
         def goAnnotations = GoAnnotation.findAllByFeatureInList(features as List<Feature>)
+
+        if(features){
+            writeObject.organismString = features.first().featureLocation.sequence.organism.commonName
+        }
 
         for (GoAnnotation goAnnotation in goAnnotations) {
             writeGpadEntry(writeObject, goAnnotation)
@@ -76,7 +81,7 @@ class GpadHandlerService {
         writeObject.out.write("\t")
         //8	Interacting_taxon_ID ::= NCBITaxon:[Taxon_ID]		0 or greater	NCBITaxon:5476
         // TODO: add organism
-        writeObject.out.write("taxon or organism name")
+        writeObject.out.write(writeObject.organismString)
         writeObject.out.write("\t")
         //9	Date ::= YYYY-MM-DD		1	2019-01-30
         writeObject.out.write(gpadDateFormat.format(goAnnotation.lastUpdated))
@@ -117,6 +122,7 @@ class GpadHandlerService {
         PrintWriter out
         Mode mode
         Format format
+        String organismString
     }
 
 }
