@@ -49,14 +49,10 @@ public class GoPanel extends Composite {
     private final String ECO_BASE = "http://www.evidenceontology.org/term/";
     private final String RO_BASE = "http://purl.obolibrary.org/obo/";
 
-    interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
-    }
+    interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> { }
 
-    //    private GoAnnotation internalGoAnnotation;
     private static GoPanelUiBinder ourUiBinder = GWT.create(GoPanelUiBinder.class);
 
-    //    @UiField
-//    Container goEditContainer;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<GoAnnotation> dataGrid = new DataGrid<>(200, tablecss);
@@ -261,11 +257,9 @@ public class GoPanel extends Composite {
             geneProductRelationshipLink.setHref(RO_BASE+selectedGoAnnotation.getGeneRelationship());
             geneProductRelationshipLink.setHTML(selectedGoAnnotation.getGeneRelationship());
             goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
-//            int withRow = 0;
             withEntriesFlexTable.removeAllRows();
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom.getDisplay());
-//                ++withRow;
             }
 
             evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
