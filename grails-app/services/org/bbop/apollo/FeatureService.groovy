@@ -188,9 +188,6 @@ class FeatureService {
         User owner = permissionService.getCurrentUser(jsonTranscript)
         // if the gene is set, then don't process, just set the transcript for the found gene
         if (gene) {
-
-            goA
-
             // Scenario I - if 'parent_id' attribute is given then find the gene
             transcript = (Transcript) convertJSONToFeature(jsonTranscript, sequence);
             if (transcript.getFmin() < 0 || transcript.getFmax() < 0) {
