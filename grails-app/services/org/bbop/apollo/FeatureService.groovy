@@ -30,7 +30,6 @@ class FeatureService {
     def permissionService
     def overlapperService
     def organismService
-    def goAnnotationService
     def sessionFactory
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"

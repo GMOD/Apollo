@@ -1860,6 +1860,8 @@ class RequestHandlingService {
     def deleteFeature(JSONObject inputObject) {
         log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
             suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
@@ -1872,6 +1874,23 @@ class RequestHandlingService {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
+
+        def featureUniqueNames = featuresArray.uniquename as List<String>
+        List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
+        for (Feature thisFeature in features) {
+            Feature parentFeature = null
+            if (thisFeature instanceof Transcript) {
+                parentFeature = featureRelationshipService.getParentForFeature(thisFeature, Gene.ontologyId, Pseudogene.ontologyId)
+            } else if (thisFeature instanceof Gene) {
+                parentFeature = thisFeature
+            }
+
+            if(parentFeature){
+                List<GoAnnotation> annotations = GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :parentFeature ", [parentFeature:parentFeature])
+                GoAnnotation.deleteAll(annotations)
+            }
+        }
+
         Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
         boolean isUpdateOperation = false
 
@@ -1879,7 +1898,6 @@ class RequestHandlingService {
         // we have to hold transcripts if feature is an exon, etc. or a feature itself if not a transcript
         Map<String, JSONObject> oldFeatureMap = new HashMap<>()
         log.debug "features to delete: ${featuresArray.size()}"
-        println "A"
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
@@ -1896,22 +1914,7 @@ class RequestHandlingService {
             checkOwnersDelete(feature, inputObject)
 
             log.debug "feature found to delete ${feature?.name}"
-            println "B"
             if (feature) {
-                println "C"
-                if (feature instanceof Gene) {
-                    println "going to delete annotations for feature ${feature}"
-//                    def goAnnotations = goAnnotationService.getAnnotations(feature)
-                    def goAnnotations = GoAnnotation.findAllByFeature(feature)
-                    if (goAnnotations) {
-                        for (GoAnnotation goAnnotation : goAnnotations) {
-                            goAnnotation.delete(flush: true)
-                        }
-                    }
-//                    goAnnotationService.deleteAnnotationsForFeature()
-                    println "DELETED annotations for feature  ${feature}"
-                }
-                println "D"
                 if (feature instanceof Exon) {
                     Transcript transcript = exonService.getTranscript((Exon) feature)
                     // if its the same transcript, we don't want to overwrite it
@@ -1923,18 +1926,14 @@ class RequestHandlingService {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
                     }
                 }
-                println "E"
-                //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
                 // is this a bug?
                 isUpdateOperation = featureService.deleteFeature(feature, modifiedFeaturesUniqueNames) || isUpdateOperation;
-                println "F"
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
                 if (modifiedFeaturesList == null) {
                     modifiedFeaturesList = new ArrayList<>()
                 }
                 modifiedFeaturesList.add(feature)
                 modifiedFeaturesUniqueNames.put(uniqueName, modifiedFeaturesList)
-                println "G"
             }
 
         }
@@ -1954,7 +1953,6 @@ class RequestHandlingService {
             if (!isUpdateOperation) {
                 log.debug "is not update operation "
                 // when the line below is used, the client gives an error saying TypeError: Cannot read property 'fmin' of undefined(…)
-                // featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
@@ -2675,7 +2673,6 @@ class RequestHandlingService {
     }
 
     def removeVariantEffect(JSONObject inputObject) {
-        println "REMOVING VARIANT EFFECT${inputObject.toString()}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
 
