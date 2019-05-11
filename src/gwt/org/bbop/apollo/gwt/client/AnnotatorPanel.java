@@ -480,6 +480,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(true);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
@@ -490,6 +491,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             case "mRNA":
             case "miRNA":
@@ -505,6 +507,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             case "terminator":
             case "transposable_element":
@@ -515,6 +518,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             case "deletion":
             case "insertion":
@@ -532,6 +536,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(true);
                 tabPanel.getTabWidget(3).getParent().setVisible(true);
                 tabPanel.getTabWidget(4).getParent().setVisible(true);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
