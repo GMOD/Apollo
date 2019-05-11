@@ -553,8 +553,6 @@ public class AnnotatorPanel extends Composite {
             tabPanel.selectTab(selectedSubTabIndex);
         }
 
-        // TODO: remove
-        tabPanel.selectTab(5);
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
