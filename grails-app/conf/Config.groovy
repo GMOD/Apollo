@@ -354,7 +354,7 @@ apollo {
 
     // over-ride in apollo-config.groovy to add extra tabs
     extraTabs = [
-//            ['title': 'extra1', 'FINAL_URL': 'http://localhost:8080/apollo/annotator/report/'],
+//            ['title': 'extra1', 'url': 'http://localhost:8080/apollo/annotator/report/'],
 //            ['title': 'extra2', 'content': '<b>Some content</b><a href="http://google.com" target="_blank">Google</a>']
     ]
 
@@ -407,9 +407,9 @@ jbrowse {
         alwaysPull = true
         alwaysRecheck = true
     }
-//    FINAL_URL {
+//    url {
 //        // always use dev for apollo
-//        FINAL_URL = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
+//        url = "http://jbrowse.org/wordpress/wp-content/plugins/download-monitor/download.php?id=102"
 //        type ="zip"
 //        fileName = "JBrowse-1.12.0-dev"
 //    }
