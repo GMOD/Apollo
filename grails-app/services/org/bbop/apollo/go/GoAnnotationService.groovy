@@ -2,6 +2,8 @@ package org.bbop.apollo.go
 
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
+import org.bbop.apollo.Gene
+import org.bbop.apollo.Transcript
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -41,4 +43,21 @@ class GoAnnotationService {
 
     }
 
+    def deleteAnnotations(JSONArray featuresArray) {
+        def featureUniqueNames = featuresArray.uniquename as List<String>
+        List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
+        for (Feature thisFeature in features) {
+            Feature parentFeature = null
+            if (thisFeature instanceof Transcript) {
+                parentFeature = featureRelationshipService.getParentForFeature(thisFeature, Gene.ontologyId, Pseudogene.ontologyId)
+            } else if (thisFeature instanceof Gene) {
+                parentFeature = thisFeature
+            }
+
+            if(parentFeature){
+                List<GoAnnotation> annotations = GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :parentFeature ", [parentFeature:parentFeature])
+                GoAnnotation.deleteAll(annotations)
+            }
+        }
+    }
 }

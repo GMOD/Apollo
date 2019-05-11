@@ -1874,22 +1874,7 @@ class RequestHandlingService {
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
 
-
-        def featureUniqueNames = featuresArray.uniquename as List<String>
-        List<Feature> features = Feature.findAllByUniqueNameInList(featureUniqueNames)
-        for (Feature thisFeature in features) {
-            Feature parentFeature = null
-            if (thisFeature instanceof Transcript) {
-                parentFeature = featureRelationshipService.getParentForFeature(thisFeature, Gene.ontologyId, Pseudogene.ontologyId)
-            } else if (thisFeature instanceof Gene) {
-                parentFeature = thisFeature
-            }
-
-            if(parentFeature){
-                List<GoAnnotation> annotations = GoAnnotation.executeQuery("select ga from GoAnnotation ga join ga.feature f where f = :parentFeature ", [parentFeature:parentFeature])
-                GoAnnotation.deleteAll(annotations)
-            }
-        }
+        goAnnotationService.deleteAnnotations(featuresArray)
 
         Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
         boolean isUpdateOperation = false
