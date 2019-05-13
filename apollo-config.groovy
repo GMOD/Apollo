@@ -142,13 +142,13 @@ jbrowse {
            alwaysPull = true
      	   alwaysRecheck = true
        }
-       ColorByType {
-           git = "https://github.com/NAL-i5K/ColorByType"
-//           branch = "master"
-           branch = "issue10_cds"
-           alwaysPull = true
-           alwaysRecheck = true
-       }
+//       ColorByType {
+ //          git = "https://github.com/NAL-i5K/ColorByType"
+////           branch = "master"
+//           branch = "issue10_cds"
+//           alwaysPull = true
+//           alwaysRecheck = true
+//       }
 
 //        Header {
 //           git = 'https://github.com/NAL-i5K/workspace_header_footer'
