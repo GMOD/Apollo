@@ -47,7 +47,8 @@ public class GoPanel extends Composite {
 
     private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
     private final String ECO_BASE = "http://www.evidenceontology.org/term/";
-    private final String RO_BASE = "http://purl.obolibrary.org/obo/";
+//    private final String RO_BASE = "http://purl.obolibrary.org/obo/";
+    private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
     interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> { }
 
@@ -254,7 +255,7 @@ public class GoPanel extends Composite {
             goTermLink.setHref(GO_BASE+selectedGoAnnotation.getGoTerm());
             goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
             geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
-            geneProductRelationshipLink.setHref(RO_BASE+selectedGoAnnotation.getGeneRelationship());
+            geneProductRelationshipLink.setHref(RO_BASE+selectedGoAnnotation.getGeneRelationship().replaceAll(":","_"));
             geneProductRelationshipLink.setHTML(selectedGoAnnotation.getGeneRelationship());
             goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
             withEntriesFlexTable.removeAllRows();
