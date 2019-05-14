@@ -63,7 +63,7 @@
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_8">
-                                    <b:Label>Gene Production Relationship</b:Label>
+                                    <b:Label>Relation between Gene Product and GO Term</b:Label>
                                     <b:SuggestBox ui:field="geneProductRelationshipField"/>
                                     <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
                                 </b:Column>
