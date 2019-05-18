@@ -56,9 +56,9 @@ class GpadHandlerService {
         writeObject.out.write(goAnnotation.goRef)
         writeObject.out.write("\t")
         //5	Reference ::= ID		1	PMID:30695063
-//        writeObject.out.write(goAnnotation.referenceArray)
-        if (goAnnotation.referenceArray) {
-            JSONArray referenceArray = new JsonSlurper().parseText(goAnnotation.referenceArray) as JSONArray
+//        writeObject.out.write(goAnnotation.notesArray)
+        if (goAnnotation.notesArray) {
+            JSONArray referenceArray = new JsonSlurper().parseText(goAnnotation.notesArray) as JSONArray
             List<String> referenceList = referenceArray.collect()
             writeObject.out.write(referenceList.join("|"))
         }

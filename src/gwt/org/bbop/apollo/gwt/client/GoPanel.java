@@ -58,7 +58,7 @@ public class GoPanel extends Composite {
     @UiField(provided = true)
     DataGrid<GoAnnotation> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
-    TextBox referenceField;
+    TextBox noteField;
     @UiField(provided = true)
     SuggestBox goTermField;
     @UiField(provided = true)
@@ -82,11 +82,11 @@ public class GoPanel extends Composite {
     @UiField
     FlexTable withEntriesFlexTable = new FlexTable();
     @UiField
-    FlexTable referencesFlexTable = new FlexTable();
+    FlexTable notesFlexTable = new FlexTable();
     @UiField
     Button addWithButton;
     @UiField
-    Button addRefButton;
+    Button addNoteButton;
     @UiField
     org.gwtbootstrap3.client.ui.CheckBox notQualifierCheckBox;
     @UiField
@@ -95,6 +95,8 @@ public class GoPanel extends Composite {
     Anchor geneProductRelationshipLink;
     @UiField
     Anchor evidenceCodeLink;
+    @UiField
+    TextBox referenceField;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -227,9 +229,9 @@ public class GoPanel extends Composite {
     }
 
     private void addReferenceSelection(String referenceString) {
-        referencesFlexTable.insertRow(0);
-        referencesFlexTable.setHTML(0, 0, referenceString);
-        referencesFlexTable.setWidget(0, 1, new RemoveTableEntryButton(referenceString, referencesFlexTable));
+        notesFlexTable.insertRow(0);
+        notesFlexTable.setHTML(0, 0, referenceString);
+        notesFlexTable.setWidget(0, 1, new RemoveTableEntryButton(referenceString, notesFlexTable));
     }
 
     private void clearModal() {
@@ -241,8 +243,8 @@ public class GoPanel extends Composite {
         evidenceCodeLink.setText("");
         withField.setText("");
         withEntriesFlexTable.removeAllRows();
-        referenceField.setText("");
-        referencesFlexTable.removeAllRows();
+        noteField.setText("");
+        notesFlexTable.removeAllRows();
         notQualifierCheckBox.setValue(false);
     }
 
@@ -271,11 +273,11 @@ public class GoPanel extends Composite {
 
             withField.setText("");
 
-            referencesFlexTable.removeAllRows();
-            for (Reference reference : selectedGoAnnotation.getReferenceList()) {
-                addReferenceSelection(reference.getReferenceString());
+            notesFlexTable.removeAllRows();
+            for (String noteString: selectedGoAnnotation.getNoteList()) {
+                addReferenceSelection(noteString);
             }
-            referenceField.setText("");
+            noteField.setText("");
 
         }
 
@@ -288,7 +290,7 @@ public class GoPanel extends Composite {
     @UiHandler("newGoButton")
     public void newGoAnnotation(ClickEvent e) {
         withEntriesFlexTable.removeAllRows();
-        referencesFlexTable.removeAllRows();
+        notesFlexTable.removeAllRows();
         selectionModel.clear();
         editGoModal.show();
     }
@@ -309,15 +311,15 @@ public class GoPanel extends Composite {
         withField.clear();
     }
 
-    @UiHandler("addRefButton")
+    @UiHandler("addNoteButton")
     public void addReference(ClickEvent e) {
-        String referenceFieldString = referenceField.getText();
+        String referenceFieldString = noteField.getText();
         if (!referenceFieldString.contains(":") || referenceFieldString.length() < 2) {
             Bootbox.alert("Invalid reference value '" + referenceFieldString + "'");
             return;
         }
         addReferenceSelection(referenceFieldString);
-        referenceField.clear();
+        noteField.clear();
     }
 
     /**
@@ -402,10 +404,10 @@ public class GoPanel extends Composite {
             validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
         }
 
-        if (goAnnotation.getReferenceList().size() == 0) {
+        if (goAnnotation.getNoteList().size() == 0) {
             validationErrors.add("You must provide at least one reference");
         }
-//        for (Reference reference : goAnnotation.getReferenceList()) {
+//        for (Reference reference : goAnnotation.getNoteList()) {
 //
 //            assert reference.getReferenceString() != null && reference.getReferenceString().contains(":");
 //        }
@@ -423,7 +425,7 @@ public class GoPanel extends Composite {
         goAnnotation.setEvidenceCode(evidenceCodeField.getText());
         goAnnotation.setNegate(notQualifierCheckBox.getValue());
         goAnnotation.setWithOrFromList(getWithList());
-        goAnnotation.setReferenceList(getReferenceList());
+        goAnnotation.setNoteList(getNoteList());
         return goAnnotation;
     }
 
@@ -441,17 +443,17 @@ public class GoPanel extends Composite {
         return withOrFromList;
     }
 
-    private List<Reference> getReferenceList() {
-        List<Reference> referenceList = new ArrayList<>();
-        for (int i = 0; i < referencesFlexTable.getRowCount(); i++) {
-            referenceList.add(new Reference(referencesFlexTable.getHTML(i, 0)));
+    private List<String> getNoteList() {
+        List<String> noteList = new ArrayList<>();
+        for (int i = 0; i < notesFlexTable.getRowCount(); i++) {
+            noteList.add(notesFlexTable.getHTML(i, 0));
         }
-        String referenceString = referenceField.getText();
-        if (referenceString.length() > 0) {
-            referenceField.clear();
-            referenceList.add(new Reference(referenceString));
+        String noteFieldText = noteField.getText();
+        if (noteFieldText.length() > 0) {
+            noteField.clear();
+            noteList.add(noteFieldText);
         }
-        return referenceList;
+        return noteList;
     }
 
     @UiHandler("cancelNewGoAnnotation")

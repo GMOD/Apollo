@@ -14,7 +14,8 @@ public class GoAnnotation {
     private String evidenceCode;
     private boolean negate = false;
     private List<WithOrFrom> withOrFromList;
-    private List<Reference> referenceList;
+    private List<String> noteList;
+    private Reference reference;
 
     public String getEvidenceCode() {
         return evidenceCode;
@@ -56,12 +57,20 @@ public class GoAnnotation {
         this.negate = negate;
     }
 
-    public List<Reference> getReferenceList() {
-        return referenceList;
+    public List<String> getNoteList() {
+        return noteList;
     }
 
-    public void setReferenceList(List<Reference> referenceList) {
-        this.referenceList = referenceList;
+    public void setNoteList(List<String> noteList) {
+        this.noteList = noteList;
+    }
+
+    public Reference getReference() {
+        return reference;
+    }
+
+    public void setReference(Reference reference) {
+        this.reference = reference;
     }
 
     public List<WithOrFrom> getWithOrFromList() {
@@ -79,11 +88,11 @@ public class GoAnnotation {
         withOrFromList.add(withOrFrom);
     }
 
-    public void addReference(Reference reference) {
-        if (referenceList == null) {
-            referenceList = new ArrayList<>();
+    public void addNote(String note) {
+        if (noteList == null) {
+            noteList = new ArrayList<>();
         }
-        referenceList.add(reference);
+        noteList.add(note);
     }
 
     public String getWithOrFromString() {
@@ -97,8 +106,8 @@ public class GoAnnotation {
 
     public String getReferenceString() {
         StringBuilder referenceStringBuilder = new StringBuilder();
-        for (Reference reference : getReferenceList()) {
-            referenceStringBuilder.append(reference.getReferenceString());
+        for (String note: getNoteList()) {
+            referenceStringBuilder.append(note);
             referenceStringBuilder.append(" ");
         }
         return referenceStringBuilder.toString();

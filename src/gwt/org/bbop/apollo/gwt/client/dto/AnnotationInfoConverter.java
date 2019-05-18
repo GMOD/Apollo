@@ -89,17 +89,17 @@ public class AnnotationInfoConverter {
         return annotationInfo;
     }
 
-    private static GoAnnotation generateGoAnnotation() {
-        GoAnnotation goAnnotation = new GoAnnotation();
-
-        goAnnotation.setGoTerm("GO:12321");
-        goAnnotation.setNegate(true);
-
-        goAnnotation.addReference(new Reference("PMID:123123"));
-
-        goAnnotation.addWithOrFrom(new WithOrFrom("UnitProt:K12312"));
-
-        return goAnnotation;
-    }
+//    private static GoAnnotation generateGoAnnotation() {
+//        GoAnnotation goAnnotation = new GoAnnotation();
+//
+//        goAnnotation.setGoTerm("GO:12321");
+//        goAnnotation.setNegate(true);
+//
+//        goAnnotation.addNote("PMID:123123");
+//
+//        goAnnotation.addWithOrFrom(new WithOrFrom("UnitProt:K12312"));
+//
+//        return goAnnotation;
+//    }
 
 }

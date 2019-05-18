@@ -13,9 +13,10 @@ class GoAnnotation {
         geneProductRelationshipRef nullable: true, blank: false
         negate nullable: false
         withOrFromArray nullable: true, blank: true
-        referenceArray nullable: true, blank: true
+        notesArray nullable: true, blank: true
         dateCreated nullable: false
         lastUpdated nullable: false
+        reference nullable: false, blank: false
     }
 
     static hasMany = [
@@ -28,7 +29,8 @@ class GoAnnotation {
     String geneProductRelationshipRef
     Boolean negate
     String withOrFromArray
-    String referenceArray
+    String notesArray
+    String reference
     Date lastUpdated
     Date dateCreated
 

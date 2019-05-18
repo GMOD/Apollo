@@ -2,7 +2,6 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.*;
-import com.google.gwt.user.client.Window;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 import org.bbop.apollo.gwt.shared.go.Reference;
 import org.bbop.apollo.gwt.shared.go.WithOrFrom;
@@ -33,12 +32,11 @@ public class GoAnnotationConverter {
 
         String referencesString = object.get("references").isString().stringValue();
         JSONArray referenceArray = JSONParser.parseStrict(referencesString).isArray();
-        List<Reference> referenceList = new ArrayList<>();
+        List<String> noteList = new ArrayList<>();
         for (int i = 0; i < referenceArray.size(); i++) {
-            Reference reference = new Reference(referenceArray.get(i).isString().stringValue());
-            referenceList.add(reference);
+            noteList.add(referenceArray.get(i).isString().stringValue());
         }
-        goAnnotation.setReferenceList(referenceList);
+        goAnnotation.setNoteList(noteList);
 
         String withOrFromString = object.get("withOrFrom").isString().stringValue();
         JSONArray withOrFromArray = JSONParser.parseStrict(withOrFromString).isArray();
@@ -49,7 +47,7 @@ public class GoAnnotationConverter {
         }
         goAnnotation.setWithOrFromList(withOrFromList);
 
-//        goAnnotation.setReferenceList(object.get("references").isArray());
+//        goAnnotation.setNoteList(object.get("references").isArray());
 //        goAnnotation.setWithOrFromList(object.get("withOrFrom").isArray());
 
 
@@ -95,8 +93,8 @@ public class GoAnnotationConverter {
             withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
         }
 
-        for (Reference reference : goAnnotation.getReferenceList()) {
-            referenceArray.set(referenceArray.size(), new JSONString(reference.getReferenceString()));
+        for (String note: goAnnotation.getNoteList()) {
+            referenceArray.set(referenceArray.size(), new JSONString(note));
         }
 
         object.put("withOrFrom", withArray);

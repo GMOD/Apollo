@@ -3,7 +3,6 @@ package org.bbop.apollo.go
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.Feature
-import org.bbop.apollo.Organism
 import org.bbop.apollo.User
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApiMethod
@@ -83,7 +82,7 @@ class GoAnnotationController {
         goAnnotation.evidenceRef = dataObject.evidenceCode
         goAnnotation.negate = dataObject.negate ?: false
         goAnnotation.withOrFromArray = dataObject.withOrFrom
-        goAnnotation.referenceArray = dataObject.references
+        goAnnotation.notesArray = dataObject.references
         goAnnotation.lastUpdated = new Date()
         goAnnotation.dateCreated = new Date()
         goAnnotation.addToOwners(user)
@@ -118,7 +117,7 @@ class GoAnnotationController {
         goAnnotation.evidenceRef = dataObject.evidenceCode
         goAnnotation.negate = dataObject.negate ?: false
         goAnnotation.withOrFromArray = dataObject.withOrFrom
-        goAnnotation.referenceArray = dataObject.references
+        goAnnotation.notesArray = dataObject.references
         goAnnotation.lastUpdated = new Date()
         goAnnotation.addToOwners(user)
         goAnnotation.save(flush: true, failOnError: true,insert: false)
