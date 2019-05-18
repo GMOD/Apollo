@@ -89,15 +89,7 @@
                                     <b:Label>Reference</b:Label>
                                     <b:TextBox ui:field="referenceField"/>
                                 </b:Column>
-<!--                                <b:Column size="MD_2">-->
-<!--                                    <b:Button icon="PLUS" ui:field="addNoteButton" addStyleNames="{style.addButton}">Add</b:Button>-->
-<!--                                </b:Column>-->
                             </b:Row>
-<!--                            <b:Row addStyleNames="{style.row}">-->
-<!--                                <b:Column size="MD_10">-->
-<!--&lt;!&ndash;                                    <gwt:FlexTable ui:field="notesFlexTable" width="100%" visible="true"/>&ndash;&gt;-->
-<!--                                </b:Column>-->
-<!--                            </b:Row>-->
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_8">
                                     <b:Label>Note</b:Label>
@@ -110,6 +102,22 @@
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_10">
                                     <gwt:FlexTable ui:field="notesFlexTable" width="100%" visible="true"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row addStyleNames="{style.row}">
+                                <b:Column size="MD_8">
+                                    <b:Label>Annotation Extension</b:Label>
+                                    <b:TextBox ui:field="annotationsField"/>
+                                    <b:TextBox ui:field="annotationsInferredField"/>
+                                    <b:TextBox ui:field="annotationsGoFieldField"/>
+                                </b:Column>
+                                <b:Column size="MD_2">
+                                    <b:Button icon="PLUS" ui:field="addExtensionButton" addStyleNames="{style.addButton}">Add</b:Button>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row addStyleNames="{style.row}">
+                                <b:Column size="MD_10">
+                                    <gwt:FlexTable ui:field="annotationsFlexTable" width="100%" visible="true"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

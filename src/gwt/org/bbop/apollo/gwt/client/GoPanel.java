@@ -97,6 +97,12 @@ public class GoPanel extends Composite {
     Anchor evidenceCodeLink;
     @UiField
     TextBox referenceField;
+    @UiField
+    FlexTable annotationsFlexTable;
+    @UiField
+    Button addExtensionButton;
+    @UiField
+    TextBox annotationsField;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
