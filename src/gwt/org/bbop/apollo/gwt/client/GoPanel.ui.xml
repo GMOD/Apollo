@@ -72,13 +72,23 @@
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_8"
+                                <b:Column size="MD_10"
                                 >
                                     <b:Label>With</b:Label>
-                                    <b:TextBox ui:field="withField"/>
                                 </b:Column>
-                                <b:Column size="MD_2">
-                                    <b:Button icon="PLUS" ui:field="addWithButton" addStyleNames="{style.addButton}">Add</b:Button>
+                            </b:Row>
+                            <b:Row>
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="withFieldPrefix" placeholder="Prefix"/>
+                                </b:Column>
+                                <b:Column size="MD_1" width="30px">
+                                    <gwt:HTML text=":"/>
+                                </b:Column>
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="withFieldId" placeholder="ID"/>
+                                </b:Column>
+                                <b:Column size="MD_3">
+                                    <b:Button icon="PLUS" ui:field="addWithButton">Add</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
@@ -87,7 +97,20 @@
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_8">
                                     <b:Label>Reference</b:Label>
-                                    <b:TextBox ui:field="referenceField"/>
+                                </b:Column>
+                            </b:Row>
+                            <b:Row addStyleNames="{style.row}">
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="referenceFieldPrefix" placeholder="Prefix"/>
+                                </b:Column>
+                                <b:Column size="MD_1" width="30px">
+                                    <gwt:HTML text=":"/>
+                                </b:Column>
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="referenceFieldId"  placeholder="ID"/>
+                                </b:Column>
+                                <b:Column size="MD_1">
+                                    <b:Button icon="PLUS" ui:field="validateButton">Validate</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
@@ -105,14 +128,24 @@
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_8">
+<!--                                <b:Column size="MD_8">-->
+                                <b:Column size="MD_11">
                                     <b:Label>Annotation Extension</b:Label>
-                                    <b:TextBox ui:field="annotationsField"/>
-                                    <b:TextBox ui:field="annotationsInferredField"/>
-                                    <b:TextBox ui:field="annotationsGoFieldField"/>
                                 </b:Column>
+                            </b:Row>
+                            <b:Row addStyleNames="{style.row}">
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="annotationsField" placeholder="Relationship"/>
+                                </b:Column>
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="annotationsInferredField" placeholder="Database"/>
+                                </b:Column>
+                                <b:Column size="MD_3">
+                                    <b:TextBox ui:field="annotationsGoFieldField"  placeholder="Identifier"/>
+                                </b:Column>
+<!--                                </b:Column>-->
                                 <b:Column size="MD_2">
-                                    <b:Button icon="PLUS" ui:field="addExtensionButton" addStyleNames="{style.addButton}">Add</b:Button>
+                                    <b:Button icon="PLUS" ui:field="addExtensionButton" >Add</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

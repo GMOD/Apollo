@@ -28,7 +28,6 @@ import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
-import org.bbop.apollo.gwt.shared.go.Reference;
 import org.bbop.apollo.gwt.shared.go.WithOrFrom;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Modal;
@@ -66,7 +65,7 @@ public class GoPanel extends Composite {
     @UiField(provided = true)
     SuggestBox evidenceCodeField;
     @UiField
-    TextBox withField;
+    TextBox withFieldPrefix;
     @UiField
     Button deleteGoButton;
     @UiField
@@ -96,13 +95,19 @@ public class GoPanel extends Composite {
     @UiField
     Anchor evidenceCodeLink;
     @UiField
-    TextBox referenceField;
+    TextBox referenceFieldPrefix;
     @UiField
     FlexTable annotationsFlexTable;
     @UiField
     Button addExtensionButton;
     @UiField
     TextBox annotationsField;
+    @UiField
+    TextBox withFieldId;
+    @UiField
+    TextBox referenceFieldId;
+    @UiField
+    Button validateButton;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -247,7 +252,7 @@ public class GoPanel extends Composite {
         geneProductRelationshipLink.setText("");
         evidenceCodeField.setText("");
         evidenceCodeLink.setText("");
-        withField.setText("");
+        withFieldPrefix.setText("");
         withEntriesFlexTable.removeAllRows();
         noteField.setText("");
         notesFlexTable.removeAllRows();
@@ -277,7 +282,7 @@ public class GoPanel extends Composite {
 
             notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
 
-            withField.setText("");
+            withFieldPrefix.setText("");
 
             notesFlexTable.removeAllRows();
             for (String noteString: selectedGoAnnotation.getNoteList()) {
@@ -308,13 +313,13 @@ public class GoPanel extends Composite {
 
     @UiHandler("addWithButton")
     public void addWith(ClickEvent e) {
-        String withFieldString = withField.getText();
+        String withFieldString = withFieldPrefix.getText();
         if (!withFieldString.contains(":") || withFieldString.length() < 2) {
             Bootbox.alert("Invalid with/from value '" + withFieldString + "'");
             return;
         }
-        addWithSelection(withField.getText());
-        withField.clear();
+        addWithSelection(withFieldPrefix.getText());
+        withFieldPrefix.clear();
     }
 
     @UiHandler("addNoteButton")
@@ -440,9 +445,9 @@ public class GoPanel extends Composite {
         for (int i = 0; i < withEntriesFlexTable.getRowCount(); i++) {
             withOrFromList.add(new WithOrFrom(withEntriesFlexTable.getHTML(i, 0)));
         }
-        String withString = withField.getText();
+        String withString = withFieldPrefix.getText();
         if (withString.length() > 0) {
-            withField.clear();
+            withFieldPrefix.clear();
             withOrFromList.add(new WithOrFrom(withString));
         }
 
