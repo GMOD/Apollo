@@ -248,19 +248,54 @@ class SequenceService {
         crc.update(sequence.name.getBytes());
         String hex = String.format("%08x", crc.getValue())
         String[] dirs = splitStringByNumberOfCharacters(hex, 3)
-        String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
-        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt"
-        File file = new File(filePath)
-        if (file.exists()) {
-            return new File(filePath).text.toUpperCase()
+
+        Organism organism = sequence.organism
+        println "organism tracklist: ${organism.trackList}"
+        File trackListFile = new File(organism.trackList)
+        JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
+        JSONArray tracksArray = trackListJsonObject.getJSONArray("tracks")
+
+        // support http://agrjbrowse2.s3-website-us-east-1.amazonaws.com/FlyBase/fruitfly/seq/{refseq_dirpath}/{refseq}-/seq/d3c/34b/35/2L-0.txtz
+        // convert to: http://agrjbrowse2.s3-website-us-east-1.amazonaws.com/FlyBase/fruitfly/seq/d3c/34b/35/2L-0.txtz
+        // support  "seq/{refseq_dirpath}/{refseq}-",
+        String urlTemplate = sequence.organism.directory
+        for(def track in tracksArray){
+            println "track as ${track as JSON}"
+            if(track.label == "DNA"){
+                urlTemplate = track.urlTemplate
+            }
         }
-        // attempt with gzip
-        filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
-        file = new File(filePath)
-        if (file.exists()) {
-            def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
-            def uncompressedStr = inflaterStream.getText('UTF-8')
-            return uncompressedStr.toUpperCase()
+        // this will be automatically replaced correcly
+        urlTemplate = urlTemplate.replaceAll("\\/seq\\/\\{refseq_dirpath\\}\\/\\{refseq\\}-","")
+
+        println "track list object ${trackListJsonObject as JSON}"
+        String seqDir = String.format("%s/seq/%s/%s/%s", urlTemplate, dirs[0], dirs[1], dirs[2]);
+        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt"
+
+        if(filePath.startsWith("http")){
+            println "file path ${filePath}"
+            println "to url ${filePath.toURL()}"
+            println "to text ${filePath.toURL().text}"
+            println "to text ${filePath.toURL().text.toUpperCase()}"
+            return filePath.toURL().text.toUpperCase()
+        }
+        else{
+            File file = new File(filePath)
+            println "seqDir: ${seqDir} -> $filePath"
+            if (file.exists()) {
+                println "file exists! ${file.absolutePath}"
+                return new File(filePath).text.toUpperCase()
+            }
+            // attempt with gzip
+            filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
+            println "file not exist so trying ! ${filePath}"
+            file = new File(filePath)
+            if (file.exists()) {
+                println "file exist ! ${file.absolutePath}"
+                def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
+                def uncompressedStr = inflaterStream.getText('UTF-8')
+                return uncompressedStr.toUpperCase()
+            }
         }
 
         throw new RuntimeException("File not found on server: " + filePath)
