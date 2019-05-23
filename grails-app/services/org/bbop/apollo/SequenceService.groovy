@@ -266,19 +266,10 @@ class SequenceService {
             }
         }
         // this will be automatically replaced correctly
-//        urlTemplate = urlTemplate.replaceAll("\\/seq\\/\\{refseq_dirpath\\}\\/\\{refseq\\}-", "")
-//        urlTemplate = urlTemplate.replaceAll("\\/seq\\/\\{refseq_dirpath\\}\\/\\{refseq\\}-", "")
         urlTemplate = urlTemplate.replaceAll("\\{refseq\\}",sequence.name)
-        println "A $urlTemplate"
         String seqPath = String.format("%s/%s/%s", dirs[0], dirs[1], dirs[2])
-        println "B $seqPath"
         urlTemplate = urlTemplate.replaceAll("\\{refseq_dirpath\\}",seqPath)
-        println "C ${urlTemplate}"
-//        String seqDir = String.format("%s/seq/%s/%s/%s", urlTemplate, dirs[0], dirs[1], dirs[2]);
-//        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt${isCompressed ? 'z' : ''}"
         String filePath = urlTemplate + chunkNumber + ".txt${isCompressed ? 'z' : ''}"
-        println "D ${filePath}"
-
         /**
          * handle remote data
          */
@@ -293,13 +284,10 @@ class SequenceService {
             }
         }
 
-        println "E ${filePath}"
         if(!filePath.startsWith("\\/")){
             filePath = sequence.organism.directory + "/" + filePath
         }
-        println "F ${filePath}"
         File file = new File(filePath)
-        println "G ${file.exists()}"
         if(file.exists()){
             if (isCompressed) {
                 def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
