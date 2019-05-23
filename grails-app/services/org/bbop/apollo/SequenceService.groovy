@@ -248,23 +248,56 @@ class SequenceService {
         crc.update(sequence.name.getBytes());
         String hex = String.format("%08x", crc.getValue())
         String[] dirs = splitStringByNumberOfCharacters(hex, 3)
-        String seqDir = String.format("%s/seq/%s/%s/%s", sequence.organism.directory, dirs[0], dirs[1], dirs[2]);
-        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt"
+
+        Organism organism = sequence.organism
+        File trackListFile = new File(organism.trackList)
+        JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
+        JSONArray tracksArray = trackListJsonObject.getJSONArray("tracks")
+
+        // support http://agrjbrowse2.s3-website-us-east-1.amazonaws.com/FlyBase/fruitfly/seq/{refseq_dirpath}/{refseq}-/seq/d3c/34b/35/2L-0.txtz
+        // convert to: http://agrjbrowse2.s3-website-us-east-1.amazonaws.com/FlyBase/fruitfly/seq/d3c/34b/35/2L-0.txtz
+        // support  "seq/{refseq_dirpath}/{refseq}-",
+        String urlTemplate = sequence.organism.directory
+        Boolean isCompressed = false
+        for (def track in tracksArray) {
+            if (track.label == "DNA") {
+                urlTemplate = track.urlTemplate
+                isCompressed = track.compress == 1
+            }
+        }
+        // this will be automatically replaced correctly
+        urlTemplate = urlTemplate.replaceAll("\\{refseq\\}",sequence.name)
+        String seqPath = String.format("%s/%s/%s", dirs[0], dirs[1], dirs[2])
+        urlTemplate = urlTemplate.replaceAll("\\{refseq_dirpath\\}",seqPath)
+        String filePath = urlTemplate + chunkNumber + ".txt${isCompressed ? 'z' : ''}"
+        /**
+         * handle remote data
+         */
+        if (filePath.startsWith("http")) {
+            def url = new URL(filePath)
+            if (isCompressed) {
+                def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(url.bytes))
+                def uncompressedStr = inflaterStream.getText('UTF-8')
+                return uncompressedStr.toUpperCase()
+            } else {
+                return url.text
+            }
+        }
+
+        if(!filePath.startsWith("\\/")){
+            filePath = sequence.organism.directory + "/" + filePath
+        }
         File file = new File(filePath)
-        if (file.exists()) {
-            return new File(filePath).text.toUpperCase()
+        if(file.exists()){
+            if (isCompressed) {
+                def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
+                def uncompressedStr = inflaterStream.getText('UTF-8')
+                return uncompressedStr.toUpperCase()
+            } else {
+                return file.text.toUpperCase()
+            }
         }
-        // attempt with gzip
-        filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
-        file = new File(filePath)
-        if (file.exists()) {
-            def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
-            def uncompressedStr = inflaterStream.getText('UTF-8')
-            return uncompressedStr.toUpperCase()
-        }
-
         throw new RuntimeException("File not found on server: " + filePath)
-
     }
 
     String[] splitStringByNumberOfCharacters(String label, int size) {
