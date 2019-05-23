@@ -116,8 +116,17 @@ public class GoPanel extends Composite {
 
     public GoPanel() {
         goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
-        geneProductRelationshipField = new SuggestBox(new BiolinkOntologyOracle("RO"));
-        evidenceCodeField = new SuggestBox(new BiolinkOntologyOracle("ECO"));
+        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
+        roLookup.addPreferredSuggestion("AAAA", "http://asdfadsf.go", "GO:AAA");
+        roLookup.addPreferredSuggestion("BBBB", "http://asdfadsf.go", "GO:BBB");
+        geneProductRelationshipField = new SuggestBox(roLookup);
+
+
+        BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
+        ecoLookup.addPreferredSuggestion("CCCC", "http://asdfadsf.go", "GO:AAAA");
+        ecoLookup.addPreferredSuggestion("DDDD", "http://asdfadsf.go", "GO:DDDD");
+
+        evidenceCodeField = new SuggestBox(ecoLookup);
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);

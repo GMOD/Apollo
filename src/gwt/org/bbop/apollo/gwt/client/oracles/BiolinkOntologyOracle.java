@@ -1,12 +1,12 @@
 package org.bbop.apollo.gwt.client.oracles;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -16,26 +16,38 @@ import java.util.List;
 /**
  * Created by ndunn on 4/24/15.
  */
-public class BiolinkOntologyOracle extends MultiWordSuggestOracle{
+public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
-    private final Integer ROWS = 20 ;
+    private final Integer ROWS = 20;
     private final String FINAL_URL = "http://api.geneontology.org/api/search/entity/autocomplete/";
 
-    private String prefix = null ;
+    private String prefix = null;
+    private JSONArray preferredSuggestions = new JSONArray();
 
-    public BiolinkOntologyOracle(){ }
+    public BiolinkOntologyOracle() {
+    }
 
-    public BiolinkOntologyOracle(String prefix){
+    public BiolinkOntologyOracle(String prefix) {
+        this.prefix = prefix;
 
-        this.prefix = prefix ;
+        addPreferredSuggestion("AAAA", "http://asdfadsf.go", "GO:AAA");
+        addPreferredSuggestion("BBBB", "http://asdfadsf.go", "GO:BBB");
+    }
+
+    public void addPreferredSuggestion(String label, String query, String id) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("label", new JSONString(label));
+        jsonObject.put("query", new JSONString(query));
+        jsonObject.put("id", new JSONString(id));
+        preferredSuggestions.set(preferredSuggestions.size(), jsonObject);
     }
 
 
     @Override
     public void requestSuggestions(final Request suggestRequest, final Callback suggestCallback) {
-        String url = FINAL_URL + suggestRequest.getQuery() + "?rows="+ROWS ;
-        if(prefix!=null){
-            url += "&prefix="+prefix;
+        String url = FINAL_URL + suggestRequest.getQuery() + "?rows=" + ROWS;
+        if (prefix != null) {
+            url += "&prefix=" + prefix;
         }
 
         RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
@@ -47,14 +59,36 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle{
                     JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isObject().get("docs").isArray();
                     List<Suggestion> suggestionList = new ArrayList<>();
 
-                    for(int i = 0 ; i < jsonArray.size() ; i++){
+
+                    /** handle preferred suggestions **/
+                    for (int i = 0; i < preferredSuggestions.size(); i++) {
+                        final JSONObject jsonObject = preferredSuggestions.get(i).isObject();
+                        Suggestion suggestion = new Suggestion() {
+                            @Override
+                            public String getDisplayString() {
+                                String displayString = jsonObject.get("label").isString().stringValue();
+                                displayString = displayString.replaceAll(jsonObject.get("query").isString().stringValue(), "<b><em>" + jsonObject.get("query").isString().stringValue() + "</em></b>");
+                                displayString += " (" + jsonObject.get("id").isString().stringValue() + ") ";
+                                return displayString;
+                            }
+
+                            @Override
+                            public String getReplacementString() {
+                                return jsonObject.get("id").isString().stringValue();
+                            }
+                        };
+                        suggestionList.add(suggestion);
+                    }
+
+
+                    for (int i = 0; i < jsonArray.size(); i++) {
                         final JSONObject jsonObject = jsonArray.get(i).isObject();
                         Suggestion suggestion = new Suggestion() {
                             @Override
                             public String getDisplayString() {
                                 String displayString = jsonObject.get("label").isArray().get(0).isString().stringValue();
-                                displayString = displayString.replaceAll(suggestRequest.getQuery(),"<b><em>"+suggestRequest.getQuery()+"</em></b>")  ;
-                                displayString += " ("+jsonObject.get("id").isString().stringValue()+") ";
+                                displayString = displayString.replaceAll(suggestRequest.getQuery(), "<b><em>" + suggestRequest.getQuery() + "</em></b>");
+                                displayString += " (" + jsonObject.get("id").isString().stringValue() + ") ";
                                 return displayString;
                             }
 
@@ -68,12 +102,12 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle{
 
                     Response r = new Response();
                     r.setSuggestions(suggestionList);
-                    suggestCallback.onSuggestionsReady(suggestRequest,r);
+                    suggestCallback.onSuggestionsReady(suggestRequest, r);
                 }
 
                 @Override
                 public void onError(com.google.gwt.http.client.Request request, Throwable exception) {
-                    Bootbox.alert("Error: "+exception);
+                    Bootbox.alert("Error: " + exception);
                 }
             });
         } catch (RequestException e) {
