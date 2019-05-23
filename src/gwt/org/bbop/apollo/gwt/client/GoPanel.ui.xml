@@ -110,7 +110,7 @@
                                     <b:TextBox ui:field="referenceFieldId"  placeholder="ID"/>
                                 </b:Column>
                                 <b:Column size="MD_1">
-                                    <b:Button icon="PLUS" ui:field="validateButton">Validate</b:Button>
+                                    <b:Button icon="PLUS" ui:field="referenceValidateButton">Validate</b:Button>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

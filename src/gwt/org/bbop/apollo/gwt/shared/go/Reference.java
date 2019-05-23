@@ -6,9 +6,9 @@ public class Reference {
     private String lookupId;
 
 
-    public Reference(String lookup) {
-        this.prefix = lookup.split(":")[0];
-        this.lookupId = lookup.split(":")[1];
+    public Reference(String prefix,String id) {
+        this.prefix = prefix ;
+        this.lookupId = id ;
     }
 
     public String getPrefix() {
