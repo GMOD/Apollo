@@ -250,7 +250,6 @@ class SequenceService {
         String[] dirs = splitStringByNumberOfCharacters(hex, 3)
 
         Organism organism = sequence.organism
-        println "organism tracklist: ${organism.trackList}"
         File trackListFile = new File(organism.trackList)
         JSONObject trackListJsonObject = JSON.parse(trackListFile.text) as JSONObject
         JSONArray tracksArray = trackListJsonObject.getJSONArray("tracks")
@@ -261,7 +260,6 @@ class SequenceService {
         String urlTemplate = sequence.organism.directory
         Boolean isCompressed = false
         for (def track in tracksArray) {
-            println "track as ${track as JSON}"
             if (track.label == "DNA") {
                 urlTemplate = track.urlTemplate
                 isCompressed = track.compress == 1
@@ -269,8 +267,6 @@ class SequenceService {
         }
         // this will be automatically replaced correcly
         urlTemplate = urlTemplate.replaceAll("\\/seq\\/\\{refseq_dirpath\\}\\/\\{refseq\\}-", "")
-
-        println "track list object ${trackListJsonObject as JSON}"
         String seqDir = String.format("%s/seq/%s/%s/%s", urlTemplate, dirs[0], dirs[1], dirs[2]);
         String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt${isCompressed ? 'z' : ''}"
 
@@ -278,40 +274,27 @@ class SequenceService {
          * handle remote data
          */
         if (filePath.startsWith("http")) {
-            println "file path ${filePath}"
-            println "to url ${filePath.toURL()}"
             def url = new URL(filePath)
-            println "url ${url}"
-
             if (isCompressed) {
                 def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(url.bytes))
                 def uncompressedStr = inflaterStream.getText('UTF-8')
                 return uncompressedStr.toUpperCase()
             } else {
-//                def theText = url.text
-//                println "texxt ${theText}"
                 return url.text
             }
         }
 
-
         File file = new File(filePath)
-        println "seqDir: ${seqDir} -> $filePath"
-        if (isCompressed) {
-            def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
-            def uncompressedStr = inflaterStream.getText('UTF-8')
-            return uncompressedStr.toUpperCase()
-        } else {
-//            println "file exists! ${file.absolutePath}"
-            return file.text.toUpperCase()
+        if(file.exists()){
+            if (isCompressed) {
+                def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
+                def uncompressedStr = inflaterStream.getText('UTF-8')
+                return uncompressedStr.toUpperCase()
+            } else {
+                return file.text.toUpperCase()
+            }
         }
-        // attempt with gzip
-//        filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
-//        println "file not exist so trying ! ${filePath}"
-//        file = new File(filePath)
-
         throw new RuntimeException("File not found on server: " + filePath)
-
     }
 
     String[] splitStringByNumberOfCharacters(String label, int size) {
