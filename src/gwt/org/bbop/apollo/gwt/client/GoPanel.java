@@ -115,18 +115,8 @@ public class GoPanel extends Composite {
     private AnnotationInfo annotationInfo;
 
     public GoPanel() {
-        goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
-        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
-        roLookup.addPreferredSuggestion("AAAA", "http://asdfadsf.go", "GO:AAA");
-        roLookup.addPreferredSuggestion("BBBB", "http://asdfadsf.go", "GO:BBB");
-        geneProductRelationshipField = new SuggestBox(roLookup);
 
-
-        BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
-        ecoLookup.addPreferredSuggestion("CCCC", "http://asdfadsf.go", "GO:AAAA");
-        ecoLookup.addPreferredSuggestion("DDDD", "http://asdfadsf.go", "GO:DDDD");
-
-        evidenceCodeField = new SuggestBox(ecoLookup);
+        initLookups();
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
@@ -191,6 +181,27 @@ public class GoPanel extends Composite {
         });
 
         redraw();
+    }
+
+    private void initLookups() {
+        goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
+
+        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
+        roLookup.addPreferredSuggestion("enables", "http://purl.obolibrary.org/obo/RO_0002327", "RO:0002327");
+        roLookup.addPreferredSuggestion("involved in", "http://purl.obolibrary.org/obo/RO_0002331", "RO:0002331");
+        roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/BFO_0000050", "BFO:0000050");
+//        roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/", "RO:0002327");
+        roLookup.addPreferredSuggestion("enabled by", "http://purl.obolibrary.org/obo/RO_0002333", "RO:0002333");
+        roLookup.addPreferredSuggestion("occurs in", "http://purl.obolibrary.org/obo/BFO_0000066", "BFO:0000066");
+        roLookup.addPreferredSuggestion("causally upstream of or within", "http://purl.obolibrary.org/obo/RO_0002418", "RO:0002418");
+        roLookup.addPreferredSuggestion("has participant", "http://purl.obolibrary.org/obo/RO_0000057", "RO:0000057");
+        geneProductRelationshipField = new SuggestBox(roLookup);
+
+
+        BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
+        ecoLookup.addPreferredSuggestion("CCCC", "http://asdfadsf.go", "GO:AAAA");
+        ecoLookup.addPreferredSuggestion("DDDD", "http://asdfadsf.go", "GO:DDDD");
+        evidenceCodeField = new SuggestBox(ecoLookup);
     }
 
     private void loadData() {

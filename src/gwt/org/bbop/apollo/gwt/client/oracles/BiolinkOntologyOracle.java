@@ -11,7 +11,9 @@ import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ndunn on 4/24/15.
@@ -29,9 +31,6 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
     public BiolinkOntologyOracle(String prefix) {
         this.prefix = prefix;
-
-        addPreferredSuggestion("AAAA", "http://asdfadsf.go", "GO:AAA");
-        addPreferredSuggestion("BBBB", "http://asdfadsf.go", "GO:BBB");
     }
 
     public void addPreferredSuggestion(String label, String query, String id) {
@@ -58,23 +57,29 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
                 public void onResponseReceived(com.google.gwt.http.client.Request request, com.google.gwt.http.client.Response response) {
                     JSONArray jsonArray = JSONParser.parseStrict(response.getText()).isObject().get("docs").isArray();
                     List<Suggestion> suggestionList = new ArrayList<>();
+                    Set<String> ids = new HashSet<>();
 
 
-                    /** handle preferred suggestions **/
+                    /*
+                      handle preferred suggestions
+                      **/
                     for (int i = 0; i < preferredSuggestions.size(); i++) {
                         final JSONObject jsonObject = preferredSuggestions.get(i).isObject();
+                        final String id = jsonObject.get("id").isString().stringValue();
+                        ids.add(id);
                         Suggestion suggestion = new Suggestion() {
                             @Override
                             public String getDisplayString() {
                                 String displayString = jsonObject.get("label").isString().stringValue();
-                                displayString = displayString.replaceAll(jsonObject.get("query").isString().stringValue(), "<b><em>" + jsonObject.get("query").isString().stringValue() + "</em></b>");
-                                displayString += " (" + jsonObject.get("id").isString().stringValue() + ") ";
+                                displayString = displayString.replaceAll(suggestRequest.getQuery(), "<em>" + suggestRequest.getQuery() + "</em>");
+                                displayString += " (" + id + ") ";
+                                displayString = "<div style='font-weight:boldest;font-size:larger;'>" + displayString + "</div>";
                                 return displayString;
                             }
 
                             @Override
                             public String getReplacementString() {
-                                return jsonObject.get("id").isString().stringValue();
+                                return id;
                             }
                         };
                         suggestionList.add(suggestion);
@@ -83,21 +88,25 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
 
                     for (int i = 0; i < jsonArray.size(); i++) {
                         final JSONObject jsonObject = jsonArray.get(i).isObject();
-                        Suggestion suggestion = new Suggestion() {
-                            @Override
-                            public String getDisplayString() {
-                                String displayString = jsonObject.get("label").isArray().get(0).isString().stringValue();
-                                displayString = displayString.replaceAll(suggestRequest.getQuery(), "<b><em>" + suggestRequest.getQuery() + "</em></b>");
-                                displayString += " (" + jsonObject.get("id").isString().stringValue() + ") ";
-                                return displayString;
-                            }
+                        final String id = jsonObject.get("id").isString().stringValue();
 
-                            @Override
-                            public String getReplacementString() {
-                                return jsonObject.get("id").isString().stringValue();
-                            }
-                        };
-                        suggestionList.add(suggestion);
+                        if (!ids.contains(id)) {
+                            Suggestion suggestion = new Suggestion() {
+                                @Override
+                                public String getDisplayString() {
+                                    String displayString = jsonObject.get("label").isArray().get(0).isString().stringValue();
+                                    displayString = displayString.replaceAll(suggestRequest.getQuery(), "<b><em>" + suggestRequest.getQuery() + "</em></b>");
+                                    displayString += " (" + id + ") ";
+                                    return displayString;
+                                }
+
+                                @Override
+                                public String getReplacementString() {
+                                    return id;
+                                }
+                            };
+                            suggestionList.add(suggestion);
+                        }
                     }
 
                     Response r = new Response();
