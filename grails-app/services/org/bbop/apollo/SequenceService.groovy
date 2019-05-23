@@ -259,44 +259,56 @@ class SequenceService {
         // convert to: http://agrjbrowse2.s3-website-us-east-1.amazonaws.com/FlyBase/fruitfly/seq/d3c/34b/35/2L-0.txtz
         // support  "seq/{refseq_dirpath}/{refseq}-",
         String urlTemplate = sequence.organism.directory
-        for(def track in tracksArray){
+        Boolean isCompressed = false
+        for (def track in tracksArray) {
             println "track as ${track as JSON}"
-            if(track.label == "DNA"){
+            if (track.label == "DNA") {
                 urlTemplate = track.urlTemplate
+                isCompressed = track.compress == 1
             }
         }
         // this will be automatically replaced correcly
-        urlTemplate = urlTemplate.replaceAll("\\/seq\\/\\{refseq_dirpath\\}\\/\\{refseq\\}-","")
+        urlTemplate = urlTemplate.replaceAll("\\/seq\\/\\{refseq_dirpath\\}\\/\\{refseq\\}-", "")
 
         println "track list object ${trackListJsonObject as JSON}"
         String seqDir = String.format("%s/seq/%s/%s/%s", urlTemplate, dirs[0], dirs[1], dirs[2]);
-        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt"
+        String filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txt${isCompressed ? 'z' : ''}"
 
-        if(filePath.startsWith("http")){
+        /**
+         * handle remote data
+         */
+        if (filePath.startsWith("http")) {
             println "file path ${filePath}"
             println "to url ${filePath.toURL()}"
-            println "to text ${filePath.toURL().text}"
-            println "to text ${filePath.toURL().text.toUpperCase()}"
-            return filePath.toURL().text.toUpperCase()
-        }
-        else{
-            File file = new File(filePath)
-            println "seqDir: ${seqDir} -> $filePath"
-            if (file.exists()) {
-                println "file exists! ${file.absolutePath}"
-                return new File(filePath).text.toUpperCase()
-            }
-            // attempt with gzip
-            filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
-            println "file not exist so trying ! ${filePath}"
-            file = new File(filePath)
-            if (file.exists()) {
-                println "file exist ! ${file.absolutePath}"
-                def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
+            def url = new URL(filePath)
+            println "url ${url}"
+
+            if (isCompressed) {
+                def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(url.bytes))
                 def uncompressedStr = inflaterStream.getText('UTF-8')
                 return uncompressedStr.toUpperCase()
+            } else {
+//                def theText = url.text
+//                println "texxt ${theText}"
+                return url.text
             }
         }
+
+
+        File file = new File(filePath)
+        println "seqDir: ${seqDir} -> $filePath"
+        if (isCompressed) {
+            def inflaterStream = new GZIPInputStream(new ByteArrayInputStream(file.bytes))
+            def uncompressedStr = inflaterStream.getText('UTF-8')
+            return uncompressedStr.toUpperCase()
+        } else {
+//            println "file exists! ${file.absolutePath}"
+            return file.text.toUpperCase()
+        }
+        // attempt with gzip
+//        filePath = seqDir + "/" + sequence.name + "-" + chunkNumber + ".txtz"
+//        println "file not exist so trying ! ${filePath}"
+//        file = new File(filePath)
 
         throw new RuntimeException("File not found on server: " + filePath)
 
