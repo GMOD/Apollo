@@ -30,6 +30,16 @@
             display: inline;
             margin: 5px;
         }
+        .checkBox{
+            display: inline;
+            /*margin: 5px;*/
+            background-color: grey;
+            border-radius: 10px;
+            padding: 5px;
+            width: 90px;
+
+            /*border: solid black 5px;*/
+        }
 
         .rowPadding {
             margin-bottom: 40px;
@@ -64,6 +74,9 @@
                     </b:Column>
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="typeList" addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
+                        <b:CheckBox ui:field="goOnlyCheckBox" addStyleNames="{style.checkBox}" text="GO Only"/>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowPadding}">

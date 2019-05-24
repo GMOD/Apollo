@@ -87,6 +87,7 @@ class GoAnnotationController {
         goAnnotation.lastUpdated = new Date()
         goAnnotation.dateCreated = new Date()
         goAnnotation.addToOwners(user)
+        feature.addToGoAnnotations(goAnnotation)
         goAnnotation.save(flush: true, failOnError: true)
 
         JSONObject annotations = goAnnotationService.getAnnotations(feature)

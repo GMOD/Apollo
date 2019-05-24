@@ -1,5 +1,7 @@
 package org.bbop.apollo
 
+import org.bbop.apollo.go.GoAnnotation
+
 class Feature implements Ontological{
 
     static auditable = true
@@ -45,6 +47,7 @@ class Feature implements Ontological{
             ,featureProperties: FeatureProperty
             ,synonyms: Synonym
             ,owners:User
+            ,goAnnotations: GoAnnotation
     ]
 
     static mappedBy = [

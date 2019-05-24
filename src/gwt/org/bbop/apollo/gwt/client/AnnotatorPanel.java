@@ -49,6 +49,7 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -135,6 +136,8 @@ public class AnnotatorPanel extends Composite {
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
     GoPanel goPanel;
+    @UiField
+    CheckBox goOnlyCheckBox;
 
 
     // manage UI-state
@@ -198,6 +201,7 @@ public class AnnotatorPanel extends Composite {
                 url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
+                url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
@@ -745,7 +749,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField"})
+    @UiHandler(value = {"typeList", "userField","goOnlyCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
