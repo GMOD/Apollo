@@ -1435,20 +1435,42 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     gsolFeature.addToFeatureProperties(gsolProperty)
                 }
             }
+
+
+            // handle status here
+            if (jsonFeature.has(FeatureStringEnum.STATUS.value)) {
+                String propertyValue = jsonFeature.get(FeatureStringEnum.STATUS.value)
+//                String propertyValue = property.get(FeatureStringEnum.VALUE.value)
+                AvailableStatus availableStatus = AvailableStatus.findByValue(propertyValue)
+                if (availableStatus) {
+                    Status status = new Status(
+                            value: availableStatus.value,
+                            feature: gsolFeature
+                    ).save(failOnError: true)
+                    gsolFeature.status = status
+                    gsolFeature.save()
+                } else {
+                    log.warn "Ignoring status ${propertyValue} as its not defined."
+                }
+            }
+
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
+                println "converting properties ${properties as JSON}"
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
-                    String propertyName = ""
+                    String propertyName = null
                     if (property.has(FeatureStringEnum.NAME.value)) {
                         propertyName = property.get(FeatureStringEnum.NAME.value)
-                    } else {
+                    }
+                    else
+                    if (propertyType.has(FeatureStringEnum.NAME.value)) {
                         propertyName = propertyType.get(FeatureStringEnum.NAME.value)
                     }
                     String propertyValue = property.get(FeatureStringEnum.VALUE.value)
 
-                    FeatureProperty gsolProperty = null;
+                    FeatureProperty gsolProperty = null
                     if (propertyName == FeatureStringEnum.STATUS.value) {
                         // property of type 'Status'
                         AvailableStatus availableStatus = AvailableStatus.findByValue(propertyValue)
@@ -1462,7 +1484,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         } else {
                             log.warn "Ignoring status ${propertyValue} as its not defined."
                         }
-                    } else {
+                    } else
+                    if (propertyName) {
                         if (propertyName == FeatureStringEnum.COMMENT.value) {
                             // property of type 'Comment'
                             gsolProperty = new Comment();
