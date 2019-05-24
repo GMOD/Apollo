@@ -1435,20 +1435,41 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     gsolFeature.addToFeatureProperties(gsolProperty)
                 }
             }
+
+
+            // handle status here
+            if (jsonFeature.has(FeatureStringEnum.STATUS.value)) {
+                String propertyValue = jsonFeature.get(FeatureStringEnum.STATUS.value)
+//                String propertyValue = property.get(FeatureStringEnum.VALUE.value)
+                AvailableStatus availableStatus = AvailableStatus.findByValue(propertyValue)
+                if (availableStatus) {
+                    Status status = new Status(
+                            value: availableStatus.value,
+                            feature: gsolFeature
+                    ).save(failOnError: true)
+                    gsolFeature.status = status
+                    gsolFeature.save()
+                } else {
+                    log.warn "Ignoring status ${propertyValue} as its not defined."
+                }
+            }
+
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
-                    String propertyName = ""
+                    String propertyName = null
                     if (property.has(FeatureStringEnum.NAME.value)) {
                         propertyName = property.get(FeatureStringEnum.NAME.value)
-                    } else {
+                    }
+                    else
+                    if (propertyType.has(FeatureStringEnum.NAME.value)) {
                         propertyName = propertyType.get(FeatureStringEnum.NAME.value)
                     }
                     String propertyValue = property.get(FeatureStringEnum.VALUE.value)
 
-                    FeatureProperty gsolProperty = null;
+                    FeatureProperty gsolProperty = null
                     if (propertyName == FeatureStringEnum.STATUS.value) {
                         // property of type 'Status'
                         AvailableStatus availableStatus = AvailableStatus.findByValue(propertyValue)
@@ -1462,7 +1483,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                         } else {
                             log.warn "Ignoring status ${propertyValue} as its not defined."
                         }
-                    } else {
+                    } else
+                    if (propertyName) {
                         if (propertyName == FeatureStringEnum.COMMENT.value) {
                             // property of type 'Comment'
                             gsolProperty = new Comment();
@@ -3071,6 +3093,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         Gene parentGene = null
         String parentGeneSymbol = null
         String parentGeneDescription = null
+        Status parentStatus = null
         Set<DBXref> parentGeneDbxrefs = null
         Set<FeatureProperty> parentGeneFeatureProperties = null
         List<Transcript> transcriptList = []
@@ -3078,6 +3101,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (feature instanceof Transcript) {
             parentGene = transcriptService.getGene((Transcript) feature)
             parentGeneSymbol = parentGene.symbol
+            parentStatus = parentGene.status
             parentGeneDescription = parentGene.description
             parentGeneDbxrefs = parentGene.featureDBXrefs
             parentGeneFeatureProperties = parentGene.featureProperties
@@ -3145,7 +3169,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             parentGeneFeatureProperties.each { it ->
                 if (it instanceof Comment) {
                     featurePropertyService.addComment(newGene, it.value)
-                } else {
+                } else
+                if (! it instanceof Status) {
                     FeatureProperty fp = new FeatureProperty(
                             type: it.type,
                             value: it.value,
@@ -3156,6 +3181,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     newGene.addToFeatureProperties(fp)
                 }
             }
+            newGene.status = new Status(value: parentStatus.value,feature:newGene).save()
             newGene.save(flush: true)
             newFeature = transcript
         } else if (!singletonFeatureTypes.contains(originalType) && singletonFeatureTypes.contains(type)) {
