@@ -1456,7 +1456,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
             if (jsonFeature.has(FeatureStringEnum.PROPERTIES.value)) {
                 JSONArray properties = jsonFeature.getJSONArray(FeatureStringEnum.PROPERTIES.value);
-                println "converting properties ${properties as JSON}"
                 for (int i = 0; i < properties.length(); ++i) {
                     JSONObject property = properties.getJSONObject(i);
                     JSONObject propertyType = property.getJSONObject(FeatureStringEnum.TYPE.value);
@@ -3168,13 +3167,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             }
 
             parentGeneFeatureProperties.each { it ->
-                if (it instanceof Status) {
-                   println "doing nothing for ${it}"
-                }
-                else
                 if (it instanceof Comment) {
                     featurePropertyService.addComment(newGene, it.value)
-                } else {
+                } else
+                if (! it instanceof Status) {
                     FeatureProperty fp = new FeatureProperty(
                             type: it.type,
                             value: it.value,
