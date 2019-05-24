@@ -3155,6 +3155,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Gene newGene = transcriptService.getGene(transcript)
             newGene.symbol = parentGeneSymbol
             newGene.description = parentGeneDescription
+            if(parentStatus){
+                newGene.status = new Status(value: parentStatus.value,feature:newGene).save()
+            }
 
             parentGeneDbxrefs.each { it ->
                 DBXref dbxref = new DBXref(
@@ -3169,8 +3172,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             parentGeneFeatureProperties.each { it ->
                 if (it instanceof Comment) {
                     featurePropertyService.addComment(newGene, it.value)
-                } else
-                if (! it instanceof Status) {
+                }
+                else
+                if (it instanceof Status) {
+                  // do nothing
+                }
+                else {
                     FeatureProperty fp = new FeatureProperty(
                             type: it.type,
                             value: it.value,
@@ -3181,7 +3188,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
                     newGene.addToFeatureProperties(fp)
                 }
             }
-            newGene.status = new Status(value: parentStatus.value,feature:newGene).save()
             newGene.save(flush: true)
             newFeature = transcript
         } else if (!singletonFeatureTypes.contains(originalType) && singletonFeatureTypes.contains(type)) {
