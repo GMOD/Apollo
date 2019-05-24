@@ -1,12 +1,10 @@
 package org.bbop.apollo.gwt.client.rest;
 
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
-import grails.plugins.rest.client.RestBuilder;
+import com.google.gwt.user.client.ui.Anchor;
 import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -15,6 +13,8 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
  * Created by ndunn on 1/14/15.
  */
 public class GoRestService {
+
+    static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
 
     public static void saveGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
         RestService.sendRequest(requestCallback, "goAnnotation/save", "data=" + GoAnnotationConverter.convertToJson(goAnnotation).toString());
@@ -34,8 +34,25 @@ public class GoRestService {
         RestService.sendRequest(requestCallback, "goAnnotation/", "data=" + jsonObject.toString());
     }
 
-    public static void lookupTerm(RequestCallback requestCallback, String url) {
-        RequestBuilder builder = RestService.generateBuilder(requestCallback,RequestBuilder.GET,url);
+    private static void lookupTerm(RequestCallback requestCallback, String url) {
+        RestService.generateBuilder(requestCallback,RequestBuilder.GET,url);
     }
 
+    public static void lookupTerm(final Anchor anchor, String evidenceCurie) {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
+                String textString = returnObject.get("label").isString().stringValue();
+                anchor.setHTML(textString);
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Failed to do lookup: "+exception.getMessage());
+            }
+        };
+
+        GoRestService.lookupTerm(requestCallback,TERM_LOOKUP_SERVER + evidenceCurie);
+    }
 }

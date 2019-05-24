@@ -50,7 +50,6 @@ public class GoPanel extends Composite {
     private final String ECO_BASE = "http://www.evidenceontology.org/term/";
     //    private final String RO_BASE = "http://purl.obolibrary.org/obo/";
     private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
-    private final String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
 
     interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
     }
@@ -310,42 +309,27 @@ public class GoPanel extends Composite {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
             goTermField.setText(selectedGoAnnotation.getGoTerm());
             goTermLink.setHref(GO_BASE + selectedGoAnnotation.getGoTerm());
-            goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
+            GoRestService.lookupTerm(goTermLink,selectedGoAnnotation.getGoTerm());
+
+
             geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
             geneProductRelationshipLink.setHref(RO_BASE + selectedGoAnnotation.getGeneRelationship().replaceAll(":", "_"));
-            geneProductRelationshipLink.setHTML(selectedGoAnnotation.getGeneRelationship());
-            goTermLink.setHTML(selectedGoAnnotation.getGoTerm());
+            GoRestService.lookupTerm(geneProductRelationshipLink,selectedGoAnnotation.getGeneRelationship());
+
+            evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
+            evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode());
+            GoRestService.lookupTerm(evidenceCodeLink,selectedGoAnnotation.getEvidenceCode());
+
+            notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
+
             withEntriesFlexTable.removeAllRows();
             for (WithOrFrom withOrFrom : selectedGoAnnotation.getWithOrFromList()) {
                 addWithSelection(withOrFrom);
             }
-
-            evidenceCodeField.setText(selectedGoAnnotation.getEvidenceCode());
-
-
-            evidenceCodeLink.setHref(ECO_BASE + selectedGoAnnotation.getEvidenceCode());
-            String lookupUrl = TERM_LOOKUP_SERVER + selectedGoAnnotation.getEvidenceCode();
-            RequestCallback requestCallback = new RequestCallback() {
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
-                    String textString = returnObject.get("label").isString().stringValue();
-                    evidenceCodeLink.setHTML(textString);
-                }
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    Bootbox.alert("Failed to do lookup: "+exception.getMessage());
-                }
-            };
-
-//            GoRestService.lookupTerm(requestCallback,ECO_BASE + selectedGoAnnotation.getEvidenceCode());
-            GoRestService.lookupTerm(requestCallback,lookupUrl);
-
-
-            notQualifierCheckBox.setValue(selectedGoAnnotation.isNegate());
-
             withFieldPrefix.setText("");
+
+            referenceFieldPrefix.setText(selectedGoAnnotation.getReference().getPrefix());
+            referenceFieldId.setText(selectedGoAnnotation.getReference().getLookupId());
 
             notesFlexTable.removeAllRows();
             for (String noteString : selectedGoAnnotation.getNoteList()) {
@@ -353,8 +337,6 @@ public class GoPanel extends Composite {
             }
             noteField.setText("");
 
-            referenceFieldPrefix.setText(selectedGoAnnotation.getReference().getPrefix());
-            referenceFieldId.setText(selectedGoAnnotation.getReference().getLookupId());
 
         }
 
