@@ -118,7 +118,8 @@ class GoAnnotationController {
         goAnnotation.evidenceRef = dataObject.evidenceCode
         goAnnotation.negate = dataObject.negate ?: false
         goAnnotation.withOrFromArray = dataObject.withOrFrom
-        goAnnotation.notesArray = dataObject.references
+        goAnnotation.notesArray = dataObject.notes
+        goAnnotation.reference = dataObject.reference
         goAnnotation.lastUpdated = new Date()
         goAnnotation.addToOwners(user)
         goAnnotation.save(flush: true, failOnError: true,insert: false)

@@ -18,6 +18,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -462,7 +463,7 @@ public class GoPanel extends Composite {
             validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
         }
 
-        if (goAnnotation.getNoteList().size() == 0) {
+        if (goAnnotation.getReference().getReferenceString().length()==0 ) {
             validationErrors.add("You must provide at least one reference");
         }
 //        for (Reference reference : goAnnotation.getNoteList()) {

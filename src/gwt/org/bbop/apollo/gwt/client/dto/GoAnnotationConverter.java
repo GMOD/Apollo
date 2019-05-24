@@ -31,45 +31,26 @@ public class GoAnnotationConverter {
         goAnnotation.setNegate(object.get("negate").isBoolean().booleanValue());
 
 
-        String notesString = object.get("notes").isString().stringValue();
-        JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
         List<String> noteList = new ArrayList<>();
-        for (int i = 0; i < notesArray.size(); i++) {
-            noteList.add(notesArray.get(i).isString().stringValue());
+        if(object.containsKey("notes")){
+            String notesString = object.get("notes").isString().stringValue();
+            JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
+            for (int i = 0; i < notesArray.size(); i++) {
+                noteList.add(notesArray.get(i).isString().stringValue());
+            }
         }
         goAnnotation.setNoteList(noteList);
 
-        String withOrFromString = object.get("withOrFrom").isString().stringValue();
-        JSONArray withOrFromArray = JSONParser.parseStrict(withOrFromString).isArray();
         List<WithOrFrom> withOrFromList = new ArrayList<>();
-        for (int i = 0; i < withOrFromArray.size(); i++) {
-            WithOrFrom withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
-            withOrFromList.add(withOrFrom);
+        if(object.get("withOrFrom").isString()!=null){
+            String withOrFromString = object.get("withOrFrom").isString().stringValue();
+            JSONArray withOrFromArray = JSONParser.parseStrict(withOrFromString).isArray();
+            for (int i = 0; i < withOrFromArray.size(); i++) {
+                WithOrFrom withOrFrom = new WithOrFrom(withOrFromArray.get(i).isString().stringValue());
+                withOrFromList.add(withOrFrom);
+            }
         }
         goAnnotation.setWithOrFromList(withOrFromList);
-
-
-//        goAnnotation.setNoteList(object.get("references").isArray());
-//        goAnnotation.setWithOrFromList(object.get("withOrFrom").isArray());
-
-
-//        if(object.get("currentOrganism")!=null) {
-//            appStateInfo.setCurrentOrganism(OrganismInfoConverter.convertFromJson(object.isObject().get("currentOrganism").isObject()));
-//        }
-//
-//        if(object.get("currentSequence")!=null ){
-//            appStateInfo.setCurrentSequence(SequenceInfoConverter.convertFromJson(object.isObject().get("currentSequence").isObject()));
-//        }
-//        appStateInfo.setOrganismList(OrganismInfoConverter.convertFromJsonArray(object.get("organismList").isArray()));
-//        if(object.containsKey("currentStartBp")){
-//            appStateInfo.setCurrentStartBp((int) object.get("currentStartBp").isNumber().doubleValue());
-//        }
-//        if(object.containsKey("currentEndBp")) {
-//            appStateInfo.setCurrentEndBp((int) object.get("currentEndBp").isNumber().doubleValue());
-//        }
-//        if(object.containsKey(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue())) {
-//            appStateInfo.setCommonDataDirectory( object.get(FeatureStringEnum.COMMON_DATA_DIRECTORY.getValue()).isString().stringValue());
-//        }
 
         return goAnnotation;
     }
