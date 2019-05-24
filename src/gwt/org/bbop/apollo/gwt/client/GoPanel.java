@@ -292,9 +292,12 @@ public class GoPanel extends Composite {
         evidenceCodeField.setText("");
         evidenceCodeLink.setText("");
         withFieldPrefix.setText("");
+        withFieldId.setText("");
         withEntriesFlexTable.removeAllRows();
         noteField.setText("");
         notesFlexTable.removeAllRows();
+        referenceFieldPrefix.setText("");
+        referenceFieldId.setText("");
         notQualifierCheckBox.setValue(false);
     }
 
@@ -328,6 +331,9 @@ public class GoPanel extends Composite {
                 addReferenceSelection(noteString);
             }
             noteField.setText("");
+
+            referenceFieldPrefix.setText(selectedGoAnnotation.getReference().getPrefix());
+            referenceFieldId.setText(selectedGoAnnotation.getReference().getLookupId());
 
         }
 
@@ -572,7 +578,7 @@ public class GoPanel extends Composite {
         TextColumn<GoAnnotation> referenceColumn = new TextColumn<GoAnnotation>() {
             @Override
             public String getValue(GoAnnotation annotationInfo) {
-                return annotationInfo.getReferenceString();
+                return annotationInfo.getReference().getReferenceString();
             }
         };
         referenceColumn.setSortable(true);

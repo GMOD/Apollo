@@ -27,14 +27,15 @@ public class GoAnnotationConverter {
         goAnnotation.setGoTerm(object.get("goTerm").isString().stringValue());
         goAnnotation.setGeneRelationship(object.get("geneRelationship").isString().stringValue());
         goAnnotation.setEvidenceCode(object.get("evidenceCode").isString().stringValue());
+        goAnnotation.setReference(new Reference(object.get("reference").isString().stringValue()));
         goAnnotation.setNegate(object.get("negate").isBoolean().booleanValue());
 
 
-        String referencesString = object.get("references").isString().stringValue();
-        JSONArray referenceArray = JSONParser.parseStrict(referencesString).isArray();
+        String notesString = object.get("notes").isString().stringValue();
+        JSONArray notesArray = JSONParser.parseStrict(notesString).isArray();
         List<String> noteList = new ArrayList<>();
-        for (int i = 0; i < referenceArray.size(); i++) {
-            noteList.add(referenceArray.get(i).isString().stringValue());
+        for (int i = 0; i < notesArray.size(); i++) {
+            noteList.add(notesArray.get(i).isString().stringValue());
         }
         goAnnotation.setNoteList(noteList);
 
@@ -46,6 +47,7 @@ public class GoAnnotationConverter {
             withOrFromList.add(withOrFrom);
         }
         goAnnotation.setWithOrFromList(withOrFromList);
+
 
 //        goAnnotation.setNoteList(object.get("references").isArray());
 //        goAnnotation.setWithOrFromList(object.get("withOrFrom").isArray());
@@ -84,21 +86,23 @@ public class GoAnnotationConverter {
         object.put("geneRelationship", new JSONString(goAnnotation.getGeneRelationship()));
         object.put("evidenceCode", new JSONString(goAnnotation.getEvidenceCode()));
         object.put("negate", JSONBoolean.getInstance(goAnnotation.isNegate()));
+        object.put("reference", new JSONString(goAnnotation.getReference().getReferenceString()));
 
         // TODO: finish this
         JSONArray withArray = new JSONArray();
-        JSONArray referenceArray = new JSONArray();
 
         for (WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()) {
             withArray.set(withArray.size(), new JSONString(withOrFrom.getDisplay()));
         }
 
+        JSONArray notesArray = new JSONArray();
         for (String note: goAnnotation.getNoteList()) {
-            referenceArray.set(referenceArray.size(), new JSONString(note));
+            notesArray.set(notesArray.size(), new JSONString(note));
         }
 
+
         object.put("withOrFrom", withArray);
-        object.put("references", referenceArray);
+        object.put("notes", notesArray);
 
 
         return object;

@@ -35,7 +35,8 @@ class GoAnnotationService {
             goObject.put("evidenceCode",goAnnotation.evidenceRef)
             goObject.put("negate",goAnnotation.negate)
             goObject.put("withOrFrom",goAnnotation.withOrFromArray)
-            goObject.put("references",goAnnotation.notesArray)
+            goObject.put("notes",goAnnotation.notesArray)
+            goObject.put("reference",goAnnotation.reference)
             annotations.add(goObject)
         }
 

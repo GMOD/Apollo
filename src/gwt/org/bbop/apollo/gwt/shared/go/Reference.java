@@ -6,6 +6,12 @@ public class Reference {
     private String lookupId;
 
 
+    public Reference(String display) {
+        assert display.contains(":");
+        this.prefix = display.split(":")[0];
+        this.lookupId = display.split(":")[1];
+    }
+
     public Reference(String prefix,String id) {
         this.prefix = prefix ;
         this.lookupId = id ;

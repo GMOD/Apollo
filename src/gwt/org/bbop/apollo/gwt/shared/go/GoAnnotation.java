@@ -104,15 +104,6 @@ public class GoAnnotation {
         return withOrFromStringBuilder.toString();
     }
 
-    public String getReferenceString() {
-        StringBuilder referenceStringBuilder = new StringBuilder();
-        for (String note: getNoteList()) {
-            referenceStringBuilder.append(note);
-            referenceStringBuilder.append(" ");
-        }
-        return referenceStringBuilder.toString();
-    }
-
     public Long getId() {
         return id;
     }
