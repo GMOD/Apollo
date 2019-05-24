@@ -43,8 +43,8 @@ public class GoRestService {
             @Override
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
-                String textString = returnObject.get("label").isString().stringValue();
-                anchor.setHTML(textString);
+                anchor.setHTML(returnObject.get("label").isString().stringValue());
+                anchor.setTitle(returnObject.get("definition").isString().stringValue());
             }
 
             @Override
