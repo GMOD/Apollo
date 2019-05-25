@@ -29,7 +29,7 @@ class GpadHandlerService {
         out.println("##gpad-version 2")
         def goAnnotations = GoAnnotation.findAllByFeatureInList(features as List<Feature>)
 
-        if(features){
+        if (features) {
             writeObject.organismString = features.first().featureLocation.sequence.organism.commonName
         }
 
@@ -93,11 +93,39 @@ class GpadHandlerService {
         writeObject.out.write("")
         writeObject.out.write("\t")
         //12	Annotation_Properties ::= [Property_Value_Pair] ('|' Property_Value_Pair)*		0 or greater	contributor=https://orcid.org/0000-0002-1478-7671
-        writeObject.out.write(goAnnotation.owners.collect { it.username }.join("|"))
+
+
+        String contributorString = null
+
+        if(goAnnotation.owners){
+            List<String> contributorArray = []
+            goAnnotation.owners.each { User user ->
+                contributorArray.add("contributor_name=${user.username}")
+            }
+            contributorString = contributorArray.join("|")
+        }
+
+        String noteString = null
+        if(goAnnotation.notesArray){
+            List<String> notesArray = []
+            JSONArray notesJsonArray = new JsonSlurper().parseText(goAnnotation.notesArray) as JSONArray
+            notesJsonArray.each {
+                notesArray.add("annotation_note=${it}")
+            }
+            noteString = notesArray.join("|")
+        }
+        String tab12String = contributorString ?: ""
+        if(tab12String && noteString){
+            tab12String += "|"
+            tab12String += noteString
+        }
+        writeObject.out.write(tab12String)
+
         writeObject.out.write("\t")
 
         writeObject.out.println()
     }
+
     String formatDate(Date date) {
         return gpadDateFormat.format(date)
     }
