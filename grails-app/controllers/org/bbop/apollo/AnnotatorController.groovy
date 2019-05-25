@@ -290,7 +290,7 @@ class AnnotatorController {
  * @param sort
  * @return
  */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken,Boolean showOnlyGoAnnotations) {
         try {
             JSONObject returnObject = createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -352,6 +352,10 @@ class AnnotatorController {
                         eq('organism', organism)
                     }
                 }
+                if( showOnlyGoAnnotations){
+                    goAnnotations{
+                    }
+                }
                 if (sort == "name") {
                     order('name', sortorder)
                 }
@@ -387,6 +391,9 @@ class AnnotatorController {
                 }
                 if (sort == "date") {
                     order('lastUpdated', sortorder)
+                }
+                if( showOnlyGoAnnotations){
+                    fetchMode 'goAnnotations', FetchMode.JOIN
                 }
                 fetchMode 'owners', FetchMode.JOIN
                 fetchMode 'featureLocations', FetchMode.JOIN

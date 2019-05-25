@@ -68,9 +68,29 @@
             display: inline;
             margin-left: auto;
             margin-right: auto;
+        }
+
+        .maxWidth {
+            margin: 0;
+            padding: 0;
+            width: 90%;
+            color: #0b2648;
+            background-color: #00FF00;
+        }
+
+        .addSmallRow {
+            margin: 0;
+            padding: 0;
+            height: 30px;
+        }
+
+        .addDangerRow {
+            background-color: orange;
+            height: 40px;
+
         }</ui:style>
     <gwt:DockLayoutPanel addStyleNames="{style.dockLayoutPanel}">
-        <gwt:north size="250">
+        <gwt:north size="270">
             <b:Container fluid="true" styleName="{style.northPanel}">
                 <b:Row>
                     <b:Column size="MD_6" styleName="{style.widgetPanel}">
@@ -103,6 +123,7 @@
                             <b:Button size="EXTRA_SMALL" ui:field="exportVcfButton" width="56px">VCF</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportFastaButton" width="56px">FASTA</b:Button>
                             <b:Button size="EXTRA_SMALL" ui:field="exportChadoButton" width="56px">CHADO</b:Button>
+                            <b:Button size="EXTRA_SMALL" ui:field="exportGpadButton" width="56px">GPAD</b:Button>
                             <!--<b:Button size="EXTRA_SMALL" ui:field="exportJbrowseButton" width="80px">JBROWSE</b:Button>-->
                         </b:ButtonGroup>
                     </b:Column>
@@ -130,6 +151,13 @@
                     </b:Column>
                 </b:Row>
                 <b:Row>
+                    <b:Column size="MD_11" addStyleNames="{style.addSmallRow}">
+                        <gwt:HTMLPanel>
+                            <hr style="{style.maxWidth}"/>
+                        </gwt:HTMLPanel>
+                    </b:Column>
+                </b:Row>
+                <b:Row addStyleNames="{style.addDangerRow}">
                     <b:Column size="MD_2">
                         <gwt:HTML>
                             <h5>Delete</h5>

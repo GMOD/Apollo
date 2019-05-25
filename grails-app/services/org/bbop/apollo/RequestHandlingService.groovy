@@ -1,16 +1,13 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
-import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
 import org.bbop.apollo.sequence.Strand
-
-//import grails.compiler.GrailsCompileStatic
-
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -43,6 +40,7 @@ class RequestHandlingService {
     def preferenceService
     def featurePropertyService
     def featureEventService
+    def goAnnotationService
     def brokerMessagingTemplate
 
 
@@ -1862,6 +1860,8 @@ class RequestHandlingService {
     def deleteFeature(JSONObject inputObject) {
         log.debug "in delete feature ${inputObject as JSON}"
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+
+
         boolean suppressEvents = false
         if (inputObject.has(FeatureStringEnum.SUPPRESS_EVENTS.value)) {
             suppressEvents = inputObject.getBoolean(FeatureStringEnum.SUPPRESS_EVENTS.value)
@@ -1873,6 +1873,8 @@ class RequestHandlingService {
 
         JSONObject featureContainer = createJSONFeatureContainer();
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
+
+        goAnnotationService.deleteAnnotations(featuresArray)
 
         Map<String, List<Feature>> modifiedFeaturesUniqueNames = new HashMap<String, List<Feature>>();
         boolean isUpdateOperation = false
@@ -1909,7 +1911,6 @@ class RequestHandlingService {
                         oldFeatureMap.put(feature.uniqueName, featureService.convertFeatureToJSON(feature))
                     }
                 }
-                //oldJsonObjectsArray.add(featureService.convertFeatureToJSON(feature))
                 // is this a bug?
                 isUpdateOperation = featureService.deleteFeature(feature, modifiedFeaturesUniqueNames) || isUpdateOperation;
                 List<Feature> modifiedFeaturesList = modifiedFeaturesUniqueNames.get(uniqueName)
@@ -1937,7 +1938,6 @@ class RequestHandlingService {
             if (!isUpdateOperation) {
                 log.debug "is not update operation "
                 // when the line below is used, the client gives an error saying TypeError: Cannot read property 'fmin' of undefined(…)
-                // featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(new JSONObject().put(FeatureStringEnum.UNIQUENAME.value, uniqueName));
                 featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(feature))
                 if (feature instanceof Transcript) {
                     Transcript transcript = (Transcript) feature;
@@ -1992,6 +1992,7 @@ class RequestHandlingService {
 
                 } else {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
+//                    GoAnnotation.deleteAll(GoAnnotation.findAllByFeature(feature))
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {
@@ -2657,7 +2658,6 @@ class RequestHandlingService {
     }
 
     def removeVariantEffect(JSONObject inputObject) {
-        println "REMOVING VARIANT EFFECT${inputObject.toString()}"
         JSONObject updateFeatureContainer = createJSONFeatureContainer();
         JSONObject deleteFeatureContainer = createJSONFeatureContainer();
 
@@ -2704,7 +2704,7 @@ class RequestHandlingService {
             fireAnnotationEvent(updateAnnotationEvent)
         } else if (inputObject.containsKey(FeatureStringEnum.SEQUENCE.value)) {
             JSONArray sequences = inputObject.get(FeatureStringEnum.SEQUENCE.value)
-            for(JSONObject seqObj in sequences){
+            for (JSONObject seqObj in sequences) {
                 Sequence sequence = Sequence.findById(seqObj.id)
                 def sequenceAlterations = variantService.getSequenceAlterationEffectsForLocation(0, sequence.end, sequence)
                 for (SequenceAlterationArtifact sequenceAlteration in sequenceAlterations) {

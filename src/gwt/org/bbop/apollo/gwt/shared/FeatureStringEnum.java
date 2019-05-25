@@ -109,6 +109,7 @@ public enum FeatureStringEnum {
         TYPE_CDS("cds"),
         TYPE_CDNA("cdna"),
         TYPE_GENOMIC("genomic"),
+        TYPE_GPAD("GPAD"),
         TYPE_FASTA("FASTA"),
         TYPE_GFF3("GFF3"),
         TYPE_VCF("VCF"),
