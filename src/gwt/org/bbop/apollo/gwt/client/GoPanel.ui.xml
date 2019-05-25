@@ -127,27 +127,27 @@
                                     <gwt:FlexTable ui:field="notesFlexTable" width="100%" visible="true"/>
                                 </b:Column>
                             </b:Row>
-                            <b:Row addStyleNames="{style.row}">
-<!--                                <b:Column size="MD_8">-->
-                                <b:Column size="MD_11">
-                                    <b:Label>Annotation Extension</b:Label>
-                                </b:Column>
-                            </b:Row>
-                            <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_3">
-                                    <b:TextBox ui:field="annotationsField" placeholder="Relationship"/>
-                                </b:Column>
-                                <b:Column size="MD_3">
-                                    <b:TextBox ui:field="annotationsInferredField" placeholder="Database"/>
-                                </b:Column>
-                                <b:Column size="MD_3">
-                                    <b:TextBox ui:field="annotationsGoFieldField"  placeholder="Identifier"/>
-                                </b:Column>
+<!--                            <b:Row addStyleNames="{style.row}">-->
+<!--&lt;!&ndash;                                <b:Column size="MD_8">&ndash;&gt;-->
+<!--                                <b:Column size="MD_11">-->
+<!--                                    <b:Label>Annotation Extension</b:Label>-->
 <!--                                </b:Column>-->
-                                <b:Column size="MD_2">
-                                    <b:Button icon="PLUS" ui:field="addExtensionButton" >Add</b:Button>
-                                </b:Column>
-                            </b:Row>
+<!--                            </b:Row>-->
+<!--                            <b:Row addStyleNames="{style.row}">-->
+<!--                                <b:Column size="MD_3">-->
+<!--                                    <b:TextBox ui:field="annotationsField" placeholder="Relationship"/>-->
+<!--                                </b:Column>-->
+<!--                                <b:Column size="MD_3">-->
+<!--                                    <b:TextBox ui:field="annotationsInferredField" placeholder="Database"/>-->
+<!--                                </b:Column>-->
+<!--                                <b:Column size="MD_3">-->
+<!--                                    <b:TextBox ui:field="annotationsGoFieldField"  placeholder="Identifier"/>-->
+<!--                                </b:Column>-->
+<!--&lt;!&ndash;                                </b:Column>&ndash;&gt;-->
+<!--                                <b:Column size="MD_2">-->
+<!--                                    <b:Button icon="PLUS" ui:field="addExtensionButton" >Add</b:Button>-->
+<!--                                </b:Column>-->
+<!--                            </b:Row>-->
                             <b:Row addStyleNames="{style.row}">
                                 <b:Column size="MD_10">
                                     <gwt:FlexTable ui:field="annotationsFlexTable" width="100%" visible="true"/>

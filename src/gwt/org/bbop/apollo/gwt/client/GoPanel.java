@@ -101,10 +101,10 @@ public class GoPanel extends Composite {
     TextBox referenceFieldPrefix;
     @UiField
     FlexTable annotationsFlexTable;
-    @UiField
-    Button addExtensionButton;
-    @UiField
-    TextBox annotationsField;
+//    @UiField
+//    Button addExtensionButton;
+//    @UiField
+//    TextBox annotationsField;
     @UiField
     TextBox withFieldId;
     @UiField
