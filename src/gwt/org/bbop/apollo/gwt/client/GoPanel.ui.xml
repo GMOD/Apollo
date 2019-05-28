@@ -43,9 +43,7 @@
             <b:Container width="100%" height="100%">
                 <b:Modal ui:field="editGoModal" closable="true" fade="true" dataBackdrop="STATIC" dataKeyboard="true">
                     <b:ModalHeader>
-                        <gwt:HTML>
-                            <b>Add GO Annotation</b>
-                        </gwt:HTML>
+                        <gwt:HTML ui:field="goAnnotationTitle"/>
                     </b:ModalHeader>
                     <b:ModalBody>
                         <b:Container fluid="true" width="100%">

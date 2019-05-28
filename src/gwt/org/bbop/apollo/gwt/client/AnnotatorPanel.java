@@ -143,7 +143,7 @@ public class AnnotatorPanel extends Composite {
     // manage UI-state
     private Boolean showDetails = true ;
 
-    private static AnnotationInfo selectedAnnotationInfo;
+    static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;

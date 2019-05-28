@@ -48,7 +48,6 @@ public class GoPanel extends Composite {
 
     private final String GO_BASE = "http://amigo.geneontology.org/amigo/term/";
     private final String ECO_BASE = "http://www.evidenceontology.org/term/";
-    //    private final String RO_BASE = "http://purl.obolibrary.org/obo/";
     private final String RO_BASE = "http://www.ontobee.org/ontology/RO?iri=http://purl.obolibrary.org/obo/";
 
     interface GoPanelUiBinder extends UiBinder<Widget, GoPanel> {
@@ -111,6 +110,8 @@ public class GoPanel extends Composite {
     TextBox referenceFieldId;
     @UiField
     Button referenceValidateButton;
+    @UiField
+    HTML goAnnotationTitle;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -151,6 +152,7 @@ public class GoPanel extends Composite {
         dataGrid.addDomHandler(new DoubleClickHandler() {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
+                goAnnotationTitle.setText("Edit GO Annotation for "+AnnotatorPanel.selectedAnnotationInfo.getName());
                 editGoModal.show();
             }
         }, DoubleClickEvent.getType());
@@ -193,7 +195,6 @@ public class GoPanel extends Composite {
         roLookup.addPreferredSuggestion("enables", "http://purl.obolibrary.org/obo/RO_0002327", "RO:0002327");
         roLookup.addPreferredSuggestion("involved in", "http://purl.obolibrary.org/obo/RO_0002331", "RO:0002331");
         roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/BFO_0000050", "BFO:0000050");
-//        roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/", "RO:0002327");
         roLookup.addPreferredSuggestion("enabled by", "http://purl.obolibrary.org/obo/RO_0002333", "RO:0002333");
         roLookup.addPreferredSuggestion("occurs in", "http://purl.obolibrary.org/obo/BFO_0000066", "BFO:0000066");
         roLookup.addPreferredSuggestion("causally upstream of or within", "http://purl.obolibrary.org/obo/RO_0002418", "RO:0002418");
@@ -348,6 +349,7 @@ public class GoPanel extends Composite {
 
     @UiHandler("newGoButton")
     public void newGoAnnotation(ClickEvent e) {
+        goAnnotationTitle.setText("Add new GO Annotation to "+AnnotatorPanel.selectedAnnotationInfo.getName());
         withEntriesFlexTable.removeAllRows();
         notesFlexTable.removeAllRows();
         selectionModel.clear();
@@ -361,7 +363,6 @@ public class GoPanel extends Composite {
 
     @UiHandler("addWithButton")
     public void addWith(ClickEvent e) {
-//        String withFieldString = withFieldPrefix.getText();
         addWithSelection(withFieldPrefix.getText(), withFieldId.getText());
         withFieldPrefix.clear();
         withFieldId.clear();
@@ -369,13 +370,6 @@ public class GoPanel extends Composite {
 
     @UiHandler("addNoteButton")
     public void addNote(ClickEvent e) {
-//        String referenceFieldString = noteField.getText();
-//        if (!referenceFieldString.contains(":") || referenceFieldString.length() < 2) {
-//            Bootbox.alert("Invalid reference value '" + referenceFieldString + "'");
-//            return;
-//        }
-//        addReferenceSelection(referenceFieldString);
-//        addNote(noteField)
         String noteText = noteField.getText();
         notesFlexTable.insertRow(0);
         notesFlexTable.setHTML(0, 0, noteText);
@@ -468,13 +462,6 @@ public class GoPanel extends Composite {
         if (goAnnotation.getReference().getReferenceString().length()==0 ) {
             validationErrors.add("You must provide at least one reference");
         }
-//        for (Reference reference : goAnnotation.getNoteList()) {
-//
-//            assert reference.getReferenceString() != null && reference.getReferenceString().contains(":");
-//        }
-//        for (WithOrFrom withOrFrom : goAnnotation.getWithOrFromList()) {
-//            assert withOrFrom.getDisplay() != null && withOrFrom.getDisplay().contains(":");
-//        }
         return validationErrors;
     }
 
