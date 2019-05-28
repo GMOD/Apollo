@@ -369,6 +369,8 @@ public class AnnotatorPanel extends Composite {
                         variantInfoPanel.redrawTable();
                     case 4:
                         alleleInfoPanel.redrawTable();
+                    case 5:
+                        goPanel.redraw();
                 }
             }
         });
