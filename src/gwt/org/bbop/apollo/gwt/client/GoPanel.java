@@ -108,8 +108,8 @@ public class GoPanel extends Composite {
     TextBox withFieldId;
     @UiField
     TextBox referenceFieldId;
-    @UiField
-    Button referenceValidateButton;
+//    @UiField
+//    Button referenceValidateButton;
     @UiField
     HTML goAnnotationTitle;
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
@@ -507,10 +507,10 @@ public class GoPanel extends Composite {
         return noteList;
     }
 
-    @UiHandler("referenceValidateButton")
-    public void validateReference(ClickEvent clickEvent) {
-        GWT.log("not sure what to do here ");
-    }
+//    @UiHandler("referenceValidateButton")
+//    public void validateReference(ClickEvent clickEvent) {
+//        GWT.log("not sure what to do here ");
+//    }
 
     @UiHandler("cancelNewGoAnnotation")
     public void cancelNewGoAnnotationButton(ClickEvent e) {
