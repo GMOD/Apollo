@@ -201,6 +201,8 @@ class SuggestedNameController {
         }
     }
 
+
+
     @RestApiMethod(description = "Update suggested name", path = "/suggestedName/updateName", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -286,6 +288,53 @@ class SuggestedNameController {
         }
         catch (Exception e) {
             def error = [error: 'problem deleting suggested name: ' + e]
+            log.error(error.error)
+            render error as JSON
+        }
+    }
+
+    @RestApiMethod(description = "Returns a JSON array of all suggested names, or optionally, gets information about a specific suggested name", path = "/suggestedName/search", verb = RestApiVerb.GET)
+    @RestApiParams(params = [
+            @RestApiParam(name = "featureType", type = "string", paramType = RestApiParamType.QUERY, description = "Feature type")
+            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Organism name")
+            , @RestApiParam(name = "query", type = "string", paramType = RestApiParamType.QUERY, description = "Query value")
+    ])
+    @Transactional
+    def search() {
+        try {
+            JSONObject nameJson = permissionService.handleInput(request, params)
+            log.debug "Showing suggested name ${nameJson}"
+            String featureType = nameJson.featureType
+            println "feature type ${featureType}"
+            Organism organism = Organism.findByCommonName(nameJson.organism)
+            println "organism ${organism}"
+            def names = SuggestedName.findAllByNameIlike(nameJson.query+"%")
+
+
+
+
+            render names as JSON
+//            if (nameJson.query|| nameJson.name) {
+//                SuggestedName name = SuggestedName.findById(nameJson.id) ?: SuggestedName.findByName(nameJson.name)
+//
+//                if (!name) {
+//                    JSONObject jsonObject = new JSONObject()
+//                    jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the suggested names")
+//                    render jsonObject as JSON
+//                    return
+//                }
+//
+//                log.info "Success showing name: ${nameJson}"
+//                render name as JSON
+//            } else {
+//                def names = SuggestedName.all
+//
+//                log.info "Success showing all suggested names"
+//                render names as JSON
+//            }
+        }
+        catch (Exception e) {
+            def error = [error: 'problem showing suggested names: ' + e]
             log.error(error.error)
             render error as JSON
         }
