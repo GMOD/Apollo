@@ -1,10 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.Request;
@@ -28,6 +25,7 @@ import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GoRestService;
+import org.bbop.apollo.gwt.shared.go.Aspect;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 import org.bbop.apollo.gwt.shared.go.Reference;
 import org.bbop.apollo.gwt.shared.go.WithOrFrom;
@@ -112,6 +110,11 @@ public class GoPanel extends Composite {
 //    Button referenceValidateButton;
     @UiField
     HTML goAnnotationTitle;
+    @UiField
+    org.gwtbootstrap3.client.ui.ListBox aspectField;
+    @UiField
+    HTML aspectLabel;
+
     private static ListDataProvider<GoAnnotation> dataProvider = new ListDataProvider<>();
     private static List<GoAnnotation> annotationInfoList = dataProvider.getList();
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
@@ -127,6 +130,22 @@ public class GoPanel extends Composite {
         dataGrid.setSelectionModel(selectionModel);
 
         initWidget(ourUiBinder.createAndBindUi(this));
+
+        for(Aspect aspect : Aspect.values()){
+            aspectField.addItem(aspect.name(),aspect.getLookup());
+        }
+
+        aspectField.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent event) {
+                goTermField.setText("");
+                goTermLink.setText("");
+                aspectLabel.setText(aspectField.getSelectedValue());
+
+                // TODO: set constrainted RO values
+                setRelationValues(aspectField.getSelectedItemText());
+            }
+        });
 
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
@@ -186,6 +205,10 @@ public class GoPanel extends Composite {
         });
 
         redraw();
+    }
+
+    private void setRelationValues(String selectedItemText) {
+
     }
 
     private void initLookups() {
