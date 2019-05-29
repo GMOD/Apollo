@@ -311,6 +311,18 @@ class SuggestedNameController {
             def names = SuggestedName.findAllByNameIlike(nameJson.query+"%")
 
 
+//            if (featureTypeList) {
+//                cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
+//            }
+//            cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty"))
+//
+//            // if there are organism filters for these canned comments for this organism, then apply them
+//            List<CannedCommentOrganismFilter> cannedCommentOrganismFilters = CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedCommentList)
+//            if (cannedCommentOrganismFilters) {
+//                CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(sequence.organism, cannedCommentList).each {
+//                    cannedComments.put(it.cannedComment.comment)
+//                }
+//            }
 
 
             render names as JSON
