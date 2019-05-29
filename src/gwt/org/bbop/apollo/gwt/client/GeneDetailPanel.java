@@ -50,19 +50,19 @@ public class GeneDetailPanel extends Composite {
     @UiField
     TextBox userField;
 
-    private SuggestedNameOracle suggestedNameOracle;
+    private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
     public GeneDetailPanel() {
-        nameField = new SuggestBox(new SuggestedNameOracle());
+        nameField = new SuggestBox(suggestedNameOracle);
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        nameField.addValueChangeHandler(new ValueChangeHandler<String>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<String> event) {
-                handleNameChange();
-            }
-        });
+//        nameField.addValueChangeHandler(new ValueChangeHandler<String>() {
+//            @Override
+//            public void onValueChange(ValueChangeEvent<String> event) {
+//                handleNameChange();
+//            }
+//        });
 
         nameField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
