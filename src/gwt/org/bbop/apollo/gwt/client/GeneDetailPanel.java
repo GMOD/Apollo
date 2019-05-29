@@ -14,6 +14,7 @@ import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
@@ -102,6 +103,7 @@ public class GeneDetailPanel extends Composite {
     private void updateGene() {
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
         enableFields(false);
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -125,6 +127,8 @@ public class GeneDetailPanel extends Composite {
      */
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
+        suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
+        suggestedNameOracle.setFeatureType("sequence:"+annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         descriptionField.setText(internalAnnotationInfo.getDescription());

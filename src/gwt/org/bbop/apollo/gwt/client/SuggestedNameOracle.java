@@ -87,4 +87,20 @@ public class SuggestedNameOracle extends SuggestOracle {
             Bootbox.alert("Request exception via " + e);
         }
     }
+
+    public String getOrganismName() {
+        return organismName;
+    }
+
+    public void setOrganismName(String organismName) {
+        this.organismName = organismName;
+    }
+
+    public String getFeatureType() {
+        return featureType;
+    }
+
+    public void setFeatureType(String featureType) {
+        this.featureType = featureType;
+    }
 }
