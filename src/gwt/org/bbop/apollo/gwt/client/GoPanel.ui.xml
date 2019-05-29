@@ -68,7 +68,7 @@
                                 <b:Column size="MD_8">
                                     <b:Label>Relation between Gene Product and GO Term</b:Label>
 <!--                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>-->
-                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>
+                                    <b:ListBox ui:field="geneProductRelationshipField"/>
                                     <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
                                 </b:Column>
                                 <b:Column size="MD_2">

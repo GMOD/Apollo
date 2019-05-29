@@ -60,8 +60,9 @@ public class GoPanel extends Composite {
     TextBox noteField;
     @UiField(provided = true)
     SuggestBox goTermField;
-    @UiField(provided = true)
-    SuggestBox geneProductRelationshipField;
+//    @UiField(provided = true)
+    @UiField
+    org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
     @UiField(provided = true)
     SuggestBox evidenceCodeField;
     @UiField
@@ -195,12 +196,13 @@ public class GoPanel extends Composite {
             }
         });
 
-        geneProductRelationshipField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+        geneProductRelationshipField.addChangeHandler(new ChangeHandler() {
+
             @Override
-            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
-                SuggestOracle.Suggestion suggestion = event.getSelectedItem();
-                geneProductRelationshipLink.setHTML(suggestion.getDisplayString());
-                geneProductRelationshipLink.setHref(RO_BASE + suggestion.getReplacementString().replace(":", "_"));
+            public void onChange(ChangeEvent event) {
+                String selectedItemText  = geneProductRelationshipField.getSelectedItemText();
+                geneProductRelationshipLink.setHTML(selectedItemText);
+                geneProductRelationshipLink.setHref(RO_BASE + selectedItemText.replace(":", "_"));
             }
         });
 
@@ -208,21 +210,47 @@ public class GoPanel extends Composite {
     }
 
     private void setRelationValues(String selectedItemText) {
+        Aspect aspect = Aspect.valueOf(selectedItemText);
+        geneProductRelationshipField.clear();
+        switch(aspect.getLookup()){
+            case Aspect.BP.getLookup():
+                geneProductRelationshipField.addItem("RO:0002331","involved in");
+                geneProductRelationshipField.addItem("RO:0002263","acts upstream of");
+                geneProductRelationshipField.addItem("RO:0004034","acts upstream of positive effect");
+                geneProductRelationshipField.addItem("RO:0004035","acts upstream of negative effect");
+                geneProductRelationshipField.addItem("RO:0002264","acts upstream of or within");
+                geneProductRelationshipField.addItem("RO:0004032","acts upstream of or within positive effect");
+                geneProductRelationshipField.addItem("RO:0004033","acts upstream of or within negative effect");
+                break;
+            case Aspect.MF.getLookup():
+                geneProductRelationshipField.addItem("RO:0002327","enables");
+                geneProductRelationshipField.addItem("RO:0002326","contributes to");
+                break;
+            case Aspect.CC.getLookup():
+                geneProductRelationshipField.addItem("BFO:0000050","part of");
+                geneProductRelationshipField.addItem("RO:0002325","colocalizes with");
+                geneProductRelationshipField.addItem("RO:0002432","is active in");
+                break;
+            default:
+                Bootbox.alert("A problem has occurred");
+
+
+        }
 
     }
 
     private void initLookups() {
         goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
 
-        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
-        roLookup.addPreferredSuggestion("enables", "http://purl.obolibrary.org/obo/RO_0002327", "RO:0002327");
-        roLookup.addPreferredSuggestion("involved in", "http://purl.obolibrary.org/obo/RO_0002331", "RO:0002331");
-        roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/BFO_0000050", "BFO:0000050");
-        roLookup.addPreferredSuggestion("enabled by", "http://purl.obolibrary.org/obo/RO_0002333", "RO:0002333");
-        roLookup.addPreferredSuggestion("occurs in", "http://purl.obolibrary.org/obo/BFO_0000066", "BFO:0000066");
-        roLookup.addPreferredSuggestion("causally upstream of or within", "http://purl.obolibrary.org/obo/RO_0002418", "RO:0002418");
-        roLookup.addPreferredSuggestion("has participant", "http://purl.obolibrary.org/obo/RO_0000057", "RO:0000057");
-        geneProductRelationshipField = new SuggestBox(roLookup);
+//        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
+//        roLookup.addPreferredSuggestion("enables", "http://purl.obolibrary.org/obo/RO_0002327", "RO:0002327");
+//        roLookup.addPreferredSuggestion("involved in", "http://purl.obolibrary.org/obo/RO_0002331", "RO:0002331");
+//        roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/BFO_0000050", "BFO:0000050");
+//        roLookup.addPreferredSuggestion("enabled by", "http://purl.obolibrary.org/obo/RO_0002333", "RO:0002333");
+//        roLookup.addPreferredSuggestion("occurs in", "http://purl.obolibrary.org/obo/BFO_0000066", "BFO:0000066");
+//        roLookup.addPreferredSuggestion("causally upstream of or within", "http://purl.obolibrary.org/obo/RO_0002418", "RO:0002418");
+//        roLookup.addPreferredSuggestion("has participant", "http://purl.obolibrary.org/obo/RO_0000057", "RO:0000057");
+//        geneProductRelationshipField = new SuggestBox(roLookup);
 
 
         // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
@@ -312,7 +340,8 @@ public class GoPanel extends Composite {
     private void clearModal() {
         goTermField.setText("");
         goTermLink.setText("");
-        geneProductRelationshipField.setText("");
+//        geneProductRelationshipField.setText("");
+        geneProductRelationshipField.clear();
         geneProductRelationshipLink.setText("");
         evidenceCodeField.setText("");
         evidenceCodeLink.setText("");
@@ -336,7 +365,16 @@ public class GoPanel extends Composite {
             GoRestService.lookupTerm(goTermLink,selectedGoAnnotation.getGoTerm());
 
 
-            geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
+//            geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
+//            geneProductRelationshipField.setSelectedIndex(selectedGoAnnotation.getGeneRelationship());
+
+            // TODO: set the proper one when it comes back
+//            String selectedGeneRelationship = selectedGoAnnotation.getGeneRelationship();
+//            for(int i = 0 ; i < geneProductRelationshipField.getItemCount() ; i++){
+////                if(geneProductRelationshipField.setItemSelected(i,);)
+//            }
+
+
             geneProductRelationshipLink.setHref(RO_BASE + selectedGoAnnotation.getGeneRelationship().replaceAll(":", "_"));
             GoRestService.lookupTerm(geneProductRelationshipLink,selectedGoAnnotation.getGeneRelationship());
 
@@ -492,7 +530,7 @@ public class GoPanel extends Composite {
         GoAnnotation goAnnotation = new GoAnnotation();
         goAnnotation.setGene(annotationInfo.getUniqueName());
         goAnnotation.setGoTerm(goTermField.getText());
-        goAnnotation.setGeneRelationship(geneProductRelationshipField.getText());
+        goAnnotation.setGeneRelationship(geneProductRelationshipField.getSelectedItemText());
         goAnnotation.setEvidenceCode(evidenceCodeField.getText());
         goAnnotation.setNegate(notQualifierCheckBox.getValue());
         goAnnotation.setWithOrFromList(getWithList());
