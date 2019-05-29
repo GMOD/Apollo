@@ -339,6 +339,7 @@ apollo {
             ['label': "Canned Comments", 'link': "/cannedComment/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Canned Key", 'link': "/cannedKey/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Canned Values", 'link': "/cannedValue/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
+            , ['label': "Suggested Name", 'link': "/suggestedName/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Feature Types", 'link': "/featureType/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Statuses", 'link': "/availableStatus/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
             , ['label': "Proxies", 'link': "/proxy/",'globalRank':org.bbop.apollo.gwt.shared.GlobalPermissionEnum.ADMIN]
