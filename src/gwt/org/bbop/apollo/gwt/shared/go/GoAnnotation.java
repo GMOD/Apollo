@@ -8,6 +8,7 @@ public class GoAnnotation {
 
 
     private Long id ;
+    private Aspect aspect ;
     private String gene; // I think tis is the gene it refers to? I think the uniquename
     private String goTerm;
     private String geneRelationship;
@@ -16,6 +17,14 @@ public class GoAnnotation {
     private List<WithOrFrom> withOrFromList;
     private List<String> noteList;
     private Reference reference;
+
+    public Aspect getAspect() {
+        return aspect;
+    }
+
+    public void setAspect(Aspect aspect) {
+        this.aspect = aspect;
+    }
 
     public String getEvidenceCode() {
         return evidenceCode;
