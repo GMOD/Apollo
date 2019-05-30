@@ -34,7 +34,9 @@
 				<g:each in="${availableStatusInstanceList}" status="i" var="availableStatusInstance">
 					<tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
 					
-						<td><g:link action="show" id="${availableStatusInstance.id}">${fieldValue(bean: availableStatusInstance, field: "value")}</g:link></td>
+						<td><g:link action="show" id="${availableStatusInstance.id}">${fieldValue(bean: availableStatusInstance, field: "value")}</g:link>
+						${availableStatusInstance.selected ? '(selected)': ''}
+						</td>
 
 						<td>
 							<g:each in="${availableStatusInstance.featureTypes.sort() { a,b -> a.display <=> b.display }}" var="featureType">

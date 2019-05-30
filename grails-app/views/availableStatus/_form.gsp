@@ -8,7 +8,14 @@
 		<span class="required-indicator">*</span>
 	</label>
 	<g:textField name="value" required="" value="${availableStatusInstance?.value}"/>
+</div>
 
+<div class="fieldcontain ${hasErrors(bean: availableStatusInstance, field: 'selected', 'error')} required">
+	<label for="selected">
+		<g:message code="availableStatus.selected.label" default="Value" />
+		<span class="required-indicator">*</span>
+	</label>
+	<g:checkBox name="selected"  value="${availableStatusInstance?.selected}" />
 </div>
 
 <div class="fieldcontain ${hasErrors(bean: availableStatusInstance, field: 'featureTypes', 'error')} ">

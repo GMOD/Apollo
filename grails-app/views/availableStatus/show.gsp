@@ -38,6 +38,17 @@
             </li>
         </g:if>
 
+%{--        <g:if test="${availableStatusInstance?.selected}">--}%
+            <li class="fieldcontain">
+                <span id="selected-label" class="property-label"><g:message code="availableStatus.selected.label"
+                                                                         default="Selected"/></span>
+
+                <span class="property-value" aria-labelledby="selected-label"><g:fieldValue
+                        bean="${availableStatusInstance}" field="selected"/></span>
+
+            </li>
+%{--        </g:if>--}%
+
         <g:if test="${availableStatusInstance?.featureTypes}">
             <li class="fieldcontain">
                 <span id="featureTypes-label" class="property-label"><g:message code="availableStatus.featureTypes.label"
