@@ -386,6 +386,7 @@ public class GoPanel extends Composite {
             }
             //
             setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
+            enableFields(aspectField.getSelectedValue().length()>0);
 
             goTermField.setText(selectedGoAnnotation.getGoTerm());
             goTermLink.setHref(GO_BASE + selectedGoAnnotation.getGoTerm());
