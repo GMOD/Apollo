@@ -211,6 +211,7 @@ public class GoPanel extends Composite {
 
         setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
         enableFields(aspectField.getSelectedValue().length()>0);
+        geneProductRelationshipLink.setText("");
     }
 
     private void enableFields(boolean enabled) {
@@ -360,7 +361,6 @@ public class GoPanel extends Composite {
         aspectLabel.setText("");
         goTermField.setText("");
         goTermLink.setText("");
-//        geneProductRelationshipField.setText("");
         geneProductRelationshipField.clear();
         geneProductRelationshipLink.setText("");
         evidenceCodeField.setText("");
@@ -382,22 +382,18 @@ public class GoPanel extends Composite {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
 
             for(int i = 0 ; i < aspectField.getItemCount() ; i++){
-                aspectField.setItemSelected(i,aspectField.getSelectedItemText().equals(selectedGoAnnotation.getAspect().name()));
+                aspectField.setItemSelected(i,aspectField.getItemText(i).equals(selectedGoAnnotation.getAspect().name()));
             }
+            //
+            setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
 
             goTermField.setText(selectedGoAnnotation.getGoTerm());
             goTermLink.setHref(GO_BASE + selectedGoAnnotation.getGoTerm());
             GoRestService.lookupTerm(goTermLink,selectedGoAnnotation.getGoTerm());
 
-
-//            geneProductRelationshipField.setText(selectedGoAnnotation.getGeneRelationship());
-//            geneProductRelationshipField.setSelectedIndex(selectedGoAnnotation.getGeneRelationship());
-
-            // TODO: set the proper one when it comes back
-//            String selectedGeneRelationship = selectedGoAnnotation.getGeneRelationship();
-//            for(int i = 0 ; i < geneProductRelationshipField.getItemCount() ; i++){
-////                if(geneProductRelationshipField.setItemSelected(i,);)
-//            }
+            for(int i = 0 ; i < geneProductRelationshipField.getItemCount() ; i++){
+                geneProductRelationshipField.setItemSelected(i,geneProductRelationshipField.getValue(i).equals(selectedGoAnnotation.getGeneRelationship()));
+            }
 
 
             geneProductRelationshipLink.setHref(RO_BASE + selectedGoAnnotation.getGeneRelationship().replaceAll(":", "_"));
