@@ -132,6 +132,7 @@ public class GoPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
+        aspectField.addItem("Choose");
         for(Aspect aspect : Aspect.values()){
             aspectField.addItem(aspect.name(),aspect.getLookup());
         }
@@ -201,7 +202,7 @@ public class GoPanel extends Composite {
             @Override
             public void onChange(ChangeEvent event) {
                 String selectedItemText  = geneProductRelationshipField.getSelectedItemText();
-                geneProductRelationshipLink.setHTML(selectedItemText);
+                geneProductRelationshipLink.setHTML(selectedItemText + " ("+geneProductRelationshipField.getSelectedValue()+")");
                 geneProductRelationshipLink.setHref(RO_BASE + selectedItemText.replace(":", "_"));
             }
         });
@@ -214,22 +215,22 @@ public class GoPanel extends Composite {
         geneProductRelationshipField.clear();
         switch(aspect){
             case BP:
-                geneProductRelationshipField.addItem("RO:0002331","involved in");
-                geneProductRelationshipField.addItem("RO:0002263","acts upstream of");
-                geneProductRelationshipField.addItem("RO:0004034","acts upstream of positive effect");
-                geneProductRelationshipField.addItem("RO:0004035","acts upstream of negative effect");
-                geneProductRelationshipField.addItem("RO:0002264","acts upstream of or within");
-                geneProductRelationshipField.addItem("RO:0004032","acts upstream of or within positive effect");
-                geneProductRelationshipField.addItem("RO:0004033","acts upstream of or within negative effect");
+                geneProductRelationshipField.addItem("involved in","RO:0002331");
+                geneProductRelationshipField.addItem("acts upstream of","RO:0002263");
+                geneProductRelationshipField.addItem("acts upstream of positive effect","RO:0004034");
+                geneProductRelationshipField.addItem("acts upstream of negative effect","RO:0004035");
+                geneProductRelationshipField.addItem("acts upstream of or within","RO:0002264");
+                geneProductRelationshipField.addItem("acts upstream of or within positive effect","RO:0004032");
+                geneProductRelationshipField.addItem("acts upstream of or within negative effect","RO:0004033");
                 break;
             case MF:
-                geneProductRelationshipField.addItem("RO:0002327","enables");
-                geneProductRelationshipField.addItem("RO:0002326","contributes to");
+                geneProductRelationshipField.addItem("enables","RO:0002327");
+                geneProductRelationshipField.addItem("contributes to","RO:0002326");
                 break;
             case CC:
-                geneProductRelationshipField.addItem("BFO:0000050","part of");
-                geneProductRelationshipField.addItem("RO:0002325","colocalizes with");
-                geneProductRelationshipField.addItem("RO:0002432","is active in");
+                geneProductRelationshipField.addItem("part of","BFO:0000050");
+                geneProductRelationshipField.addItem("colocalizes with","RO:0002325");
+                geneProductRelationshipField.addItem("is active in","RO:0002432");
                 break;
             default:
                 Bootbox.alert("A problem has occurred");

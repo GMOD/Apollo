@@ -48,7 +48,7 @@
                     <b:ModalBody>
                         <b:Container fluid="true" width="100%">
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_2">
+                                <b:Column size="MD_3">
                                     <b:Label>Aspect</b:Label>
                                     <b:ListBox ui:field="aspectField"/>
                                     <gwt:HTML ui:field="aspectLabel" />
@@ -58,7 +58,7 @@
                                     <b:SuggestBox ui:field="goTermField"/>
                                     <gwt:Anchor ui:field="goTermLink" target="_blank"/>
                                 </b:Column>
-                                <b:Column size="MD_4">
+                                <b:Column size="MD_3">
                                     <b:Label>Evidence Code</b:Label>
                                     <b:SuggestBox ui:field="evidenceCodeField"/>
                                     <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
