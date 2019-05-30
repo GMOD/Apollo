@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.*;
+import org.bbop.apollo.gwt.shared.go.Aspect;
 import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 import org.bbop.apollo.gwt.shared.go.Reference;
 import org.bbop.apollo.gwt.shared.go.WithOrFrom;
@@ -23,6 +24,7 @@ public class GoAnnotationConverter {
         GWT.log("json object: "+object.toString());
 
         goAnnotation.setId(Math.round(object.get("id").isNumber().doubleValue()));
+        goAnnotation.setAspect(Aspect.valueOf(object.get("aspect").isString().stringValue()));
         goAnnotation.setGene(object.get("gene").isString().stringValue());
         goAnnotation.setGoTerm(object.get("goTerm").isString().stringValue());
         goAnnotation.setGeneRelationship(object.get("geneRelationship").isString().stringValue());
@@ -62,6 +64,7 @@ public class GoAnnotationConverter {
         if (goAnnotation.getId() != null) {
             object.put("id", new JSONNumber(goAnnotation.getId()));
         }
+        object.put("aspect", new JSONString(goAnnotation.getAspect().name()));
         object.put("gene", new JSONString(goAnnotation.getGene()));
         object.put("goTerm", new JSONString(goAnnotation.getGoTerm()));
         object.put("geneRelationship", new JSONString(goAnnotation.getGeneRelationship()));
