@@ -212,8 +212,8 @@ public class GoPanel extends Composite {
     private void setRelationValues(String selectedItemText) {
         Aspect aspect = Aspect.valueOf(selectedItemText);
         geneProductRelationshipField.clear();
-        switch(aspect.getLookup()){
-            case Aspect.BP.getLookup():
+        switch(aspect){
+            case BP:
                 geneProductRelationshipField.addItem("RO:0002331","involved in");
                 geneProductRelationshipField.addItem("RO:0002263","acts upstream of");
                 geneProductRelationshipField.addItem("RO:0004034","acts upstream of positive effect");
@@ -222,11 +222,11 @@ public class GoPanel extends Composite {
                 geneProductRelationshipField.addItem("RO:0004032","acts upstream of or within positive effect");
                 geneProductRelationshipField.addItem("RO:0004033","acts upstream of or within negative effect");
                 break;
-            case Aspect.MF.getLookup():
+            case MF:
                 geneProductRelationshipField.addItem("RO:0002327","enables");
                 geneProductRelationshipField.addItem("RO:0002326","contributes to");
                 break;
-            case Aspect.CC.getLookup():
+            case CC:
                 geneProductRelationshipField.addItem("BFO:0000050","part of");
                 geneProductRelationshipField.addItem("RO:0002325","colocalizes with");
                 geneProductRelationshipField.addItem("RO:0002432","is active in");
