@@ -77,6 +77,7 @@ class GoAnnotationController {
         GoAnnotation goAnnotation = new GoAnnotation()
         Feature feature = Feature.findByUniqueName(dataObject.gene)
         goAnnotation.feature = feature
+        goAnnotation.aspect = dataObject.aspect
         goAnnotation.goRef = dataObject.goTerm
         goAnnotation.geneProductRelationshipRef = dataObject.geneRelationship
         goAnnotation.evidenceRef = dataObject.evidenceCode

@@ -139,14 +139,7 @@ public class GoPanel extends Composite {
         aspectField.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
-                goTermField.setText("");
-                goTermLink.setText("");
-                aspectLabel.setText(aspectField.getSelectedValue());
-                goLookup.setCategory(aspectField.getSelectedValue());
-
-                // TODO: set constrainted RO values
-                setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
-                enableFields(aspectField.getSelectedValue().length()>0);
+                handleAspectChange();
             }
         });
 
@@ -208,6 +201,16 @@ public class GoPanel extends Composite {
         });
 
         redraw();
+    }
+
+    private void handleAspectChange(){
+        goTermField.setText("");
+        goTermLink.setText("");
+        aspectLabel.setText(aspectField.getSelectedValue());
+        goLookup.setCategory(aspectField.getSelectedValue());
+
+        setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
+        enableFields(aspectField.getSelectedValue().length()>0);
     }
 
     private void enableFields(boolean enabled) {
@@ -352,6 +355,9 @@ public class GoPanel extends Composite {
     }
 
     private void clearModal() {
+        aspectField.setItemSelected(0,true);
+        handleAspectChange();
+        aspectLabel.setText("");
         goTermField.setText("");
         goTermLink.setText("");
 //        geneProductRelationshipField.setText("");
@@ -374,6 +380,11 @@ public class GoPanel extends Composite {
             clearModal();
         } else {
             GoAnnotation selectedGoAnnotation = selectionModel.getSelectedObject();
+
+            for(int i = 0 ; i < aspectField.getItemCount() ; i++){
+                aspectField.setItemSelected(i,aspectField.getSelectedItemText().equals(selectedGoAnnotation.getAspect().name()));
+            }
+
             goTermField.setText(selectedGoAnnotation.getGoTerm());
             goTermLink.setHref(GO_BASE + selectedGoAnnotation.getGoTerm());
             GoRestService.lookupTerm(goTermLink,selectedGoAnnotation.getGoTerm());
@@ -543,6 +554,7 @@ public class GoPanel extends Composite {
 
     private GoAnnotation getEditedGoAnnotation() {
         GoAnnotation goAnnotation = new GoAnnotation();
+        goAnnotation.setAspect(Aspect.valueOf(aspectField.getSelectedItemText()));
         goAnnotation.setGene(annotationInfo.getUniqueName());
         goAnnotation.setGoTerm(goTermField.getText());
         goAnnotation.setGeneRelationship(geneProductRelationshipField.getSelectedValue());

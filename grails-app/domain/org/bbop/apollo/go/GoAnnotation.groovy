@@ -7,6 +7,7 @@ import org.bbop.apollo.User
 class GoAnnotation {
 
     static constraints = {
+        aspect nullable: false,blank: false
         feature nullable: false
         goRef nullable: false, blank: false
         evidenceRef nullable: false, blank: false
@@ -23,6 +24,7 @@ class GoAnnotation {
             owners: User
     ]
 
+    String aspect
     Feature feature
     String goRef
     String evidenceRef
