@@ -262,17 +262,6 @@ public class GoPanel extends Composite {
     private void initLookups() {
         goTermField = new SuggestBox(goLookup);
 
-//        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
-//        roLookup.addPreferredSuggestion("enables", "http://purl.obolibrary.org/obo/RO_0002327", "RO:0002327");
-//        roLookup.addPreferredSuggestion("involved in", "http://purl.obolibrary.org/obo/RO_0002331", "RO:0002331");
-//        roLookup.addPreferredSuggestion("part of", "http://purl.obolibrary.org/obo/BFO_0000050", "BFO:0000050");
-//        roLookup.addPreferredSuggestion("enabled by", "http://purl.obolibrary.org/obo/RO_0002333", "RO:0002333");
-//        roLookup.addPreferredSuggestion("occurs in", "http://purl.obolibrary.org/obo/BFO_0000066", "BFO:0000066");
-//        roLookup.addPreferredSuggestion("causally upstream of or within", "http://purl.obolibrary.org/obo/RO_0002418", "RO:0002418");
-//        roLookup.addPreferredSuggestion("has participant", "http://purl.obolibrary.org/obo/RO_0000057", "RO:0000057");
-//        geneProductRelationshipField = new SuggestBox(roLookup);
-
-
         // most from here: http://geneontology.org/docs/guide-go-evidence-codes/
         BiolinkOntologyOracle ecoLookup = new BiolinkOntologyOracle("ECO");
         ecoLookup.addPreferredSuggestion("experimental evidence used in manual assertion (EXP)", "http://www.evidenceontology.org/term/ECO:0000269/", "ECO:0000269");
@@ -386,7 +375,7 @@ public class GoPanel extends Composite {
             for(int i = 0 ; i < aspectField.getItemCount() ; i++){
                 aspectField.setItemSelected(i,aspectField.getItemText(i).equals(selectedGoAnnotation.getAspect().name()));
             }
-            //
+
             setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
             enableFields(aspectField.getSelectedValue().length()>0);
 
@@ -422,8 +411,6 @@ public class GoPanel extends Composite {
                 addReferenceSelection(noteString);
             }
             noteField.setText("");
-
-
         }
 
     }
