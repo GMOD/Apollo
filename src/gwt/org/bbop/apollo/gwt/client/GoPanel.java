@@ -15,6 +15,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -168,6 +169,7 @@ public class GoPanel extends Composite {
             @Override
             public void onDoubleClick(DoubleClickEvent event) {
                 goAnnotationTitle.setText("Edit GO Annotation for "+AnnotatorPanel.selectedAnnotationInfo.getName());
+                handleSelection();
                 editGoModal.show();
             }
         }, DoubleClickEvent.getType());
@@ -543,8 +545,11 @@ public class GoPanel extends Composite {
         if (!goAnnotation.getGeneRelationship().contains(":")) {
             validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
         }
-        if (goAnnotation.getReference().getReferenceString().trim().length()==0 ) {
-            validationErrors.add("You must provide at least one reference");
+        if (goAnnotation.getReference().getPrefix().length()==0 ) {
+            validationErrors.add("You must provide at least a reference prefix.");
+        }
+        if (goAnnotation.getReference().getLookupId().length()==0 ) {
+            validationErrors.add("You must provide at least a reference id.");
         }
         return validationErrors;
     }
@@ -598,6 +603,7 @@ public class GoPanel extends Composite {
 
     @UiHandler("cancelNewGoAnnotation")
     public void cancelNewGoAnnotationButton(ClickEvent e) {
+        clearModal();
         editGoModal.hide();
     }
 

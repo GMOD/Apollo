@@ -44,7 +44,12 @@ public class GoRestService {
             public void onResponseReceived(Request request, Response response) {
                 JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
                 anchor.setHTML(returnObject.get("label").isString().stringValue());
-                anchor.setTitle(returnObject.get("definition").isString().stringValue());
+                if(returnObject.containsKey("definition")){
+                    anchor.setTitle(returnObject.get("definition").isString().stringValue());
+                }
+                else{
+                    anchor.setTitle(returnObject.get("label").isString().stringValue());
+                }
             }
 
             @Override
