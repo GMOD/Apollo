@@ -30,6 +30,7 @@ class GoAnnotationService {
                 goObject.put("id",goAnnotation.getId())
             }
             goObject.put("gene",feature.uniqueName)
+            goObject.put("aspect",goAnnotation.aspect)
             goObject.put("goTerm",goAnnotation.goRef)
             goObject.put("geneRelationship",goAnnotation.geneProductRelationshipRef)
             goObject.put("evidenceCode",goAnnotation.evidenceRef)
