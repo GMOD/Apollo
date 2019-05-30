@@ -532,7 +532,7 @@ public class GoPanel extends Composite {
         GoAnnotation goAnnotation = new GoAnnotation();
         goAnnotation.setGene(annotationInfo.getUniqueName());
         goAnnotation.setGoTerm(goTermField.getText());
-        goAnnotation.setGeneRelationship(geneProductRelationshipField.getSelectedItemText());
+        goAnnotation.setGeneRelationship(geneProductRelationshipField.getSelectedValue());
         goAnnotation.setEvidenceCode(evidenceCodeField.getText());
         goAnnotation.setNegate(notQualifierCheckBox.getValue());
         goAnnotation.setWithOrFromList(getWithList());
