@@ -15,7 +15,6 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -132,7 +131,7 @@ public class GoPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        aspectField.addItem("Choose");
+        aspectField.addItem("Choose","");
         for(Aspect aspect : Aspect.values()){
             aspectField.addItem(aspect.name(),aspect.getLookup());
         }
@@ -146,7 +145,8 @@ public class GoPanel extends Composite {
                 goLookup.setCategory(aspectField.getSelectedValue());
 
                 // TODO: set constrainted RO values
-                setRelationValues(aspectField.getSelectedItemText());
+                setRelationValues(aspectField.getSelectedItemText(),aspectField.getSelectedValue());
+                enableFields(aspectField.getSelectedValue().length()>0);
             }
         });
 
@@ -199,7 +199,6 @@ public class GoPanel extends Composite {
         });
 
         geneProductRelationshipField.addChangeHandler(new ChangeHandler() {
-
             @Override
             public void onChange(ChangeEvent event) {
                 String selectedItemText  = geneProductRelationshipField.getSelectedItemText();
@@ -211,9 +210,22 @@ public class GoPanel extends Composite {
         redraw();
     }
 
-    private void setRelationValues(String selectedItemText) {
-        Aspect aspect = Aspect.valueOf(selectedItemText);
+    private void enableFields(boolean enabled) {
+        saveNewGoAnnotation.setEnabled(enabled);
+        goTermField.setEnabled(enabled);
+        evidenceCodeField.setEnabled(enabled);
+        geneProductRelationshipField.setEnabled(enabled);
+        referenceFieldPrefix.setEnabled(enabled);
+        referenceFieldId.setEnabled(enabled);
+        withFieldPrefix.setEnabled(enabled);
+        withFieldId.setEnabled(enabled);
+        noteField.setEnabled(enabled);
+    }
+
+    private void setRelationValues(String selectedItemText,String selectedItemValue) {
+        Aspect aspect = selectedItemValue.length()>0 ? Aspect.valueOf(selectedItemText): null;
         geneProductRelationshipField.clear();
+        if(aspect==null ) return;
         switch(aspect){
             case BP:
                 geneProductRelationshipField.addItem("involved in","RO:0002331");
@@ -477,6 +489,8 @@ public class GoPanel extends Composite {
             Bootbox.alert(errorString);
             return;
         }
+        withFieldPrefix.clear();
+        withFieldId.clear();
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -521,8 +535,7 @@ public class GoPanel extends Composite {
         if (!goAnnotation.getGeneRelationship().contains(":")) {
             validationErrors.add("You must provide a prefix and suffix for the Gene Relationship");
         }
-
-        if (goAnnotation.getReference().getReferenceString().length()==0 ) {
+        if (goAnnotation.getReference().getReferenceString().trim().length()==0 ) {
             validationErrors.add("You must provide at least one reference");
         }
         return validationErrors;
@@ -550,7 +563,6 @@ public class GoPanel extends Composite {
         String withPrefixText = withFieldPrefix.getText();
         String withIdText = withFieldId.getText();
         if (withPrefixText.length() > 0 && withIdText.length() > 0) {
-            withFieldPrefix.clear();
             withOrFromList.add(new WithOrFrom(withPrefixText, withIdText));
         }
 
