@@ -665,6 +665,12 @@ define([
                             if (event.altKey) {
                                 track.getAnnotationInfoEditor();
                             }
+                            if (event.metaKey) {
+                                track.getSequence();
+                            }
+                            if (event.metaKey && event.altKey) {
+                                track.getGff3();
+                            }
                         })
                     ;
                 }
@@ -674,8 +680,8 @@ define([
                     new Tooltip({
                         connectId: featDiv,
                         label: label,
-                        position: ["above"],
-                        showDelay: 400
+                        position: ["after","before","below","above"],
+                        showDelay: 0
                     });
                 }
 
@@ -1154,9 +1160,9 @@ define([
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
                     var recognizedBioType = [
-                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
+                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator','Shine_Dalgarno_sequence'
                     ];
-                    var strandedOneLevelTypes = ['terminator'];
+                    var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence'];
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
@@ -1357,6 +1363,8 @@ define([
             },
 
             createGenericOneLevelAnnotations: function (feats, type, strandless) {
+
+
                 var target_track = this;
                 var featuresToAdd = new Array();
                 var parentFeatures = new Object();
@@ -1686,6 +1694,180 @@ define([
                 track.executeUpdateOperation(JSON.stringify(postData));
             },
 
+            associateFeatureToGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var featureUniqueName;
+                var geneUniqueName;
+                if (selected[0].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                if (selected[1].feature.parent()) {
+                    // selected is an exon, get its parent
+                    var parent = selected[1].feature.parent();
+                    geneUniqueName = parent.afeature.parent_id;
+                }
+                else {
+                    geneUniqueName = selected[1].feature.afeature.parent_id;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: featureUniqueName }, { uniquename: geneUniqueName }],
+                    operation: 'associate_feature_to_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+            dissociateFeatureFromGene: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                this.selectionManager.clearSelection();
+                var featureUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var postData = {
+                    track: trackName,
+                    features: [{ uniquename: featureUniqueName }],
+                    operation: 'dissociate_feature_from_gene'
+                };
+                track.executeUpdateOperation(JSON.stringify(postData));
+            },
+
+
+            /**
+             * allow removal for
+             */
+            removeVariantEffect: function(){
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                console.log('selected',selected);
+                // var feature = selected[0].feature ;
+                // var location = feature.afeature.location ;
+                // var variant_type = feature.data.type;
+                console.log('feature to remove variant from',selected);
+                var featureUniqueName;
+                if (selected[0].feature.parent()) {
+                    //selected is an exon, get its parent
+                    var parent = selected[0].feature.parent();
+                    featureUniqueName = parent.afeature.uniquename;
+                }
+                else {
+                    featureUniqueName = selected[0].feature.afeature.uniquename;
+                }
+
+                var features = [featureUniqueName];
+                var postData = {
+                    "track": trackName,
+                    "features": features,
+                    "operation": "remove_variant_effect",
+                    "clientToken": track.getClientToken()
+                };
+                this.selectionManager.clearSelection();
+                track.executeUpdateOperation(JSON.stringify(postData));
+                track.changed();
+            },
+
+            viewVariantEffect: function() {
+                var track = this;
+                var trackName = this.getUniqueTrackName();
+                var selected = this.selectionManager.getSelection();
+                console.log('selected',selected)
+                var feature = selected[0].feature ;
+                // var location = feature.afeature.location ;
+                var variant_type = feature.data.type;
+
+                // TODO: may have to get review the alteration data to see
+
+                // an array
+                var alternate_alleles = feature.afeature.alternate_alleles[0].bases;
+                var reference_allele = feature.afeature.reference_allele.bases;
+                var residues = '';
+
+
+                var alteration_type = '';
+                switch(variant_type){
+                    case 'SNV':
+                    case 'SNP':
+                    case 'indel':
+                    case 'MNV':
+                    case 'MNP':
+                    case 'substitution':
+                        alteration_type = 'substitution_artifact';
+                        residues = alternate_alleles;
+                        break;
+                    case 'insertion':
+                        alteration_type = 'insertion_artifact';
+                        var foundIndex = alternate_alleles.indexOf(reference_allele);
+                        residues = alternate_alleles.substr(foundIndex);
+                        break;
+                    case 'deletion':
+                        alteration_type = 'deletion_artifact';
+                        break;
+                    default:
+                        alert('I do not know what to do with type: '+variant_type);
+                        return ;
+                }
+
+                var description = 'Effect of ' + variant_type + ' '  + feature.data.name;
+
+                var feature = {
+                    location: {
+                        fmin: feature.data.start,
+                        fmax: feature.data.end,
+                        strand: 1
+                    },
+                    type: {
+                        name: alteration_type,
+                        cv: {
+                            name: "sequence"
+                        }
+                    },
+                    non_reserved_properties : [
+                        {
+                            tag: "justification",
+                            value: description
+                        },
+                        {
+                            tag: "variant_effect",
+                            value: true
+                        }
+                    ]
+                };
+                if (alteration_type !== "deletion_artifact") {
+                // get alternate_alleles . . . somehow
+                    feature.residues = residues ;
+                }
+
+                var features = [feature];
+                var postData = {
+                    "track": trackName,
+                    "features": features,
+                    "operation": "add_sequence_alteration",
+                    "clientToken": track.getClientToken()
+                };
+                this.selectionManager.clearSelection();
+                track.executeUpdateOperation(JSON.stringify(postData));
+                track.changed();
+            },
+
             mergeAnnotations: function (selection) {
                 var track = this;
                 var annots = [];
@@ -1850,6 +2032,43 @@ define([
             flipStrand: function () {
                 var selected = this.selectionManager.getSelection();
                 this.flipStrandForSelectedFeatures(selected);
+            },
+
+            removeCDS: function () {
+                var records = this.selectionManager.getSelection();
+                var track = this;
+                var uniqueNames = new Object();
+                for (var i in records) {
+                    var record = records[i];
+                    var selfeat = record.feature;
+                    // console.log('this feagture',selfeat)
+                    var seltrack = record.track;
+                    var topfeat = AnnotTrack.getTopLevelAnnotation(selfeat);
+                    // console.log('top feature',topfeat)
+                    // var uniqueName = topfeat.id();
+                    var uniqueName = topfeat.id();
+                    // just checking to ensure that all features in selection are from
+                    // this track
+                    if (seltrack === track) {
+                        uniqueNames[uniqueName] = 1;
+                    }
+                }
+                var features = '"features": [';
+                var i = 0;
+                for (var uniqueName in uniqueNames) {
+                    // var trackdiv = track.div;
+                    // var trackName = track.getUniqueTrackName();
+                    if (i > 0) {
+                        features += ',';
+                    }
+                    features += ' { "uniquename": "' + uniqueName + '" } ';
+                    ++i;
+                }
+                features += ']';
+                var operation = "remove_cds";
+                var trackName = track.getUniqueTrackName();
+                var postData = '{ "track": "' + trackName + '", ' + features + ', "operation": "' + operation + '" }';
+                track.executeUpdateOperation(postData);
             },
 
             flipStrandForSelectedFeatures: function (records) {
@@ -2166,6 +2385,9 @@ define([
             getAnnotationInfoEditorForSelectedFeatures: function (records) {
                 var track = this;
                 var record = records[0];
+                if(!record){
+                    console.log('No record selected');
+                }
                 var annot = AnnotTrack.getTopLevelAnnotation(record.feature);
                 var seltrack = record.track;
                 // just checking to ensure that all features in selection are from this
@@ -4604,8 +4826,7 @@ define([
                         }
                         for (var i = 0; i < status.length; ++i) {
                             var statusRadioDiv = dojo.create("span", {
-                                'class': "annotation_info_editor_radio",
-                                style: "width:" + (maxLength * 0.75) + "em; display: inline;"
+                                'class': "annotation_info_editor_radio"
                             }, statusFlags);
                             var statusRadio = new dijitRadioButton({
                                 value: status[i],
@@ -5986,7 +6207,20 @@ define([
                 var track = this;
 
                 var content = dojo.create("div", {className: "get_sequence"});
-                var textArea = dojo.create("textarea", {className: "sequence_area", readonly: true}, content);
+
+                var copyButton = dojo.create("button", {
+                    title: "Copy to Clipboard",
+                    innerHTML: "Copy to Clipboard",
+                    className:"copy_clipboard_button"
+                }, content);
+
+                var copyValueLabel = dojo.create("div", {
+                    innerHTML: "",
+                    id: 'copy_value_id',
+                    className: "copy_value_label"
+                }, content);
+
+                var textArea = dojo.create("textarea", {id:'sequence_text_area',className: "sequence_area", readonly: true}, content);
                 var form = dojo.create("form", {}, content);
                 var peptideButtonDiv = dojo.create("div", {className: "first_button_div"}, form);
                 var peptideButton = dojo.create("input", {
@@ -6036,6 +6270,14 @@ define([
                     className: "button_label"
                 }, genomicWithFlankButtonDiv);
 
+                dojo.connect(copyButton,'onclick',function(){
+                    var el = document.getElementById("sequence_text_area")
+                    el.select();
+                    document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+                    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+                    copyValueLabel.innerHTML = 'Copied!';
+                });
+
                 var fetchSequence = function (type) {
                     var features = '"features": [';
                     for (var i = 0; i < records.length; ++i) {
@@ -6079,7 +6321,7 @@ define([
                                 var residues = feature.residues;
                                 var loc = feature.location;
                                 textAreaContent += "&gt;" + feature.uniquename + " (" + cvterm.cv.name + ":" + cvterm.name + ") " + residues.length + " residues [" + track.refSeq.name + ":" + (loc.fmin + 1) + "-" + loc.fmax + " " + (loc.strand == -1 ? "-" : loc.strand == 1 ? "+" : "no") + " strand] [" + type + (flank > 0 ? " +/- " + flank + " bases" : "") + "]\n";
-                                var lineLength = 70;
+                                var lineLength = 60;
                                 for (var j = 0; j < residues.length; j += lineLength) {
                                     textAreaContent += residues.substr(j, lineLength) + "\n";
                                 }
@@ -6105,22 +6347,27 @@ define([
                     if (target == peptideButton || target == peptideButtonLabel) {
                         dojo.attr(peptideButton, "checked", true);
                         type = "peptide";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == cdnaButton || target == cdnaButtonLabel) {
                         dojo.attr(cdnaButton, "checked", true);
                         type = "cdna";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == cdsButton || target == cdsButtonLabel) {
                         dojo.attr(cdsButton, "checked", true);
                         type = "cds";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == genomicButton || target == genomicButtonLabel) {
                         dojo.attr(genomicButton, "checked", true);
                         type = "genomic";
+                        copyValueLabel.innerHTML = '';
                     }
                     else if (target == genomicWithFlankButton || target == genomicWithFlankButtonLabel) {
                         dojo.attr(genomicWithFlankButton, "checked", true);
                         type = "genomic_with_flank";
+                        copyValueLabel.innerHTML = '';
                     }
                     fetchSequence(type);
                 };
@@ -6625,7 +6872,7 @@ define([
             initAnnotContextMenu: function () {
 
                 // TODO: this list is duplicated
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator','Shine_Dalgarno_sequence'];
 
                 var thisB = this;
                 contextMenuItems = new Array();
@@ -6633,7 +6880,7 @@ define([
                 var permission = thisB.permission;
                 var index = 0;
                 annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "Get Sequence",
+                    label: "Get Sequence (meta-click)",
                     onClick: function (event) {
                         thisB.getSequence();
                     }
@@ -6641,7 +6888,7 @@ define([
                 contextMenuItems["get_sequence"] = index++;
 
                 annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "Get GFF3",
+                    label: "Get GFF3 (alt-meta-click)",
                     onClick: function (event) {
                         thisB.getGff3();
                     }
@@ -6758,12 +7005,13 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "terminator",
-                        onclick: function(event) {
+                        label: "Terminator",
+                        onClick: function(event) {
+                            console.log('selecting terminator')
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region") {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region" && selectedFeatureType != "Shine_Dalgarno_sequence") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "terminator", message);
                             }
@@ -6773,12 +7021,27 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "repeat_region",
+                        label: "Shine Dalgarno sequence",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" ) {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region"  && selectedFeatureType != "terminator") {
+                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
+                                thisB.confirmChangeAnnotationType(thisB, [selected], "Shine_Dalgarno_sequence", message);
+                            }
+                            else {
+                                thisB.changeAnnotationType("Shine_Dalgarno_sequence");
+                            }
+                        }
+                    }));
+                    changeAnnotationMenu.addChild(new dijitMenuItem( {
+                        label: "Repeat region",
+                        onClick: function(event) {
+                            var selected = thisB.selectionManager.getSelection();
+                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
+                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" && selectedFeatureType != "Shine_Dalgarno_sequence" ) {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
                             }
@@ -6788,12 +7051,12 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "transposable_element",
+                        label: "Transposable element",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator") {
+                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator" && selectedFeatureType != "Shine_Dalgarno_sequence") {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
                             }
@@ -6833,7 +7096,45 @@ define([
                     });
                     annot_context_menu.addChild(dissociateTranscriptToGeneItem);
                     contextMenuItems["dissociate_transcript_from_gene"] = index++;
-                    //
+
+                    var associateFeatureToGeneItem = new dijit.MenuItem({
+                        label: "Associate Feature to Gene",
+                        onClick: function () {
+                            thisB.associateFeatureToGene();
+                        }
+                    });
+                    annot_context_menu.addChild(associateFeatureToGeneItem);
+                    contextMenuItems["associate_feature_to_gene"] = index++;
+
+                    var dissociateFeatureToGeneItem = new dijit.MenuItem({
+                        label: "Dissociate Feature from Gene",
+                        onClick: function () {
+                            thisB.dissociateFeatureFromGene();
+                        }
+                    });
+                    annot_context_menu.addChild(dissociateFeatureToGeneItem);
+                    contextMenuItems["dissociate_feature_from_gene"] = index++;
+
+                    annot_context_menu.addChild(new dijit.MenuSeparator());
+                    index++;
+
+                    var viewVariantEffect = new dijit.MenuItem({
+                        label: "View Variant Effect",
+                        onClick: function () {
+                            thisB.viewVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(viewVariantEffect);
+                    contextMenuItems["view_variant_effect"] = index++;
+
+                    var removeVariantEffect = new dijit.MenuItem({
+                        label: "Remove Variant Effects",
+                        onClick: function () {
+                            thisB.removeVariantEffect();
+                        }
+                    });
+                    annot_context_menu.addChild(removeVariantEffect);
+                    contextMenuItems["remove_variant_effect"] = index++;
 
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
@@ -6892,6 +7193,7 @@ define([
                         }
                     }));
                     contextMenuItems["flip_strand"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuSeparator());
                     index++;
 
@@ -6928,6 +7230,15 @@ define([
                         }
                     }));
                     contextMenuItems["set_longest_orf"] = index++;
+
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Remove CDS",
+                        onClick: function (event) {
+                            thisB.removeCDS();
+                        }
+                    }));
+                    contextMenuItems["remove_cds"] = index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Set Readthrough Stop Codon",
                         onClick: function (event) {
@@ -7235,8 +7546,13 @@ define([
                 this.updateSetTranslationStartMenuItem();
                 this.updateSetTranslationEndMenuItem();
                 this.updateSetLongestOrfMenuItem();
+                this.updateRemoveCDSMenuItem();
                 this.updateAssociateTranscriptToGeneItem();
                 this.updateDissociateTranscriptFromGeneItem();
+                this.updateAssociateFeatureToGeneItem();
+                this.updateDissociateFeatureFromGeneItem();
+                this.updateViewVariantEffect();
+                this.updateRemoveVariantEffect();
                 this.updateSetReadthroughStopCodonMenuItem();
                 this.updateMergeMenuItem();
                 this.updateSplitMenuItem();
@@ -7299,6 +7615,83 @@ define([
                 }
             },
 
+
+            updateAssociateFeatureToGeneItem: function() {
+                var menuItem = this.getMenuItem("associate_feature_to_gene");
+                var selected = this.selectionManager.getSelection();
+                var currentType = selected[0].feature.get('type');
+                if (selected.length != 2) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                if (AnnotTrack.getTopLevelAnnotation(selected[0].feature).data.parent_id === AnnotTrack.getTopLevelAnnotation(selected[1].feature).data.parent_id) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE)
+                    || JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[1].feature), JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+
+                // TODO: if one is a parent gene and the other is a regulator, then it is not disabled, otherwise it is disabled
+
+
+                // if (JSONUtils.overlaps(selected[0].feature, selected[1].feature)) {
+                //     menuItem.set("disabled", false);
+                // }
+                // else {
+                //     menuItem.set("disabled", true);
+                // }
+                menuItem.set("disabled", false);
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateViewVariantEffect: function(){
+                var menuItem = this.getMenuItem("view_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length !== 1) {
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                    // TODO: search for sequence alterations in that space?
+                    menuItem.set("disabled", false);
+                }
+            },
+
+            /**
+             * TODO, scale to multiple, just one for right now
+             */
+            updateRemoveVariantEffect: function(){
+                var menuItem = this.getMenuItem("remove_variant_effect");
+                var selected = this.selectionManager.getSelection();
+                menuItem.set("disabled", true);
+                if (selected.length === 0) {
+                    return;
+                }
+                // var currentType = selected[0].feature.get('type');
+                // if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
+                //     // TODO: search for sequence alterations in that space?
+                menuItem.set("disabled", false);
+                // }
+            },
+
             updateDissociateTranscriptFromGeneItem: function() {
                 var menuItem = this.getMenuItem("dissociate_transcript_from_gene");
                 var selected = this.selectionManager.getSelection();
@@ -7321,6 +7714,33 @@ define([
                 }
 
                 menuItem.set("disabled", false);
+            },
+
+            updateDissociateFeatureFromGeneItem: function() {
+                var menuItem = this.getMenuItem("dissociate_feature_from_gene");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length != 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                var currentType = selected[0].feature.get('type');
+                if (!JSONUtils.regulatorTypes.includes(currentType.toUpperCase())) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (!this.canEdit(selected[0].feature)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                if (JSONUtils.checkForComment(AnnotTrack.getTopLevelAnnotation(selected[0].feature), JSONUtils.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE)) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                menuItem.set("disabled", false);
+            },
+
+            isSingleFeatureLabel:function(label){
+                return (label === "Transposable element" || label === "Terminator"  || label === "Shine Dalgarno sequence" || label === "Repeat region" ) ;
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
@@ -7354,21 +7774,17 @@ define([
                             menuItems[i].setDisabled(false);
                         }
                     }
+                    else if (selectedType === "terminator") {
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
+                    }
+                    else if (selectedType === "Shine_Dalgarno_sequence") {
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
+                    }
                     else if (selectedType === "repeat_region") {
-                        if (menuItems[i].label === "transposable_element") {
-                            menuItems[i].setDisabled(false);
-                        }
-                        else {
-                            menuItems[i].setDisabled(true);
-                        }
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
                     }
                     else if (selectedType === "transposable_element") {
-                        if (menuItems[i].label === "repeat_region") {
-                            menuItems[i].setDisabled(false);
-                        }
-                        else {
-                            menuItems[i].setDisabled(true);
-                        }
+                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
                     }
                     else if (JSONUtils.variantTypes.includes(selectedType.toUpperCase())) {
                         menuItems[i].setDisabled(true);
@@ -7476,6 +7892,27 @@ define([
                 else {
                     menuItem.set("label", "Set Translation End");
                 }
+            },
+
+            updateRemoveCDSMenuItem: function () {
+                var menuItem = this.getMenuItem("remove_cds");
+                var selected = this.selectionManager.getSelection();
+                if (selected.length > 1) {
+                    menuItem.set("disabled", true);
+                    return;
+                }
+                for (var i = 0; i < selected.length; ++i) {
+                    if (!this.isProteinCoding(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                    if (!this.canEdit(selected[i].feature)) {
+                        menuItem.set("disabled", true);
+                        return;
+                    }
+                }
+
+                menuItem.set("disabled", false);
             },
 
             updateSetLongestOrfMenuItem: function () {
@@ -7761,7 +8198,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7788,7 +8225,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -7815,7 +8252,7 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                if (!selectedAnnots[0].feature.parent() || !selectedEvidence[0].feature.parent()) {
+                if (!selectedAnnots[0].feature.parent() || (!selectedEvidence[0].feature.parent() && !selectedEvidence[0].feature.record.data)) {
                     menuItem.set("disabled", true);
                     return;
                 }
@@ -8122,8 +8559,6 @@ define([
                                             for (var i = 0; i < sindex; i++) {
                                                 var sdiv = $seqdivs[i];
                                                 if ($(sdiv).position().top === ypos) {
-                                                    // console.log("residues already present
-                                                    // in block: " + bindex);
                                                     add_residues = false;
                                                 }
                                             }
@@ -8136,7 +8571,6 @@ define([
                                                 seq = track.getSequenceTrack().complement(seq);
                                             }
                                             seqNode.appendChild(document.createTextNode(seq));
-                                            // console.log("ypos: " + ypos);
                                             seqNode.style.cssText = "top: " + ypos + "px;";
                                             block.domNode.appendChild(seqNode);
                                             if (track.FADEIN_RESIDUES) {
@@ -8152,14 +8586,12 @@ define([
             },
 
             selectionRemoved: function (selected_record, smanager) {
-                // console.log("AnnotTrack.selectionRemoved() called");
                 this.inherited(arguments);
                 var track = this;
                 if (selected_record.track === track) {
                     var feat = selected_record.feature;
                     var featdiv = this.getFeatDiv(feat);
                     // remove sequence text nodes
-                    // console.log("removing base residued text from selected annot");
                     $("div.annot-sequence", track.div).remove();
                     delete this.currentResizableFeature;
                     if ($(featdiv).hasClass("resizable")) {

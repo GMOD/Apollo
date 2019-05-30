@@ -893,7 +893,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
     /*
      * WARNING: assumes one level (featdiv has feature)
-     *                  or two-level (featdiv has feature, subdivs have subfeature) feature hierarchy
+     *                  or two-level (featdiv has feature, subdivs have subfeature)
+     *                  or three-level (gene>mRNA>exon/CDS if inferHTMLSubfeatures is true) feature hierarchy
      * attaching ghost to pinned AnnotTrack or SequenceTrack to ensure that stays on top
      */
     handleFeatureDragSetup: function(event)  {
@@ -1057,7 +1058,11 @@ var draggableTrack = declare( HTMLFeatureTrack,
     getBlock: function( featdiv ) {
         var fdiv = featdiv;
         while (fdiv.feature || fdiv.subfeature) {
-            if (fdiv.parentNode.block) { return fdiv.parentNode.block; }
+            if (fdiv.parentNode && fdiv.parentNode.block) { return fdiv.parentNode.block; }
+            if ((typeof this.browser.config.inferHTMLSubfeatures === 'undefined' || this.browser.config.inferHTMLSubfeatures===true)
+                && fdiv.parentNode && fdiv.parentNode.parentNode && fdiv.parentNode.parentNode.block) {
+                    return fdiv.parentNode.parentNode.block;
+            }
             fdiv = fdiv.parentNode;
         }
         return null;  // should never get here...
@@ -1270,6 +1275,12 @@ var draggableTrack = declare( HTMLFeatureTrack,
             label: "terminator",
             onClick: dojo.hitch(this, function() {
                 atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "terminator", false);
+            })
+        }));
+        createAnnotationMenu.addChild(new dijitMenuItem( {
+            label: "Shine_Dalgarno_Sequence",
+            onClick: dojo.hitch(this, function() {
+                atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "Shine_Dalgarno_sequence", false);
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {

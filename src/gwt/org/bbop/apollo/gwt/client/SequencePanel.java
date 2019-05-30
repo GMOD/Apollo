@@ -11,6 +11,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONNumber;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -90,11 +91,17 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportFastaButton;
     @UiField
+    Button exportGpadButton;
+    @UiField
     Button selectSelectedButton;
     @UiField
     Button exportChadoButton;
+    //    @UiField
+//    Button exportJbrowseButton;
     @UiField
     Button deleteSequencesButton;
+    @UiField
+    Button deleteVariantEffectsButton;
 
     private AsyncDataProvider<SequenceInfo> dataProvider;
     private MultiSelectionModel<SequenceInfo> multiSelectionModel = new MultiSelectionModel<SequenceInfo>();
@@ -139,6 +146,7 @@ public class SequencePanel extends Composite {
         dataGrid.addColumn(annotationCount, "Annotations");
 
         dataGrid.setSelectionModel(multiSelectionModel);
+
         multiSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
@@ -151,6 +159,7 @@ public class SequencePanel extends Composite {
                 }
                 if (selectedSequenceInfo.size() > 0) {
                     exportSelectedButton.setText("Selected (" + selectedSequenceInfo.size() + ")");
+                    deleteSequencesButton.setText("Annotations on " + selectedSequenceInfo.size() + " seq");
                 } else {
                     exportSelectedButton.setText("Selected");
                 }
@@ -180,6 +189,10 @@ public class SequencePanel extends Composite {
                         }
                         dataGrid.setRowCount(sequenceCount, true);
                         dataGrid.setRowData(start, SequenceInfoConverter.convertFromJsonArray(jsonArray));
+                        if (MainPanel.getInstance().getCurrentOrganism() != null) {
+                            deleteSequencesButton.setText("Annotation (" + MainPanel.getInstance().getCurrentOrganism().getNumFeatures() + ")");
+                            deleteVariantEffectsButton.setText("All Variant Effects (" + MainPanel.getInstance().getCurrentOrganism().getVariantEffectCount() + ")");
+                        }
                     }
 
                     @Override
@@ -331,12 +344,14 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportVcfButton", "exportFastaButton", "exportChadoButton"})
+    @UiHandler(value = {"exportGff3Button", "exportVcfButton", "exportFastaButton", "exportChadoButton","exportGpadButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportVcfButton.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
         exportChadoButton.setType(ButtonType.DEFAULT);
+        exportGpadButton.setType(ButtonType.DEFAULT);
+//        exportJbrowseButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
         switch (selectedButton.getText()) {
             case "GFF3":
@@ -351,6 +366,12 @@ public class SequencePanel extends Composite {
             case "CHADO":
                 exportChadoButton.setType(ButtonType.PRIMARY);
                 break;
+            case "GPAD":
+                exportGpadButton.setType(ButtonType.PRIMARY);
+                break;
+//            case "JBROWSE":
+//                exportJbrowseButton.setType(ButtonType.PRIMARY);
+//                break;
         }
     }
 
@@ -389,18 +410,58 @@ public class SequencePanel extends Composite {
         OrganismInfo organismInfo = MainPanel.getInstance().getCurrentOrganism();
         // get the type based on the active button
         String type = null;
-        if (exportGff3Button.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        if (exportGff3Button.getType().equals(ButtonType.PRIMARY)) {
             type = exportGff3Button.getText();
-        } else if (exportVcfButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportVcfButton.getType().equals(ButtonType.PRIMARY)) {
             type = exportVcfButton.getText();
-        } else if (exportFastaButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportFastaButton.getType().equals(ButtonType.PRIMARY)) {
             type = exportFastaButton.getText();
-        } else if (exportChadoButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+        } else if (exportChadoButton.getType().equals(ButtonType.PRIMARY)) {
             type = exportChadoButton.getText();
+        } else if (exportGpadButton.getType().equals(ButtonType.PRIMARY)) {
+            type = exportGpadButton.getText();
         }
+//        else if (exportJbrowseButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
+//            type = exportJbrowseButton.getText();
+//        }
 
         ExportPanel exportPanel = new ExportPanel(organismInfo, type, exportAll, sequenceInfoList);
         exportPanel.show();
+    }
+
+    @UiHandler("deleteVariantEffectsButton")
+    public void deleteVariantEffectsButton(ClickEvent clickEvent) {
+        // get all sequences for annotation
+        final Set<SequenceInfo> sequenceInfoSet = multiSelectionModel.getSelectedSet();
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                GWT.log(response.getText() + " " + response.getStatusCode());
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("There was a problem with deleting the variant effects: " + exception.getMessage());
+            }
+        };
+
+        Bootbox.confirm("Remove Variant Effects from " + sequenceInfoSet.size() + " sequences (this could take a VERY long time for large sets?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                // block here
+                if (result) {
+                    final LoadingDialog loadingDialog = new LoadingDialog("Deleting Annotations ...", null, false);
+                    JSONArray sequenceArray = new JSONArray();
+                    for (SequenceInfo sequenceInfo : sequenceInfoSet) {
+                        sequenceArray.set(sequenceArray.size(), new JSONNumber(sequenceInfo.getId()));
+                    }
+                    JSONObject returnObject = AnnotationRestService.deleteVariantAnnotationsFromSequences(requestCallback, sequenceInfoSet);
+                    loadingDialog.hide();
+                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences");
+                }
+            }
+        });
+
     }
 
     @UiHandler("deleteSequencesButton")
@@ -415,7 +476,7 @@ public class SequencePanel extends Composite {
 
             @Override
             public void onError(Request request, Throwable exception) {
-                Bootbox.alert("There was a problem with deleting the sequences: "+exception.getMessage());
+                Bootbox.alert("There was a problem with deleting the sequences: " + exception.getMessage());
             }
         };
 
@@ -423,7 +484,7 @@ public class SequencePanel extends Composite {
             @Override
             public void callback(boolean result) {
                 // block here
-                if (result){
+                if (result) {
                     final LoadingDialog loadingDialog = new LoadingDialog("Deleting Annotations ...", null, false);
                     JSONObject returnObject = AnnotationRestService.deleteAnnotationsFromSequences(requestCallback, sequenceInfoSet);
                     loadingDialog.hide();
@@ -463,8 +524,12 @@ public class SequencePanel extends Composite {
         selectedSequenceDisplay.clear();
         if (selectedSequenceInfoList.size() == 0) {
             selectedSequenceDisplay.setEnabled(false);
+            deleteSequencesButton.setEnabled(false);
+            deleteVariantEffectsButton.setEnabled(false);
         } else {
             selectedSequenceDisplay.setEnabled(true);
+            deleteSequencesButton.setEnabled(true);
+            deleteVariantEffectsButton.setEnabled(true);
             for (SequenceInfo s : selectedSequenceInfoList) {
                 Option option = new Option();
                 option.setValue(s.getName());

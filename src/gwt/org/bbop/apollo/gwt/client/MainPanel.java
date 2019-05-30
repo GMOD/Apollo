@@ -22,6 +22,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
+import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.rest.*;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum;
@@ -34,6 +35,7 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -954,7 +956,14 @@ public class MainPanel extends Composite {
 
     @UiHandler(value = {"logoutAndBrowsePublicGenomes"})
     public void logoutAndBrowse(ClickEvent clickEvent) {
-        UserRestService.logout("../jbrowse");
+        Bootbox.confirm("Logout?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    UserRestService.logout("../jbrowse");
+                }
+            }
+        });
     }
 
 

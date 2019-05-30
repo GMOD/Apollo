@@ -18,8 +18,12 @@ public class VariantPropertyInfo {
 
     public VariantPropertyInfo(JSONObject variantPropertyInfoJsonObject) {
         String tag = variantPropertyInfoJsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue();
-        String value = variantPropertyInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue();
         this.tag = tag;
+
+        String value = null ;
+        if(variantPropertyInfoJsonObject.containsKey(FeatureStringEnum.VALUE.getValue())){
+            value = variantPropertyInfoJsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue();
+        }
         this.value = value;
     }
 

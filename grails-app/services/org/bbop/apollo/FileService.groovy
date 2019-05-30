@@ -5,8 +5,10 @@ import org.apache.commons.compress.archivers.ArchiveInputStream
 import org.apache.commons.compress.archivers.ArchiveStreamFactory
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
 import org.apache.commons.io.IOUtils
 import org.springframework.web.multipart.commons.CommonsMultipartFile
 
@@ -186,13 +188,77 @@ class FileService {
         return fileNames
     }
 
+    private void addFileToTar(TarArchiveOutputStream tOut, File file, String dir) throws IOException {
+        String entry = dir + File.separator + file.name
+        if (file.isFile() && allowableSuffix(file)) {
+            TarArchiveEntry tarEntry = new TarArchiveEntry(file, entry)
+            tOut.putArchiveEntry(tarEntry)
+            FileInputStream fileInputStream = new FileInputStream(file)
+            IOUtils.copy(fileInputStream, tOut)
+            tOut.closeArchiveEntry()
+        }
+        else if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    addFileToTar(tOut, child, entry)
+                }
+            }
+        }
+        else{
+            log.error(file.name + " is not supported");
+        }
+    }
+
+    boolean allowableSuffix(File file) {
+        return !file.absolutePath.startsWith(".")
+    }
+
+    def compressTarArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
+
+        FileOutputStream fileOutputStream
+        TarArchiveOutputStream tarArchiveOutputStream
+        try {
+            fileOutputStream = new FileOutputStream(outputTarFile)
+            tarArchiveOutputStream = new TarArchiveOutputStream(fileOutputStream)
+            tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
+            tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+            tarArchiveOutputStream.setAddPaxHeadersForNonAsciiNames(true)
+
+            addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
+        }
+        catch (e) {
+            log.error "${e}"
+        }
+    }
+
+    def compressTarGzArchive(File outputTarFile, File inputDirectory, String base = "") throws IOException{
+
+        FileOutputStream fileOutputStream
+        TarArchiveOutputStream tarArchiveOutputStream
+        GzipCompressorOutputStream gzipCompressorOutputStream
+        try {
+            fileOutputStream = new FileOutputStream(outputTarFile)
+            gzipCompressorOutputStream = new GzipCompressorOutputStream(fileOutputStream)
+            tarArchiveOutputStream = new TarArchiveOutputStream(gzipCompressorOutputStream)
+            tarArchiveOutputStream.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR)
+            tarArchiveOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU)
+            tarArchiveOutputStream.setAddPaxHeadersForNonAsciiNames(true)
+
+            addFileToTar(tarArchiveOutputStream, inputDirectory, ".")
+        }
+        catch (e) {
+            log.error "${e}"
+        }
+    }
+
     List<String> decompressGzipArchive(File gzipFile, String path, String directoryName = null, boolean tempDir = false) {
         List<String> fileNames = []
         String initialLocation = tempDir ? path + File.separator + "temp" : path
 
         log.debug "initial location: ${initialLocation}"
         GzipCompressorInputStream tais = new GzipCompressorInputStream(new FileInputStream(gzipFile))
-        String tempFileName = UUID.randomUUID().toString()+".temp"
+        String tempFileName = UUID.randomUUID().toString() + ".temp"
 
         File outputFile = new File(initialLocation, tempFileName)
         assert outputFile.createNewFile()
@@ -204,7 +270,7 @@ class FileService {
             fos.close()
             fileNames.add(outputFile.absolutePath)
         } catch (IOException e) {
-                log.error("Problem decrompression file ${gzipFile} vs ${outputFile}", e)
+            log.error("Problem decrompression file ${gzipFile} vs ${outputFile}", e)
         }
         return fileNames
     }

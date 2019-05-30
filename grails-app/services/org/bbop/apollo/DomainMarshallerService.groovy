@@ -35,6 +35,8 @@ class DomainMarshallerService {
             returnArray['id'] = it.id
             returnArray['commonName'] = it.commonName
             returnArray['directory'] = it.directory
+            returnArray['annotationCount'] = it.annotationCount
+            returnArray['variantEffectCount'] = it.variantEffectCount
             return returnArray
         }
 

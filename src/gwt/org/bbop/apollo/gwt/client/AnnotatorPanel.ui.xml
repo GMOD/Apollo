@@ -30,6 +30,16 @@
             display: inline;
             margin: 5px;
         }
+        .checkBox{
+            display: inline;
+            /*margin: 5px;*/
+            background-color: grey;
+            border-radius: 10px;
+            padding: 5px;
+            width: 90px;
+
+            /*border: solid black 5px;*/
+        }
 
         .rowPadding {
             margin-bottom: 40px;
@@ -43,6 +53,16 @@
             margin-right: 10px;
             display: inline;
         }
+
+        .pageSizeLabel {
+            display: inline;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .pageSizeSelector {
+            display: inline;
+            width: 40px;
+        }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
         <gwt:north size="120">
@@ -54,6 +74,9 @@
                     </b:Column>
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="typeList" addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_3">
+                        <b:CheckBox ui:field="goOnlyCheckBox" addStyleNames="{style.checkBox}" text="GO Only"/>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowPadding}">
@@ -68,7 +91,7 @@
                     </b:Column>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="MD_10">
+                    <b:Column size="MD_8">
                         <b:ButtonGroup>
                             <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"
                                       text="Go to Annotation"
@@ -78,7 +101,18 @@
                                       ui:field="deleteAnnotation" enabled="false"
                                       addStyleNames="{style.action-buttons}"/>
                         </b:ButtonGroup>
+                        <b:Label text="Rows" styleName="{style.pageSizeLabel}"/>
+                        <b:ListBox title="Rows"
+                                       ui:field="pageSizeSelector" styleName="{style.pageSizeSelector}"
+                        >
+                        </b:ListBox>
                     </b:Column>
+                    <b:Column size="MD_2">
+                        <b:Button  text="Details"
+                                  ui:field="toggleAnnotation" enabled="true" dataToggle="BUTTON"
+                                  addStyleNames="{style.action-buttons}"/>
+                    </b:Column>
+
                 </b:Row>
         </b:Container>
     </gwt:north>
@@ -93,7 +127,8 @@
                             <td align="center">
                                 <apollo:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
                             </td>
-                            <td style="width:20%"/>
+                            <td style="width:20%">
+                            </td>
                         </tr>
                     </table>
                 </gwt:HTMLPanel>
@@ -132,29 +167,10 @@
                 <gwt:header>Allele Info</gwt:header>
                 <apollo:AlleleInfoPanel ui:field="alleleInfoPanel"/>
             </gwt:tab>
-
-            <!--TODO: 2.1-->
-            <!--<gwt:tab>-->
-            <!--<gwt:header>DbXref</gwt:header>-->
-            <!--<gwt:HTML text="dbxref"/>-->
-            <!--</gwt:tab>-->
-            <!--<gwt:tab>-->
-            <!--<gwt:header>PubMed</gwt:header>-->
-            <!--<gwt:HTML text="pubmed stuf"/>-->
-            <!--</gwt:tab>-->
-            <!--<gwt:tab>-->
-            <!--<gwt:header>Attributes</gwt:header>-->
-            <!--<gwt:HTML text="attributes"/>-->
-            <!--</gwt:tab>-->
-            <!--<gwt:tab>-->
-            <!--<gwt:header>GO Evidence</gwt:header>-->
-            <!--<gwt:HTML text="go evidence"/>-->
-            <!--</gwt:tab>-->
-            <!--<gwt:tab>-->
-            <!--<gwt:header>Comments</gwt:header>-->
-            <!--<gwt:HTML text="comments"/>-->
-            <!--</gwt:tab>-->
-
+            <gwt:tab>
+                <gwt:header>GO</gwt:header>
+                <apollo:GoPanel ui:field="goPanel"/>
+            </gwt:tab>
         </gwt:TabLayoutPanel>
     </gwt:south>
 </gwt:DockLayoutPanel>

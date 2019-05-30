@@ -11,11 +11,13 @@ function JSONUtils() {
 
 JSONUtils.verbose_conversion = false;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
-JSONUtils.regulatorTypes = [ "TERMINATOR" ];
+JSONUtils.regulatorTypes = [ "TERMINATOR" ,"SHINE_DALGARNO_SEQUENCE"];
 
 
 JSONUtils.MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene";
 JSONUtils.MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene";
+JSONUtils.MANUALLY_ASSOCIATE_FEATURE_TO_GENE = "Manually associate feature to gene";
+JSONUtils.MANUALLY_DISSOCIATE_FEATURE_FROM_GENE = "Manually dissociate feature from gene";
 
 /**
 *  creates a feature in JBrowse JSON format
@@ -190,9 +192,13 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
     var loc = afeature.location;
     var uid = afeature.uniquename;
     var justification;
+    var variant_effect = false ;
     for (var i = 0; i < afeature.properties.length; i++) {
-        if (afeature.properties[i].type.name === "justification") {
+        if (afeature.properties[i].name === "justification") {
             justification = afeature.properties[i].value;
+        }
+        if (afeature.properties[i].name === "variant_effect") {
+            variant_effect = afeature.properties[i].value;
         }
     }
 
@@ -205,7 +211,8 @@ JSONUtils.createJBrowseSequenceAlteration = function( afeature )  {
             type:     afeature.type.name,
             residues: afeature.residues,
             seq:      afeature.residues,
-            justification: justification
+            justification: justification,
+            variant_effect: variant_effect
         },
         id: uid
     });
