@@ -547,6 +547,8 @@ public class AnnotatorPanel extends Composite {
             default:
                 GWT.log("not sure what to do with " + type);
         }
+
+
         reselectSubTab();
 
 
@@ -697,6 +699,7 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
+                tabPanel.setVisible(showDetails && selectedAnnotationInfo!=null);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
@@ -786,7 +789,7 @@ public class AnnotatorPanel extends Composite {
             toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
         }
 
-        tabPanel.setVisible(showDetails);
+        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject()!=null);
     }
 
     @UiHandler("toggleAnnotation")
