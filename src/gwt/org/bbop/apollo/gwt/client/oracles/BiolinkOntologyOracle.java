@@ -23,11 +23,9 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
     private final Integer ROWS = 20;
     private final String FINAL_URL = "http://api.geneontology.org/api/search/entity/autocomplete/";
 
-    private String prefix = null;
+    private String prefix;
+    private String category = null;
     private JSONArray preferredSuggestions = new JSONArray();
-
-    public BiolinkOntologyOracle() {
-    }
 
     public BiolinkOntologyOracle(String prefix) {
         this.prefix = prefix;
@@ -47,6 +45,9 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
         String url = FINAL_URL + suggestRequest.getQuery() + "?rows=" + ROWS;
         if (prefix != null) {
             url += "&prefix=" + prefix;
+        }
+        if (category != null) {
+            url += "&category=" + category;
         }
 
         RequestBuilder rb = new RequestBuilder(RequestBuilder.GET, url);
@@ -124,5 +125,13 @@ public class BiolinkOntologyOracle extends MultiWordSuggestOracle {
             Bootbox.alert("Request exception via " + e);
         }
 
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

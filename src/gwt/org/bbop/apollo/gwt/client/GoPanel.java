@@ -60,7 +60,6 @@ public class GoPanel extends Composite {
     TextBox noteField;
     @UiField(provided = true)
     SuggestBox goTermField;
-//    @UiField(provided = true)
     @UiField
     org.gwtbootstrap3.client.ui.ListBox geneProductRelationshipField;
     @UiField(provided = true)
@@ -121,6 +120,7 @@ public class GoPanel extends Composite {
     private SingleSelectionModel<GoAnnotation> selectionModel = new SingleSelectionModel<>();
 
     private AnnotationInfo annotationInfo;
+    private BiolinkOntologyOracle goLookup = new BiolinkOntologyOracle("GO");
 
     public GoPanel() {
 
@@ -143,6 +143,7 @@ public class GoPanel extends Composite {
                 goTermField.setText("");
                 goTermLink.setText("");
                 aspectLabel.setText(aspectField.getSelectedValue());
+                goLookup.setCategory(aspectField.getSelectedValue());
 
                 // TODO: set constrainted RO values
                 setRelationValues(aspectField.getSelectedItemText());
@@ -241,7 +242,7 @@ public class GoPanel extends Composite {
     }
 
     private void initLookups() {
-        goTermField = new SuggestBox(new BiolinkOntologyOracle("GO"));
+        goTermField = new SuggestBox(goLookup);
 
 //        BiolinkOntologyOracle roLookup = new BiolinkOntologyOracle("RO");
 //        roLookup.addPreferredSuggestion("enables", "http://purl.obolibrary.org/obo/RO_0002327", "RO:0002327");
