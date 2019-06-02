@@ -202,7 +202,6 @@ class SuggestedNameController {
     }
 
 
-
     @RestApiMethod(description = "Update suggested name", path = "/suggestedName/updateName", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -308,7 +307,7 @@ class SuggestedNameController {
             println "feature type ${featureType}"
             Organism organism = Organism.findByCommonName(nameJson.organism)
             println "organism ${organism}"
-            def names = SuggestedName.findAllByNameIlike(nameJson.query+"%")
+            def names = SuggestedName.findAllByNameIlike(nameJson.query + "%")
 
 
 //            if (featureTypeList) {
@@ -386,6 +385,42 @@ class SuggestedNameController {
 
                 log.info "Success showing all suggested names"
                 render names as JSON
+            }
+        }
+        catch (Exception e) {
+            def error = [error: 'problem showing suggested names: ' + e]
+            log.error(error.error)
+            render error as JSON
+        }
+    }
+
+    @RestApiMethod(description = "A comma-delimited list of names", path = "/suggestedName/addNames", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add")
+    ])
+    @Transactional
+    def addNames() {
+        try {
+            JSONObject nameJson = permissionService.handleInput(request, params)
+            log.debug "Showing suggested name ${nameJson}"
+            if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
+                render status: UNAUTHORIZED
+                return
+            }
+
+            if (nameJson.names) {
+                def names = nameJson.names.split(",")
+                for (name in names) {
+                    SuggestedName.findOrSaveByName(name).save()
+                }
+                log.info "Success showing name: ${nameJson}"
+                render names as JSON
+            } else {
+                def error = [error: 'names not found']
+                log.error(error.error)
+                render error as JSON
             }
         }
         catch (Exception e) {
