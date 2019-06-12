@@ -159,6 +159,8 @@ public class TrackPanel extends Composite {
     private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
     private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
 
+    private final int MAX_TIME = 5000 ;
+    private final int DELAY_TIME = 400;
 
     public TrackPanel() {
         exportStaticMethod();
@@ -168,23 +170,20 @@ public class TrackPanel extends Composite {
         dataGrid.setWidth("100%");
 
 
+
         Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
                 if (canAdminTracks()) {
-                    addTrackButton.setVisible(true);
-                    configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
-                    trackFileName.getElement().setPropertyString("placeholder", "Enter track name");
-                    categoryName.getElement().setPropertyString("placeholder", "Enter category name");
-                    newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
-                    newTrackForm.setMethod(FormPanel.METHOD_POST);
-                    newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
+                    handleAdminState();
+                    GWT.log("can admin tracks");
+                    return false;
                 } else {
-                    GWT.log("can not admin tracks");
+                    GWT.log("can not admin tracks, retryting");
                 }
-                return false;
+                return true ;
             }
-        }, 400);
+        }, DELAY_TIME);
 
         newTrackForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
@@ -214,8 +213,18 @@ public class TrackPanel extends Composite {
                 loadTracks(2000);
             }
         });
-
     }
+
+    private void handleAdminState(){
+        addTrackButton.setVisible(true);
+        configuration.getElement().setPropertyString("placeholder", "Enter configuration data");
+        trackFileName.getElement().setPropertyString("placeholder", "Enter track name");
+        categoryName.getElement().setPropertyString("placeholder", "Enter category name");
+        newTrackForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        newTrackForm.setMethod(FormPanel.METHOD_POST);
+        newTrackForm.setAction(RestService.fixUrl("organism/addTrackToOrganism"));
+    }
+
 
     private static boolean canAdminTracks() {
         return MainPanel.getInstance().isCurrentUserAdmin();
@@ -251,7 +260,8 @@ public class TrackPanel extends Composite {
                 if (trackInfoList.isEmpty()) {
                     return true;
                 }
-                addTrackButton.setVisible(canAdminTracks());
+//                addTrackButton.setVisible(canAdminTracks());
+                handleAdminState();
                 return false;
             }
         }, delay);
@@ -371,11 +381,6 @@ public class TrackPanel extends Composite {
         configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText(),topTypeName.getText()).toString());
     }
 
-//    @UiHandler("categoryName")
-//    public void updateCategoryName(KeyUpEvent event) {
-//        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText(),topTypeName.getText()).toString());
-//    }
-
     @UiHandler("cancelNewTrack")
     public void cancelNewTrackButtonHandler(ClickEvent clickEvent) {
         addTrackModal.hide();
@@ -386,6 +391,8 @@ public class TrackPanel extends Composite {
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
         String resultMessage = checkForm();
         if (resultMessage == null) {
+            Window.alert("fixed Url: "+RestService.fixUrl("organism/addTrackToOrganism"));
+            Window.alert("subbmittgin to "+newTrackForm.getAction() + " "+newTrackForm.getMethod()+ " "+newTrackForm.getTarget());
             newTrackForm.submit();
         } else {
             Bootbox.alert(resultMessage);
