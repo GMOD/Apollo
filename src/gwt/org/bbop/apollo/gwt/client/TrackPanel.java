@@ -260,7 +260,6 @@ public class TrackPanel extends Composite {
                 if (trackInfoList.isEmpty()) {
                     return true;
                 }
-//                addTrackButton.setVisible(canAdminTracks());
                 handleAdminState();
                 return false;
             }

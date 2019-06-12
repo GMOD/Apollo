@@ -726,7 +726,7 @@ class TrackService {
 
 
     @NotTransactional
-    def generateJSONForGff3(File inputFile, String trackPath, String jbrowseBinariesPath){
+    def generateJSONForGff3(File inputFile, String trackPath, String jbrowseBinariesPath,String topType=null){
         File fileToExecute = new File(jbrowseBinariesPath + "/flatfile-to-json.pl")
         log.debug "file to execute ${fileToExecute}"
         log.debug "file exists ${fileToExecute.exists()}"
@@ -741,12 +741,18 @@ class TrackService {
         println "input fie ${inputFile}"
         String outputName = inputFile.getName().substring(0,inputFile.getName().lastIndexOf("."))
 
-        def arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type","mRNA","--trackLabel",outputName,"--out",trackPath]
+        def arguments
+        if(topType){
+//            arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type",topType,"--trackLabel",outputName,"--out",trackPath]
+            arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--type",topType,"--trackLabel",outputName,"--out",trackPath]
+        }
+        else{
+            arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--trackLabel",outputName,"--out",trackPath]
+        }
         String executionString = arguments.join(" ")
-        log.info "generating NCList with ${executionString}"
+        println "generating NCList with ${executionString}"
 
         def proc = executionString.execute()
-        log.debug "error: ${proc.err.text}"
-//        log.debug "output: ${proc.out}"
+        println "error: ${proc.err.text}"
     }
 }
