@@ -145,6 +145,10 @@ public class TrackPanel extends Composite {
     Row locationRow;
     @UiField
     HTML locationView;
+    @UiField
+    HTML topTypeHTML;
+    @UiField
+    com.google.gwt.user.client.ui.TextBox topTypeName;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -330,7 +334,10 @@ public class TrackPanel extends Composite {
 
     private void setTrackTypeAndUpdate(TrackTypeEnum trackType) {
         configurationButton.setText(trackType.toString());
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(trackType, trackFileName.getText(), categoryName.getText()).toString());
+        if(topTypeName.getText().length()==0){
+            topTypeName.setText("mRNA");
+        }
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(trackType, trackFileName.getText(), categoryName.getText(),topTypeName.getText()).toString());
         showFileOptions(trackType);
         if (trackType.isIndexed()) {
             showIndexOptions(trackType);
@@ -359,15 +366,15 @@ public class TrackPanel extends Composite {
         }
     }
 
-    @UiHandler("trackFileName")
+    @UiHandler({"trackFileName","categoryName","topTypeName"})
     public void updateTrackFileName(KeyUpEvent event) {
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText()).toString());
+        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText(),topTypeName.getText()).toString());
     }
 
-    @UiHandler("categoryName")
-    public void updateCategoryName(KeyUpEvent event) {
-        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText()).toString());
-    }
+//    @UiHandler("categoryName")
+//    public void updateCategoryName(KeyUpEvent event) {
+//        configuration.setText(TrackConfigurationTemplate.generateForTypeAndKeyAndCategory(getTrackType(), trackFileName.getText(), categoryName.getText(),topTypeName.getText()).toString());
+//    }
 
     @UiHandler("cancelNewTrack")
     public void cancelNewTrackButtonHandler(ClickEvent clickEvent) {
@@ -390,6 +397,16 @@ public class TrackPanel extends Composite {
 
         trackNameHTML.setVisible(true);
         trackFileName.setVisible(true);
+
+        if(typeEnum.name().startsWith("GFF")){
+            topTypeHTML.setVisible(true);
+            topTypeName.setVisible(true);
+            topTypeName.setText("mRNA");
+        }
+        else{
+            topTypeHTML.setVisible(false);
+            topTypeName.setVisible(false);
+        }
 
         categoryName.setVisible(true);
         categoryNameHTML.setVisible(true);
@@ -423,6 +440,9 @@ public class TrackPanel extends Composite {
 
         trackNameHTML.setVisible(false);
         trackFileName.setVisible(false);
+
+        topTypeHTML.setVisible(false);
+        topTypeName.setVisible(false);
 
         categoryName.setVisible(false);
         categoryNameHTML.setVisible(false);

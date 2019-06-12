@@ -60,6 +60,9 @@
                                 <gwt:HTML text="Track Name" visible="false" ui:field="trackNameHTML"/>
                                 <gwt:TextBox ui:field="trackFileName" name="trackFileName"  visible="false"/>
 
+                                <gwt:HTML text="Top Type (remove for single-level features)" visible="false" ui:field="topTypeHTML"/>
+                                <gwt:TextBox ui:field="topTypeName" name="topTypeName"  visible="false"/>
+
                                 <gwt:HTML text="Category" visible="false" ui:field="categoryNameHTML"/>
                                 <gwt:TextBox ui:field="categoryName" name="categoryName"  visible="false"/>
 
