@@ -156,7 +156,7 @@ environments {
 //jbrowse {
 //    git {
 //        url= "https://github.com/GMOD/jbrowse"
-//         tag = "1.16.3-release"
+//         tag = "1.16.5-release"
 ////        branch = "dev"
 ////        hash = "09b71099bf73c50d37a0e911baf06b4975e3f6ca"
 //        alwaysPull = true
