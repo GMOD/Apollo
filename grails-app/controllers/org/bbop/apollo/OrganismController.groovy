@@ -475,7 +475,6 @@ class OrganismController {
 
         JSONObject returnObject = new JSONObject()
         JSONObject requestObject = permissionService.handleInput(request, params)
-//        println "add track to organism ${requestObject as JSON}"
         String pathToJBrowseBinaries = servletContext.getRealPath("/jbrowse/bin")
         log.debug "path to JBrowse binaries ${pathToJBrowseBinaries}"
 
@@ -697,15 +696,12 @@ class OrganismController {
 //                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
 //                                                File archiveFile = new File(trackFile.originalFilename)
 //                                                trackFile.transferTo(archiveFile)
-//                                                println "decompressing to ${path} from ${archiveFile.absolutePath}"
 ////                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
 //                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
-//                                                println "output file path ${outputFilePath}"
 //                                                destinationFile = new File(outputFilePath)
 ////                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
 //                                            }
 //                                            else{
-//                                                println "not decompression "
 //                                            destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
 //                                            }
 

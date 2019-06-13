@@ -738,7 +738,7 @@ class TrackService {
             log.debug "file can execute ${fileToExecute.canExecute()}"
         }
 //        bin/flatfile-to-json.pl --[gff|gbk|bed] <flat file> --tracklabel <track name>
-        println "input fie ${inputFile}"
+        log.debug "input fie ${inputFile}"
         String outputName = inputFile.getName().substring(0,inputFile.getName().lastIndexOf("."))
 
         def arguments
@@ -750,9 +750,9 @@ class TrackService {
             arguments = [fileToExecute.absolutePath,"--gff",inputFile.absolutePath,"--compress","--trackLabel",outputName,"--out",trackPath]
         }
         String executionString = arguments.join(" ")
-        println "generating NCList with ${executionString}"
+        log.info "generating NCList with ${executionString}"
 
         def proc = executionString.execute()
-        println "error: ${proc.err.text}"
+        log.debug "error: ${proc.err.text}"
     }
 }
