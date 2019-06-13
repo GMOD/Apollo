@@ -3,11 +3,13 @@
 
  Features
 
+- Added GO Annotations. [2172](https://github.com/GMOD/Apollo/pull/2172)[2162](https://github.com/GMOD/Apollo/pull/2162)
 - Allow upload of genomic data to create new organisms. [2023](https://github.com/GMOD/Apollo/pull/2023)
 - Allow upload of track data to create new removable tracks. [2024](https://github.com/GMOD/Apollo/pull/2024)
 - Automatically index GFF3 tracks with coverage on upload. [2084](https://github.com/GMOD/Apollo/pull/2084)
 - Provide community level private evidence tracks [17](https://github.com/GMOD/Apollo/pull/17)
-- Automatically kill or disable server if a common directory is now defined [2079](https://github.com/GMOD/Apollo/pull/2079)
+- Automatically kill or disable server if a common directory is not defined [2079](https://github.com/GMOD/Apollo/pull/2079)
+- Upgrade to [JBrowse 1.16.5](https://github.com/GMOD/jbrowse/releases/tag/1.16.5-release)
  
  Bug Fixes
  

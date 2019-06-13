@@ -594,7 +594,7 @@ class OrganismController {
                                     }
 
                                     if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
-                                        trackService.generateJSONForGff3(destinationFile, organismDirectoryName, pathToJBrowseBinaries)
+                                        trackService.generateJSONForGff3(destinationFile, organismDirectoryName, pathToJBrowseBinaries,trackConfigObject.apollo.topType)
                                     }
 
                                     // write to trackList.json
@@ -690,21 +690,18 @@ class OrganismController {
                                             String path = extendedDirectory.absolutePath + File.separator + "raw"
                                             TrackTypeEnum trackTypeEnum = org.bbop.apollo.gwt.shared.track.TrackTypeEnum.valueOf(trackConfigObject.apollo.type)
 
-                                            // TODO: if the suffix is 0 does not end with gzip, then we need to run it throutgh the decrompressor
+                                            // TODO: if the suffix is 0 does not end with gzip, then we need to run it through the decrompressor
                                             String newFileName = trackTypeEnum ? trackConfigObject.key + "." + trackTypeEnum.suffix[0] : trackFile.originalFilename
 //                                            File destinationFile
 //                                            if( (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) && trackFile.originalFilename.endsWith(".gz")){
 //                                                File archiveFile = new File(trackFile.originalFilename)
 //                                                trackFile.transferTo(archiveFile)
-//                                                println "decompressing to ${path} from ${archiveFile.absolutePath}"
 ////                                                String outputFilePath = fileService.decompress(archiveFile, path, trackConfigObject.get(FeatureStringEnum.LABEL.value), true)[0]
 //                                                String outputFilePath = fileService.decompressGzipArchive(archiveFile, path, null,false)[0]
-//                                                println "output file path ${outputFilePath}"
 //                                                destinationFile = new File(outputFilePath)
 ////                                                destinationFile = fileService.storeWithNewName(outputFile, path, trackConfigObject.key, newFileName)
 //                                            }
 //                                            else{
-//                                                println "not decompression "
 //                                            destinationFile = fileService.storeWithNewName(trackFile, path, trackConfigObject.key, newFileName)
 //                                            }
 
@@ -715,7 +712,7 @@ class OrganismController {
                                             }
 
                                             if (trackTypeEnum == TrackTypeEnum.GFF3_JSON || trackTypeEnum == TrackTypeEnum.GFF3_JSON_CANVAS) {
-                                                trackService.generateJSONForGff3(destinationFile, extendedDirectory.absolutePath, pathToJBrowseBinaries)
+                                                trackService.generateJSONForGff3(destinationFile, extendedDirectory.absolutePath, pathToJBrowseBinaries,trackConfigObject.apollo.topType)
                                             }
 
                                             extendedTracksArray.add(trackConfigObject)

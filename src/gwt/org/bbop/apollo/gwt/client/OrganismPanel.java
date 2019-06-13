@@ -68,7 +68,7 @@ public class OrganismPanel extends Composite {
     TextBox sequenceFile;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(10, tablecss);
+    DataGrid<OrganismInfo> dataGrid = new DataGrid<OrganismInfo>(20, tablecss);
     @UiField
     Button newButton;
     @UiField
