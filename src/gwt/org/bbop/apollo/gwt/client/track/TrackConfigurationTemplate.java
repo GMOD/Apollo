@@ -73,6 +73,11 @@ public class TrackConfigurationTemplate {
         returnObject.put("urlTemplate", new JSONString(this.urlTemplate));
         returnObject.put("label", new JSONString(this.label));
         returnObject.put("type", new JSONString(this.type));
+
+        JSONObject styleObject = new JSONObject();
+        styleObject.put("className",new JSONString("feature"));
+        returnObject.put("style", styleObject);
+
         returnObject.put("key", new JSONString(this.key));
         if(topLevelFeatures!=null && topLevelFeatures.trim().length()>0){
             returnObject.put("topLevelFeatures", new JSONString(this.topLevelFeatures));

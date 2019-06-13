@@ -390,8 +390,6 @@ public class TrackPanel extends Composite {
     public void saveNewTrackButtonHandler(ClickEvent clickEvent) {
         String resultMessage = checkForm();
         if (resultMessage == null) {
-            Window.alert("fixed Url: "+RestService.fixUrl("organism/addTrackToOrganism"));
-            Window.alert("subbmittgin to "+newTrackForm.getAction() + " "+newTrackForm.getMethod()+ " "+newTrackForm.getTarget());
             newTrackForm.submit();
         } else {
             Bootbox.alert(resultMessage);
