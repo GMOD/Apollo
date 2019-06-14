@@ -37,6 +37,7 @@ Contents:
    ChadoExport
    Data_loading
    Data_Loading_via_web_services
+   Docker
    Contributing
    Troubleshooting
    Migration
