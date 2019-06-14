@@ -25,7 +25,7 @@ RUN curl -L https://github.com/GMOD/Apollo/archive/${WEBAPOLLO_VERSION}.tar.gz |
 
 # install grails
 COPY docker-files/build.sh /bin/build.sh
-ADD docker-files/apollo-config.groovy /apollo/apollo-config.groovy
+ADD docker-files/docker-apollo-config.groovy /apollo/apollo-config.groovy
 
 RUN chown -R apollo:apollo /apollo
 RUN curl -s "http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/blat/blat" -o /usr/local/bin/blat
