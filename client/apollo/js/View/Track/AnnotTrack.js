@@ -4510,7 +4510,7 @@ define([
                 var nameField = new dijitComboBox({
                     name: "state",
                     class:"annotation_editor_field",
-                    value: "California",
+                    value: "",
                     store: nameStore,
                     searchAttr: "name"
                 }, "stateSelect");
