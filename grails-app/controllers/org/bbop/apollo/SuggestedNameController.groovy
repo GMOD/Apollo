@@ -398,33 +398,37 @@ class SuggestedNameController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add")
+            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add, with organisms, and types {names:[ {name:'name1':organisms:['bee','cow'],types:['gene','ncRNA']}}")
     ])
     @Transactional
     def addNames() {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)
-            log.debug "Showing suggested name ${nameJson}"
+            println "Adding suggested names ${nameJson}"
             if (!permissionService.hasGlobalPermissions(nameJson, GlobalPermissionEnum.ADMIN)) {
+                println "DOES NOT have global permissions"
                 render status: UNAUTHORIZED
                 return
             }
 
+            println "doingg names $nameJson"
             if (nameJson.names) {
-                def names = nameJson.names.split(",")
-                for (name in names) {
-                    SuggestedName.findOrSaveByName(name).save()
+//                def names = nameJson.names.split(",")
+                for (name in nameJson.names) {
+//                    SuggestedName name = SuggestedName.findByName(name)
+//                    if(!name)
+                    SuggestedName.findOrSaveByName(name)
                 }
-                log.info "Success showing name: ${nameJson}"
-                render names as JSON
+                println "Success showing name: ${nameJson}"
+                render  nameJson.names as JSON
             } else {
                 def error = [error: 'names not found']
-                log.error(error.error)
+                println(error.error)
                 render error as JSON
             }
         }
         catch (Exception e) {
-            def error = [error: 'problem showing suggested names: ' + e]
+            def error = [error: 'problem adding suggested names: ' + e]
             log.error(error.error)
             render error as JSON
         }
