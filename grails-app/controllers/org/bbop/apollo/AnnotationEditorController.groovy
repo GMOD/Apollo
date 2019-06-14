@@ -1293,6 +1293,31 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                 }
             }
 
+            JSONArray suggestedNames = new JSONArray();
+            newFeature.put(FeatureStringEnum.SUGGESTED_NAMES.value, suggestedNames);
+            List<SuggestedName> suggestedNameList = new ArrayList<>()
+            if (featureTypeList) {
+                suggestedNameList.addAll(SuggestedName.executeQuery("select cc from SuggestedName cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
+            }
+            suggestedNameList.addAll(SuggestedName.executeQuery("select cc from SuggestedName cc where cc.featureTypes is empty"))
+
+            // if there are organism filters for these canned comments for this organism, then apply them
+            List<SuggestedNameOrganismFilter> suggestedNameOrganismFilters = SuggestedNameOrganismFilter.findAllBySuggestedNameInList(suggestedNameList)
+            if (suggestedNameOrganismFilters) {
+                SuggestedNameOrganismFilter.findAllByOrganismAndSuggestedNameInList(sequence.organism, suggestedNameList).each {
+                    suggestedNames.put(it.suggestedName.name)
+                }
+                suggestedNameList.each {
+                    suggestedNames.put(it.name)
+                }
+            }
+            // otherwise ignore them
+            else {
+                suggestedNameList.each {
+                    suggestedNames.put(it.name)
+                }
+            }
+
             returnObject.getJSONArray(FeatureStringEnum.FEATURES.value).put(newFeature);
         }
 

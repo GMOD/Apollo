@@ -4503,7 +4503,18 @@ define([
                     innerHTML: "Name",
                     'class': "annotation_info_editor_label"
                 }, nameDiv);
-                var nameField = new dijitTextBox({'class': "annotation_editor_field"});
+                // var nameField = new dijitTextBox({'class': "annotation_editor_field"});
+                var nameStore = new Memory({
+                    data: [ ]
+                });
+                var nameField = new dijitComboBox({
+                    name: "state",
+                    class:"annotation_editor_field",
+                    value: "California",
+                    store: nameStore,
+                    searchAttr: "name"
+                }, "stateSelect");
+
                 var nameLabelss = "Follow GenBank or UniProt-SwissProt guidelines for gene, protein, and CDS nomenclature.";
                 dojo.place(nameField.domNode, nameDiv);
 
@@ -4726,6 +4737,7 @@ define([
                             initDescription(feature);
                             initDates(feature);
                             initStatus(feature);
+                            initSuggestedNames(feature);
                             initDbxrefs(feature, config);
                             initAttributes(feature, config);
                             initPubmedIds(feature, config);
@@ -4812,6 +4824,18 @@ define([
                     }
                     if (feature.date_last_modified) {
                         dateLastModifiedField.set("value", FormatUtils.formatDate(feature.date_last_modified));
+                    }
+                };
+
+                var initSuggestedNames = function (feature) {
+                    var names = feature.suggested_names;
+                    if(names){
+                        for (var i = 0; i < names.length; ++i) {
+                            nameStore.put({
+                                id:names[i],
+                                name:names[i],
+                            });
+                        }
                     }
                 };
 

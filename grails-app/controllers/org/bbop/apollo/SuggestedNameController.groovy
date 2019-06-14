@@ -303,46 +303,49 @@ class SuggestedNameController {
         try {
             JSONObject nameJson = permissionService.handleInput(request, params)
             log.debug "Showing suggested name ${nameJson}"
-            String featureType = nameJson.featureType
-            println "feature type ${featureType}"
+            String featureTypeString = nameJson.featureType
+            println "feature type ${featureTypeString}"
             Organism organism = Organism.findByCommonName(nameJson.organism)
             println "organism ${organism}"
-            def names = SuggestedName.findAllByNameIlike(nameJson.query + "%")
-
-
-//            if (featureTypeList) {
-//                cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
-//            }
-//            cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty"))
-//
-//            // if there are organism filters for these canned comments for this organism, then apply them
-//            List<CannedCommentOrganismFilter> cannedCommentOrganismFilters = CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedCommentList)
-//            if (cannedCommentOrganismFilters) {
-//                CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(sequence.organism, cannedCommentList).each {
-//                    cannedComments.put(it.cannedComment.comment)
+//            def names = SuggestedName.findAllByNameIlike(nameJson.query + "%")
+//            // if name has a feature type it must match
+//            def filteredNames = names.findAll{ name ->
+//                boolean match = true
+//                if(name.featureTypes){
+//                    match = match && name.featureTypes.contains(featureType)
+//                }
+//                if(name.org){
+//                    match = match && name.featureTypes.contains(featureType)
 //                }
 //            }
+            List<SuggestedName> suggestedNameList = new ArrayList<>()
+            List<SuggestedName> suggestedNamesFiltered= new ArrayList<>()
+            if (featureTypeString) {
+                FeatureType featureType = FeatureType.findByName(featureTypeString)
+                suggestedNameList.addAll(SuggestedName.executeQuery("select cc from SuggestedName cc join cc.featureTypes ft where ft in (:featureType) and cc.name like :query", [featureType: [featureType],query:nameJson.query + "%"]))
+            }
+            suggestedNameList.addAll(SuggestedName.executeQuery("select cc from SuggestedName cc where cc.featureTypes is empty and cc.name like :query",[query:nameJson.query + "%"]))
 
+            // if there are organism filters for these canned comments for this organism, then apply them
+            // TODO: somehow it is breaking this for organisms
+            List<SuggestedNameOrganismFilter> suggestedNameOrganismFilters = SuggestedNameOrganismFilter.findAllBySuggestedNameInList(suggestedNameList)
+            if (suggestedNameOrganismFilters) {
+                SuggestedNameOrganismFilter.findAllByOrganismAndSuggestedNameInList(organism, suggestedNameList).each {
+                    suggestedNamesFiltered.add(it.suggestedName)
+                    suggestedNameList.remove(it.suggestedName)
+                }
+                suggestedNameList.each {
+                    suggestedNamesFiltered.add(it)
+                }
+            }
+            // otherwise ignore them
+            else {
+                suggestedNameList.each {
+                    suggestedNamesFiltered.add(it)
+                }
+            }
 
-            render names as JSON
-//            if (nameJson.query|| nameJson.name) {
-//                SuggestedName name = SuggestedName.findById(nameJson.id) ?: SuggestedName.findByName(nameJson.name)
-//
-//                if (!name) {
-//                    JSONObject jsonObject = new JSONObject()
-//                    jsonObject.put(FeatureStringEnum.ERROR.value, "Failed to delete the suggested names")
-//                    render jsonObject as JSON
-//                    return
-//                }
-//
-//                log.info "Success showing name: ${nameJson}"
-//                render name as JSON
-//            } else {
-//                def names = SuggestedName.all
-//
-//                log.info "Success showing all suggested names"
-//                render names as JSON
-//            }
+            render suggestedNamesFiltered as JSON
         }
         catch (Exception e) {
             def error = [error: 'problem showing suggested names: ' + e]
@@ -398,7 +401,8 @@ class SuggestedNameController {
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add, with organisms, and types {names:[ {name:'name1':organisms:['bee','cow'],types:['gene','ncRNA']}}")
+//            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add, with organisms, and types {names:[ {name:'name1':organisms:['bee','cow'],types:['gene','ncRNA']}}")
+            , @RestApiParam(name = "names", type = "string", paramType = RestApiParamType.QUERY, description = "A comma-delimited list of names to add")
     ])
     @Transactional
     def addNames() {
@@ -411,15 +415,10 @@ class SuggestedNameController {
                 return
             }
 
-            println "doingg names $nameJson"
             if (nameJson.names) {
-//                def names = nameJson.names.split(",")
                 for (name in nameJson.names) {
-//                    SuggestedName name = SuggestedName.findByName(name)
-//                    if(!name)
                     SuggestedName.findOrSaveByName(name)
                 }
-                println "Success showing name: ${nameJson}"
                 render  nameJson.names as JSON
             } else {
                 def error = [error: 'names not found']

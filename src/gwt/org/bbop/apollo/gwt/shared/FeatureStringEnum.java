@@ -44,6 +44,7 @@ public enum FeatureStringEnum {
         TAG_VALUE_DELIMITER("="),
         COMMENTS,
         CANNED_COMMENTS,
+        SUGGESTED_NAMES,
         CANNED_KEYS,
         CANNED_VALUES,
         STATUS,
