@@ -3,6 +3,7 @@
 
  Features
 
+- Integrated Docker into the Apollo repository directly so that `latest` is always the current snapshot and `stable` is always the latest release.
 - Added GO Annotations. [2172](https://github.com/GMOD/Apollo/pull/2172)[2162](https://github.com/GMOD/Apollo/pull/2162)
 - Allow upload of genomic data to create new organisms. [2023](https://github.com/GMOD/Apollo/pull/2023)
 - Allow upload of track data to create new removable tracks. [2024](https://github.com/GMOD/Apollo/pull/2024)
