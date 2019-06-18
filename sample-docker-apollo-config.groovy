@@ -1,3 +1,3 @@
 
-// Please see https://github.com/GMOD/docker-apollo
+// Please see https://genomearchitect.readthedocs.io/en/latest/Docker.html
 

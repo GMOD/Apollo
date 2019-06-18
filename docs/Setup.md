@@ -64,8 +64,8 @@ Apollo supports several database backends, and you can choose sample configurati
 MySQL by default.
 
 Each has a file called `sample-h2-apollo-config.groovy` or `sample-postgres-apollo-config.groovy` that is designed to be
-renamed to apollo-config.groovy before running `apollo deploy`. Additionally there is a
-`sample-docker-apollo-config.groovy` which allows control of the configuration via environment variables.
+renamed to apollo-config.groovy before running `apollo deploy`.   Additionally, you can also run via [docker](Docker.md).
+
 
 Furthermore, the `apollo-config.groovy` has different groovy environments for test, development, and production modes.
 The environment will be selected automatically selected depending on how it is run, e.g:
