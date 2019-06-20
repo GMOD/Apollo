@@ -3307,17 +3307,8 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 0
 
-        when: "we change the annotation type to shine dalgarno"
-        changeAnnotationTypeForTranscriptString = changeAnnotationTypeOperationString.replace("@UNIQUENAME@", featureUniqueName).replace("@TYPE@", "Shine_Dalgarno_sequence")
-        requestHandlingService.changeAnnotationType(JSON.parse(changeAnnotationTypeForTranscriptString) as JSONObject)
-
-        then: "we should have 1 RepeatRegion"
-        assert ShineDalgarnoSequence.count == 1
-        assert RepeatRegion.count == 0
-        assert TransposableElement.count == 0
 
         when: "we undo thrice"
-        requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
         requestHandlingService.undo(JSON.parse(undoString) as JSONObject)
@@ -3807,7 +3798,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         String addRRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":725218,\"fmax\":725849},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}],\"name\":\"au12.g312.t1\",\"location\":{\"strand\":-1,\"fmin\":725218,\"fmax\":725849},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"rRNA\"}}],\"location\":{\"strand\":-1,\"fmin\":725218,\"fmax\":725849},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addMiRNAString = "{ ${testCredentials} \"features\":[{\"children\":[{\"children\":[{\"location\":{\"strand\":-1,\"fmin\":731922,\"fmax\":732539},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":732909,\"fmax\":733259},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":-1,\"fmin\":732023,\"fmax\":733182},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"au12.g313.t1\",\"location\":{\"strand\":-1,\"fmin\":731922,\"fmax\":733259},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"miRNA\"}}],\"location\":{\"strand\":-1,\"fmin\":731922,\"fmax\":733259},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"gene\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addTerminatorString = "{${testCredentials} \"features\":[{\"name\":\"gnomon_1494033_mRNA\",\"location\":{\"strand\":0,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"terminator\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
-        String addShineDalgarnoSequenceString = "{${testCredentials} \"features\":[{\"name\":\"gnomon_1494033_mRNA\",\"location\":{\"strand\":0,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"Shine_Dalgarno_sequence\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addRepeatRegionString = "{${testCredentials} \"features\":[{\"name\":\"gnomon_1494033_mRNA\",\"location\":{\"strand\":0,\"fmin\":734606,\"fmax\":735570},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"repeat_region\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String addTransposableElementString = "{ ${testCredentials} \"features\":[{\"name\":\"gnomon_1984033_mRNA\",\"location\":{\"strand\":0,\"fmin\":729894,\"fmax\":730446},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"transposable_element\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
 
@@ -3824,7 +3814,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         requestHandlingService.addFeature(JSON.parse(addMiRNAString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addRepeatRegionString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addTransposableElementString) as JSONObject)
-        requestHandlingService.addFeature(JSON.parse(addShineDalgarnoSequenceString) as JSONObject)
         requestHandlingService.addFeature(JSON.parse(addTerminatorString) as JSONObject)
 
         then: "we should see these features"
@@ -3832,7 +3821,6 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert Transcript.count == 10
         assert RepeatRegion.count == 1
         assert TransposableElement.count == 1
-        assert ShineDalgarnoSequence.count == 1
         assert Terminator.count == 1
 
         when: "we add some modifications"
@@ -3872,7 +3860,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         when: "we delete all features"
         Feature.all.each {
-            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm,Terminator.cvTerm,ShineDalgarnoSequence.cvTerm]) {
+            if (it.cvTerm in [Gene.cvTerm, Pseudogene.cvTerm, TransposableElement.cvTerm, RepeatRegion.cvTerm, InsertionArtifact.cvTerm, DeletionArtifact.cvTerm, SubstitutionArtifact.cvTerm,Terminator.cvTerm]) {
                 featureRelationshipService.deleteFeatureAndChildren(it)
             }
         }
@@ -4338,8 +4326,7 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
 
         given: "GB40805-RA"
         String addTranscriptString = "{ ${testCredentials} \"features\":[{\"children\":[{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":199844},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199954,\"fmax\":200239},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200317,\"fmax\":200676},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":200841,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}},{\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"CDS\"}}],\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":199720,\"fmax\":200913},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"}}],\"track\":\"Group1.10\",\"operation\":\"add_transcript\"}"
-        // TODO: we can add a Shine Dalgarno from a close exon
-        String addFeatureString = "{ ${testCredentials} \"features\":[{\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":200933,\"fmax\":201017},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"Shine_Dalgarno_sequence\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
+        String addFeatureString = "{ ${testCredentials} \"features\":[{\"name\":\"GB40805-RA\",\"location\":{\"strand\":1,\"fmin\":200933,\"fmax\":201017},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"repeat_region\"}}],\"track\":\"Group1.10\",\"operation\":\"add_feature\"}"
         String associateFeatureToGeneString = " { ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"associate_feature_to_gene\"}"
         String dissociateFeatureFromGeneString = "{ ${testCredentials} \"features\":[{\"uniquename\":\"@UNIQUENAME1@\"},{\"uniquename\":\"@UNIQUENAME2@\"}],\"track\":\"Group1.10\",\"operation\":\"dissociate_feature_from_gene\"}"
 
@@ -4350,52 +4337,51 @@ class RequestHandlingServiceIntegrationSpec extends AbstractIntegrationSpec {
         then: "we should see 1 gene and 3 features"
         assert Gene.count == 1
         assert MRNA.count == 1
-        assert ShineDalgarnoSequence.count == 1
 
         when: "we collect them"
         MRNA mrna = MRNA.first()
-        ShineDalgarnoSequence  shineDalgarnoSequence = ShineDalgarnoSequence.first()
+        RepeatRegion repeatRegion = RepeatRegion.first()
         Gene originalGene = transcriptService.getGene(mrna)
-        Feature parentFeature = featureRelationshipService.getParentForFeature(shineDalgarnoSequence)
+        Feature parentFeature = featureRelationshipService.getParentForFeature(repeatRegion)
 
-        then: "we can confirm the shine dalgarno and gene locations"
+        then: "we can confirm the repeat region and gene locations"
         assert mrna.featureLocation.fmin == originalGene.featureLocation.fmin
         assert mrna.featureLocation.fmax == originalGene.featureLocation.fmax
-        assert shineDalgarnoSequence.featureLocation.fmin == 200933
-        assert shineDalgarnoSequence.featureLocation.fmax == 201017
+        assert repeatRegion.featureLocation.fmin == 200933
+        assert repeatRegion.featureLocation.fmax == 201017
         assert parentFeature == null
 
 
         when: "we associate the feature to its original gene"
-        requestHandlingService.associateFeatureToGene(JSON.parse(associateFeatureToGeneString.replace("@UNIQUENAME1@", shineDalgarnoSequence.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+        requestHandlingService.associateFeatureToGene(JSON.parse(associateFeatureToGeneString.replace("@UNIQUENAME1@", repeatRegion.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
         mrna = MRNA.first()
-        shineDalgarnoSequence = ShineDalgarnoSequence.first()
-        parentFeature = featureRelationshipService.getParentForFeature(shineDalgarnoSequence)
+        repeatRegion = RepeatRegion.first()
+        parentFeature = featureRelationshipService.getParentForFeature(repeatRegion)
         originalGene = transcriptService.getGene(mrna)
 
         then: "we should see the feature associated with the original gene"
         assert Gene.count == 1
         assert MRNA.count == 1
-        assert ShineDalgarnoSequence.count == 1
+        assert RepeatRegion.count == 1
         assert mrna.featureLocation.fmin == originalGene.featureLocation.fmin
-        assert shineDalgarnoSequence.featureLocation.fmax == originalGene.featureLocation.fmax
-        assert shineDalgarnoSequence.featureLocation.fmin == 200933
-        assert shineDalgarnoSequence.featureLocation.fmax == 201017
+        assert repeatRegion.featureLocation.fmax == originalGene.featureLocation.fmax
+        assert repeatRegion.featureLocation.fmin == 200933
+        assert repeatRegion.featureLocation.fmax == 201017
         assert parentFeature != null
         assert parentFeature == originalGene
 //
         when: "we dissociate the feature from its original gene"
-        requestHandlingService.dissociateFeatureFromGene(JSON.parse(dissociateFeatureFromGeneString.replace("@UNIQUENAME1@", shineDalgarnoSequence.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
+        requestHandlingService.dissociateFeatureFromGene(JSON.parse(dissociateFeatureFromGeneString.replace("@UNIQUENAME1@", repeatRegion.uniqueName).replace("@UNIQUENAME2@", originalGene.uniqueName)) as JSONObject)
         mrna = MRNA.first()
-        shineDalgarnoSequence = ShineDalgarnoSequence.first()
-        parentFeature = featureRelationshipService.getParentForFeature(shineDalgarnoSequence)
+        repeatRegion = RepeatRegion.first()
+        parentFeature = featureRelationshipService.getParentForFeature(repeatRegion)
         originalGene = transcriptService.getGene(mrna)
 //
-        then: "we can confirm the shine dalgarno and gene locations"
+        then: "we can confirm the repeat region and gene locations"
         assert mrna.featureLocation.fmin == originalGene.featureLocation.fmin
         assert mrna.featureLocation.fmax == originalGene.featureLocation.fmax
-        assert shineDalgarnoSequence.featureLocation.fmin == 200933
-        assert shineDalgarnoSequence.featureLocation.fmax == 201017
+        assert repeatRegion.featureLocation.fmin == 200933
+        assert repeatRegion.featureLocation.fmax == 201017
         assert parentFeature == null
 
     }

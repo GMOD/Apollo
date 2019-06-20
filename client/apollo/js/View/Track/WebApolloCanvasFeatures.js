@@ -119,13 +119,6 @@ return declare( CanvasFeaturesTrack,
                       atrack.createGenericOneLevelAnnotations([this.feature], "terminator", true);
                   }
                 },
-                  {
-                      "label" : "Shine Dalgarno sequence",
-                      "action" : function() {
-                          var atrack=thisB.webapollo.getAnnotTrack();
-                          atrack.createGenericOneLevelAnnotations([this.feature], "Shine_Dalgarno_sequence", true);
-                      }
-                  },
                 {
                   "label" : "Transposable element",
                   "action" : function() {

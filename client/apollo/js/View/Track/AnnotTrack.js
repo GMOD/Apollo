@@ -1160,9 +1160,9 @@ define([
                     // TODO: pull from the server at some point
                     // TODO: this list is duplicated
                     var recognizedBioType = [
-                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator','Shine_Dalgarno_sequence'
+                        'transcript' ,'tRNA','snRNA','snoRNA','ncRNA','rRNA','mRNA','miRNA','repeat_region','transposable_element','terminator'
                     ];
-                    var strandedOneLevelTypes = ['terminator','Shine_Dalgarno_sequence'];
+                    var strandedOneLevelTypes = ['terminator'];
 
                     if(force_type) {
                         biotype = featureToAdd.get('type');
@@ -6896,7 +6896,7 @@ define([
             initAnnotContextMenu: function () {
 
                 // TODO: this list is duplicated
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator','Shine_Dalgarno_sequence'];
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
 
                 var thisB = this;
                 contextMenuItems = new Array();
@@ -7035,7 +7035,7 @@ define([
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region" && selectedFeatureType != "Shine_Dalgarno_sequence") {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region" ) {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "terminator", message);
                             }
@@ -7045,27 +7045,12 @@ define([
                         }
                     }));
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "Shine Dalgarno sequence",
-                        onClick: function(event) {
-                            var selected = thisB.selectionManager.getSelection();
-                            var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
-                                selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "repeat_region"  && selectedFeatureType != "terminator") {
-                                var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
-                                thisB.confirmChangeAnnotationType(thisB, [selected], "Shine_Dalgarno_sequence", message);
-                            }
-                            else {
-                                thisB.changeAnnotationType("Shine_Dalgarno_sequence");
-                            }
-                        }
-                    }));
-                    changeAnnotationMenu.addChild(new dijitMenuItem( {
                         label: "Repeat region",
                         onClick: function(event) {
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" && selectedFeatureType != "Shine_Dalgarno_sequence" ) {
+                            if (selectedFeatureType != "transposable_element" && selectedFeatureType != "terminator" ) {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "repeat_region", message);
                             }
@@ -7080,7 +7065,7 @@ define([
                             var selected = thisB.selectionManager.getSelection();
                             var selectedFeatureType = selected[0].feature.afeature.type.name === "exon" ?
                                 selected[0].feature.afeature.parent_type.name : selected[0].feature.afeature.type.name;
-                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator" && selectedFeatureType != "Shine_Dalgarno_sequence") {
+                            if (selectedFeatureType != "repeat_region" && selectedFeatureType != "terminator" ) {
                                 var message = "Warning: You will not be able to revert back to " + selectedFeatureType + " via 'Change annotation type' menu option, use 'Undo' instead. Do you want to proceed?";
                                 thisB.confirmChangeAnnotationType(thisB, [selected], "transposable_element", message);
                             }
@@ -7764,7 +7749,7 @@ define([
             },
 
             isSingleFeatureLabel:function(label){
-                return (label === "Transposable element" || label === "Terminator"  || label === "Shine Dalgarno sequence" || label === "Repeat region" ) ;
+                return (label === "Transposable element" || label === "Terminator"  || label === "Repeat region" ) ;
             },
 
             updateChangeAnnotationTypeMenu: function(changeAnnotationMenu) {
@@ -7799,9 +7784,6 @@ define([
                         }
                     }
                     else if (selectedType === "terminator") {
-                        menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
-                    }
-                    else if (selectedType === "Shine_Dalgarno_sequence") {
                         menuItems[i].setDisabled(!this.isSingleFeatureLabel(menuItems[i].label));
                     }
                     else if (selectedType === "repeat_region") {

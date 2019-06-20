@@ -317,8 +317,6 @@ class AnnotatorController {
                         break
                     case "terminator": viewableTypes.add(Terminator.class.canonicalName)
                         break
-                    case "Shine_Dalgarno_sequence": viewableTypes.add(ShineDalgarnoSequence.class.canonicalName)
-                        break
                     case "transposable_element": viewableTypes.add(TransposableElement.class.canonicalName)
                         break
                     case "sequence_alteration":

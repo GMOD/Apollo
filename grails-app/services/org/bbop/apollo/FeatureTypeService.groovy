@@ -29,7 +29,6 @@ class FeatureTypeService {
         createFeatureTypeForFeature(RRNA.class,RRNA.cvTerm)
         createFeatureTypeForFeature(RepeatRegion.class,RepeatRegion.cvTerm)
         createFeatureTypeForFeature(Terminator.class,Terminator.alternateCvTerm)
-        createFeatureTypeForFeature(ShineDalgarnoSequence.class,ShineDalgarnoSequence.cvTerm)
         createFeatureTypeForFeature(TransposableElement.class,TransposableElement.cvTerm)
         return true
     }

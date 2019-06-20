@@ -38,7 +38,7 @@ class FeatureService {
     public static final String MANUALLY_DISSOCIATE_FEATURE_FROM_GENE = "Manually dissociate feature from gene"
     public static final
     def rnaFeatureTypes = [MRNA.cvTerm, MiRNA.cvTerm, NcRNA.cvTerm, RRNA.cvTerm, SnRNA.cvTerm, SnoRNA.cvTerm, TRNA.cvTerm, Transcript.cvTerm]
-    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm,Terminator.cvTerm,ShineDalgarnoSequence.cvTerm]
+    public static final def singletonFeatureTypes = [RepeatRegion.cvTerm, TransposableElement.cvTerm,Terminator.cvTerm]
 
     @Timed
     @Transactional

@@ -459,7 +459,6 @@ public class AnnotatorPanel extends Composite {
         typeList.addItem("Transposable Element", "transposable_element");
         typeList.addItem("Terminator", "terminator");
         typeList.addItem("Repeat Region", "repeat_region");
-        typeList.addItem("Shine Dalgarno sequence", "Shine_Dalgarno_sequence");
         typeList.addItem("Variant", "sequence_alteration");
     }
 
@@ -893,7 +892,7 @@ public class AnnotatorPanel extends Composite {
     public void displayFeature(int featureIndex) {
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - featureIndex));
         String type = annotationInfo.getType();
-        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator") || type.equals("Shine_Dalgarno_sequence") ) {
+        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator") ) {
             // do nothing
         } else {
             exonDetailPanel.updateData(annotationInfo);

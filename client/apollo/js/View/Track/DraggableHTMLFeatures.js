@@ -1278,12 +1278,6 @@ var draggableTrack = declare( HTMLFeatureTrack,
             })
         }));
         createAnnotationMenu.addChild(new dijitMenuItem( {
-            label: "Shine_Dalgarno_Sequence",
-            onClick: dojo.hitch(this, function() {
-                atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "Shine_Dalgarno_sequence", false);
-            })
-        }));
-        createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "transposable_element",
             onClick: dojo.hitch(this, function() {
                 atrack.createGenericOneLevelAnnotations(this._handleSelectedFeatures(), "transposable_element", true);
