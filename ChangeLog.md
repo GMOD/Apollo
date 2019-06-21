@@ -5,10 +5,9 @@
 
 - Added GO Annotations. [2172](https://github.com/GMOD/Apollo/pull/2172), [2162](https://github.com/GMOD/Apollo/pull/2162) [1134](https://github.com/GMOD/Apollo/issues/1134)
 - Allow upload of genomic data to create new organisms. [2023](https://github.com/GMOD/Apollo/pull/2023)
-- Allow upload of track data to create new removable tracks. [2024](https://github.com/GMOD/Apollo/pull/2024)
+- Allow upload of track data to create new removable tracks. [2024](https://github.com/GMOD/Apollo/pull/2024) [2084](https://github.com/GMOD/Apollo/pull/2084)
 - Allow indication of variant effects [1971](https://github.com/GMOD/Apollo/issues/1971)
 - Added ability to provide suggestable names [1991](https://github.com/GMOD/Apollo/issues/1991)
-- Automatically index GFF3 tracks with coverage on upload. [2084](https://github.com/GMOD/Apollo/pull/2084)
 - Provide community level private evidence tracks [17](https://github.com/GMOD/Apollo/pull/17)
 - Automatically kill or disable server if a common directory is not defined [2079](https://github.com/GMOD/Apollo/pull/2079)
 - Added support for Shine Dalgarno sequence [2149](https://github.com/GMOD/Apollo/issues/2149) [1955](https://github.com/GMOD/Apollo/issues/1955)

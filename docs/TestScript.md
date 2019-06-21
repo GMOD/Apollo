@@ -152,6 +152,17 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.4) Test that you can delete an annotation from the Details menu.
 
+13.1.5) Check that when selecting a Gene that the GO tab appears.
+
+13.1.5.1) Check that you can add three GO Annotations for the gene.
+
+13.1.5.2) Check that you can edit a GO Annotation.
+
+13.1.5.3) Check that you can delete a GO Annotation.
+
+13.1.5.4) Check that you can filter GO Annotations by clicking the checkbox at the top.
+
+
 13.2) Tracks
 
 13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" from the list of available tracks.
@@ -170,7 +181,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.3.5) Test a set of track categories can handle opening and closing, searching, and select / unselect all.
 
-13.2.4) Check that as administrator that you can both add and remove tracks and that removed track contents are deleted.
+13.2.4) Check that as administrator that you can both add and remove multiple track types via the upload and that removed track contents are deleted.
 
 13.3) Ref Sequence
 
@@ -179,6 +190,8 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 13.3.2) Test that you can export GFF3, FASTA, and CHADO files for one or more selected scaffolds at a time. 
 
 13.3.3) Test that you can delete all annotations from 2 or more sequences.
+
+13.3.4) Check that you export GO Annotations as a GPAD 2 file.
 
 13.4) Organism
 
@@ -300,3 +313,16 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 16.6.1) Verify that you can click on the chromosome and export it as a valid VCF.
 
 16.6.2) Verify that the VCF contains all the variants and each variant has all the properties.
+
+16.7) Verify variant effect code.
+
+16.7.1) Click on a variant annotation deletion or insertion in a coding region and click on "View Variant Effect" and verify that an effect on the CDS is rendered.
+
+16.7.2) Click on generated sequence alteration and verify that the comment is "Effect of XXXX" where XXXX is the variant effecdt type.
+
+16.7.3) Click on "Remove Variant Effect" from the variant and verify that the sequence alteration and effect on the CDS are both removed. 
+
+16.7.4) Repeat adding variant effects but do this for multiple variants on the same gene.
+
+16.7.5) Click on the effected gene and click on "Remove variant effects" and confirm that all alterations are removed from within the effected area.
+
