@@ -434,8 +434,6 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     //    else  { subfeats = jfeature.get('subfeatures'); }
     subfeats = jfeature.get('subfeatures');
 
-    console.log('subfeats',subfeats)
-
     if( subfeats && subfeats.length )  {
         afeature.children = [];
         var slength = subfeats.length;
