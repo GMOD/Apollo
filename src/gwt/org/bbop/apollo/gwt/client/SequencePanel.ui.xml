@@ -163,7 +163,7 @@
                             <h5>Delete</h5>
                         </gwt:HTML>
                     </b:Column>
-                    <b:Column size="MD_7" marginTop="8">
+                    <b:Column size="MD_9" marginTop="8">
                         <b:Button ui:field="deleteSequencesButton" icon="TRASH_O" size="EXTRA_SMALL"
                                   title="Annotations" marginLeft="1" text="Annotations"/>
                         <b:Button ui:field="deleteVariantEffectsButton" icon="TRASH_O" size="EXTRA_SMALL"

@@ -191,7 +191,7 @@ public class SequencePanel extends Composite {
                         dataGrid.setRowData(start, SequenceInfoConverter.convertFromJsonArray(jsonArray));
                         if (MainPanel.getInstance().getCurrentOrganism() != null) {
                             deleteSequencesButton.setText("Annotation (" + MainPanel.getInstance().getCurrentOrganism().getNumFeatures() + ")");
-                            deleteVariantEffectsButton.setText("All Variant Effects (" + MainPanel.getInstance().getCurrentOrganism().getVariantEffectCount() + ")");
+                            deleteVariantEffectsButton.setText("Variant Effects (" + MainPanel.getInstance().getCurrentOrganism().getVariantEffectCount() + " on all Seq)");
                         }
                     }
 
@@ -457,7 +457,14 @@ public class SequencePanel extends Composite {
                     }
                     JSONObject returnObject = AnnotationRestService.deleteVariantAnnotationsFromSequences(requestCallback, sequenceInfoSet);
                     loadingDialog.hide();
-                    Bootbox.alert("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences");
+                    Bootbox.confirm("Variant Effects deleted from " + sequenceInfoSet.size() + " sequences.  Reload if effect not visible?", new ConfirmCallback() {
+                        @Override
+                        public void callback(boolean result) {
+                            if(result){
+                                Window.Location.reload();
+                            }
+                        }
+                    });
                 }
             }
         });

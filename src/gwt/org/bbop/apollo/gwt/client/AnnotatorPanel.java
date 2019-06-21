@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -815,6 +816,15 @@ public class AnnotatorPanel extends Composite {
                     // parse to make sure we return the complete amount
                     try {
                         JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                        GWT.log("Return: "+returnValue.toString());
+                        Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
+                            @Override
+                            public void callback(boolean result) {
+                                if(result){
+                                    Window.Location.reload();
+                                }
+                            }
+                        });
                     } catch (Exception e) {
                         Bootbox.alert(e.getMessage());
                     }
