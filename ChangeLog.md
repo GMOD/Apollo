@@ -12,7 +12,7 @@
 - Automatically kill or disable server if a common directory is not defined [2079](https://github.com/GMOD/Apollo/pull/2079)
 - Added support for Shine Dalgarno sequence [2149](https://github.com/GMOD/Apollo/issues/2149) [1955](https://github.com/GMOD/Apollo/issues/1955)
 - Allow for the export of a gene with uncertain internal structure - allow no CDS for an gene [1989](https://github.com/GMOD/Apollo/issues/1989)
-- Added shortcut for sequence panel [2116](https://github.com/GMOD/Apollo/issues/2116)
+- Added shortcut for sequence and GFF3 popups [2116](https://github.com/GMOD/Apollo/issues/2116)
 - Added the ability to do group add /delete in bulk and group update in bulk [2105](https://github.com/GMOD/Apollo/issues/2105)
 - Added basic support for community level private evidence track [17](https://github.com/GMOD/Apollo/issues/17)
 
