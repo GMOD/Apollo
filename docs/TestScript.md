@@ -316,7 +316,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 16.7) Verify variant effect code.
 
-16.7.1) Click on a variant annotation deletion or insertion in a coding region and click on "View Variant Effect" and verify that an effect on the CDS is rendered.
+16.7.1) Click on a variant annotation deletion or insertion in a coding region and click on "View Variant Effect" and verify that an effect on the CDS is rendered (human BRCA1 works well for this).
 
 16.7.2) Click on generated sequence alteration and verify that the comment is "Effect of XXXX" where XXXX is the variant effecdt type.
 
