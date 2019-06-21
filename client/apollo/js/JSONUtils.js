@@ -433,6 +433,9 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     //    if (jfeature.filteredsubs)  { subfeats = jfeature.filteredsubs; }
     //    else  { subfeats = jfeature.get('subfeatures'); }
     subfeats = jfeature.get('subfeatures');
+
+    console.log('subfeats',subfeats)
+
     if( subfeats && subfeats.length )  {
         afeature.children = [];
         var slength = subfeats.length;
@@ -496,6 +499,10 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
                     else if (SeqOnto.utrTerms[subtype]) {
                         // filter out UTR
                         converted_subtype = null;
+                    }
+                    else if (SeqOnto.shineDalgarnoTerms[subtype]) {
+                        // leave as is, similar to exon
+                        converted_subtype = "shine_dalgarno_sequence";
                     }
                     else  {
                         // convert everything else to exon???

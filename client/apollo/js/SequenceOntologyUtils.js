@@ -376,6 +376,12 @@ SequenceOntologyUtils.exonTerms = {
     */
 };
 
+SequenceOntologyUtils.shineDalgarnoTerms = {
+    shine_dalgarno: true,
+    Shine_Dalgarno_sequence: true,
+    shine_dalgarno_sequence: true,
+};
+
 SequenceOntologyUtils.startCodonTerms = {
     start_codon: true, 
     non_canonical_start_codon: true 
