@@ -8,7 +8,7 @@ Javascript client that runs in a web browser as a JBrowse plugin.
 
 You can find the latest release here: https://github.com/GMOD/Apollo/releases/latest and our setup guide: http://genomearchitect.readthedocs.io/en/latest/Setup.html
 
-- Apollo general documentation: `https://genomearchitect.github.io/ <https://genomearchitect.github.io>`__
+- Apollo general documentation: `http://genomearchitect.github.io/ <http://genomearchitect.github.io>`__
 
 - JBrowse general documentation: `http://jbrowse.org <http://jbrowse.org>`__
 
