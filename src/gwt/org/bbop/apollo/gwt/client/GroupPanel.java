@@ -40,7 +40,6 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
 import org.gwtbootstrap3.extras.select.client.ui.Option;
-import org.gwtbootstrap3.extras.select.client.ui.Select;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -188,6 +187,7 @@ public class GroupPanel extends Composite {
                     case GROUPS_RELOADED:
                         selectedGroupInfo = null;
                         selectionModel.clear();
+                        filterList();
                         break;
 
 
@@ -199,7 +199,7 @@ public class GroupPanel extends Composite {
             @Override
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentUser() != null) {
-                    if(MainPanel.getInstance().isCurrentUserInstructorOrBetter())  {
+                    if (MainPanel.getInstance().isCurrentUserInstructorOrBetter()) {
                         GroupRestService.loadGroups(groupInfoList);
                         UserRestService.loadUsers(allUsersList);
                     }
@@ -454,9 +454,9 @@ public class GroupPanel extends Composite {
     static void filterList() {
         String text = nameSearchBox.getText();
         filteredGroupInfoList.clear();
-        if(text.trim().length()==0){
+        if (text.trim().length() == 0) {
             filteredGroupInfoList.addAll(groupInfoList);
-            return ;
+            return;
         }
         for (GroupInfo groupInfo : groupInfoList) {
             if (groupInfo.getName().toLowerCase().contains(text.toLowerCase())) {
