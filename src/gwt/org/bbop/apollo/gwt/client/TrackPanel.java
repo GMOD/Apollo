@@ -294,6 +294,7 @@ public class TrackPanel extends Composite {
             optionTree.clear();
             locationRow.setVisible(false);
             southTabs.getTabWidget(1).getParent().setVisible(false);
+            southTabs.setVisible(false);
         } else {
             trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
@@ -315,6 +316,7 @@ public class TrackPanel extends Composite {
             else{
                 locationRow.setVisible(false);
             }
+            southTabs.setVisible(true);
 
             if(canAdminTracks()){
                 southTabs.getTabWidget(1).getParent().setVisible(true);

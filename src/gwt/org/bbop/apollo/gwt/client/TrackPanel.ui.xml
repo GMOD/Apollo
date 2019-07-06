@@ -109,7 +109,7 @@
             </gwt:ScrollPanel>
         </gwt:center>
         <gwt:south size="250">
-            <gwt:TabLayoutPanel barHeight="35" ui:field="southTabs">
+            <gwt:TabLayoutPanel barHeight="35" ui:field="southTabs" visible="false">
                 <gwt:tab>
                     <gwt:header>Details</gwt:header>
                     <gwt:ScrollPanel width="100%" height="100%">
