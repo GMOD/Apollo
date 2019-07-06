@@ -22,10 +22,10 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
-import org.bbop.apollo.gwt.client.dto.OrganismInfo;
-import org.bbop.apollo.gwt.client.dto.TrackInfo;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEventHandler;
+import org.bbop.apollo.gwt.client.rest.GroupRestService;
 import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
@@ -166,6 +166,9 @@ public class TrackPanel extends Composite {
     private static Map<String, Boolean> categoryOpen = new TreeMap<>();
     private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
     private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
+
+    private List<GroupInfo> groupInfoList = new ArrayList<>();
+    private List<UserInfo> allUsersList = new ArrayList<>();
 
     private final int MAX_TIME = 5000 ;
     private final int DELAY_TIME = 400;
@@ -322,23 +325,82 @@ public class TrackPanel extends Composite {
                 southTabs.getTabWidget(1).getParent().setVisible(true);
                 restricted.setHTML("No restrictions");
 
-                visibleUsers.clear();
-                visibleGroups.clear();
-                for(int i = 0 ; i < 10 ; i++){
-                    Option option = new Option();
-                    option.setName(i+"");
-                    option.setValue(i+"");
-                    visibleUsers.add(option);
-                }
 
-                for(int i = 0 ; i < 10 ; i++){
-                    Option option = new Option();
-                    option.setText(i+"");
-                    option.setValue(i+"");
-                    visibleGroups.add(option);
-                }
-                visibleUsers.refresh();
-                visibleGroups.refresh();
+                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+                    @Override
+                    public boolean execute() {
+                        if (MainPanel.getInstance().getCurrentUser() != null) {
+                            if(MainPanel.getInstance().isCurrentUserInstructorOrBetter())  {
+//                                GroupRestService.loadGroups(groupInfoList);
+                                visibleGroups.clear();
+                                visibleUsers.clear();
+                                RequestCallback groupRequestCallback = new RequestCallback() {
+                                    @Override
+                                    public void onResponseReceived(Request request, Response response) {
+//                                        Annotator.eventBus.fireEvent(new GroupChangeEvent(GroupChangeEvent.Action.RELOAD_GROUPS));
+                                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                                        JSONArray array = returnValue.isArray();
+                                        for (int i = 0; array != null && i < array.size(); i++) {
+                                            JSONObject object = array.get(i).isObject();
+                                            GroupInfo groupInfo = new GroupInfo();
+                                            groupInfo.setId((long) object.get("id").isNumber().doubleValue());
+                                            groupInfo.setName(object.get("name").isString().stringValue());
+                                            Option option = new Option();
+                                            option.setText(groupInfo.getName());
+                                            option.setValue(groupInfo.getId()+"");
+                                            visibleGroups.add(option);
+                                        }
+                                        visibleGroups.refresh();
+                                    }
+
+                                    @Override
+                                    public void onError(Request request, Throwable exception) {
+                                        Bootbox.alert("error retrieving groups " + exception.getMessage());
+                                    }
+                                };
+                                RestService.sendRequest(groupRequestCallback, "group/loadGroups/");
+
+
+                                RequestCallback userRequestCallback = new RequestCallback() {
+                                    @Override
+                                    public void onResponseReceived(Request request, Response response) {
+//                                        Annotator.eventBus.fireEvent(new GroupChangeEvent(GroupChangeEvent.Action.RELOAD_GROUPS));
+                                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                                        JSONArray array = returnValue.isArray();
+                                        for (int i = 0; array != null && i < array.size(); i++) {
+                                            JSONObject object = array.get(i).isObject();
+                                            UserInfo userInfo = UserInfoConverter.convertToUserInfoFromJSON(object);
+                                            Option option = new Option();
+                                            option.setText(userInfo.getName());
+                                            option.setValue(userInfo.getUserId()+"");
+                                            visibleUsers.add(option);
+                                        }
+                                        visibleUsers.refresh();
+                                    }
+
+                                    @Override
+                                    public void onError(Request request, Throwable exception) {
+                                        Bootbox.alert("error retrieving users" + exception.getMessage());
+                                    }
+                                };
+                                RestService.sendRequest(userRequestCallback, "user/loadUsers/");
+
+
+//                                UserRestService.loadUsers(allUsersList);
+                                for(UserInfo userInfo : allUsersList){
+                                    Option option = new Option();
+                                    option.setText(userInfo.getEmail() + " "+userInfo.getName());
+                                    option.setValue(userInfo.getUserId()+"");
+                                    visibleUsers.add(option);
+                                }
+                                visibleUsers.refresh();
+                            }
+                            return false;
+                        }
+                        return true;
+                    }
+                }, 100);
+
 //                for (SequenceInfo s : selectedSequenceInfoList) {
 //                    Option option = new Option();
 //                    option.setValue(s.getName());
