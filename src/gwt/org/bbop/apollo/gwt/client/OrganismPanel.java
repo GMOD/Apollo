@@ -294,22 +294,9 @@ public class OrganismPanel extends Composite {
         }
         for (OrganismInfo organismInfo : organismInfoList) {
             if (organismInfo.getName().toLowerCase().contains(text.toLowerCase())) {
-//                int filteredIndex = filteredOrganismInfoList.indexOf(organismInfo);
-//                if (filteredIndex < 0) {
                     filteredOrganismInfoList.add(organismInfo);
-//                }
-//                else{
-//                    filteredOrganismInfoList.remove(organismInfo);
-//                }
-//                else {
-//                    filteredOrganismInfoList.get(filteredIndex).setVisible(organismInfo.getVisible());
-//                }
             }
-//            else {
-//                filteredOrganismInfoList.remove(organismInfo);
-//            }
         }
-//        renderFiltered();
     }
 
     public void loadOrganismInfo() {

@@ -92,9 +92,14 @@ public class GroupPanel extends Composite {
     MultipleSelect availableGroupAdmin;
     @UiField
     Button updateGroupAdmin;
+    @UiField
+    static TextBox nameSearchBox;
 
-    private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
-    private List<GroupInfo> groupInfoList = dataProvider.getList();
+    static private ListDataProvider<GroupInfo> dataProvider = new ListDataProvider<>();
+    private static List<GroupInfo> groupInfoList = new ArrayList<>();
+    private static List<GroupInfo> filteredGroupInfoList = dataProvider.getList();
+
+
     private SingleSelectionModel<GroupInfo> selectionModel = new SingleSelectionModel<>();
     private GroupInfo selectedGroupInfo;
     private ColumnSortEvent.ListHandler<GroupInfo> groupSortHandler = new ColumnSortEvent.ListHandler<>(groupInfoList);
@@ -441,6 +446,24 @@ public class GroupPanel extends Composite {
         }
     }
 
+    @UiHandler("nameSearchBox")
+    public void doSearch(KeyUpEvent keyUpEvent) {
+        filterList();
+    }
+
+    static void filterList() {
+        String text = nameSearchBox.getText();
+        filteredGroupInfoList.clear();
+        if(text.trim().length()==0){
+            filteredGroupInfoList.addAll(groupInfoList);
+            return ;
+        }
+        for (GroupInfo groupInfo : groupInfoList) {
+            if (groupInfo.getName().toLowerCase().contains(text.toLowerCase())) {
+                filteredGroupInfoList.add(groupInfo);
+            }
+        }
+    }
 
     private void createOrganismPermissionsTable() {
         TextColumn<GroupOrganismPermissionInfo> organismNameColumn = new TextColumn<GroupOrganismPermissionInfo>() {
