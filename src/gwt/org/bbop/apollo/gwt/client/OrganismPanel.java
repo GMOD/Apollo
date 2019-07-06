@@ -2,10 +2,7 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -38,6 +35,7 @@ import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -113,14 +111,20 @@ public class OrganismPanel extends Composite {
     TextBox organismUploadSpecies;
     @UiField
     TextBox organismUploadNonDefaultTranslationTable;
+    @UiField
+    static TextBox nameSearchBox;
 
     boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
     boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
 
     final LoadingDialog loadingDialog;
     final ErrorDialog errorDialog;
-    private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
-    private List<OrganismInfo> organismInfoList = dataProvider.getList();
+
+    static private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
+    private static List<OrganismInfo> organismInfoList = new ArrayList<>();
+    private static List<OrganismInfo> filteredOrganismInfoList = dataProvider.getList();
+
+
     private final SingleSelectionModel<OrganismInfo> singleSelectionModel = new SingleSelectionModel<>();
 
     public OrganismPanel() {
@@ -200,6 +204,7 @@ public class OrganismPanel extends Composite {
             public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
                 organismInfoList.clear();
                 organismInfoList.addAll(MainPanel.getInstance().getOrganismInfoList());
+                filterList();
             }
         });
 
@@ -272,6 +277,39 @@ public class OrganismPanel extends Composite {
         });
 
 
+    }
+
+
+    @UiHandler("nameSearchBox")
+    public void doSearch(KeyUpEvent keyUpEvent) {
+        filterList();
+    }
+
+    static void filterList() {
+        String text = nameSearchBox.getText();
+        filteredOrganismInfoList.clear();
+        if(text.trim().length()==0){
+            filteredOrganismInfoList.addAll(organismInfoList);
+            return ;
+        }
+        for (OrganismInfo organismInfo : organismInfoList) {
+            if (organismInfo.getName().toLowerCase().contains(text.toLowerCase())) {
+//                int filteredIndex = filteredOrganismInfoList.indexOf(organismInfo);
+//                if (filteredIndex < 0) {
+                    filteredOrganismInfoList.add(organismInfo);
+//                }
+//                else{
+//                    filteredOrganismInfoList.remove(organismInfo);
+//                }
+//                else {
+//                    filteredOrganismInfoList.get(filteredIndex).setVisible(organismInfo.getVisible());
+//                }
+            }
+//            else {
+//                filteredOrganismInfoList.remove(organismInfo);
+//            }
+        }
+//        renderFiltered();
     }
 
     public void loadOrganismInfo() {
