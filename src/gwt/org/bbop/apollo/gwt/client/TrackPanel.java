@@ -45,6 +45,8 @@ import org.gwtbootstrap3.client.ui.constants.Pull;
 import org.gwtbootstrap3.client.ui.constants.Toggle;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
+import org.gwtbootstrap3.extras.select.client.ui.MultipleSelect;
+import org.gwtbootstrap3.extras.select.client.ui.Option;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
 import java.util.ArrayList;
@@ -149,6 +151,12 @@ public class TrackPanel extends Composite {
     HTML topTypeHTML;
     @UiField
     com.google.gwt.user.client.ui.TextBox topTypeName;
+    @UiField
+    HTML restricted;
+    @UiField
+    MultipleSelect visibleUsers;
+    @UiField
+    MultipleSelect visibleGroups;
 
     public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
@@ -168,6 +176,9 @@ public class TrackPanel extends Composite {
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         initWidget(rootElement);
         dataGrid.setWidth("100%");
+        southTabs.getTabWidget(1).getParent().setVisible(false);
+//        visibleUsers.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
+//        visibleGroups.getElement().setAttribute("data-dropup-auto", Boolean.toString(false));
 
 
 
@@ -282,6 +293,7 @@ public class TrackPanel extends Composite {
             trackType.setText("");
             optionTree.clear();
             locationRow.setVisible(false);
+            southTabs.getTabWidget(1).getParent().setVisible(false);
         } else {
             trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
@@ -303,6 +315,36 @@ public class TrackPanel extends Composite {
             else{
                 locationRow.setVisible(false);
             }
+
+            if(canAdminTracks()){
+                southTabs.getTabWidget(1).getParent().setVisible(true);
+                restricted.setHTML("No restrictions");
+
+                visibleUsers.clear();
+                visibleGroups.clear();
+                for(int i = 0 ; i < 10 ; i++){
+                    Option option = new Option();
+                    option.setName(i+"");
+                    option.setValue(i+"");
+                    visibleUsers.add(option);
+                }
+
+                for(int i = 0 ; i < 10 ; i++){
+                    Option option = new Option();
+                    option.setText(i+"");
+                    option.setValue(i+"");
+                    visibleGroups.add(option);
+                }
+                visibleUsers.refresh();
+                visibleGroups.refresh();
+//                for (SequenceInfo s : selectedSequenceInfoList) {
+//                    Option option = new Option();
+//                    option.setValue(s.getName());
+//                    option.setText(s.getName());
+//                    selectedSequenceDisplay.add(option);
+//                }
+            }
+
         }
     }
 
@@ -885,7 +927,7 @@ public class TrackPanel extends Composite {
             if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
 
             if (object.get("label") != null) trackInfo.setLabel(object.get("label").isString().stringValue());
-            else Bootbox.alert("Track label should not be null, please check your tracklist");
+            else Bootbox.alert("Track label should not be null, please check your trackList.json file");
 
             if (object.get("type") != null) trackInfo.setType(object.get("type").isString().stringValue());
 
