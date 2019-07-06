@@ -91,6 +91,7 @@ public class Annotator implements EntryPoint {
                             if(statusCode==200 && response.getText().equals("{}")){
                                 GWT.log("Still connected");
                             }
+                            else
                             if(statusCode==200 && response.getText().contains("/apollo/auth/signIn")){
                                 GWT.log("Back up and trying to login");
                                 Window.Location.reload();
