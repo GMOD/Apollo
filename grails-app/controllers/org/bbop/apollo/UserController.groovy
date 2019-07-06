@@ -136,6 +136,16 @@ class UserController {
                 a.id <=> b.id
             }.size()
 
+            def userTrackPermissions = UserTrackPermission.findAllByUserInList(users)
+            def userTrackPermissionMap = [:]
+            userTrackPermissions.each {
+                if(!userTrackPermissionMap.containsKey(it.user.id)){
+                    userTrackPermissionMap.put(it.user.id,[])
+                }
+                List trackMap = userTrackPermissionMap.get(it.user.id)
+                trackMap.add(it.trackVisibilities)
+            }
+
             users.each {
                 def userObject = new JSONObject()
 
@@ -146,7 +156,9 @@ class UserController {
                 userObject.inactive = it.inactive ?: false
                 Role role = userService.getHighestRole(it)
                 userObject.role = role?.name
-
+                if(userTrackPermissionMap.containsKey(userObject.userId)){
+                    userObject.trackPermissions = userTrackPermissionMap.get(userObject.userId).toString()
+                }
 
                 JSONArray groupsArray = new JSONArray()
                 List<String> groupsForUser = new ArrayList<>()

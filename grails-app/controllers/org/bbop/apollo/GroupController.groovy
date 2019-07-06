@@ -95,12 +95,27 @@ class GroupController {
                 }
             }
 
+            def groupTrackPermissions = GroupTrackPermission.findAllByGroupInList(filteredGroups)
+            def groupTrackPermissionMap = [:]
+            groupTrackPermissions.each {
+                if(!groupTrackPermissionMap.containsKey(it.group.id)){
+                    groupTrackPermissionMap.put(it.group.id,[])
+                }
+                List trackMap = groupTrackPermissionMap.get(it.group.id)
+                trackMap.add(it.trackVisibilities)
+            }
+
+
             filteredGroups.each {
                 def groupObject = new JSONObject()
                 groupObject.id = it.id
                 groupObject.name = it.name
                 groupObject.public = it.isPublicGroup()
                 groupObject.numberOfUsers = it.users?.size()
+
+                if(groupTrackPermissionMap.containsKey(groupObject.id)){
+                    groupObject.trackPermissions = groupTrackPermissionMap.get(groupObject.id).toString()
+                }
 
                 JSONArray userArray = new JSONArray()
                 it.users.each { user ->
