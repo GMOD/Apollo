@@ -106,6 +106,18 @@ apollo {
         firstName = System.getenv("APOLLO_ADMIN_FIRST_NAME") ?: "Ad"
         lastName = System.getenv("APOLLO_ADMIN_LAST_NAME") ?: "min"
     }
+    authentications = [
+        [
+            "name":"Remote User Authenticator",
+            "className":"remoteUserAuthenticatorService",
+            "active": System.getenv("WEBAPOLLO_REMOTE_USER_AUTH") ?: false
+        ],
+        [
+            "name":"Username Password Authenticator",
+            "className":"usernamePasswordAuthenticatorService",
+            "active": System.getenv("WEBAPOLLO_USER_PASSWORD_AUTH") ?: true
+        ]
+    ]
 }
 
 jbrowse {
