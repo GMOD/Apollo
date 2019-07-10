@@ -75,7 +75,6 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
 * `apollo test` uses the test environment (i.e. only when running unit tests)
 
 
-
 #### Configure for H2:
 - H2 is an embedded database engine, so no external setups are needed. Simply copy sample-h2-apollo-config.groovy to
   apollo-config.groovy.
@@ -88,19 +87,9 @@ server `apollo run-local` or `apollo debug` use the development environment (i.e
 - Copy the sample-postgres-apollo-config.groovy to apollo-config.groovy. 
 
 
-
 #### Configure for MySQL:
 - Create a new MySQL database for production mode (i.e. run ``create database `apollo-production``` in the mysql
   console) and copy the sample-postgres-apollo-config.groovy to apollo-config.groovy.
-
-
-#### Configure for Docker:
-- Set up and export all of the environment variables you wish to configure. At bare minimum you will likely wish to set
-  `WEBAPOLLO_DB_USERNAME`, `WEBAPOLLO_DB_PASSWORD`, `WEBAPOLLO_DB_DRIVER`, `WEBAPOLLO_DB_DIALECT`, and
-`WEBAPOLLO_DB_URI`
-- Create a new database in your chosen database backend and copy the sample-docker-apollo-config.groovy to
-  apollo-config.groovy.
-- [Instructions and a script for launching docker with apollo and PostgreSQL](https://github.com/GMOD/docker-apollo).
 
 
 #### Apollo in Galaxy
