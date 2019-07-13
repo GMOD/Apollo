@@ -1,4 +1,17 @@
 
+
+## 2.4.1
+
+Features
+
+- Organism and Group tab should searchable.  [2081](https://github.com/GMOD/Apollo/pull/2081) 
+
+Bug
+
+- Bump JBrowse version to 1.16.6 to fix drag error on Chrome mac. <https://github.com/GMOD/jbrowse/issues/1397>
+
+
+
 ## 2.4.0
 
  Features
