@@ -38,9 +38,13 @@
             margin-right: 5px;
         }
 
-    </ui:style>
+        .searchRow {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            height: 40px;
+        }</ui:style>
     <gwt:DockLayoutPanel>
-        <gwt:north size="25">
+        <gwt:north size="40">
             <!--<gwt:FlowPanel>-->
             <b:Container fluid="true" ui:field="northContainer">
                 <gwt:FormPanel ui:field="newOrganismForm">
@@ -66,34 +70,46 @@
 
 
                                 <b:InputGroup addStyleNames="{style.widgetPanel}">
-                                <b:InputGroupAddon>Genus</b:InputGroupAddon>
-                                <b:TextBox ui:field="organismUploadGenus" name="genus"/>
+                                    <b:InputGroupAddon>Genus</b:InputGroupAddon>
+                                    <b:TextBox ui:field="organismUploadGenus" name="genus"/>
                                 </b:InputGroup>
 
                                 <b:InputGroup addStyleNames="{style.widgetPanel}">
-                                <b:InputGroupAddon>Species</b:InputGroupAddon>
-                                <b:TextBox ui:field="organismUploadSpecies" name="species"/>
+                                    <b:InputGroupAddon>Species</b:InputGroupAddon>
+                                    <b:TextBox ui:field="organismUploadSpecies" name="species"/>
                                 </b:InputGroup>
 
                                 <b:InputGroup addStyleNames="{style.widgetPanel}">
-                                <b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>
-                                <b:TextBox ui:field="organismUploadNonDefaultTranslationTable" name="nonDefaultTranslationTable"/>
+                                    <b:InputGroupAddon>Non-default Translation Table</b:InputGroupAddon>
+                                    <b:TextBox ui:field="organismUploadNonDefaultTranslationTable"
+                                               name="nonDefaultTranslationTable"/>
                                 </b:InputGroup>
 
                             </gwt:FlowPanel>
                         </b:ModalBody>
                         <b:ModalFooter>
-                            <gwt:Button ui:field="saveNewOrganism" >Upload</gwt:Button>
+                            <gwt:Button ui:field="saveNewOrganism">Upload</gwt:Button>
                             <b:Button ui:field="cancelNewOrganism" text="Cancel"/>
                         </b:ModalFooter>
                     </b:Modal>
                 </gwt:FormPanel>
-                <b:ButtonGroup dataToggle="BUTTONS">
-                    <b:CheckBoxButton ui:field="showOnlyPublicOrganisms" visible="false" value="false">Show Public
-                        Only
-                    </b:CheckBoxButton>
-                    <b:CheckBoxButton ui:field="showObsoleteOrganisms" value="false">Show Obsolete</b:CheckBoxButton>
-                </b:ButtonGroup>
+                <b:Row addStyleNames="{style.searchRow}">
+                    <b:Column size="MD_4">
+                        <b:TextBox placeholder="Search" ui:field="nameSearchBox"/>
+                    </b:Column>
+                    <b:Column size="MD_4">
+                        <b:ButtonGroup dataToggle="BUTTONS">
+                            <b:CheckBoxButton ui:field="showOnlyPublicOrganisms" visible="false" value="false">Show
+                                Public
+                                Only
+                            </b:CheckBoxButton>
+                            <b:CheckBoxButton ui:field="showObsoleteOrganisms" value="false">Show Obsolete
+                            </b:CheckBoxButton>
+                            <!--                    <b:Column size="MD_5">-->
+                            <!--                    </b:Column>-->
+                        </b:ButtonGroup>
+                    </b:Column>
+                </b:Row>
             </b:Container>
             <!--</gwt:FlowPanel>-->
         </gwt:north>
@@ -178,7 +194,8 @@
                                           icon="PLUS_CIRCLE"/>
                                 <b:Button ui:field="uploadOrganismButton" text="Upload New Organism" enabled="true"
                                           icon="UPLOAD"/>
-                                <b:Button ui:field="downloadOrganismButton" text="Download" enabled="true" visible="false"
+                                <b:Button ui:field="downloadOrganismButton" text="Download" enabled="true"
+                                          visible="false"
                                           icon="DOWNLOAD"/>
                                 <b:Button ui:field="deleteButton" text="Delete Organism" visible="false" icon="TRASH_O"
                                           styleName="{style.inline-button}"
