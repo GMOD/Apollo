@@ -33,6 +33,8 @@ Contents:
    Prerequisites
    Apollo2Build
    Setup
+   Demo
+   UsersGuide
    Configure
    ChadoExport
    Data_loading
