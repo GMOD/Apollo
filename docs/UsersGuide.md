@@ -1,8 +1,3 @@
----
-title: User Guide
-type: single
-permalink: /users-guide/
----
 
 This guide allows users to:
 
