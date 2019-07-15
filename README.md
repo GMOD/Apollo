@@ -12,7 +12,8 @@
 A collaborative, real-time, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
 
-For general information on Apollo, go to [http://genomearchitect.org/](http://genomearchitect.org/).  Cite Apollo using [10.1371/journal.pcbi.1006790](https://doi.org/10.1371/journal.pcbi.1006790)
+Cite Apollo using [10.1371/journal.pcbi.1006790](https://doi.org/10.1371/journal.pcbi.1006790)
+
 
 Questions / Comments / Community contact can be sent to our [Apollo user mailing list](mailto:apollo@lbl.gov) or posted directory to our [google group](https://groups.google.com/a/lbl.gov/forum/#!forum/apollo). Old questions are [archived on Nabble](http://gmod.827538.n3.nabble.com/Apollo-f815553.html).
 
@@ -20,6 +21,9 @@ Complete Apollo installation and configuration instructions are available from t
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
+We provide a [Demonstration Apollo](docs/Demo.md) site and an integrated service is provided by [UseGalaxy Europe](https://usegalaxy.eu/).
+
+The [User's Guide](docs/UsersGuide.md) provides guidance on how to use it.  Please feel free to update this documentation.
 
 ## Setup guide
 
@@ -29,11 +33,12 @@ Launchable public Amazon Web Services (AWS) EC2 images may be [launched from Com
 Launch settings should be 2 vCPU, 8 GB recommended, 80 GB storage depending on the size of your data, and ports 22 and 8080 open at a minimum.
 The server will be available at <http://aws.public.ip:8080/apollo/>.   Binaries with be in the `apollo/bin` directory though it should be in the path.
  
-Apollo may be launched from [Docker](docs/Docker.md) as well. 
+Apollo may be launched from [Docker](docs/Docker.md) as well.  
 
 The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
 
 [Python library over web services](https://pypi.org/project/apollo/) and other [web services examples](https://github.com/GMOD/Apollo/tree/develop/docs/web_services/examples).
+
 
 ## Migrating data from older versions
 
