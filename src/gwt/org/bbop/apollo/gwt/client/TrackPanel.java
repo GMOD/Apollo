@@ -885,8 +885,9 @@ public class TrackPanel extends Composite {
             if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
 
             if (object.get("label") != null) trackInfo.setLabel(object.get("label").isString().stringValue());
-            else Bootbox.alert("Track label should not be null, please check your tracklist");
+            else Bootbox.alert("Track label should not be null, please check your trackList.json");
 
+            if(object.get("type")==null) Bootbox.alert("Missing type in "+object.toString());
             if (object.get("type") != null) trackInfo.setType(object.get("type").isString().stringValue());
 
             if (object.get("urlTemplate") != null)
