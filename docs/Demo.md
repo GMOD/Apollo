@@ -1,4 +1,4 @@
-### INSTRUCTIONS
+# Demo
 
 <b>The required login | password credentials to access are: demo@demo.com | demo</b>
 
