@@ -333,7 +333,7 @@ class OrganismController {
                                 // move the filenames to the same original name, let's assume there is one
                                 File oldFile = new File(fileNames[0])
                                 assert oldFile.exists()
-                                assert oldFile.absolutePath.endsWith(".fa")
+//                                assert oldFile.absolutePath.endsWith(".fa")
                                 File newFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa")
                                 oldFile.renameTo(newFile)
                             }
