@@ -15,6 +15,7 @@ public class TrackConfigurationTemplate {
     private String key;
     private String category;
     private String topLevelFeatures;
+    private String topType;
     private TrackTypeEnum typeEnum;
     // key is entered
 
@@ -26,9 +27,19 @@ public class TrackConfigurationTemplate {
                                       String category,
                                       TrackTypeEnum typeEnum
     ) {
-        this(storeClass,urlTemplate,label,type,key,category,typeEnum,null);
+        this(storeClass,urlTemplate,label,type,key,category,typeEnum,null,null);
     }
 
+//    public TrackConfigurationTemplate(String storeClass,
+//                                      String urlTemplate,
+//                                      String label,
+//                                      String type,
+//                                      String key,
+//                                      String category,
+//                                      TrackTypeEnum typeEnum,
+//                                      String topLevelFeatures){
+//        this(storeClass,urlTemplate,label,type,key,category,typeEnum,topLevelFeatures,null);
+//    }
 
     public TrackConfigurationTemplate(String storeClass,
                                       String urlTemplate,
@@ -37,7 +48,8 @@ public class TrackConfigurationTemplate {
                                       String key,
                                       String category,
                                       TrackTypeEnum typeEnum,
-                                      String topLevelFeatures
+                                      String topLevelFeatures,
+                                      String topType
     ) {
         this.storeClass = storeClass;
         this.urlTemplate = urlTemplate;
@@ -46,6 +58,9 @@ public class TrackConfigurationTemplate {
         this.key = key;
         this.category = category ;
         this.typeEnum = typeEnum ;
+        if(topType!=null){
+            this.topType = topType;
+        }
         if(topLevelFeatures!=null){
             this.topLevelFeatures = topLevelFeatures;
         }
@@ -58,6 +73,11 @@ public class TrackConfigurationTemplate {
         returnObject.put("urlTemplate", new JSONString(this.urlTemplate));
         returnObject.put("label", new JSONString(this.label));
         returnObject.put("type", new JSONString(this.type));
+
+        JSONObject styleObject = new JSONObject();
+        styleObject.put("className",new JSONString("feature"));
+        returnObject.put("style", styleObject);
+
         returnObject.put("key", new JSONString(this.key));
         if(topLevelFeatures!=null && topLevelFeatures.trim().length()>0){
             returnObject.put("topLevelFeatures", new JSONString(this.topLevelFeatures));
@@ -68,6 +88,9 @@ public class TrackConfigurationTemplate {
         JSONObject apolloDetails = new JSONObject();
         apolloDetails.put("source", new JSONString("upload"));
         apolloDetails.put("type", new JSONString(this.typeEnum.name()));
+        if(this.topType!=null){
+            apolloDetails.put("topType", new JSONString(this.topType));
+        }
         returnObject.put("apollo", apolloDetails);
         return returnObject;
     }
@@ -82,7 +105,7 @@ public class TrackConfigurationTemplate {
     }
 
 
-    public static JSONObject generateForTypeAndKeyAndCategory(TrackTypeEnum type, String key,String category) {
+    public static JSONObject generateForTypeAndKeyAndCategory(TrackTypeEnum type, String key,String category,String topType) {
         String randomFileName = key!=null && key.trim().length()>1 ? key : generateString() ;
         switch (type) {
             case BAM:
@@ -154,7 +177,8 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        "mRNA"
+                        topType,
+                        topType
                 ).toJSON();
             case GFF3_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -165,7 +189,8 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        "mRNA"
+                        topType,
+                        topType
                 ).toJSON();
             case GFF3_JSON:
                 return new TrackConfigurationTemplate(
@@ -176,7 +201,8 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        null
+                        null,
+                        topType
                 ).toJSON();
             case GFF3_JSON_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -187,7 +213,8 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        null
+                        null,
+                        topType
                 ).toJSON();
             case GFF3_TABIX:
                 return new TrackConfigurationTemplate(
@@ -198,7 +225,8 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        "mRNA"
+                        topType,
+                        topType
                 ).toJSON();
             case GFF3_TABIX_CANVAS:
                 return new TrackConfigurationTemplate(
@@ -209,7 +237,8 @@ public class TrackConfigurationTemplate {
                         randomFileName,
                         category,
                         type,
-                        "mRNA"
+                        topType,
+                        topType
                 ).toJSON();
         }
 

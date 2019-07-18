@@ -2,6 +2,7 @@
 
 .get_sequence {
 	font-size:10px;
+	width: 550px;
 }
 
 .gff3_area{
@@ -32,4 +33,15 @@
 
 .button_field {
 	margin-left: 3px;
+}
+
+.copy_clipboard_button{
+	margin-bottom: 10px;
+	display: inline;
+}
+
+.copy_value_label{
+	margin-bottom: 10px;
+	margin-left: 10px;
+	display: inline;
 }

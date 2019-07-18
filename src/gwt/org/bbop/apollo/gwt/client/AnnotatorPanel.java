@@ -31,6 +31,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -41,6 +42,7 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
+import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
@@ -48,9 +50,11 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
@@ -80,7 +84,7 @@ public class AnnotatorPanel extends Composite {
     private static String selectedChildUniqueName = null;
 
     private static int selectedSubTabIndex = 0;
-
+    private static int pageSize = 25;
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
@@ -93,7 +97,7 @@ public class AnnotatorPanel extends Composite {
     private static DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
 
     @UiField(provided = true)
-    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(20, tablecss);
+    static DataGrid<AnnotationInfo> dataGrid = new DataGrid<>(pageSize, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = null;
 
@@ -127,8 +131,20 @@ public class AnnotatorPanel extends Composite {
     static Button gotoAnnotation;
     @UiField
     static Button deleteAnnotation;
+    @UiField
+    Button toggleAnnotation;
+    @UiField
+    com.google.gwt.user.client.ui.ListBox pageSizeSelector;
+    @UiField
+    GoPanel goPanel;
+    @UiField
+    CheckBox goOnlyCheckBox;
 
-    private static AnnotationInfo selectedAnnotationInfo;
+
+    // manage UI-state
+    private Boolean showDetails = true ;
+
+    static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
 
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
@@ -168,6 +184,8 @@ public class AnnotatorPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
+        handleDetails();
+
         dataProvider = new AsyncDataProvider<AnnotationInfo>() {
             @Override
             protected void onRangeChanged(HasData<AnnotationInfo> display) {
@@ -184,6 +202,7 @@ public class AnnotatorPanel extends Composite {
                 url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
+                url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
@@ -308,6 +327,12 @@ public class AnnotatorPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         pager.setDisplay(dataGrid);
 
+        pageSizeSelector.addItem("10");
+        pageSizeSelector.addItem("25");
+        pageSizeSelector.addItem("50");
+        pageSizeSelector.addItem("100");
+        pageSizeSelector.addItem("500");
+        pageSizeSelector.setSelectedIndex(1);
 
         initializeTypes();
 
@@ -345,6 +370,8 @@ public class AnnotatorPanel extends Composite {
                         variantInfoPanel.redrawTable();
                     case 4:
                         alleleInfoPanel.redrawTable();
+                    case 5:
+                        goPanel.redraw();
                 }
             }
         });
@@ -459,6 +486,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(true);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
@@ -469,6 +497,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             case "mRNA":
             case "miRNA":
@@ -484,6 +513,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             case "terminator":
             case "transposable_element":
@@ -494,6 +524,7 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
                 tabPanel.getTabWidget(3).getParent().setVisible(false);
                 tabPanel.getTabWidget(4).getParent().setVisible(false);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             case "deletion":
             case "insertion":
@@ -511,17 +542,20 @@ public class AnnotatorPanel extends Composite {
                 tabPanel.getTabWidget(2).getParent().setVisible(true);
                 tabPanel.getTabWidget(3).getParent().setVisible(true);
                 tabPanel.getTabWidget(4).getParent().setVisible(true);
+                tabPanel.getTabWidget(5).getParent().setVisible(false);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
         }
+
+
         reselectSubTab();
 
 
     }
 
     private static void reselectSubTab() {
-        // attempt to selectt the last tab
+        // attempt to select the last tab
         if (tabPanel.getSelectedIndex() != selectedSubTabIndex) {
             tabPanel.selectTab(selectedSubTabIndex);
         }
@@ -531,6 +565,7 @@ public class AnnotatorPanel extends Composite {
             --selectedSubTabIndex;
             tabPanel.selectTab(selectedSubTabIndex);
         }
+
     }
 
     public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
@@ -664,12 +699,15 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
+                tabPanel.setVisible(showDetails && selectedAnnotationInfo!=null);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
+                    goPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
                     deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
+                    goPanel.updateData();
                     gotoAnnotation.setEnabled(false);
                     deleteAnnotation.setEnabled(false);
                 }
@@ -690,6 +728,7 @@ public class AnnotatorPanel extends Composite {
         dataGrid.setColumnWidth(5, 30.0, Unit.PX);
 
         dataGrid.setSelectionModel(singleSelectionModel);
+
     }
 
     private String getType(JSONObject internalData) {
@@ -708,8 +747,14 @@ public class AnnotatorPanel extends Composite {
         reload(false);
     }
 
+    @UiHandler(value = {"pageSizeSelector"})
+    public void changePageSize(ChangeEvent changeEvent) {
+        pageSize = Integer.parseInt(pageSizeSelector.getSelectedValue());
+        dataGrid.setPageSize(pageSize);
+        reload();
+    }
 
-    @UiHandler(value = {"typeList", "userField"})
+    @UiHandler(value = {"typeList", "userField","goOnlyCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -734,6 +779,25 @@ public class AnnotatorPanel extends Composite {
         MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
     }
 
+
+    private void handleDetails(){
+        if(showDetails) {
+            toggleAnnotation.setText("Hide Details");
+            toggleAnnotation.setIcon(IconType.EYE_SLASH);
+        } else{
+            toggleAnnotation.setText("Show Details");
+            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
+        }
+
+        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject()!=null);
+    }
+
+    @UiHandler("toggleAnnotation")
+    void toggleAnnotation(ClickEvent clickEvent) {
+        showDetails = !showDetails;
+        handleDetails();
+    }
+
     @UiHandler("deleteAnnotation")
     void deleteAnnotation(ClickEvent clickEvent) {
         final Set<AnnotationInfo> deletableChildren = getDeletableChildren(selectedAnnotationInfo);
@@ -752,6 +816,15 @@ public class AnnotatorPanel extends Composite {
                     // parse to make sure we return the complete amount
                     try {
                         JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                        GWT.log("Return: "+returnValue.toString());
+                        Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
+                            @Override
+                            public void callback(boolean result) {
+                                if(result){
+                                    Window.Location.reload();
+                                }
+                            }
+                        });
                     } catch (Exception e) {
                         Bootbox.alert(e.getMessage());
                     }
@@ -816,12 +889,7 @@ public class AnnotatorPanel extends Composite {
     public void displayTranscript(int geneIndex, String uniqueName) {
 
         // for some reason doesn't like call enableGoto
-        AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - geneIndex));
-        selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
-        exonDetailPanel.updateData(selectedAnnotationInfo);
-        gotoAnnotation.setEnabled(true);
-        deleteAnnotation.setEnabled(true);
-        selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
+        enableGoto(geneIndex,uniqueName);
 
         // for some reason doesn't like call gotoAnnotation
         Integer min = selectedAnnotationInfo.getMin() - 50;
@@ -834,7 +902,7 @@ public class AnnotatorPanel extends Composite {
     public void displayFeature(int featureIndex) {
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - featureIndex));
         String type = annotationInfo.getType();
-        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator")) {
+        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator") ) {
             // do nothing
         } else {
             exonDetailPanel.updateData(annotationInfo);
@@ -848,11 +916,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     public static native void exportStaticMethod(AnnotatorPanel annotatorPanel) /*-{
-        var that = this;
         $wnd.displayTranscript = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayTranscript(ILjava/lang/String;));
         $wnd.displayFeature = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::displayFeature(I));
         $wnd.enableGoto = $entry(annotatorPanel.@org.bbop.apollo.gwt.client.AnnotatorPanel::enableGoto(ILjava/lang/String;));
-//        $wnd.showInAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.AnnotatorPanel::showInAnnotatorPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private class CustomTableBuilder extends AbstractCellTableBuilder<AnnotationInfo> {

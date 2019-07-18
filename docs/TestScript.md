@@ -80,7 +80,7 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
-5.1) Change intron/exon boundary (dragging)
+5.1) Change intron / exon boundary (dragging)
 
 5.2) Check the recalculated ORF
 
@@ -152,6 +152,17 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.1.4) Test that you can delete an annotation from the Details menu.
 
+13.1.5) Check that when selecting a Gene that the GO tab appears.
+
+13.1.5.1) Check that you can add three GO Annotations for the gene.
+
+13.1.5.2) Check that you can edit a GO Annotation.
+
+13.1.5.3) Check that you can delete a GO Annotation.
+
+13.1.5.4) Check that you can filter GO Annotations by clicking the checkbox at the top.
+
+
 13.2) Tracks
 
 13.2.1) Check the display of evidence available on all tracks by clicking to "check" and "uncheck" from the list of available tracks.
@@ -170,7 +181,7 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 13.2.3.5) Test a set of track categories can handle opening and closing, searching, and select / unselect all.
 
-13.2.4) Check that as administrator that you can both add and remove tracks and that removed track contents are deleted.
+13.2.4) Check that as administrator that you can both add and remove multiple track types via the upload and that removed track contents are deleted.
 
 13.3) Ref Sequence
 
@@ -179,6 +190,8 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 13.3.2) Test that you can export GFF3, FASTA, and CHADO files for one or more selected scaffolds at a time. 
 
 13.3.3) Test that you can delete all annotations from 2 or more sequences.
+
+13.3.4) Check that you export GO Annotations as a GPAD 2 file.
 
 13.4) Organism
 
@@ -270,25 +283,39 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 16.1) Right-click on a HTML Annotation and "Create Annotation" and confirm that the same SNV has been added graphically.
 
 16.1.2) Confirm that you can drag up an HTML Variant Annotation.
+
 16.1.3) Confirm that you can create a Canvas Variant Annotation by right-clicking on it and click on Annotation.
 
 16.2) On any of the annotations, option-click (or right-click and select "Edit Information") on the created variant and confirm that data is identical to what it has been added from.
 
 16.2.1)  Make changes to the name and description fields.
+
 16.2.2)  Add two Allele Info.  Remove one Allele INFO.  
+
 16.2.3)  Add two Variant Info.  Remove one Variant INFO.  
-16.2.4)  Add two Human Phenotype Ontology temrs and remove one.
+
+16.2.4)  Add two Human Phenotype Ontology terms and remove one.
+
 16.2.5)  Add an invalid Human Phenotype Ontology and ensure that the operation fails with a proper error.
+
 16.2.5)  Repeat for Comment, DBXRefs, and PubMed Ids.
+
 16.2.6)  Change name and confirm name is changed.
 
 
+
 16.3) Right-click on variant annotation and confirm that only that annotation appears in the Annotator Panel
+
 16.3.1) Observe that four tabs are shown in the details screen: Details, Alternate Alleles, Variant Info, and Allele Info.
+
 16.3.2) In the Details tab confirm that changes to Name and Description show up and match what is shown in the graphical editor.
+
 16.3.3) In the Variant Info tab confirm that the added info appears. 
+
 16.3.3.1) Confirm that you can add and delete Variant Info.
+
 16.3.4) In the Allele Info tab confirm that the added info appears. 
+
 16.3.4.1) Confirm that you can add and delete Allele Info.
 
 16.4) In Annotator Panel search switch between Variant and others and confirm that only variants shows up.
@@ -300,3 +327,16 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 16.6.1) Verify that you can click on the chromosome and export it as a valid VCF.
 
 16.6.2) Verify that the VCF contains all the variants and each variant has all the properties.
+
+16.7) Verify variant effect code.
+
+16.7.1) Click on a variant annotation deletion or insertion in a coding region and click on "View Variant Effect" and verify that an effect on the CDS is rendered (human BRCA1 works well for this).
+
+16.7.2) Click on generated sequence alteration and verify that the comment is "Effect of XXXX" where XXXX is the variant effecdt type.
+
+16.7.3) Click on "Remove Variant Effect" from the variant and verify that the sequence alteration and effect on the CDS are both removed. 
+
+16.7.4) Repeat adding variant effects but do this for multiple variants on the same gene.
+
+16.7.5) Click on the effected gene and click on "Remove variant effects" and confirm that all alterations are removed from within the effected area.
+

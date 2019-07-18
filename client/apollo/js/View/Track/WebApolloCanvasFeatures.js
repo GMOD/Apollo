@@ -106,21 +106,21 @@ return declare( CanvasFeaturesTrack,
                    }
                 },
                 {
-                  "label" : "repeat_region",
+                  "label" : "Repeat region",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
                      atrack.createGenericOneLevelAnnotations([this.feature], "repeat_region", true);
                    }
                 },
                 {
-                  "label" : "terminator",
+                  "label" : "Terminator",
                   "action" : function() {
                       var atrack=thisB.webapollo.getAnnotTrack();
                       atrack.createGenericOneLevelAnnotations([this.feature], "terminator", true);
                   }
                 },
                 {
-                  "label" : "transposable element",
+                  "label" : "Transposable element",
                   "action" : function() {
                      var atrack=thisB.webapollo.getAnnotTrack();
                      atrack.createGenericOneLevelAnnotations([this.feature], "transposable_element", true);

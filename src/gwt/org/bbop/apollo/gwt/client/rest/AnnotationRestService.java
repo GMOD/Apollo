@@ -58,7 +58,7 @@ public class AnnotationRestService extends RestService {
         return jsonObject;
     }
 
-    public static JSONObject deleteAnnotationsFromSequences(RequestCallback requestCallback, Set<SequenceInfo> sequenceInfoSet) {
+    private static JSONObject generateSequenceObject(Set<SequenceInfo> sequenceInfoSet){
         JSONObject jsonObject = new JSONObject();
         JSONArray sequencesArray = new JSONArray();
         jsonObject.put(FeatureStringEnum.SEQUENCE.getValue(), sequencesArray);
@@ -68,7 +68,11 @@ public class AnnotationRestService extends RestService {
             sequenceIdObject.put(FeatureStringEnum.ID.getValue(), new JSONNumber(sequenceInfo.getId()));
             sequencesArray.set(sequencesArray.size(), sequenceIdObject);
         }
+        return jsonObject ;
+    }
 
+    public static JSONObject deleteAnnotationsFromSequences(RequestCallback requestCallback, Set<SequenceInfo> sequenceInfoSet) {
+        JSONObject jsonObject = generateSequenceObject(sequenceInfoSet);
         sendRequest(requestCallback, "annotationEditor/deleteFeaturesForSequences", "data=" + jsonObject.toString());
         return jsonObject;
     }
@@ -77,5 +81,11 @@ public class AnnotationRestService extends RestService {
 //        JSONObject directoryObject = new JSONObject();
 //        directoryObject.put("directory")
         sendRequest(requestCallback, "annotator/updateCommonPath", "directory="+directory);
+    }
+
+    public static JSONObject deleteVariantAnnotationsFromSequences(RequestCallback requestCallback, Set<SequenceInfo> sequenceInfoSet) {
+        JSONObject jsonObject = generateSequenceObject(sequenceInfoSet);
+        sendRequest(requestCallback, "annotationEditor/deleteVariantEffectsForSequences", "data=" + jsonObject.toString());
+        return jsonObject;
     }
 }

@@ -40,13 +40,6 @@ class VcfController {
         JSONArray featuresArray = new JSONArray()
         Organism organism = preferenceService.getOrganismForToken(organismString)
         JSONObject trackListObject = trackService.getTrackList(organism.directory)
-        String trackUrlTemplate
-        for(JSONObject track : trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)) {
-            if(track.getString(FeatureStringEnum.LABEL.value) == trackName) {
-                trackUrlTemplate = track.urlTemplate
-                break
-            }
-        }
 
         Boolean ignoreCache = params.ignoreCache != null ? Boolean.valueOf(params.ignoreCache) : false
         if (!ignoreCache) {
@@ -55,6 +48,19 @@ class VcfController {
                 render JSON.parse(responseString) as JSON
                 return
             }
+        }
+
+        String trackUrlTemplate = null
+        for(JSONObject track : trackListObject.getJSONArray(FeatureStringEnum.TRACKS.value)) {
+            log.debug "comparing ${track.label} to ${trackName}"
+            if(track.getString(FeatureStringEnum.LABEL.value) == trackName) {
+                log.debug "found ${track} -> ${track.urlTemplate}"
+                trackUrlTemplate = track.urlTemplate
+                break
+            }
+        }
+        if(!trackUrlTemplate){
+            throw new RuntimeException("Track url template not found for '${trackName}'")
         }
 
         File file = new File(organism.directory + File.separator + trackUrlTemplate)

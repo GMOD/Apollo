@@ -24,6 +24,7 @@ public class OrganismInfo implements HasJSON{
     private String blatdb ;
 
     private Integer numFeatures ;
+    private Integer variantEffectCount;
     private Integer numSequences;
     private Boolean valid ;
     private Boolean current;
@@ -201,5 +202,13 @@ public class OrganismInfo implements HasJSON{
 
     public boolean isEditable() {
         return editable;
+    }
+
+    public Integer getVariantEffectCount() {
+        return variantEffectCount;
+    }
+
+    public void setVariantEffectCount(Integer variantEffectCount) {
+        this.variantEffectCount = variantEffectCount;
     }
 }

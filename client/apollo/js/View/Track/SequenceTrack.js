@@ -528,7 +528,12 @@ function( declare,
                                              containerStart, containerEnd) {
                     var featDiv =
                         this.renderFeature(feature, uniqueId, block, scale, labelScale, descriptionScale, containerStart, containerEnd);
-                    $(featDiv).addClass("sequence-alteration-artifact");
+                    if(feature.data.variant_effect){
+                        $(featDiv).addClass("variant-effect");
+                    }
+                    else{
+                        $(featDiv).addClass("sequence-alteration-artifact");
+                    }
 
                     var charSize = this.webapollo.getSequenceCharacterSize();
 

@@ -65,7 +65,7 @@ class ProxyController {
         URL returnUrl = new URL(targetUrl)
 
         log.debug "input URI ${request.requestURI}"
-        log.info "request url ${referenceUrl}?${request.getQueryString()}"
+        log.info "request url${referenceUrl}?${request.getQueryString()}"
         log.info "return url: ${returnUrl}"
         render text: returnUrl.text
     }

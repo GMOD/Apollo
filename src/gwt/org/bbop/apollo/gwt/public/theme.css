@@ -92,3 +92,17 @@
     background-color: lightgrey !important;
     color: cadetblue !important;
 }
+
+.dropdown-menu{
+    width: 600px;
+}
+
+.dropdown-menu .item {
+    padding: 5px;
+    width: 600px;
+}
+
+.dropdown-menu .item-selected {
+    background-color: #eee;
+    width: 600px;
+}

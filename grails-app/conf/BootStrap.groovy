@@ -27,6 +27,10 @@ class BootStrap {
         log.info "Driver: ${dataSource.driverClassName}"
         log.info "Dialect: ${dataSource.dialect}"
 
+        System.getenv().each {
+            log.info it.key + "->" + it.value
+        }
+
         domainMarshallerService.registerObjects()
         proxyService.initProxies()
 
