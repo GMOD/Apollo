@@ -609,6 +609,38 @@ Following are a few recommendations for adding tracks via dot notation in Apollo
 
 Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
 
+### Setting Track Style by type
+
+To set the feature style by type (for example, if you have multiple feature types on a single track and you want to distinguish them,
+ you have to set the track `className` as `{type}` in the style section of the `trackList.json` file for that track:
+
+```
+ "style": {
+        "className": "{type}",
+      },
+```      
+
+You then have to specify a custom CSS file for that type in the `trackList.json`:
+
+ `"css":"data/custom.css"`
+ 
+And that file has to go at the same level as `trackList.json`.
+ 
+An example CSS entry to specify the feature type `lnc_RNA` might be:
+
+```
+ .minus-lnc_RNA .neat-UTR,
+ .plus-lnc_RNA .neat-UTR,
+ .lnc_RNA .neat-UTR{
+         height: 12px;
+         margin-top: 2px;
+         color: rgb(200,2,3);
+         background-color: rgb(5,4,255) !important;
+ }
+ ```
+
+
+
 ### Hiding JBrowse tracks from the public
 
 To hide public tracks from public organisms add `apollo.permission.level.private` line to your JBrowse track:
