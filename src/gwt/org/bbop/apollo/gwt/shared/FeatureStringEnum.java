@@ -71,6 +71,7 @@ public enum FeatureStringEnum {
         CV,
         SEQUENCE,
         SEQUENCE_DATA("sequenceData"),
+        SEARCH_DATABASE_DATA("searchDatabaseData"),
         TRACK,
         DB,
         DBXREFS,
