@@ -611,10 +611,11 @@ Since Apollo is aware of the organism data folder, specifying it explicitly in t
 
 ### Setting Track Style by type
 
-To set the feature style by type (for example, if you have multiple feature types on a single track and you want to distinguish them,
+For the default track type (`FeatureTrack`) to set the feature style by type (for example, if you have multiple feature types on a single track and you want to distinguish them,
  you have to set the track `className` as `{type}` in the style section of the `trackList.json` file for that track:
 
 ```
+ 
  "style": {
         "className": "{type}",
       },
@@ -638,7 +639,8 @@ An example CSS entry to specify the feature type `lnc_RNA` might be:
          background-color: rgb(5,4,255) !important;
  }
  ```
-
+ 
+For Canvas and HTML track configuration options, please see the [JBrowse documentation](http://jbrowse.org/docs/html_features.html) for additional details.
 
 
 ### Hiding JBrowse tracks from the public
