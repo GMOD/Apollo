@@ -113,12 +113,16 @@ public class OrganismPanel extends Composite {
     TextBox organismUploadNonDefaultTranslationTable;
     @UiField
     static TextBox nameSearchBox;
+    @UiField
+    HTML dbUploadDescription;
+    @UiField
+    FileUpload organismUploadDatabase;
 
-    boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
-    boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
+    private boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
+    private boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
 
-    final LoadingDialog loadingDialog;
-    final ErrorDialog errorDialog;
+    final private LoadingDialog loadingDialog;
+    final private ErrorDialog errorDialog;
 
     static private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private static List<OrganismInfo> organismInfoList = new ArrayList<>();
@@ -138,6 +142,7 @@ public class OrganismPanel extends Composite {
         newOrganismForm.setAction(RestService.fixUrl("organism/addOrganismWithSequence"));
 
         uploadDescription.setHTML("<small>" + SequenceTypeEnum.generateSuffixDescription() + "</small>");
+        dbUploadDescription.setHTML("2bit blat file");
 
         newOrganismForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override

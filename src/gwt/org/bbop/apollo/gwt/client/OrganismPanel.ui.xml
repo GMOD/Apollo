@@ -68,6 +68,11 @@
                                     <gwt:FileUpload ui:field="organismUploadSequence" name="sequenceData"/>
                                 </b:InputGroup>
 
+                                <b:InputGroup addStyleNames="{style.widgetPanel}">
+                                    <b:InputGroupAddon text="Search DB"/>
+                                    <gwt:HTML ui:field="dbUploadDescription"/>
+                                    <gwt:FileUpload ui:field="organismUploadDatabase" name="searchDatabaseData"/>
+                                </b:InputGroup>
 
                                 <b:InputGroup addStyleNames="{style.widgetPanel}">
                                     <b:InputGroupAddon>Genus</b:InputGroupAddon>

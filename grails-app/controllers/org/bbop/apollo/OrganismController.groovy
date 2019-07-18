@@ -225,13 +225,14 @@ class OrganismController {
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "species", type = "string", paramType = RestApiParamType.QUERY, description = "species name")
             , @RestApiParam(name = "genus", type = "string", paramType = RestApiParamType.QUERY, description = "species genus")
-            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file)")
+            , @RestApiParam(name = "blatdb", type = "string", paramType = RestApiParamType.QUERY, description = "filesystem path for a BLAT database (e.g. a .2bit file) if not uploaded")
             , @RestApiParam(name = "publicMode", type = "boolean", paramType = RestApiParamType.QUERY, description = "a flag for whether the organism appears as in the public genomes list")
             , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "commonName for an organism")
             , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
             , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory")
             , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "FASTA file (optionally compressed) to automatically upload with")
+            , @RestApiParam(name = "searchDatabaseData", type = "file", paramType = RestApiParamType.QUERY, description = "2bit file for blat search (optional)")
     ])
     @Transactional
     def addOrganismWithSequence() {
@@ -243,6 +244,7 @@ class OrganismController {
         String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
         CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
+        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
 
         if (!requestObject.containsKey(FeatureStringEnum.ORGANISM_NAME.value)) {
             returnObject.put("error", "/addOrganismWithSequence requires '${FeatureStringEnum.ORGANISM_NAME.value}'.")
@@ -323,9 +325,7 @@ class OrganismController {
                             assert rawDirectory.setWritable(true)
                             File archiveFile = new File(rawDirectory.absolutePath + File.separator + organismName + "." + sequenceTypeEnum.suffix)
                             sequenceDataFile.transferTo(archiveFile)
-
                             organism.directory = directory.absolutePath
-                            organism.save()
 
                             // decompress if need be
                             if (sequenceTypeEnum.compression != null) {
@@ -337,6 +337,20 @@ class OrganismController {
                                 File newFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa")
                                 oldFile.renameTo(newFile)
                             }
+
+                            println "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
+                            if(searchDatabaseDataFile!=null){
+                                File searchDirectory = new File(directory.absolutePath + "/search")
+                                assert searchDirectory.mkdir()
+                                assert searchDirectory.setWritable(true)
+                                File searchFile = new File(searchDirectory.absolutePath + File.separator + searchDatabaseDataFile.originalFilename)
+                                println "search file: ${searchFile.absolutePath}"
+                                searchDatabaseDataFile.transferTo(searchFile)
+                                organism.blatdb = searchFile.absolutePath
+                            }
+
+                            organism.save()
+
 
                             String trackListJson = TrackDefaults.getIndexedFastaConfig(organismName)
                             File trackListFile = new File(directory.absolutePath + File.separator + "trackList.json")
