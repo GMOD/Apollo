@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import groovy.io.FileType
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 import org.bbop.apollo.sequence.TranslationTable
