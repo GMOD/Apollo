@@ -221,27 +221,6 @@ class OrganismController {
         }
     }
 
-    /**
-     * If file path contains "searchDatabaseData"
-     * @param path
-     * @return
-     */
-    private String findBlatDB(String path){
-        String searchDatabaseDirectory = path + "/" + FeatureStringEnum.SEARCH_DATABASE_DATA.value
-        File searchFile = new File(searchDatabaseDirectory)
-        if(searchFile.exists()){
-            String returnFile = null
-            searchFile.eachFileRecurse(FileType.FILES) {
-                if(it.name.endsWith(".2bit")){
-                    returnFile = it
-                }
-            }
-            return returnFile
-        }
-
-        return null
-
-    }
 
     @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganismWithSequence", verb = RestApiVerb.POST)
     @RestApiParams(params = [
@@ -323,7 +302,7 @@ class OrganismController {
                             organism.directory = directory.absolutePath
 
                             // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
-                            String blatdb = findBlatDB(directory.absolutePath)
+                            String blatdb = organismService.findBlatDB(directory.absolutePath)
                             if(blatdb){
                                 organism.blatdb = blatdb
                             }
