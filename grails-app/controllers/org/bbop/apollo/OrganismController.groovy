@@ -236,7 +236,7 @@ class OrganismController {
                     returnFile = it
                 }
             }
-            return it
+            return returnFile
         }
 
         return null
