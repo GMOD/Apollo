@@ -3,7 +3,9 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import groovy.io.FileType
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
+import org.apache.commons.io.FileUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -219,6 +221,28 @@ class OrganismController {
         }
     }
 
+    /**
+     * If file path contains "searchDatabaseData"
+     * @param path
+     * @return
+     */
+    private String findBlatDB(String path){
+        String searchDatabaseDirectory = path + "/" + FeatureStringEnum.SEARCH_DATABASE_DATA.value
+        File searchFile = new File(searchDatabaseDirectory)
+        if(searchFile.exists()){
+            String returnFile = null
+            searchFile.eachFileRecurse(FileType.FILES) {
+                if(it.name.endsWith(".2bit")){
+                    returnFile = it
+                }
+            }
+            return it
+        }
+
+        return null
+
+    }
+
     @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganismWithSequence", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -297,6 +321,12 @@ class OrganismController {
                             fileService.decompress(archiveFile, directory.absolutePath, null, false)
                             log.debug "Adding ${organismName} with directory: ${directory.absolutePath}"
                             organism.directory = directory.absolutePath
+
+                            // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
+                            String blatdb = findBlatDB(directory.absolutePath)
+                            if(blatdb){
+                                organism.blatdb = blatdb
+                            }
                             organism.save()
                             sequenceService.loadRefSeqs(organism)
                             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
