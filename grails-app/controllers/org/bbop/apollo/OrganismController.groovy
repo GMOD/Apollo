@@ -3,7 +3,9 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
+import groovy.io.FileType
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
+import org.apache.commons.io.FileUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -219,6 +221,7 @@ class OrganismController {
         }
     }
 
+
     @RestApiMethod(description = "Adds an organism returning a JSON array of all organisms", path = "/organism/addOrganismWithSequence", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -230,7 +233,7 @@ class OrganismController {
             , @RestApiParam(name = "commonName", type = "string", paramType = RestApiParamType.QUERY, description = "commonName for an organism")
             , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
             , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
-            , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory")
+            , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory (if other options not used).  Blat data should include a .2bit suffix and be in a directory 'searchDatabaseData'")
             , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "FASTA file (optionally compressed) to automatically upload with")
             , @RestApiParam(name = "searchDatabaseData", type = "file", paramType = RestApiParamType.QUERY, description = "2bit file for blat search (optional)")
     ])
@@ -297,6 +300,12 @@ class OrganismController {
                             fileService.decompress(archiveFile, directory.absolutePath, null, false)
                             log.debug "Adding ${organismName} with directory: ${directory.absolutePath}"
                             organism.directory = directory.absolutePath
+
+                            // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
+                            String blatdb = organismService.findBlatDB(directory.absolutePath)
+                            if(blatdb){
+                                organism.blatdb = blatdb
+                            }
                             organism.save()
                             sequenceService.loadRefSeqs(organism)
                             preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
