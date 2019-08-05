@@ -8,7 +8,6 @@ import spock.lang.Specification
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
 @TestFor(OrganismService)
-//@Mock([Sequence, OrganismLocation, Organism,MRNA])
 class OrganismServiceSpec extends Specification {
 
     def setup() {
