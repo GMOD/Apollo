@@ -23,11 +23,24 @@ npm install -g yarn
 wget https://github.com/GMOD/Apollo/archive/2.4.1.tar.gz
 mv 2.4.1.tar.gz Apollo-2.4.1.tar.gz
 tar xf Apollo-2.4.1.tar.gz
-# Setup apollo mysql user and database
+
+```
+
+### Setup apollo mysql user and database
+
+```
+# Login to mysql e.g., 
+mysql -u root
+# Create a user 
 CREATE USER 'apollo'@'localhost' IDENTIFIED BY 'THE_PASSWORD';
 CREATE DATABASE `apollo-production`;
-GRANT ALL PRIVILEGES ON `apollo-production`.* To 'apollo'@'localhost' IDENTIFIED BY 'THE_PASSWORD';
-# Configure apollo for mysql.
+GRANT ALL PRIVILEGES ON `apollo-production`.* To 'apollo'@'localhost';
+```
+
+
+
+### Configure apollo for mysql.
+```
 cd ~/src/Apollo-2.4.1
 # Let's store the config file outside of the source tree.
 mkdir ~/apollo.config
@@ -38,13 +51,15 @@ ln -s ~/apollo.config/apollo-config.groovy
 # Run the local version, which verifies install reqs, and does a bunch of stuff (see below) 
 cd Apollo-2.4.1
 ./apollo run-local
+```
 
 
 # If a pre-installed instance: 
-rm -rf /var/lib/tomcat/webapps/apollo
-rm -f /var/lib/tomcat/webapps/apollo.war
+
+    rm -rf /var/lib/tomcat/webapps/apollo
+    rm -f /var/lib/tomcat/webapps/apollo.war
 # Startup tomcat again
-service tomcat8 start
+    service tomcat8 start
 
 # ... without javascript minimization
 #  ./apollo deploy
