@@ -64,18 +64,18 @@ cd Apollo-2.4.1
 # ... without javascript minimization
 #  ./apollo deploy
 # Above creates this file: target/apollo-2.4.1.war
-sudo cp target/apollo-2.4.1.war /var/lib/tomcat/webapps/apollo.war
+    sudo cp target/apollo-2.4.1.war /var/lib/tomcat/webapps/apollo.war
 
 # Prepare JBrowse data
 # Add the FASTA assembly
-~/src/Apollo-2.4.1/jbrowse/bin/prepare-refseqs.pl \
---fasta /research/dre/assembly/assembly1.fasta.gz \
---out ~/organisms/dre
+    ~/src/Apollo-2.4.1/jbrowse/bin/prepare-refseqs.pl \
+    --fasta /research/dre/assembly/assembly1.fasta.gz \
+    --out ~/organisms/dre
 
 # Add annotations
-~/src/Apollo-2.4.1/jbrowse/bin/flatfile-to-json.pl \
---gff /research/dre/annotation/FINAL_annotations/ssc_v4.gff \ 
---type mRNA --trackLabel Annotations --out ~/organisms/dre
+    ~/src/Apollo-2.4.1/jbrowse/bin/flatfile-to-json.pl \
+    --gff /research/dre/annotation/FINAL_annotations/ssc_v4.gff \ 
+    --type mRNA --trackLabel Annotations --out ~/organisms/dre
 
-In interface point to directory ~/organisms/dre
+In interface point to directory `~/organisms/dre when` loading organism.
 
