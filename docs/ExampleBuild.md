@@ -77,6 +77,5 @@ sudo cp target/apollo-2.4.1.war /var/lib/tomcat/webapps/apollo.war
 --gff /research/dre/annotation/FINAL_annotations/ssc_v4.gff \ 
 --type mRNA --trackLabel Annotations --out ~/organisms/dre
 
-# In interface point to directory ~/organisms/dre
-```
+In interface point to directory ~/organisms/dre
 
