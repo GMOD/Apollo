@@ -14,7 +14,7 @@ Binaries with be in the `apollo/bin` directory though it should be in the path.
 
 The `Apollo 2.4.1 Template Configured with Data` instance contains an existing admin user `admin@sampleorg.org` / `samplepassword`.
 
-It also contains data from 3 genomes [Apollo2Build#adding-sample-data].  The Honeybee example has a working blat search. 
+It also contains data from [three sample genomes](Apollo2Build.md#adding-sample-data).  The Honeybee (Apis Melifera) example has a working blat search and is sourced from the [Hymenoptera Genome Database](http://hymenopteragenome.org/).  
 
 To use this instance:
 
