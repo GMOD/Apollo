@@ -13,7 +13,7 @@
 A collaborative, real-time, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
 
-Cite Apollo using [10.1371/journal.pcbi.1006790](https://doi.org/10.1371/journal.pcbi.1006790)
+Cite Apollo using `Dunn NA, Unni DR, Diesh C, Munoz-Torres M, Harris NL, Yao E, et al. (2019) Apollo: Democratizing genome annotation. PLoS Comput Biol 15(2): e1006790.` <https://doi.org/10.1371/journal.pcbi.1006790>
 
 
 Questions / Comments / Community contact can be sent to our [Apollo user mailing list](mailto:apollo@lbl.gov) or posted directory to our [google group](https://groups.google.com/a/lbl.gov/forum/#!forum/apollo). Old questions are [archived on Nabble](http://gmod.827538.n3.nabble.com/Apollo-f815553.html).
