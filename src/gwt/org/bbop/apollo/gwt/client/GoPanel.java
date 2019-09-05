@@ -520,10 +520,10 @@ public class GoPanel extends Composite {
             validationErrors.add("You must provide a prefix and suffix for the GO term");
         }
         if (goAnnotation.getEvidenceCode() == null) {
-            validationErrors.add("You must provide an ECO evidence code ");
+            validationErrors.add("You must provide an ECO term");
         }
         if (!goAnnotation.getEvidenceCode().contains(":")) {
-            validationErrors.add("You must provide a prefix and suffix for the ECO evidence code");
+            validationErrors.add("You must provide a prefix and suffix for the ECO term");
         }
         if (goAnnotation.getGeneRelationship() == null) {
             validationErrors.add("You must provide a Gene Relationship");
