@@ -38,6 +38,11 @@ Build settings for Apollo specifically.  Recent versions of tomcat7 will work, t
     sudo apt-get install ant openjdk-8-jdk 
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
     
+If you need to have multiple versions of java (note [#2222](https://github.com/GMOD/Apollo/issues/2222)), you will need to specify the version for tomcat.  In tomcat8 on Ubuntu you'll need to set the `/etc/default/tomcat8` file JAVA_HOME explicitly:
+
+    JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+    
 ### Install yarn
 
     npm install -g yarn
