@@ -6956,11 +6956,35 @@ define([
                 }));
                 contextMenuItems["view_in_annotator_panel"] = index++;
 
+              annot_context_menu.addChild(new dijit.MenuItem({
+                label: "View Go Annotations",
+                onClick: function (event) {
+                  var selected = thisB.selectionManager.getSelection();
+                  var selectedFeature = selected[0].feature;
+                  var selectedFeatureDetails = selectedFeature.afeature;
+                  while(selectedFeature  ){
+                    if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                      thisB.getApollo().viewGoPanel(selectedFeatureDetails.name);
+                      return ;
+                    }
+                    else
+                    if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
+                      thisB.getApollo().viewGoPanel(selectedFeatureDetails.parent_name);
+                      return ;
+                    }
+                    selectedFeature = selectedFeature._parent ;
+                    selectedFeatureDetails = selectedFeature.afeature ;
+                  }
+                  alert('Unable to focus on object');
+                }
+              }));
+              contextMenuItems["view_go_annotation"] = index++;
 
-                if (!(permission & Permission.WRITE)) {
-                    annot_context_menu.addChild(new dijit.MenuSeparator());
-                    index++;
-                    annot_context_menu.addChild(new dijit.MenuItem({
+
+              if (!(permission & Permission.WRITE)) {
+                annot_context_menu.addChild(new dijit.MenuSeparator());
+                index++;
+                annot_context_menu.addChild(new dijit.MenuItem({
                         label: "Information Editor (alt-click)",
                         onClick: function (event) {
                             thisB.getAnnotationInfoEditor();
