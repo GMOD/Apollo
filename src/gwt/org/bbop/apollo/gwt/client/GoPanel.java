@@ -620,6 +620,20 @@ public class GoPanel extends Composite {
     });
   }
 
+  /**
+   * Finds code inbetween paranthesis.  Returns null if nothing is found.
+   *
+   * @param inputString
+   * @return
+   */
+  String getInnerCode(String inputString) {
+    if (inputString.contains("(") && inputString.contains(")")) {
+      int start = inputString.indexOf("(");
+      int end = inputString.indexOf(")");
+      return inputString.substring(start+1,end);
+    }
+    return null;
+  }
 
   private void initializeTable() {
     // TODO: probably want a link here
@@ -628,7 +642,7 @@ public class GoPanel extends Composite {
     TextColumn<GoAnnotation> goTermColumn = new TextColumn<GoAnnotation>() {
       @Override
       public String getValue(GoAnnotation annotationInfo) {
-        String returnValue = annotationInfo.getGoTerm();
+        String returnValue = annotationInfo.getGoTermLabel() != null ? annotationInfo.getGoTermLabel() : annotationInfo.getGoTerm();
         if (annotationInfo.isNegate()) {
           returnValue += " (not) ";
         }
@@ -657,6 +671,14 @@ public class GoPanel extends Composite {
     TextColumn<GoAnnotation> evidenceColumn = new TextColumn<GoAnnotation>() {
       @Override
       public String getValue(GoAnnotation annotationInfo) {
+        if (annotationInfo.getEvidenceCodeLabel() != null) {
+          String label = annotationInfo.getEvidenceCodeLabel();
+          String substring = getInnerCode(label);
+//          String substring = StringUtils.substringBetween(label, "(", ")");
+          if (substring != null) {
+            return substring;
+          }
+        }
         return annotationInfo.getEvidenceCode();
       }
     };
