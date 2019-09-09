@@ -554,7 +554,7 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
         ]
     }
 
-The `Username Password Authenticator` is the default method for storing username passwords, where databases are stored secured within the database.  The `Remote User Authentication` method uses a separate Apache authorization proxy.  This method is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).  
+The `Username Password Authenticator` is the default method for storing username passwords, where databases are stored secured within the database.  The `Remote User Authentication` method uses a separate Apache authorization proxy, which is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).   Furthermore, users and groups can be inserted / updated via [web services](docs/Web_services.md), which are wrapped by the [Apollo python library](https://pypi.org/project/apollo/). 
 
 ### URL modifications
 
