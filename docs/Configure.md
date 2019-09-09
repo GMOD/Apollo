@@ -554,6 +554,8 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
         ]
     }
 
+The `Username Password Authenticator` is the default method for storing username passwords, where databases are stored secured within the database.  The `Remote User Authentication` method uses a separate Apache authorization proxy.  This method is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).  
+
 ### URL modifications
 
 You should be able to pass in most JBrowse URL modifications to the ```loadLink``` URL. 
