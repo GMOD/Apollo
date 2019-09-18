@@ -114,6 +114,8 @@ class FeaturePropertyService {
 
   @Transactional
   def deleteAllProperties(Feature feature) {
-    FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp in :fpList",[fpList:feature.featureProperties])
+    if(feature.featureProperties){
+      FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp in :fpList",[fpList:feature.featureProperties])
+    }
   }
 }
