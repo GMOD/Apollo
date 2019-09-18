@@ -1218,8 +1218,6 @@ class OrganismController {
     , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
     , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
     , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory (if other options not used).  Blat data should include a .2bit suffix and be in a directory 'searchDatabaseData'")
-    , @RestApiParam(name = "sequenceData", type = "file", paramType = RestApiParamType.QUERY, description = "FASTA file (optionally compressed) to automatically upload with")
-    , @RestApiParam(name = "searchDatabaseData", type = "file", paramType = RestApiParamType.QUERY, description = "2bit file for blat search (optional)")
   ])
   @Transactional
   def updateOrganismInfo() {
@@ -1230,41 +1228,45 @@ class OrganismController {
       Boolean madeObsolete
       if (organism) {
 
-        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-        CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
-        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
-        if (organismDataFile ) {
-
-        } else {
-
-          log.debug "Updating organism info ${organismJson as JSON}"
-          organism.commonName = organismJson.name
-          organism.blatdb = organismJson.blatdb ?: null
-          organism.species = organismJson.species ?: null
-          organism.genus = organismJson.genus ?: null
-          //if the organismJson.metadata is null, remain the old metadata
-          organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
-          organism.directory = organismJson.directory
-          organism.publicMode = organismJson.publicMode ?: false
-          madeObsolete = !organism.obsolete && organismJson.obsolete
-          organism.obsolete = organismJson.obsolete ?: false
-          organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: null
-          if (checkOrganism(organism)) {
-            if (madeObsolete) {
-              // TODO: remove all organism permissions
-              permissionService.removeAllPermissions(organism)
-            }
-            organism.save(flush: true, insert: false, failOnError: true)
-          } else {
-            throw new Exception("Bad organism directory: " + organism.directory)
-          }
-
-          if (organism.genomeFasta) {
-            // update location of genome fasta
-            sequenceService.updateGenomeFasta(organism)
-          }
-
+        log.debug "Updating organism info ${organismJson as JSON}"
+        organism.commonName = organismJson.name ?: organism.commonName
+        organism.blatdb = organismJson.blatdb ?: organism.blastdb
+        organism.species = organismJson.species ?: organism.species
+        organism.genus = organismJson.genus ?: organism.genus
+        //if the organismJson.metadata is null, remain the old metadata
+        organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
+        organism.directory = organismJson.directory ?: organism.directory
+        organism.publicMode = organismJson.publicMode ?: false
+        madeObsolete = !organism.obsolete && organismJson.obsolete
+        organism.obsolete = organismJson.obsolete ?: false
+        organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
+        if (organism.genomeFasta) {
+          // update location of genome fasta
+          sequenceService.updateGenomeFasta(organism)
         }
+
+        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+//        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
+        if (organismDataFile ) {
+          File archiveFile = new File(organismDataFile.getOriginalFilename())
+          File organismDirectory = new File(organism.directory)
+          assert  organismDirectory.deleteDir()
+          assert organismDirectory.mkdir()
+          assert organismDirectory.setWritable(true)
+          fileService.decompress(archiveFile, organism.directory , null, false)
+        }
+        if (checkOrganism(organism)) {
+          if (madeObsolete) {
+            // TODO: remove all organism permissions
+            permissionService.removeAllPermissions(organism)
+          }
+          organism.save(flush: true, insert: false, failOnError: true)
+          sequenceService.loadRefSeqs(organism)
+//          preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
+        } else {
+          throw new Exception("Bad organism directory: " + organism.directory)
+        }
+
 
       } else {
         throw new Exception('organism not found')
