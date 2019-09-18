@@ -96,7 +96,7 @@ class FeaturePropertyService {
     }
 
     @Transactional
-    public boolean deleteProperty(Feature feature, FeatureProperty property) {
+    boolean deleteProperty(Feature feature, FeatureProperty property) {
         for (FeatureProperty fp : feature.getFeatureProperties()) {
             if (fp.getType().equals(property.getType()) && fp.getValue().equals(property.getValue())) {
                 feature.getFeatureProperties().remove(fp);
@@ -111,4 +111,9 @@ class FeaturePropertyService {
             return !nonReservedClasses.contains(it.cvTerm)
         }
     }
+
+  @Transactional
+  def deleteAllProperties(Feature feature) {
+    FeatureProperty.executeUpdate("delete from FeatureProperty fp where fp in :fpList",[fpList:feature.featureProperties])
+  }
 }

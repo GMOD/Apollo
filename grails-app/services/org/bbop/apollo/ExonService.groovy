@@ -1,9 +1,7 @@
 package org.bbop.apollo
 
-import org.bbop.apollo.gwt.shared.FeatureStringEnum
 
 import grails.transaction.Transactional
-import grails.transaction.NotTransactional
 
 //import grails.compiler.GrailsCompileStatic
 import org.bbop.apollo.sequence.SequenceTranslationHandler
@@ -17,6 +15,7 @@ class ExonService {
     def transcriptService
     def featureService
     def featureRelationshipService
+    def featurePropertyService
     def sequenceService
     def overlapperService
     def nameService
@@ -63,7 +62,7 @@ class ExonService {
         if (getTranscript(exon2) != null) {
             deleteExon(getTranscript(exon2), exon2);
         }
-        
+
 //        setLongestORF(getTranscript(exon1));
         featureService.removeExonOverlapsAndAdjacencies(transcript);
 
@@ -85,7 +84,8 @@ class ExonService {
      * @param exon - Exon to be deleted from the transcript
      */
     @Transactional
-    public void deleteExon(Transcript transcript, Exon exon) {
+    void deleteExon(Transcript transcript, Exon exon) {
+        featurePropertyService.deleteAllProperties(exon)
         featureRelationshipService.removeFeatureRelationship(transcript,exon)
 
 
@@ -386,7 +386,7 @@ class ExonService {
                 ,isObsolete: leftExon.isObsolete
         ).save(insert:true)
 
-        
+
         FeatureLocation rightFeatureLocation = new FeatureLocation(
                 feature: rightExon
                 ,fmin: leftFeatureLocation.fmin
@@ -404,7 +404,7 @@ class ExonService {
 
         leftFeatureLocation.fmax = newLeftMax
         rightFeatureLocation.fmin = newRightMin
-        
+
         leftFeatureLocation.save()
         rightFeatureLocation.save()
 
