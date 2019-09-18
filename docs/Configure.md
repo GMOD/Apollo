@@ -152,6 +152,8 @@ log4j.main = {
 }
 ```
 
+To add debug-level logging you would replace `warn 'grails.app'` with two lines `debug 'grails.app'` and `debug 'org.bbop.apollo'`.  To see database-level logging you would also add: `trace 'org.hibernate.type'` and `debug 'org.hibernate.SQL'`. 
+
 Additional links for log4j:
 
 - Advanced log4j configuration:
@@ -160,9 +162,9 @@ Additional links for log4j:
 
 ### Add attribute for the original id of the object
 
-In the apollo config override set `store_orig_id=true` to store an `orid_id` attribute on the top-level feature that 
+In the apollo `store_orig_id=true` is set to true by default.  To store an `orid_id` attribute on the top-level feature that 
 represents the original id from the genomic evidence.  This is useful for re-merging code as Apollo will generate its own IDs because 
-annotations will be based on multiple evidence sources.
+annotations will be based on multiple evidence sources.  To turn this off, override it by setting it to false `store_orig_id = false`.
 
 
 ### Canned Elements
