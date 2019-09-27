@@ -59,14 +59,8 @@ class GpadHandlerService {
         writeObject.out.write("\t")
         //5	Reference ::= ID		1	PMID:30695063
 //        writeObject.out.write(goAnnotation.notesArray)
-        if (goAnnotation.notesArray) {
-            JSONArray referenceArray = new JsonSlurper().parseText(goAnnotation.notesArray) as JSONArray
-            List<String> referenceList = referenceArray.collect()
-            writeObject.out.write(referenceList.join("|"))
-        }
-//        else{
-//            writeObject.out.write("")
-//        }
+        writeObject.out.write(goAnnotation.reference)
+        writeObject.out.write("\t")
         writeObject.out.write("\t")
         //6	Evidence_type ::= OBO_ID	Evidence and Conclusion Ontology	1	ECO:0000315
         writeObject.out.write(goAnnotation.evidenceRef)

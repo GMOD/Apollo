@@ -276,6 +276,7 @@ public class GoPanel extends Composite {
     ecoLookup.addPreferredSuggestion("no biological data found used in manual assertion (ND)", "http://www.evidenceontology.org/term/ECO:0000307/", "ECO:0000307");
     ecoLookup.addPreferredSuggestion("curator inference used in manual assertion (IC)", "http://www.evidenceontology.org/term/ECO:0000305/", "ECO:0000305");
     ecoLookup.addPreferredSuggestion("evidence used in automatic assertion (IEA)", "http://www.evidenceontology.org/term/ECO:0000501/", "ECO:0000501");
+    ecoLookup.addPreferredSuggestion("high throughput direct assay evidence used in manual assertion (HDA)", "http://www.evidenceontology.org/term/ECO:0007005/", "ECO:0007005");
     evidenceCodeField = new SuggestBox(ecoLookup);
   }
 
