@@ -106,6 +106,7 @@ environments {
 }
 
 //apollo {
+//    gff3.source = "MyOrg" // also for GPAD export
 //    only_owners_delete = true
 //    common_data_directory = "/opt/temporary/apollo"
 //    store_orig_id = false

@@ -18,7 +18,7 @@ that are defined in the Config.groovy file:
 ``` 
 // default apollo settings
 apollo {
-
+    gff3.source = "." // also for GPAD
     // other translation codes are of the form ncbi_KEY_translation_table.txt
     // under the web-app/translation_tables  directory
     // to add your own add them to that directory and over-ride the translation code here
