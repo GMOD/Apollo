@@ -147,4 +147,8 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.native_track_selector_default_on
     }
 
+    String getGff3Source(){
+      return grailsApplication.config.gff3.source
+    }
+
 }
