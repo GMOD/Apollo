@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat
 
 class GpadHandlerService {
 
+    def configWrapperService
+
     SimpleDateFormat gpadDateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
     @Timed
@@ -87,8 +89,10 @@ class GpadHandlerService {
         writeObject.out.write(gpadDateFormat.format(goAnnotation.lastUpdated))
         writeObject.out.write("\t")
         //10	Assigned_by ::= Prefix		1	MGI
-        writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
-        writeObject.out.write("\t")
+//        writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
+      String assignedBy = configWrapperService.getGff3Source() ?: "Apollo-${grails.util.Metadata.current['app.version']}"
+      writeObject.out.write(assignedBy)
+      writeObject.out.write("\t")
         //11	Annotation_Extensions ::= [Extension_Conj] ('|' Extension_Conj)*		0 or greater	BFO:0000066
         writeObject.out.write("")
         writeObject.out.write("\t")
