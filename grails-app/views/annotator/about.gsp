@@ -41,7 +41,7 @@
     <a href="https://genomearchitect.readthedocs.io/en/latest/index.html">Latest Documentation</a>
   </li>
   <li>
-    <a href="https://genomearchitect.readthedocs.io/en/latest/index.html">User's Guide</a>
+    <a href="https://genomearchitect.readthedocs.io/en/latest/UsersGuide.html">User's Guide</a>
   </li>
   <li>
     <a href="https://github.com/gmod/apollo">Apollo Source and Issue Reporting</a>
