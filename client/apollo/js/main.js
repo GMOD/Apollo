@@ -746,7 +746,7 @@ return declare( [JBPlugin, HelpMixin],
             new dijitMenuItem(
                 {
                     id: 'menubar_apollo_version',
-                    label: 'Get Version',
+                    label: 'Version',
                     // iconClass: 'jbrowseIconHelp',
                     onClick: function()  {
                         window.open("../version.jsp",'help_window').focus();
