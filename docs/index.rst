@@ -12,8 +12,8 @@ You can find the latest release here: https://github.com/GMOD/Apollo/releases/la
 
 - JBrowse general documentation: `http://jbrowse.org <http://jbrowse.org>`__
 
-- Citing Apollo: "Dunn, N. A. et al. Apollo: Democratizing genome annotation. PLoS Comput. Biol. 15, e1006790 (2019).":
-`https://doi.org/10.1371/journal.pcbi.1006790`__
+- Citing Apollo: `Dunn, N. A. et al. Apollo: Democratizing genome annotation. PLoS Comput. Biol. 15, e1006790 (2019).
+<https://doi.org/10.1371/journal.pcbi.1006790>`__
 
 .. image:: https://travis-ci.org/GMOD/Apollo.png?branch=master
 
