@@ -709,14 +709,25 @@ return declare( [JBPlugin, HelpMixin],
         var browser=this.browser;
         var help=dijit.byId("menubar_generalhelp");
 
-        help.set("label", "Apollo Help");
+        help.set("label", "Quick commands");
         help.set("iconClass", null);
         var jbrowseUrl = "http://jbrowse.org";
 
-        browser.addGlobalMenuItem( 'help',
-                                new dijitMenuItem(
-                                    {
-                                        id: 'menubar_powered_by_jbrowse',
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'about_apollo',
+            label: 'About',
+            onClick: function() {
+              window.open("../about.jsp",'help_window').focus();
+            }
+        })
+      );
+
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'menubar_powered_by_jbrowse',
                                         label: 'Powered by JBrowse',
                                         // iconClass: 'jbrowseIconHelp',
                                         onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
