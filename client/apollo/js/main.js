@@ -723,6 +723,27 @@ return declare( [JBPlugin, HelpMixin],
             }
         })
       );
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'menubar_apollo_version',
+            label: 'Version',
+            // iconClass: 'jbrowseIconHelp',
+            onClick: function()  {
+              window.open("../version.jsp",'help_window').focus();
+            }
+          })
+      );
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'users_guide_apollo',
+            label: 'User Guide',
+            onClick: function() {
+              window.open("https://genomearchitect.readthedocs.io/en/latest/UsersGuide.html",'help_window').focus();
+            }
+          })
+      );
 
       browser.addGlobalMenuItem( 'help',
         new dijitMenuItem(
@@ -740,17 +761,6 @@ return declare( [JBPlugin, HelpMixin],
                     label: 'Web Service API',
                     // iconClass: 'jbrowseIconHelp',
                     onClick: function()  { window.open("web_services/api",'help_window').focus(); }
-                })
-        );
-        browser.addGlobalMenuItem( 'help',
-            new dijitMenuItem(
-                {
-                    id: 'menubar_apollo_version',
-                    label: 'Version',
-                    // iconClass: 'jbrowseIconHelp',
-                    onClick: function()  {
-                        window.open("../version.jsp",'help_window').focus();
-                    }
                 })
         );
         this.updateLabels();
