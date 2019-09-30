@@ -575,8 +575,13 @@ class AnnotatorController {
 /**
  * This is a public passthrough to version
  */
-    def version() {}
+    def version() {
+      println "versoin "
+    }
 
+  def about(){
+    println "about . . . . "
+  }
 /**
  * This is a very specific method for the GWT interface.
  * An additional method should be added.
