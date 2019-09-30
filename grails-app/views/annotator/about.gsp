@@ -7,10 +7,10 @@
   h2 {
     margin-top: 1em;
     margin-bottom: 0.3em;
-    margin-left: 1.2em;
+    margin-left: 1.8em;
   }
 
-  p {
+  ul {
     margin-left: 2em;
     font-size: larger;
   }
@@ -33,15 +33,20 @@
 
 <div id="list-track" class="content scaffold-list" role="main">
   <h2>Apollo Genome Annotation Editor</h2>
-  <p>
+  <ul>
+  <li>
     Cite Apollo: <a href="https://doi.org/10.1371/journal.pcbi.1006790">Dunn, N. A. et al. Apollo: Democratizing genome annotation. PLoS Comput. Biol. 15, e1006790 (2019)</a>
-  </p>
-  <p>
+  </li>
+  <li>
     <a href="https://genomearchitect.readthedocs.io/en/latest/index.html">Latest Documentation</a>
-  </p>
-  <p>
+  </li>
+  <li>
+    <a href="https://genomearchitect.readthedocs.io/en/latest/index.html">User's Guide</a>
+  </li>
+  <li>
     <a href="https://github.com/gmod/apollo">Apollo Source and Issue Reporting</a>
-  </p>
+  </li>
+  </ul>
 
 </div>
 
