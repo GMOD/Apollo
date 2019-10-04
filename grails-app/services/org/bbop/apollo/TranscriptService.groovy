@@ -7,6 +7,8 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.codehaus.groovy.grails.web.json.JSONArray
+import org.gmod.chado.FeatureDbxref
+import org.gmod.chado.FeaturePub
 import org.grails.plugins.metrics.groovy.Timed
 
 
@@ -293,6 +295,49 @@ class TranscriptService {
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
         List<Exon> exons = getSortedExons(transcript,true)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
+
+         transcript.featureProperties.each { fp ->
+           // to do: duplicate
+           FeatureProperty featureProperty = new FeatureProperty(
+             type: fp.type,
+             feature: splitTranscript,
+             tag: fp.tag,
+             value: fp.value,
+             rank: fp.rank,
+           )
+            splitTranscript.addToFeatureProperties()
+         }
+        transcript.featurePublications.each { fp ->
+          // to do: duplicate
+          Publication publication = new Publication()
+          publication.properties = fp.properties
+//          publication.= splitTranscript
+          publication.save()
+          splitTranscript.addToFeaturePublications(fp)
+        }
+        transcript.featureDBXrefs.each { fp ->
+          // todo: duplicate
+          DBXref featureDbxref = new DBXref(
+             feature:splitTranscript,
+            accession: fp.accession,
+            description: fp.description,
+            version: fp.version,
+            db: fp.db ,
+          )
+          splitTranscript.addToFeatureDBXrefs(featureDbxref)
+        }
+        splitTranscript.description = transcript.description
+
+
+      // make a duplicate
+//      if(transcript.status){
+//        Status newStatus = new Status()
+//      }
+
+//        splitTranscript.status = transcript.status
+
+
+
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
@@ -319,7 +364,10 @@ class TranscriptService {
                 uniqueName: nameService.generateUniqueName(),
         ).save(flush: true)
 
-        transcript.owners.each {
+      User activeUser = permissionService.currentUser
+      transcript.addToOwners(activeUser)
+
+      transcript.owners.each {
             splitTranscriptGene.addToOwners(it)
         }
 

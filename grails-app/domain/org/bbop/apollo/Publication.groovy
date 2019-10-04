@@ -33,7 +33,7 @@ class Publication {
     ]
 
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         Publication castOther = ( Publication ) other;
@@ -41,7 +41,7 @@ class Publication {
         return ( (this.getUniqueName()==castOther.getUniqueName()) || ( this.getUniqueName()!=null && castOther.getUniqueName()!=null && this.getUniqueName().equals(castOther.getUniqueName()) ) );
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 
