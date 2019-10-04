@@ -34,7 +34,7 @@ class FeatureProperty implements Ontological {
         value type: 'text'
     }
 
-    public boolean equals(Object other) {
+    boolean equals(Object other) {
         if (this.is(other)) return true
         if (getClass() != other.class) return false
         FeatureProperty castOther = (FeatureProperty) other;
@@ -44,7 +44,7 @@ class FeatureProperty implements Ontological {
         if (castOther?.value != this?.value) return false
     }
 
-    public int hashCode() {
+    int hashCode() {
         int result = 17;
 
 

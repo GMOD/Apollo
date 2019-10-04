@@ -1,16 +1,9 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.grails.plugins.metrics.groovy.Timed
 
 
-//@GrailsCompileStatic
 @Transactional(readOnly = true)
 class TranscriptService {
 
@@ -293,11 +286,58 @@ class TranscriptService {
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
         List<Exon> exons = getSortedExons(transcript,true)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
+
+         transcript.featureProperties.each { fp ->
+           // to do: duplicate
+           if(fp instanceof Comment){
+             Comment comment = new Comment( value: fp.value, feature: splitTranscript)
+             splitTranscript.addToFeatureProperties(comment)
+           }
+           else{
+             FeatureProperty featureProperty = new FeatureProperty(
+               type: fp.type,
+               feature: splitTranscript,
+               tag: fp.tag,
+               value: fp.value,
+               rank: fp.rank,
+             )
+             splitTranscript.addToFeatureProperties(featureProperty)
+           }
+         }
+        transcript.featurePublications.each { fp ->
+          // to do: duplicate
+          Publication publication = new Publication()
+          publication.properties = fp.properties
+          splitTranscript.addToFeaturePublications(fp)
+        }
+        transcript.featureDBXrefs.each { fp ->
+          DBXref featureDbxref = new DBXref(
+             feature:splitTranscript,
+            accession: fp.accession,
+            description: fp.description,
+            version: fp.version,
+            db: fp.db ,
+          )
+          splitTranscript.addToFeatureDBXrefs(featureDbxref)
+        }
+        splitTranscript.description = transcript.description
+
+
+
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
 
-        // copying featureLocation of transcript to splitTranscript
+        if(transcript.status){
+          Status newStatus = new Status(
+            value: transcript.status.value,
+            feature: splitTranscript,
+          )
+          splitTranscript.status = newStatus
+        }
+
+
+      // copying featureLocation of transcript to splitTranscript
         transcript.featureLocations.each { featureLocation ->
             FeatureLocation newFeatureLocation = new FeatureLocation(
                     fmin: featureLocation.fmin

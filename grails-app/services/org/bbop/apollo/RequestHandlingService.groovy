@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
-import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -1991,7 +1990,6 @@ class RequestHandlingService {
 
                 } else {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
-//                    GoAnnotation.deleteAll(GoAnnotation.findAllByFeature(feature))
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {
@@ -2165,6 +2163,8 @@ class RequestHandlingService {
         Exon exon2 = Exon.findByUniqueName(featuresArray.getJSONObject(1).getString(FeatureStringEnum.UNIQUENAME.value))
 
         Transcript transcript1 = exonService.getTranscript(exon1)
+        User activeUser = permissionService.getCurrentUser(inputObject)
+        transcript1.addToOwners(activeUser)
         // transcript2 should contain the second part of transcript1 starting from exon2
         Transcript transcript2 = transcriptService.splitTranscript(transcript1, exon1, exon2)
 
