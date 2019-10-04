@@ -1,18 +1,9 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.gmod.chado.FeatureDbxref
-import org.gmod.chado.FeaturePub
-import org.grails.plugins.metrics.groovy.Timed
 
 
-//@GrailsCompileStatic
 @Transactional(readOnly = true)
 class TranscriptService {
 
@@ -320,7 +311,6 @@ class TranscriptService {
           splitTranscript.addToFeaturePublications(fp)
         }
         transcript.featureDBXrefs.each { fp ->
-          // todo: duplicate
           DBXref featureDbxref = new DBXref(
              feature:splitTranscript,
             accession: fp.accession,
@@ -338,7 +328,6 @@ class TranscriptService {
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
 
-        // make a duplicate
         if(transcript.status){
           Status newStatus = new Status(
             value: transcript.status.value,

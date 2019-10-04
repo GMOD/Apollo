@@ -3,7 +3,6 @@ package org.bbop.apollo
 import grails.converters.JSON
 import grails.transaction.Transactional
 import org.bbop.apollo.event.AnnotationEvent
-import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.history.FeatureOperation
@@ -1991,7 +1990,6 @@ class RequestHandlingService {
 
                 } else {
                     Feature topLevelFeature = featureService.getTopLevelFeature(feature)
-//                    GoAnnotation.deleteAll(GoAnnotation.findAllByFeature(feature))
                     featureRelationshipService.deleteFeatureAndChildren(topLevelFeature)
 
                     if (!suppressEvents) {
