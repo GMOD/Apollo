@@ -104,6 +104,7 @@ public enum FeatureStringEnum {
         PUBMEDIDS("pubmed_ids"),
         GOIDS("go_ids"),
         SYNONYMS,
+        STRUCTURAL_EDIT,
         HIGHLIGHTED_REGION("highlighted region"),
         UNIQUENAME,
         // TODO: move these to a SequenceTypeEnum

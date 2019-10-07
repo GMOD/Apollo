@@ -60,6 +60,10 @@ enum FeatureOperation {
     this.isStructural = isStructural
   }
 
+  def getIsStructural() {
+    return isStructural
+  }
+
   public String toLower() {
     return name().toLowerCase()
   }
