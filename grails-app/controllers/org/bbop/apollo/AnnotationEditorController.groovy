@@ -122,10 +122,21 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render jre as JSON
     }
 
-    @Timed
-    def getHistoryForFeatures() {
-        log.debug "getHistoryForFeatures ${params}"
+  @RestApiMethod(description = "Gets history for features", path = "/annotationEditor/getHistoryForFeatures", verb = RestApiVerb.POST)
+  @RestApiParams(params = [
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "sequence", type = "string", paramType = RestApiParamType.QUERY, description = "Sequence name")
+    , @RestApiParam(name = "features", type = "JSONArray", paramType = RestApiParamType.QUERY, description = "JSONArray of JSON feature objects unique names.")
+  ])
+  @Timed
+  def getHistoryForFeatures() {
+    log.debug "getHistoryForFeatures ${params}"
         JSONObject inputObject = permissionService.handleInput(request, params)
+    println "input object ${inputObject as JSON}"
+        if(!inputObject.track && inputObject.sequence){
+          inputObject.track = inputObject.sequence  // support some legacy
+        }
         inputObject.put(FeatureStringEnum.USERNAME.value, SecurityUtils.subject.principal)
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         permissionService.checkPermissions(inputObject, PermissionEnum.READ)
@@ -1047,32 +1058,32 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             e.printStackTrace()
         }
     }
-    
+
     @RestApiMethod(description = "Get genes created or updated in the past, Returns JSON hash gene_name:organism", path = "/annotationEditor/getRecentAnnotations", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
             ,@RestApiParam(name = "days", type = "Integer", paramType = RestApiParamType.QUERY, description = "Number of past days to retrieve annotations from.")
-            
+
     ])
-    
+
     def getRecentAnnotations(){
     	JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.EXPORT)) {
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-    	
+
         if(inputObject.get('days') instanceof Integer){
-        	JsonBuilder updatedGenes = annotationEditorService.recentAnnotations(inputObject.get('days'))  
+        	JsonBuilder updatedGenes = annotationEditorService.recentAnnotations(inputObject.get('days'))
         	render updatedGenes
         }else{
         	def error = [error: inputObject.get('days') + ' Param days must be an Integer']
-            render error as JSON	
+            render error as JSON
         }
-    }    
-    
-    
+    }
+
+
     @Timed
     def getAnnotationInfoEditorData() {
         Sequence sequence
