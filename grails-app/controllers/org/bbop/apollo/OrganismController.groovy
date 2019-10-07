@@ -1228,7 +1228,7 @@ class OrganismController {
       Boolean madeObsolete
       if (organism) {
 
-        log.debug "Updating organism info ${organismJson as JSON}"
+        log.debug "Updating organism info ${organismJson.commonName}"
         organism.commonName = organismJson.name ?: organism.commonName
         organism.blatdb = organismJson.blatdb ?: organism.blatdb
         organism.species = organismJson.species ?: organism.species
