@@ -240,7 +240,7 @@ class OrganismController {
 
     JSONObject returnObject = new JSONObject()
     JSONObject requestObject = permissionService.handleInput(request, params)
-    log.info "adding organismwith SEQUENDE ${requestObject as String}"
+    log.info "Adding organism with SEQUENCE ${requestObject as String}"
     String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
     CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
     CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
