@@ -1230,7 +1230,7 @@ class OrganismController {
 
         log.debug "Updating organism info ${organismJson as JSON}"
         organism.commonName = organismJson.name ?: organism.commonName
-        organism.blatdb = organismJson.blatdb ?: organism.blastdb
+        organism.blatdb = organismJson.blatdb ?: organism.blatdb
         organism.species = organismJson.species ?: organism.species
         organism.genus = organismJson.genus ?: organism.genus
         //if the organismJson.metadata is null, remain the old metadata
