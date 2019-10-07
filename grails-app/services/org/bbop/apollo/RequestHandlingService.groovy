@@ -105,6 +105,7 @@ class RequestHandlingService {
             JSONObject jsonFeature = featuresArray.getJSONObject(i)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
+            JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
             String symbolString = jsonFeature.getString(FeatureStringEnum.SYMBOL.value)
             sequence = sequence ?: feature.getFeatureLocation().getSequence()
             permissionService.checkPermissions(inputObject, sequence.organism, PermissionEnum.WRITE)
@@ -112,14 +113,28 @@ class RequestHandlingService {
             feature.symbol = symbolString
             featureService.addOwnersByString(inputObject.username, feature)
             feature.save(flush: true, failOnError: true)
+            JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
             updateFeatureContainer = wrapFeature(updateFeatureContainer, feature)
+
+            JSONArray oldFeaturesJsonArray = new JSONArray()
+            oldFeaturesJsonArray.add(originalFeatureJsonObject)
+            JSONArray newFeaturesJsonArray = new JSONArray()
+            newFeaturesJsonArray.add(currentFeatureJsonObject)
+            User user = permissionService.getCurrentUser(inputObject)
+            featureEventService.addNewFeatureEvent(FeatureOperation.SET_SYMBOL,
+                     feature.name,
+                     uniqueName,
+                     inputObject,
+                     oldFeaturesJsonArray,
+                     newFeaturesJsonArray,
+                     user)
         }
 
 
-        if (sequence) {
-            AnnotationEvent annotationEvent = new AnnotationEvent(
-                    features: updateFeatureContainer
+      if (sequence) {
+        AnnotationEvent annotationEvent = new AnnotationEvent(
+          features: updateFeatureContainer
                     , sequence: sequence
                     , operation: AnnotationEvent.Operation.UPDATE
             )

@@ -33,6 +33,10 @@ enum FeatureOperation {
     ASSOCIATE_FEATURE_TO_GENE,
     DISSOCIATE_FEATURE_FROM_GENE,
 
+    // structural data
+    SET_SYMBOL,
+    SET_NAME,
+
     public String toLower(){
         return name().toLowerCase()
     }
