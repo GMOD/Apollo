@@ -240,7 +240,7 @@ class OrganismController {
 
     JSONObject returnObject = new JSONObject()
     JSONObject requestObject = permissionService.handleInput(request, params)
-    log.info "adding organismwith SEQUENDE ${requestObject as String}"
+    log.info "Adding organism with SEQUENCE ${requestObject as String}"
     String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
     CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
     CommonsMultipartFile sequenceDataFile = request.getFile(FeatureStringEnum.SEQUENCE_DATA.value)
@@ -1228,9 +1228,8 @@ class OrganismController {
       Boolean madeObsolete
       if (organism) {
 
-        log.debug "Updating organism info ${organismJson as JSON}"
+        log.debug "Updating organism info ${organismJson.commonName}"
         organism.commonName = organismJson.name ?: organism.commonName
-        organism.blatdb = organismJson.blatdb ?: organism.blastdb
         organism.species = organismJson.species ?: organism.species
         organism.genus = organismJson.genus ?: organism.genus
         //if the organismJson.metadata is null, remain the old metadata
@@ -1249,12 +1248,26 @@ class OrganismController {
 //        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
         if (organismDataFile ) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
+          organismDataFile.transferTo(archiveFile)
           File organismDirectory = new File(organism.directory)
           assert  organismDirectory.deleteDir()
           assert organismDirectory.mkdir()
           assert organismDirectory.setWritable(true)
           fileService.decompress(archiveFile, organism.directory , null, false)
         }
+
+        // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
+        String foundBlatdb = organismService.findBlatDB(organism.directory.absolutePath)
+        if (organismJson.blatdb) {
+          organism.blatdb = organismJson.blatdb
+        }
+        else if (foundBlatdb) {
+          organism.blatdb = foundBlatdb
+        }
+        else {
+          organism.blatdb = organism.blatdb
+        }
+
         if (checkOrganism(organism)) {
           if (madeObsolete) {
             // TODO: remove all organism permissions
