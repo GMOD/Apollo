@@ -1249,6 +1249,7 @@ class OrganismController {
 //        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
         if (organismDataFile ) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
+          organismDataFile.transferTo(archiveFile)
           File organismDirectory = new File(organism.directory)
           assert  organismDirectory.deleteDir()
           assert organismDirectory.mkdir()
