@@ -324,18 +324,14 @@ class SequenceService {
                 new JsonSlurper().parse(r)
             }
 
-//            def sequences = Sequence.findAllByOrganism(organism)
-//            def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s join s.organism o where o = :organism",[organism:organism])
-//
-//          println "preferences ${preferences}"
-//          Preference.deleteAll(preferences)
-//
-//
-//          Sequence.deleteAll(sequences)
+          def sequences = Sequence.findAllByOrganism(organism)
+          def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s join s.organism o where o = :organism",[organism:organism])
+          Preference.deleteAll(preferences)
+          Sequence.deleteAll(sequences)
 
           // this will fail if folks have actively been working on this and preferences are set
           // otherwise if we remove all of the sequences annotations will need to be removed as well
-          Sequence.deleteAll(Sequence.findAllByOrganism(organism))
+//          Sequence.deleteAll(Sequence.findAllByOrganism(organism))
 
             refSeqs.each { refSeq ->
                 int length;
