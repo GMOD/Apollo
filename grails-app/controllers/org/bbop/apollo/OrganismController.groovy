@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -1227,6 +1228,7 @@ class OrganismController {
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
       if (organism) {
+        String oldOrganismDirectory = organism.directory
 
         log.debug "Updating organism info ${organismJson.commonName}"
         organism.commonName = organismJson.name ?: organism.commonName
@@ -1244,28 +1246,27 @@ class OrganismController {
           sequenceService.updateGenomeFasta(organism)
         }
 
-        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-//        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
+        CommonsMultipartFile organismDataFile = null
+        if (!request instanceof ShiroHttpServletRequest) {
+          organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+        }
         String foundBlatdb = null
-        if (organismDataFile ) {
+        if (organismDataFile) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
           organismDataFile.transferTo(archiveFile)
           File organismDirectory = new File(organism.directory)
-          assert  organismDirectory.deleteDir()
+          assert organismDirectory.deleteDir()
           assert organismDirectory.mkdir()
           assert organismDirectory.setWritable(true)
-          fileService.decompress(archiveFile, organism.directory , null, false)
+          fileService.decompress(archiveFile, organism.directory, null, false)
           foundBlatdb = organismService.findBlatDB(organismDirectory.absolutePath)
         }
 
-        // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
         if (organismJson.blatdb) {
           organism.blatdb = organismJson.blatdb
-        }
-        else if (foundBlatdb) {
+        } else if (foundBlatdb) {
           organism.blatdb = foundBlatdb
-        }
-        else {
+        } else {
           organism.blatdb = organism.blatdb
         }
 
@@ -1275,8 +1276,10 @@ class OrganismController {
             permissionService.removeAllPermissions(organism)
           }
           organism.save(flush: true, insert: false, failOnError: true)
-          sequenceService.loadRefSeqs(organism)
-//          preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
+          if (oldOrganismDirectory!=organism.directory) {
+            // we need to reload
+            sequenceService.loadRefSeqs(organism)
+          }
         } else {
           throw new Exception("Bad organism directory: " + organism.directory)
         }

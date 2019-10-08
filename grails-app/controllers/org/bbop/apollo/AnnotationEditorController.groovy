@@ -133,7 +133,6 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
   def getHistoryForFeatures() {
     log.debug "getHistoryForFeatures ${params}"
         JSONObject inputObject = permissionService.handleInput(request, params)
-    println "input object ${inputObject as JSON}"
         if(!inputObject.track && inputObject.sequence){
           inputObject.track = inputObject.sequence  // support some legacy
         }
