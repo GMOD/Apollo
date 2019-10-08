@@ -4,6 +4,7 @@ import grails.converters.JSON
 import grails.transaction.NotTransactional
 import grails.transaction.Transactional
 import htsjdk.samtools.reference.FastaSequenceIndexCreator
+import org.apache.shiro.web.servlet.ShiroHttpServletRequest
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -1244,8 +1245,11 @@ class OrganismController {
           sequenceService.updateGenomeFasta(organism)
         }
 
-        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-//        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
+        CommonsMultipartFile organismDataFile = null
+        if(!request instanceof ShiroHttpServletRequest ){
+          organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+        }
+        println "B get file ${organismDataFile}"
         if (organismDataFile ) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
           organismDataFile.transferTo(archiveFile)
@@ -1257,7 +1261,8 @@ class OrganismController {
         }
 
         // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
-        String foundBlatdb = organismService.findBlatDB(organism.directory.absolutePath)
+        println "organism directory ${organism.directory}"
+        String foundBlatdb = organismService.findBlatDB(new File(organism.directory).absolutePath)
         if (organismJson.blatdb) {
           organism.blatdb = organismJson.blatdb
         }
