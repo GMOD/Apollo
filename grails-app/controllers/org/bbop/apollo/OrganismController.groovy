@@ -1236,7 +1236,7 @@ class OrganismController {
         organism.genus = organismJson.genus ?: organism.genus
         //if the organismJson.metadata is null, remain the old metadata
         organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
-        organism.directory = organismJson.directory ?: organism.directory
+        organism.directory = organismJson.directory
         organism.publicMode = organismJson.publicMode ?: false
         madeObsolete = !organism.obsolete && organismJson.obsolete
         organism.obsolete = organismJson.obsolete ?: false

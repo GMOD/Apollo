@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client.rest;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.Window;
@@ -14,8 +13,8 @@ import org.bbop.apollo.gwt.client.dto.OrganismInfoConverter;
 import org.bbop.apollo.gwt.client.event.OrganismChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -71,8 +70,13 @@ public class OrganismRestService {
                     List<OrganismInfo> organismInfoList  = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
                     organismChangeEvent.setOrganismInfoList(organismInfoList);
                     Annotator.eventBus.fireEvent(organismChangeEvent);
+                  Bootbox.confirm("Organism updated.  Reload?", new ConfirmCallback() {
+                    @Override
+                    public void callback(boolean result) {
+                      if(result) Window.Location.reload();
+                    }
+                  });
                 }
-
             }
 
             @Override

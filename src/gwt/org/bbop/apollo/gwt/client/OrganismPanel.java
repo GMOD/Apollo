@@ -331,8 +331,14 @@ public class OrganismPanel extends Composite {
         species.setText(organismInfo.getSpecies());
         species.setEnabled(isEditable);
 
-        sequenceFile.setText(organismInfo.getDirectory());
-        sequenceFile.setEnabled(isEditable);
+        if (organismInfo.getNumFeatures() == 0) {
+          sequenceFile.setText(organismInfo.getDirectory() );
+          sequenceFile.setEnabled(isEditable);
+        }
+        else{
+          sequenceFile.setText(organismInfo.getDirectory() + " (remove " + organismInfo.getNumFeatures() + "annotations to change)" );
+          sequenceFile.setEnabled(false);
+        }
 
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
@@ -654,10 +660,27 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
+      try {
         if (singleSelectionModel.getSelectedObject() != null) {
-            singleSelectionModel.getSelectedObject().setDirectory(sequenceFile.getText());
-            updateOrganismInfo();
+          Bootbox.confirm("Changing the source directory will remove all existing annotations.  Continue?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+              if(result) {
+                singleSelectionModel.getSelectedObject().setDirectory(sequenceFile.getText());
+                updateOrganismInfo();
+              }
+            }
+          });
         }
+      } catch (Exception e) {
+        Bootbox.alert("There was a problem updating the organism: "+e.getMessage());
+        Bootbox.confirm("Reload", new ConfirmCallback() {
+          @Override
+          public void callback(boolean result) {
+            if(result) Window.Location.reload();
+          }
+        });
+      }
     }
 
     private void updateOrganismInfo() {
