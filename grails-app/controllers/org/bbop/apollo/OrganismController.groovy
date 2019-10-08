@@ -1246,30 +1246,29 @@ class OrganismController {
         }
 
         CommonsMultipartFile organismDataFile = null
-        if(!request instanceof ShiroHttpServletRequest ){
+        if (!request instanceof ShiroHttpServletRequest) {
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         }
         println "B get file ${organismDataFile}"
-        if (organismDataFile ) {
+//        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+//        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
+        String foundBlatdb = null
+        if (organismDataFile) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
           organismDataFile.transferTo(archiveFile)
           File organismDirectory = new File(organism.directory)
-          assert  organismDirectory.deleteDir()
+          assert organismDirectory.deleteDir()
           assert organismDirectory.mkdir()
           assert organismDirectory.setWritable(true)
-          fileService.decompress(archiveFile, organism.directory , null, false)
+          fileService.decompress(archiveFile, organism.directory, null, false)
+          foundBlatdb = organismService.findBlatDB(organismDirectory.absolutePath)
         }
 
-        // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
-        println "organism directory ${organism.directory}"
-        String foundBlatdb = organismService.findBlatDB(new File(organism.directory).absolutePath)
         if (organismJson.blatdb) {
           organism.blatdb = organismJson.blatdb
-        }
-        else if (foundBlatdb) {
+        } else if (foundBlatdb) {
           organism.blatdb = foundBlatdb
-        }
-        else {
+        } else {
           organism.blatdb = organism.blatdb
         }
 
