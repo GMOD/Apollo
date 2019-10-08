@@ -27,7 +27,7 @@ setErrorCallback: function(callback) {
     this.errorCallback = callback;
 },
 
-searchSequence: function(trackName, refSeqName, starts) {
+searchSequence: function(trackName, refSeqName, starts,sequenceText,searchType) {
     var operation = "search_sequence";
     var contextPath = this.contextPath;
     var redirectCallback = this.redirectCallback;
@@ -56,6 +56,11 @@ searchSequence: function(trackName, refSeqName, starts) {
     var sequenceLabel = dojo.create("div", { className: "search_sequence_label", innerHTML: "Enter sequence" }, sequenceDiv);
     var sequenceFieldDiv = dojo.create("div", { }, sequenceDiv);
     var sequenceField = dojo.create("textarea", { className: "search_sequence_input" }, sequenceFieldDiv);
+
+    if(sequenceText){
+      sequenceField.value = sequenceText;
+    }
+
     var searchAllRefSeqsDiv = dojo.create("div", { className: "search_all_ref_seqs_area" }, sequenceDiv);
     var searchAllRefSeqsCheckbox = dojo.create("input", { className: "search_all_ref_seqs_checkbox", type: "checkbox" }, searchAllRefSeqsDiv);
     var searchAllRefSeqsLabel = dojo.create("span", { className: "search_all_ref_seqs_label", innerHTML: "Search all genomic sequences" }, searchAllRefSeqsDiv);
@@ -106,7 +111,23 @@ searchSequence: function(trackName, refSeqName, starts) {
                 ok = true;
                 for(var key in response.sequence_search_tools) {
                     if (response.sequence_search_tools.hasOwnProperty(key)) {
-                        dojo.create("option", { innerHTML: response.sequence_search_tools[key].name, id: key }, sequenceToolsSelect);
+                      var selected = false ;
+                      var toolName = response.sequence_search_tools[key].name;
+                      if(searchType && searchType.length>0){
+                        if(searchType==='peptide' && (toolName.indexOf('pep')>=0 || toolName.indexOf('prot')>=0 ) ){
+                          selected = true
+                        }
+                        if(searchType==='nucleotide' && (toolName.toLowerCase().indexOf('nuc')>=0 || toolName.toLowerCase().indexOf('dna')>=0 || toolName.toLowerCase().indexOf('cds')>=0 || toolName.toLowerCase().indexOf('genomic')>=0 ) ){
+                          selected = true
+                        }
+                      }
+
+                      if(selected){
+                        dojo.create("option", { innerHTML: toolName, id: key, selected: true}, sequenceToolsSelect);
+                      }
+                      else{
+                        dojo.create("option", { innerHTML: toolName, id: key}, sequenceToolsSelect);
+                      }
                     }
                 }
             },
