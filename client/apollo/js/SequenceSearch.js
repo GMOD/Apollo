@@ -6,7 +6,7 @@ define( [
             'dojo/dom-construct',
             'dojo/dom-attr',
             'dojo/dom',
-], 
+],
     function( declare,
         array,
         domConstruct,
@@ -86,10 +86,10 @@ searchSequence: function(trackName, refSeqName, starts) {
         var operation = "get_sequence_search_tools";
         var request={
             "track": trackName,
-            "operation": operation 
+            "operation": operation
         };
         dojo.xhrPost( {
-            postData: JSON.stringify(request), 
+            postData: JSON.stringify(request),
             url: contextPath + "/AnnotationEditorService",
             sync: true,
             handleAs: "json",
@@ -117,9 +117,17 @@ searchSequence: function(trackName, refSeqName, starts) {
         });
         return ok;
     };
-    
+
     var search = function() {
-        var residues = dojo.attr(sequenceField, "value").toUpperCase();
+        var rawResidues = dojo.attr(sequenceField, "value").toUpperCase();
+        var residues = '';
+        var lines = rawResidues.split("\n");
+        for(var i = 0; i < lines.length; i++){
+          var line = lines[i].trim();
+          if(line.indexOf('>')<0){
+            residues += line.trim();
+          }
+        }
         var ok = true;
         if (residues.length == 0) {
             alert("No sequence entered");
@@ -169,13 +177,13 @@ searchSequence: function(trackName, refSeqName, starts) {
                     dojo.style(messageDiv, { display: "none" });
                     dojo.style(headerDiv, { display: "block"} );
                     dojo.style(matchDiv, { display: "block"} );
-                    
+
                     var returnedMatches = response.matches;
                     returnedMatches.sort(function(match1, match2) {
                         return match2.rawscore - match1.rawscore;
                     });
                     var maxNumberOfHits = 100;
-                    
+
                     for (var i = 0; i < returnedMatches.length && i < maxNumberOfHits; ++i) {
                         var match = returnedMatches[i];
                         var query = match.query;
@@ -209,7 +217,7 @@ searchSequence: function(trackName, refSeqName, starts) {
                     }
                 },
                 // The ERROR function will be called in an error case.
-                error: function(response, ioArgs) { // 
+                error: function(response, ioArgs) { //
                     errorCallback(response);
                     return response;
                 }
@@ -217,7 +225,7 @@ searchSequence: function(trackName, refSeqName, starts) {
             });
         }
     };
-    
+
     dojo.connect(sequenceField, "onkeypress", function(event) {
         if (event.keyCode == dojo.keys.ENTER) {
             event.preventDefault();
@@ -233,7 +241,7 @@ searchSequence: function(trackName, refSeqName, starts) {
         alert("No search plugins setup");
         return null;
     }
-    
+
     return content;
 }
 
