@@ -1246,6 +1246,7 @@ class OrganismController {
 
         CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
 //        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
+        String foundBlatdb = null
         if (organismDataFile ) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
           organismDataFile.transferTo(archiveFile)
@@ -1254,10 +1255,10 @@ class OrganismController {
           assert organismDirectory.mkdir()
           assert organismDirectory.setWritable(true)
           fileService.decompress(archiveFile, organism.directory , null, false)
+          foundBlatdb = organismService.findBlatDB(organismDirectory.absolutePath)
         }
 
         // if directory has a "searchDatabaseData" directory then any file in that that is a 2bit is the blatdb
-        String foundBlatdb = organismService.findBlatDB(organism.directory.absolutePath)
         if (organismJson.blatdb) {
           organism.blatdb = organismJson.blatdb
         }
