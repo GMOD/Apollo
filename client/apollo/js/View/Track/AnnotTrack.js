@@ -6238,6 +6238,12 @@ define([
                     className:"copy_clipboard_button"
                 }, content);
 
+              var searchButton = dojo.create("button", {
+                title: "Search Sequence",
+                innerHTML: "Search Sequence",
+                className:"search_sequence_button"
+              }, content);
+
                 var copyValueLabel = dojo.create("div", {
                     innerHTML: "",
                     id: 'copy_value_id',
@@ -6257,19 +6263,19 @@ define([
                     className: "button_label"
                 }, peptideButtonDiv);
                 var cdnaButtonDiv = dojo.create("div", {className: "button_div"}, form);
-                var cdnaButton = dojo.create("input", {type: "radio", name: "type"}, cdnaButtonDiv);
+                var cdnaButton = dojo.create("input", {type: "radio", name: "type", id:"cdna_sequence_button"}, cdnaButtonDiv);
                 var cdnaButtonLabel = dojo.create("label", {
                     innerHTML: "cDNA sequence",
                     className: "button_label"
                 }, cdnaButtonDiv);
                 var cdsButtonDiv = dojo.create("div", {className: "button_div"}, form);
-                var cdsButton = dojo.create("input", {type: "radio", name: "type"}, cdsButtonDiv);
+                var cdsButton = dojo.create("input", {type: "radio", name: "type", id:"cds_sequence_button"}, cdsButtonDiv);
                 var cdsButtonLabel = dojo.create("label", {
                     innerHTML: "CDS sequence",
                     className: "button_label"
                 }, cdsButtonDiv);
                 var genomicButtonDiv = dojo.create("div", {className: "button_div"}, form);
-                var genomicButton = dojo.create("input", {type: "radio", name: "type"}, genomicButtonDiv);
+                var genomicButton = dojo.create("input", {type: "radio", name: "type", id:"genomic_sequence_button"}, genomicButtonDiv);
                 var genomicButtonLabel = dojo.create("label", {
                     innerHTML: "Genomic sequence",
                     className: "button_label"
@@ -6277,7 +6283,7 @@ define([
                 var genomicWithFlankButtonDiv = dojo.create("div", {className: "button_div"}, form);
                 var genomicWithFlankButton = dojo.create("input", {
                     type: "radio",
-                    name: "type"
+                    name: "type", id:"genomic_with_flank_sequence_button"
                 }, genomicWithFlankButtonDiv);
                 var genomicWithFlankButtonLabel = dojo.create("label", {
                     innerHTML: "Genomic sequence +/-",
@@ -6302,7 +6308,22 @@ define([
                     copyValueLabel.innerHTML = 'Copied!';
                 });
 
-                var fetchSequence = function (type) {
+              dojo.connect(searchButton,'onclick',function(){
+                var el = document.getElementById("sequence_text_area")
+                var sequenceText = el.value;
+
+                var getSearchType = function(){
+                  if(dojo.attr(peptideButton, "checked")) return "peptide";
+                  if(dojo.attr(cdnaButton, "checked")) return "nucleotide";
+                  if(dojo.attr(cdsButton, "checked")) return "nucleotide";
+                  if(dojo.attr(genomicButton, "checked")) return "nucleotide";
+                  if(dojo.attr(genomicWithFlankButton, "checked")) return "nucleotide";
+                  return '';
+                };
+                track.searchSequence(sequenceText,getSearchType());
+              });
+
+              var fetchSequence = function (type) {
                     var features = '"features": [';
                     for (var i = 0; i < records.length; ++i) {
                         var record = records[i];
@@ -6365,6 +6386,8 @@ define([
 
                     });
                 };
+
+
                 var callback = function (event) {
                     var type;
                     var target = event.target || event.srcElement;
@@ -6411,7 +6434,7 @@ define([
                 this.openDialog("Sequence", content);
             },
 
-            searchSequence: function () {
+          searchSequence: function (sequenceText,searchType) {
                 var track = this;
                 var starts = new Object();
                 var browser = track.gview.browser;
@@ -6449,7 +6472,7 @@ define([
                 search.setErrorCallback(function (response) {
                     track.handleError(response);
                 });
-                var content = search.searchSequence(track.getUniqueTrackName(), track.refSeq.name, starts);
+                var content = search.searchSequence(track.getUniqueTrackName(), track.refSeq.name, starts,sequenceText,searchType);
                 if (content) {
                     this.openDialog("Search sequence", content);
                 }
