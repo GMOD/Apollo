@@ -886,6 +886,7 @@ class FeatureEventService {
                 historyItem.put(AbstractApolloController.REST_OPERATION, transaction.operation.name());
                 historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor()?.username);
                 historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
+                historyItem.put(FeatureStringEnum.STRUCTURAL_EDIT.value, transaction.operation.getIsStructural());
                 if (transaction.current) {
                     historyItem.put(FeatureStringEnum.CURRENT.value, true);
                 } else {
