@@ -1228,6 +1228,7 @@ class OrganismController {
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
       if (organism) {
+        String oldOrganismDirectory = organism.directory
 
         log.debug "Updating organism info ${organismJson.commonName}"
         organism.commonName = organismJson.name ?: organism.commonName
@@ -1249,9 +1250,6 @@ class OrganismController {
         if (!request instanceof ShiroHttpServletRequest) {
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         }
-        println "B get file ${organismDataFile}"
-//        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-//        CommonsMultipartFile searchDatabaseDataFile = request.getFile(FeatureStringEnum.SEARCH_DATABASE_DATA.value)
         String foundBlatdb = null
         if (organismDataFile) {
           File archiveFile = new File(organismDataFile.getOriginalFilename())
@@ -1278,8 +1276,10 @@ class OrganismController {
             permissionService.removeAllPermissions(organism)
           }
           organism.save(flush: true, insert: false, failOnError: true)
-          sequenceService.loadRefSeqs(organism)
-//          preferenceService.setCurrentOrganism(permissionService.getCurrentUser(requestObject), organism, clientToken)
+          if (oldOrganismDirectory!=organism.directory) {
+            // we need to reload
+            sequenceService.loadRefSeqs(organism)
+          }
         } else {
           throw new Exception("Bad organism directory: " + organism.directory)
         }
