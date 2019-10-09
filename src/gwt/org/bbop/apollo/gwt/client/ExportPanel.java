@@ -98,7 +98,7 @@ public class ExportPanel extends Modal {
         else
         if (type.equals(FeatureStringEnum.TYPE_GO.getValue())) {
             buttonGroup.add(gpad2ExportButton);
-            buttonGroup.add(gpiExportButton);
+//            buttonGroup.add(gpiExportButton);
         }
 //        else
 //        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
