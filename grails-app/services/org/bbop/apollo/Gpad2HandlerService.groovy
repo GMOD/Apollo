@@ -7,7 +7,10 @@ import org.grails.plugins.metrics.groovy.Timed
 
 import java.text.SimpleDateFormat
 
-class GpadHandlerService {
+/**
+ * Spec: https://github.com/geneontology/go-annotation/blob/master/specs/gpad-gpi-2-0.md
+ */
+class Gpad2HandlerService {
 
     def configWrapperService
 
