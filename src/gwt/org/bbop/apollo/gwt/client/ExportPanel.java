@@ -47,7 +47,8 @@ public class ExportPanel extends Modal {
     RadioButton peptideRadioButton = new RadioButton("Peptide", "Peptide", true);
     RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
-    RadioButton gpadExportButton = new RadioButton("GPAD", "GPAD2", true);
+    RadioButton gpad2ExportButton = new RadioButton("GPAD2", "GPAD2", true);
+    RadioButton gpiExportButton = new RadioButton("GPI", "GPI", true);
 //    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "JSON Track", true);
 //    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Annotations and Evidence", true);
 //    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Add Track as Evidence", true);
@@ -95,8 +96,9 @@ public class ExportPanel extends Modal {
             buttonGroup.add(chadoExportButton2);
         }
         else
-        if (type.equals(FeatureStringEnum.TYPE_GPAD.getValue())) {
-            buttonGroup.add(gpadExportButton);
+        if (type.equals(FeatureStringEnum.TYPE_GO.getValue())) {
+            buttonGroup.add(gpad2ExportButton);
+            buttonGroup.add(gpiExportButton);
         }
 //        else
 //        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
@@ -174,7 +176,8 @@ public class ExportPanel extends Modal {
                 exportButton.setEnabled(true);
             }
         });
-        gpadExportButton.addClickHandler(exportClickHandler);
+        gpad2ExportButton.addClickHandler(exportClickHandler);
+        gpiExportButton.addClickHandler(exportClickHandler);
 
 //        jbrowseExportButton1.addClickHandler(new ClickHandler() {
 //            @Override
@@ -293,7 +296,15 @@ public class ExportPanel extends Modal {
         if(chadoExportButton2.isActive()) {
             return FeatureStringEnum.TYPE_CHADO.getValue();
         }
-        // this is the default . . . may handle to GFF3 with FASTA
+        else
+      if(gpad2ExportButton.isActive()){
+        return FeatureStringEnum.TYPE_GPAD2.getValue();
+      }
+      else
+      if(gpiExportButton.isActive()) {
+        return FeatureStringEnum.TYPE_GPI.getValue();
+      }
+      // this is the default . . . may handle to GFF3 with FASTA
         else{
             return FeatureStringEnum.TYPE_GENOMIC.getValue();
         }

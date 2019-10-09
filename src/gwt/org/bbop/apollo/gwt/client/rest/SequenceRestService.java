@@ -57,6 +57,13 @@ public class SequenceRestService {
             jsonObject.put("exportJBrowseSequence", JSONBoolean.getInstance(exportPanel.getExportJBrowseSequence()));
             jsonObject.put("exportToThisOrganism", JSONBoolean.getInstance(exportPanel.getExportToThisOrganism()));
         }
+        else if (type.equals(FeatureStringEnum.TYPE_GO.getValue())) {
+          jsonObject.put("chadoExportType", new JSONString(""));
+          jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
+          jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
+          jsonObject.put("output", new JSONString("file"));
+          jsonObject.put("format", new JSONString("gzip"));
+        }
         else {
             jsonObject.put("chadoExportType", new JSONString(""));
             jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
