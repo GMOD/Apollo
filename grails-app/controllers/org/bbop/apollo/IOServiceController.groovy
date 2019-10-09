@@ -23,7 +23,6 @@ import java.util.zip.GZIPOutputStream
 class IOServiceController extends AbstractApolloController {
 
     def sequenceService
-    def featureService
     def gff3HandlerService
     def fastaHandlerService
     def chadoHandlerService
