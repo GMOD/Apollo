@@ -178,7 +178,7 @@ class IOServiceController extends AbstractApolloController {
                   gpad2HandlerService.writeFeaturesToText(outputFile.path, features)
                 }
               else
-              if(sequenceType==FeatureStringEnum.TYPE_GPI.value){
+              if(sequenceType==FeatureStringEnum.TYPE_GPI2.value){
                 fileName = "GoAnnotations" + sequenceString + "." + sequenceType.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 gpiHandlerService.writeFeaturesToText(outputFile.path, features)
               }

@@ -51,77 +51,38 @@ class GpiHandlerService {
         // 1	DB_Object_ID ::= ID		1	UniProtKB:P11678
         writeObject.out.write(goAnnotation.feature.name)
         writeObject.out.write("\t")
-        //2	Negation ::= 'NOT'		0 or 1	NOT
-        writeObject.out.write(goAnnotation.negate ? "NOT" : "")
+//      2	DB_Object_Symbol ::= xxxx		1	AMOT
+        writeObject.out.write(goAnnotation.feature.symbol ?: goAnnotation.feature.name)
         writeObject.out.write("\t")
-        //3	Relation ::= OBO_ID	Relations Ontology	1	RO:0002263
-        writeObject.out.write(goAnnotation.geneProductRelationshipRef)
+//      3	DB_Object_Name ::= xxxx		0 or greater	Angiomotin
+        writeObject.out.write(goAnnotation.feature.name)
         writeObject.out.write("\t")
-        //4	Ontology_Class_ID ::= OBO_ID	Gene Ontology	1	GO:0050803
-        writeObject.out.write(goAnnotation.goRef)
+//      4	DB_Object_Synonyms ::= [Label] ('|' Label)*		0 or greater	AMOT|KIAA1071
+        writeObject.out.write(goAnnotation.feature?.synonyms?.name?.join("|"))
         writeObject.out.write("\t")
-        //5	Reference ::= ID		1	PMID:30695063
-//        writeObject.out.write(goAnnotation.notesArray)
-        writeObject.out.write(goAnnotation.reference)
+//      5	DB_Object_Type ::= OBO_ID	Sequence Ontology	1	SO:0000104
+        writeObject.out.write(goAnnotation.feature.ontologyId)
         writeObject.out.write("\t")
-        writeObject.out.write("\t")
-        //6	Evidence_type ::= OBO_ID	Evidence and Conclusion Ontology	1	ECO:0000315
-        writeObject.out.write(goAnnotation.evidenceRef)
-        writeObject.out.write("\t")
-        //7	With_or_From ::= [ID] ('|' | ‘,’ ID)*		0 or greater	WB:WBVar00000510
-        if (goAnnotation.withOrFromArray) {
-            JSONArray withArray = new JsonSlurper().parseText(goAnnotation.withOrFromArray) as JSONArray
-            List<String> withList = withArray.collect()
-            writeObject.out.write(withList.join("|"))
-        }
-//        else{
-//            writeObject.out.write("")
-//        }
-        writeObject.out.write("\t")
-        //8	Interacting_taxon_ID ::= NCBITaxon:[Taxon_ID]		0 or greater	NCBITaxon:5476
-        // TODO: add organism
+//      6	DB_Object_Taxon ::= NCBITaxon:[Taxon_ID]		1	NCBITaxon:9606
+      // TODO: add organism
         writeObject.out.write(writeObject.organismString)
         writeObject.out.write("\t")
-        //9	Date ::= YYYY-MM-DD		1	2019-01-30
-        writeObject.out.write(gpadDateFormat.format(goAnnotation.lastUpdated))
+//      7	Parent_ObjectID ::= [ID] ('|' ID)*		1
         writeObject.out.write("\t")
-        //10	Assigned_by ::= Prefix		1	MGI
-//        writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
-      String assignedBy = configWrapperService.getGff3Source() ?: "Apollo-${grails.util.Metadata.current['app.version']}"
-      writeObject.out.write(assignedBy)
-      writeObject.out.write("\t")
-        //11	Annotation_Extensions ::= [Extension_Conj] ('|' Extension_Conj)*		0 or greater	BFO:0000066
-        writeObject.out.write("")
         writeObject.out.write("\t")
-        //12	Annotation_Properties ::= [Property_Value_Pair] ('|' Property_Value_Pair)*		0 or greater	contributor=https://orcid.org/0000-0002-1478-7671
+        // 8	DB_Xrefs ::= [ID] ('|' ID)*		0 or greater
+        // TODO: add organism
 
 
-        String contributorString = null
-
-        if(goAnnotation.owners){
-            List<String> contributorArray = []
-            goAnnotation.owners.each { User user ->
-                contributorArray.add("contributor_name=${user.username}")
-            }
-            contributorString = contributorArray.join("|")
+        def dBXrefArray = []
+        goAnnotation.feature.featureDBXrefs.each {
+          dBXrefArray.add(it.db.description+":"+it.accession)
         }
-
-        String noteString = null
-        if(goAnnotation.notesArray){
-            List<String> notesArray = []
-            JSONArray notesJsonArray = new JsonSlurper().parseText(goAnnotation.notesArray) as JSONArray
-            notesJsonArray.each {
-                notesArray.add("annotation_note=${it}")
-            }
-            noteString = notesArray.join("|")
-        }
-        String tab12String = contributorString ?: ""
-        if(tab12String && noteString){
-            tab12String += "|"
-            tab12String += noteString
-        }
-        writeObject.out.write(tab12String)
-
+        writeObject.out.write(dBXrefArray.join("|"))
+//        writeObject.out.write(goAnnotation.feature?.featureDBXrefs?.generateReference().join("|"))
+        writeObject.out.write("\t")
+//      9	Gene_Product_Properties ::= [Property_Value_Pair] ('|' Property_Value_Pair)*		0 or greater	db_subset=Swiss-Prot
+        writeObject.out.write("\t")
         writeObject.out.write("\t")
 
         writeObject.out.println()

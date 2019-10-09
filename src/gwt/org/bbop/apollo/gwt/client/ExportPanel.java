@@ -48,7 +48,7 @@ public class ExportPanel extends Modal {
     RadioButton chadoExportButton1 = new RadioButton("chadoExportOption1", "Export all sequences (that have annotations) to Chado", true);
     RadioButton chadoExportButton2 = new RadioButton("chadoExportOption2", "Export all sequences to Chado", true);
     RadioButton gpad2ExportButton = new RadioButton("GPAD2", "GPAD2", true);
-    RadioButton gpiExportButton = new RadioButton("GPI", "GPI", true);
+    RadioButton gpi2ExportButton = new RadioButton("GPI2", "GPI2", true);
 //    RadioButton jbrowseExportButton1 = new RadioButton("jbrowseExportButton1", "JSON Track", true);
 //    RadioButton jbrowseExportButton2 = new RadioButton("jbrowseExportButton2", "Annotations and Evidence", true);
 //    RadioButton jbrowseExportButton3 = new RadioButton("jbrowseExportButton3", "Add Track as Evidence", true);
@@ -98,7 +98,7 @@ public class ExportPanel extends Modal {
         else
         if (type.equals(FeatureStringEnum.TYPE_GO.getValue())) {
             buttonGroup.add(gpad2ExportButton);
-//            buttonGroup.add(gpiExportButton);
+            buttonGroup.add(gpi2ExportButton);
         }
 //        else
 //        if (type.equals(FeatureStringEnum.TYPE_JBROWSE.getValue())) {
@@ -177,7 +177,7 @@ public class ExportPanel extends Modal {
             }
         });
         gpad2ExportButton.addClickHandler(exportClickHandler);
-        gpiExportButton.addClickHandler(exportClickHandler);
+        gpi2ExportButton.addClickHandler(exportClickHandler);
 
 //        jbrowseExportButton1.addClickHandler(new ClickHandler() {
 //            @Override
@@ -301,8 +301,8 @@ public class ExportPanel extends Modal {
         return FeatureStringEnum.TYPE_GPAD2.getValue();
       }
       else
-      if(gpiExportButton.isActive()) {
-        return FeatureStringEnum.TYPE_GPI.getValue();
+      if(gpi2ExportButton.isActive()) {
+        return FeatureStringEnum.TYPE_GPI2.getValue();
       }
       // this is the default . . . may handle to GFF3 with FASTA
         else{

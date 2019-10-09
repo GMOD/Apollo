@@ -114,7 +114,7 @@ public enum FeatureStringEnum {
         TYPE_GENOMIC("genomic"),
         TYPE_GPAD("GPAD"),
         TYPE_GPAD2("GPAD2"),
-        TYPE_GPI("GPI"),
+        TYPE_GPI2("GPI2"),
         TYPE_GO("GO"),
         TYPE_FASTA("FASTA"),
         TYPE_GFF3("GFF3"),
