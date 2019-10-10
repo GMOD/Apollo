@@ -120,8 +120,11 @@ class TrackService {
         JSONArray nclistArray = trackObject.getJSONObject("intervals").getJSONArray("nclist")
 
         // 1 - extract the appropriate region for fmin / fmax
+      println "filtering ${nclistArray}"
         JSONArray filteredList = filterList(nclistArray, fmin, fmax)
-        log.debug "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
+        println "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
+
+      println "filtered list ${filteredList}"
 
         // if the first featured array has a chunk, then we need to evaluate the chunks instead
         if (filteredList) {
@@ -245,6 +248,21 @@ class TrackService {
         for (innerArray in inputArray) {
             // if there is an overlap
             if (!(innerArray[2] < fmin || innerArray[1] > fmax)) {
+              println "inner array ${innerArray}"
+
+              // if it contains a subList, filter the sublist and addd to this array, can maybe leave that there
+              for(input in innerArray){
+                if(input instanceof JSONObject && input.containsKey("Sublist")){
+                  println "input is object ${input}"
+                  // promot the subArray
+                  JSONArray subArrayList = filterList(input.get("Sublist"),fmin,fmax)
+                  subArrayList.each{ jsonArray.add(it)}
+                  println "subArrayList ${subArrayList}"
+                }
+                else{
+                  println "not object ${input}"
+                }
+              }
                 // then no
                 jsonArray.add(innerArray)
             }
