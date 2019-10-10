@@ -234,7 +234,9 @@ class TrackController {
         try {
             JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
           // there should be 2 nclists, one for 20 and one for 40
-          renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+          renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO,fmin,fmax)
+          println "rendered array ${renderedArray.size()}"
+          println "rendered array as JSON${renderedArray as JSON}"
         } catch (FileNotFoundException fnfe) {
             log.warn(fnfe.message)
             response.status = 404

@@ -227,14 +227,17 @@ class TrackService {
     }
 
     @NotTransactional
-    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) throws FileNotFoundException {
+    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO,long fmin = Long.MIN_VALUE,long fmax = Long.MAX_VALUE) throws FileNotFoundException {
         JSONArray returnArray = new JSONArray()
 
         for (def jsonArray in fullArray) {
             if (jsonArray instanceof JSONArray) {
+              if (!(jsonArray[2] < fmin || jsonArray[1] > fmax)) {
                 returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+              }
             }
         }
+
 
         return returnArray
     }
@@ -248,23 +251,29 @@ class TrackService {
         for (innerArray in inputArray) {
             // if there is an overlap
             if (!(innerArray[2] < fmin || innerArray[1] > fmax)) {
-              println "inner array ${innerArray}"
+//              println "inner array ${innerArray}"
 
               // if it contains a subList, filter the sublist and addd to this array, can maybe leave that there
+              int foundSublistIndex = -1
+              int subListIndex = 0
               for(input in innerArray){
                 if(input instanceof JSONObject && input.containsKey("Sublist")){
-                  println "input is object ${input}"
+//                  println "input is object ${input}"
                   // promot the subArray
                   JSONArray subArrayList = filterList(input.get("Sublist"),fmin,fmax)
                   subArrayList.each{ jsonArray.add(it)}
-                  println "subArrayList ${subArrayList}"
+                  foundSublistIndex = subListIndex
+//                  println "subArrayList ${subArrayList}"
                 }
-                else{
-                  println "not object ${input}"
-                }
+                ++subListIndex
               }
+              if(foundSublistIndex>=0){
+                jsonArray.add(   (innerArray as List).subList(0,foundSublistIndex) )
+              }
+              else{
                 // then no
                 jsonArray.add(innerArray)
+              }
             }
         }
 
