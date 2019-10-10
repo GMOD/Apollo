@@ -266,6 +266,8 @@ class TrackController {
             renderedArray = returnArray
         }
 
+        renderedArray = renderedArray.unique{  it.name }
+
         if (type == "json") {
             trackService.cacheRequest(renderedArray.toString(), organismString, trackName, sequence, fmin, fmax, type, paramMap)
             render renderedArray as JSON
