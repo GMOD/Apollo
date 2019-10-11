@@ -20,11 +20,11 @@ class TrackController {
     def preferenceService
     def permissionService
     def trackService
-    def grailsApplication
     def svgService
 
+  final double OVERLAP_FILTER = 10.0
 
-    def beforeInterceptor = {
+  def beforeInterceptor = {
         if (params.action == "featuresByName"
                 || params.action == "featuresByLocation"
         ) {
@@ -233,7 +233,8 @@ class TrackController {
         )
         try {
             JSONArray filteredList = trackService.getNCList(trackName, organismString, sequence, fmin, fmax)
-            renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO)
+          // there should be 2 nclists, one for 20 and one for 40
+          renderedArray = trackService.convertAllNCListToObject(filteredList, sequenceDTO,fmin,fmax)
         } catch (FileNotFoundException fnfe) {
             log.warn(fnfe.message)
             response.status = 404
@@ -264,7 +265,12 @@ class TrackController {
             renderedArray = returnArray
         }
 
-        if (type == "json") {
+        renderedArray = renderedArray.unique{  it.name } as JSONArray
+        renderedArray = renderedArray.findAll{  it ->
+          return (it.fmax - it.fmin) < (OVERLAP_FILTER*(fmax - fmin))
+        } as JSONArray
+
+      if (type == "json") {
             trackService.cacheRequest(renderedArray.toString(), organismString, trackName, sequence, fmin, fmax, type, paramMap)
             render renderedArray as JSON
         } else if (type == "svg") {
