@@ -89,6 +89,8 @@ public class MainPanel extends Composite {
     @UiField
     static SequencePanel sequencePanel;
     @UiField
+    static SearchPanel searchPanel;
+    @UiField
     static OrganismPanel organismPanel;
     @UiField
     static UserPanel userPanel;
@@ -844,15 +846,18 @@ public class MainPanel extends Composite {
                 sequencePanel.reload(true);
                 break;
             case 3:
+              searchPanel.reload();
+              break;
+            case 4:
                 organismPanel.reload();
                 break;
-            case 4:
+            case 5:
                 userPanel.reload(true);
                 break;
-            case 5:
+            case 6:
                 userGroupPanel.reload();
                 break;
-            case 6:
+            case 7:
                 preferencePanel.reload();
                 break;
             default:
