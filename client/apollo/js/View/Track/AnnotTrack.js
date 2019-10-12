@@ -146,11 +146,11 @@ define([
 
                 }));
 
-                this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
-                this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
-
-                this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
-                this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
+                // this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
+                // this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
+                //
+                // this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
+                // this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
 
                 this.topLevelParents = {};
             },
@@ -6526,187 +6526,191 @@ define([
             },
 
 
-            scrollToNextEdge: function (event) {
-                // var coordinate = this.getGenomeCoord(event);
-                var track = this;
-                var vregion = this.gview.visibleRegion();
-                var coordinate = (vregion.start + vregion.end) / 2;
-                var selected = this.selectionManager.getSelection();
-
-                function centerAtBase(position) {
-                    track.gview.centerAtBase(position, false);
-                    track.selectionManager.removeFromSelection(selected[0]);
-                    var subfeats = selfeat.get("subfeatures");
-                    for (var i = 0; i < subfeats.length; ++i) {
-                        if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
-                            continue;
-                        }
-                        // skip CDS features
-                        if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
-                            continue;
-                        }
-                        if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
-                            track.selectionManager.addToSelection({feature: subfeats[i], track: track});
-                            break;
-                        }
-                    }
-                }
-                if (selected && (selected.length > 0)) {
-
-
-                    var selfeat = selected[0].feature;
-                    // find current center genome coord, compare to subfeatures,
-                    // figure out nearest subfeature right of center of view
-                    // if subfeature overlaps, go to right edge
-                    // else go to left edge
-                    // if to left, move to left edge
-                    // if to right,
-                    while (selfeat.parent()) {
-                        selfeat = selfeat.parent();
-                    }
-                    // only support scrolling if the feature isn't fully visible
-                    if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
-                        return;
-                    }
-                    var coordDelta = Number.MAX_VALUE;
-                    var pmin = selfeat.get('start');
-                    var pmax = selfeat.get('end');
-                    if ((coordinate - pmax) > 10) {
-                        centerAtBase(pmin);
-                    }
-                    else {
-                        var childfeats = selfeat.children();
-                        for (var i = 0; i < childfeats.length; i++) {
-                            var cfeat = childfeats[i];
-                            var cmin = cfeat.get('start');
-                            var cmax = cfeat.get('end');
-                            // if (cmin > coordinate) {
-                            if ((cmin - coordinate) > 10) { // fuzz factor of 10 bases
-                                coordDelta = Math.min(coordDelta, cmin - coordinate);
-                            }
-                            // if (cmax > coordinate) {
-                            if ((cmax - coordinate) > 10) { // fuzz factor of 10 bases
-                                coordDelta = Math.min(coordDelta, cmax - coordinate);
-                            }
-                        }
-                        // find closest edge right of current coord
-                        if (coordDelta != Number.MAX_VALUE) {
-                            var newCenter = coordinate + coordDelta;
-                            centerAtBase(newCenter);
-                        }
-                    }
-                }
-            },
-
-            scrollToPreviousEdge: function (event) {
-                // var coordinate = this.getGenomeCoord(event);
-                var track = this;
-                var vregion = this.gview.visibleRegion();
-                var coordinate = (vregion.start + vregion.end) / 2;
-                var selected = this.selectionManager.getSelection();
-
-                function centerAtBase(position) {
-                    track.gview.centerAtBase(position, false);
-                    track.selectionManager.removeFromSelection(selected[0]);
-                    var subfeats = selfeat.get("subfeatures");
-                    for (var i = 0; i < subfeats.length; ++i) {
-                        if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
-                            continue;
-                        }
-                        // skip CDS features
-                        if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
-                            continue;
-                        }
-                        if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
-                            track.selectionManager.addToSelection({feature: subfeats[i], track: track});
-                            break;
-                        }
-                    }
-                }
-                if (selected && (selected.length > 0)) {
-
-
-                    var selfeat = selected[0].feature;
-                    // find current center genome coord, compare to subfeatures,
-                    // figure out nearest subfeature right of center of view
-                    // if subfeature overlaps, go to right edge
-                    // else go to left edge
-                    // if to left, move to left edge
-                    // if to right,
-                    while (selfeat.parent()) {
-                        selfeat = selfeat.parent();
-                    }
-                    // only support scrolling if the feature isn't fully visible
-                    if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
-                        return;
-                    }
-                    var coordDelta = Number.MAX_VALUE;
-                    var pmin = selfeat.get('start');
-                    var pmax = selfeat.get('end');
-                    if ((pmin - coordinate) > 10) {
-                        centerAtBase(pmax);
-                    }
-                    else {
-                        var childfeats = selfeat.children();
-                        for (var i = 0; i < childfeats.length; i++) {
-                            var cfeat = childfeats[i];
-                            var cmin = cfeat.get('start');
-                            var cmax = cfeat.get('end');
-                            // if (cmin > coordinate) {
-                            if ((coordinate - cmin) > 10) { // fuzz factor of 10 bases
-                                coordDelta = Math.min(coordDelta, coordinate - cmin);
-                            }
-                            // if (cmax > coordinate) {
-                            if ((coordinate - cmax) > 10) { // fuzz factor of 10 bases
-                                coordDelta = Math.min(coordDelta, coordinate - cmax);
-                            }
-                        }
-                        // find closest edge right of current coord
-                        if (coordDelta != Number.MAX_VALUE) {
-                            var newCenter = coordinate - coordDelta;
-                            centerAtBase(newCenter);
-                        }
-                    }
-                }
-            },
-
-            scrollToNextTopLevelFeature: function () {
-                var selected = this.selectionManager.getSelection();
-                if (!selected || !selected.length) {
-                    return;
-                }
-                var features = [];
-                for (var i in this.store.features) {
-                    features.push(this.store.features[i]);
-                }
-                this.sortAnnotationsByLocation(features);
-                var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
-                if (idx < 0 || idx >= features.length - 1) {
-                    return;
-                }
-                this.gview.centerAtBase(features[idx + 1].get("start"));
-                this.selectionManager.removeFromSelection({feature: selected[0].feature, track: this});
-                this.selectionManager.addToSelection({feature: features[idx + 1], track: this});
-            },
-
-            scrollToPreviousTopLevelFeature: function () {
-                var selected = this.selectionManager.getSelection();
-                if (!selected || !selected.length) {
-                    return;
-                }
-                var features = [];
-                for (var i in this.store.features) {
-                    features.push(this.store.features[i]);
-                }
-                this.sortAnnotationsByLocation(features);
-                var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
-                if (idx <= 0 || idx > features.length - 1) {
-                    return;
-                }
-                this.gview.centerAtBase(features[idx - 1].get("end"));
-                this.selectionManager.removeFromSelection({feature: selected[0].feature, track: this});
-                this.selectionManager.addToSelection({feature: features[idx - 1], track: this});
-            },
+            // scrollToNextEdge: function (event) {
+            //   console.log('scrolling to next edge')
+            //     // var coordinate = this.getGenomeCoord(event);
+            //     var track = this;
+            //     var vregion = this.gview.visibleRegion();
+            //     var coordinate = (vregion.start + vregion.end) / 2;
+            //     var selected = this.selectionManager.getSelection();
+            //
+            //     function centerAtBase(position) {
+            //         track.gview.centerAtBase(position, false);
+            //         track.selectionManager.removeFromSelection(selected[0]);
+            //         var subfeats = selfeat.get("subfeatures");
+            //         for (var i = 0; i < subfeats.length; ++i) {
+            //             if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
+            //                 continue;
+            //             }
+            //             // skip CDS features
+            //             if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
+            //                 continue;
+            //             }
+            //             if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
+            //                 track.selectionManager.addToSelection({feature: subfeats[i], track: track});
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //     if (selected && (selected.length > 0)) {
+            //
+            //
+            //         var selfeat = selected[0].feature;
+            //         // find current center genome coord, compare to subfeatures,
+            //         // figure out nearest subfeature right of center of view
+            //         // if subfeature overlaps, go to right edge
+            //         // else go to left edge
+            //         // if to left, move to left edge
+            //         // if to right,
+            //         while (selfeat.parent()) {
+            //             selfeat = selfeat.parent();
+            //         }
+            //         // only support scrolling if the feature isn't fully visible
+            //         if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
+            //             return;
+            //         }
+            //         var coordDelta = Number.MAX_VALUE;
+            //         var pmin = selfeat.get('start');
+            //         var pmax = selfeat.get('end');
+            //         if ((coordinate - pmax) > 10) {
+            //             centerAtBase(pmin);
+            //         }
+            //         else {
+            //             var childfeats = selfeat.children();
+            //             for (var i = 0; i < childfeats.length; i++) {
+            //                 var cfeat = childfeats[i];
+            //                 var cmin = cfeat.get('start');
+            //                 var cmax = cfeat.get('end');
+            //                 // if (cmin > coordinate) {
+            //                 if ((cmin - coordinate) > 10) { // fuzz factor of 10 bases
+            //                     coordDelta = Math.min(coordDelta, cmin - coordinate);
+            //                 }
+            //                 // if (cmax > coordinate) {
+            //                 if ((cmax - coordinate) > 10) { // fuzz factor of 10 bases
+            //                     coordDelta = Math.min(coordDelta, cmax - coordinate);
+            //                 }
+            //             }
+            //             // find closest edge right of current coord
+            //             if (coordDelta != Number.MAX_VALUE) {
+            //                 var newCenter = coordinate + coordDelta;
+            //                 centerAtBase(newCenter);
+            //             }
+            //         }
+            //     }
+            // },
+            //
+            // scrollToPreviousEdge: function (event) {
+            //   console.log('scrolling to previous edge')
+            //     // var coordinate = this.getGenomeCoord(event);
+            //     var track = this;
+            //     var vregion = this.gview.visibleRegion();
+            //     var coordinate = (vregion.start + vregion.end) / 2;
+            //     var selected = this.selectionManager.getSelection();
+            //
+            //     function centerAtBase(position) {
+            //         track.gview.centerAtBase(position, false);
+            //         track.selectionManager.removeFromSelection(selected[0]);
+            //         var subfeats = selfeat.get("subfeatures");
+            //         for (var i = 0; i < subfeats.length; ++i) {
+            //             if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
+            //                 continue;
+            //             }
+            //             // skip CDS features
+            //             if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
+            //                 continue;
+            //             }
+            //             if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
+            //                 track.selectionManager.addToSelection({feature: subfeats[i], track: track});
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //     if (selected && (selected.length > 0)) {
+            //
+            //
+            //         var selfeat = selected[0].feature;
+            //         // find current center genome coord, compare to subfeatures,
+            //         // figure out nearest subfeature right of center of view
+            //         // if subfeature overlaps, go to right edge
+            //         // else go to left edge
+            //         // if to left, move to left edge
+            //         // if to right,
+            //         while (selfeat.parent()) {
+            //             selfeat = selfeat.parent();
+            //         }
+            //         // only support scrolling if the feature isn't fully visible
+            //         if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
+            //             return;
+            //         }
+            //         var coordDelta = Number.MAX_VALUE;
+            //         var pmin = selfeat.get('start');
+            //         var pmax = selfeat.get('end');
+            //         if ((pmin - coordinate) > 10) {
+            //             centerAtBase(pmax);
+            //         }
+            //         else {
+            //             var childfeats = selfeat.children();
+            //             for (var i = 0; i < childfeats.length; i++) {
+            //                 var cfeat = childfeats[i];
+            //                 var cmin = cfeat.get('start');
+            //                 var cmax = cfeat.get('end');
+            //                 // if (cmin > coordinate) {
+            //                 if ((coordinate - cmin) > 10) { // fuzz factor of 10 bases
+            //                     coordDelta = Math.min(coordDelta, coordinate - cmin);
+            //                 }
+            //                 // if (cmax > coordinate) {
+            //                 if ((coordinate - cmax) > 10) { // fuzz factor of 10 bases
+            //                     coordDelta = Math.min(coordDelta, coordinate - cmax);
+            //                 }
+            //             }
+            //             // find closest edge right of current coord
+            //             if (coordDelta != Number.MAX_VALUE) {
+            //                 var newCenter = coordinate - coordDelta;
+            //                 centerAtBase(newCenter);
+            //             }
+            //         }
+            //     }
+            // },
+            //
+            // scrollToNextTopLevelFeature: function () {
+            //   console.log('scrolling to next top level feature')
+            //     var selected = this.selectionManager.getSelection();
+            //     if (!selected || !selected.length) {
+            //         return;
+            //     }
+            //     var features = [];
+            //     for (var i in this.store.features) {
+            //         features.push(this.store.features[i]);
+            //     }
+            //     this.sortAnnotationsByLocation(features);
+            //     var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+            //     if (idx < 0 || idx >= features.length - 1) {
+            //         return;
+            //     }
+            //     this.gview.centerAtBase(features[idx + 1].get("start"));
+            //     this.selectionManager.removeFromSelection({feature: selected[0].feature, track: this});
+            //     this.selectionManager.addToSelection({feature: features[idx + 1], track: this});
+            // },
+            //
+            // scrollToPreviousTopLevelFeature: function () {
+            //   console.log('scrolling to previous top level feature')
+            //     var selected = this.selectionManager.getSelection();
+            //     if (!selected || !selected.length) {
+            //         return;
+            //     }
+            //     var features = [];
+            //     for (var i in this.store.features) {
+            //         features.push(this.store.features[i]);
+            //     }
+            //     this.sortAnnotationsByLocation(features);
+            //     var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+            //     if (idx <= 0 || idx > features.length - 1) {
+            //         return;
+            //     }
+            //     this.gview.centerAtBase(features[idx - 1].get("end"));
+            //     this.selectionManager.removeFromSelection({feature: selected[0].feature, track: this});
+            //     this.selectionManager.addToSelection({feature: features[idx - 1], track: this});
+            // },
 
             binarySearch: function (features, feature) {
                 var from = 0;

@@ -121,67 +121,267 @@ var draggableTrack = declare( HTMLFeatureTrack,
                 but use of dojo.declare() for classes means track object's class is actually base Object.
         */
         this.edge_matching_enabled = true;
+
+      // this.gview.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
+      // this.gview.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
+      //
+      // this.gview.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
+      // this.gview.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
+      var track = this;
+
+      this.browser.setGlobalKeyboardShortcut('[', track, 'scrollToPreviousEdge');
+      this.browser.setGlobalKeyboardShortcut(']', track, 'scrollToNextEdge');
+
+      this.browser.setGlobalKeyboardShortcut('}', track, 'scrollToNextTopLevelFeature');
+      this.browser.setGlobalKeyboardShortcut('{', track, 'scrollToPreviousTopLevelFeature');
     },
 
 
-    loadSuccess: function(trackInfo) {
-        /* if subclass indicates it has custom context menu, do not initialize default feature context menu */
-        if (! this.has_custom_context_menu) {
-            this.initFeatureContextMenu();
-            this.initFeatureDialog();
+  scrollToNextEdge: function (event) {
+    console.log('inner scrolling to next edge')
+    // var coordinate = this.getGenomeCoord(event);
+    var track = this;
+    var vregion = this.gview.visibleRegion();
+    var coordinate = (vregion.start + vregion.end) / 2;
+    var selected = this.selectionManager.getSelection();
+
+    function centerAtBase(position) {
+      track.gview.centerAtBase(position, false);
+      track.selectionManager.removeFromSelection(selected[0]);
+      var subfeats = selfeat.get("subfeatures");
+      for (var i = 0; i < subfeats.length; ++i) {
+        if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
+          continue;
         }
-        this.inherited( arguments );
-    },
-
-    setSelectionManager: function(selman)  {
-        if (this.selectionManager)  {
-            this.selectionManager.removeListener(this);
+        // skip CDS features
+        if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
+          continue;
         }
-        this.selectionManager = selman;
-        // FeatureSelectionManager listeners must implement
-        //     selectionAdded() and selectionRemoved() response methods
-        this.selectionManager.addListener(this);
-        return selman;
-    },
+        if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
+          track.selectionManager.addToSelection({feature: subfeats[i], track: track});
+          break;
+        }
+      }
+    }
+    if (selected && (selected.length > 0)) {
 
-    /**
-     *   only called once, during track setup ???
-     *
-     *   doublclick in track whitespace is used by JBrowse for zoom
-     *      but WebApollo/JBrowse uses single click in whitespace to clear selection
-     *
-     *   so this sets up mousedown/mouseup/doubleclick
-     *      kludge to restore selection after a double click to whatever selection was before
-     *      initiation of doubleclick (first mousedown/mouseup)
-     *
-     */
-    setViewInfo: function(genomeView, numBlocks,
-                          trackDiv, labelDiv,
-                          widthPct, widthPx, scale) {
-        this.inherited( arguments );
 
-        var $div = $(this.div);
-        var track = this;
+      var selfeat = selected[0].feature;
+      // find current center genome coord, compare to subfeatures,
+      // figure out nearest subfeature right of center of view
+      // if subfeature overlaps, go to right edge
+      // else go to left edge
+      // if to left, move to left edge
+      // if to right,
+      while (selfeat.parent()) {
+        selfeat = selfeat.parent();
+      }
+      // only support scrolling if the feature isn't fully visible
+      if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
+        return;
+      }
+      var coordDelta = Number.MAX_VALUE;
+      var pmin = selfeat.get('start');
+      var pmax = selfeat.get('end');
+      if ((coordinate - pmax) > 10) {
+        centerAtBase(pmin);
+      }
+      else {
+        var childfeats = selfeat.children();
+        for (var i = 0; i < childfeats.length; i++) {
+          var cfeat = childfeats[i];
+          var cmin = cfeat.get('start');
+          var cmax = cfeat.get('end');
+          // if (cmin > coordinate) {
+          if ((cmin - coordinate) > 10) { // fuzz factor of 10 bases
+            coordDelta = Math.min(coordDelta, cmin - coordinate);
+          }
+          // if (cmax > coordinate) {
+          if ((cmax - coordinate) > 10) { // fuzz factor of 10 bases
+            coordDelta = Math.min(coordDelta, cmax - coordinate);
+          }
+        }
+        // find closest edge right of current coord
+        if (coordDelta != Number.MAX_VALUE) {
+          var newCenter = coordinate + coordDelta;
+          centerAtBase(newCenter);
+        }
+      }
+    }
+  },
 
-        // this.scale = scale;  // scale is in pixels per base
+  scrollToPreviousEdge: function (event) {
+    console.log('B scrolling to previous edge')
+    // var coordinate = this.getGenomeCoord(event);
+    var track = this;
+    var vregion = this.gview.visibleRegion();
+    var coordinate = (vregion.start + vregion.end) / 2;
+    var selected = this.selectionManager.getSelection();
 
-        // setting up mousedown and mouseup handlers to enable click-in-whitespace to clear selection
-        //    (without conflicting with JBrowse drag-in-whitespace to scroll)
-        $div.bind('mousedown', function(event)  {
-                      var target = event.target;
-                      if (! (target.feature || target.subfeature))  {
-                          track.last_whitespace_mousedown_loc = [ event.pageX, event.pageY ];
-                      }
-                  } );
-        $div.bind('mouseup', function(event)  {
-                      var target = event.target;
-                      if (! (target.feature || target.subfeature))  {  // event not on feature, so must be on whitespace
-                          var xup = event.pageX;
-                          var yup = event.pageY;
-                          // if click in whitespace without dragging (no movement between mouse down and mouse up,
-                          //    and no shift modifier,
-                          //    then deselect all
-                          if (this.verbose_selection)  { console.log("mouse up on track whitespace"); }
+    function centerAtBase(position) {
+      track.gview.centerAtBase(position, false);
+      track.selectionManager.removeFromSelection(selected[0]);
+      var subfeats = selfeat.get("subfeatures");
+      for (var i = 0; i < subfeats.length; ++i) {
+        if (track.selectionManager.unselectableTypes[subfeats[i].get("type")]) {
+          continue;
+        }
+        // skip CDS features
+        if (SequenceOntologyUtils.cdsTerms[subfeats[i].get("type")] || subfeats[i].get("type") == "wholeCDS") {
+          continue;
+        }
+        if (position >= subfeats[i].get("start") && position <= subfeats[i].get("end")) {
+          track.selectionManager.addToSelection({feature: subfeats[i], track: track});
+          break;
+        }
+      }
+    }
+    if (selected && (selected.length > 0)) {
+
+
+      var selfeat = selected[0].feature;
+      // find current center genome coord, compare to subfeatures,
+      // figure out nearest subfeature right of center of view
+      // if subfeature overlaps, go to right edge
+      // else go to left edge
+      // if to left, move to left edge
+      // if to right,
+      while (selfeat.parent()) {
+        selfeat = selfeat.parent();
+      }
+      // only support scrolling if the feature isn't fully visible
+      if (vregion.start <= selfeat.get("start") && vregion.end >= selfeat.get("end")) {
+        return;
+      }
+      var coordDelta = Number.MAX_VALUE;
+      var pmin = selfeat.get('start');
+      var pmax = selfeat.get('end');
+      if ((pmin - coordinate) > 10) {
+        centerAtBase(pmax);
+      }
+      else {
+        var childfeats = selfeat.children();
+        for (var i = 0; i < childfeats.length; i++) {
+          var cfeat = childfeats[i];
+          var cmin = cfeat.get('start');
+          var cmax = cfeat.get('end');
+          // if (cmin > coordinate) {
+          if ((coordinate - cmin) > 10) { // fuzz factor of 10 bases
+            coordDelta = Math.min(coordDelta, coordinate - cmin);
+          }
+          // if (cmax > coordinate) {
+          if ((coordinate - cmax) > 10) { // fuzz factor of 10 bases
+            coordDelta = Math.min(coordDelta, coordinate - cmax);
+          }
+        }
+        // find closest edge right of current coord
+        if (coordDelta != Number.MAX_VALUE) {
+          var newCenter = coordinate - coordDelta;
+          centerAtBase(newCenter);
+        }
+      }
+    }
+  },
+
+  scrollToNextTopLevelFeature: function () {
+    console.log('B scrolling to next top level feature')
+    var selected = this.selectionManager.getSelection();
+    if (!selected || !selected.length) {
+      return;
+    }
+    var features = [];
+    for (var i in this.store.features) {
+      features.push(this.store.features[i]);
+    }
+    this.sortAnnotationsByLocation(features);
+    var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+    if (idx < 0 || idx >= features.length - 1) {
+      return;
+    }
+    this.gview.centerAtBase(features[idx + 1].get("start"));
+    this.selectionManager.removeFromSelection({feature: selected[0].feature, track: this});
+    this.selectionManager.addToSelection({feature: features[idx + 1], track: this});
+  },
+
+  scrollToPreviousTopLevelFeature: function () {
+    console.log('B scrolling to previous top level feature')
+    var selected = this.selectionManager.getSelection();
+    if (!selected || !selected.length) {
+      return;
+    }
+    var features = [];
+    for (var i in this.store.features) {
+      features.push(this.store.features[i]);
+    }
+    this.sortAnnotationsByLocation(features);
+    var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+    if (idx <= 0 || idx > features.length - 1) {
+      return;
+    }
+    this.gview.centerAtBase(features[idx - 1].get("end"));
+    this.selectionManager.removeFromSelection({feature: selected[0].feature, track: this});
+    this.selectionManager.addToSelection({feature: features[idx - 1], track: this});
+  },
+
+
+  loadSuccess: function(trackInfo) {
+    /* if subclass indicates it has custom context menu, do not initialize default feature context menu */
+    if (! this.has_custom_context_menu) {
+      this.initFeatureContextMenu();
+      this.initFeatureDialog();
+    }
+    this.inherited( arguments );
+  },
+
+  setSelectionManager: function(selman)  {
+    if (this.selectionManager)  {
+      this.selectionManager.removeListener(this);
+    }
+    this.selectionManager = selman;
+    // FeatureSelectionManager listeners must implement
+    //     selectionAdded() and selectionRemoved() response methods
+    this.selectionManager.addListener(this);
+    return selman;
+  },
+
+  /**
+   *   only called once, during track setup ???
+   *
+   *   doublclick in track whitespace is used by JBrowse for zoom
+   *      but WebApollo/JBrowse uses single click in whitespace to clear selection
+   *
+   *   so this sets up mousedown/mouseup/doubleclick
+   *      kludge to restore selection after a double click to whatever selection was before
+   *      initiation of doubleclick (first mousedown/mouseup)
+   *
+   */
+  setViewInfo: function(genomeView, numBlocks,
+                        trackDiv, labelDiv,
+                        widthPct, widthPx, scale) {
+    this.inherited( arguments );
+
+    var $div = $(this.div);
+    var track = this;
+
+    // this.scale = scale;  // scale is in pixels per base
+
+    // setting up mousedown and mouseup handlers to enable click-in-whitespace to clear selection
+    //    (without conflicting with JBrowse drag-in-whitespace to scroll)
+    $div.bind('mousedown', function(event)  {
+      var target = event.target;
+      if (! (target.feature || target.subfeature))  {
+        track.last_whitespace_mousedown_loc = [ event.pageX, event.pageY ];
+      }
+    } );
+    $div.bind('mouseup', function(event)  {
+      var target = event.target;
+      if (! (target.feature || target.subfeature))  {  // event not on feature, so must be on whitespace
+        var xup = event.pageX;
+        var yup = event.pageY;
+        // if click in whitespace without dragging (no movement between mouse down and mouse up,
+        //    and no shift modifier,
+        //    then deselect all
+        if (this.verbose_selection)  { console.log("mouse up on track whitespace"); }
                           var eventModifier = event.shiftKey || event.altKey || event.metaKey || event.ctrlKey;
                           if (track.last_whitespace_mousedown_loc &&
                               xup === track.last_whitespace_mousedown_loc[0] &&
