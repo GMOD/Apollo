@@ -163,6 +163,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
       }
     }
+    console.log('selected',selected)
     if (selected && (selected.length > 0)) {
 
 
@@ -184,6 +185,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
       var pmin = selfeat.get('start');
       var pmax = selfeat.get('end');
       if ((coordinate - pmax) > 10) {
+        console.log('centerintg at base',pmin)
         centerAtBase(pmin);
       }
       else {
@@ -204,6 +206,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         // find closest edge right of current coord
         if (coordDelta != Number.MAX_VALUE) {
           var newCenter = coordinate + coordDelta;
+          console.log('centerintg new center',newCenter)
           centerAtBase(newCenter);
         }
       }
@@ -236,6 +239,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
         }
       }
     }
+    console.log('selected',selected)
     if (selected && (selected.length > 0)) {
 
 
@@ -283,6 +287,67 @@ var draggableTrack = declare( HTMLFeatureTrack,
     }
   },
 
+  sortAnnotationsByLocation: function (annots) {
+    var track = this;
+    return annots.sort(function (annot1, annot2) {
+      var start1 = annot1.get("start");
+      var end1 = annot1.get("end");
+      var start2 = annot2.get("start");
+      var end2 = annot2.get('end');
+
+      if (start1 != start2) {
+        return start1 - start2;
+      }
+      else if (end1 != end2) {
+        return end1 - end2;
+      }
+      else {
+        return annot1.id().localeCompare(annot2.id());
+      }
+    });
+  },
+
+  binarySearch: function (features, feature) {
+    var from = 0;
+    var to = features.length - 1;
+    while (from <= to) {
+      var mid = from + ((to - from) >> 1);
+      if (feature.get("start") == features[mid].get("start") && feature.get("end") == features[mid].get("end") && feature.id() == features[mid].id()) {
+        return mid;
+      }
+      if (feature.get("start") == features[mid].get("start")) {
+        if (feature.get("end") < features[mid].get("end")) {
+          to = mid - 1;
+        }
+        else if (feature.get("end") > features[mid].get("end")) {
+          from = mid + 1;
+        }
+        else {
+          if (feature.id() < features[mid].id()) {
+            to = mid - 1;
+          }
+          else {
+            from = mid + 1;
+          }
+        }
+      }
+      else if (feature.get("start") < features[mid].get("start")) {
+        to = mid - 1;
+      }
+      else {
+        from = mid + 1;
+      }
+    }
+    return -1;
+  },
+
+  getTopLevelAnnotation : function (annotation) {
+    while (annotation.parent()) {
+      annotation = annotation.parent();
+    }
+    return annotation;
+  },
+
   scrollToNextTopLevelFeature: function () {
     console.log('B scrolling to next top level feature')
     var selected = this.selectionManager.getSelection();
@@ -294,7 +359,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
       features.push(this.store.features[i]);
     }
     this.sortAnnotationsByLocation(features);
-    var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+    var idx = this.binarySearch(features, this.getTopLevelAnnotation(selected[0].feature));
     if (idx < 0 || idx >= features.length - 1) {
       return;
     }
@@ -314,7 +379,8 @@ var draggableTrack = declare( HTMLFeatureTrack,
       features.push(this.store.features[i]);
     }
     this.sortAnnotationsByLocation(features);
-    var idx = this.binarySearch(features, AnnotTrack.getTopLevelAnnotation(selected[0].feature));
+    var idx = this.binarySearch(features, this.getTopLevelAnnotation(selected[0].feature));
+    console.log('get binary search',idx)
     if (idx <= 0 || idx > features.length - 1) {
       return;
     }
