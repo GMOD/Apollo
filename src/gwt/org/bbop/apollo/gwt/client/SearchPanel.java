@@ -1,13 +1,11 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.ButtonCell;
-import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -34,7 +32,6 @@ import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -71,8 +68,7 @@ public class SearchPanel extends Composite {
   final private ErrorDialog errorDialog;
 
   static private ListDataProvider<SearchHit> dataProvider = new ListDataProvider<>();
-  private static List<SearchHit> searchHitList = new ArrayList<>();
-  private static List<SearchHit> filteredSearchHitList = dataProvider.getList();
+  private static List<SearchHit> searchHitList = dataProvider.getList();
 
 
   private final SingleSelectionModel<SearchHit> singleSelectionModel = new SingleSelectionModel<>();
@@ -149,7 +145,7 @@ public class SearchPanel extends Composite {
 //        });
 
 
-    ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(filteredSearchHitList);
+    ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(searchHitList);
     dataGrid.addColumnSortHandler(sortHandler);
     sortHandler.setComparator(idColumn, new Comparator<SearchHit>() {
       @Override
@@ -264,27 +260,6 @@ public class SearchPanel extends Composite {
   }
 
 
-  @UiHandler("sequenceSearchBox")
-  public void doSearch(KeyUpEvent keyUpEvent) {
-    filterList();
-  }
-
-  static void filterList() {
-    String text = sequenceSearchBox.getText();
-    filteredSearchHitList.clear();
-    if (text.trim().length() == 0) {
-      filteredSearchHitList.addAll(searchHitList);
-      return;
-    }
-    for (SearchHit organismInfo : searchHitList) {
-      if (organismInfo.getId().toLowerCase().contains(text.toLowerCase())) {
-        filteredSearchHitList.add(organismInfo);
-      }
-    }
-  }
-
-
-
   @UiHandler("searchGenomesButton")
   public void doSearch(ClickEvent clickEvent) {
     GWT.log("searching with: "+searchTypeList.getSelectedValue()+ " and "+ sequenceSearchBox.getValue() + " " + searchAllGenomes.getValue());
@@ -292,9 +267,7 @@ public class SearchPanel extends Composite {
     RequestCallback requestCallback = new RequestCallback() {
       @Override
       public void onResponseReceived(Request request, Response response) {
-//        GWT.log("response: "+response.getText());
         searchHitList.clear();
-        filteredSearchHitList.clear();
         try {
           JSONArray hitArray = JSONParser.parseStrict(response.getText()).isObject().get("matches").isArray();
           for(int i = 0 ; i < hitArray.size() ; i++){
@@ -308,9 +281,7 @@ public class SearchPanel extends Composite {
             searchHit.setSignificance(hit.get("significance").isNumber().doubleValue());
             searchHit.setIdentity(hit.get("identity").isNumber().doubleValue());
             searchHitList.add(searchHit);
-            filteredSearchHitList.add(searchHit);
           }
-          GWT.log("adding hits: "+hitArray.size()+ " "+ searchHitList.size());
         } catch (Exception e) {
           GWT.log("unable to to do search"+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
         }
