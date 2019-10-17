@@ -52,7 +52,7 @@ public class SearchPanel extends Composite {
   private static SearchPanelUiBinder ourUiBinder = GWT.create(SearchPanelUiBinder.class);
   DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
   @UiField(provided = true)
-  DataGrid<SearchHit> dataGrid = new DataGrid<>(20, tablecss);
+  DataGrid<SearchHit> dataGrid = new DataGrid<>(50, tablecss);
   @UiField(provided = true)
   WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
   @UiField
@@ -137,6 +137,7 @@ public class SearchPanel extends Composite {
     significanceColumn.setSortable(true);
     identityColumn.setSortable(true);
 
+    scoreColumn.setDefaultSortAscending(true);
 
 //        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
 //            @Override
@@ -146,6 +147,50 @@ public class SearchPanel extends Composite {
 //                filterList();
 //            }
 //        });
+
+
+    ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(filteredSearchHitList);
+    dataGrid.addColumnSortHandler(sortHandler);
+    sortHandler.setComparator(idColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        return o1.getId().compareTo(o2.getId());
+      }
+    });
+    sortHandler.setComparator(startColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        return (int) (o1.getStart() - o2.getStart());
+      }
+    });
+    sortHandler.setComparator(endColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        return (int) (o1.getEnd() - o2.getEnd());
+      }
+    });
+
+    sortHandler.setComparator(identityColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        return (int) (o1.getIdentity() - o2.getIdentity());
+      }
+    });
+
+    sortHandler.setComparator(significanceColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        if(o1.getSignificance()==o2.getSignificance()) return 0 ;
+        return o1.getSignificance() < o2.getSignificance() ? -1 : 1 ;
+      }
+    });
+
+    sortHandler.setComparator(scoreColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        return (int) (o1.getScore() - o2.getScore());
+      }
+    });
 
     dataGrid.setLoadingIndicator(new HTML("Searching ... "));
     dataGrid.addColumn(idColumn, "ID");
@@ -215,41 +260,6 @@ public class SearchPanel extends Composite {
         }
       }
     }, DoubleClickEvent.getType());
-
-    ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(searchHitList);
-    dataGrid.addColumnSortHandler(sortHandler);
-    sortHandler.setComparator(idColumn, new Comparator<SearchHit>() {
-      @Override
-      public int compare(SearchHit o1, SearchHit o2) {
-        return o1.getId().compareTo(o2.getId());
-      }
-    });
-    sortHandler.setComparator(startColumn, new Comparator<SearchHit>() {
-      @Override
-      public int compare(SearchHit o1, SearchHit o2) {
-        return (int) (o1.getStart() - o2.getStart());
-      }
-    });
-    sortHandler.setComparator(endColumn, new Comparator<SearchHit>() {
-      @Override
-      public int compare(SearchHit o1, SearchHit o2) {
-        return (int) (o1.getEnd() - o2.getEnd());
-      }
-    });
-
-    sortHandler.setComparator(identityColumn, new Comparator<SearchHit>() {
-      @Override
-      public int compare(SearchHit o1, SearchHit o2) {
-        return (int) (o1.getIdentity() - o2.getIdentity());
-      }
-    });
-
-    sortHandler.setComparator(scoreColumn, new Comparator<SearchHit>() {
-      @Override
-      public int compare(SearchHit o1, SearchHit o2) {
-        return (int) (o1.getScore() - o2.getScore());
-      }
-    });
 
   }
 
