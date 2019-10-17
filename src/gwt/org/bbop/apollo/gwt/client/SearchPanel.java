@@ -373,15 +373,25 @@ public class SearchPanel extends Composite {
     RequestCallback requestCallback = new RequestCallback() {
       @Override
       public void onResponseReceived(Request request, Response response) {
-        GWT.log("response: "+response.getText());
+//        GWT.log("response: "+response.getText());
         searchHitList.clear();
+        filteredSearchHitList.clear();
         try {
-          JSONArray hitArray = JSONParser.parseStrict(response.getText()).isArray();
+          JSONArray hitArray = JSONParser.parseStrict(response.getText()).isObject().get("matches").isArray();
           for(int i = 0 ; i < hitArray.size() ; i++){
             JSONObject hit = hitArray.get(i).isObject();
-            SearchHit searchHit = new SearchHit(hit);
+            SearchHit searchHit = new SearchHit();
+            // {"matches":[{"identity":100.0,"significance":3.2E-52,"subject":{"location":{"fmin":3522507,"fmax":3522788,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":1,"fmax":94,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":203.0},{"identity":100.0,"significance":2.4E-48,"subject":{"location":{"fmin":3522059,"fmax":3522334,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":95,"fmax":186,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":190.0},{"identity":100.0,"significance":1.1E-31,"subject":{"location":{"fmin":3483437,"fmax":3483637,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":279,"fmax":345,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":134.0},{"identity":100.0,"significance":1.2E-28,"subject":{"location":{"fmin":3481625,"fmax":3481807,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":345,"fmax":405,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":124.0},{"identity":100.0,"significance":6.7E-25,"subject":{"location":{"fmin":3462508,"fmax":3462660,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":552,"fmax":602,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":112.0},{"identity":100.0,"significance":4.4E-24,"subject":{"location":{"fmin":3510265,"fmax":3510420,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":229,"fmax":280,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":109.0},{"identity":100.0,"significance":3.8E-21,"subject":{"location":{"fmin":3464816,"fmax":3464956,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":505,"fmax":551,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":99.0},{"identity":100.0,"significance":5.0E-21,"subject":{"location":{"fmin":3468605,"fmax":3468748,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":457,"fmax":504,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":99.0},{"identity":100.0,"significance":9.7E-20,"subject":{"location":{"fmin":3521640,"fmax":3521768,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":186,"fmax":228,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":95.0},{"identity":100.0,"significance":5.3E-12,"subject":{"location":{"fmin":3474164,"fmax":3474262,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":424,"fmax":456,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":69.0},{"identity":95.24,"significance":0.0025,"subject":{"location":{"fmin":3474468,"fmax":3474530,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":406,"fmax":426,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":40.0}]}
+            searchHit.setId(hit.get("subject").isObject().get("feature").isObject().get("uniquename").isString().stringValue());
+            searchHit.setStart(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmin").isNumber().doubleValue()));
+            searchHit.setEnd(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmax").isNumber().doubleValue()));
+            searchHit.setScore(hit.get("rawscore").isNumber().doubleValue());
+            searchHit.setSignificance(hit.get("significance").isNumber().doubleValue());
+            searchHit.setIdentity(hit.get("identity").isNumber().doubleValue());
             searchHitList.add(searchHit);
+            filteredSearchHitList.add(searchHit);
           }
+          GWT.log("adding hits: "+hitArray.size()+ " "+ searchHitList.size());
         } catch (Exception e) {
           GWT.log("unable to to do search"+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
         }
