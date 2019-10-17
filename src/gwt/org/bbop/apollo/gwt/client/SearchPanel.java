@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.ButtonCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
@@ -20,8 +21,6 @@ import org.bbop.apollo.gwt.shared.sequence.SearchHit;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
-import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -39,37 +38,15 @@ public class SearchPanel extends Composite {
 
 
     private static SearchPanelUiBinder ourUiBinder = GWT.create(SearchPanelUiBinder.class);
-    @UiField
-    TextBox organismName;
-    @UiField
-    TextBox blatdb;
-    @UiField
-    CheckBox publicMode;
-    @UiField
-    CheckBox obsoleteButton;
-    @UiField
-    TextBox genus;
-    @UiField
-    TextBox species;
-    @UiField
-    TextBox sequenceFile;
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<SearchHit> dataGrid = new DataGrid<>(20, tablecss);
     @UiField(provided = true)
     WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
     @UiField
-    TextBox nonDefaultTranslationTable;
-    @UiField
-    org.gwtbootstrap3.client.ui.Label organismIdLabel;
-    @UiField
     CheckBox showOnlyPublicOrganisms;
     @UiField
     Button searchGenomes;
-    @UiField
-    Button uploadOrganismButton;
-    @UiField
-    Button downloadOrganismButton;
     @UiField
     static TextArea sequenceSearchBox;
     @UiField
@@ -132,14 +109,13 @@ public class SearchPanel extends Composite {
           return object.getIdentity();
         }
       };
-//      Column<SearchHit, ButtonCell> commandColumn = new Column<SearchHit,ButtonCell>(new ButtonCell()) {
-//        @Override
-//        public ButtonCell getValue(SearchHit object) {
-//          Button returnButton = new Button("Return to annotation");
-//          ButtonCell buttonCell = new ButtonCell();
-//          return buttonCell;
-//        }
-//      };
+      ButtonCell buttonCell = new ButtonCell();
+      Column<SearchHit, String> commandColumn = new Column<SearchHit,String>(buttonCell) {
+        @Override
+        public String getValue(SearchHit object) {
+          return "Create";
+        }
+      };
 
       idColumn.setSortable(true);
         startColumn.setSortable(true);
@@ -147,7 +123,6 @@ public class SearchPanel extends Composite {
         scoreColumn.setSortable(true);
         significanceColumn.setSortable(true);
         identityColumn.setSortable(true);
-//        commandColumn.setSortable(true);
 
 
 
@@ -176,8 +151,21 @@ public class SearchPanel extends Composite {
       dataGrid.addColumn(identityColumn, "Identity");
       dataGrid.setColumnWidth(4,"10px");
 
-//      dataGrid.addColumn(commandColumn, "");
-//      dataGrid.setColumnWidth(5,"10px");
+      dataGrid.addColumn(commandColumn, "Action");
+      commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
+        @Override
+        public void update(int index, SearchHit object, String value) {
+//          for (Category category : categories) {
+//            if (category.getDisplayName().equals(value)) {
+//              object.setCategory(category);
+//            }
+//          }
+//          ContactDatabase.get().refreshDisplays();
+        }
+      });
+//      dataGrid.setColumnWidth(categoryColumn, 130, Unit.PX);
+
+      dataGrid.setColumnWidth(5,"10px");
 
       dataGrid.setEmptyTableWidget(new Label(""));
 
