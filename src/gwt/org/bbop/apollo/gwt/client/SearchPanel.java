@@ -160,24 +160,27 @@ public class SearchPanel extends Composite {
     dataGrid.addColumn(scoreColumn, "Score");
     dataGrid.setColumnWidth(3, "10px");
 
-    dataGrid.addColumn(identityColumn, "Identity");
+    dataGrid.addColumn(significanceColumn, "Significance");
     dataGrid.setColumnWidth(4, "10px");
 
-    dataGrid.addColumn(commandColumn, "Action");
-    commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
-      @Override
-      public void update(int index, SearchHit object, String value) {
-//          for (Category category : categories) {
-//            if (category.getDisplayName().equals(value)) {
-//              object.setCategory(category);
-//            }
-//          }
-//          ContactDatabase.get().refreshDisplays();
-      }
-    });
-//      dataGrid.setColumnWidth(categoryColumn, 130, Unit.PX);
-
+    dataGrid.addColumn(identityColumn, "Identity");
     dataGrid.setColumnWidth(5, "10px");
+
+//    dataGrid.addColumn(commandColumn, "Action");
+//    commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
+//      @Override
+//      public void update(int index, SearchHit object, String value) {
+////          for (Category category : categories) {
+////            if (category.getDisplayName().equals(value)) {
+////              object.setCategory(category);
+////            }
+////          }
+////          ContactDatabase.get().refreshDisplays();
+//      }
+//    });
+////      dataGrid.setColumnWidth(categoryColumn, 130, Unit.PX);
+//
+//    dataGrid.setColumnWidth(5, "10px");
 
     dataGrid.setEmptyTableWidget(new Label(""));
 
@@ -270,98 +273,7 @@ public class SearchPanel extends Composite {
     }
   }
 
-  public void loadOrganismInfo() {
-//        loadOrganismInfo(singleSelectionModel.getSelectedObject());
-  }
 
-//    public void loadOrganismInfo(OrganismInfo organismInfo) {
-//        if (organismInfo == null) {
-//            setNoSelection();
-//            return;
-//        }
-//
-//        setTextEnabled(organismInfo.isEditable());
-//
-//        GWT.log("loadOrganismInfo setValue " + organismInfo.getPublicMode());
-//        Boolean isEditable = organismInfo.isEditable() || MainPanel.getInstance().isCurrentUserAdmin();
-//
-//        organismName.setText(organismInfo.getName());
-//        organismName.setEnabled(isEditable);
-//
-//        blatdb.setText(organismInfo.getBlatDb());
-//        blatdb.setEnabled(isEditable);
-//
-//        genus.setText(organismInfo.getGenus());
-//        genus.setEnabled(isEditable);
-//
-//        species.setText(organismInfo.getSpecies());
-//        species.setEnabled(isEditable);
-//
-//        if (organismInfo.getNumFeatures() == 0) {
-//          sequenceFile.setText(organismInfo.getDirectory() );
-//          sequenceFile.setEnabled(isEditable);
-//        }
-//        else{
-//          sequenceFile.setText(organismInfo.getDirectory() + " (remove " + organismInfo.getNumFeatures() + "annotations to change)" );
-//          sequenceFile.setEnabled(false);
-//        }
-//
-//        publicMode.setValue(organismInfo.getPublicMode());
-//        publicMode.setEnabled(isEditable);
-//
-//        obsoleteButton.setValue(organismInfo.getObsolete());
-//        obsoleteButton.setEnabled(isEditable);
-//
-//        organismIdLabel.setHTML("Internal ID: " + organismInfo.getId());
-//
-//        nonDefaultTranslationTable.setText(organismInfo.getNonDefaultTranslationTable());
-//        nonDefaultTranslationTable.setEnabled(isEditable);
-//
-//        downloadOrganismButton.setVisible(false);
-//    }
-
-//    private class UpdateInfoListCallback implements RequestCallback {
-//
-//        @Override
-//        public void onResponseReceived(Request request, Response response) {
-//            JSONValue j = JSONParser.parseStrict(response.getText());
-//            JSONObject obj = j.isObject();
-//            if (obj != null && obj.containsKey("error")) {
-//                Bootbox.alert(obj.get("error").isString().stringValue());
-//                changeButtonSelection();
-//                setTextEnabled(false);
-//                clearTextBoxes();
-//                singleSelectionModel.clear();
-//            } else {
-//                List<OrganismInfo> organismInfoList = OrganismInfoConverter.convertJSONStringToOrganismInfoList(response.getText());
-//                dataGrid.setSelectionModel(singleSelectionModel);
-//                MainPanel.getInstance().getOrganismInfoList().clear();
-//                MainPanel.getInstance().getOrganismInfoList().addAll(organismInfoList);
-//                changeButtonSelection();
-//                OrganismChangeEvent organismChangeEvent = new OrganismChangeEvent(organismInfoList);
-//                organismChangeEvent.setAction(OrganismChangeEvent.Action.LOADED_ORGANISMS);
-//                Annotator.eventBus.fireEvent(organismChangeEvent);
-//
-//                // in the case where we just add one . . .we should refresh the app state
-//                if (organismInfoList.size() == 1) {
-//                    MainPanel.getInstance().getAppState();
-//                }
-//            }
-//            if (savingNewOrganism) {
-//                savingNewOrganism = false;
-//                setNoSelection();
-//                changeButtonSelection(false);
-//                loadingDialog.hide();
-//                Window.Location.reload();
-//            }
-//        }
-//
-//        @Override
-//        public void onError(Request request, Throwable exception) {
-//            loadingDialog.hide();
-//            Bootbox.alert("Error: " + exception);
-//        }
-//    }
 
   @UiHandler("searchGenomesButton")
   public void doSearch(ClickEvent clickEvent) {
@@ -435,55 +347,5 @@ public class SearchPanel extends Composite {
     });
     dataGrid.redraw();
   }
-
-//    // Clear textboxes and make them unselectable
-//    private void setNoSelection() {
-//        clearTextBoxes();
-//        setTextEnabled(false);
-//        downloadOrganismButton.setVisible(false);
-//    }
-//
-//    private void changeButtonSelection() {
-//        changeButtonSelection(singleSelectionModel.getSelectedObject() != null);
-//    }
-//
-//    // Set the button states/visibility depending on whether there is a selection or not
-//    private void changeButtonSelection(boolean selection) {
-//        //Boolean isAdmin = MainPanel.getInstance().isCurrentUserAdmin();
-//        boolean isAdmin = MainPanel.getInstance().isCurrentUserInstructorOrBetter();
-//        if (selection) {
-//            downloadOrganismButton.setVisible(false);
-//            publicMode.setVisible(isAdmin);
-//            obsoleteButton.setVisible(isAdmin);
-//        } else {
-//            downloadOrganismButton.setVisible(false);
-//            publicMode.setVisible(false);
-//            obsoleteButton.setVisible(false);
-//        }
-//    }
-//
-//    //Utility function for toggling the textboxes (gray out)
-//    private void setTextEnabled(boolean enabled) {
-//        sequenceFile.setEnabled(enabled);
-//        organismName.setEnabled(enabled);
-//        genus.setEnabled(enabled);
-//        species.setEnabled(enabled);
-//        blatdb.setEnabled(enabled);
-//        nonDefaultTranslationTable.setEnabled(enabled);
-//        publicMode.setEnabled(enabled);
-//        obsoleteButton.setEnabled(enabled);
-//    }
-//
-//    //Utility function for clearing the textboxes ("")
-//    private void clearTextBoxes() {
-//        organismName.setText("");
-//        sequenceFile.setText("");
-//        genus.setText("");
-//        species.setText("");
-//        blatdb.setText("");
-//        nonDefaultTranslationTable.setText("");
-//        publicMode.setValue(false);
-//        obsoleteButton.setValue(false);
-//    }
 
 }
