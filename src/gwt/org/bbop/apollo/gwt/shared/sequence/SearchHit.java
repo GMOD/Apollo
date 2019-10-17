@@ -1,5 +1,7 @@
 package org.bbop.apollo.gwt.shared.sequence;
 
+import com.google.gwt.json.client.JSONObject;
+
 public class SearchHit {
   String id;
   Long start;
@@ -7,6 +9,9 @@ public class SearchHit {
   Double score;
   Double significance;
   Double identity;
+
+  public SearchHit(JSONObject hit) {
+  }
 
   public String getId() {
     return id;

@@ -4,12 +4,14 @@ import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
@@ -40,7 +42,7 @@ import java.util.List;
  */
 public class SearchPanel extends Composite {
 
-  private JSONObject searchToolData  = new JSONObject();
+  private JSONObject searchToolData = new JSONObject();
 
   interface SearchPanelUiBinder extends UiBinder<Widget, SearchPanel> {
   }
@@ -53,9 +55,9 @@ public class SearchPanel extends Composite {
   @UiField(provided = true)
   WebApolloSimplePager pager = new WebApolloSimplePager(WebApolloSimplePager.TextLocation.CENTER);
   @UiField
-  CheckBox showOnlyPublicOrganisms;
+  CheckBox searchAllGenomes;
   @UiField
-  Button searchGenomes;
+  Button searchGenomesButton;
   @UiField
   static TextArea sequenceSearchBox;
   @UiField
@@ -364,6 +366,40 @@ public class SearchPanel extends Composite {
 //        }
 //    }
 
+  @UiHandler("searchGenomesButton")
+  public void doSearch(ClickEvent clickEvent) {
+    GWT.log("searching with: "+searchTypeList.getSelectedValue()+ " and "+ sequenceSearchBox.getValue() + " " + searchAllGenomes.getValue());
+    JSONObject searchData = searchToolData.get(searchTypeList.getSelectedValue()).isObject();
+    RequestCallback requestCallback = new RequestCallback() {
+      @Override
+      public void onResponseReceived(Request request, Response response) {
+        GWT.log("response: "+response.getText());
+        searchHitList.clear();
+        try {
+          JSONArray hitArray = JSONParser.parseStrict(response.getText()).isArray();
+          for(int i = 0 ; i < hitArray.size() ; i++){
+            JSONObject hit = hitArray.get(i).isObject();
+            SearchHit searchHit = new SearchHit(hit);
+            searchHitList.add(searchHit);
+          }
+        } catch (Exception e) {
+          GWT.log("unable to to do search"+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
+        }
+
+      }
+
+      @Override
+      public void onError(Request request, Throwable exception) {
+        Bootbox.alert("Problem doing search: " + exception.getMessage());
+      }
+    };
+    String databaseId = null;
+    if(!searchAllGenomes.getValue()){
+      databaseId = MainPanel.getCurrentSequence().getName();
+    }
+    SearchRestService.searchSequence(requestCallback,searchTypeList.getSelectedValue(),sequenceSearchBox.getValue(),databaseId);
+
+  }
 
   public void reload() {
     // {"sequence_search_tools":{"blat_nuc":{"search_exe":"/usr/local/bin/blat","search_class":"org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide","name":"Blat nucleotide","params":""},"blat_prot":{"search_exe":"/usr/local/bin/blat","search_class":"org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide","name":"Blat protein","params":""}}}
@@ -371,19 +407,23 @@ public class SearchPanel extends Composite {
       @Override
       public void onResponseReceived(Request request, Response response) {
         searchTypeList.clear();
-        JSONValue jsonValue = JSONParser.parseStrict(response.getText());
-        JSONObject searchTools = jsonValue.isObject().get("sequence_search_tools").isObject();
-        searchToolData  = searchTools;
-        for(String key : searchTools.keySet()){
-          String name = searchTools.get(key).isObject().get("name").isString().stringValue();
-          searchTypeList.addItem(name);
+        try {
+          JSONValue jsonValue = JSONParser.parseStrict(response.getText());
+          JSONObject searchTools = jsonValue.isObject().get("sequence_search_tools").isObject();
+          searchToolData = searchTools;
+          for (String key : searchTools.keySet()) {
+            String name = searchTools.get(key).isObject().get("name").isString().stringValue();
+            searchTypeList.addItem(name,key);
+          }
+        } catch (Exception e) {
+          GWT.log("unable to find search tools "+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
         }
 
       }
 
       @Override
       public void onError(Request request, Throwable exception) {
-        Bootbox.alert("Problem getting search tools: "+exception.getMessage());
+        Bootbox.alert("Problem getting search tools: " + exception.getMessage());
       }
     });
     dataGrid.redraw();
