@@ -53,15 +53,11 @@
             <b:Container fluid="true" ui:field="northContainer">
                 <b:Row addStyleNames="{style.searchRow}" height="130">
                   <b:Column size="MD_10" height="130">
-<!--                    <b:ButtonGroup dataToggle="BUTTONS">-->
-                      <b:CheckBox ui:field="showOnlyPublicOrganisms" visible="true" value="false" text="Search all genomic sequences" styleName="{style.topRow}"/>
-                      <b:Button ui:field="searchGenomes">Search</b:Button>
-<!--                    </b:ButtonGroup>-->
-                      <b:TextArea placeholder="Search" ui:field="sequenceSearchBox" height="130" visibleLines="10" />
-<!--                    <gwt:TextArea placeholder="Search" ui:field="sequenceSearchBox" height="130" visibleLines="10" rows="10"/>-->
-                    <!--                    </b:Column>-->
-<!--                    <b:Column size="MD_4">-->
-                    </b:Column>
+                    <gwt:TextArea ui:field="sequenceSearchBox" visibleLines="3" characterWidth="80"/>
+                    <b:ListBox ui:field="searchTypeList" width="120px" styleName="{style.inline-button}"/>
+                    <b:CheckBox ui:field="showOnlyPublicOrganisms" visible="true" value="false" text="All genome sequences" styleName="{style.topRow}"/>
+                    <b:Button ui:field="searchGenomes" styleName="{style.inline-button}">Search</b:Button>
+                  </b:Column>
                 </b:Row>
             </b:Container>
             <!--</gwt:FlowPanel>-->
