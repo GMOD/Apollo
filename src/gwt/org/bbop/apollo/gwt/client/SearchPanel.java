@@ -24,6 +24,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
+import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.SearchRestService;
@@ -181,18 +182,14 @@ public class SearchPanel extends Composite {
     dataGrid.setEmptyTableWidget(new Label(""));
 
 
-//        singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-//            @Override
-//            public void onSelectionChange(SelectionChangeEvent event) {
-//                if (!creatingNewOrganism) {
-//                    loadOrganismInfo();
-//                    changeButtonSelection();
-//                } else {
-//                    creatingNewOrganism = false;
-//                }
-//            }
-//        });
-//        dataGrid.setSelectionModel(singleSelectionModel);
+      singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+          @Override
+          public void onSelectionChange(SelectionChangeEvent event) {
+            SearchHit searchHit = singleSelectionModel.getSelectedObject();
+            MainPanel.updateGenomicViewerForLocation(searchHit.getId(),searchHit.getStart().intValue(),searchHit.getEnd().intValue());
+          }
+      });
+      dataGrid.setSelectionModel(singleSelectionModel);
 
     dataProvider.addDataDisplay(dataGrid);
     pager.setDisplay(dataGrid);
