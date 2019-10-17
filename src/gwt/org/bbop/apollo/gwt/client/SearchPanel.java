@@ -65,7 +65,6 @@ public class SearchPanel extends Composite {
 //    private boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
 //
   final private LoadingDialog loadingDialog;
-  final private ErrorDialog errorDialog;
 
   static private ListDataProvider<SearchHit> dataProvider = new ListDataProvider<>();
   private static List<SearchHit> searchHitList = dataProvider.getList();
@@ -73,11 +72,11 @@ public class SearchPanel extends Composite {
 
   private final SingleSelectionModel<SearchHit> singleSelectionModel = new SingleSelectionModel<>();
 
+  private Column<SearchHit,Number> scoreColumn ;
+
   public SearchPanel() {
     initWidget(ourUiBinder.createAndBindUi(this));
-    loadingDialog = new LoadingDialog("Processing ...", null, false);
-    errorDialog = new ErrorDialog("Error", "Organism directory must be an absolute path pointing to 'trackList.json'", false, true);
-
+    loadingDialog = new LoadingDialog("Searching ...", null, false);
 
     searchTypeList.addItem("Blat nucl", "nucl");
     searchTypeList.addItem("Blat pept", "peptide");
@@ -100,7 +99,7 @@ public class SearchPanel extends Composite {
         return object.getEnd();
       }
     };
-    Column<SearchHit, Number> scoreColumn = new Column<SearchHit, Number>(new NumberCell()) {
+    scoreColumn = new Column<SearchHit, Number>(new NumberCell()) {
       @Override
       public Double getValue(SearchHit object) {
         return object.getScore();
@@ -133,7 +132,7 @@ public class SearchPanel extends Composite {
     significanceColumn.setSortable(true);
     identityColumn.setSortable(true);
 
-    scoreColumn.setDefaultSortAscending(true);
+    scoreColumn.setDefaultSortAscending(false);
 
 //        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
 //            @Override
@@ -263,11 +262,12 @@ public class SearchPanel extends Composite {
   @UiHandler("searchGenomesButton")
   public void doSearch(ClickEvent clickEvent) {
     GWT.log("searching with: "+searchTypeList.getSelectedValue()+ " and "+ sequenceSearchBox.getValue() + " " + searchAllGenomes.getValue());
-    JSONObject searchData = searchToolData.get(searchTypeList.getSelectedValue()).isObject();
+    loadingDialog.show();
     RequestCallback requestCallback = new RequestCallback() {
       @Override
       public void onResponseReceived(Request request, Response response) {
         searchHitList.clear();
+        loadingDialog.hide();
         try {
           JSONArray hitArray = JSONParser.parseStrict(response.getText()).isObject().get("matches").isArray();
           for(int i = 0 ; i < hitArray.size() ; i++){
@@ -283,8 +283,12 @@ public class SearchPanel extends Composite {
             searchHitList.add(searchHit);
           }
         } catch (Exception e) {
-          GWT.log("unable to to do search"+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
+          Bootbox.alert("Unable to to perform search"+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
         }
+        dataGrid.getColumnSortList().clear();
+        dataGrid.getColumnSortList().push(scoreColumn);
+        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
+
 
       }
 
