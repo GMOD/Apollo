@@ -57,6 +57,7 @@
                     <b:ListBox ui:field="searchTypeList" width="120px" styleName="{style.inline-button}"/>
                     <b:CheckBox ui:field="searchAllGenomes" visible="true" value="false" text="All genome sequences" styleName="{style.topRow}"/>
                     <b:Button ui:field="searchGenomesButton" styleName="{style.inline-button}">Search</b:Button>
+                    <b:Button ui:field="clearButton" styleName="{style.inline-button}">Clear</b:Button>
                   </b:Column>
                 </b:Row>
             </b:Container>

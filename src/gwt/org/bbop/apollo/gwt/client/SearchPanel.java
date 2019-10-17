@@ -258,6 +258,12 @@ public class SearchPanel extends Composite {
 
   }
 
+  @UiHandler("clearButton")
+  public void clearSearch(ClickEvent clickEvent) {
+    sequenceSearchBox.setText("");
+    searchHitList.clear();
+  }
+
 
   @UiHandler("searchGenomesButton")
   public void doSearch(ClickEvent clickEvent) {
