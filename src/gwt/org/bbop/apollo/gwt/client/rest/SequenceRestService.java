@@ -68,6 +68,9 @@ public class SequenceRestService {
             jsonObject.put("chadoExportType", new JSONString(""));
             jsonObject.put("seqType", new JSONString(exportPanel.getSequenceType()));
             jsonObject.put("exportGff3Fasta", new JSONString(exportPanel.getExportGff3Fasta().toString()));
+            if(exportPanel.getRegion()!=null){
+              jsonObject.put("region", new JSONString(exportPanel.getRegion()));
+            }
             jsonObject.put("output", new JSONString("file"));
             jsonObject.put("format", new JSONString("gzip"));
         }

@@ -55,4 +55,8 @@ public class SearchHit {
   public void setIdentity(Double identity) {
     this.identity = identity;
   }
+
+  public String getLocation(){
+    return getId()+":"+getStart()+".."+getEnd();
+  }
 }
