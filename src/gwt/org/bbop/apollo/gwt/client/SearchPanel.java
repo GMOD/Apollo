@@ -55,7 +55,7 @@ public class SearchPanel extends Composite {
   @UiField
   Button searchGenomesButton;
   @UiField
-  static TextArea sequenceSearchBox;
+  TextArea sequenceSearchBox;
   @UiField
   ListBox searchTypeList;
 
@@ -70,7 +70,7 @@ public class SearchPanel extends Composite {
 
   private final SingleSelectionModel<SearchHit> singleSelectionModel = new SingleSelectionModel<>();
 
-  private Column<SearchHit,Number> scoreColumn ;
+  private Column<SearchHit, Number> scoreColumn;
 
   public SearchPanel() {
     initWidget(ourUiBinder.createAndBindUi(this));
@@ -173,8 +173,8 @@ public class SearchPanel extends Composite {
     sortHandler.setComparator(significanceColumn, new Comparator<SearchHit>() {
       @Override
       public int compare(SearchHit o1, SearchHit o2) {
-        if(o1.getSignificance()==o2.getSignificance()) return 0 ;
-        return o1.getSignificance() < o2.getSignificance() ? -1 : 1 ;
+        if (o1.getSignificance() == o2.getSignificance()) return 0;
+        return o1.getSignificance() < o2.getSignificance() ? -1 : 1;
       }
     });
 
@@ -223,15 +223,15 @@ public class SearchPanel extends Composite {
     dataGrid.setEmptyTableWidget(new Label(""));
 
 
-      singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-          @Override
-          public void onSelectionChange(SelectionChangeEvent event) {
-            SearchHit searchHit = singleSelectionModel.getSelectedObject();
-            MainPanel.updateGenomicViewerForLocation(searchHit.getId(),searchHit.getStart().intValue(),searchHit.getEnd().intValue());
-            MainPanel.highlightRegion(searchHit.getId(),searchHit.getStart().intValue(),searchHit.getEnd().intValue());
-          }
-      });
-      dataGrid.setSelectionModel(singleSelectionModel);
+    singleSelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+      @Override
+      public void onSelectionChange(SelectionChangeEvent event) {
+        SearchHit searchHit = singleSelectionModel.getSelectedObject();
+        MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+        MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+      }
+    });
+    dataGrid.setSelectionModel(singleSelectionModel);
 
     dataProvider.addDataDisplay(dataGrid);
     pager.setDisplay(dataGrid);
@@ -259,17 +259,15 @@ public class SearchPanel extends Composite {
 
   void setSearch(String residues, String searchType) {
     sequenceSearchBox.setText(residues);
-    for(int i = 0 ; i < searchTypeList.getItemCount() ; i++){
+    for (int i = 0; i < searchTypeList.getItemCount(); i++) {
       // blat_nuc peptide
       // blat_prot peptide
-      if(searchType.equalsIgnoreCase("peptide")
-        &&searchTypeList.getValue(i).equalsIgnoreCase("blat_prot") ){
+      if (searchType.equalsIgnoreCase("peptide")
+        && searchTypeList.getValue(i).equalsIgnoreCase("blat_prot")) {
 //        searchTypeList.setSelectedIndex(i);
-        searchTypeList.setItemSelected(i,true);
-      }
-      else
-      if(searchType.equalsIgnoreCase("nucleotide")
-        &&searchTypeList.getValue(i).equalsIgnoreCase("blat_nuc") ){
+        searchTypeList.setItemSelected(i, true);
+      } else if (searchType.equalsIgnoreCase("nucleotide")
+        && searchTypeList.getValue(i).equalsIgnoreCase("blat_nuc")) {
         searchTypeList.setSelectedIndex(i);
       }
     }
@@ -284,7 +282,6 @@ public class SearchPanel extends Composite {
 
   @UiHandler("searchGenomesButton")
   public void doSearch(ClickEvent clickEvent) {
-    loadingDialog.show();
     RequestCallback requestCallback = new RequestCallback() {
       @Override
       public void onResponseReceived(Request request, Response response) {
@@ -292,7 +289,7 @@ public class SearchPanel extends Composite {
         loadingDialog.hide();
         try {
           JSONArray hitArray = JSONParser.parseStrict(response.getText()).isObject().get("matches").isArray();
-          for(int i = 0 ; i < hitArray.size() ; i++){
+          for (int i = 0; i < hitArray.size(); i++) {
             JSONObject hit = hitArray.get(i).isObject();
             SearchHit searchHit = new SearchHit();
             // {"matches":[{"identity":100.0,"significance":3.2E-52,"subject":{"location":{"fmin":3522507,"fmax":3522788,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":1,"fmax":94,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":203.0},{"identity":100.0,"significance":2.4E-48,"subject":{"location":{"fmin":3522059,"fmax":3522334,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":95,"fmax":186,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":190.0},{"identity":100.0,"significance":1.1E-31,"subject":{"location":{"fmin":3483437,"fmax":3483637,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":279,"fmax":345,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":134.0},{"identity":100.0,"significance":1.2E-28,"subject":{"location":{"fmin":3481625,"fmax":3481807,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":345,"fmax":405,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":124.0},{"identity":100.0,"significance":6.7E-25,"subject":{"location":{"fmin":3462508,"fmax":3462660,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":552,"fmax":602,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":112.0},{"identity":100.0,"significance":4.4E-24,"subject":{"location":{"fmin":3510265,"fmax":3510420,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":229,"fmax":280,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":109.0},{"identity":100.0,"significance":3.8E-21,"subject":{"location":{"fmin":3464816,"fmax":3464956,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":505,"fmax":551,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":99.0},{"identity":100.0,"significance":5.0E-21,"subject":{"location":{"fmin":3468605,"fmax":3468748,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":457,"fmax":504,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":99.0},{"identity":100.0,"significance":9.7E-20,"subject":{"location":{"fmin":3521640,"fmax":3521768,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":186,"fmax":228,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":95.0},{"identity":100.0,"significance":5.3E-12,"subject":{"location":{"fmin":3474164,"fmax":3474262,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":424,"fmax":456,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":69.0},{"identity":95.24,"significance":0.0025,"subject":{"location":{"fmin":3474468,"fmax":3474530,"strand":0},"feature":{"uniquename":"Group11.18","type":{"name":"region","cv":{"name":"sequence"}}}},"query":{"location":{"fmin":406,"fmax":426,"strand":0},"feature":{"uniquename":"query","type":{"name":"region","cv":{"name":"sequence"}}}},"rawscore":40.0}]}
@@ -305,7 +302,7 @@ public class SearchPanel extends Composite {
             searchHitList.add(searchHit);
           }
         } catch (Exception e) {
-          Bootbox.alert("Unable to to perform search"+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
+          Bootbox.alert("Unable to to perform search" + e.getMessage() + " " + response.getText() + " " + response.getStatusCode());
         }
         dataGrid.getColumnSortList().clear();
         dataGrid.getColumnSortList().push(scoreColumn);
@@ -320,10 +317,28 @@ public class SearchPanel extends Composite {
       }
     };
     String databaseId = null;
-    if(!searchAllGenomes.getValue()){
+    if (!searchAllGenomes.getValue()) {
       databaseId = MainPanel.getCurrentSequence().getName();
     }
-    SearchRestService.searchSequence(requestCallback,searchTypeList.getSelectedValue(),sequenceSearchBox.getValue(),databaseId);
+    String searchString = "";
+    String[] lines = sequenceSearchBox.getValue().split("\n");
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i].trim();
+      if (line.indexOf('>') < 0) {
+        searchString += line.trim();
+      }
+    }
+    if (searchString.length() == 0) {
+      Bootbox.alert("No sequence entered");
+      return;
+    }
+    if (searchString.toUpperCase().matches(".*[^ACDEFGHIKLMNPQRSTVWXY].*")) {
+      Bootbox.alert("The sequence should only contain non redundant IUPAC nucleotide or amino acid codes (except for N/X)");
+      return;
+    }
+
+    loadingDialog.show();
+    SearchRestService.searchSequence(requestCallback, searchTypeList.getSelectedValue(), searchString, databaseId);
 
   }
 
@@ -338,10 +353,10 @@ public class SearchPanel extends Composite {
           JSONObject searchTools = jsonValue.isObject().get("sequence_search_tools").isObject();
           for (String key : searchTools.keySet()) {
             String name = searchTools.get(key).isObject().get("name").isString().stringValue();
-            searchTypeList.addItem(name,key);
+            searchTypeList.addItem(name, key);
           }
         } catch (Exception e) {
-          GWT.log("unable to find search tools "+e.getMessage() + " "+response.getText() + " " + response.getStatusCode());
+          GWT.log("unable to find search tools " + e.getMessage() + " " + response.getText() + " " + response.getStatusCode());
         }
 
       }
