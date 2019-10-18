@@ -230,6 +230,7 @@ public class SearchPanel extends Composite {
           public void onSelectionChange(SelectionChangeEvent event) {
             SearchHit searchHit = singleSelectionModel.getSelectedObject();
             MainPanel.updateGenomicViewerForLocation(searchHit.getId(),searchHit.getStart().intValue(),searchHit.getEnd().intValue());
+            MainPanel.highlightRegion(searchHit.getId(),searchHit.getStart().intValue(),searchHit.getEnd().intValue());
           }
       });
       dataGrid.setSelectionModel(singleSelectionModel);

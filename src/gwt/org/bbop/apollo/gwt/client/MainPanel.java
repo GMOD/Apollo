@@ -533,6 +533,14 @@ public class MainPanel extends Composite {
         updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false, false);
     }
 
+    public static void highlightRegion(String selectedSequence, Integer minRegion, Integer maxRegion){
+      JSONObject commandObject = new JSONObject();
+      commandObject.put("ref", new JSONString(selectedSequence));
+      commandObject.put("start", new JSONNumber(minRegion));
+      commandObject.put("end", new JSONNumber(maxRegion));
+      MainPanel.getInstance().postMessage("highlightRegion", commandObject);
+    }
+
     /**
      * @param selectedSequence
      * @param minRegion

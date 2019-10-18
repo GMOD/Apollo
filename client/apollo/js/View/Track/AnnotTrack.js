@@ -344,9 +344,15 @@ define([
                     }
                 };
 
+                var highlightRegion = function(locobj){
+                  var highlightSearchedRegions = track.gview.browser.config.highlightSearchedRegions;
+                  track.gview.browser.config.highlightSearchedRegions = true;
+                  track.gview.browser.showRegionWithHighlight(locobj);
+                  track.gview.browser.config.highlightSearchedRegions = highlightSearchedRegions;
+                };
 
 
-                var handleTrackVisibility = function (trackInfo) {
+              var handleTrackVisibility = function (trackInfo) {
                     var command = trackInfo.command;
                     if (command == "show") {
                         browser.publish('/jbrowse/v1/v/tracks/show', [browser.trackConfigsByName[trackInfo.label]]);
@@ -388,7 +394,11 @@ define([
                         return;
                     }
 
-                    if(event.data.description === "navigateToLocation"){
+                  if(event.data.description === "highlightRegion"){
+                      highlightRegion(event.data);
+                  }
+                  else
+                  if(event.data.description === "navigateToLocation"){
                         navigateToLocation(event.data);
                     }
                     else
