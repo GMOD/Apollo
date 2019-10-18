@@ -122,7 +122,7 @@ public class SearchPanel extends Composite {
       }
     };
     List<String> options = new ArrayList<>();
-    options.add("Action");
+    options.add("--");
     options.add("Save sequence");
 //    options.add("Create annotation");
 
@@ -136,34 +136,21 @@ public class SearchPanel extends Composite {
     commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
       @Override
       public void update(int index, SearchHit searchHit, String actionValue) {
-        GWT.log("index: "+index);
-        GWT.log("actionValue: "+actionValue);
-        GWT.log("search hit: "+searchHit.getLocation());
-
-        MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
-        MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
-
-//        SequenceRestService.generateLink();
-
-
-        // http://localhost:8080/apollo/752608697886914561871631778/IOService?operation=write&adapter=highlighted%20region&sequences=Group11.18&output=file&format=gzip&type=FASTA&seqType=genomic&region=Group11.18:3462509..3462660
-
-        // {"type":"FASTA", "exportAllSequences":"false", "chadoExportType":"", "seqType":"peptide", "exportGff3Fasta":"false", "region":"Group11.18:3464816..3464956", "output":"file", "format":"gzip", "sequences":["Group11.18"]}
-
-        // operation=write&adapter=peptide&sequences=Group11.18&output=file&format=gzip&type=FASTA&seqType=peptide&region=Group11.18:3464817..3464956
-
-        // versus
-        List<SequenceInfo> sequenceInfoList = new ArrayList<>();
-        sequenceInfoList.add(MainPanel.getCurrentSequence());
-        ExportPanel exportPanel = new ExportPanel(
-          MainPanel.getInstance().getCurrentOrganism(),
-          FeatureStringEnum.TYPE_FASTA.getValue(),
-          false,
-          sequenceInfoList,
-          searchHit.getLocation()
-        );
-        exportPanel.show();
-//        SequenceRestService.generateLink(exportPanel);
+        if(actionValue.toLowerCase().contains("save")){
+          MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+          MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+          // versus
+          List<SequenceInfo> sequenceInfoList = new ArrayList<>();
+          sequenceInfoList.add(MainPanel.getCurrentSequence());
+          ExportPanel exportPanel = new ExportPanel(
+            MainPanel.getInstance().getCurrentOrganism(),
+            FeatureStringEnum.TYPE_FASTA.getValue(),
+            false,
+            sequenceInfoList,
+            searchHit.getLocation()
+          );
+          exportPanel.show();
+        }
       }
     });
 
@@ -248,7 +235,7 @@ public class SearchPanel extends Composite {
     dataGrid.addColumn(identityColumn, "Identity");
     dataGrid.setColumnWidth(5, "10px");
 
-    dataGrid.addColumn(commandColumn, "Save");
+    dataGrid.addColumn(commandColumn, "Action");
 
     dataGrid.setColumnWidth(6, "10px");
 
