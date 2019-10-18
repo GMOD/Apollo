@@ -1012,10 +1012,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @RestApiMethod(description = "Search sequences", path = "/annotationEditor/searchSequences", verb = RestApiVerb.POST)
     @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "client_token", type = "string", paramType = RestApiParamType.QUERY, description = "Organism ID/Name or Client-generated ")
-            , @RestApiParam(name = "search", type = "JSONObject", paramType = RestApiParamType.QUERY, description = "{'key':'blat','residues':'ATACTAGAGATAC':'database_id':'abc123'}")
+            @RestApiParam(name = "search", type = "JSONObject", paramType = RestApiParamType.QUERY, description = "{'key':'blat_prot','residues':'ATACTAGAGATAC':'database_id':'abc123'}")
     ])
     def searchSequence() {
         log.debug "sequenceSearch ${params.data}"

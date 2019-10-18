@@ -89,6 +89,8 @@ public class MainPanel extends Composite {
     @UiField
     static SequencePanel sequencePanel;
     @UiField
+    static SearchPanel searchPanel;
+    @UiField
     static OrganismPanel organismPanel;
     @UiField
     static UserPanel userPanel;
@@ -177,6 +179,7 @@ public class MainPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         frame.getElement().setAttribute("id", frame.getName());
+        searchPanel.reload();
 
         trackListToggle.setWidth(isCurrentUserAdmin() ? "20px" : "25px");
 
@@ -531,6 +534,14 @@ public class MainPanel extends Composite {
         updateGenomicViewerForLocation(selectedSequence, minRegion, maxRegion, false, false);
     }
 
+    public static void highlightRegion(String selectedSequence, Integer minRegion, Integer maxRegion){
+      JSONObject commandObject = new JSONObject();
+      commandObject.put("ref", new JSONString(selectedSequence));
+      commandObject.put("start", new JSONNumber(minRegion));
+      commandObject.put("end", new JSONNumber(maxRegion));
+      MainPanel.getInstance().postMessage("highlightRegion", commandObject);
+    }
+
     /**
      * @param selectedSequence
      * @param minRegion
@@ -844,15 +855,18 @@ public class MainPanel extends Composite {
                 sequencePanel.reload(true);
                 break;
             case 3:
+//              searchPanel.reload();
+              break;
+            case 4:
                 organismPanel.reload();
                 break;
-            case 4:
+            case 5:
                 userPanel.reload(true);
                 break;
-            case 5:
+            case 6:
                 userGroupPanel.reload();
                 break;
-            case 6:
+            case 7:
                 preferencePanel.reload();
                 break;
             default:
@@ -1128,6 +1142,18 @@ public class MainPanel extends Composite {
     }
   }
 
+  public static Boolean viewSearchPanel(String residues,String searchType) {
+    try {
+      searchPanel.setSearch(residues,searchType);
+      detailTabs.selectTab(TabPanelIndex.SEARCH.getIndex());
+      return true ;
+    } catch (Exception e) {
+      Bootbox.alert("Problem loading search panel");
+      GWT.log("Problem search residues "+residues+ " for type " + searchType + " " + e.fillInStackTrace().toString());
+      return false ;
+    }
+  }
+
   @UiHandler("trackListToggle")
   public void trackListToggleButtonHandler(ClickEvent event) {
         useNativeTracklist = !trackListToggle.isActive();
@@ -1173,16 +1199,18 @@ public class MainPanel extends Composite {
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
+        $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private enum TabPanelIndex {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
-        ORGANISM(3),
-        USERS(4),
-        GROUPS(5),
-        PREFERENCES(6),;
+        SEARCH(3),
+        ORGANISM(4),
+        USERS(5),
+        GROUPS(6),
+        PREFERENCES(7),;
 
         private int index;
 
