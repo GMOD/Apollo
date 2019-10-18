@@ -4,6 +4,7 @@ public class SearchHit {
   String id;
   Long start;
   Long end;
+  Long strand;
   Double score;
   Double significance;
   Double identity;
@@ -58,5 +59,13 @@ public class SearchHit {
 
   public String getLocation(){
     return getId()+":"+getStart()+".."+getEnd();
+  }
+
+  public Long getStrand() {
+    return strand;
+  }
+
+  public void setStrand(Long strand) {
+    this.strand = strand;
   }
 }

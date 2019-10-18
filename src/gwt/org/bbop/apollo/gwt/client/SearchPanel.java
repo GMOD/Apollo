@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.SelectionCell;
@@ -26,16 +25,18 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.SearchRestService;
-import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.sequence.SearchHit;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -65,9 +66,6 @@ public class SearchPanel extends Composite {
   @UiField
   ListBox searchTypeList;
 
-  //  private boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
-//    private boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
-//
   final private LoadingDialog loadingDialog;
 
   static private ListDataProvider<SearchHit> dataProvider = new ListDataProvider<>();
@@ -124,7 +122,7 @@ public class SearchPanel extends Composite {
     List<String> options = new ArrayList<>();
     options.add("--");
     options.add("Save sequence");
-//    options.add("Create annotation");
+    options.add("Create annotation");
 
     final SelectionCell selectionCell = new SelectionCell(options);
     Column<SearchHit, String> commandColumn = new Column<SearchHit, String>(selectionCell) {
@@ -135,7 +133,7 @@ public class SearchPanel extends Composite {
     };
     commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
       @Override
-      public void update(int index, SearchHit searchHit, String actionValue) {
+      public void update(int index, final SearchHit searchHit, String actionValue) {
         if(actionValue.toLowerCase().contains("save")){
           MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
           MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
@@ -151,6 +149,45 @@ public class SearchPanel extends Composite {
           );
           exportPanel.show();
         }
+        else
+        if(actionValue.toLowerCase().contains("create")){
+          MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+          MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+
+          RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+              GWT.log(response.getText());
+              try {
+                JSONValue jsonValue = JSONParser.parseStrict(response.getText());
+                JSONArray features = jsonValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
+                final String parentName = features.get(0).isObject().get(FeatureStringEnum.PARENT_NAME.getValue()).isString().stringValue();
+                Bootbox.confirm("Transcript added from blat hit with strand "+ searchHit.getStrand() +".  Verify details now?", new ConfirmCallback() {
+                  @Override
+                  public void callback(boolean result) {
+                    if(result){
+                      MainPanel.viewInAnnotationPanel(parentName);
+                    }
+                  }
+                });
+              } catch (Exception e) {
+                Bootbox.alert("There was a problem adding the blat hit: "+e.getMessage());
+              }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+              Bootbox.alert("Problem adding blat hit: "+exception.getMessage());
+            }
+          };
+          AnnotationInfo annotationInfo = new AnnotationInfo();
+          annotationInfo.setMin(searchHit.getStart().intValue());
+          annotationInfo.setMax(searchHit.getEnd().intValue());
+          annotationInfo.setSequence(searchHit.getId());
+          annotationInfo.setStrand(searchHit.getStrand().intValue()); // should we set this explicitly?
+          annotationInfo.setType("mRNA"); // this is just the default for now
+          AnnotationRestService.createTranscriptWithExon(requestCallback,annotationInfo);
+        }
       }
     });
 
@@ -162,16 +199,6 @@ public class SearchPanel extends Composite {
     identityColumn.setSortable(true);
 
     scoreColumn.setDefaultSortAscending(false);
-
-//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                searchHitList.clear();
-////                organismInfoList.addAll(MainPanel.getInstance().getOrganismInfoList());
-//                filterList();
-//            }
-//        });
-
 
     ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(searchHitList);
     dataGrid.addColumnSortHandler(sortHandler);
@@ -256,24 +283,6 @@ public class SearchPanel extends Composite {
     pager.setDisplay(dataGrid);
 
 
-    dataGrid.addDomHandler(new DoubleClickHandler() {
-      @Override
-      public void onDoubleClick(DoubleClickEvent event) {
-        if (singleSelectionModel.getSelectedObject() != null) {
-          Bootbox.alert("navigate to the annotation");
-//                    OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
-//                    if (organismInfo.getObsolete()) {
-//                        Bootbox.alert("You will have to make this organism 'active' by unselecting the 'Obsolete' checkbox in the Organism Details panel at the bottom.");
-//                        return;
-//                    }
-//                    String orgId = organismInfo.getId();
-//                    if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
-//                        OrganismRestService.switchOrganismById(orgId);
-//                    }
-        }
-      }
-    }, DoubleClickEvent.getType());
-
   }
 
   void setSearch(String residues, String searchType) {
@@ -315,6 +324,7 @@ public class SearchPanel extends Composite {
             searchHit.setId(hit.get("subject").isObject().get("feature").isObject().get("uniquename").isString().stringValue());
             searchHit.setStart(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmin").isNumber().doubleValue()));
             searchHit.setEnd(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmax").isNumber().doubleValue()));
+            searchHit.setStrand(Math.round(hit.get("subject").isObject().get("location").isObject().get("strand").isNumber().doubleValue()));
             searchHit.setScore(hit.get("rawscore").isNumber().doubleValue());
             searchHit.setSignificance(hit.get("significance").isNumber().doubleValue());
             searchHit.setIdentity(hit.get("identity").isNumber().doubleValue());
