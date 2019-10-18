@@ -123,7 +123,7 @@ public class SearchPanel extends Composite {
     };
     List<String> options = new ArrayList<>();
     options.add("Action");
-    options.add("Save genome sequence");
+    options.add("Save sequence");
 //    options.add("Create annotation");
 
     final SelectionCell selectionCell = new SelectionCell(options);
@@ -145,7 +145,14 @@ public class SearchPanel extends Composite {
 
 //        SequenceRestService.generateLink();
 
+
         // http://localhost:8080/apollo/752608697886914561871631778/IOService?operation=write&adapter=highlighted%20region&sequences=Group11.18&output=file&format=gzip&type=FASTA&seqType=genomic&region=Group11.18:3462509..3462660
+
+        // {"type":"FASTA", "exportAllSequences":"false", "chadoExportType":"", "seqType":"peptide", "exportGff3Fasta":"false", "region":"Group11.18:3464816..3464956", "output":"file", "format":"gzip", "sequences":["Group11.18"]}
+
+        // operation=write&adapter=peptide&sequences=Group11.18&output=file&format=gzip&type=FASTA&seqType=peptide&region=Group11.18:3464817..3464956
+
+        // versus
         List<SequenceInfo> sequenceInfoList = new ArrayList<>();
         sequenceInfoList.add(MainPanel.getCurrentSequence());
         ExportPanel exportPanel = new ExportPanel(
@@ -155,7 +162,8 @@ public class SearchPanel extends Composite {
           sequenceInfoList,
           searchHit.getLocation()
         );
-        SequenceRestService.generateLink(exportPanel);
+        exportPanel.show();
+//        SequenceRestService.generateLink(exportPanel);
       }
     });
 
