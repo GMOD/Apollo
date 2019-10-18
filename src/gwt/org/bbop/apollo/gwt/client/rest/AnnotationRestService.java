@@ -7,6 +7,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 
@@ -42,8 +43,44 @@ public class AnnotationRestService extends RestService {
 
     }
 
+  public static JSONObject createTranscript(RequestCallback requestCallback, AnnotationInfo annotationInfo) {
+    JSONObject jsonObject = new JSONObject();
+    JSONArray featuresArray = new JSONArray();
+    jsonObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+    JSONObject featureObject = new JSONObject();
+    featuresArray.set(featuresArray.size(), featureObject);
 
-    public static JSONObject deleteAnnotations(RequestCallback requestCallback, Set<AnnotationInfo> annotationInfoSet) {
+//    JSONObject uniqueNameObject = new JSONObject();
+//    uniqueNameObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(annotationInfo.getUniqueName()));
+
+
+    JSONObject locationObject = new JSONObject();
+    locationObject.put(FeatureStringEnum.FMIN.getValue(), annotationInfo.getMin() != null ? new JSONNumber(annotationInfo.getMin()) : null);
+    locationObject.put(FeatureStringEnum.FMAX.getValue(), annotationInfo.getMax() != null ? new JSONNumber(annotationInfo.getMax()) : null);
+    locationObject.put(FeatureStringEnum.STRAND.getValue(), annotationInfo.getStrand() != null ? new JSONNumber(annotationInfo.getStrand()) : null);
+    featureObject.put(FeatureStringEnum.LOCATION.getValue(),locationObject);
+
+
+    //          {\"track\":\"Group11.18\",\"features\":[{\"location\":{\"fmin\":3464814,\"fmax\":3464958,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"mRNA\"},\"name\":\"GB44961-RA\",\"orig_id\":\"GB44961-RA\",\"children\":[{\"location\":{\"fmin\":3464814,\"fmax\":3464958,\"strand\":-1},\"type\":{\"cv\":{\"name\":\"sequence\"},\"name\":\"exon\"}}]}],\"operation\":\"add_transcript\",\"clientToken\":\"66322431814575743501200095773\"}
+
+
+    JSONObject typeObject = new JSONObject();
+    JSONObject cvObject = new JSONObject();
+    cvObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(FeatureStringEnum.SEQUENCE.getValue()));
+    typeObject.put(FeatureStringEnum.CV.getValue(),cvObject);
+    typeObject.put(FeatureStringEnum.NAME.getValue(),new JSONString(annotationInfo.getType()));
+    featureObject.put(FeatureStringEnum.TYPE.getValue(),typeObject );
+
+
+    featureObject.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString("created with blat hit") );
+
+
+    sendRequest(requestCallback, "annotationEditor/addTranscript", "data=" + jsonObject.toString());
+    return jsonObject;
+  }
+
+
+  public static JSONObject deleteAnnotations(RequestCallback requestCallback, Set<AnnotationInfo> annotationInfoSet) {
         JSONObject jsonObject = new JSONObject();
         JSONArray featuresArray = new JSONArray();
         jsonObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);

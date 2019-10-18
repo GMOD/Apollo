@@ -26,8 +26,10 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.SearchRestService;
 import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -124,7 +126,7 @@ public class SearchPanel extends Composite {
     List<String> options = new ArrayList<>();
     options.add("--");
     options.add("Save sequence");
-//    options.add("Create annotation");
+    options.add("Create annotation");
 
     final SelectionCell selectionCell = new SelectionCell(options);
     Column<SearchHit, String> commandColumn = new Column<SearchHit, String>(selectionCell) {
@@ -150,6 +152,43 @@ public class SearchPanel extends Composite {
             searchHit.getLocation()
           );
           exportPanel.show();
+        }
+        else
+        if(actionValue.toLowerCase().contains("create")){
+          MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+          MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+
+          RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+              Bootbox.alert("Transcript added from blat hit");
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+              Bootbox.alert("Problem adding blat hit: "+exception.getMessage());
+            }
+          };
+          AnnotationInfo annotationInfo = new AnnotationInfo();
+          annotationInfo.setMin(searchHit.getStart().intValue());
+          annotationInfo.setMax(searchHit.getEnd().intValue());
+          annotationInfo.setSequence(searchHit.getId());
+          annotationInfo.setStrand(0); // should we set this explicitly?
+          annotationInfo.setType("mRNA"); // this is just the default for now
+          AnnotationRestService.createTranscript(requestCallback,annotationInfo);
+
+
+            // versus
+//          List<SequenceInfo> sequenceInfoList = new ArrayList<>();
+//          sequenceInfoList.add(MainPanel.getCurrentSequence());
+//          ExportPanel exportPanel = new ExportPanel(
+//            MainPanel.getInstance().getCurrentOrganism(),
+//            FeatureStringEnum.TYPE_FASTA.getValue(),
+//            false,
+//            sequenceInfoList,
+//            searchHit.getLocation()
+//          );
+//          exportPanel.show();
         }
       }
     });
