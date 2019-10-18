@@ -28,6 +28,7 @@ import java.util.List;
 public class ExportPanel extends Modal {
     private String type;
     private List<SequenceInfo> sequenceList;
+    private String region = null ;
     private Boolean exportAll = false;
     private OrganismInfo currentOrganismInfo;
     private Boolean exportAllSequencesToChado = false;
@@ -57,7 +58,11 @@ public class ExportPanel extends Modal {
     ModalHeader modalHeader = new ModalHeader();
     ModalFooter modalFooter = new ModalFooter();
 
-    public ExportPanel(OrganismInfo organismInfo, String type, Boolean exportAll, List<SequenceInfo> sequenceInfoList) {
+  public ExportPanel(OrganismInfo organismInfo, String type, Boolean exportAll, List<SequenceInfo> sequenceInfoList) {
+      this(organismInfo,type,exportAll,sequenceInfoList,null);
+  }
+
+    public ExportPanel(OrganismInfo organismInfo, String type, Boolean exportAll, List<SequenceInfo> sequenceInfoList,String region) {
         setTitle("Export");
         setClosable(true);
         setRemoveOnHide(true);
@@ -123,6 +128,7 @@ public class ExportPanel extends Modal {
         setType(type);
         setExportAll(exportAll);
         setSequenceList(sequenceInfoList);
+        setRegion(region);
 
         setUiHandlers();
     }
@@ -361,4 +367,12 @@ public class ExportPanel extends Modal {
     public Boolean getExportJBrowseSequence() {
         return exportJBrowseSequence;
     }
+
+  public String getRegion() {
+    return region;
+  }
+
+  public void setRegion(String region) {
+    this.region = region;
+  }
 }

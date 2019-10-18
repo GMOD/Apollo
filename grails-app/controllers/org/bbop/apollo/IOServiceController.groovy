@@ -90,9 +90,13 @@ class IOServiceController extends AbstractApolloController {
             Boolean exportJBrowseSequence = dataObject.exportJBrowseSequence ? Boolean.valueOf(dataObject.exportJBrowseSequence) : false
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
             String output = dataObject.output
-            String adapter = dataObject.adapter
             String format = dataObject.format
             String region = dataObject.region
+            String adapter = dataObject.adapter
+            if(region && !adapter){
+                adapter = FeatureStringEnum.HIGHLIGHTED_REGION.value
+            }
+
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism ? preferenceService.getOrganismForTokenInDB(dataObject.organism) : preferenceService.getCurrentOrganismForCurrentUser(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
@@ -191,9 +195,11 @@ class IOServiceController extends AbstractApolloController {
                 // call vcfHandlerService
                 vcfHandlerService.writeVariantsToText(organism, features, outputFile.path, grailsApplication.config.apollo.gff3.source as String)
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
-                if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
+                String singleSequenceName = (sequences.class!=JSONArray.class) ? sequences : null
+                singleSequenceName = (singleSequenceName==null && sequences.class==JSONArray.class && sequences.size()==1) ? sequences[0] : null
+                if (!exportAllSequences && singleSequenceName) {
                     String regionString = (region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value) ? region : ""
-                    fileName = "Annotations-" + sequences + "${regionString}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                    fileName = "Annotations-${regionString}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 }

@@ -1,7 +1,9 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.cell.client.ButtonCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
+import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
@@ -24,14 +26,18 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
+import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.SearchRestService;
+import org.bbop.apollo.gwt.client.rest.SequenceRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.sequence.SearchHit;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -115,13 +121,38 @@ public class SearchPanel extends Composite {
         return object.getIdentity();
       }
     };
-    ButtonCell buttonCell = new ButtonCell();
-    Column<SearchHit, String> commandColumn = new Column<SearchHit, String>(buttonCell) {
+    List<String> options = new ArrayList<>();
+    options.add("--");
+    options.add("Save sequence");
+//    options.add("Create annotation");
+
+    final SelectionCell selectionCell = new SelectionCell(options);
+    Column<SearchHit, String> commandColumn = new Column<SearchHit, String>(selectionCell) {
       @Override
       public String getValue(SearchHit object) {
-        return "Create";
+        return null;
       }
     };
+    commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
+      @Override
+      public void update(int index, SearchHit searchHit, String actionValue) {
+        if(actionValue.toLowerCase().contains("save")){
+          MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+          MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
+          // versus
+          List<SequenceInfo> sequenceInfoList = new ArrayList<>();
+          sequenceInfoList.add(MainPanel.getCurrentSequence());
+          ExportPanel exportPanel = new ExportPanel(
+            MainPanel.getInstance().getCurrentOrganism(),
+            FeatureStringEnum.TYPE_FASTA.getValue(),
+            false,
+            sequenceInfoList,
+            searchHit.getLocation()
+          );
+          exportPanel.show();
+        }
+      }
+    });
 
     idColumn.setSortable(true);
     startColumn.setSortable(true);
@@ -204,21 +235,9 @@ public class SearchPanel extends Composite {
     dataGrid.addColumn(identityColumn, "Identity");
     dataGrid.setColumnWidth(5, "10px");
 
-//    dataGrid.addColumn(commandColumn, "Action");
-//    commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
-//      @Override
-//      public void update(int index, SearchHit object, String value) {
-////          for (Category category : categories) {
-////            if (category.getDisplayName().equals(value)) {
-////              object.setCategory(category);
-////            }
-////          }
-////          ContactDatabase.get().refreshDisplays();
-//      }
-//    });
-////      dataGrid.setColumnWidth(categoryColumn, 130, Unit.PX);
-//
-//    dataGrid.setColumnWidth(5, "10px");
+    dataGrid.addColumn(commandColumn, "Action");
+
+    dataGrid.setColumnWidth(6, "10px");
 
     dataGrid.setEmptyTableWidget(new Label(""));
 
