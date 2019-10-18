@@ -260,8 +260,16 @@ public class SearchPanel extends Composite {
   void setSearch(String residues, String searchType) {
     sequenceSearchBox.setText(residues);
     for(int i = 0 ; i < searchTypeList.getItemCount() ; i++){
-      GWT.log(searchTypeList.getItemText(i)+ " " + searchTypeList.getValue(i) + " " + searchType);
-      if(searchTypeList.getValue(i).equalsIgnoreCase(searchType)){
+      // blat_nuc peptide
+      // blat_prot peptide
+      if(searchType.equalsIgnoreCase("peptide")
+        &&searchTypeList.getValue(i).equalsIgnoreCase("blat_prot") ){
+//        searchTypeList.setSelectedIndex(i);
+        searchTypeList.setItemSelected(i,true);
+      }
+      else
+      if(searchType.equalsIgnoreCase("nucleotide")
+        &&searchTypeList.getValue(i).equalsIgnoreCase("blat_nuc") ){
         searchTypeList.setSelectedIndex(i);
       }
     }
@@ -276,7 +284,6 @@ public class SearchPanel extends Composite {
 
   @UiHandler("searchGenomesButton")
   public void doSearch(ClickEvent clickEvent) {
-    GWT.log("searching with: "+searchTypeList.getSelectedValue()+ " and "+ sequenceSearchBox.getValue() + " " + searchAllGenomes.getValue());
     loadingDialog.show();
     RequestCallback requestCallback = new RequestCallback() {
       @Override

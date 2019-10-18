@@ -179,6 +179,7 @@ public class MainPanel extends Composite {
 
         initWidget(ourUiBinder.createAndBindUi(this));
         frame.getElement().setAttribute("id", frame.getName());
+        searchPanel.reload();
 
         trackListToggle.setWidth(isCurrentUserAdmin() ? "20px" : "25px");
 
@@ -854,7 +855,7 @@ public class MainPanel extends Composite {
                 sequencePanel.reload(true);
                 break;
             case 3:
-              searchPanel.reload();
+//              searchPanel.reload();
               break;
             case 4:
                 organismPanel.reload();
@@ -1143,7 +1144,6 @@ public class MainPanel extends Composite {
 
   public static Boolean viewSearchPanel(String residues,String searchType) {
     try {
-      searchPanel.reload();
       searchPanel.setSearch(residues,searchType);
       detailTabs.selectTab(TabPanelIndex.SEARCH.getIndex());
       return true ;
