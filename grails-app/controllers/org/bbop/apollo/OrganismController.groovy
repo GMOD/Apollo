@@ -365,10 +365,10 @@ class OrganismController {
                 String result = checkProc.getInputStream().text
                 log.debug "result string ${result}"
 
-                if(!result.contains("not found")){
-                  log.info "command found ${result}"
+                if(result.trim().size()>0 && !result.contains("not found") ){
+                  log.info  "command found ${result}"
                   String searchPath =  "${fastaPath}.2bit"
-                  log.info "Creating 2bit file here ${searchPath}"
+                  log.info "Creating 2bit file ${searchPath}"
                   result = "${result} ${fastaPath} ${searchPath}"
                   log.info "executing command '${result}"
                   result.execute()
