@@ -36,6 +36,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -132,7 +133,7 @@ public class SearchPanel extends Composite {
     };
     commandColumn.setFieldUpdater(new FieldUpdater<SearchHit, String>() {
       @Override
-      public void update(int index, SearchHit searchHit, String actionValue) {
+      public void update(int index, final SearchHit searchHit, String actionValue) {
         if(actionValue.toLowerCase().contains("save")){
           MainPanel.updateGenomicViewerForLocation(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
           MainPanel.highlightRegion(searchHit.getId(), searchHit.getStart().intValue(), searchHit.getEnd().intValue());
@@ -156,7 +157,22 @@ public class SearchPanel extends Composite {
           RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-              Bootbox.alert("Transcript added from blat hit.  Please verify details.");
+              GWT.log(response.getText());
+              try {
+                JSONValue jsonValue = JSONParser.parseStrict(response.getText());
+                JSONArray features = jsonValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
+                final String parentName = features.get(0).isObject().get(FeatureStringEnum.PARENT_NAME.getValue()).isString().stringValue();
+                Bootbox.confirm("Transcript added from blat hit with strand "+ searchHit.getStrand() +".  Verify details now?", new ConfirmCallback() {
+                  @Override
+                  public void callback(boolean result) {
+                    if(result){
+                      MainPanel.viewInAnnotationPanel(parentName);
+                    }
+                  }
+                });
+              } catch (Exception e) {
+                Bootbox.alert("There was a problem adding the blat hit: "+e.getMessage());
+              }
             }
 
             @Override
