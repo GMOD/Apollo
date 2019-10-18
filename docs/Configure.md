@@ -23,6 +23,7 @@ apollo {
     // under the web-app/translation_tables  directory
     // to add your own add them to that directory and over-ride the translation code here
     get_translation_code = 1
+   
     proxies = [
             [
                     referenceUrl : 'http://golr.geneontology.org/select',
@@ -40,6 +41,7 @@ apollo {
                     replace      : false
             ]
     ]
+    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from https://genome.ucsc.edu/goldenPath/help/blatSpec.html
     sequence_search_tools = [
             blat_nuc : [
                     search_exe  : "/usr/local/bin/blat",
@@ -184,10 +186,11 @@ Apollo can be configured to work with various sequence search tools. UCSC's BLAT
 can customize it as follows by making modifications in the ```apollo-config.groovy``` file.  Here we replace blat with blast 
 (there is an existing wrapper for Blast).  The database for each file will be passed in via params (globally) or using the 
 ```Blat database``` field in the organism tab.  For blast the database will be the root name of the blast database files 
-without the suffix.
+without the suffix.   Retrieve [blat binaries from ucsc](https://genome.ucsc.edu/goldenPath/help/blatSpec.html).
 
 ``` 
 apollo{
+    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from https://genome.ucsc.edu/goldenPath/help/blatSpec.html
 	sequence_search_tools {
         blat_nuc {
             search_exe = "/usr/local/bin/blastn"
@@ -213,8 +216,9 @@ apollo{
 ```
 
 When you setup your organism in the web interface, you can then enter the location of the sequence search database for
-BLAT.
+BLAT.  
 
+If you setup `fa_to_twobit_exe` with the proper path, fasta uploads for new genomes will automatically be indexed and populated.
 
 Note: If the BLAT binaries reside elsewhere on your system, edit the search_exe location in the config to point to your
 BLAT executable.
