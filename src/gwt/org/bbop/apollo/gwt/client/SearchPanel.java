@@ -65,9 +65,6 @@ public class SearchPanel extends Composite {
   @UiField
   ListBox searchTypeList;
 
-  //  private boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
-//    private boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
-//
   final private LoadingDialog loadingDialog;
 
   static private ListDataProvider<SearchHit> dataProvider = new ListDataProvider<>();
@@ -159,7 +156,7 @@ public class SearchPanel extends Composite {
           RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-              Bootbox.alert("Transcript added from blat hit");
+              Bootbox.alert("Transcript added from blat hit.  Please verify details.");
             }
 
             @Override
@@ -171,22 +168,9 @@ public class SearchPanel extends Composite {
           annotationInfo.setMin(searchHit.getStart().intValue());
           annotationInfo.setMax(searchHit.getEnd().intValue());
           annotationInfo.setSequence(searchHit.getId());
-          annotationInfo.setStrand(0); // should we set this explicitly?
+          annotationInfo.setStrand(searchHit.getStrand().intValue()); // should we set this explicitly?
           annotationInfo.setType("mRNA"); // this is just the default for now
           AnnotationRestService.createTranscriptWithExon(requestCallback,annotationInfo);
-
-
-            // versus
-//          List<SequenceInfo> sequenceInfoList = new ArrayList<>();
-//          sequenceInfoList.add(MainPanel.getCurrentSequence());
-//          ExportPanel exportPanel = new ExportPanel(
-//            MainPanel.getInstance().getCurrentOrganism(),
-//            FeatureStringEnum.TYPE_FASTA.getValue(),
-//            false,
-//            sequenceInfoList,
-//            searchHit.getLocation()
-//          );
-//          exportPanel.show();
         }
       }
     });
@@ -199,16 +183,6 @@ public class SearchPanel extends Composite {
     identityColumn.setSortable(true);
 
     scoreColumn.setDefaultSortAscending(false);
-
-//        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
-//            @Override
-//            public void onOrganismChanged(OrganismChangeEvent organismChangeEvent) {
-//                searchHitList.clear();
-////                organismInfoList.addAll(MainPanel.getInstance().getOrganismInfoList());
-//                filterList();
-//            }
-//        });
-
 
     ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(searchHitList);
     dataGrid.addColumnSortHandler(sortHandler);
@@ -293,24 +267,6 @@ public class SearchPanel extends Composite {
     pager.setDisplay(dataGrid);
 
 
-    dataGrid.addDomHandler(new DoubleClickHandler() {
-      @Override
-      public void onDoubleClick(DoubleClickEvent event) {
-        if (singleSelectionModel.getSelectedObject() != null) {
-          Bootbox.alert("navigate to the annotation");
-//                    OrganismInfo organismInfo = singleSelectionModel.getSelectedObject();
-//                    if (organismInfo.getObsolete()) {
-//                        Bootbox.alert("You will have to make this organism 'active' by unselecting the 'Obsolete' checkbox in the Organism Details panel at the bottom.");
-//                        return;
-//                    }
-//                    String orgId = organismInfo.getId();
-//                    if (!MainPanel.getInstance().getCurrentOrganism().getId().equals(orgId)) {
-//                        OrganismRestService.switchOrganismById(orgId);
-//                    }
-        }
-      }
-    }, DoubleClickEvent.getType());
-
   }
 
   void setSearch(String residues, String searchType) {
@@ -352,6 +308,7 @@ public class SearchPanel extends Composite {
             searchHit.setId(hit.get("subject").isObject().get("feature").isObject().get("uniquename").isString().stringValue());
             searchHit.setStart(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmin").isNumber().doubleValue()));
             searchHit.setEnd(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmax").isNumber().doubleValue()));
+            searchHit.setStrand(Math.round(hit.get("subject").isObject().get("location").isObject().get("strand").isNumber().doubleValue()));
             searchHit.setScore(hit.get("rawscore").isNumber().doubleValue());
             searchHit.setSignificance(hit.get("significance").isNumber().doubleValue());
             searchHit.setIdentity(hit.get("identity").isNumber().doubleValue());
