@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.SelectionCell;
@@ -31,7 +30,6 @@ import org.bbop.apollo.gwt.client.dto.SequenceInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.SearchRestService;
-import org.bbop.apollo.gwt.client.rest.SequenceRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.sequence.SearchHit;
 import org.gwtbootstrap3.client.ui.Button;
@@ -175,7 +173,7 @@ public class SearchPanel extends Composite {
           annotationInfo.setSequence(searchHit.getId());
           annotationInfo.setStrand(0); // should we set this explicitly?
           annotationInfo.setType("mRNA"); // this is just the default for now
-          AnnotationRestService.createTranscript(requestCallback,annotationInfo);
+          AnnotationRestService.createTranscriptWithExon(requestCallback,annotationInfo);
 
 
             // versus
