@@ -334,6 +334,7 @@ class OrganismController {
               sequenceDataFile.transferTo(archiveFile)
               organism.directory = directory.absolutePath
 
+              String fastaPath = rawDirectory.absolutePath + File.separator + organismName + ".fa"
               // decompress if need be
               if (sequenceTypeEnum.compression != null) {
                 List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
@@ -341,12 +342,14 @@ class OrganismController {
                 File oldFile = new File(fileNames[0])
                 assert oldFile.exists()
 //                                assert oldFile.absolutePath.endsWith(".fa")
-                File newFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+                File newFile = new File(fastaPath)
                 oldFile.renameTo(newFile)
               }
 
               println "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
-              if (searchDatabaseDataFile != null) {
+
+
+              if (searchDatabaseDataFile != null && searchDatabaseDataFile.size>0) {
                 File searchDirectory = new File(directory.absolutePath + "/search")
                 assert searchDirectory.mkdir()
                 assert searchDirectory.setWritable(true)
@@ -354,6 +357,26 @@ class OrganismController {
                 println "search file: ${searchFile.absolutePath}"
                 searchDatabaseDataFile.transferTo(searchFile)
                 organism.blatdb = searchFile.absolutePath
+              }
+
+              if(searchDatabaseDataFile==null || searchDatabaseDataFile.size==0){
+                log.info "trying to generate a twobit file"
+                def checkProc = "which faToTwoBit".execute()
+                String result = checkProc.getInputStream().text
+                log.debug "result string ${result}"
+
+                if(!result.contains("not found")){
+                  log.info "command found ${result}"
+                  String searchPath =  "${fastaPath}.2bit"
+                  log.info "Creating 2bit file here ${searchPath}"
+                  result = "${result} ${fastaPath} ${searchPath}"
+                  log.info "executing command '${result}"
+                  result.execute()
+                  organism.blatdb = searchPath
+                }
+                else{
+                  log.warn "command NOT found ${result}"
+                }
               }
 
               organism.save()
@@ -364,7 +387,7 @@ class OrganismController {
               trackListFile.write(trackListJson)
 
               // create an index
-              Path path = FileSystems.getDefault().getPath(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+              Path path = FileSystems.getDefault().getPath(fastaPath)
               FastaSequenceIndexCreator.create(path, true)
 
               sequenceService.loadRefSeqs(organism)
