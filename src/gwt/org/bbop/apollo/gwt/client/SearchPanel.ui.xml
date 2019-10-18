@@ -53,7 +53,7 @@
             <b:Container fluid="true" ui:field="northContainer">
                 <b:Row addStyleNames="{style.searchRow}" height="130">
                   <b:Column size="MD_10" height="130">
-                    <gwt:TextArea ui:field="sequenceSearchBox" visibleLines="3" characterWidth="80"/>
+                    <gwt:TextArea ui:field="sequenceSearchBox" visibleLines="5" characterWidth="80"/>
                     <b:ListBox ui:field="searchTypeList" width="120px" styleName="{style.inline-button}"/>
                     <b:CheckBox ui:field="searchAllGenomes" visible="true" value="false" text="All genome sequences" styleName="{style.topRow}"/>
                     <b:Button ui:field="searchGenomesButton" styleName="{style.inline-button}">Search</b:Button>

@@ -40,8 +40,6 @@ import java.util.List;
  */
 public class SearchPanel extends Composite {
 
-  private JSONObject searchToolData = new JSONObject();
-
   interface SearchPanelUiBinder extends UiBinder<Widget, SearchPanel> {
   }
 
@@ -259,6 +257,16 @@ public class SearchPanel extends Composite {
 
   }
 
+  void setSearch(String residues, String searchType) {
+    sequenceSearchBox.setText(residues);
+    for(int i = 0 ; i < searchTypeList.getItemCount() ; i++){
+      GWT.log(searchTypeList.getItemText(i)+ " " + searchTypeList.getValue(i) + " " + searchType);
+      if(searchTypeList.getValue(i).equalsIgnoreCase(searchType)){
+        searchTypeList.setSelectedIndex(i);
+      }
+    }
+  }
+
   @UiHandler("clearButton")
   public void clearSearch(ClickEvent clickEvent) {
     sequenceSearchBox.setText("");
@@ -321,7 +329,6 @@ public class SearchPanel extends Composite {
         try {
           JSONValue jsonValue = JSONParser.parseStrict(response.getText());
           JSONObject searchTools = jsonValue.isObject().get("sequence_search_tools").isObject();
-          searchToolData = searchTools;
           for (String key : searchTools.keySet()) {
             String name = searchTools.get(key).isObject().get("name").isString().stringValue();
             searchTypeList.addItem(name,key);

@@ -1141,6 +1141,19 @@ public class MainPanel extends Composite {
     }
   }
 
+  public static Boolean viewSearchPanel(String residues,String searchType) {
+    try {
+      searchPanel.reload();
+      searchPanel.setSearch(residues,searchType);
+      detailTabs.selectTab(TabPanelIndex.SEARCH.getIndex());
+      return true ;
+    } catch (Exception e) {
+      Bootbox.alert("Problem loading search panel");
+      GWT.log("Problem search residues "+residues+ " for type " + searchType + " " + e.fillInStackTrace().toString());
+      return false ;
+    }
+  }
+
   @UiHandler("trackListToggle")
   public void trackListToggleButtonHandler(ClickEvent event) {
         useNativeTracklist = !trackListToggle.isActive();
@@ -1186,16 +1199,18 @@ public class MainPanel extends Composite {
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
+        $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
 
     private enum TabPanelIndex {
         ANNOTATIONS(0),
         TRACKS(1),
         SEQUENCES(2),
-        ORGANISM(3),
-        USERS(4),
-        GROUPS(5),
-        PREFERENCES(6),;
+        SEARCH(3),
+        ORGANISM(4),
+        USERS(5),
+        GROUPS(6),
+        PREFERENCES(7),;
 
         private int index;
 

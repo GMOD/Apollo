@@ -202,9 +202,10 @@ define([
                 if (!this.webapollo.loginMenuInitialized && this.browser.config.show_nav && this.browser.config.show_menu) {
                     this.webapollo.initLoginMenu(this.username);
                 }
-                if (!this.webapollo.searchMenuInitialized && this.permission && this.browser.config.show_nav && this.browser.config.show_menu) {
-                    this.webapollo.initSearchMenu();
-                }
+                // REMOVED in favor of the side panel search
+                // if (!this.webapollo.searchMenuInitialized && this.permission && this.browser.config.show_nav && this.browser.config.show_menu) {
+                //     this.webapollo.initSearchMenu();
+                // }
                 this.initSaveMenu();
                 this.initPopupDialog();
 
@@ -6330,7 +6331,8 @@ define([
                   if(dojo.attr(genomicWithFlankButton, "checked")) return "nucleotide";
                   return '';
                 };
-                track.searchSequence(sequenceText,getSearchType());
+                // track.searchSequence(sequenceText,getSearchType());
+                track.getApollo().viewSearchPanel(sequenceText,getSearchType());
               });
 
               var fetchSequence = function (type) {
