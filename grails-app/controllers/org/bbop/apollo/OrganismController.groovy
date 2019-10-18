@@ -346,7 +346,7 @@ class OrganismController {
                 oldFile.renameTo(newFile)
               }
 
-              println "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
+              log.info "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
 
 
               if (searchDatabaseDataFile != null && searchDatabaseDataFile.size>0) {
@@ -359,23 +359,18 @@ class OrganismController {
                 organism.blatdb = searchFile.absolutePath
               }
 
-              if(searchDatabaseDataFile==null || searchDatabaseDataFile.size==0){
-                log.info "trying to generate a twobit file"
-                def checkProc = "which faToTwoBit".execute()
-                String result = checkProc.getInputStream().text
-                log.debug "result string ${result}"
-
-                if(result.trim().size()>0 && !result.contains("not found") ){
-                  log.info  "command found ${result}"
-                  String searchPath =  "${fastaPath}.2bit"
-                  log.info "Creating 2bit file ${searchPath}"
-                  result = "${result} ${fastaPath} ${searchPath}"
-                  log.info "executing command '${result}"
-                  result.execute()
-                  organism.blatdb = searchPath
-                }
-                else{
-                  log.warn "command NOT found ${result}"
+              log.info "faToTwoBit exec file specified ${configWrapperService.faToTwobitExe}"
+              if(  (searchDatabaseDataFile==null || searchDatabaseDataFile.size==0) && configWrapperService.getFaToTwobitExe().size()>0 ){
+                try {
+                    String searchPath =  "${fastaPath}.2bit"
+                    log.info "Creating 2bit file ${searchPath}"
+                    String indexCommand = "${configWrapperService.faToTwobitExe} ${fastaPath} ${searchPath}"
+                    log.info "executing command '${indexCommand}"
+                    indexCommand.execute()
+                    organism.blatdb = searchPath
+                } catch (e) {
+                  log.error("Failed to create a twobit file ${e.message}")
+                  organism.blatdb = ''
                 }
               }
 
