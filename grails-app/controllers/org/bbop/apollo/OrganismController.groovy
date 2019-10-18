@@ -334,19 +334,21 @@ class OrganismController {
               sequenceDataFile.transferTo(archiveFile)
               organism.directory = directory.absolutePath
 
+              String fastaPath = rawDirectory.absolutePath + File.separator + organismName + ".fa"
               // decompress if need be
               if (sequenceTypeEnum.compression != null) {
                 List<String> fileNames = fileService.decompress(archiveFile, rawDirectory.absolutePath)
                 // move the filenames to the same original name, let's assume there is one
                 File oldFile = new File(fileNames[0])
                 assert oldFile.exists()
-//                                assert oldFile.absolutePath.endsWith(".fa")
-                File newFile = new File(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+                File newFile = new File(fastaPath)
                 oldFile.renameTo(newFile)
               }
 
-              println "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
-              if (searchDatabaseDataFile != null) {
+              log.info "search db file : ${searchDatabaseDataFile.name} ${searchDatabaseDataFile.size} ${searchDatabaseDataFile.originalFilename} ${searchDatabaseDataFile.contentType}"
+
+
+              if (searchDatabaseDataFile != null && searchDatabaseDataFile.size>0) {
                 File searchDirectory = new File(directory.absolutePath + "/search")
                 assert searchDirectory.mkdir()
                 assert searchDirectory.setWritable(true)
@@ -354,6 +356,21 @@ class OrganismController {
                 println "search file: ${searchFile.absolutePath}"
                 searchDatabaseDataFile.transferTo(searchFile)
                 organism.blatdb = searchFile.absolutePath
+              }
+
+              log.info "faToTwoBit exec file specified ${configWrapperService.faToTwobitExe}"
+              if(  (searchDatabaseDataFile==null || searchDatabaseDataFile.size==0) && configWrapperService.getFaToTwobitExe().size()>0 ){
+                try {
+                    String searchPath =  "${fastaPath}.2bit"
+                    log.info "Creating 2bit file ${searchPath}"
+                    String indexCommand = "${configWrapperService.faToTwobitExe} ${fastaPath} ${searchPath}"
+                    log.info "executing command '${indexCommand}"
+                    indexCommand.execute()
+                    organism.blatdb = searchPath
+                } catch (e) {
+                  log.error("Failed to create a twobit file ${e.message}")
+                  organism.blatdb = ''
+                }
               }
 
               organism.save()
@@ -364,7 +381,7 @@ class OrganismController {
               trackListFile.write(trackListJson)
 
               // create an index
-              Path path = FileSystems.getDefault().getPath(rawDirectory.absolutePath + File.separator + organismName + ".fa")
+              Path path = FileSystems.getDefault().getPath(fastaPath)
               FastaSequenceIndexCreator.create(path, true)
 
               sequenceService.loadRefSeqs(organism)

@@ -21,7 +21,11 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.transcript_overlapper
     }
 
-    TranslationTable getTranslationTable() {
+  String getFaToTwobitExe() {
+    return grailsApplication.config.apollo.fa_to_twobit_exe
+  }
+
+  TranslationTable getTranslationTable() {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
     }
 
