@@ -6,7 +6,7 @@ public class TabDelimittedAlignment extends BlastAlignment {
 
     private final static int EXPECTED_NUM_FIELDS = 12;
     private final static String DELIMITER = "\t";
-    
+
     public TabDelimittedAlignment(String tabbedAlignment) throws AlignmentParsingException {
         String []fields = tabbedAlignment.split(DELIMITER);
         if (fields.length != EXPECTED_NUM_FIELDS) {
@@ -22,22 +22,26 @@ public class TabDelimittedAlignment extends BlastAlignment {
         int queryEnd = Integer.parseInt(fields[7]);
         int subjectStart = Integer.parseInt(fields[8]);
         int subjectEnd = Integer.parseInt(fields[9]);
+        int subjectStrand = 1 ;
+        int queryStrand = 1 ;
         if(subjectEnd<subjectStart) {
             int swap;
             swap=subjectStart;
             subjectStart=subjectEnd;
             subjectEnd=swap;
+            subjectStrand=-1 ;
         }
         if(queryEnd<queryStart) {
             int swap;
             swap=queryStart;
             queryStart=queryEnd;
             queryEnd=swap;
+            queryStrand=-1;
         }
         double eValue = Double.parseDouble(fields[10]);
         double bitscore = Double.parseDouble(fields[11]);
         init(queryId, subjectId, percentId, alignmentLength, numMismatches, numGaps,
-                queryStart, queryEnd, subjectStart, subjectEnd, eValue, bitscore);
+                queryStart, queryEnd, subjectStart, subjectEnd, eValue, bitscore,queryStrand,subjectStrand);
     }
-    
+
 }
