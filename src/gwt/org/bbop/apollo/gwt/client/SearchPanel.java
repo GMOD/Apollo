@@ -162,7 +162,7 @@ public class SearchPanel extends Composite {
                 JSONValue jsonValue = JSONParser.parseStrict(response.getText());
                 JSONArray features = jsonValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
                 final String parentName = features.get(0).isObject().get(FeatureStringEnum.PARENT_NAME.getValue()).isString().stringValue();
-                Bootbox.confirm("Transcript added from blat hit with strand "+ searchHit.getStrand() +".  Verify details now?", new ConfirmCallback() {
+                Bootbox.confirm("Transcript added from search hit with strand "+ searchHit.getStrand() +".  Verify details now?", new ConfirmCallback() {
                   @Override
                   public void callback(boolean result) {
                     if(result){
@@ -171,13 +171,13 @@ public class SearchPanel extends Composite {
                   }
                 });
               } catch (Exception e) {
-                Bootbox.alert("There was a problem adding the blat hit: "+e.getMessage());
+                Bootbox.alert("There was a problem adding the search hit: "+e.getMessage());
               }
             }
 
             @Override
             public void onError(Request request, Throwable exception) {
-              Bootbox.alert("Problem adding blat hit: "+exception.getMessage());
+              Bootbox.alert("Problem adding search hit: "+exception.getMessage());
             }
           };
           AnnotationInfo annotationInfo = new AnnotationInfo();
