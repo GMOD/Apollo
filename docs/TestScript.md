@@ -340,3 +340,26 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 
 16.7.5) Click on the effected gene and click on "Remove variant effects" and confirm that all alterations are removed from within the effected area.
 
+### F) Test Docker load
+
+17.0) Run against docker built on quay.io and/or Docker hub
+
+17.1) Load docker with a sample files directory and database: 
+
+    docker run -it -v /jbrowse/root/directory/:/data -v /postgres/data/directory:/var/lib/postgresql -p 8888:8080 quay.io/gmod/apollo:latest
+    
+17.2) Confirm that we can load a genome and tracks from the existing directory (e.g,. Honeybee)
+
+17.2.1) Confirm that we can create an annotation.
+
+17.3) Confirm that we can load a new genome with an existing fasta file (volvox.fa in the sample data)
+
+17.3.1) Confirm that we can add a new track to that genome with an existing fasta file (volvox.gff in the sample data)
+
+17.3.2) Confirm that we can create an annotation with the new track.
+
+17.3.3) Confirm that we can do a search against that annotation with the new track.
+
+17.3.4) Confirm that we can create an annotation with that search result.
+
+

@@ -1001,7 +1001,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     ])
     def getCannedComments() {
-        log.debug "sequenceSearch ${params.data}"
+        log.debug "canned comment data ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -1015,7 +1015,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             @RestApiParam(name = "search", type = "JSONObject", paramType = RestApiParamType.QUERY, description = "{'key':'blat_prot','residues':'ATACTAGAGATAC':'database_id':'abc123'}")
     ])
     def searchSequence() {
-        log.debug "sequenceSearch ${params.data}"
+        log.debug "sequenceSearch data ${params.data}"
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
             render status: HttpStatus.UNAUTHORIZED
