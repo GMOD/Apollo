@@ -2,7 +2,6 @@ package org.bbop.apollo.sequence.search.blast;
 
 import org.bbop.apollo.sequence.search.Alignment;
 import org.bbop.apollo.Match;
-import org.bbop.apollo.Region;
 import org.bbop.apollo.AnalysisFeature;
 import org.bbop.apollo.Feature;
 
@@ -28,7 +27,7 @@ public class BlastAlignment implements Alignment {
         init(queryId, subjectId, percentId, alignmentLength, numMismatches, numGaps, queryStart, queryEnd, subjectStart, subjectEnd,
                 eValue, bitscore);
     }
-    
+
     protected void init(String queryId, String subjectId, double percentId, int alignmentLength, int numMismatches, int numGaps,
             int queryStart, int queryEnd, int subjectStart, int subjectEnd, double eValue, double bitscore) {
         this.queryId = queryId;
@@ -76,7 +75,7 @@ public class BlastAlignment implements Alignment {
     public int getQueryEnd() {
         return queryEnd;
     }
-    
+
     public int getSubjectStart() {
         return subjectStart;
     }
@@ -84,7 +83,7 @@ public class BlastAlignment implements Alignment {
     public int getSubjectEnd() {
         return subjectEnd;
     }
-    
+
     public double getEValue() {
         return eValue;
     }
@@ -92,7 +91,7 @@ public class BlastAlignment implements Alignment {
     public double getBitscore() {
         return bitscore;
     }
-    
+
     public Match convertToMatch() {
         AnalysisFeature analysisFeature = new AnalysisFeature();
         Match match=new Match();
@@ -131,5 +130,5 @@ public class BlastAlignment implements Alignment {
 
     protected BlastAlignment() {
     }
-    
+
 }
