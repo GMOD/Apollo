@@ -4,7 +4,7 @@ dist: trusty
 language: java
 
 node_js:
-  - "iojs"
+  - "12"
 
 env:
   - DB=postgres

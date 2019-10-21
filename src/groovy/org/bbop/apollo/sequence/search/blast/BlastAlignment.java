@@ -91,5 +91,4 @@ public class BlastAlignment {
       return subjectStrand;
     }
 
-
 }
