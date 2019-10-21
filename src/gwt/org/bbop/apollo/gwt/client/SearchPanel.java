@@ -5,8 +5,6 @@ import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
@@ -87,6 +85,12 @@ public class SearchPanel extends Composite {
       @Override
       public String getValue(SearchHit searchHit) {
         return searchHit.getId();
+      }
+    };
+    Column<SearchHit, Number> strandColumn = new Column<SearchHit, Number>(new NumberCell()) {
+      @Override
+      public Integer getValue(SearchHit object) {
+        return object.getStrand();
       }
     };
     Column<SearchHit, Number> startColumn = new Column<SearchHit, Number>(new NumberCell()) {
@@ -192,12 +196,12 @@ public class SearchPanel extends Composite {
     });
 
     idColumn.setSortable(true);
+    strandColumn.setSortable(true);
     startColumn.setSortable(true);
     endColumn.setSortable(true);
     scoreColumn.setSortable(true);
     significanceColumn.setSortable(true);
     identityColumn.setSortable(true);
-
     scoreColumn.setDefaultSortAscending(false);
 
     ColumnSortEvent.ListHandler<SearchHit> sortHandler = new ColumnSortEvent.ListHandler<SearchHit>(searchHitList);
@@ -206,6 +210,12 @@ public class SearchPanel extends Composite {
       @Override
       public int compare(SearchHit o1, SearchHit o2) {
         return o1.getId().compareTo(o2.getId());
+      }
+    });
+    sortHandler.setComparator(strandColumn, new Comparator<SearchHit>() {
+      @Override
+      public int compare(SearchHit o1, SearchHit o2) {
+        return o1.getStrand().compareTo(o2.getStrand());
       }
     });
     sortHandler.setComparator(startColumn, new Comparator<SearchHit>() {
@@ -253,18 +263,21 @@ public class SearchPanel extends Composite {
     dataGrid.addColumn(endColumn, "End");
     dataGrid.setColumnWidth(2, "10px");
 
-    dataGrid.addColumn(scoreColumn, "Score");
+    dataGrid.addColumn(strandColumn, "Strand");
     dataGrid.setColumnWidth(3, "10px");
 
-    dataGrid.addColumn(significanceColumn, "Significance");
+    dataGrid.addColumn(scoreColumn, "Score");
     dataGrid.setColumnWidth(4, "10px");
 
-    dataGrid.addColumn(identityColumn, "Identity");
+    dataGrid.addColumn(significanceColumn, "Significance");
     dataGrid.setColumnWidth(5, "10px");
+
+    dataGrid.addColumn(identityColumn, "Identity");
+    dataGrid.setColumnWidth(6, "10px");
 
     dataGrid.addColumn(commandColumn, "Action");
 
-    dataGrid.setColumnWidth(6, "10px");
+    dataGrid.setColumnWidth(7, "10px");
 
     dataGrid.setEmptyTableWidget(new Label(""));
 
@@ -324,7 +337,7 @@ public class SearchPanel extends Composite {
             searchHit.setId(hit.get("subject").isObject().get("feature").isObject().get("uniquename").isString().stringValue());
             searchHit.setStart(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmin").isNumber().doubleValue()));
             searchHit.setEnd(Math.round(hit.get("subject").isObject().get("location").isObject().get("fmax").isNumber().doubleValue()));
-            searchHit.setStrand(Math.round(hit.get("subject").isObject().get("location").isObject().get("strand").isNumber().doubleValue()));
+            searchHit.setStrand((int) Math.round(hit.get("subject").isObject().get("location").isObject().get("strand").isNumber().doubleValue()));
             searchHit.setScore(hit.get("rawscore").isNumber().doubleValue());
             searchHit.setSignificance(hit.get("significance").isNumber().doubleValue());
             searchHit.setIdentity(hit.get("identity").isNumber().doubleValue());
