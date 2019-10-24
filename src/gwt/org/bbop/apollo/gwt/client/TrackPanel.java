@@ -4,10 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
@@ -20,6 +17,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.view.client.ListDataProvider;
 import org.bbop.apollo.gwt.client.dto.OrganismInfo;
@@ -58,13 +56,17 @@ import java.util.TreeMap;
  */
 public class TrackPanel extends Composite {
 
-    interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
+  private TrackInfo selectedTrackObject;
+
+  interface TrackUiBinder extends UiBinder<Widget, TrackPanel> {
     }
 
     private static TrackUiBinder ourUiBinder = GWT.create(TrackUiBinder.class);
 
     @UiField
     static TextBox nameSearchBox;
+    @UiField
+    CheckBox isOfficialTrack;
     @UiField
     HTML trackName;
     @UiField
@@ -158,6 +160,8 @@ public class TrackPanel extends Composite {
     private static Map<String, Boolean> categoryOpen = new TreeMap<>();
     private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
     private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
+
+    private static String officialGeneSetTrack = "Protein-coding genes";
 
     private final int MAX_TIME = 5000 ;
     private final int DELAY_TIME = 400;
@@ -274,7 +278,10 @@ public class TrackPanel extends Composite {
 
 
     private void setTrackInfo(TrackInfo selectedObject) {
+        this.selectedTrackObject = selectedObject;
         if (selectedObject == null) {
+            isOfficialTrack.setVisible(false);
+            southTabs.setVisible(false);
             trackName.setVisible(false);
             trackType.setVisible(false);
             optionTree.setVisible(false);
@@ -283,6 +290,9 @@ public class TrackPanel extends Composite {
             optionTree.clear();
             locationRow.setVisible(false);
         } else {
+            southTabs.setVisible(true);
+            isOfficialTrack.setVisible(true);
+            isOfficialTrack.setValue(selectedObject.isOfficialTrack());
             trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
             optionTree.clear();
@@ -358,6 +368,16 @@ public class TrackPanel extends Composite {
     private TrackTypeEnum getTrackType() {
         return TrackTypeEnum.valueOf(configurationButton.getText().replaceAll(" ", "_"));
     }
+
+  @UiHandler("isOfficialTrack")
+  public void toggleOfficialTrack(ClickEvent clickEvent) {
+      String trackName = this.selectedTrackObject.getName();
+      selectedTrackObject.setOfficialTrack(isOfficialTrack.getValue());
+      GWT.log("value for "+trackName + " " + isOfficialTrack.getValue());
+      // TODO: call rest service and reload on success
+      // TODO: official track resides on the organism . . can have multiple, so should be an array of names  (labels / keys)
+      reload();
+  }
 
     @UiHandler("uploadTrackFile")
     public void uploadTrackFile(ChangeEvent event) {
@@ -607,11 +627,16 @@ public class TrackPanel extends Composite {
 
 //            final InputGroupAddon label = new InputGroupAddon();
             HTML trackNameHTML = new HTML(trackInfo.getName());
-            trackNameHTML.addStyleName("text-html-left");
             label.add(trackNameHTML);
+          inputGroup.add(label);
+          if(trackInfo.isOfficialTrack()){
+            trackNameHTML.addStyleName("official-track-entry");
+          }
+          else{
+            trackNameHTML.addStyleName("text-html-left");
             label.addStyleName("text-left");
-            inputGroup.add(label);
-            if (trackInfo.getApollo() != null && canAdminTracks()) {
+          }
+          if (trackInfo.getApollo() != null && canAdminTracks()) {
 //                InputGroupAddon editLabel = new InputGroupAddon();
                 Button removeButton = new Button("Remove");
                 removeButton.setPull(Pull.RIGHT);
@@ -882,6 +907,7 @@ public class TrackPanel extends Composite {
                 TrackInfo trackInfo = new TrackInfo();
                 // track label can never be null, but key can be
                 trackInfo.setName(object.get("key") == null ? object.get("label").isString().stringValue() : object.get("key").isString().stringValue());
+                trackInfo.setOfficialTrack(officialGeneSetTrack.equals(trackInfo.getName()));
 
                 if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
 

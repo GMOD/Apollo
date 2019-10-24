@@ -52,6 +52,13 @@
     padding-bottom: 5px !important;
 }
 
+.official-track-entry {
+  background-color: #0e90d2;
+  color: white;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
 .track-edit-button {
     padding-bottom: 1px !important;
     padding-top: 0 !important;
