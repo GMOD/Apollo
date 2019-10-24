@@ -47,7 +47,7 @@ import java.util.Map;
 public class MainPanel extends Composite {
 
 
-    private static final int DEFAULT_TAB_COUNT = 7;
+    private static final int DEFAULT_TAB_COUNT = 8;
 
     interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
     }

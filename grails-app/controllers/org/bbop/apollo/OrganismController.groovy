@@ -1159,9 +1159,15 @@ class OrganismController {
 
     List<Sequence> sequenceList
 
-    Organism organism = Organism.findByCommonName(organismJson.organism)
-    if (!organism) {
-      organism = Organism.findById(organismJson.organism)
+    Organism organism = null
+    try {
+      organsim = Organism.findByCommonName(organismJson.organism)
+      if (!organism) {
+        organism = Organism.findById(organismJson.organism)
+      }
+    } catch (e) {
+      log.error("Problem finding organism ${organismJson.organism}: ${e}")
+      organism = null
     }
     if (!organism) {
       def error = ['error': 'Organism not found ' + organismJson.organism]
@@ -1385,8 +1391,14 @@ class OrganismController {
       List<Organism> organismList = []
       if (requestObject.organism) {
         log.debug "finding info for specific organism"
-        Organism organism = Organism.findByCommonName(requestObject.organism)
-        if (!organism) organism = Organism.findById(requestObject.organism)
+        Organism organism = null
+        try {
+          organism = Organism.findByCommonName(requestObject.organism)
+          if (!organism) organism = Organism.findById(requestObject.organism)
+        } catch (e) {
+          log.error("Unable to find organism for ${requestObject.organism}")
+          organism = null
+        }
         if (!organism) {
           render([error: "Organism not found"] as JSON)
           return
