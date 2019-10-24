@@ -151,8 +151,10 @@ public class TrackPanel extends Composite {
     HTML topTypeHTML;
     @UiField
     com.google.gwt.user.client.ui.TextBox topTypeName;
+  @UiField
+  Column officialTrackColumn;
 
-    public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
+  public static ListDataProvider<TrackInfo> dataProvider = new ListDataProvider<>();
     private static List<TrackInfo> trackInfoList = new ArrayList<>();
     private static List<TrackInfo> filteredTrackInfoList = dataProvider.getList();
 
@@ -280,7 +282,7 @@ public class TrackPanel extends Composite {
     private void setTrackInfo(TrackInfo selectedObject) {
         this.selectedTrackObject = selectedObject;
         if (selectedObject == null) {
-            isOfficialTrack.setVisible(false);
+            officialTrackColumn.setVisible(false);
             southTabs.setVisible(false);
             trackName.setVisible(false);
             trackType.setVisible(false);
@@ -291,7 +293,7 @@ public class TrackPanel extends Composite {
             locationRow.setVisible(false);
         } else {
             southTabs.setVisible(true);
-            isOfficialTrack.setVisible(true);
+            officialTrackColumn.setVisible(MainPanel.getInstance().isCurrentUserAdmin());
             isOfficialTrack.setValue(selectedObject.isOfficialTrack());
             trackName.setHTML(selectedObject.getName());
             trackType.setText(selectedObject.getType());
