@@ -161,9 +161,9 @@ class TranscriptService {
         }
     }
 
-    @Transactional
-    def updateGeneBoundaries(Transcript transcript) {
-        Gene gene = getGene(transcript)
+  @Transactional
+  def updateGeneBoundaries(Transcript transcript) {
+    Gene gene = getGene(transcript)
         if (gene == null) {
             return;
         }
@@ -467,7 +467,6 @@ class TranscriptService {
 
         Gene gene1 = getGene(transcript1)
         Gene gene2 = getGene(transcript2)
-        String gene2uniquename = gene2.uniqueName
 
         if (gene1) {
             gene1.save(flush: true)
@@ -487,7 +486,7 @@ class TranscriptService {
 
                     for (Transcript transcript : gene2Transcripts) {
                         // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted
-                        // only move if it overlapps.
+                        // only move if it overlaps.
                         if (transcript != transcript2) {
                             deleteTranscript(gene2, transcript)
                             featureService.addTranscriptToGene(gene1, transcript)
@@ -503,6 +502,7 @@ class TranscriptService {
 
         // Delete the empty transcript from the gene, if gene not already deleted
         if (!flag) {
+            featureService.mergeIsoformBoundaries(transcript1,transcript2)
             def childFeatures = featureRelationshipService.getChildren(transcript2)
             featureRelationshipService.deleteChildrenForTypes(transcript2)
             Feature.deleteAll(childFeatures)

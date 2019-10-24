@@ -1674,7 +1674,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         gene.setLastUpdated(new Date());
     }
 
-    @Transactional
+  @Transactional
+  def mergeIsoformBoundaries(Feature feature1,Feature feature2) {
+    int featureFmax = feature1.fmax > feature2.fmax ? feature1.fmax : feature2.fmax
+    int featureFmin = feature1.fmin < feature2.fmin ? feature1.fmin : feature2.fmin
+    featureService.setFmin(feature1, featureFmin)
+    featureService.setFmax(feature1, featureFmax)
+    featureService.setFmin(feature2, featureFmin)
+    featureService.setFmax(feature2, featureFmax)
+  }
+
+
+  @Transactional
     def setFmin(Feature feature, int fmin) {
         feature.getFeatureLocation().setFmin(fmin);
     }
