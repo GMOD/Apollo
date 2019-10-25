@@ -76,13 +76,18 @@ grails {
 }
 ```
 
-### JBrowse Plugins
+### JBrowse Plugins and Configuration
 
-You can add / remove jbrowse plugins by copying a jbrowse section into your ```apollo-config.groovy```. 
+You can configure the installed Apollo JBrowse by modifying the `jbrowse` section of your ```apollo-config.groovy``` that overrides the JBrowse [configuration file](https://github.com/GMOD/Apollo/blob/develop/grails-app/conf/Config.groovy).
 
-There are two sections, ```plugins``` and ```main```, which specifies the jbrowse version.
+There are two sections, ```plugins``` and ```git```, which specifies the JBrowse version.
+
+```
+ git {
+        url = "https://github.com/gmod/jbrowse"
+        branch = "1.16.6-release"
+```
    
-The main section can either contain a ```git``` block or a ```url``` block, both of which require ```url```.
 If a git block a ```tag``` or ```branch``` can be specified.  
 
 In the ```plugins``` section, options are ```included``` (part of the JBrowse release), ```url``` (requiring a url parameter), 
@@ -91,7 +96,6 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
 See `sample-*.groovy` for example sections: https://github.com/GMOD/Apollo/blob/develop/sample-h2-apollo-config.groovy#L112-L146
-
 
 
 ### Translation tables
