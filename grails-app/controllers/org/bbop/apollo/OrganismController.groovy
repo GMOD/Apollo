@@ -1161,7 +1161,7 @@ class OrganismController {
 
     Organism organism = null
     try {
-      organsim = Organism.findByCommonName(organismJson.organism)
+      organism = Organism.findByCommonName(organismJson.organism)
       if (!organism) {
         organism = Organism.findById(organismJson.organism)
       }
