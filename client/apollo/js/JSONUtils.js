@@ -165,9 +165,13 @@ JSONUtils.flattenFeature = function(feature, descendants) {
 JSONUtils.makeSimpleFeature = function(feature, parent)  {
     var result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
     var ftags = feature.tags();
-    for (var tindex = 0; tindex < ftags.length; tindex++)  {
+  console.log('making a simple feature',feature,parent)
+  console.log('ftags',ftags);
+  for (var tindex = 0; tindex < ftags.length; tindex++)  {
         var tag = ftags[tindex];
-        // forcing lower case, since still having case issues with NCList features
+        console.log('tag',tag)
+    console.log('feature tag',feature.get(tag.toLowerCase()))
+    // forcing lower case, since still having case issues with NCList features
         result.set(tag.toLowerCase(), feature.get(tag.toLowerCase()));
     }
     var subfeats = feature.get('subfeatures');

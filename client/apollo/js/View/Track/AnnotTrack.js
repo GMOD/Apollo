@@ -1118,6 +1118,8 @@ define([
 
                 function process() {
                     var keys = Object.keys(parentFeatures);
+                  console.log('parentFeatures',parentFeatures);
+                  console.log('keys',keys);
                     var singleParent = keys.length === 1;
                     var featureToAdd;
                     if (singleParent) {
