@@ -11,6 +11,8 @@ import org.grails.plugins.metrics.groovy.Timed
 @Transactional
 class JsonWebService {
 
+  def featureService
+
   @NotTransactional
   @Timed
   JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
@@ -21,5 +23,15 @@ class JsonWebService {
       jsonFeatures.put(feature)
     }
     return jsonFeatureContainer
+  }
+
+  @Timed
+  JSONObject createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
+    def jsonObjects = new ArrayList()
+    for (Feature feature in features) {
+      JSONObject featureObject = featureService.convertFeatureToJSON(feature, false)
+      jsonObjects.add(featureObject)
+    }
+    return createJSONFeatureContainer(jsonObjects as JSONObject[])
   }
 }

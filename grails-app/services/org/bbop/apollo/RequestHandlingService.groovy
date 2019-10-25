@@ -1381,15 +1381,6 @@ class RequestHandlingService {
 
     }
 
-    @Timed
-    private JSONObject jsonWebService.createJSONFeatureContainerFromFeatures(Feature... features) throws JSONException {
-        def jsonObjects = new ArrayList()
-        for (Feature feature in features) {
-            JSONObject featureObject = featureService.convertFeatureToJSON(feature, false)
-            jsonObjects.add(featureObject)
-        }
-        return jsonWebService.createJSONFeatureContainer(jsonObjects as JSONObject[])
-    }
 
 
     @Timed
