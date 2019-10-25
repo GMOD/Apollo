@@ -31,7 +31,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
    :glob:
-   :caption: Setting up the Apollo Instance
+   :caption: Installing Apollo
 
    Prerequisites
    Setup
@@ -56,7 +56,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
    :glob:
-   :caption: Developing with Apollo
+   :caption: Developing Apollo
 
    Apollo2Build
    Contributing
