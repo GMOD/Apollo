@@ -9,9 +9,9 @@ The general idea behind your deployment is to create a `apollo-config.groovy` fi
 have sample settings for various database engines.
 
 
-## Production pre-requisites
+## Pre-requisites
 
-You will minimally need to have Java 8 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
+The server will minimally need to have Java 8 or greater, [Grails](https://grails.org/), [git](https://git-scm.com/),
 [ant](http://ant.apache.org/), a servlet container e.g. [tomcat7+](http://tomcat.apache.org/), jetty, or resin. An
 external database such as PostgreSQL or MySQL is generally used for production, but instructions for the H2 database is
 also provided.
@@ -19,21 +19,30 @@ also provided.
 **Important note**:  The default memory for Tomcat and Jetty is insufficient to run Apollo (and most other web apps).   
 You should [increase the memory according to these instructions](Troubleshooting.md#tomcat-memory).
 
-Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configuration_Guide) (based on an Ubuntu 16 install):
+Other possible [build settings for JBrowse](http://gmod.org/wiki/JBrowse_Configuration_Guide):
+ 
+Ubuntu / Debian
 
-     sudo apt-get update && sudo apt-get install zlib1g-dev libpng-dev libgd2-noxpm-dev build-essential git python-software-properties python
+     sudo apt-get install zlib1g zlib1g-dev libexpat1-dev libpng-dev libgd2-noxpm-dev build-essential git python-software-properties python make
+    
+RedHat / CentOS
+
+     sudo apt-get install zlib zlib-dev expat-dev libpng-dev libgd2-noxpm-dev build-essential git python-software-properties python make
      
-### Install node if not present
+     
+It is recommended to use the [default version of JBrowse or better](https://github.com/GMOD/Apollo/blob/develop/grails-app/conf/Config.groovy#L406) (though it does not work with JBrowse 2 yet).
 
-Node versions 6+ have been tested.   I would recommend using [nvm](https://github.com/creationix/nvm) and ``nvm install 8```
+There are [additional requirements](Apollo2Build.md) if doing development with Apollo.
 
-### Install python, make 
+### Install node and yarn
 
-Node has a python dependency. `sudo apt-get install python make`
+Node versions 6-12 have been tested and work.   [nvm](https://github.com/creationix/nvm) and ``nvm install 8``` is recommended.
+
+    npm install -g yarn
 
 ### Install jdk
      
-Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat8 is preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
+Build settings for Apollo specifically.  Recent versions of tomcat7 will work, though tomcat 8 and 9 are preferred.  If it does not install automatically there are a number of ways to [build tomcat on linux](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04):
      
     sudo apt-get install ant openjdk-8-jdk 
     export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/  # or set in .bashrc / .project
@@ -42,26 +51,10 @@ If you need to have multiple versions of java (note [#2222](https://github.com/G
 
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 
-    
-### Install yarn
+Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  
+Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  
+To setup for production continue onto configuration below after install . 
 
-    npm install -g yarn
-
-Download Apollo from the [latest release](https://github.com/GMOD/Apollo/releases/latest/) under source-code and unzip.  Test installation by running ```./apollo run-local``` and see that the web-server starts up on http://localhost:8080/apollo/.  To setup for production continue onto configuration below after install . 
-
-If you get an ```Unsupported major.minor error``` or similar, please confirm that the version of java that tomcat is running ```ps -ef | grep java``` is the same as the one you used to build.  Setting JAVA_HOME to the Java 8 JDK should fix most problems.
-
-
-#### JSON in the URL with newer versions of Tomcat
-
-When JSON is added to the URL string (e.g., `addStores` and `addTracks`) you may get this error with newer patched versions of Tomcat 7.0.73, 8.0.39, 8.5.7:
-
-     java.lang.IllegalArgumentException: Invalid character found in the request target. The valid characters are defined in RFC 7230 and RFC 3986
-
-To fix these, the best solution we've come up with (and there may be many) is to explicitly allow these characters, which you can do starting with Tomcat versions: 7.0.76, 8.0.42, 8.5.12.
-This is done by adding the following line to `$CATALINA_HOME/conf/catalina.properties`:
-
-    tomcat.util.http.parser.HttpParser.requestTargetAllow=|{}
 
 ### Database configuration
 
