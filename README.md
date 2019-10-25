@@ -35,7 +35,7 @@ Specific information for [setting up AWS instances](Aws_setup.md) is provided fo
  
 Apollo may be launched from [Docker](docs/Docker.md) as well.  
 
-The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
+The [guide for developers](docs/Apollo2Build.md) shows how to get started with Apollo. 
 
 [Python library over web services](https://pypi.org/project/apollo/) and other [web services examples](https://github.com/GMOD/Apollo/tree/develop/docs/web_services/examples).
 
@@ -47,7 +47,7 @@ You can follow steps in our [migration guide](https://github.com/GMOD/Apollo/blo
 ### Note about data directories
 
 Apollo 2.X allows you to add multiple data directories to your webapp, and it expects the data directories to be stored
-outside of the tomcat webapps directory. Use the [quick-start guide](docs/Apollo2Build.md) to learn how to add new
+outside of the tomcat webapps directory. Use the [developer's guide](docs/Apollo2Build.md) to learn how to add new
 data directories for your organisms.
 
 

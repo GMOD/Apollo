@@ -29,7 +29,7 @@ Node versions 6+ have been tested.   I would recommend using [nvm](https://githu
 
 ### Install python, make 
 
-Node has a python dependency. `sudo apt-get install python make`
+If node has a python dependency. `sudo apt-get install python make`
 
 ### Install jdk
      

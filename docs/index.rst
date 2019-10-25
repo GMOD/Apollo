@@ -31,23 +31,36 @@ Contents:
 .. toctree::
    :maxdepth: 2
    :glob:
+   :caption: Setting up the Apollo Instance
 
    Prerequisites
-   Apollo2Build
    Setup
-   Demo
-   UsersGuide
+   Docker
    Configure
    ChadoExport
    Data_loading
    Data_Loading_via_web_services
-   Docker
-   Contributing
    Troubleshooting
+   ExampleBuild
    Migration
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+   :caption: Using Apollo
+
+   Demo
+   UsersGuide
    Permissions
+
+.. toctree::
+   :maxdepth: 2
+   :glob:
+   :caption: Developing with Apollo
+
+   Apollo2Build
+   Contributing
    Testing_notes
    Architecture
    Command_line
    Web_services
-   ExampleBuild
