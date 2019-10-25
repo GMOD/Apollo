@@ -9,7 +9,7 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 import org.grails.plugins.metrics.groovy.Timed
 
 @Transactional
-class JsonWebService {
+class JsonWebUtilityService {
 
   def featureService
 

@@ -46,14 +46,13 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def featureRelationshipService
     def featurePropertyService
     def requestHandlingService
-    def transcriptService
-    def exonService
     def permissionService
     def preferenceService
     def sequenceSearchService
     def featureEventService
     def annotationEditorService
     def organismService
+    def jsonWebUtilityService
     def brokerMessagingTemplate
 
 
@@ -140,7 +139,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         permissionService.checkPermissions(inputObject, PermissionEnum.READ)
 
-        JSONObject historyContainer = createJSONFeatureContainer();
+        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         historyContainer = featureEventService.generateHistory(historyContainer, featuresArray)
 
         render historyContainer as JSON
@@ -459,7 +458,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
     @Timed
     def getInformation() {
-        JSONObject featureContainer = createJSONFeatureContainer();
+        JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         JSONObject inputObject = permissionService.handleInput(request, params)
         if (!permissionService.checkPermissions(PermissionEnum.WRITE)) {
             render new JSONObject() as JSON
@@ -980,7 +979,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        JSONObject featureContainer = createJSONFeatureContainer()
+        JSONObject featureContainer = jsonWebUtilityService.createJSONFeatureContainer()
         JSONObject sequenceObject = sequenceService.getSequenceForFeatures(inputObject)
         featureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(sequenceObject)
         render featureContainer
@@ -1093,7 +1092,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
 
         JSONArray featuresArray = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
-        JSONObject returnObject = createJSONFeatureContainer()
+        JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
 
         for (int i = 0; i < featuresArray.length(); ++i) {
             JSONObject jsonFeature = featuresArray.getJSONObject(i);
