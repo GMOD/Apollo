@@ -33,7 +33,6 @@ Contents:
    :glob:
    :caption: Installing Apollo
 
-   Prerequisites
    Setup
    Docker
    Configure
