@@ -96,6 +96,7 @@ public enum FeatureStringEnum {
         HASATTRIBUTES("hasAttributes"),
         HASPUBMEDIDS("hasPubmedIds"),
         HASGOIDS("hasGoIds"),
+        GO_ANNOTATIONS,
         HASCOMMENTS("hasComments"),
         SUPPORTED_TYPES,
         OLD_DBXREFS,

@@ -1985,6 +1985,14 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name)
         }
 
+      if(gsolFeature.goAnnotations){
+        JSONArray goAnnotationsArray = new JSONArray()
+        for(annotation in gsolFeature.goAnnotations){
+          goAnnotationsArray.add((annotation as JSON) as JSONObject)
+        }
+        jsonFeature.put(FeatureStringEnum.GO_ANNOTATIONS.value, goAnnotationsArray)
+      }
+
         durationInMilliseconds = System.currentTimeMillis() - start
 
 

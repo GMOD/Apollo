@@ -5,6 +5,8 @@ import grails.transaction.Transactional
 import org.bbop.apollo.Feature
 import org.bbop.apollo.User
 import org.bbop.apollo.gwt.shared.PermissionEnum
+import org.bbop.apollo.history.FeatureOperation
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.restapidoc.annotation.RestApiMethod
 import org.restapidoc.annotation.RestApiParam
@@ -17,17 +19,12 @@ import static org.springframework.http.HttpStatus.NOT_FOUND
 @Transactional(readOnly = true)
 class GoAnnotationController {
 
-//    static responseFormats = ['json', 'xml']
-//    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
   def permissionService
-  def preferenceService
+  def jsonWebService
   def goAnnotationService
-
-//    def index(Integer max) {
-//        params.max = Math.min(max ?: 10, 100)
-//        respond GoAnnotation.list(params), [status: OK]
-//    }
+  def featureEventService
+  def featureService
 
   @RestApiMethod(description = "Load Go Annotations for gene", path = "/goAnnotation", verb = RestApiVerb.POST)
   @RestApiParams(params = [
@@ -79,6 +76,9 @@ class GoAnnotationController {
     User user = permissionService.getCurrentUser(dataObject)
     GoAnnotation goAnnotation = new GoAnnotation()
     Feature feature = Feature.findByUniqueName(dataObject.gene)
+
+    JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
     goAnnotation.feature = feature
     goAnnotation.aspect = dataObject.aspect
     goAnnotation.goRef = dataObject.goTerm
@@ -95,6 +95,20 @@ class GoAnnotationController {
     goAnnotation.addToOwners(user)
     feature.addToGoAnnotations(goAnnotation)
     goAnnotation.save(flush: true, failOnError: true)
+
+    JSONArray oldFeaturesJsonArray = new JSONArray()
+    oldFeaturesJsonArray.add(originalFeatureJsonObject)
+    JSONArray newFeaturesJsonArray = new JSONArray()
+    JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    newFeaturesJsonArray.add(currentFeatureJsonObject)
+
+    featureEventService.addNewFeatureEvent(FeatureOperation.ADD_GO_ANNOTATION,
+      feature.name,
+      feature.uniqueName,
+      dataObject,
+      oldFeaturesJsonArray,
+      newFeaturesJsonArray,
+      user)
 
     JSONObject annotations = goAnnotationService.getAnnotations(feature)
     render annotations as JSON
@@ -122,6 +136,11 @@ class GoAnnotationController {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
     User user = permissionService.getCurrentUser(dataObject)
+    Feature feature = Feature.findByUniqueName(dataObject.gene)
+
+    JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
+
     GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
     goAnnotation.aspect = dataObject.aspect
     goAnnotation.goRef = dataObject.goTerm
@@ -137,7 +156,20 @@ class GoAnnotationController {
     goAnnotation.addToOwners(user)
     goAnnotation.save(flush: true, failOnError: true, insert: false)
 
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    JSONArray oldFeaturesJsonArray = new JSONArray()
+    oldFeaturesJsonArray.add(originalFeatureJsonObject)
+    JSONArray newFeaturesJsonArray = new JSONArray()
+    JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    newFeaturesJsonArray.add(currentFeatureJsonObject)
+
+    featureEventService.addNewFeatureEvent(FeatureOperation.UPDATE_GO_ANNOTATION,
+      feature.name,
+      feature.uniqueName,
+      dataObject,
+      oldFeaturesJsonArray,
+      newFeaturesJsonArray,
+      user)
+
     JSONObject annotations = goAnnotationService.getAnnotations(feature)
     render annotations as JSON
   }
@@ -154,9 +186,28 @@ class GoAnnotationController {
   def delete() {
     JSONObject dataObject = permissionService.handleInput(request, params)
     permissionService.checkPermissions(dataObject, PermissionEnum.WRITE)
+    User user = permissionService.getCurrentUser(dataObject)
+
+    Feature feature = Feature.findByUniqueName(dataObject.gene)
+    JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+
     GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
     goAnnotation.delete(flush: true)
-    Feature feature = Feature.findByUniqueName(dataObject.gene)
+
+    JSONArray oldFeaturesJsonArray = new JSONArray()
+    oldFeaturesJsonArray.add(originalFeatureJsonObject)
+    JSONArray newFeaturesJsonArray = new JSONArray()
+    JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+    newFeaturesJsonArray.add(currentFeatureJsonObject)
+
+    featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_GO_ANNOTATION,
+      feature.name,
+      feature.uniqueName,
+      dataObject,
+      oldFeaturesJsonArray,
+      newFeaturesJsonArray,
+      user)
+
     JSONObject annotations = goAnnotationService.getAnnotations(feature)
     render annotations as JSON
   }
