@@ -95,9 +95,7 @@ The following are options for Users with Administrative Privileges.
 
 ### The Apollo Main Window
 
-<img src="images/Web_Apollo_User_Guide_Fig1-2017.png" width="800" height="491">
-
-![User's Guide Figure 1](docs/images/Web_Apollo_User_Guide_Fig1-2017.png "Figure 1"   | width=800  | height=491 }
+![](images/Web_Apollo_User_Guide_Fig1-2017.png)
 
 ###### Figure 1. Apollo Annotation Editor Overview. 
 This view shows an annotation in progress. The main annotation window is similar to the JBrowse window. A) The 'Navigation Panel' runs along the top of the main panel; it includes arrows to move left and right, and two levels of zooming. The drop-down box is used to select the assembly fragment (e.g. scaffold, chromosome, linkage group, etc.) where you wish to conduct your annotation, and the text-box is used to manually enter its coordinates. B) The 'User-created Annotations' panel contains the manual annotations. C) The 'Evidence' panel includes all tracks with experimental data aligned to the reference assembled genome. Annotators create annotations by first selecting and dragging a model from the 'Evidence' panel to the ‘User-created Annotations’ panel. D) The 'Annotator Panel' allows curators to easily navigate the genome, and to display and export annotations. 
@@ -192,13 +190,7 @@ To correct an exon boundary to match data in the evidence tracks, use the edge-m
 
 In some cases all the data may disagree with the annotation, in other cases some data support the annotation and some of the data support one or more alternative transcripts. Try to annotate as many alternatives transcripts as the evidence data support.
 
-<img src="images/Web_Apollo-User_Guide_Fig2.jpg" width="300" height="210">
-
-![User's Guide Figure 2](images/Web_Apollo-User_Guide_Fig2.jpg "Figure 2"   | width=300  | height=210)
-
-![User's Guide Figure 2](images/Web_Apollo-User_Guide_Fig2.jpg)
-
-![User's Guide Figure 2](images/Web_Apollo-User_Guide_Fig2.jpg =300x210)
+![](images/Web_Apollo-User_Guide_Fig2.jpg)
 
 
 ###### Figure 2. Apollo view, zoomed to base level. 
@@ -238,8 +230,7 @@ If the annotation looks good, obtain the protein sequence (see 'Get Sequences' s
 
 ### Additional Functionality
 
-
-<img src="images/Web_Apollo_User_Guide_Fig3.png" width="150" height="335">
+![](images/Web_Apollo_User_Guide_Fig3.png)
 
 ###### Figure 3. Additional functionality.
 This is the right-click menu.
@@ -289,7 +280,7 @@ You may select the supporting evidence tracks and drag their 'ghost' over the ca
 
 Alternatively, you may select and drag each proposed gene model separately onto the 'User-created Annotations' area. Once you are certain that two models should be merged, after checking boundaries and all supporting evidence, bring them together by holding the 'Shift' key and clicking on an intron from each of the merging gene models; in this way you will select both models completely. Then select the 'Merge' option from the right-click menu. Get the resulting translation sequence and inspect it by querying a protein database, such as UniProt. Be sure to record the IDs of all starting gene models in the 'Comments' table, and use the appropriate canned comment to indicate that this annotation is the result of a merge.
 
-<img src="images/Web_Apollo_User_Guide_edge-matching.png" width="700" height="407">
+![](images/Web_Apollo_User_Guide_edge-matching.png)
 
 ###### Figure 4. Edge-matching in Apollo. 
 
