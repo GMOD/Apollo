@@ -192,9 +192,13 @@ To correct an exon boundary to match data in the evidence tracks, use the edge-m
 
 In some cases all the data may disagree with the annotation, in other cases some data support the annotation and some of the data support one or more alternative transcripts. Try to annotate as many alternatives transcripts as the evidence data support.
 
-<img src="images/Web_Apollo-User_Guide_Fig2.jpg" width="300" height="210">
+<img src="docs/images/Web_Apollo-User_Guide_Fig2.jpg" width="300" height="210">
 
-![User's Guide Figure 2](docs/images/Web_Apollo-User_Guide_Fig2.jpg "Figure 2"   | width=300  | height=210}
+![User's Guide Figure 2](docs/images/Web_Apollo-User_Guide_Fig2.jpg "Figure 2"   | width=300  | height=210)
+
+![User's Guide Figure 2](docs/images/Web_Apollo-User_Guide_Fig2.jpg)
+
+![User's Guide Figure 2](docs/images/Web_Apollo-User_Guide_Fig2.jpg =300x210)
 
 
 ###### Figure 2. Apollo view, zoomed to base level. 
