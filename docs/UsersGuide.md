@@ -190,7 +190,7 @@ To correct an exon boundary to match data in the evidence tracks, use the edge-m
 
 In some cases all the data may disagree with the annotation, in other cases some data support the annotation and some of the data support one or more alternative transcripts. Try to annotate as many alternatives transcripts as the evidence data support.
 
-![](images/Web_Apollo-User_Guide_Fig2.jpg)
+![](images/Apollo_User_Guide_Figure2.jpg)
 
 
 ###### Figure 2. Apollo view, zoomed to base level. 
@@ -230,7 +230,7 @@ If the annotation looks good, obtain the protein sequence (see 'Get Sequences' s
 
 ### Additional Functionality
 
-![](images/Web_Apollo_User_Guide_Fig3.png)
+![](images/Apollo_Users_Guide_Figure3.png)
 
 ###### Figure 3. Additional functionality.
 This is the right-click menu.
