@@ -285,7 +285,14 @@ class OrganismController {
           dataAddedViaWebServices: true
         ).save(failOnError: true, flush: true, insert: true)
         def currentUser = permissionService.currentUser
-        organism.addMetaData("creator", currentUser.id.toString())
+        String userId = null
+        if(currentUser){
+          userId = currentUser.id.toString()
+        }
+        else{
+          userId = requestObject.username as String
+        }
+        organism.addMetaData("creator", userId)
         File directory = trackService.getExtendedDataDirectory(organism)
 
         if (directory.mkdirs() && directory.setWritable(true)) {
@@ -1078,7 +1085,7 @@ class OrganismController {
         throw new Exception('empty fields detected')
       }
 
-      log.debug "Adding ${organismJson.publicMode}"
+      log.debug "Adding organsim json ${organismJson as JSON}"
       Organism organism = new Organism(
         commonName: organismJson.commonName
         , directory: organismJson.directory
