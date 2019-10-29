@@ -279,13 +279,20 @@ class OrganismController {
           obsolete: false,
           valid: true,
           species: requestObject.species ?: "",
-          metadata: requestObject.metadata ?: "",
+          metadata: requestObject.metadata ? requestObject.metadata.toString() : "",
           publicMode: requestObject.publicMode ?: false,
           nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
           dataAddedViaWebServices: true
         ).save(failOnError: true, flush: true, insert: true)
         def currentUser = permissionService.currentUser
-        organism.addMetaData("creator", currentUser.id.toString())
+        String userId = null
+        if(currentUser){
+          userId = currentUser.id.toString()
+        }
+        else{
+          userId = requestObject.username as String
+        }
+        organism.addMetaData("creator", userId)
         File directory = trackService.getExtendedDataDirectory(organism)
 
         if (directory.mkdirs() && directory.setWritable(true)) {
@@ -1078,7 +1085,7 @@ class OrganismController {
         throw new Exception('empty fields detected')
       }
 
-      log.debug "Adding ${organismJson.publicMode}"
+      log.debug "Adding organsim json ${organismJson as JSON}"
       Organism organism = new Organism(
         commonName: organismJson.commonName
         , directory: organismJson.directory
@@ -1336,7 +1343,7 @@ class OrganismController {
       Organism organism = Organism.findById(organismJson.id)
       if (organism) {
         log.debug "Updating organism metadata ${organismJson as JSON}"
-        organism.metadata = organismJson.metadata
+        organism.metadata = organismJson.metadata?.toString()
         organism.save(flush: true, insert: false, failOnError: true)
       } else {
         throw new Exception('Organism not found')
@@ -1485,9 +1492,6 @@ class OrganismController {
 
     // global version
     OrganismSummary organismSummaryInstance = permissionService.currentUser.roles.first().rank == GlobalPermissionEnum.ADMIN.rank ? reportService.generateAllFeatureSummary() : new OrganismSummary()
-//        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
-
-//        def organismPermissions = permissionService.getOrganismsWithPermission(permissionService.currentUser)
     def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser, PermissionEnum.ADMINISTRATE)
 
 

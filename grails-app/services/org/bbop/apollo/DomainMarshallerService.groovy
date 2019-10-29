@@ -27,6 +27,7 @@ class DomainMarshallerService {
             returnArray['genus'] = it?.genus
             returnArray['species'] = it?.species
             returnArray['directory'] = it.directory
+            returnArray['metadata'] = it?.metadata
             return returnArray
         }
 
