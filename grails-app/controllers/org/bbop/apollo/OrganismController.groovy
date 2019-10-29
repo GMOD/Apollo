@@ -279,7 +279,7 @@ class OrganismController {
           obsolete: false,
           valid: true,
           species: requestObject.species ?: "",
-          metadata: requestObject.metadata ?: "",
+          metadata: requestObject.metadata ? requestObject.metadata.toString() : "",
           publicMode: requestObject.publicMode ?: false,
           nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
           dataAddedViaWebServices: true
