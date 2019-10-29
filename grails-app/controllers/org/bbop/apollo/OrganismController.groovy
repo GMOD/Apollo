@@ -1336,7 +1336,7 @@ class OrganismController {
       Organism organism = Organism.findById(organismJson.id)
       if (organism) {
         log.debug "Updating organism metadata ${organismJson as JSON}"
-        organism.metadata = organismJson.metadata
+        organism.metadata = organismJson.metadata?.toString()
         organism.save(flush: true, insert: false, failOnError: true)
       } else {
         throw new Exception('Organism not found')
@@ -1485,9 +1485,6 @@ class OrganismController {
 
     // global version
     OrganismSummary organismSummaryInstance = permissionService.currentUser.roles.first().rank == GlobalPermissionEnum.ADMIN.rank ? reportService.generateAllFeatureSummary() : new OrganismSummary()
-//        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
-
-//        def organismPermissions = permissionService.getOrganismsWithPermission(permissionService.currentUser)
     def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser, PermissionEnum.ADMINISTRATE)
 
 
