@@ -1055,6 +1055,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     String getResiduesWithAlterationsAndFrameshifts(Feature feature) {
         if (!(feature instanceof CDS)) {
+          println "${feature} is not a CDS, is a transcript"
             return getResiduesWithAlterations(feature, getSequenceAlterationsForFeature(feature))
         }
         Transcript transcript = (Transcript) featureRelationshipService.getParentForFeature(feature, Transcript.ontologyId)
@@ -1170,12 +1171,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     @Timed
     @Transactional
     void setLongestORF(Transcript transcript, boolean readThroughStopCodon) {
+      println "AAAAAAAA in the set longest orf method ${transcript}"
         Organism organism = transcript.featureLocation.sequence.organism
         TranslationTable translationTable = organismService.getTranslationTable(organism)
         String mrna = getResiduesWithAlterationsAndFrameshifts(transcript);
+      println "mrna found ${mrna}"
         if (!mrna) {
             return;
         }
+      println "setting the longest ORF"
         String longestPeptide = "";
         int bestStartIndex = -1;
         int bestStopIndex = -1;
@@ -1226,14 +1230,19 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
 
         log.debug "bestStartIndex: ${bestStartIndex} bestStopIndex: ${bestStopIndex}; partialStart: ${partialStart} partialStop: ${partialStop}"
 
+      println "transcript ${transcript}"
+
         if (transcript instanceof MRNA) {
+          println "is an instance of an mRNA!!!"
             CDS cds = transcriptService.getCDS(transcript)
             if (cds == null) {
+              println "creating CDS!!!"
                 cds = transcriptService.createCDS(transcript);
                 transcriptService.setCDS(transcript, cds);
             }
+          println "cds created and set ${cds}"
 
-            int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex)
+          int fmin = convertModifiedLocalCoordinateToSourceCoordinate(transcript, bestStartIndex)
 
             if (bestStopIndex >= 0) {
                 log.debug "bestStopIndex >= 0"
@@ -2691,9 +2700,26 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     String getResiduesWithAlterations(Feature feature, Collection<SequenceAlterationArtifact> sequenceAlterations = new ArrayList<>()) {
         String residueString = null
         List<SequenceAlterationInContext> sequenceAlterationInContextList = new ArrayList<>()
+      println "feature is a type of ?? ${feature}"
         if (feature instanceof Transcript) {
-            residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
+          println "is a transcript ${feature}"
+          def exons = transcriptService.getExons(feature)
+          println "found exons ${exons}"
+          if(exons){
             // sequence from exons, with UTRs too
+            println "doing transcript with exons "
+            residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
+          }
+          else{
+            def cds = transcriptService.getCDS(feature)
+            println "found cds ${cds}"
+            if(!cds) {
+              log.warn("No CDS found for transcript ${feature}")
+            }
+            // sequence from cds
+            residueString = cdsService.getResiduesFromCDS((CDS) cds)
+          }
+          println "ultimate residue string ${residueString}"
             sequenceAlterationInContextList = getSequenceAlterationsInContext(feature, sequenceAlterations)
         } else if (feature instanceof CDS) {
             residueString = cdsService.getResiduesFromCDS((CDS) feature)
@@ -2703,8 +2729,10 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             // sequence from feature, as is
             residueString = sequenceService.getResiduesFromFeature(feature)
             sequenceAlterationInContextList = getSequenceAlterationsInContext(feature, sequenceAlterations)
+          println "type not found, so returning ${residueString}"
         }
         if (sequenceAlterations.size() == 0 || sequenceAlterationInContextList.size() == 0) {
+          println "is not a type of anything, so returning ${residueString}"
             return residueString
         }
 

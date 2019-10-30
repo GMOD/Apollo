@@ -1167,20 +1167,24 @@ class RequestHandlingService {
 
     @Timed
     JSONObject setLongestOrf(JSONObject inputObject) {
+      println "setting longest orf ${inputObject.toString()}"
         JSONArray features = inputObject.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONObject transcriptJSONObject = features.getJSONObject(0);
 
         Transcript transcript = Transcript.findByUniqueName(transcriptJSONObject.getString(FeatureStringEnum.UNIQUENAME.value))
         Sequence sequence = permissionService.checkPermissions(inputObject, PermissionEnum.WRITE)
+      println "has a transcript ${transcript}"
 
         featureService.setLongestORF(transcript, false)
 
         featureService.addOwnersByString(inputObject.username, transcript)
         transcript.save(flush: true, insert: false)
         def transcriptsToUpdate = featureService.handleDynamicIsoformOverlap(transcript)
+       println "transcripts to update ${transcriptsToUpdate}"
         if (transcriptsToUpdate.size() > 0) {
             JSONObject updateFeatureContainer = createJSONFeatureContainer()
             transcriptsToUpdate.each {
+              println "updating transcripts ${it}"
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(it))
             }
             if (sequence) {
