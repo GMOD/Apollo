@@ -50,7 +50,7 @@ class OrganismController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "Pass an Organism database `id` or `commonName` that corresponds to the organism to be removed")
+    , @RestApiParam(name = "id", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
   ])
   @Transactional
   def deleteOrganism() {
@@ -58,7 +58,6 @@ class OrganismController {
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
       log.debug "deleteOrganism ${organismJson}"
-      //if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
       log.debug "organism ID: ${organismJson.id}"
       // backporting a bug here:
       Organism organism = Organism.findByCommonName(organismJson.id as String)
@@ -123,13 +122,10 @@ class OrganismController {
 
     try {
       //if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
-      // use hasGolbalPermssions instead, which can validate the authentication
       if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
         Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism as String)
-        println "found organism to remove ${organism} from ${requestObject.organism}"
         if(!organism){
           organism = preferenceService.getOrganismForTokenInDB(requestObject.id as String)
-          println "found organism to remove ${organism} from ${requestObject.id}"
         }
         if (organism) {
           boolean dataAddedViaWebServices = organism.dataAddedViaWebServices == null ? false : organism.dataAddedViaWebServices
@@ -374,7 +370,6 @@ class OrganismController {
                 assert searchDirectory.mkdir()
                 assert searchDirectory.setWritable(true)
                 File searchFile = new File(searchDirectory.absolutePath + File.separator + searchDatabaseDataFile.originalFilename)
-                println "search file: ${searchFile.absolutePath}"
                 searchDatabaseDataFile.transferTo(searchFile)
                 organism.blatdb = searchFile.absolutePath
               }
