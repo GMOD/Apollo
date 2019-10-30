@@ -50,7 +50,7 @@ class OrganismController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "Pass an Organism JSON object with an 'id' that corresponds to the organism to be removed")
+    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "Pass an Organism database `id` or `commonName` that corresponds to the organism to be removed")
   ])
   @Transactional
   def deleteOrganism() {
@@ -59,10 +59,18 @@ class OrganismController {
       JSONObject organismJson = permissionService.handleInput(request, params)
       log.debug "deleteOrganism ${organismJson}"
       //if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
-      log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
-      Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
+      log.debug "organism ID: ${organismJson.id}"
+      // backporting a bug here:
+      Organism organism = Organism.findByCommonName(organismJson.id as String)
+      if(!organism){
+        organism = Organism.findById(organismJson.id as Long)
+      }
+      // backport a bug so that it doesn't break existing code
+      if(!organism){
+        organism =  Organism.findByCommonName(organismJson.organism as String)
+      }
       if (!organism) {
-        def error = [error: "Organism ${organismJson.organism} not found"]
+        def error = [error: "Organism ${organismJson.id} not found"]
         log.error(error.error)
         render error as JSON
         return
@@ -104,19 +112,25 @@ class OrganismController {
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
+    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
   ])
   @Transactional
   def deleteOrganismWithSequence() {
 
     JSONObject requestObject = permissionService.handleInput(request, params)
     JSONObject responseObject = new JSONObject()
-    log.debug "deleteOrganism ${requestObject}"
+    log.debug "deleteOrganismWithSequence ${requestObject}"
 
     try {
       //if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
       // use hasGolbalPermssions instead, which can validate the authentication
       if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
         Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
+        println "found organism to remove ${organism} from ${requestObject.organism}"
+        if(!organism){
+          organism = preferenceService.getOrganismForTokenInDB(requestObject.id)
+          println "found organism to remove ${organism} from ${requestObject.id}"
+        }
         if (organism) {
           boolean dataAddedViaWebServices = organism.dataAddedViaWebServices == null ? false : organism.dataAddedViaWebServices
           String organismDirectory = organism.directory
