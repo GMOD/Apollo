@@ -125,10 +125,10 @@ class OrganismController {
       //if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
       // use hasGolbalPermssions instead, which can validate the authentication
       if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
-        Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
+        Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism as String)
         println "found organism to remove ${organism} from ${requestObject.organism}"
         if(!organism){
-          organism = preferenceService.getOrganismForTokenInDB(requestObject.id)
+          organism = preferenceService.getOrganismForTokenInDB(requestObject.id as String)
           println "found organism to remove ${organism} from ${requestObject.id}"
         }
         if (organism) {
