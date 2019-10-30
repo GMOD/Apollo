@@ -290,7 +290,7 @@ class OrganismController {
           valid: true,
           species: requestObject.species ?: "",
           metadata: requestObject.metadata ? requestObject.metadata.toString() : "",
-          publicMode: requestObject.publicMode ?: false,
+          publicMode: requestObject.containsKey("publicMode") ? Boolean.valueOf(requestObject.publicMode as String) : false,
           nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
           dataAddedViaWebServices: true
         ).save(failOnError: true, flush: true, insert: true)
