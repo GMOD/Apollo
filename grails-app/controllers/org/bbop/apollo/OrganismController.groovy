@@ -1249,6 +1249,7 @@ class OrganismController {
     , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
     , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
     , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory (if other options not used).  Blat data should include a .2bit suffix and be in a directory 'searchDatabaseData'")
+    , @RestApiParam(name = "noReloadSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false) If set to true, then sequences will not be reloaded if the organism directory changes.")
   ])
   @Transactional
   def updateOrganismInfo() {
@@ -1257,6 +1258,7 @@ class OrganismController {
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
+      Boolean doReloadIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
       if (organism) {
         String oldOrganismDirectory = organism.directory
 
@@ -1267,9 +1269,9 @@ class OrganismController {
         //if the organismJson.metadata is null, remain the old metadata
         organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
         organism.directory = organismJson.directory ?: organism.directory
-        organism.publicMode = organismJson.publicMode ?: false
-        madeObsolete = !organism.obsolete && organismJson.obsolete
-        organism.obsolete = organismJson.obsolete ?: false
+        organism.publicMode = organismJson.containsKey("publicMode") ? Boolean.valueOf(organismJson.publicMode as String) : false
+        madeObsolete = !organism.obsolete && (organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false)
+        organism.obsolete = organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false
         organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
         if (organism.genomeFasta) {
           // update location of genome fasta
@@ -1306,7 +1308,8 @@ class OrganismController {
             permissionService.removeAllPermissions(organism)
           }
           organism.save(flush: true, insert: false, failOnError: true)
-          if (oldOrganismDirectory!=organism.directory) {
+
+          if (oldOrganismDirectory!=organism.directory && !doReloadIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
