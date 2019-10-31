@@ -2711,10 +2711,16 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             residueString = transcriptService.getResiduesFromTranscript((Transcript) feature)
           }
           else{
-            def cds = transcriptService.getCDS(feature)
+            CDS cds = transcriptService.getCDS(feature)
             println "found cds ${cds}"
             if(!cds) {
-              log.warn("No CDS found for transcript ${feature}")
+              log.debug("No CDS found for transcript ${feature} so creating")
+              cds = transcriptService.createCDS(feature)
+              transcriptService.setCDS(feature,cds,false)
+              log.debug("Created cds ${cds}")
+            }
+            if(!cds){
+              log.error("Unable to create a CDS")
             }
             // sequence from cds
             residueString = cdsService.getResiduesFromCDS((CDS) cds)

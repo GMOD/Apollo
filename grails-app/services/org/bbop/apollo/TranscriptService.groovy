@@ -206,7 +206,7 @@ class TranscriptService {
      * @param cds - CDS to be set to this transcript
      */
     @Transactional
-    public void setCDS(Feature feature, CDS cds, boolean replace = true) {
+    void setCDS(Feature feature, CDS cds, boolean replace = true) {
         if (replace) {
             log.debug "replacing CDS on feature"
             if (featureRelationshipService.setChildForType(feature, cds)) {
