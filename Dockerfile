@@ -24,8 +24,9 @@ ENV WEBAPOLLO_VERSION develop
 #RUN ls -la /apollo/
 #NOTE, we had problems with the build the archive-file coming in from github so using a clone instead
 #RUN curl -L https://github.com/GMOD/Apollo/archive/${WEBAPOLLO_VERSION}.tar.gz | tar xzf - --strip-components=1 -C /apollo
-RUN git clone --depth 1 --single-branch --branch ${WEBAPOLLO_VERSION} https://github.com/gmod/apollo /apollo/apollo-clone
-RUN mv /apollo/apollo-clone/* /apollo && rm -rf /apollo/apollo-clone
+# RUN git clone --depth 1 --single-branch --branch ${WEBAPOLLO_VERSION} https://github.com/gmod/apollo /apollo/apollo-clone
+# RUN mv /apollo/apollo-clone/* /apollo && rm -rf /apollo/apollo-clone
+ADD . /apollo
 RUN rm -rf .git .gitignore
 #COPY * /apollo
 
