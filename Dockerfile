@@ -18,10 +18,12 @@ RUN apt-get -qq update --fix-missing && \
 RUN npm i -g yarn
 
 RUN cp /usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/tools.jar && \
-	useradd -ms /bin/bash -d /apollo apollo
+	useradd -ms /bin/bash -d /apollo apollo 
 
-ENV WEBAPOLLO_VERSION develop
-RUN curl -L https://github.com/GMOD/Apollo/archive/${WEBAPOLLO_VERSION}.tar.gz | tar xzf - --strip-components=1 -C /apollo
+# ENV WEBAPOLLO_VERSION develop
+# RUN curl -L https://github.com/GMOD/Apollo/archive/${WEBAPOLLO_VERSION}.tar.gz | tar xzf - --strip-components=1 -C /apollo
+RUN rm -rf /apollo && mkdir -p /apollo 
+COPY * /apollo
 
 # install grails
 COPY docker-files/build.sh /bin/build.sh
