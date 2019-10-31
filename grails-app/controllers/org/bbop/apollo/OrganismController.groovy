@@ -51,6 +51,7 @@ class OrganismController {
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "id", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
+    , @RestApiParam(name = "organism", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
   ])
   @Transactional
   def deleteOrganism() {
@@ -60,12 +61,16 @@ class OrganismController {
       log.debug "deleteOrganism ${organismJson}"
       log.debug "organism ID: ${organismJson.id}"
       // backporting a bug here:
-      Organism organism = Organism.findByCommonName(organismJson.id as String)
-      if(!organism){
-        organism = Organism.findById(organismJson.id as Long)
+      Organism organism = null
+
+      if(organismJson.containsKey("id")){
+        organism = Organism.findByCommonName(organismJson.id as String)
+        if(!organism){
+          organism = Organism.findById(organismJson.id as Long)
+        }
       }
       // backport a bug so that it doesn't break existing code
-      if(!organism){
+      if(!organism && organismJson.containsKey("organism")){
         organism =  Organism.findByCommonName(organismJson.organism as String)
       }
       if (!organism) {
