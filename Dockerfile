@@ -13,7 +13,7 @@ RUN apt-get -qq update --fix-missing && \
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install nodejs && \
-	apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+	apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /apollo/
 
 RUN npm i -g yarn
 
@@ -21,7 +21,13 @@ RUN cp /usr/lib/jvm/java-8-openjdk-amd64/lib/tools.jar /usr/lib/jvm/java-8-openj
 	useradd -ms /bin/bash -d /apollo apollo
 
 ENV WEBAPOLLO_VERSION develop
-RUN curl -L https://github.com/GMOD/Apollo/archive/${WEBAPOLLO_VERSION}.tar.gz | tar xzf - --strip-components=1 -C /apollo
+#RUN ls -la /apollo/
+#NOTE, we had problems with the build the archive-file coming in from github so using a clone instead
+#RUN curl -L https://github.com/GMOD/Apollo/archive/${WEBAPOLLO_VERSION}.tar.gz | tar xzf - --strip-components=1 -C /apollo
+RUN git clone --depth 1 --single-branch --branch ${WEBAPOLLO_VERSION} https://github.com/gmod/apollo /apollo/apollo-clone
+RUN mv /apollo/apollo-clone/* /apollo && rm -rf /apollo/apollo-clone
+RUN rm -rf .git .gitignore
+#COPY * /apollo
 
 # install grails
 COPY docker-files/build.sh /bin/build.sh
