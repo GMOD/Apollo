@@ -35,8 +35,9 @@ public class OrganismInfo implements HasJSON{
 
     // internal GWT variable
     private boolean editable;
+  private String officialGeneSetTrack;
 
-    public OrganismInfo(){
+  public OrganismInfo(){
 
     }
 
@@ -211,4 +212,12 @@ public class OrganismInfo implements HasJSON{
     public void setVariantEffectCount(Integer variantEffectCount) {
         this.variantEffectCount = variantEffectCount;
     }
+
+  public void setOfficialGeneSetTrack(String officialGeneSetTrack) {
+    this.officialGeneSetTrack = officialGeneSetTrack;
+  }
+
+  public String getOfficialGeneSetTrack() {
+    return officialGeneSetTrack;
+  }
 }

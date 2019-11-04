@@ -1362,7 +1362,7 @@ class OrganismController {
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id as Long)
       if (organism) {
-        String startTrackName = organism.officialGeneSetTrackName
+        String startTrackName = organism.officialGeneSetTrack
         log.debug "Updating organism official track name ${organismJson as JSON}"
         if(organismJson.trackCommand == "CLEAR" || organismJson.trackLabel==null || organismJson.trackLabel.trim().size()==0 ){
           startTrackName = null
@@ -1373,13 +1373,9 @@ class OrganismController {
             startTrackName = organismJson.trackLabel.trim()
           }
           else{
-            println "A ${startTrackName}"
             Set<String> trackStringSet = (startTrackName.split(",") as Set<String>)
-            println "B ${trackStringSet}"
             trackStringSet.add(organismJson.trackLabel.trim() as String)
-            println "C ${trackStringSet}"
             startTrackName = trackStringSet.join(",")
-            println "D ${startTrackName}"
           }
         }
         else
@@ -1396,7 +1392,7 @@ class OrganismController {
           log.error("Not sure what is going on when updating the official track name ${organismJson as JSON}, results in ${startTrackName}")
         }
         println "setting the new track name ${startTrackName}"
-        organism.officialGeneSetTrackName = startTrackName
+        organism.officialGeneSetTrack = startTrackName
         organism.save(flush: true, insert: false, failOnError: true)
       } else {
         throw new Exception('Organism not found')

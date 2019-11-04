@@ -913,6 +913,7 @@ public class TrackPanel extends Composite {
     }
 
     public static void updateTracks(JSONArray array) {
+      GWT.log("Current organism: " +MainPanel.getCurrentOrganismAsJson());
         trackInfoList.clear();
         try {
             for (int i = 0; i < array.size(); i++) {

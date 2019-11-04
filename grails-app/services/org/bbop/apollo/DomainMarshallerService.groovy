@@ -28,7 +28,7 @@ class DomainMarshallerService {
             returnArray['species'] = it?.species
             returnArray['directory'] = it.directory
             returnArray['metadata'] = it?.metadata
-            returnArray['officialGeneSetTrackName'] = it?.officialGeneSetTrackName
+            returnArray['officialGeneSetTrack'] = it?.officialGeneSetTrack
           return returnArray
         }
 
@@ -39,6 +39,7 @@ class DomainMarshallerService {
             returnArray['directory'] = it.directory
             returnArray['annotationCount'] = it.annotationCount
             returnArray['variantEffectCount'] = it.variantEffectCount
+            returnArray['officialGeneSetTrack'] = it?.officialGeneSetTrack
             return returnArray
         }
 
