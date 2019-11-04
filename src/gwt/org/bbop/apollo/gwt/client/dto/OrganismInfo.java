@@ -7,6 +7,9 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Window;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by ndunn on 12/18/14.
  */
@@ -193,7 +196,11 @@ public class OrganismInfo implements HasJSON{
 
         payload.put("publicMode",JSONBoolean.getInstance(publicMode != null ? publicMode : false));
 
-        return payload;
+      if(officialGeneSetTrack!=null) {
+        payload.put("officialGeneSetTrack", new JSONString(officialGeneSetTrack));
+      }
+
+      return payload;
     }
 
     // internal setting
@@ -219,5 +226,15 @@ public class OrganismInfo implements HasJSON{
 
   public String getOfficialGeneSetTrack() {
     return officialGeneSetTrack;
+  }
+
+  public Set<String> getOfficialGeneSetTrackSet() {
+    Set<String> returnSet = new HashSet<>();
+    if(officialGeneSetTrack!=null && officialGeneSetTrack.length()>0){
+      for(String officialTrack : officialGeneSetTrack.split(",")){
+        returnSet.add(officialTrack);
+      }
+    }
+    return returnSet;
   }
 }

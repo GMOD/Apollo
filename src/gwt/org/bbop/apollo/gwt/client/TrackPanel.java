@@ -45,10 +45,7 @@ import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 import org.gwtbootstrap3.extras.toggleswitch.client.ui.ToggleSwitch;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 
 /**
@@ -162,8 +159,6 @@ public class TrackPanel extends Composite {
     private static Map<String, Boolean> categoryOpen = new TreeMap<>();
     private static Map<TrackInfo, CheckBoxButton> checkBoxMap = new TreeMap<>();
     private static Map<TrackInfo, TrackBodyPanel> trackBodyMap = new TreeMap<>();
-
-    private static String officialGeneSetTrack = "Protein-coding genes";
 
     private final int MAX_TIME = 5000 ;
     private final int DELAY_TIME = 400;
@@ -913,7 +908,8 @@ public class TrackPanel extends Composite {
     }
 
     public static void updateTracks(JSONArray array) {
-      GWT.log("Current organism: " +MainPanel.getCurrentOrganismAsJson());
+//      GWT.log("Current organism: " +MainPanel.getCurrentOrganismAsJson());
+        Set<String> officialGeneSetTrackSet = MainPanel.getInstance().getCurrentOrganism().getOfficialGeneSetTrackSet();
         trackInfoList.clear();
         try {
             for (int i = 0; i < array.size(); i++) {
@@ -921,7 +917,6 @@ public class TrackPanel extends Composite {
                 TrackInfo trackInfo = new TrackInfo();
                 // track label can never be null, but key can be
                 trackInfo.setName(object.get("key") == null ? object.get("label").isString().stringValue() : object.get("key").isString().stringValue());
-                trackInfo.setOfficialTrack(officialGeneSetTrack.equals(trackInfo.getName()));
 
                 if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
 
@@ -945,6 +940,8 @@ public class TrackPanel extends Composite {
                 else trackInfo.setVisible(false);
 
                 if (object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
+
+                trackInfo.setOfficialTrack(officialGeneSetTrackSet.contains(trackInfo.getName())|| officialGeneSetTrackSet.contains(trackInfo.getLabel()));
 
                 trackInfo.setPayload(object);
                 trackInfoList.add(trackInfo);
