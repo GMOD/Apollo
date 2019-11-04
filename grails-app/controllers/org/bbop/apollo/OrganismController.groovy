@@ -299,13 +299,15 @@ class OrganismController {
           nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
           dataAddedViaWebServices: true
         ).save(failOnError: true, flush: true, insert: true)
-        def currentUser = permissionService.currentUser
+        User currentUser = permissionService.currentUser
         String userId = null
         if(currentUser){
           userId = currentUser.id.toString()
         }
         else{
           userId = requestObject.username as String
+          currentUser = User.findByUsername(userId)
+          userId = currentUser ? currentUser.id?.toString() : userId
         }
         organism.addMetaData("creator", userId)
         File directory = trackService.getExtendedDataDirectory(organism)
