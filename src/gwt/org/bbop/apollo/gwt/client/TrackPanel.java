@@ -378,7 +378,18 @@ public class TrackPanel extends Composite {
       GWT.log("value for "+trackName + " " + isOfficialTrack.getValue());
       // TODO: call rest service and reload on success
       // TODO: official track resides on the organism . . can have multiple, so should be an array of names  (labels / keys)
-      reload();
+    RequestCallback requestCallback = new RequestCallback() {
+      @Override
+      public void onResponseReceived(Request request, Response response) {
+        reload();
+      }
+
+      @Override
+      public void onError(Request request, Throwable exception) {
+        Bootbox.alert("Problem setting official track:" + exception.getMessage());
+      }
+    };
+     OrganismRestService.updateOfficialTrack(requestCallback,MainPanel.getInstance().getCurrentOrganism(),trackName,selectedTrackObject.isOfficialTrack());
   }
 
     @UiHandler("uploadTrackFile")

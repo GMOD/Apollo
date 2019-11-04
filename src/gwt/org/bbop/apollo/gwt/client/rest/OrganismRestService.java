@@ -146,4 +146,25 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback,"annotator/setCurrentSequence/"+ newSequenceId);
     }
 
+  public static void updateOfficialTrack(RequestCallback requestCallback,OrganismInfo organismInfo, String trackName, boolean officialTrack) {
+      JSONObject data = new JSONObject();
+      JSONObject organismObject = OrganismInfoConverter.convertOrganismInfoToJSONObject(organismInfo);
+      data.put(FeatureStringEnum.ORGANISM.getValue(),organismObject);
+      data.put(FeatureStringEnum.ID.getValue(),organismObject.get(FeatureStringEnum.ID.getValue()));
+      data.put(FeatureStringEnum.TRACK_LABEL.getValue(),new JSONString(trackName));
+      String command = "";
+      if(trackName==null || trackName.trim().length()==0){
+        command = "CLEAR";
+      }
+      else
+      if(officialTrack){
+        command = "ADD";
+      }
+      else{
+        command = "REMOVE";
+      }
+
+      data.put("trackCommand",new JSONString(command));
+      RestService.sendRequest(requestCallback,"organism/updateOfficialGeneSetTrack", data);
+  }
 }
