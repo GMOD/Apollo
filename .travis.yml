@@ -63,8 +63,8 @@ script:
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       ./bootstrap_apollo.sh
       python setup.py nosetests
+      killall java || true
     fi
-  - killall java
 after_success:
   - ./grailsw coveralls
 
