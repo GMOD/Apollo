@@ -6,6 +6,9 @@ language: java
 node_js:
   - "12"
 
+python: '2.7'
+
+
 env:
   - DB=postgres
   - DB=mysql
