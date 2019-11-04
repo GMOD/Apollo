@@ -6,8 +6,6 @@ language: java
 node_js:
   - "12"
 
-python: '3.6'
-
 
 env:
   - DB=postgres
@@ -60,7 +58,8 @@ script:
       set -e
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
-      sudo python setup.py install
+	  python --version
+      python setup.py install
       ./grailsw run-app &
       cd python-apollo
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
