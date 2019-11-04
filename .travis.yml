@@ -35,6 +35,7 @@ before_script:
   - "echo $JAVA_OPTS"
   - if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -u root -e 'SET GLOBAL interactive_timeout=28800;'; mysql -u root -e 'SET GLOBAL wait_timeout=28800;'; mysql -u root -e 'SET GLOBAL connect_timeout=28800;';  mysql -u root -e 'create database apollo'; fi;
   - if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
+  - git clone --depth 1 https://github.com/galaxy-genome-annotation/python-apollo && cd python-apollo && python setup.py install
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -50,8 +51,9 @@ cache:
     - $HOME/.gradle/wrapper/
 script:
   - travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace
-  #- node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
   - jshint client/apollo/js
+  - ./grailsw run-app & && cd python-apollo && export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml && ./bootstrap_apollo.sh && python setup.py nosetests
+  - killall java
 after_success:
   - ./grailsw coveralls
 
