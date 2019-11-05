@@ -63,13 +63,12 @@ script:
     fi
   - |
     if [[ $TEST_SUITE == "python-apollo" ]]; then
-      set -e
+      set -x
       ./grailsw run-app &
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       sudo python3 setup.py install
-      which arrow
       echo $PATH
       ./bootstrap_apollo.sh
       python3 setup.py nosetests
