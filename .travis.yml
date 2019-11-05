@@ -59,7 +59,7 @@ script:
       set -e
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
-      python3 setup.py install
+      sudo python3 setup.py install
       ./grailsw run-app &
       cd python-apollo
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
