@@ -1,19 +1,22 @@
 
 
-## 2.4.1
+## 2.5.0
 
 Features
 
 - Organism and Group tab should searchable.  [2081](https://github.com/GMOD/Apollo/pull/2081) 
+- Automatically processes blat on upload [2209](https://github.com/GMOD/Apollo/pull/2209)
 
 Bug Fixes
 
-- Bump JBrowse version to 1.16.6 to fix drag error on Chrome mac. <https://github.com/GMOD/jbrowse/issues/1397>
-- Fixed Docker build to pull directly from current source instead of GitHub.
+- Fixed Docker build to pull directly from current source instead of GitHub [2300]((https://github.com/GMOD/Apollo/issues/2300)).
+- Fixed color by type error [2203](https://github.com/GMOD/Apollo/issues/2203).
 
 Infrastructure Changes
 
-- Upgrade to [JBrowse 1.16.6](https://github.com/GMOD/jbrowse/releases/tag/1.16.6-release)
+- Upgrade to [JBrowse 1.16.6](https://github.com/GMOD/jbrowse/releases/tag/1.16.6-release), which fixes drag error on Chrome mac <https://github.com/GMOD/jbrowse/issues/1397>.
+- Allowed for Node 12 [2274](https://github.com/GMOD/Apollo/issues/2274). 
+- Reorder of documentation into multiple layers.
  
 
 ## 2.4.0
