@@ -13,8 +13,8 @@ env:
   - DB=postgres TEST_SUITE=apollo
   - DB=mysql TEST_SUITE=apollo
   - DB=h2 TEST_SUITE=apollo
-  - DB=h2 TEST_SUITE=python-apollo
   - DB=h2 TEST_SUITE=javascript
+#   - DB=h2 TEST_SUITE=python-apollo
 
 addons:
   postgresql: "9.3"
