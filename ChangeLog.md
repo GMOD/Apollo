@@ -4,19 +4,38 @@
 
 Features
 
-- Organism and Group tab should searchable.  [2081](https://github.com/GMOD/Apollo/pull/2081) 
-- Automatically processes blat on upload [2209](https://github.com/GMOD/Apollo/pull/2209)
+- Moved blat / blast search to its own tab [2259](https://github.com/GMOD/Apollo/pull/2259) 
+- Allow creation of annotations from blat features [2225](https://github.com/GMOD/Apollo/pull/2225) 
+- On upload of fasta file execute `faToTwoBit` if present to create searchable blat file [2262](https://github.com/GMOD/Apollo/pull/2262) 
+- Allows history tracking for non-structural edits [2246](https://github.com/GMOD/Apollo/pull/2246)
+- Search pop-up links directly to sequence search [2253](https://github.com/GMOD/Apollo/pull/2209)
+- Organism and Group tab should searchable [2081](https://github.com/GMOD/Apollo/pull/2081) 
+- Allow upload of blat data from web-services [2209](https://github.com/GMOD/Apollo/pull/2209)
+- Added citation and documentation link to help menu [2243](https://github.com/GMOD/Apollo/pull/2243)
+- Allow update of organism via rest API [2227](https://github.com/GMOD/Apollo/pull/2227)
+- Allow inhibition of reloading sequences when uploading sequences to the data directory[2293](https://github.com/GMOD/Apollo/issues/2293)
+- Adds GO annotation to right-click menu [2213](https://github.com/GMOD/Apollo/issues/2213)
+- Adds support for GPI export [2238](https://github.com/GMOD/Apollo/issues/2238)
+
 
 Bug Fixes
 
-- Fixed Docker build to pull directly from current source instead of GitHub [2300]((https://github.com/GMOD/Apollo/issues/2300)).
-- Fixed color by type error [2203](https://github.com/GMOD/Apollo/issues/2203).
+- Fixed color by type error [2203](https://github.com/GMOD/Apollo/issues/2203)
+- Find all organisms creates exception when organism does not exist [2275](https://github.com/GMOD/Apollo/issues/2275) 
+- Fixed bug where in the track web-service that hides genomic element that is overlapped by a larger genomic element [2255](https://github.com/GMOD/Apollo/issues/2275)
+- Fixed errors with remote services organism info update [2248](https://github.com/GMOD/Apollo/pull/2248)
+- Numerous GO annotation fixes [2229](https://github.com/GMOD/Apollo/pull/2229),  [2233](https://github.com/GMOD/Apollo/pull/2233), [2171](https://github.com/GMOD/Apollo/issues/2171)
+- Allow deletion of exon with properties on it([2228](https://github.com/GMOD/Apollo/pull/2228)
+- Fixed bug where automated name generation generates unusable names [2134](https://github.com/GMOD/Apollo/issues/2134)
+- Errors in the track panel create a popup-error [2204](https://github.com/GMOD/Apollo/issues/2204)
+- Numerous web-service fixes [2298](https://github.com/GMOD/Apollo/pull/2298) [2290](https://github.com/GMOD/Apollo/pull/2290) [2275](https://github.com/GMOD/Apollo/pull/2275)
 
 Infrastructure Changes
 
-- Upgrade to [JBrowse 1.16.6](https://github.com/GMOD/jbrowse/releases/tag/1.16.6-release), which fixes drag error on Chrome mac <https://github.com/GMOD/jbrowse/issues/1397>.
-- Allowed for Node 12 [2274](https://github.com/GMOD/Apollo/issues/2274). 
-- Reorder of documentation into multiple layers.
+- Fixed Docker build to pull directly from current source instead of GitHub [2300]((https://github.com/GMOD/Apollo/issues/2300))
+- Upgrade to [JBrowse 1.16.6](https://github.com/GMOD/jbrowse/releases/tag/1.16.6-release), which fixes drag error on Chrome mac <https://github.com/GMOD/jbrowse/issues/1397>
+- Allowed for Node 12 [2274](https://github.com/GMOD/Apollo/issues/2274)
+- Reorder of documentation into multiple layers, moving user's guide into local [documentation / read the doc](https://genomearchitect.readthedocs.io/en/latest/).
  
 
 ## 2.4.0
