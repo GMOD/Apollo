@@ -1213,6 +1213,7 @@ var draggableTrack = declare( HTMLFeatureTrack,
 
         this.contextMenuItems = {};
 
+        // let isOfficialTrack = this.webapollo.getAnnotTrack().isOfficialTrack(this.key );
         var createAnnotationMenu = new dijitMenu();
         createAnnotationMenu.addChild(new dijitMenuItem( {
             label: "gene",

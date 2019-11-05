@@ -1123,10 +1123,14 @@ define([
                     var singleParent = keys.length === 1;
                     var featureToAdd;
                     if (singleParent) {
+                      console.log('processing the singl eparent');
                         featureToAdd = JSONUtils.makeSimpleFeature(parentFeatures[keys[0]]);
+                        console.log('adding single parent feature to add ',featureToAdd,JSON.stringify(featureToAdd));
                     }
                     else {
+                      console.log('processing the ELSE parent');
                         featureToAdd = new SimpleFeature({data: {strand: strand}});
+                      console.log('adding default feature to add ',featureToAdd,JSON.stringify(featureToAdd));
                     }
                     if (!featureToAdd.get('name')) {
                         // TODO: We can't guarantee that the featureToAdd has an id, this may end up undefined.
@@ -1134,7 +1138,8 @@ define([
                     }
                     featureToAdd.set('orig_id', featureToAdd.get('id'));
                     featureToAdd.set("strand", strand);
-                    var fmin;
+                    console.log('output feature to add',featureToAdd,JSON.stringify(featureToAdd));
+                  var fmin;
                     var fmax;
                     featureToAdd.set('subfeatures', []);
                     array.forEach(subfeatures, function (subfeature) {
@@ -1167,6 +1172,7 @@ define([
                     if (fmin) featureToAdd.set("start", fmin);
                     if (fmax) featureToAdd.set("end", fmax);
 
+                    console.log('pre biotype feature to add',featureToAdd,JSON.stringify(featureToAdd))
 
                     var biotype ;
 
@@ -1195,18 +1201,25 @@ define([
                     var afeat ;
                     if(biotype === 'mRNA'){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
+                      console.log('biotype mRNA',featureToAdd,JSON.stringify(featureToAdd))
                         afeat = JSONUtils.createApolloFeature(featureToAdd, biotype, true);
+                      console.log('biotype mRNA afeat',afeat,JSON.stringify(afeat))
                         featuresToAdd.push(afeat);
                     }
                     else if (biotype.endsWith('RNA')){
                         featureToAdd = JSONUtils.handleCigarSubFeatures(featureToAdd,biotype);
+                      console.log('biotype RNA',featureToAdd,JSON.stringify(featureToAdd))
                         target_track.createGenericAnnotations([featureToAdd], biotype, null , 'gene');
                     }
                     else {
+                      console.log('biotype one-level genericl',featureToAdd,JSON.stringify(featureToAdd))
                         target_track.createGenericOneLevelAnnotations([featureToAdd], biotype , strandedOneLevelTypes.indexOf(biotype)<0);
                     }
+                    console.log('output featureToAdd',featureToAdd,JSON.stringify(featureToAdd));
+                  console.log('afeat',afeat,JSON.stringify(afeat));
+                  console.log('featuers to add',featuresToAdd,JSON.stringify(featuresToAdd));
 
-                    var postData = {
+                  var postData = {
                         "track": target_track.getUniqueTrackName(),
                         "features": featuresToAdd,
                         "operation": "add_transcript"

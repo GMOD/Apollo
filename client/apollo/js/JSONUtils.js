@@ -165,15 +165,16 @@ JSONUtils.flattenFeature = function(feature, descendants) {
 JSONUtils.makeSimpleFeature = function(feature, parent)  {
     var result = new SimpleFeature({id: feature.id(), parent: (parent ? parent : feature.parent()) });
     var ftags = feature.tags();
-  console.log('making a simple feature',feature,parent)
-  console.log('ftags',ftags);
-  for (var tindex = 0; tindex < ftags.length; tindex++)  {
+    console.log('making a simple feature',feature,parent)
+    console.log('ftags',ftags);
+    console.log('initial results 2',result,JSON.stringify(result));
+    for (var tindex = 0; tindex < ftags.length; tindex++)  {
         var tag = ftags[tindex];
-        console.log('tag',tag)
-    console.log('feature tag',feature.get(tag.toLowerCase()))
+        console.log('feature tag',tag,feature.get(tag.toLowerCase()))
     // forcing lower case, since still having case issues with NCList features
         result.set(tag.toLowerCase(), feature.get(tag.toLowerCase()));
     }
+    console.log('output results',result,JSON.stringify(result));
     var subfeats = feature.get('subfeatures');
     if (subfeats && (subfeats.length > 0))  {
         var simple_subfeats = [];
@@ -183,6 +184,8 @@ JSONUtils.makeSimpleFeature = function(feature, parent)  {
         }
         result.set('subfeatures', simple_subfeats);
     }
+    console.log('input feature 2',feature,JSON.stringify(feature));
+    console.log('final result 2',result,JSON.stringify(result));
     return result;
 };
 
@@ -355,10 +358,11 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
 *    currently, for features with lazy-loaded children, ignores children
 */
 JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, specified_subtype )   {
+  console.log('creating apollo feature !')
     var diagnose =  (JSONUtils.verbose_conversion && jfeature.children() && jfeature.children().length > 0);
-    if (diagnose)  {
+    if (diagnose || true)  {
         console.log("converting JBrowse feature to Apollo feture, specified type: " + specified_type + " " + specified_subtype);
-        console.log(jfeature);
+        console.log(jfeature,JSON.stringify(jfeature));
     }
 
 
@@ -418,18 +422,32 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     }
     afeature.orig_id = id ;
 
-    /*
-    afeature.properties = [];
-    var property = { value : "source_id=" + jfeature.get('id'),
-            type : {
-                    cv: {
-                        name: "feature_property"
-                    },
-                    name: "feature_property"
-            }
-    };
-    afeature.properties.push(property);
-    */
+    // add all other properties if there
+    console.log('input jfeature',jfeature,JSON.stringify(jfeature),JSON.stringify(jfeature.data));
+    console.log('input jfeature data keys',Object.keys(jfeature.data),JSON.stringify(Object.keys(jfeature.data)));
+  console.log('input afeature',afeature,JSON.stringify(afeature));
+  for(var key of Object.keys(jfeature.data)) {
+    // var key = jfeature.data[keyIndex];
+    // console.log('index',key,jfeature.data[key]);
+    // afeature[key] = jfeature.data[key];
+    if (key === 'note') {
+      afeature['description'] = jfeature.data[key];
+    }
+  }
+
+  console.log('output afeature',afeature,JSON.stringify(afeature));
+  /*
+  afeature.properties = [];
+  var property = { value : "source_id=" + jfeature.get('id'),
+          type : {
+                  cv: {
+                      name: "feature_property"
+                  },
+                  name: "feature_property"
+          }
+  };
+  afeature.properties.push(property);
+  */
 
     if (diagnose) { console.log("converting to Apollo feature: " + typename); }
     var subfeats;
