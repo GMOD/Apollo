@@ -8,10 +8,11 @@ node_js:
 
 
 env:
-  - DB=postgres
-  - DB=mysql
-  - DB=h2
-  - DB=postgres COMPAT=python-apollo
+  - DB=postgres TEST_SUITE=apollo
+  - DB=mysql TEST_SUITE=apollo
+  - DB=h2 TEST_SUITE=apollo
+  - DB=postgres TEST_SUITE=python-apollo
+  - DB=h2 TEST_SUITE=javascript
 
 addons:
   postgresql: "9.3"
@@ -52,10 +53,16 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace
-  - jshint client/apollo/js
   - |
-    if [[ $COMPAT == "python-apollo" ]]; then
+    if [[ $TEST_SUITE == "apollo" ]]; then
+      travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace
+    fi
+  - |
+    if [[ $TEST_SUITE == "javascript" ]]; then
+      jshint client/apollo/js
+    fi
+  - |
+    if [[ $TEST_SUITE == "python-apollo" ]]; then
       set -e
       ./grailsw run-app &
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
