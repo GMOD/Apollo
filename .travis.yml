@@ -1,10 +1,13 @@
 sudo: required
-dist: xenial
+dist: trusty
 
 language: java
 
 node_js:
   - "12"
+
+python:
+	- '3.6'
 
 env:
   - DB=postgres TEST_SUITE=apollo
