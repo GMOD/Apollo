@@ -58,10 +58,10 @@ script:
     if [[ $COMPAT == "python-apollo" ]]; then
       set -e
       ./grailsw run-app &
-      ./bootstrap_apollo.sh
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       sudo python3 setup.py install
+      ./bootstrap_apollo.sh
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       python3 setup.py nosetests
       killall java || true
