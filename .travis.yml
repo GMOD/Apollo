@@ -9,6 +9,9 @@ node_js:
 python:
   - '3.6'
 
+java:
+  - 'openjdk8'
+
 env:
   - DB=postgres TEST_SUITE=apollo
   - DB=mysql TEST_SUITE=apollo
