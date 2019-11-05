@@ -68,6 +68,7 @@ script:
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
+      sudo pip install -U pip setuptools
       sudo python3 setup.py install
       echo $PATH
       ./bootstrap_apollo.sh
