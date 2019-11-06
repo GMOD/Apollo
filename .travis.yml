@@ -19,7 +19,7 @@ addons:
     packages:
      - python3-setuptools
      - python3-pip
-     - python3-virtualenv
+     - python3-venv
 #    - mysql-server-5.6
 #    - mysql-client-core-5.6
 #    - mysql-client-5.6
