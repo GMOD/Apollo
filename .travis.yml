@@ -6,15 +6,15 @@ language: java
 node_js:
   - "12"
 
-python:
-  - '3.6'
-
 env:
   - DB=postgres TEST_SUITE=apollo
   - DB=mysql TEST_SUITE=apollo
   - DB=h2 TEST_SUITE=apollo
   - DB=h2 TEST_SUITE=javascript
-#   - DB=h2 TEST_SUITE=python-apollo
+  - DB=h2 TEST_SUITE=python-apollo
+
+python:
+  - 3.6
 
 addons:
   postgresql: "9.3"
@@ -23,7 +23,6 @@ addons:
     - mysql-server-5.6
     - mysql-client-core-5.6
     - mysql-client-5.6
-    - python3
 
 services:
 - postgresql
@@ -65,15 +64,19 @@ script:
     fi
   - |
     if [[ $TEST_SUITE == "python-apollo" ]]; then
-      set -x
+      set -ex
+      cp test/config/python-apollo.travis apollo-config.groovy
       ./grailsw run-app &
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
+      pyenv global 3.6.3
+      sed -i 's|8888|8080/apollo|' `pwd`/test-data/arrow.yml
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
-      pip3 install -U pip setuptools
-      python3 setup.py install
-      echo $PATH
-      ./bootstrap_apollo.sh
-      python3 setup.py nosetests
+      virtualenv .venv
+      . .venv/bin/activate
+      pip install .
+      pip install nose
+      ./bootstrap_apollo.sh --nodocker
+      python setup.py nosetests
       killall java || true
     fi
