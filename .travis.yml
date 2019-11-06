@@ -16,10 +16,10 @@ env:
 python:
   - 3.6
 
-addons:
-  postgresql: "9.3"
-  apt:
-    packages:
+#addons:
+#  postgresql: "9.3"
+#  apt:
+#    packages:
 #    - mysql-server-5.6
 #    - mysql-client-core-5.6
 #    - mysql-client-5.6
@@ -73,13 +73,13 @@ script:
       python --version
       python3 --version
       ls /opt/pyenv/shims/p*
-      pip install --user virtualenv
+      python3 -m pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
       ls .venv/bin/
       #pip3 install -U pip setuptools
-      pip3 install .
+      python3 -m pip install .
       ./bootstrap_apollo.sh
       python3 setup.py nosetests
       killall java || true
