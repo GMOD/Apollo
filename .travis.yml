@@ -70,16 +70,16 @@ script:
       cd python-apollo
       which python
       python --version
-      python3 --version
+      python3.6 --version
       ls /opt/pyenv/shims/p*
-      python3 -m pip install --user virtualenv
+      python3.6 -m pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
       ls .venv/bin/
       #pip3 install -U pip setuptools
-      python3 -m pip install .
+      python3.6 -m pip install .
       ./bootstrap_apollo.sh
-      python3 setup.py nosetests
+      python3.6 setup.py nosetests
       killall java || true
     fi
