@@ -13,12 +13,13 @@ env:
 #  - DB=h2 TEST_SUITE=javascript
   - DB=h2 TEST_SUITE=python-apollo
 
+python:
+  - 3.6
+
 addons:
   postgresql: "9.3"
   apt:
     packages:
-     - python3-setuptools
-     - python3-pip
 #    - mysql-server-5.6
 #    - mysql-client-core-5.6
 #    - mysql-client-5.6
