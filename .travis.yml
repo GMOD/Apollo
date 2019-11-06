@@ -65,17 +65,16 @@ script:
   - |
     if [[ $TEST_SUITE == "python-apollo" ]]; then
       set -ex
-      #./grailsw run-app &
+      ./grailsw run-app &
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       pyenv global 3.6.3
-      #pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
       pip install .
       pip install nose
-      ./bootstrap_apollo.sh
+      ./bootstrap_apollo.sh --nodocker
       python setup.py nosetests
       killall java || true
     fi
