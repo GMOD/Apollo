@@ -68,7 +68,6 @@ script:
       #./grailsw run-app &
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
-      sudo apt-get remove python python3
       which python
       python --version
       python3 --version
