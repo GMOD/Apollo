@@ -69,6 +69,7 @@ script:
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       pyenv global 3.6.3
+      sed -i 's/8888/8080/' `pwd`/test-data/arrow.yml
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
