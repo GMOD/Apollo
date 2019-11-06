@@ -72,7 +72,7 @@ script:
       python --version
       python3 --version
       ls /opt/pyenv/shims/p*
-      ls /opt/pyenv/shims/v*
+      pip3 install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
