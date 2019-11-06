@@ -6,9 +6,6 @@ language: java
 node_js:
   - "12"
 
-python:
-  - '3.6'
-
 env:
 #  - DB=postgres TEST_SUITE=apollo
 #  - DB=mysql TEST_SUITE=apollo
@@ -16,10 +13,13 @@ env:
 #  - DB=h2 TEST_SUITE=javascript
   - DB=h2 TEST_SUITE=python-apollo
 
-#addons:
-#  postgresql: "9.3"
-#  apt:
-#    packages:
+addons:
+  postgresql: "9.3"
+  apt:
+    packages:
+     - python3-setuptools
+     - python3-pip
+     - python3-virtualenv
 #    - mysql-server-5.6
 #    - mysql-client-core-5.6
 #    - mysql-client-5.6
@@ -74,7 +74,8 @@ script:
       ls /opt/pyenv/shims/p*
       #pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
-      python3 -m .venv
+      virtualenv .venv2
+      virtualenv3 .venv
       . .venv/bin/activate
       ls .venv/bin/
       pip3 install -U pip setuptools
