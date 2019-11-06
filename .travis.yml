@@ -74,6 +74,7 @@ script:
       virtualenv .venv
       . .venv/bin/activate
       pip install .
+      pip install nose
       ./bootstrap_apollo.sh
       python setup.py nosetests
       killall java || true
