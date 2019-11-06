@@ -7,39 +7,39 @@ node_js:
   - "12"
 
 env:
-#  - DB=postgres TEST_SUITE=apollo
-#  - DB=mysql TEST_SUITE=apollo
-#  - DB=h2 TEST_SUITE=apollo
-#  - DB=h2 TEST_SUITE=javascript
+  - DB=postgres TEST_SUITE=apollo
+  - DB=mysql TEST_SUITE=apollo
+  - DB=h2 TEST_SUITE=apollo
+  - DB=h2 TEST_SUITE=javascript
   - DB=h2 TEST_SUITE=python-apollo
 
 python:
   - 3.6
 
-#addons:
-#  postgresql: "9.3"
-#  apt:
-#    packages:
-#    - mysql-server-5.6
-#    - mysql-client-core-5.6
-#    - mysql-client-5.6
+addons:
+  postgresql: "9.3"
+  apt:
+    packages:
+    - mysql-server-5.6
+    - mysql-client-core-5.6
+    - mysql-client-5.6
 
-#services:
-#- postgresql
-#- mysql
+services:
+- postgresql
+- mysql
 
-#before_install:
-  #- npm install -g jshint
+before_install:
+  - npm install -g jshint
 
-#before_script:
-  #- node -v
-  #- npm -v
-  #- npm install -g yarn
-  #- "echo $JAVA_OPTS"
-  #- "export JAVA_OPTS='-Xmx2048m'"
-  #- "echo $JAVA_OPTS"
-  #- if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -u root -e 'SET GLOBAL interactive_timeout=28800;'; mysql -u root -e 'SET GLOBAL wait_timeout=28800;'; mysql -u root -e 'SET GLOBAL connect_timeout=28800;';  mysql -u root -e 'create database apollo'; fi;
-  #- if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
+before_script:
+  - node -v
+  - npm -v
+  - npm install -g yarn
+  - "echo $JAVA_OPTS"
+  - "export JAVA_OPTS='-Xmx2048m'"
+  - "echo $JAVA_OPTS"
+  - if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -u root -e 'SET GLOBAL interactive_timeout=28800;'; mysql -u root -e 'SET GLOBAL wait_timeout=28800;'; mysql -u root -e 'SET GLOBAL connect_timeout=28800;';  mysql -u root -e 'create database apollo'; fi;
+  - if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -68,18 +68,12 @@ script:
       #./grailsw run-app &
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
-      pyenv versions
       pyenv global 3.6.3
-      which python
-      python --version
-      ls /opt/pyenv/shims/p*
-      python -m pip install --user virtualenv
+      #pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
-      ls .venv/bin/
-      #pip3 install -U pip setuptools
-      python -m pip install .
+      pip install .
       ./bootstrap_apollo.sh
       python setup.py nosetests
       killall java || true
