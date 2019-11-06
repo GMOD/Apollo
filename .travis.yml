@@ -76,7 +76,7 @@ script:
       virtualenv .venv
       . .venv/bin/activate
       ls .venv/bin/
-      pip3 install -U pip setuptools
+      #pip3 install -U pip setuptools
       pip3 install .
       ./bootstrap_apollo.sh
       python3 setup.py nosetests
