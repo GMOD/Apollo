@@ -23,11 +23,10 @@ addons:
     - mysql-server-5.6
     - mysql-client-core-5.6
     - mysql-client-5.6
-    - python3
 
-services:
-- postgresql
-- mysql
+#services:
+#- postgresql
+#- mysql
 
 before_install:
   #- npm install -g jshint
@@ -74,8 +73,8 @@ script:
       python3 --version
       ls /opt/pyenv/shims/p*
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
-      pip install -U pip setuptools
-      pip install .
+      sudo pip3 install -U pip setuptools
+      sudo pip3 install .
       echo $PATH
       ./bootstrap_apollo.sh
       python3 setup.py nosetests
