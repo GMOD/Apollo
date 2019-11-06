@@ -19,7 +19,6 @@ addons:
     packages:
      - python3-setuptools
      - python3-pip
-     - python3-venv
 #    - mysql-server-5.6
 #    - mysql-client-core-5.6
 #    - mysql-client-5.6
@@ -72,7 +71,7 @@ script:
       python --version
       python3 --version
       ls /opt/pyenv/shims/p*
-      #pip install --user virtualenv
+      pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv2
       virtualenv3 .venv
