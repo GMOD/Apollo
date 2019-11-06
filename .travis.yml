@@ -30,17 +30,17 @@ services:
 - mysql
 
 before_install:
-  - npm install -g jshint
+  #- npm install -g jshint
 
 before_script:
-  - node -v
-  - npm -v
-  - npm install -g yarn
-  - "echo $JAVA_OPTS"
-  - "export JAVA_OPTS='-Xmx2048m'"
-  - "echo $JAVA_OPTS"
-  - if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -u root -e 'SET GLOBAL interactive_timeout=28800;'; mysql -u root -e 'SET GLOBAL wait_timeout=28800;'; mysql -u root -e 'SET GLOBAL connect_timeout=28800;';  mysql -u root -e 'create database apollo'; fi;
-  - if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
+  #- node -v
+  #- npm -v
+  #- npm install -g yarn
+  #- "echo $JAVA_OPTS"
+  #- "export JAVA_OPTS='-Xmx2048m'"
+  #- "echo $JAVA_OPTS"
+  #- if [ ${DB} == "mysql" ]; then cp test/config/mysql.travis apollo-config.groovy; mysql -u root -e 'SET GLOBAL interactive_timeout=28800;'; mysql -u root -e 'SET GLOBAL wait_timeout=28800;'; mysql -u root -e 'SET GLOBAL connect_timeout=28800;';  mysql -u root -e 'create database apollo'; fi;
+  #- if [ ${DB} == "postgres" ]; then cp test/config/postgres.travis apollo-config.groovy; psql -c 'create database apollo;' -U postgres; psql -c 'create database apollo_chado' -U postgres; gunzip -c scripts/chado-schema-with-ontologies.sql.gz | psql -U postgres -h localhost -d apollo_chado; fi;
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -70,8 +70,9 @@ script:
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       which python
-      which python3 || true
       python --version
+      python3 --version
+      ls /opt/pyenv/shims/p*
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       pip install -U pip setuptools
       pip install .
