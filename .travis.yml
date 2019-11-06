@@ -69,18 +69,18 @@ script:
       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       pyenv versions
+      pyenv global 3.6.3
       which python
       python --version
-      python3.6 --version
       ls /opt/pyenv/shims/p*
-      python3.6 -m pip install --user virtualenv
+      python -m pip install --user virtualenv
       export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
       virtualenv .venv
       . .venv/bin/activate
       ls .venv/bin/
       #pip3 install -U pip setuptools
-      python3.6 -m pip install .
+      python -m pip install .
       ./bootstrap_apollo.sh
-      python3.6 setup.py nosetests
+      python setup.py nosetests
       killall java || true
     fi
