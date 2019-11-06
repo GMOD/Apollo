@@ -36,6 +36,7 @@ Infrastructure Changes
 - Upgrade to [JBrowse 1.16.6](https://github.com/GMOD/jbrowse/releases/tag/1.16.6-release), which fixes drag error on Chrome mac <https://github.com/GMOD/jbrowse/issues/1397>
 - Allowed for Node 12 [2274](https://github.com/GMOD/Apollo/issues/2274)
 - Reorder of documentation into multiple layers, moving user's guide into local [documentation / read the doc](https://genomearchitect.readthedocs.io/en/latest/).
+- Added web-services tests using arrow's [python-apollo](https://github.com/galaxy-genome-annotation/python-apollo) from the [galaxy-genome-annoation](https://galaxyproject.org/use/gga/) group [2285](https://github.com/GMOD/Apollo/issues/2285).
  
 
 ## 2.4.0
