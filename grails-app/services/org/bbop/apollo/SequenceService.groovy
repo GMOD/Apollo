@@ -330,6 +330,12 @@ class SequenceService {
               seqsMap[sequence.name] = sequence.length
           }
 
+          def knownSequences = Sequence.findAllByOrganism(organism)
+          def seqsMap = [:]
+          knownSequences.each { sequence ->
+              seqsMap[sequence.name] = sequence.length
+          }
+
           // this will fail if folks have actively been working on this and preferences are set
           // otherwise if we remove all of the sequences annotations will need to be removed as well
 //          Sequence.deleteAll(Sequence.findAllByOrganism(organism))
@@ -342,7 +348,11 @@ class SequenceService {
                     //workaround for jbrowse refSeqs that have no length element
                     length = refSeq.end - refSeq.start
                 }
+<<<<<<< HEAD
                 if (!seqsMap.containsKey(refSeq.name)) {
+=======
+                if (!seqsMap.containsKey(refSeq.name) || seqsMap[refSeq.name] != length) {
+>>>>>>> try to implement #2307
                     Sequence sequence = new Sequence(
                             organism: organism
                             , length: length
@@ -351,6 +361,7 @@ class SequenceService {
                             , end: refSeq.end
                             , name: refSeq.name
                     ).save(failOnError: true)
+<<<<<<< HEAD
                     log.debug "added sequence ${sequence}"
                 }
                 else if (seqsMap[refSeq.name].length != length) {
@@ -369,6 +380,8 @@ class SequenceService {
                 }
                 else {
                     log.debug "skipped existing sequence ${sequence}"
+=======
+>>>>>>> try to implement #2307
                 }
             }
 
@@ -396,13 +409,13 @@ class SequenceService {
                 def knownSequences = Sequence.findAllByOrganism(organism)
                 def seqsMap = [:]
                 knownSequences.each { sequence ->
-                    seqsMap[sequence.name] = sequence
+                    seqsMap[sequence.name] = sequence.length
                 }
                 // reading the index
                 def iterator = index.iterator()
                 while (iterator.hasNext()) {
                     def entry = iterator.next()
-                    if (!seqsMap.containsKey(entry.contig)) {
+                    if (!seqsMap.containsKey(entry.contig) || seqsMap[entry.contig] != entry.size) {
                         Sequence sequence = new Sequence(
                                 organism: organism,
                                 length: entry.size,
@@ -411,19 +424,6 @@ class SequenceService {
                                 name: entry.contig
                         ).save(failOnError: true)
                         log.debug "added sequence ${sequence}"
-                    }
-                    else if (seqsMap[entry.contig].length != entry.size) {
-                        def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:sequence])
-                        Preference.deleteAll(preferences)
-                        Sequence.delete(seqsMap[entry.contig])
-                        Sequence sequence = new Sequence(
-                                organism: organism,
-                                length: entry.size,
-                                start: 0,
-                                end: entry.size,
-                                name: entry.contig
-                        ).save(failOnError: true)
-                        log.debug "replaced sequence ${sequence}"
                     }
                     else {
                         log.debug "skipped existing sequence ${sequence}"

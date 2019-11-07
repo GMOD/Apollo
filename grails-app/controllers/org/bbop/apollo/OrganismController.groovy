@@ -1325,7 +1325,7 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          if (oldOrganismDirectory!=organism.directory && !doReloadIfOrganismChanges) {
+          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !doReloadIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
