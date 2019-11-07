@@ -329,6 +329,12 @@ class SequenceService {
           Preference.deleteAll(preferences)
           Sequence.deleteAll(sequences)
 
+          def knownSequences = Sequence.findAllByOrganism(organism)
+          def seqsMap = [:]
+          knownSequences.each { sequence ->
+              seqsMap[sequence.name] = sequence.length
+          }
+
           // this will fail if folks have actively been working on this and preferences are set
           // otherwise if we remove all of the sequences annotations will need to be removed as well
 //          Sequence.deleteAll(Sequence.findAllByOrganism(organism))
@@ -341,14 +347,16 @@ class SequenceService {
                     //workaround for jbrowse refSeqs that have no length element
                     length = refSeq.end - refSeq.start
                 }
-                Sequence sequence = new Sequence(
-                        organism: organism
-                        , length: length
-                        , seqChunkSize: refSeq.seqChunkSize
-                        , start: refSeq.start
-                        , end: refSeq.end
-                        , name: refSeq.name
-                ).save(failOnError: true)
+                if (!seqsMap.containsKey(refSeq.name) || seqsMap[refSeq.name] != length) {
+                    Sequence sequence = new Sequence(
+                            organism: organism
+                            , length: length
+                            , seqChunkSize: refSeq.seqChunkSize
+                            , start: refSeq.start
+                            , end: refSeq.end
+                            , name: refSeq.name
+                    ).save(failOnError: true)
+                }
             }
 
             organism.valid = true
@@ -372,18 +380,28 @@ class SequenceService {
                 FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
                 log.info "an indexed fasta ${index}"
                 log.info "an indexed fasta size ${index.size()}"
+                def knownSequences = Sequence.findAllByOrganism(organism)
+                def seqsMap = [:]
+                knownSequences.each { sequence ->
+                    seqsMap[sequence.name] = sequence.length
+                }
                 // reading the index
                 def iterator = index.iterator()
                 while (iterator.hasNext()) {
                     def entry = iterator.next()
-                    Sequence sequence = new Sequence(
-                            organism: organism,
-                            length: entry.size,
-                            start: 0,
-                            end: entry.size,
-                            name: entry.contig
-                    ).save(failOnError: true)
-                    log.debug "added sequence ${sequence}"
+                    if (!seqsMap.containsKey(entry.contig) || seqsMap[entry.contig] != entry.size) {
+                        Sequence sequence = new Sequence(
+                                organism: organism,
+                                length: entry.size,
+                                start: 0,
+                                end: entry.size,
+                                name: entry.contig
+                        ).save(failOnError: true)
+                        log.debug "added sequence ${sequence}"
+                    }
+                    else {
+                        log.debug "skipped existing sequence ${sequence}"
+                    }
                 }
 
                 organism.valid = true
