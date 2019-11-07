@@ -197,7 +197,7 @@ class SequenceService {
                 }
                 currentOffset -= alterationLength;
             }
-            // Substitions
+            // Substitutions
             else if (sequenceAlteration.instanceOf == SubstitutionArtifact.canonicalName) {
                 int start = strand == Strand.NEGATIVE ? localCoordinate - (alterationLength - 1) : localCoordinate;
                 residues.replace(start + currentOffset,
@@ -329,9 +329,6 @@ class SequenceService {
           sequences.each { sequence ->
               seqsMap[sequence.name] = sequence.length
           }
-          def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s join s.organism o where o = :organism",[organism:organism])
-          Preference.deleteAll(preferences)
-          Sequence.deleteAll(sequences)
 
           // this will fail if folks have actively been working on this and preferences are set
           // otherwise if we remove all of the sequences annotations will need to be removed as well
@@ -345,7 +342,7 @@ class SequenceService {
                     //workaround for jbrowse refSeqs that have no length element
                     length = refSeq.end - refSeq.start
                 }
-                if (!seqsMap.containsKey(refSeq.name) || seqsMap[refSeq.name] != length) {
+                if (!seqsMap.containsKey(refSeq.name)) {
                     Sequence sequence = new Sequence(
                             organism: organism
                             , length: length
@@ -354,6 +351,24 @@ class SequenceService {
                             , end: refSeq.end
                             , name: refSeq.name
                     ).save(failOnError: true)
+                    log.debug "added sequence ${sequence}"
+                }
+                else if (seqsMap[refSeq.name].length != length) {
+                    def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:seqsMap[refSeq.name]])
+                    Preference.deleteAll(preferences)
+                    Sequence.delete(seqsMap[refSeq.name])
+                    Sequence sequence = new Sequence(
+                            organism: organism
+                            , length: length
+                            , seqChunkSize: refSeq.seqChunkSize
+                            , start: refSeq.start
+                            , end: refSeq.end
+                            , name: refSeq.name
+                    ).save(failOnError: true)
+                    log.debug "added sequence ${sequence}"
+                }
+                else {
+                    log.debug "skipped existing sequence ${sequence}"
                 }
             }
 
@@ -398,7 +413,8 @@ class SequenceService {
                         log.debug "added sequence ${sequence}"
                     }
                     else if (seqsMap[entry.contig].length != entry.size) {
-                        // TODO delete preferences too?
+                        def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:sequence])
+                        Preference.deleteAll(preferences)
                         Sequence.delete(seqsMap[entry.contig])
                         Sequence sequence = new Sequence(
                                 organism: organism,
