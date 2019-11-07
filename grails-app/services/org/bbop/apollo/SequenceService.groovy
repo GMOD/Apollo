@@ -376,14 +376,31 @@ class SequenceService {
                 def iterator = index.iterator()
                 while (iterator.hasNext()) {
                     def entry = iterator.next()
-                    Sequence sequence = new Sequence(
-                            organism: organism,
-                            length: entry.size,
-                            start: 0,
-                            end: entry.size,
-                            name: entry.contig
-                    ).save(failOnError: true)
-                    log.debug "added sequence ${sequence}"
+                    if (!seqsMap.containsKey(entry.contig)) {
+                        Sequence sequence = new Sequence(
+                                organism: organism,
+                                length: entry.size,
+                                start: 0,
+                                end: entry.size,
+                                name: entry.contig
+                        ).save(failOnError: true)
+                        log.debug "added sequence ${sequence}"
+                    }
+                    else if (seqsMap[entry.contig].length != entry.size) {
+                        // TODO delete preferences too?
+                        Sequence.delete(seqsMap[entry.contig])
+                        Sequence sequence = new Sequence(
+                                organism: organism,
+                                length: entry.size,
+                                start: 0,
+                                end: entry.size,
+                                name: entry.contig
+                        ).save(failOnError: true)
+                        log.debug "replaced sequence ${sequence}"
+                    }
+                    else {
+                        log.debug "skipped existing sequence ${sequence}"
+                    }
                 }
 
                 organism.valid = true
