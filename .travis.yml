@@ -80,3 +80,7 @@ script:
       python setup.py nosetests
       killall java || true
     fi
+
+jobs:
+  allow_failures:
+    - env: DB=h2 TEST_SUITE=python-apollo
