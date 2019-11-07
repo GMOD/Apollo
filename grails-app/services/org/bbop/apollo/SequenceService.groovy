@@ -325,15 +325,13 @@ class SequenceService {
             }
 
           def sequences = Sequence.findAllByOrganism(organism)
+          def seqsMap = [:]
+          sequences.each { sequence ->
+              seqsMap[sequence.name] = sequence.length
+          }
           def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s join s.organism o where o = :organism",[organism:organism])
           Preference.deleteAll(preferences)
           Sequence.deleteAll(sequences)
-
-          def knownSequences = Sequence.findAllByOrganism(organism)
-          def seqsMap = [:]
-          knownSequences.each { sequence ->
-              seqsMap[sequence.name] = sequence.length
-          }
 
           // this will fail if folks have actively been working on this and preferences are set
           // otherwise if we remove all of the sequences annotations will need to be removed as well
@@ -383,13 +381,13 @@ class SequenceService {
                 def knownSequences = Sequence.findAllByOrganism(organism)
                 def seqsMap = [:]
                 knownSequences.each { sequence ->
-                    seqsMap[sequence.name] = sequence.length
+                    seqsMap[sequence.name] = sequence
                 }
                 // reading the index
                 def iterator = index.iterator()
                 while (iterator.hasNext()) {
                     def entry = iterator.next()
-                    if (!seqsMap.containsKey(entry.contig) || seqsMap[entry.contig] != entry.size) {
+                    if (!seqsMap.containsKey(entry.contig)) {
                         Sequence sequence = new Sequence(
                                 organism: organism,
                                 length: entry.size,
@@ -398,6 +396,17 @@ class SequenceService {
                                 name: entry.contig
                         ).save(failOnError: true)
                         log.debug "added sequence ${sequence}"
+                    }
+                    else if (seqsMap[entry.contig].length != entry.size) {
+                        Sequence.delete(seqsMap[entry.contig])
+                        Sequence sequence = new Sequence(
+                                organism: organism,
+                                length: entry.size,
+                                start: 0,
+                                end: entry.size,
+                                name: entry.contig
+                        ).save(failOnError: true)
+                        log.debug "replaced sequence ${sequence}"
                     }
                     else {
                         log.debug "skipped existing sequence ${sequence}"
