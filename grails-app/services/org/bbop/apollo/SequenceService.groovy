@@ -398,6 +398,7 @@ class SequenceService {
                         log.debug "added sequence ${sequence}"
                     }
                     else if (seqsMap[entry.contig].length != entry.size) {
+                        // TODO delete preferences too?
                         Sequence.delete(seqsMap[entry.contig])
                         Sequence sequence = new Sequence(
                                 organism: organism,
