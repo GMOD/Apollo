@@ -1325,7 +1325,7 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          if (oldOrganismDirectory!=organism.directory && !doReloadIfOrganismChanges) {
+          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !doReloadIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
@@ -1433,7 +1433,7 @@ class OrganismController {
     catch (e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
-      log.error(error.error)
+      log.error("Error updating organism metadata: ${error.error}")
     }
   }
 

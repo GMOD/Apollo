@@ -560,11 +560,17 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
             ["name":"Remote User Authenticator",
              "className":"remoteUserAuthenticatorService",
              "active":false,
+             "params":["default_group": "annotators"]
             ]
         ]
     }
 
-The `Username Password Authenticator` is the default method for storing username passwords, where databases are stored secured within the database.  The `Remote User Authentication` method uses a separate Apache authorization proxy, which is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).   Furthermore, users and groups can be inserted / updated via [web services](docs/Web_services.md), which are wrapped by the [Apollo python library](https://pypi.org/project/apollo/). 
+The `Username Password Authenticator` is the default method for storing username passwords, where databases are stored secured within the database.  
+
+The `Remote User Authentication` method uses a separate Apache authorization proxy, which is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).   
+Furthermore, users and groups can be inserted / updated via [web services](docs/Web_services.md), which are wrapped by the [Apollo python library](https://pypi.org/project/apollo/). 
+The `default_group` parameter adds a user to a default group on login so that a user has access to at least some genomes.
+
 
 ### URL modifications
 
