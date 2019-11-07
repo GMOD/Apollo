@@ -320,9 +320,9 @@ class SequenceService {
 
         File refSeqsFile = new File(organism.refseqFile);
         if (refSeqsFile.exists()) {
-            def refSeqs = refSeqsFile.withReader { r ->
-                new JsonSlurper().parse(r)
-            }
+          def refSeqs = refSeqsFile.withReader { r ->
+              new JsonSlurper().parse(r)
+          }
 
           def sequences = Sequence.findAllByOrganism(organism)
           def seqsMap = [:]
@@ -350,25 +350,33 @@ class SequenceService {
                             , start: refSeq.start
                             , end: refSeq.end
                             , name: refSeq.name
-                    ).save(failOnError: true)
+                    ).save(failOnError: true,insert: true)
                     log.debug "added sequence ${sequence}"
                 }
                 else if (seqsMap[refSeq.name].length != length) {
-                    def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:seqsMap[refSeq.name]])
-                    Preference.deleteAll(preferences)
-                    Sequence.delete(seqsMap[refSeq.name])
-                    Sequence sequence = new Sequence(
-                            organism: organism
-                            , length: length
-                            , seqChunkSize: refSeq.seqChunkSize
-                            , start: refSeq.start
-                            , end: refSeq.end
-                            , name: refSeq.name
-                    ).save(failOnError: true)
+                  Sequence sequence = Sequence.findByNameAndOrganism(refSeq.name,organism)
+                  sequence.length = length
+                  sequence.seqChunkSize = refSeq.seqChunkSize
+                  sequence.start = refSeq.start
+                  sequence.end = refSeq.end
+//                  sequence.name = refSeq.name
+                  sequence.save(failOnError: true,insert:false)
+//                  refSeq.length = length
+//                    def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:seqsMap[refSeq.name]])
+//                    Preference.deleteAll(preferences)
+//                    Sequence.delete(seqsMap[refSeq.name])
+//                    Sequence sequence = new Sequence(
+//                            organism: organism
+//                            , length: length
+//                            , seqChunkSize: refSeq.seqChunkSize
+//                            , start: refSeq.start
+//                            , end: refSeq.end
+//                            , name: refSeq.name
+//                    ).save(failOnError: true)
                     log.debug "added sequence ${sequence}"
                 }
                 else {
-                    log.debug "skipped existing sequence ${sequence}"
+                    log.debug "skipped existing sequence ${refSeq.name}"
                 }
             }
 
