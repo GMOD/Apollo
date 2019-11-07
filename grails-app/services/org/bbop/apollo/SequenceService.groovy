@@ -325,6 +325,10 @@ class SequenceService {
             }
 
           def sequences = Sequence.findAllByOrganism(organism)
+          def seqsMap = [:]
+          sequences.each { sequence ->
+              seqsMap[sequence.name] = sequence.length
+          }
           def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s join s.organism o where o = :organism",[organism:organism])
           Preference.deleteAll(preferences)
           Sequence.deleteAll(sequences)
@@ -372,6 +376,11 @@ class SequenceService {
                 FastaSequenceIndex index = new FastaSequenceIndex(genomeFastaIndexFile)
                 log.info "an indexed fasta ${index}"
                 log.info "an indexed fasta size ${index.size()}"
+                def knownSequences = Sequence.findAllByOrganism(organism)
+                def seqsMap = [:]
+                knownSequences.each { sequence ->
+                    seqsMap[sequence.name] = sequence
+                }
                 // reading the index
                 def iterator = index.iterator()
                 while (iterator.hasNext()) {
@@ -387,7 +396,6 @@ class SequenceService {
                         log.debug "added sequence ${sequence}"
                     }
                     else if (seqsMap[entry.contig].length != entry.size) {
-                        // TODO delete preferences too?
                         Sequence.delete(seqsMap[entry.contig])
                         Sequence sequence = new Sequence(
                                 organism: organism,
