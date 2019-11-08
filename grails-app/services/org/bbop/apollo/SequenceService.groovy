@@ -426,7 +426,7 @@ class SequenceService {
                         ).save(failOnError: true,insert: true)
                         log.debug "added sequence ${sequence}"
                     }
-                    else if (seqsMap[entry.contig].length != entry.size) {
+                    else if (seqsMap[entry.contig] != entry.size) {
 //                      def preferences = Preference.executeQuery("select p from UserOrganismPreference  p join p.sequence s where s = :sequence",[sequence:sequence])
 //                      Preference.deleteAll(preferences)
 //                      Sequence.delete(seqsMap[entry.contig])
