@@ -359,7 +359,7 @@ class SequenceService {
                     ).save(failOnError: true)
                     log.debug "added sequence ${sequence}"
                 }
-                else if (seqsMap[refSeq.name].length != length) {
+                else if (seqsMap[refSeq.name] != length) {
                   Sequence sequence = Sequence.findByNameAndOrganism(refSeq.name,organism)
                   sequence.length = length
                   sequence.seqChunkSize = refSeq.seqChunkSize
