@@ -101,7 +101,7 @@ class OrganismController {
         assert directoryToRemove.deleteDir()
       }
 
-      render findAllOrganisms()
+      findAllOrganisms()
 
     }
     catch (Exception e) {
@@ -1337,7 +1337,7 @@ class OrganismController {
       } else {
         throw new Exception('organism not found')
       }
-      render findAllOrganisms() as JSON
+      findAllOrganisms()
     }
     catch (e) {
       def error = [error: 'problem saving organism: ' + e]
@@ -1414,6 +1414,7 @@ class OrganismController {
       JSONObject requestObject = permissionService.handleInput(request, params)
       Boolean showPublicOnly = requestObject.showPublicOnly ? Boolean.valueOf(requestObject.showPublicOnly) : false
       Boolean showObsolete = requestObject.showObsolete ? Boolean.valueOf(requestObject.showObsolete) : false
+      println "find all organisms request object ${requestObject as JSON}"
       List<Organism> organismList = []
       if (requestObject.organism) {
         log.debug "finding info for specific organism"
