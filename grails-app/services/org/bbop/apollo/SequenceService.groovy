@@ -306,10 +306,14 @@ class SequenceService {
 
     def loadRefSeqs(Organism organism) {
         JSONObject referenceTrackObject = getReferenceTrackObject(organism)
+        println "loading ref sequences, ${referenceTrackObject}"
         if ((referenceTrackObject.storeClass == "JBrowse/Store/SeqFeature/IndexedFasta") || (referenceTrackObject.storeClass == "JBrowse/Store/Sequence/IndexedFasta")) {
+          println "A loading genome FASTA, ${referenceTrackObject}"
             loadGenomeFasta(organism, referenceTrackObject)
         } else {
+          println "B loading refSeq , ${referenceTrackObject}"
             loadRefSeqsJson(organism)
+          println "C LOADED refSeq , ${organism}"
         }
     }
 

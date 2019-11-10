@@ -1272,6 +1272,7 @@ class OrganismController {
   def updateOrganismInfo() {
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
+      println "updating organism info ${organismJson}"
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
@@ -1290,9 +1291,15 @@ class OrganismController {
         madeObsolete = !organism.obsolete && (organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false)
         organism.obsolete = organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false
         organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
+        println "Genome FASTa ${organism.genomeFasta}"
         if (organism.genomeFasta) {
           // update location of genome fasta
+          println "is a genome fasta"
           sequenceService.updateGenomeFasta(organism)
+          println "done is a genome fasta"
+        }
+        else{
+          println "is NOT a genome fasta"
         }
 
         CommonsMultipartFile organismDataFile = null
@@ -1326,9 +1333,12 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !doReloadIfOrganismChanges) {
+          println "should be laoding a data file here ${organismDataFile} , ${oldOrganismDirectory}, ${organism.directory} , ${doReloadIfOrganismChanges}"
+          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && doReloadIfOrganismChanges) {
             // we need to reload
+            println "reloading refSeq"
             sequenceService.loadRefSeqs(organism)
+            println "DONE refSeq"
           }
         } else {
           throw new Exception("Bad organism directory: " + organism.directory)
