@@ -1274,7 +1274,7 @@ class OrganismController {
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
-      Boolean doReloadIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
+      Boolean noReloadSequencesIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
       if (organism) {
         String oldOrganismDirectory = organism.directory
 
@@ -1325,7 +1325,7 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          if (oldOrganismDirectory!=organism.directory && !doReloadIfOrganismChanges) {
+          if (oldOrganismDirectory!=organism.directory && !noReloadSequencesIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
@@ -1462,6 +1462,7 @@ class OrganismController {
           featureLocations {
             sequence {
               eq('organism', organism)
+              order('name',"asc")
             }
           }
           'in'('class', requestHandlingService.viewableAnnotationList)
