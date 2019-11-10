@@ -1204,6 +1204,7 @@ class OrganismController {
       def c = Sequence.createCriteria()
       sequenceList = c.list {
         eq('organism', organism)
+        order('name',"asc")
       }
       log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
     } else {
@@ -1414,7 +1415,7 @@ class OrganismController {
       JSONObject requestObject = permissionService.handleInput(request, params)
       Boolean showPublicOnly = requestObject.showPublicOnly ? Boolean.valueOf(requestObject.showPublicOnly) : false
       Boolean showObsolete = requestObject.showObsolete ? Boolean.valueOf(requestObject.showObsolete) : false
-      println "find all organisms request object ${requestObject as JSON}"
+      println "find all organisms request object ${requestObject}"
       List<Organism> organismList = []
       if (requestObject.organism) {
         log.debug "finding info for specific organism"
