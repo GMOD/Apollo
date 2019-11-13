@@ -31,6 +31,7 @@ class FeatureService {
     def overlapperService
     def organismService
     def sessionFactory
+    def goAnnotationService
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
@@ -1986,10 +1987,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
 
       if(gsolFeature.goAnnotations){
-        JSONArray goAnnotationsArray = new JSONArray()
-        for(annotation in gsolFeature.goAnnotations){
-          goAnnotationsArray.add((annotation as JSON) as JSONObject)
-        }
+        JSONArray goAnnotationsArray = goAnnotationService.convertAnnotationsToJson(gsolFeature.goAnnotations)
+//
+//        for(annotation in gsolFeature.goAnnotations){
+//          goAnnotationsArray.add((annotation as JSON) as JSONObject)
+//        }
         jsonFeature.put(FeatureStringEnum.GO_ANNOTATIONS.value, goAnnotationsArray)
       }
 
