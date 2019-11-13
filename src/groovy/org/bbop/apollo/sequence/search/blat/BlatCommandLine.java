@@ -98,12 +98,9 @@ public class BlatCommandLine extends SequenceSearchTool {
         BufferedReader in = new BufferedReader(new FileReader(outputArg));
         String line;
         while ((line = in.readLine()) != null) {
-          System.out.println("line: "+line);
             matches.add(new TabDelimittedAlignment(line));
-          System.out.println("matches: "+matches);
         }
-      System.out.println("finished");
-      in.close();
+        in.close();
         return matches;
     }
 
