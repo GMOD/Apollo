@@ -344,7 +344,7 @@ public class SearchPanel extends Composite {
             searchHitList.add(searchHit);
           }
         } catch (Exception e) {
-          Bootbox.alert("Unable to to perform search" + e.getMessage() + " " + response.getText() + " " + response.getStatusCode());
+          Bootbox.alert("Unable to perform search" + e.getMessage() + " " + response.getText() + " " + response.getStatusCode());
         }
         dataGrid.getColumnSortList().clear();
         dataGrid.getColumnSortList().push(scoreColumn);

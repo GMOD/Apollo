@@ -21,7 +21,7 @@ public class BlatCommandLine extends SequenceSearchTool {
     private String tmpDir;
     private boolean removeTmpDir;
     protected String [] blatOptions;
-    
+
     @Override
     public void parseConfiguration(JSONObject config) throws SequenceSearchToolException {
         try {
@@ -45,13 +45,22 @@ public class BlatCommandLine extends SequenceSearchTool {
         File dir = null;
         Path p = null;
         try {
+          System.out.println("A: "+tmpDir);
             if(tmpDir==null) {
+              System.out.println("B: "+tmpDir);
                 p = Files.createTempDirectory("blat_tmp");
+              System.out.println("C: "+p);
             }
             else {
+              System.out.println("D: "+tmpDir);
                 p = Files.createTempDirectory(new File(tmpDir).toPath(),"blat_tmp");
+              System.out.println("E: "+tmpDir);
             }
-            dir = p.toFile();
+          System.out.println("F: "+p);
+          dir = p.toFile();
+          System.out.println("G: "+dir.getAbsolutePath());
+
+          System.out.println("exists: "+dir.exists()+ " is writable: "+dir.canWrite());
 
             return runSearch(dir, query, databaseId);
         }
@@ -70,7 +79,7 @@ public class BlatCommandLine extends SequenceSearchTool {
             }
         }
     }
-    
+
     private Collection<BlastAlignment> runSearch(File dir, String query, String databaseId)
             throws IOException, AlignmentParsingException, InterruptedException {
         PrintWriter log = new PrintWriter(new BufferedWriter(new FileWriter(dir + "/search.log")));
@@ -149,5 +158,5 @@ public class BlatCommandLine extends SequenceSearchTool {
         out.close();
         return queryFileName;
     }
-    
+
 }
