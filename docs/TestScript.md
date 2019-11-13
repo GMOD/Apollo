@@ -52,13 +52,24 @@ Note: The following steps are meant for testing purposes only, not for training 
    
    Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark, light, grid, no grid).
 
-2.4) Tools
+2.4) Search Panel
 
-   From _Tools_ menu, query the genome with BLAT, using an amino acid or nucleotide sequence. For example: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
+2.4.1) Confirm that an organism with a blatdb define displays the search panel and that an organism does not is hidden.
+
+2.4.1.1)  Confirm that on changing organisms the Search Panel is only shown when blatdb is defined.
+
+2.4.1.2)  Confirm that on reloading organisms Search Panel is only shown in some instances.
+
+2.4.2) For Honeybee, click on the Search panel and query the genome with BLAT, using an amino acid or nucleotide sequence. For example: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
 
    >sp|P04632|CPNS1_HUMAN Calpain small subunit 1 MFLVNSFLKGGGGGGGGGGGLGGGLGNVLGGLISGAGGGGGGGGGGGGGGGGGGGGTAMRILGGVISAISEAAAQYNPEPPPPRTHYSNIEANESEEVRQFRRLFAQLAGDDMEVSATELMNILNKVVTRHPDLKTDGFGIDTCRSMVAVMDSDTTGKLGFEEFKYLWNNIKRWQAIYKQFDTDRSGTICSSELPGAFEAAGFHLNEHLYNMIIRRYSDESGNMDFDNFISCLVRLDAMFRAFKSLDKDGTGQIQVNIQEWLQLTMYS
-   
-   Clear the highlighted region using the option from the _View_ menu.
+  
+2.4.2.1) Click on multiple hits and confirm that it navigates to those hits.
+
+2.4.2.2) Click on `Create annotation from hit` and confirm that an annotation is creating with the same dimensions and the same strand.
+
+2.4.2.3) Repeat 2.4.2 with a genomic annotation using nucleotide sequences.  In this example, view the sequences form that annotation and click on `Search sequences`.
+
 
 2.5) Help
 

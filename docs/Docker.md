@@ -71,7 +71,7 @@ The default credentials in this image are:
 1. Add an organism per the [instructions under Figure 2](http://genomearchitect.readthedocs.io/en/latest/Apollo2Build.html#login-to-the-web-interface).   Using yeast as an example, if you copy the data into `jbrowse-data/yeast` then on the server 
 you'll add the directory: `/data/yeast`. 
 
-![](./img/small-sample.png)
+![](images/organism_add.png)
 
 ## Apollo Run-time OPTIONS
 

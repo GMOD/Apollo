@@ -50,7 +50,8 @@ class OrganismController {
   @RestApiParams(params = [
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
-    , @RestApiParam(name = "organism", type = "json", paramType = RestApiParamType.QUERY, description = "Pass an Organism JSON object with an 'id' that corresponds to the organism to be removed")
+    , @RestApiParam(name = "id", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
+    , @RestApiParam(name = "organism", type = "string or number", paramType = RestApiParamType.QUERY, description = "Pass an Organism ID or commonName that corresponds to the organism to be removed")
   ])
   @Transactional
   def deleteOrganism() {
@@ -58,11 +59,22 @@ class OrganismController {
     try {
       JSONObject organismJson = permissionService.handleInput(request, params)
       log.debug "deleteOrganism ${organismJson}"
-      //if (permissionService.isUserBetterOrEqualRank(currentUser, GlobalPermissionEnum.INSTRUCTOR)){
-      log.debug "organism ID: ${organismJson.id} vs ${organismJson.organism}"
-      Organism organism = Organism.findById(organismJson.id as Long) ?: Organism.findByCommonName(organismJson.organism)
+      log.debug "organism ID: ${organismJson.id}"
+      // backporting a bug here:
+      Organism organism = null
+
+      if(organismJson.containsKey("id")){
+        organism = Organism.findByCommonName(organismJson.id as String)
+        if(!organism){
+          organism = Organism.findById(organismJson.id as Long)
+        }
+      }
+      // backport a bug so that it doesn't break existing code
+      if(!organism && organismJson.containsKey("organism")){
+        organism =  Organism.findByCommonName(organismJson.organism as String)
+      }
       if (!organism) {
-        def error = [error: "Organism ${organismJson.organism} not found"]
+        def error = [error: "Organism ${organismJson.id} not found"]
         log.error(error.error)
         render error as JSON
         return
@@ -104,19 +116,22 @@ class OrganismController {
     @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
     , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
+    , @RestApiParam(name = "id", type = "string", paramType = RestApiParamType.QUERY, description = "ID or commonName that can be used to uniquely identify an organism")
   ])
   @Transactional
   def deleteOrganismWithSequence() {
 
     JSONObject requestObject = permissionService.handleInput(request, params)
     JSONObject responseObject = new JSONObject()
-    log.debug "deleteOrganism ${requestObject}"
+    log.debug "deleteOrganismWithSequence ${requestObject}"
 
     try {
       //if (permissionService.isUserGlobalAdmin(permissionService.getCurrentUser(requestObject))) {
-      // use hasGolbalPermssions instead, which can validate the authentication
       if (permissionService.hasGlobalPermissions(requestObject, GlobalPermissionEnum.ADMIN)) {
-        Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism)
+        Organism organism = preferenceService.getOrganismForTokenInDB(requestObject.organism as String)
+        if(!organism){
+          organism = preferenceService.getOrganismForTokenInDB(requestObject.id as String)
+        }
         if (organism) {
           boolean dataAddedViaWebServices = organism.dataAddedViaWebServices == null ? false : organism.dataAddedViaWebServices
           String organismDirectory = organism.directory
@@ -279,13 +294,22 @@ class OrganismController {
           obsolete: false,
           valid: true,
           species: requestObject.species ?: "",
-          metadata: requestObject.metadata ?: "",
-          publicMode: requestObject.publicMode ?: false,
+          metadata: requestObject.metadata ? requestObject.metadata.toString() : "",
+          publicMode: requestObject.containsKey("publicMode") ? Boolean.valueOf(requestObject.publicMode as String) : false,
           nonDefaultTranslationTable: requestObject.nonDefaultTranslationTable ?: null,
           dataAddedViaWebServices: true
         ).save(failOnError: true, flush: true, insert: true)
-        def currentUser = permissionService.currentUser
-        organism.addMetaData("creator", currentUser.id.toString())
+        User currentUser = permissionService.currentUser
+        String userId = null
+        if(currentUser){
+          userId = currentUser.id.toString()
+        }
+        else{
+          userId = requestObject.username as String
+          currentUser = User.findByUsername(userId)
+          userId = currentUser ? currentUser.id?.toString() : userId
+        }
+        organism.addMetaData("creator", userId)
         File directory = trackService.getExtendedDataDirectory(organism)
 
         if (directory.mkdirs() && directory.setWritable(true)) {
@@ -353,7 +377,6 @@ class OrganismController {
                 assert searchDirectory.mkdir()
                 assert searchDirectory.setWritable(true)
                 File searchFile = new File(searchDirectory.absolutePath + File.separator + searchDatabaseDataFile.originalFilename)
-                println "search file: ${searchFile.absolutePath}"
                 searchDatabaseDataFile.transferTo(searchFile)
                 organism.blatdb = searchFile.absolutePath
               }
@@ -1078,7 +1101,7 @@ class OrganismController {
         throw new Exception('empty fields detected')
       }
 
-      log.debug "Adding ${organismJson.publicMode}"
+      log.debug "Adding organsim json ${organismJson as JSON}"
       Organism organism = new Organism(
         commonName: organismJson.commonName
         , directory: organismJson.directory
@@ -1242,6 +1265,7 @@ class OrganismController {
     , @RestApiParam(name = "nonDefaultTranslationTable", type = "string", paramType = RestApiParamType.QUERY, description = "non-default translation table")
     , @RestApiParam(name = "metadata", type = "string", paramType = RestApiParamType.QUERY, description = "organism metadata")
     , @RestApiParam(name = "organismData", type = "file", paramType = RestApiParamType.QUERY, description = "zip or tar.gz compressed data directory (if other options not used).  Blat data should include a .2bit suffix and be in a directory 'searchDatabaseData'")
+    , @RestApiParam(name = "noReloadSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "(default false) If set to true, then sequences will not be reloaded if the organism directory changes.")
   ])
   @Transactional
   def updateOrganismInfo() {
@@ -1250,6 +1274,7 @@ class OrganismController {
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
+      Boolean noReloadSequencesIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
       if (organism) {
         String oldOrganismDirectory = organism.directory
 
@@ -1260,9 +1285,9 @@ class OrganismController {
         //if the organismJson.metadata is null, remain the old metadata
         organism.metadata = organismJson.metadata ? organismJson.metadata.toString() : organism.metadata
         organism.directory = organismJson.directory ?: organism.directory
-        organism.publicMode = organismJson.publicMode ?: false
-        madeObsolete = !organism.obsolete && organismJson.obsolete
-        organism.obsolete = organismJson.obsolete ?: false
+        organism.publicMode = organismJson.containsKey("publicMode") ? Boolean.valueOf(organismJson.publicMode as String) : false
+        madeObsolete = !organism.obsolete && (organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false)
+        organism.obsolete = organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false
         organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
         if (organism.genomeFasta) {
           // update location of genome fasta
@@ -1299,7 +1324,8 @@ class OrganismController {
             permissionService.removeAllPermissions(organism)
           }
           organism.save(flush: true, insert: false, failOnError: true)
-          if (oldOrganismDirectory!=organism.directory) {
+
+          if (oldOrganismDirectory!=organism.directory && !noReloadSequencesIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
@@ -1336,7 +1362,7 @@ class OrganismController {
       Organism organism = Organism.findById(organismJson.id)
       if (organism) {
         log.debug "Updating organism metadata ${organismJson as JSON}"
-        organism.metadata = organismJson.metadata
+        organism.metadata = organismJson.metadata?.toString()
         organism.save(flush: true, insert: false, failOnError: true)
       } else {
         throw new Exception('Organism not found')
@@ -1346,7 +1372,7 @@ class OrganismController {
     catch (e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
-      log.error(error.error)
+      log.error("Error updating organism metadata: ${error.error}")
     }
   }
 
@@ -1436,6 +1462,7 @@ class OrganismController {
           featureLocations {
             sequence {
               eq('organism', organism)
+              order('name',"asc")
             }
           }
           'in'('class', requestHandlingService.viewableAnnotationList)
@@ -1485,9 +1512,6 @@ class OrganismController {
 
     // global version
     OrganismSummary organismSummaryInstance = permissionService.currentUser.roles.first().rank == GlobalPermissionEnum.ADMIN.rank ? reportService.generateAllFeatureSummary() : new OrganismSummary()
-//        OrganismSummary organismSummaryInstance = reportService.generateAllFeatureSummary()
-
-//        def organismPermissions = permissionService.getOrganismsWithPermission(permissionService.currentUser)
     def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser, PermissionEnum.ADMINISTRATE)
 
 

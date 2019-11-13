@@ -336,7 +336,7 @@ public class OrganismPanel extends Composite {
           sequenceFile.setEnabled(isEditable);
         }
         else{
-          sequenceFile.setText(organismInfo.getDirectory() + " (remove " + organismInfo.getNumFeatures() + "annotations to change)" );
+          sequenceFile.setText(organismInfo.getDirectory() + " (remove " + organismInfo.getNumFeatures() + " annotations to change)" );
           sequenceFile.setEnabled(false);
         }
 
