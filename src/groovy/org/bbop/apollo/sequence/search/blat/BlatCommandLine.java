@@ -52,6 +52,7 @@ public class BlatCommandLine extends SequenceSearchTool {
               p = Files.createTempDirectory(new File(tmpDir).toPath(),"blat_tmp");
           }
           dir = p.toFile();
+          
           return runSearch(dir, query, databaseId);
         }
         catch (IOException e) {
