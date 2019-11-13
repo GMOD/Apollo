@@ -329,7 +329,13 @@ public class SearchPanel extends Composite {
         searchHitList.clear();
         loadingDialog.hide();
         try {
-          JSONArray hitArray = JSONParser.parseStrict(response.getText()).isObject().get("matches").isArray();
+          JSONObject responseObject = JSONParser.parseStrict(response.getText()).isObject();
+          if(responseObject.get("matches")==null){
+            String errorString = responseObject.get("error").isString().stringValue();
+            Bootbox.alert("Error: "+errorString);
+            return ;
+          }
+          JSONArray hitArray = responseObject.get("matches").isArray();
           for (int i = 0; i < hitArray.size(); i++) {
             JSONObject hit = hitArray.get(i).isObject();
             SearchHit searchHit = new SearchHit();

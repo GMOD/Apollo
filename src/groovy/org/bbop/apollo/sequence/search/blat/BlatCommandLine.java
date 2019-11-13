@@ -45,24 +45,14 @@ public class BlatCommandLine extends SequenceSearchTool {
         File dir = null;
         Path p = null;
         try {
-          System.out.println("A: "+tmpDir);
-            if(tmpDir==null) {
-              System.out.println("B: "+tmpDir);
-                p = Files.createTempDirectory("blat_tmp");
-              System.out.println("C: "+p);
-            }
-            else {
-              System.out.println("D: "+tmpDir);
-                p = Files.createTempDirectory(new File(tmpDir).toPath(),"blat_tmp");
-              System.out.println("E: "+tmpDir);
-            }
-          System.out.println("F: "+p);
+          if(tmpDir==null) {
+              p = Files.createTempDirectory("blat_tmp");
+          }
+          else {
+              p = Files.createTempDirectory(new File(tmpDir).toPath(),"blat_tmp");
+          }
           dir = p.toFile();
-          System.out.println("G: "+dir.getAbsolutePath());
-
-          System.out.println("exists: "+dir.exists()+ " is writable: "+dir.canWrite());
-
-            return runSearch(dir, query, databaseId);
+          return runSearch(dir, query, databaseId);
         }
         catch (IOException e) {
             throw new SequenceSearchToolException("Error running search: " + e.getMessage(), e);
@@ -108,9 +98,12 @@ public class BlatCommandLine extends SequenceSearchTool {
         BufferedReader in = new BufferedReader(new FileReader(outputArg));
         String line;
         while ((line = in.readLine()) != null) {
+          System.out.println("line: "+line);
             matches.add(new TabDelimittedAlignment(line));
+          System.out.println("matches: "+matches);
         }
-        in.close();
+      System.out.println("finished");
+      in.close();
         return matches;
     }
 
