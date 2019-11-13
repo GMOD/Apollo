@@ -1276,7 +1276,7 @@ class OrganismController {
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
-      Boolean doReloadIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
+      Boolean noReloadSequencesIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
       if (organism) {
         String oldOrganismDirectory = organism.directory
 
@@ -1333,8 +1333,8 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          println "should be laoding a data file here ${organismDataFile} , ${oldOrganismDirectory}, ${organism.directory} , ${doReloadIfOrganismChanges}"
-          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && doReloadIfOrganismChanges) {
+          println "should be laoding a data file here ${organismDataFile} , ${oldOrganismDirectory}, ${organism.directory} , ${noReloadSequencesIfOrganismChanges}"
+          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !noReloadSequencesIfOrganismChanges) {
             // we need to reload
             println "reloading refSeq"
             sequenceService.loadRefSeqs(organism)
@@ -1474,6 +1474,7 @@ class OrganismController {
           featureLocations {
             sequence {
               eq('organism', organism)
+              order('name',"asc")
             }
           }
           'in'('class', requestHandlingService.viewableAnnotationList)
