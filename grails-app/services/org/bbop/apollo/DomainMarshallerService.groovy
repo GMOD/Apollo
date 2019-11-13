@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.go.GoAnnotation
 import org.bbop.apollo.preference.OrganismDTO
 import org.bbop.apollo.preference.SequenceDTO
 import org.bbop.apollo.preference.UserOrganismPreferenceDTO
@@ -51,7 +52,26 @@ class DomainMarshallerService {
             return returnArray
         }
 
-        JSON.registerObjectMarshaller(SequenceDTO) {
+      JSON.registerObjectMarshaller(GoAnnotation) {
+        def returnArray = [:]
+        returnArray['id'] = it.id
+        returnArray['aspect'] = it.aspect
+        returnArray['feature'] = it.feature.id
+        returnArray['goRef'] = it.goRef
+        returnArray['evidenceRef'] = it.evidenceRef
+        returnArray['goRefLabel'] = it.goRefLabel
+        returnArray['evidenceRefLabel'] = it.evidenceRefLabel
+        returnArray['geneProductRelationshipRef'] = it.geneProductRelationshipRef
+        returnArray['negate'] = it.negate
+        returnArray['withOrFromArray'] = it.withOrFromArray
+        returnArray['notesArray'] = it.notesArray
+        returnArray['reference'] = it.reference
+        returnArray['lastUpdated'] = it.lastUpdated
+        returnArray['dateCreated'] = it.dateCreated
+        return returnArray
+      }
+
+      JSON.registerObjectMarshaller(SequenceDTO) {
             def returnArray = [:]
             returnArray['id'] = it.id
             returnArray['name'] = it.name
