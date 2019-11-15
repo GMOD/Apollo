@@ -4,13 +4,12 @@
 
 
 Typically, the default memory allowance for the Java Virtual Machine (JVM) is too low. The memory requirements for Web
-Apollo will depend on many variables, but in general, we recommend at least 1g for the heap size and 256m for the
-PermGen size as a starting point.
+Apollo will depend on many variables, but in general, we recommend at least 512g for the maximum memory and 512m for the minimum, though a 2 GB maximum seems to be optimal for most server configurations.
 
 #### Suggested Tomcat memory settings
 
 ``` 
-export CATALINA_OPTS="-Xms512m -Xmx1g \
+export CATALINA_OPTS="-Xms512m -Xmx2g \
         -XX:+CMSClassUnloadingEnabled \
         -XX:+CMSPermGenSweepingEnabled \
         -XX:+UseConcMarkSweepGC"
@@ -19,7 +18,7 @@ export CATALINA_OPTS="-Xms512m -Xmx1g \
 
 In cases where the assembled genome is highly fragmented, additional tuning of memory requirements and garbage
 collection will be necessary to maintain the system stable. Below is an example from a research group that maintains
-over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffolds (reference sequences):  
+over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffolds (reference sequences) and over one hundred users:  
 
 ``` 
 export CATALINA_OPTS="-Xmx12288m -Xms8192m \
