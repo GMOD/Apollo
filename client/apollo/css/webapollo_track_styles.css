@@ -530,27 +530,55 @@ div.annot-sequence  {
     z-index: 20;  
 }
 
+.Apollo .variant-effect.deletion_artifact,
+.Apollo .variant-effect.plus-deletion_artifact,
+.Apollo .variant-effect.minus-deletion_artifact {
+    border-style: solid;
+    border-color: red;
+    border-width: 2px;
+    height: 100%;
+    background-color: rgba(150,50,50,0.3);
+    /*background-image: url('../img/warning_exclamation.png');*/
+    z-index: 20;
+}
+
 .Apollo .sequence-alteration-artifact.insertion_artifact,
 .Apollo .sequence-alteration-artifact.plus-insertion_artifact,
 .Apollo .sequence-alteration-artifact.minus-insertion_artifact {
-    border-style: solid;
-    border-color: green;
-    border-width: 1px;
+    border: 1px ridge green;
     height: 100%;
     background-color: rgba(0,150,0,0.3);
     z-index: 20;  
 }
 
+.Apollo .variant-effect.insertion_artifact,
+.Apollo .variant-effect.plus-insertion_artifact,
+.Apollo .variant-effect.minus-insertion_artifact {
+    border: 2px groove red;
+    height: 100%;
+    background-color: rgba(50,150,0,0.3);
+    z-index: 20;
+}
+
 .Apollo .sequence-alteration-artifact.substitution_artifact,
 .Apollo .sequence-alteration-artifact.plus-substitution_artifact,
 .Apollo .sequence-alteration-artifact.minus-substitution_artifact {
-    border-style: solid;
-    border-color: blue;
-    border-width: 1px;
+    border: 1px solid blue;
     height: 100%;
     background-color: rgba(250,250,0,0.3);
     z-index: 20;  
 }
+
+
+.Apollo .variant-effect.substitution_artifact,
+.Apollo .variant-effect.plus-substitution_artifact,
+.Apollo .variant-effect.minus-substitution_artifact {
+    border: 2px double red;
+    height: 100%;
+    background-color: rgba(250,250,0,0.3);
+    z-index: 20;
+}
+
 
 .jbrowse .plus-trellis-arrowhead,
 .jbrowse .plus-webapollo-arrowhead,
@@ -829,6 +857,14 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     background-color: magenta;
 }
 
+.jbrowse .Shine_Dalgarno_sequence,
+.jbrowse .plus-Shine_Dalgarno_sequence,
+.jbrowse .minus-Shine_Dalgarno_sequence {
+    height: 12px;
+    margin-top: 2px;
+    background-color: orangered;
+}
+
 
 .jbrowse .terminator {
     position: absolute;
@@ -943,7 +979,7 @@ div.track_webapollo_view_track_annotsequencetrack div.track-label .track-close-b
     height: 16px;
     border-width: 0px 0px 0px 0px;
     border-style: none;
-    background-color: transparent;
+    background-color: #ffa000;
     z-index: 10;
 }
 

@@ -2,19 +2,27 @@ package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
-import com.google.gwt.json.client.*;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.SuggestOracle;
+import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
-import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -30,8 +38,8 @@ public class GeneDetailPanel extends Composite {
     }
 
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
-    @UiField
-    TextBox nameField;
+    @UiField(provided = true)
+    SuggestBox nameField;
     @UiField
     TextBox symbolField;
     @UiField
@@ -43,13 +51,29 @@ public class GeneDetailPanel extends Composite {
     @UiField
     TextBox userField;
 
+    private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
     public GeneDetailPanel() {
+        nameField = new SuggestBox(suggestedNameOracle);
+
         initWidget(ourUiBinder.createAndBindUi(this));
+
+//        nameField.addValueChangeHandler(new ValueChangeHandler<String>() {
+//            @Override
+//            public void onValueChange(ValueChangeEvent<String> event) {
+//                handleNameChange();
+//            }
+//        });
+
+        nameField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
+            @Override
+            public void onSelection(SelectionEvent<SuggestOracle.Suggestion> event) {
+                handleNameChange();
+            }
+        });
     }
 
-    @UiHandler("nameField")
-    void handleNameChange(ChangeEvent e) {
+    private void handleNameChange() {
         String updatedName = nameField.getText();
         internalAnnotationInfo.setName(updatedName);
         updateGene();
@@ -79,6 +103,7 @@ public class GeneDetailPanel extends Composite {
     private void updateGene() {
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
         enableFields(false);
+
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -102,6 +127,8 @@ public class GeneDetailPanel extends Composite {
      */
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
+        suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
+        suggestedNameOracle.setFeatureType("sequence:"+annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         descriptionField.setText(internalAnnotationInfo.getDescription());
@@ -117,8 +144,7 @@ public class GeneDetailPanel extends Composite {
             locationText += ")";
             locationField.setText(locationText);
             locationField.setVisible(true);
-        }
-        else{
+        } else {
             locationField.setVisible(false);
         }
 

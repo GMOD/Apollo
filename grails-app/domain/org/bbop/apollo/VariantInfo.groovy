@@ -2,11 +2,12 @@ package org.bbop.apollo
 
 class VariantInfo {
 
-    String tag;
-    String value;
-    SequenceAlteration variant;
+    String tag
+    String value
+    SequenceAlteration variant
 
     static constraints = {
+        value nullable: true
     }
 
     static mapping = {

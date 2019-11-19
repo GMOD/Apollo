@@ -24,7 +24,7 @@
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup >
                     <b:InputGroupAddon>Name</b:InputGroupAddon>
-                    <b:TextBox autoComplete="false" ui:field="nameField" />
+                    <b:SuggestBox  ui:field="nameField" />
                 </b:InputGroup>
             </b:Column>
         </b:Row>

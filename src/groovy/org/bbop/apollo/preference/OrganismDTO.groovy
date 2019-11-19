@@ -5,4 +5,7 @@ class OrganismDTO {
     Long id
     String commonName
     String directory
+    Integer annotationCount
+    Integer variantEffectCount
+
 }

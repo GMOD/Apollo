@@ -27,7 +27,7 @@ class SequenceAlteration extends SequenceFeature{
      *
      * @return Offset added by the sequence alteration
      */
-    public int getOffset() {
-        return 0;
+    int getOffset() {
+        return 0
     }
 }

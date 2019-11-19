@@ -8,6 +8,7 @@ uniqueName=$4
 usage() {
     echo "Sample script for deleting a feature via web services"
     echo "Usage:    ./deleteFeature.sh <complete_apollo_URL> <username> <password> <unique_name_for_feature>"
+    echo "uniquename is a UUID of the feature and not the visible name. Use get_features for that (more for integrated tooling)."
     echo "Example:  ./deleteFeature.sh http://localhost:8080/apollo demo@demo.com demo f5f9fb2d-5b40-48fb-bf02-b67a87cfb82a"
 }
 

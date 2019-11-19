@@ -2,6 +2,7 @@ package org.bbop.apollo.gwt.client.dto;
 
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
+import org.bbop.apollo.gwt.shared.go.GoAnnotation;
 
 import java.util.*;
 
@@ -15,6 +16,7 @@ public class AnnotationInfo {
     private Integer min;
     private Integer max;
     private Set<AnnotationInfo> childAnnotations = new HashSet<>(); // children
+    private List<GoAnnotation> goAnnotations = new ArrayList<>(); // go annotations
     private String symbol;
     private String description;
     private Integer strand;
@@ -103,6 +105,14 @@ public class AnnotationInfo {
 
     public void setChildAnnotations(Set<AnnotationInfo> childAnnotations) {
         this.childAnnotations = childAnnotations;
+    }
+
+    public List<GoAnnotation> getGoAnnotations() {
+        return goAnnotations;
+    }
+
+    public void setGoAnnotations(List<GoAnnotation> goAnnotations) {
+        this.goAnnotations = goAnnotations;
     }
 
     public void setSymbol(String symbol) {

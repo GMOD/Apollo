@@ -142,7 +142,7 @@ return declare( [JBPlugin, HelpMixin],
         // that the open-file dialog and other things will have them
         // as options
         browser.registerTrackType({
-            type:                 'WebApollo/View/Track/DraggableHTMLFeatures',
+            type:                 'WebApollo/View/Track/DraggableNeatHTMLFeatures',
             defaultForStoreTypes: [ 'JBrowse/Store/SeqFeature/NCList',
                                     'JBrowse/Store/SeqFeature/GFF3',
                                     'WebApollo/Store/SeqFeature/ApolloGFF3'
@@ -357,18 +357,24 @@ return declare( [JBPlugin, HelpMixin],
     initSearchMenu: function()  {
         if (! this.searchMenuInitialized) {
             var webapollo = this;
-            this.browser.addGlobalMenuItem( 'tools',
-                                            new dijitMenuItem(
-                                                {
-                                                    id: 'menubar_apollo_seqsearch',
-                                                    label: "Search sequence",
-                                                    onClick: function() {
-                                                        webapollo.getAnnotTrack().searchSequence();
-                                                    }
-                                                }) );
-            if(!dijitRegistry.byId("dropdownmenu_tools")){
-                this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
-            }
+            this.browser.afterMilestone('initView', function() {
+                var button = new dijitMenuItem(
+                                {
+                                    id: 'menubar_apollo_seqsearch',
+                                    label: "Search sequence",
+                                    onClick: function() {
+                                        webapollo.getAnnotTrack().searchSequence();
+                                    }
+                                }) ;
+                this.browser.addGlobalMenuItem( 'tools', button);
+                var renderedMenu = dijitRegistry.byId("dropdownmenu_tools");
+                if(!renderedMenu){
+                    this.browser.renderGlobalMenu( 'tools', {text: 'Tools'}, this.browser.menuBar );
+                }
+                else {
+                    renderedMenu.addChild(button);
+                }
+            }, this );
 
         }
 
@@ -430,7 +436,10 @@ return declare( [JBPlugin, HelpMixin],
                                             {
                                                     label: 'Logout',
                                                     onClick: function()  {
+                                                        var confirm_logout = confirm('Logout?')
+                                                        if(confirm_logout){
                                                             webapollo.getAnnotTrack().logout();
+                                                        }
                                                     }
                                             })
             );

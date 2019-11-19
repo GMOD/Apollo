@@ -7,8 +7,7 @@
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 
 
-
-### [![](https://github.com/GMOD/Apollo/blob/master/docs/images/download_small.png)&nbsp;Download the latest release](https://github.com/GMOD/Apollo/releases/latest)
+### [![](https://github.com/GMOD/Apollo/blob/master/docs/images/download_small.png)&nbsp;Download the latest release](https://github.com/GMOD/Apollo/releases/latest) ![](docs/images/ApolloLogo_100x36.png)
 
 A collaborative, real-time, genome annotation editor.  The stack is a Java web application / database backend and a
 Javascript client that runs in a web browser as a JBrowse plugin.  
@@ -21,8 +20,6 @@ Complete Apollo installation and configuration instructions are available from t
 
 The Apollo client is implemented as a plugin for [JBrowse](http://jbrowse.org).  Additional JBrowse plugins may be found in the [JBrowse registry](https://gmod.github.io/jbrowse-registry/) and configured in ```apollo-config.groovy```.
 
-[Planning Board](https://waffle.io/GMOD/Apollo)
-
 
 ## Setup guide
 
@@ -32,10 +29,11 @@ Launchable public Amazon Web Services (AWS) EC2 images may be [launched from Com
 Launch settings should be 2 vCPU, 8 GB recommended, 80 GB storage depending on the size of your data, and ports 22 and 8080 open at a minimum.
 The server will be available at <http://aws.public.ip:8080/apollo/>.   Binaries with be in the `apollo/bin` directory though it should be in the path.
  
-Apollo may be launched from [Docker](docs/Setup.md#configure-for-docker) as well. 
+Apollo may be launched from [Docker](docs/Docker.md) as well. 
 
 The [quick-start guide for developers](docs/Apollo2Build.md) shows how to easily get started with Apollo. 
 
+[Python library over web services](https://pypi.org/project/apollo/) and other [web services examples](https://github.com/GMOD/Apollo/tree/develop/docs/web_services/examples).
 
 ## Migrating data from older versions
 
@@ -78,13 +76,13 @@ sample-postgres-apollo-config.groovy) to make sure you use your preferred databa
    
 
 ### Thanks to
-[![IntelliJ](https://lh6.googleusercontent.com/--QIIJfKrjSk/UJJ6X-UohII/AAAAAAAAAVM/cOW7EjnH778/s800/banner_IDEA.png)](
-http://www.jetbrains.com/idea/index.html)
 
 [![YourKit](https://www.yourkit.com/images/yklogo.png)](https://www.yourkit.com/) 
 
-Thanks to YourKit for providing us the use of their YourKit Java Profiler.  YourKit provides great supports for Open Source Projects.
-
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/GMOD/Apollo.svg?columns=all)](https://waffle.io/GMOD/Apollo)
+YourKit supports open source projects with innovative and intelligent tools
+for monitoring and profiling Java and .NET applications.
+YourKit is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>,
+<a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
+and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
 
 

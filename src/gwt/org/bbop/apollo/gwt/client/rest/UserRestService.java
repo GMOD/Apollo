@@ -16,6 +16,7 @@ import org.bbop.apollo.gwt.client.dto.UserOrganismPermissionInfo;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,7 +79,7 @@ public class UserRestService {
     public static void loadUsers(RequestCallback requestCallback, Integer start, Integer length, String searchNameString, String searchColumnString, Boolean sortAscending, Boolean showInactiveUsers) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("start", new JSONNumber(start < 0 ? 0 : start));
-        jsonObject.put("length", new JSONNumber(length < 0 ? 20 : length));
+        jsonObject.put("length", new JSONNumber(length < 0 ? 1000 : length));
         jsonObject.put("name", new JSONString(searchNameString));
         jsonObject.put("sortColumn", new JSONString(searchColumnString));
         jsonObject.put("sortAscending", JSONBoolean.getInstance(sortAscending));
@@ -113,7 +114,14 @@ public class UserRestService {
     }
 
     public static void logout() {
-        logout(null);
+        Bootbox.confirm("Logout?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    logout(null);
+                }
+            }
+        });
     }
 
     public static void logout(final String redirectUrl) {

@@ -74,7 +74,9 @@ class OverlapperService implements Overlapper{
 
     boolean overlapsOrf(Transcript transcript1, Transcript transcript2) {
         if ((transcriptService.isProteinCoding(transcript1) && transcriptService.isProteinCoding(transcript2))
-                && ((transcriptService.getGene(transcript1) == null || transcriptService.getGene(transcript2) == null) || (!(transcriptService.getGene(transcript1) instanceof Pseudogene) && !(transcriptService.getGene(transcript2) instanceof Pseudogene)))) {
+                && ((transcriptService.getGene(transcript1) == null || transcriptService.getGene(transcript2) == null)
+                || (!(transcriptService.getGene(transcript1) instanceof Pseudogene) && !(transcriptService.getGene(transcript2) instanceof Pseudogene)))
+        ) {
 
             CDS cds = transcriptService.getCDS(transcript1);
             CDS cds2 = transcriptService.getCDS(transcript2)

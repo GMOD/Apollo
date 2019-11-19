@@ -1,12 +1,10 @@
 package org.bbop.apollo.gwt.client.dto;
 
-import java.util.Date;
-
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.shared.go.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +52,13 @@ public class AnnotationInfoConverter {
             }
         }
 
+//        List<GoAnnotation> goAnnotationList = new ArrayList<>();
+//        goAnnotationList.add(generateGoAnnotation());
+//        goAnnotationList.add(generateGoAnnotation());
+//        goAnnotationList.add(generateGoAnnotation());
+//
+//        annotationInfo.setGoAnnotations(goAnnotationList);
+
         annotationInfo.setMin((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMIN.getValue()).isNumber().doubleValue());
         annotationInfo.setMax((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.FMAX.getValue()).isNumber().doubleValue());
         annotationInfo.setStrand((int) object.get(FeatureStringEnum.LOCATION.getValue()).isObject().get(FeatureStringEnum.STRAND.getValue()).isNumber().doubleValue());
@@ -83,5 +88,18 @@ public class AnnotationInfoConverter {
 
         return annotationInfo;
     }
+
+//    private static GoAnnotation generateGoAnnotation() {
+//        GoAnnotation goAnnotation = new GoAnnotation();
+//
+//        goAnnotation.setGoTerm("GO:12321");
+//        goAnnotation.setNegate(true);
+//
+//        goAnnotation.addNote("PMID:123123");
+//
+//        goAnnotation.addWithOrFrom(new WithOrFrom("UnitProt:K12312"));
+//
+//        return goAnnotation;
+//    }
 
 }
