@@ -255,6 +255,7 @@ class OrganismController {
 
 
     JSONObject returnObject = new JSONObject()
+    println "handling input from addOrganismWithSequence ${request} ${params}"
     JSONObject requestObject = permissionService.handleInput(request, params)
     log.info "Adding organism with SEQUENCE ${requestObject as String}"
     String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -1271,8 +1272,10 @@ class OrganismController {
   @Transactional
   def updateOrganismInfo() {
     try {
+      println "handling input from updateorganism info ${request} ${params}"
       JSONObject organismJson = permissionService.handleInput(request, params)
-      println "updating organism info ${organismJson}"
+      println "updating organism info with JSON object ${organismJson}"
+//      println "got the data file ${organismDataFile}"
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
@@ -1291,20 +1294,20 @@ class OrganismController {
         madeObsolete = !organism.obsolete && (organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false)
         organism.obsolete = organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false
         organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
-        println "Genome FASTa ${organism.genomeFasta}"
-        if (organism.genomeFasta) {
+        if(organism.genomeFasta) {
           // update location of genome fasta
-          println "is a genome fasta"
           sequenceService.updateGenomeFasta(organism)
-          println "done is a genome fasta"
-        }
-        else{
-          println "is NOT a genome fasta"
         }
 
+//        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         CommonsMultipartFile organismDataFile = null
         if (!request instanceof ShiroHttpServletRequest) {
+          println "is a form type"
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
+          println "found data ${organismDataFile}"
+        }
+        else{
+          println "is NOT a form type"
         }
         String foundBlatdb = null
         if (organismDataFile) {
@@ -1333,12 +1336,9 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          println "should be laoding a data file here ${organismDataFile} , ${oldOrganismDirectory}, ${organism.directory} , ${noReloadSequencesIfOrganismChanges}"
           if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !noReloadSequencesIfOrganismChanges) {
             // we need to reload
-            println "reloading refSeq"
             sequenceService.loadRefSeqs(organism)
-            println "DONE refSeq"
           }
         } else {
           throw new Exception("Bad organism directory: " + organism.directory)
@@ -1425,7 +1425,6 @@ class OrganismController {
       JSONObject requestObject = permissionService.handleInput(request, params)
       Boolean showPublicOnly = requestObject.showPublicOnly ? Boolean.valueOf(requestObject.showPublicOnly) : false
       Boolean showObsolete = requestObject.showObsolete ? Boolean.valueOf(requestObject.showObsolete) : false
-      println "find all organisms request object ${requestObject}"
       List<Organism> organismList = []
       if (requestObject.organism) {
         log.debug "finding info for specific organism"
