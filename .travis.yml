@@ -67,7 +67,6 @@ script:
       set -ex
       cp test/config/python-apollo.travis apollo-config.groovy
       ./grailsw run-app &
-#       git clone --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       git clone --single-branch --branch updateorg --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
       cd python-apollo
       pyenv global 3.6.3
