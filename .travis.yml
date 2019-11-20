@@ -81,6 +81,6 @@ script:
       killall java || true
     fi
 
-jobs:
-  allow_failures:
-    - env: DB=h2 TEST_SUITE=python-apollo
+# jobs:
+#   allow_failures:
+#     - env: DB=h2 TEST_SUITE=python-apollo
