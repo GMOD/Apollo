@@ -22,6 +22,7 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest
 
 import javax.servlet.http.HttpServletResponse
 import java.nio.file.FileSystems
@@ -101,7 +102,7 @@ class OrganismController {
         assert directoryToRemove.deleteDir()
       }
 
-      render findAllOrganisms()
+      findAllOrganisms()
 
     }
     catch (Exception e) {
@@ -1204,6 +1205,7 @@ class OrganismController {
       def c = Sequence.createCriteria()
       sequenceList = c.list {
         eq('organism', organism)
+        order('name',"asc")
       }
       log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
     } else {
@@ -1289,13 +1291,14 @@ class OrganismController {
         madeObsolete = !organism.obsolete && (organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false)
         organism.obsolete = organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false
         organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
-        if (organism.genomeFasta) {
+        if(organism.genomeFasta) {
           // update location of genome fasta
           sequenceService.updateGenomeFasta(organism)
         }
 
+//        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         CommonsMultipartFile organismDataFile = null
-        if (!request instanceof ShiroHttpServletRequest) {
+        if (request instanceof AbstractMultipartHttpServletRequest) {
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         }
         String foundBlatdb = null
@@ -1325,7 +1328,7 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          if (oldOrganismDirectory!=organism.directory && !noReloadSequencesIfOrganismChanges) {
+          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !noReloadSequencesIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
@@ -1337,7 +1340,7 @@ class OrganismController {
       } else {
         throw new Exception('organism not found')
       }
-      render findAllOrganisms() as JSON
+      findAllOrganisms()
     }
     catch (e) {
       def error = [error: 'problem saving organism: ' + e]
@@ -1422,7 +1425,7 @@ class OrganismController {
           organism = Organism.findByCommonName(requestObject.organism)
           if (!organism) organism = Organism.findById(requestObject.organism)
         } catch (e) {
-          log.error("Unable to find organism for ${requestObject.organism}")
+          log.warn("Unable to find organism for ${requestObject.organism}")
           organism = null
         }
         if (!organism) {

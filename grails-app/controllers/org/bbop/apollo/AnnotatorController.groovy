@@ -567,7 +567,7 @@ class AnnotatorController {
  * This is a public passthrough to version
  */
     def version() {
-      println "versoin "
+      println "version "
     }
 
   def about(){
