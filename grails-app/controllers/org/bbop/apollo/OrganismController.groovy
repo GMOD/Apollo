@@ -22,6 +22,7 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest
 
 import javax.servlet.http.HttpServletResponse
 import java.nio.file.FileSystems
@@ -255,7 +256,6 @@ class OrganismController {
 
 
     JSONObject returnObject = new JSONObject()
-    println "handling input from addOrganismWithSequence ${request} ${params}"
     JSONObject requestObject = permissionService.handleInput(request, params)
     log.info "Adding organism with SEQUENCE ${requestObject as String}"
     String clientToken = requestObject.getString(FeatureStringEnum.CLIENT_TOKEN.value)
@@ -1272,10 +1272,7 @@ class OrganismController {
   @Transactional
   def updateOrganismInfo() {
     try {
-      println "handling input from updateorganism info ${request} ${params}"
       JSONObject organismJson = permissionService.handleInput(request, params)
-      println "updating organism info with JSON object ${organismJson}"
-//      println "got the data file ${organismDataFile}"
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
@@ -1301,13 +1298,8 @@ class OrganismController {
 
 //        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         CommonsMultipartFile organismDataFile = null
-        if (!request instanceof ShiroHttpServletRequest) {
-          println "is a form type"
+        if (request instanceof AbstractMultipartHttpServletRequest) {
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
-          println "found data ${organismDataFile}"
-        }
-        else{
-          println "is NOT a form type"
         }
         String foundBlatdb = null
         if (organismDataFile) {
@@ -1433,7 +1425,7 @@ class OrganismController {
           organism = Organism.findByCommonName(requestObject.organism)
           if (!organism) organism = Organism.findById(requestObject.organism)
         } catch (e) {
-          log.error("Unable to find organism for ${requestObject.organism}")
+          log.warn("Unable to find organism for ${requestObject.organism}")
           organism = null
         }
         if (!organism) {
