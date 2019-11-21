@@ -91,7 +91,7 @@ Click on search sequence and confirm that hits are generated and repeat the step
 
 4.2) Drag and drop an HTML BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under HTML Alignment).
 
-4.1) Drag and drop an Canvas BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under Canvas Alignment).
+4.3) Right-click and create a new gene using a Canvas BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under Canvas Alignment).
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
