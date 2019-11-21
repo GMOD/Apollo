@@ -12,7 +12,7 @@ Binaries with be in the `apollo/bin` directory though it should be in the path.
 
 ## Working with image: Apollo 2.X Template Configured with Data
 
-The `Apollo 2.4.1 Template Configured with Data` instance contains an existing admin user `admin@sampleorg.org` / `samplepassword`.
+The `Apollo 2.5.0 Template Configured with Data` instance contains an existing admin user `admin@sampleorg.org` / `samplepassword`.
 
 It also contains data from [three sample genomes](Apollo2Build.md#adding-sample-data).  The Honeybee (Apis Melifera) example has a working blat search and is sourced from the [Hymenoptera Genome Database](http://hymenopteragenome.org/).  
 
@@ -25,7 +25,7 @@ To use this instance:
 
 ## Working with image: Apollo 2.X Empty Template 
 
-The `Apollo 2.4.1 Empty Template` instance contains a deployed tomcat with database only.
+The `Apollo 2.5.0 Empty Template` instance contains a deployed tomcat with database only.
 
 1. Launch from AWS as above.
 1. Register a new user at the dialog.
