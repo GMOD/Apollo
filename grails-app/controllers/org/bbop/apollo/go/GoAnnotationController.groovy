@@ -192,6 +192,7 @@ class GoAnnotationController {
     JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
     GoAnnotation goAnnotation = GoAnnotation.findById(dataObject.id)
+    feature.removeFromGoAnnotations(goAnnotation)
     goAnnotation.delete(flush: true)
 
     JSONArray oldFeaturesJsonArray = new JSONArray()
@@ -200,7 +201,7 @@ class GoAnnotationController {
     JSONObject currentFeatureJsonObject = featureService.convertFeatureToJSON(feature)
     newFeaturesJsonArray.add(currentFeatureJsonObject)
 
-    featureEventService.addNewFeatureEvent(FeatureOperation.DELETE_GO_ANNOTATION,
+    featureEventService.addNewFeatureEvent(FeatureOperation.REMOVE_GO_ANNOTATION,
       feature.name,
       feature.uniqueName,
       dataObject,
