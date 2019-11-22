@@ -71,4 +71,11 @@ class GoAnnotationService {
       }
     }
   }
+
+  def removeGoAnnotationsFromFeature(Feature feature) {
+      def goAnnotations = feature.goAnnotations
+      for(def annotation in goAnnotations){
+        feature.removeFromGoAnnotations(annotation)
+      }
+  }
 }

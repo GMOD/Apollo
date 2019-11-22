@@ -21,7 +21,6 @@ class GoAnnotationController {
 
 
   def permissionService
-  def jsonWebUtilityService
   def goAnnotationService
   def featureEventService
   def featureService
