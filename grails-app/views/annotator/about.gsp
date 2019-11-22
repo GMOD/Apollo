@@ -48,6 +48,23 @@
   </li>
   </ul>
 
+  <hr/>
+  <ul>
+    <li>Version:
+    %{--${grails.util.Metadata.current[attrs[app.version]]}--}%
+      <g:if test="${grails.util.Metadata.current['app.version'].contains('SNAPSHOT')}">
+        <a href='https://github.com/GMOD/Apollo/releases'><g:meta name="app.version"/></a>
+      </g:if>
+      <g:else>
+        <a href='https://github.com/GMOD/Apollo/releases/tag/<g:meta name="app.version"/>'><g:meta name="app.version"/></a>
+      </g:else>
+    </li>
+    <li>Grails version: <g:meta name="app.grails.version"/></li>
+    <li>Groovy version: ${GroovySystem.getVersion()}</li>
+    <li>JVM version: ${System.getProperty('java.version')}</li>
+    <li>Servlet Container Version: ${application.getServerInfo()}</li>
+  </ul>
+
 </div>
 
 </body>
