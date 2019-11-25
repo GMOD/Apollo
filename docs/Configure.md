@@ -326,9 +326,9 @@ forwarded to the tomcat server.  This setup is not necessary, but it is a very s
 
 Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since
 websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded
-in some way too.
+in some way too.  Using Tomcat 8 or above is recommended.
 
-Use Tomcat 8 or above as Tomcat 7 has been deprecated.
+If using a separate Oauth2 provider, a more [detailed example of handling both the proxy and the authentication with OpenID Connect](docs/OpenIDConnectAuthentication.md) has also been provided.
 
 
 ### Installing secure certificates. 
@@ -569,7 +569,9 @@ The `Username Password Authenticator` is the default method for storing username
 
 The `Remote User Authentication` method uses a separate Apache authorization proxy, which is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).   
 Furthermore, users and groups can be inserted / updated via [web services](docs/Web_services.md), which are wrapped by the [Apollo python library](https://pypi.org/project/apollo/). 
-The `default_group` parameter adds a user to a default group on login so that a user has access to at least some genomes.
+The `default_group` parameter adds a user to a default group on login so that a user has access to at least some genomes.  
+
+A [more detailed guide using OpenIDConnect authorization](docs/OpenIDConnectAuthentication.md) explains usage of both the proxy and an authentication strategy.
 
 
 ### URL modifications
