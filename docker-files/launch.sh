@@ -23,7 +23,7 @@ if [ ! -e "${WEBAPOLLO_DB_DATA}/PG_VERSION" ];then
 	su -c "/usr/lib/postgresql/9.6/bin/initdb -D ${WEBAPOLLO_DB_DATA}" postgres
 fi
 
-export WEBAPOLLO_START_POSTGRES="${WEBAPOLLO_START_POSTGRES:true}"
+export WEBAPOLLO_START_POSTGRES="${WEBAPOLLO_START_POSTGRES:-true}"
 
 if [[ "${WEBAPOLLO_START_POSTGRES}" == "true" ]]; then
     service postgresql start
