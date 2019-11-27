@@ -49,7 +49,5 @@ RUN rm -rf ${CATALINA_HOME}/webapps/* && \
 	cp /apollo/apollo*.war ${CATALINA_HOME}/apollo.war
 
 ADD docker-files/createenv.sh /createenv.sh
-CMD "/createenv.sh"
-
 ADD docker-files/launch.sh /launch.sh
 CMD "/launch.sh"
