@@ -97,7 +97,7 @@ echo "WAR FILE ${WAR_FILE}"
 
 cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 
-# Set environment varirables for tomcat
+# Set environment variables for tomcat
 bash /createenv.sh
 
 # Launch tomcat
