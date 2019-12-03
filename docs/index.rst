@@ -41,6 +41,7 @@ Contents:
    Data_Loading_via_web_services
    Troubleshooting
    ExampleBuild
+   OpenIDConnectAuthentication
    Migration
 
 .. toctree::

@@ -23,7 +23,11 @@ if [ ! -e "${WEBAPOLLO_DB_DATA}/PG_VERSION" ];then
 	su -c "/usr/lib/postgresql/9.6/bin/initdb -D ${WEBAPOLLO_DB_DATA}" postgres
 fi
 
-service postgresql start
+export WEBAPOLLO_START_POSTGRES="${WEBAPOLLO_START_POSTGRES:-true}"
+
+if [[ "${WEBAPOLLO_START_POSTGRES}" == "true" ]]; then
+    service postgresql start
+fi
 
 export WEBAPOLLO_DB_HOST="${WEBAPOLLO_DB_HOST:-127.0.0.1}"
 export WEBAPOLLO_DB_NAME="${WEBAPOLLO_DB_NAME:-apollo}"
@@ -93,4 +97,8 @@ echo "WAR FILE ${WAR_FILE}"
 
 cp ${CATALINA_HOME}/apollo.war ${WAR_FILE}
 
+# Set environment variables for tomcat
+bash /createenv.sh
+
+# Launch tomcat
 catalina.sh run

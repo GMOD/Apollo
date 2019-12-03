@@ -34,11 +34,11 @@ class AnnotatorController {
     def trackService
     def preferenceService
     def reportService
-    def featureRelationshipService
     def configWrapperService
     def exportService
     def variantService
     def grailsApplication
+    def jsonWebUtilityService
 
     private List<String> reservedList = ["loc",
                                          FeatureStringEnum.CLIENT_TOKEN.value,
@@ -202,7 +202,7 @@ class AnnotatorController {
 
         feature.save(flush: true, failOnError: true)
 
-        JSONObject updateFeatureContainer = createJSONFeatureContainer();
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer();
         if (feature instanceof Gene) {
             List<Feature> childFeatures = feature.parentFeatureRelationships*.childFeature
             for (childFeature in childFeatures) {
@@ -266,15 +266,6 @@ class AnnotatorController {
         return requestHandlingService.setExonBoundaries(jsonObject)
     }
 
-    private JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
-        JSONObject jsonFeatureContainer = new JSONObject();
-        JSONArray jsonFeatures = new JSONArray();
-        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
-        for (JSONObject feature : features) {
-            jsonFeatures.put(feature);
-        }
-        return jsonFeatureContainer;
-    }
 
 /**
  * Not really setup for a REST service as is specific to the Annotator Panel interface.
@@ -292,7 +283,7 @@ class AnnotatorController {
  */
     def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken,Boolean showOnlyGoAnnotations) {
         try {
-            JSONObject returnObject = createJSONFeatureContainer()
+            JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
             returnObject.clientToken = clientToken
             if (sequenceName && !Sequence.countByName(sequenceName)) return
 
@@ -440,7 +431,7 @@ class AnnotatorController {
 
     def updateAlternateAlleles() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -460,7 +451,7 @@ class AnnotatorController {
 
     def addAlleleInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -479,7 +470,7 @@ class AnnotatorController {
 
     def updateAlleleInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -498,7 +489,7 @@ class AnnotatorController {
 
     def deleteAlleleInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -517,7 +508,7 @@ class AnnotatorController {
 
     def addVariantInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -536,7 +527,7 @@ class AnnotatorController {
 
     def updateVariantInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -555,7 +546,7 @@ class AnnotatorController {
 
     def deleteVariantInfo() {
         JSONObject dataObject = permissionService.handleInput(request, params)
-        JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+        JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
 
         if (!permissionService.hasPermissions(dataObject, PermissionEnum.WRITE)) {
             render status: HttpStatus.UNAUTHORIZED
@@ -576,7 +567,7 @@ class AnnotatorController {
  * This is a public passthrough to version
  */
     def version() {
-      println "versoin "
+      println "version "
     }
 
   def about(){

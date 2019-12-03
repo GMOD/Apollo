@@ -1,5 +1,5 @@
 # Apollo
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3334054.svg)](https://doi.org/10.5281/zenodo.3334054)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3555454.svg)](https://doi.org/10.5281/zenodo.3555454)
 [![Build](https://travis-ci.org/GMOD/Apollo.svg?branch=master)](https://travis-ci.org/GMOD/Apollo?branch=master)
 [![Coverage](https://coveralls.io/repos/github/GMOD/Apollo/badge.svg?branch=master)](https://coveralls.io/github/GMOD/Apollo?branch=master)
 [![Documentation](https://readthedocs.org/projects/genomearchitect/badge/?version=latest)](https://genomearchitect.readthedocs.org/en/latest/)
@@ -78,6 +78,11 @@ sample-postgres-apollo-config.groovy) to make sure you use your preferred databa
 ### Run locally for GWT development
 
     apollo devmode 
+
+or in two terminals:
+
+    apollo run-local 
+	gradlew devmode 
    
 
 ### Thanks to
@@ -89,5 +94,6 @@ for monitoring and profiling Java and .NET applications.
 YourKit is the creator of <a href="https://www.yourkit.com/java/profiler/">YourKit Java Profiler</a>,
 <a href="https://www.yourkit.com/.net/profiler/">YourKit .NET Profiler</a>,
 and <a href="https://www.yourkit.com/youmonitor/">YourKit YouMonitor</a>.
+
 
 

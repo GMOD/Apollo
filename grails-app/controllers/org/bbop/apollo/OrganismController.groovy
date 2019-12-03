@@ -22,6 +22,7 @@ import org.restapidoc.annotation.RestApiParams
 import org.restapidoc.pojo.RestApiParamType
 import org.restapidoc.pojo.RestApiVerb
 import org.springframework.web.multipart.commons.CommonsMultipartFile
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest
 
 import javax.servlet.http.HttpServletResponse
 import java.nio.file.FileSystems
@@ -1204,6 +1205,7 @@ class OrganismController {
       def c = Sequence.createCriteria()
       sequenceList = c.list {
         eq('organism', organism)
+        order('name',"asc")
       }
       log.debug "Sequence list fetched at getSequencesForOrganism: ${sequenceList}"
     } else {
@@ -1274,7 +1276,7 @@ class OrganismController {
       permissionService.checkPermissions(organismJson, PermissionEnum.ADMINISTRATE)
       Organism organism = Organism.findById(organismJson.id)
       Boolean madeObsolete
-      Boolean doReloadIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
+      Boolean noReloadSequencesIfOrganismChanges = organismJson.noReloadSequences ? Boolean.valueOf(organismJson.noReloadSequences as String)  : false
       if (organism) {
         String oldOrganismDirectory = organism.directory
 
@@ -1289,13 +1291,14 @@ class OrganismController {
         madeObsolete = !organism.obsolete && (organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false)
         organism.obsolete = organismJson.containsKey("obsolete") ? Boolean.valueOf(organismJson.obsolete as String) : false
         organism.nonDefaultTranslationTable = organismJson.nonDefaultTranslationTable ?: organism.nonDefaultTranslationTable
-        if (organism.genomeFasta) {
+        if(organism.genomeFasta) {
           // update location of genome fasta
           sequenceService.updateGenomeFasta(organism)
         }
 
+//        CommonsMultipartFile organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         CommonsMultipartFile organismDataFile = null
-        if (!request instanceof ShiroHttpServletRequest) {
+        if (request instanceof AbstractMultipartHttpServletRequest) {
           organismDataFile = request.getFile(FeatureStringEnum.ORGANISM_DATA.value)
         }
         String foundBlatdb = null
@@ -1325,7 +1328,7 @@ class OrganismController {
           }
           organism.save(flush: true, insert: false, failOnError: true)
 
-          if (oldOrganismDirectory!=organism.directory && !doReloadIfOrganismChanges) {
+          if ((organismDataFile || oldOrganismDirectory!=organism.directory) && !noReloadSequencesIfOrganismChanges) {
             // we need to reload
             sequenceService.loadRefSeqs(organism)
           }
@@ -1337,7 +1340,7 @@ class OrganismController {
       } else {
         throw new Exception('organism not found')
       }
-      render findAllOrganisms() as JSON
+      findAllOrganisms()
     }
     catch (e) {
       def error = [error: 'problem saving organism: ' + e]
@@ -1433,7 +1436,7 @@ class OrganismController {
     catch (e) {
       def error = [error: 'problem saving organism: ' + e]
       render error as JSON
-      log.error(error.error)
+      log.error("Error updating organism metadata: ${error.error}")
     }
   }
 
@@ -1483,7 +1486,7 @@ class OrganismController {
           organism = Organism.findByCommonName(requestObject.organism)
           if (!organism) organism = Organism.findById(requestObject.organism)
         } catch (e) {
-          log.error("Unable to find organism for ${requestObject.organism}")
+          log.warn("Unable to find organism for ${requestObject.organism}")
           organism = null
         }
         if (!organism) {
@@ -1523,6 +1526,7 @@ class OrganismController {
           featureLocations {
             sequence {
               eq('organism', organism)
+              order('name',"asc")
             }
           }
           'in'('class', requestHandlingService.viewableAnnotationList)

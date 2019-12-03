@@ -52,6 +52,10 @@ enum FeatureOperation {
   SET_ATTRIBUTE(false),
   ADD_ATTRIBUTE(false),
 
+  REMOVE_GO_ANNOTATION(false),
+  UPDATE_GO_ANNOTATION(false),
+  ADD_GO_ANNOTATION(false),
+
   private isStructural = true;
 
   private FeatureOperation() {}

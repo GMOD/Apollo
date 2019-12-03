@@ -20,6 +20,7 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
+    def jsonWebUtilityService
 
     /**
      *
@@ -595,7 +596,7 @@ class FeatureEventService {
 
         // firing update annotation event
         if (transcriptsToUpdate.size() > 0) {
-            JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+            JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))

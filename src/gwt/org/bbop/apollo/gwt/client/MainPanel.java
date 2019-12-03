@@ -706,6 +706,10 @@ public class MainPanel extends Composite {
             organismListBox.addItem(organismInfo.getName(), organismInfo.getId());
             if (currentOrganism.getId().equals(organismInfo.getId())) {
                 organismListBox.setSelectedIndex(organismListBox.getItemCount() - 1);
+
+                // fixes #2319
+                boolean searchable = organismInfo.getBlatDb()!=null && organismInfo.getBlatDb().trim().length()>0;
+                detailTabs.getTabWidget(TabPanelIndex.SEARCH.index).getParent().setVisible(searchable);
             }
         }
 

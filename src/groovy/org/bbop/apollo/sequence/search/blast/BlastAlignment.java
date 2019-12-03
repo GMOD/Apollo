@@ -91,4 +91,23 @@ public class BlastAlignment {
       return subjectStrand;
     }
 
+  @Override
+  public String toString() {
+    return "BlastAlignment{" +
+      "queryId='" + queryId + '\'' +
+      ", subjectId='" + subjectId + '\'' +
+      ", percentId=" + percentId +
+      ", alignmentLength=" + alignmentLength +
+      ", numMismatches=" + numMismatches +
+      ", numGaps=" + numGaps +
+      ", queryStrand=" + queryStrand +
+      ", subjectStrand=" + subjectStrand +
+      ", queryStart=" + queryStart +
+      ", queryEnd=" + queryEnd +
+      ", subjectStart=" + subjectStart +
+      ", subjectEnd=" + subjectEnd +
+      ", eValue=" + eValue +
+      ", bitscore=" + bitscore +
+      '}';
+  }
 }
