@@ -99,7 +99,6 @@ public class MainPanel extends Composite {
     static GroupPanel userGroupPanel;
     @UiField
     static DockLayoutPanel eastDockPanel;
-//    @UiField(provided = true)
     @UiField
     static DockLayoutPanel mainDockPanel;
     @UiField
