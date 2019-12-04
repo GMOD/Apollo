@@ -48,9 +48,10 @@ public class MainPanel extends Composite {
 
 
     private static final int DEFAULT_TAB_COUNT = 8;
+    private static final int CLOSE_WIDTH = 25;
+    private static final int OPEN_WIDTH = 700;
 
-    interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
-    }
+    interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> { }
 
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
@@ -98,8 +99,8 @@ public class MainPanel extends Composite {
     static GroupPanel userGroupPanel;
     @UiField
     static DockLayoutPanel eastDockPanel;
-    @UiField(provided = true)
-    static SplitLayoutPanel mainSplitPanel;
+    @UiField
+    static DockLayoutPanel mainDockPanel;
     @UiField
     static TabLayoutPanel detailTabs;
     @UiField
@@ -167,14 +168,6 @@ public class MainPanel extends Composite {
         instance = this;
         sequenceSuggestBox = new SuggestBox(new ReferenceSequenceOracle());
 
-        mainSplitPanel = new SplitLayoutPanel() {
-            @Override
-            public void onResize() {
-                super.onResize();
-                Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
-            }
-        };
-
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -226,7 +219,7 @@ public class MainPanel extends Composite {
             String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
             if (dockWidth != null && toggleOpen) {
                 Integer dockWidthInt = Integer.parseInt(dockWidth);
-                mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
+                mainDockPanel.setWidgetSize(eastDockPanel, dockWidthInt);
             }
         } catch (NumberFormatException e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
@@ -879,23 +872,19 @@ public class MainPanel extends Composite {
     }
 
     private void closePanel() {
-        mainSplitPanel.setWidgetSize(eastDockPanel, 20);
-        dockOpenClose.setIcon(IconType.CHEVRON_LEFT);
+        mainDockPanel.setWidgetSize(eastDockPanel, CLOSE_WIDTH);
+        dockOpenClose.setIcon(IconType.WINDOW_MAXIMIZE);
+        dockOpenClose.setColor("green");
     }
 
     private void openPanel() {
-        String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
-        if (dockWidth != null) {
-            Integer dockWidthInt = Integer.parseInt(dockWidth);
-            mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
-        } else {
-            mainSplitPanel.setWidgetSize(eastDockPanel, 550);
-        }
-        dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
+      mainDockPanel.setWidgetSize(eastDockPanel, OPEN_WIDTH);
+      dockOpenClose.setIcon(IconType.CLOSE);
+      dockOpenClose.setColor("orange");
     }
 
     private void toggleOpen() {
-        if (mainSplitPanel.getWidgetSize(eastDockPanel) < 100) {
+        if (mainDockPanel.getWidgetSize(eastDockPanel) < 100) {
             toggleOpen = false;
         }
 
@@ -905,7 +894,7 @@ public class MainPanel extends Composite {
             openPanel();
         }
 
-        mainSplitPanel.animate(400);
+        mainDockPanel.animate(50);
 
         toggleOpen = !toggleOpen;
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
