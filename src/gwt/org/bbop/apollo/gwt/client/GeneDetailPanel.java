@@ -50,6 +50,12 @@ public class GeneDetailPanel extends Composite {
     TextBox sequenceField;
     @UiField
     TextBox userField;
+    @UiField
+    TextBox dateCreatedField;
+    @UiField
+    TextBox lastUpdatedField;
+    @UiField
+    TextBox synonymsField;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 

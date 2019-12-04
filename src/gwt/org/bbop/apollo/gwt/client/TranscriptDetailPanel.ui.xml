@@ -30,6 +30,14 @@
                 </b:InputGroup>
             </b:Column>
         </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Synonyms</b:InputGroupAddon>
+                    <b:TextBox enabled="false" ui:field="synonymsField"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
         <!--<b:Row>-->
             <!--<b:Column size="XS_12" styleName="{style.widgetPanel}">-->
                 <!--<b:InputGroup>-->
@@ -65,10 +73,26 @@
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
-                    <b:InputGroupAddon>Owner</b:InputGroupAddon>
+                    <b:InputGroupAddon>Owner(s)</b:InputGroupAddon>
                     <b:TextBox enabled="false" ui:field="userField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
+      <b:Row styleName="{style.row}">
+        <b:Column size="XS_12" styleName="{style.widgetPanel}">
+          <b:InputGroup>
+            <b:InputGroupAddon>Created</b:InputGroupAddon>
+            <b:TextBox enabled="false" ui:field="dateCreatedField"/>
+          </b:InputGroup>
+        </b:Column>
+      </b:Row>
+      <b:Row styleName="{style.row}">
+        <b:Column size="XS_12" styleName="{style.widgetPanel}">
+          <b:InputGroup>
+            <b:InputGroupAddon>Updated</b:InputGroupAddon>
+            <b:TextBox enabled="false" ui:field="lastUpdatedField"/>
+          </b:InputGroup>
+        </b:Column>
+      </b:Row>
     </b:Container>
 </ui:UiBinder>

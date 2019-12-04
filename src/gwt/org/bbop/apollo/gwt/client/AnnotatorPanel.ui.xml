@@ -138,7 +138,7 @@
             </gwt:center>
         </gwt:DockLayoutPanel>
     </gwt:center>
-    <gwt:south size="280">
+    <gwt:south size="350">
         <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
             <gwt:tab>
                 <gwt:header>Details</gwt:header>
