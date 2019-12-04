@@ -874,12 +874,14 @@ public class MainPanel extends Composite {
 
     private void closePanel() {
         mainDockPanel.setWidgetSize(eastDockPanel, CLOSE_WIDTH);
-        dockOpenClose.setIcon(IconType.CHEVRON_LEFT);
+        dockOpenClose.setIcon(IconType.WINDOW_MAXIMIZE);
+        dockOpenClose.setColor("green");
     }
 
     private void openPanel() {
       mainDockPanel.setWidgetSize(eastDockPanel, OPEN_WIDTH);
-      dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
+      dockOpenClose.setIcon(IconType.CLOSE);
+      dockOpenClose.setColor("orange");
     }
 
     private void toggleOpen() {
@@ -893,7 +895,7 @@ public class MainPanel extends Composite {
             openPanel();
         }
 
-        mainDockPanel.animate(400);
+        mainDockPanel.animate(50);
 
         toggleOpen = !toggleOpen;
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
