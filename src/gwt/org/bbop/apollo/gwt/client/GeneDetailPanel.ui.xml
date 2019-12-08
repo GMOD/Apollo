@@ -21,7 +21,6 @@
         .bolder {
             font-size: larger;
             font-weight: bolder;
-
         }
     </ui:style>
 

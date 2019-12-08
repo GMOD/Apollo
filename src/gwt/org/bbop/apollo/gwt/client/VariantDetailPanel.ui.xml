@@ -17,9 +17,21 @@
         margin-left: 5px;
         margin-right: 5px;
         }
+        .bolder {
+            font-size: larger;
+            font-weight: bolder;
+        }
     </ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup >
+                    <b:InputGroupAddon>Type</b:InputGroupAddon>
+                    <b:TextBox ui:field="typeField" enabled="false" addStyleNames="{style.bolder}"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup >
@@ -65,6 +77,22 @@
                 <b:InputGroup>
                     <b:InputGroupAddon>Owner</b:InputGroupAddon>
                     <b:TextBox autoComplete="false" ui:field="userField" enabled="false"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Created</b:InputGroupAddon>
+                    <b:TextBox enabled="false" ui:field="dateCreatedField"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Updated</b:InputGroupAddon>
+                    <b:TextBox enabled="false" ui:field="lastUpdatedField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
