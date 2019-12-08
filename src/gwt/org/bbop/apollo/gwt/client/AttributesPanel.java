@@ -39,10 +39,10 @@ public class AttributesPanel extends Composite {
     private String oldTag, oldValue;
     private String tag, value;
 
-    interface VariantInfoPanelUiBinder extends UiBinder<Widget, AttributesPanel> {
+    interface AttributesPanelUiBinder extends UiBinder<Widget, AttributesPanel> {
     }
 
-    private static VariantInfoPanelUiBinder ourUiBinder = GWT.create(VariantInfoPanelUiBinder.class);
+    private static AttributesPanelUiBinder ourUiBinder = GWT.create(AttributesPanelUiBinder.class);
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)

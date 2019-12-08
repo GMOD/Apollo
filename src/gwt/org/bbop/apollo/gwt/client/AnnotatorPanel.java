@@ -139,6 +139,14 @@ public class AnnotatorPanel extends Composite {
     GoPanel goPanel;
     @UiField
     CheckBox goOnlyCheckBox;
+    @UiField
+    DbXrefPanel dbXrefPanel;
+    @UiField
+    CommentPanel commentPanel;
+    @UiField
+    AttributesPanel attributesPanel;
+    @UiField
+    PubMedIdPanel pubMedPanel;
 
 
     // manage UI-state
