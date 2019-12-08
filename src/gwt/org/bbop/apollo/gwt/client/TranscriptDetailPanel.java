@@ -46,6 +46,8 @@ public class TranscriptDetailPanel extends Composite {
     TextBox lastUpdatedField;
     @UiField
     TextBox synonymsField;
+    @UiField
+    TextBox typeField;
 
     private Boolean editable = false;
 
@@ -73,6 +75,7 @@ public class TranscriptDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
+        typeField.setText(internalAnnotationInfo.getType());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
         lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));

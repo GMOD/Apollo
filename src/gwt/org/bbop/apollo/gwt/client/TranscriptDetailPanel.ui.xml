@@ -19,9 +19,21 @@
             margin-left: 5px;
             margin-right: 5px;
         }
+        .bolder {
+            font-size: larger;
+            font-weight: bolder;
+        }
     </ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup >
+                    <b:InputGroupAddon>Type</b:InputGroupAddon>
+                    <b:TextBox ui:field="typeField" enabled="false" addStyleNames="{style.bolder}"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>

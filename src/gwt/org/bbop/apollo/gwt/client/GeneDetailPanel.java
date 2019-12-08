@@ -13,12 +13,14 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
+import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -55,6 +57,8 @@ public class GeneDetailPanel extends Composite {
     TextBox lastUpdatedField;
     @UiField
     TextBox synonymsField;
+    @UiField
+    TextBox typeField;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
@@ -136,6 +140,7 @@ public class GeneDetailPanel extends Composite {
         suggestedNameOracle.setFeatureType("sequence:"+annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
+        typeField.setText(internalAnnotationInfo.getType());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());

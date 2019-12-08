@@ -40,6 +40,14 @@ public class RepeatRegionDetailPanel extends Composite {
     TextBox sequenceField;
     @UiField
     TextBox userField;
+    @UiField
+    TextBox typeField;
+    @UiField
+    TextBox dateCreatedField;
+    @UiField
+    TextBox lastUpdatedField;
+    @UiField
+    TextBox synonymsField;
 
     public RepeatRegionDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -92,7 +100,10 @@ public class RepeatRegionDetailPanel extends Composite {
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
-        
+        typeField.setText(internalAnnotationInfo.getType());
+        dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
+        lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
+
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = internalAnnotationInfo.getMin().toString();
             locationText += " - ";
