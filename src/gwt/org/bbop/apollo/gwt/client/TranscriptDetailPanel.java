@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -24,11 +25,10 @@ public class TranscriptDetailPanel extends Composite {
 
     private AnnotationInfo internalAnnotationInfo;
 
-
-    interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> {
-    }
+    interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> { }
 
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
+
 
     @UiField
     TextBox nameField;
@@ -74,6 +74,8 @@ public class TranscriptDetailPanel extends Composite {
         descriptionField.setText(internalAnnotationInfo.getDescription());
         userField.setText(internalAnnotationInfo.getOwner());
         sequenceField.setText(internalAnnotationInfo.getSequence());
+        dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
+        lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = Integer.toString(internalAnnotationInfo.getMin());

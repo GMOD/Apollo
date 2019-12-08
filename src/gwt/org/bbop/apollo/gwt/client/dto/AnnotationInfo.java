@@ -24,7 +24,8 @@ public class AnnotationInfo {
     private String sequence;
     private Integer phase;
     private String owner;
-    private String date;
+    private String dateLastModified;
+    private String dateCreated;
     private String referenceAllele;
     private ArrayList<AlternateAlleleInfo> alternateAlleles = new ArrayList<AlternateAlleleInfo>();
     private ArrayList<VariantPropertyInfo> variantProperties = new ArrayList<>();
@@ -67,9 +68,9 @@ public class AnnotationInfo {
         return -1;
     }
 
-    public void setDate(String date) { this.date = date; }
+    public void setDateLastModified(String dateLastModified) { this.dateLastModified = dateLastModified; }
 
-    public String getDate() { return date; }
+    public String getDateLastModified() { return dateLastModified; }
 
     public Integer getMin() {
         return min;
@@ -212,5 +213,13 @@ public class AnnotationInfo {
             index++;
         }
         return variantPropertiesJsonArray;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(String dateCreated) {
+        this.dateCreated = dateCreated;
     }
 }

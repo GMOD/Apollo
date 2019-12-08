@@ -681,7 +681,7 @@ public class AnnotatorPanel extends Composite {
         dateColumn = new Column<AnnotationInfo, String>(new TextCell()) {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getDate();
+                return annotationInfo.getDateLastModified();
             }
         };
         dateColumn.setSortable(true);
@@ -1024,11 +1024,11 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 DivBuilder div = td.startDiv();
                 div.style().trustedColor("green").endStyle();
-                Date date = new Date(Long.parseLong(rowValue.getDate()));
+                Date date = new Date(Long.parseLong(rowValue.getDateLastModified()));
                 div.text(outputFormat.format(date));
                 td.endDiv();
             } else {
-                Date date = new Date(Long.parseLong(rowValue.getDate()));
+                Date date = new Date(Long.parseLong(rowValue.getDateLastModified()));
                 td.text(outputFormat.format(date));
             }
             td.endTD();

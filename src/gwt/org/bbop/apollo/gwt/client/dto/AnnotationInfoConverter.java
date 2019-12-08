@@ -4,7 +4,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.bbop.apollo.gwt.shared.go.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,8 @@ public class AnnotationInfoConverter {
         if (object.get(FeatureStringEnum.OWNER.getValue()) != null) {
             annotationInfo.setOwner(object.get(FeatureStringEnum.OWNER.getValue()).isString().stringValue());
         }
-        annotationInfo.setDate(object.get(FeatureStringEnum.DATE_LAST_MODIFIED.getValue()).toString());
+        annotationInfo.setDateCreated(object.get(FeatureStringEnum.DATE_CREATION.getValue()).toString());
+        annotationInfo.setDateLastModified(object.get(FeatureStringEnum.DATE_LAST_MODIFIED.getValue()).toString());
         List<String> noteList = new ArrayList<>();
         if (object.get(FeatureStringEnum.NOTES.getValue()) != null) {
             JSONArray jsonArray = object.get(FeatureStringEnum.NOTES.getValue()).isArray();
