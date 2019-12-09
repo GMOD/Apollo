@@ -21,6 +21,7 @@ public class AnnotationInfo {
     private String description;
     private Integer strand;
     private List<String> noteList = new ArrayList<>();
+    private List<DbXrefInfo> dbXrefList = new ArrayList<>();
     private String sequence;
     private Integer phase;
     private String owner;
@@ -222,4 +223,13 @@ public class AnnotationInfo {
     public void setDateCreated(String dateCreated) {
         this.dateCreated = dateCreated;
     }
+
+    public List<DbXrefInfo> getDbXrefList() {
+        return dbXrefList;
+    }
+
+    public void setDbXrefList(List<DbXrefInfo> dbXrefList) {
+        this.dbXrefList = dbXrefList;
+    }
+
 }

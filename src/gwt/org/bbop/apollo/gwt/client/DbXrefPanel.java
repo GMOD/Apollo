@@ -18,7 +18,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.VariantPropertyInfo;
+import org.bbop.apollo.gwt.client.dto.DbXrefInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
@@ -35,7 +35,7 @@ import java.util.List;
 public class DbXrefPanel extends Composite {
 
     private AnnotationInfo internalAnnotationInfo = null;
-    private VariantPropertyInfo internalVariantPropertyInfo = null;
+    private DbXrefInfo internalDbXrefInfo = null;
     private String oldTag, oldValue;
     private String tag, value;
 
@@ -46,13 +46,11 @@ public class DbXrefPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<VariantPropertyInfo> dataGrid = new DataGrid<>(10, tablecss);
+    DataGrid<DbXrefInfo> dataGrid = new DataGrid<>(10, tablecss);
 
-    private static ListDataProvider<VariantPropertyInfo> dataProvider = new ListDataProvider<>();
-    private static List<VariantPropertyInfo> variantPropertyInfoList = dataProvider.getList();
-    private SingleSelectionModel<VariantPropertyInfo> selectionModel = new SingleSelectionModel<>();
-    private Column<VariantPropertyInfo, String> tagColumn;
-    private Column<VariantPropertyInfo, String> valueColumn;
+    private static ListDataProvider<DbXrefInfo> dataProvider = new ListDataProvider<>();
+    private static List<DbXrefInfo> dbXrefInfoList = dataProvider.getList();
+    private SingleSelectionModel<DbXrefInfo> selectionModel = new SingleSelectionModel<>();
 
     @UiField
     TextBox tagInputBox;
@@ -68,9 +66,6 @@ public class DbXrefPanel extends Composite {
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
-        tagInputBox = new TextBox();
-        valueInputBox = new TextBox();
-
         selectionModel.clear();
         deleteVariantInfoButton.setEnabled(false);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
@@ -90,15 +85,15 @@ public class DbXrefPanel extends Composite {
 
     public void initializeTable() {
         EditTextCell tagCell = new EditTextCell();
-        tagColumn = new Column<VariantPropertyInfo, String>(tagCell) {
+        Column<DbXrefInfo, String> tagColumn = new Column<DbXrefInfo, String>(tagCell) {
             @Override
-            public String getValue(VariantPropertyInfo variantPropertyInfo) {
-                return variantPropertyInfo.getTag();
+            public String getValue(DbXrefInfo dbXrefInfo) {
+                return dbXrefInfo.getTag();
             }
         };
-        tagColumn.setFieldUpdater(new FieldUpdater<VariantPropertyInfo, String>() {
+        tagColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
-            public void update(int i, VariantPropertyInfo object, String s) {
+            public void update(int i, DbXrefInfo object, String s) {
                 if (!object.getTag().equals(s)) {
                     GWT.log("Tag Changed");
                     object.setTag(s);
@@ -110,15 +105,15 @@ public class DbXrefPanel extends Composite {
         tagColumn.setSortable(true);
 
         EditTextCell valueCell = new EditTextCell();
-        valueColumn = new Column<VariantPropertyInfo, String>(valueCell) {
+        Column<DbXrefInfo, String> valueColumn = new Column<DbXrefInfo, String>(valueCell) {
             @Override
-            public String getValue(VariantPropertyInfo variantPropertyInfo) {
-                return variantPropertyInfo.getValue();
+            public String getValue(DbXrefInfo dbXrefInfo) {
+                return dbXrefInfo.getValue();
             }
         };
-        valueColumn.setFieldUpdater(new FieldUpdater<VariantPropertyInfo, String>() {
+        valueColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
-            public void update(int i, VariantPropertyInfo object, String s) {
+            public void update(int i, DbXrefInfo object, String s) {
                 if (!object.getValue().equals(s)) {
                     GWT.log("Value Changed");
                     object.setValue(s);
@@ -132,19 +127,19 @@ public class DbXrefPanel extends Composite {
         dataGrid.addColumn(tagColumn, "Tag");
         dataGrid.addColumn(valueColumn, "Value");
 
-        ColumnSortEvent.ListHandler<VariantPropertyInfo> sortHandler = new ColumnSortEvent.ListHandler<VariantPropertyInfo>(variantPropertyInfoList);
+        ColumnSortEvent.ListHandler<DbXrefInfo> sortHandler = new ColumnSortEvent.ListHandler<DbXrefInfo>(dbXrefInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
 
-        sortHandler.setComparator(tagColumn, new Comparator<VariantPropertyInfo>() {
+        sortHandler.setComparator(tagColumn, new Comparator<DbXrefInfo>() {
             @Override
-            public int compare(VariantPropertyInfo o1, VariantPropertyInfo o2) {
+            public int compare(DbXrefInfo o1, DbXrefInfo o2) {
                 return o1.getTag().compareTo(o2.getTag());
             }
         });
 
-        sortHandler.setComparator(valueColumn, new Comparator<VariantPropertyInfo>() {
+        sortHandler.setComparator(valueColumn, new Comparator<DbXrefInfo>() {
             @Override
-            public int compare(VariantPropertyInfo o1, VariantPropertyInfo o2) {
+            public int compare(DbXrefInfo o1, DbXrefInfo o2) {
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
@@ -155,24 +150,24 @@ public class DbXrefPanel extends Composite {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-        variantPropertyInfoList.clear();
-        variantPropertyInfoList.addAll(annotationInfo.getVariantProperties());
-
-        if (variantPropertyInfoList.size() > 0) {
-            updateVariantInfoData(variantPropertyInfoList.get(0));
-        }
+        dbXrefInfoList.clear();
+        dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
+//
+//        if (dbXrefInfoList.size() > 0) {
+//            updateVariantInfoData(dbXrefInfoList.get(0));
+//        }
         redrawTable();
     }
 
-    public void updateVariantInfoData(VariantPropertyInfo v) {
-        this.internalVariantPropertyInfo = v;
+    public void updateVariantInfoData(DbXrefInfo v) {
+        this.internalDbXrefInfo = v;
         // tag
         this.oldTag = this.tag;
-        this.tag = this.internalVariantPropertyInfo.getTag();
+        this.tag = this.internalDbXrefInfo.getTag();
 
         // value
         this.oldValue = this.value;
-        this.value = this.internalVariantPropertyInfo.getValue();
+        this.value = this.internalDbXrefInfo.getValue();
 
         redrawTable();
         setVisible(true);
@@ -324,7 +319,7 @@ public class DbXrefPanel extends Composite {
     @UiHandler("deleteVariantInfoButton")
     public void deleteVariantInfo(ClickEvent ce) {
 
-        if (this.internalVariantPropertyInfo != null) {
+        if (this.internalDbXrefInfo != null) {
             String url = Annotator.getRootUrl() + "annotator/deleteVariantInfo";
             RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
             builder.setHeader("Content-type", "application/x-www-form-urlencoded");

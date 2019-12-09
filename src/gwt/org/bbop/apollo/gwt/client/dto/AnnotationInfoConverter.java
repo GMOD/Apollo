@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.dto;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
@@ -51,6 +52,21 @@ public class AnnotationInfoConverter {
             }
         }
 
+        if(object.containsKey(FeatureStringEnum.DBXREFS.getValue())){
+            GWT.log("is a dbxref here" + object.toString());
+            annotationInfo.setDbXrefList(convertToDbXrefFromArray(object.get(FeatureStringEnum.DBXREFS.getValue()).isArray()));
+        }
+        else{
+            GWT.log("else:: " + object.toString());
+        }
+//        if(object.containsKey(FeatureStringEnum.ATTRIBUTES.getValue())){
+//            annotationInfo.setAttributeProperties(object.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray());
+//        }
+//        if(object.containsKey(FeatureStringEnum.COMMENTS.getValue())){
+//            annotationInfo.setCommentProperties(object.get(FeatureStringEnum.COMMENTS.getValue()).isArray());
+//        }
+
+
 //        List<GoAnnotation> goAnnotationList = new ArrayList<>();
 //        goAnnotationList.add(generateGoAnnotation());
 //        goAnnotationList.add(generateGoAnnotation());
@@ -78,6 +94,7 @@ public class AnnotationInfoConverter {
         }
         annotationInfo.setNoteList(noteList);
 
+
         if (processChildren && object.get(FeatureStringEnum.CHILDREN.getValue()) != null) {
             JSONArray jsonArray = object.get(FeatureStringEnum.CHILDREN.getValue()).isArray();
             for (int i = 0; i < jsonArray.size(); i++) {
@@ -87,6 +104,21 @@ public class AnnotationInfoConverter {
         }
 
         return annotationInfo;
+    }
+
+    private static DbXrefInfo convertToDbXrefFromObject(JSONObject jsonObject) {
+        DbXrefInfo dbXrefInfo = new DbXrefInfo();
+        dbXrefInfo.setTag(jsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue());
+        dbXrefInfo.setValue(jsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue());
+        return dbXrefInfo;
+    }
+
+    private static List<DbXrefInfo> convertToDbXrefFromArray(JSONArray array) {
+        List<DbXrefInfo> dbXrefInfoList = new ArrayList<>();
+        for(int i = 0 ; i < array.size() ; i++){
+            dbXrefInfoList.add(convertToDbXrefFromObject(array.get(i).isObject()));
+        }
+        return dbXrefInfoList;
     }
 
 //    private static GoAnnotation generateGoAnnotation() {

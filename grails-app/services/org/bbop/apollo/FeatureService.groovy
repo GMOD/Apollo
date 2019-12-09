@@ -1845,6 +1845,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
+        if (gsolFeature.featureDBXrefs) {
+            jsonFeature.put(FeatureStringEnum.DBXREFS.value, generateFeatureForDBXrefs(gsolFeature.featureDBXrefs))
+        }
 
         if (gsolFeature instanceof SequenceAlteration) {
 
@@ -2173,6 +2176,21 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time)
         jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time)
         return jsonFeature
+    }
+
+    JSONArray generateFeatureForDBXrefs(Collection<DBXref> dBXrefs){
+        JSONArray jsonArray = new JSONArray()
+        for(DBXref dbXref in dBXrefs){
+            jsonArray.add(generateFeatureForDBXref(dbXref))
+        }
+        return jsonArray
+    }
+
+    JSONObject generateFeatureForDBXref(DBXref dBXref){
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put(FeatureStringEnum.TAG.value,dBXref.db.name)
+        jsonObject.put(FeatureStringEnum.VALUE.value,dBXref.accession)
+        return jsonObject
     }
 
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
