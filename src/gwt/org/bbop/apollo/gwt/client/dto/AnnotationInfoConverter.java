@@ -53,11 +53,7 @@ public class AnnotationInfoConverter {
         }
 
         if(object.containsKey(FeatureStringEnum.DBXREFS.getValue())){
-            GWT.log("is a dbxref here" + object.toString());
             annotationInfo.setDbXrefList(convertToDbXrefFromArray(object.get(FeatureStringEnum.DBXREFS.getValue()).isArray()));
-        }
-        else{
-            GWT.log("else:: " + object.toString());
         }
 //        if(object.containsKey(FeatureStringEnum.ATTRIBUTES.getValue())){
 //            annotationInfo.setAttributeProperties(object.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray());
