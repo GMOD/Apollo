@@ -21,7 +21,11 @@ class ConfigWrapperService {
         return grailsApplication.config.apollo.transcript_overlapper
     }
 
-    TranslationTable getTranslationTable() {
+  String getFaToTwobitExe() {
+    return grailsApplication.config.apollo.fa_to_twobit_exe
+  }
+
+  TranslationTable getTranslationTable() {
         return SequenceTranslationHandler.getTranslationTableForGeneticCode(getTranslationCode())
     }
 
@@ -145,6 +149,10 @@ class ConfigWrapperService {
 
     boolean getNativeTrackSelectorDefaultOn(){
         return grailsApplication.config.apollo.native_track_selector_default_on
+    }
+
+    String getGff3Source(){
+      return grailsApplication.config.gff3.source
     }
 
 }

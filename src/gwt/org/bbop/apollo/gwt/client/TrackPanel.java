@@ -876,32 +876,41 @@ public class TrackPanel extends Composite {
 
     public static void updateTracks(JSONArray array) {
         trackInfoList.clear();
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject object = array.get(i).isObject();
-            TrackInfo trackInfo = new TrackInfo();
-            // track label can never be null, but key can be
-            trackInfo.setName(object.get("key") == null ? object.get("label").isString().stringValue() : object.get("key").isString().stringValue());
+        try {
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject object = array.get(i).isObject();
+                TrackInfo trackInfo = new TrackInfo();
+                // track label can never be null, but key can be
+                trackInfo.setName(object.get("key") == null ? object.get("label").isString().stringValue() : object.get("key").isString().stringValue());
 
-            if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
+                if (object.get("apollo") != null) trackInfo.setApollo(object.get("apollo").isObject());
 
-            if (object.get("label") != null) trackInfo.setLabel(object.get("label").isString().stringValue());
-            else Bootbox.alert("Track label should not be null, please check your tracklist");
+                if (object.get("label") != null) trackInfo.setLabel(object.get("label").isString().stringValue());
+                else Bootbox.alert("Track label should not be null, please check your trackList.json");
 
-            if (object.get("type") != null) trackInfo.setType(object.get("type").isString().stringValue());
+                if(object.get("type")==null || !object.containsKey("type")) {
+                    Bootbox.alert("Missing type in "+object.toString());
+                }
+                else {
+                    trackInfo.setType(object.get("type").isString().stringValue());
+                }
 
-            if (object.get("urlTemplate") != null)
-                trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
+                if (object.get("urlTemplate") != null)
+                    trackInfo.setUrlTemplate(object.get("urlTemplate").isString().stringValue());
 
-            if (object.get("storeClass") != null)
-                trackInfo.setStoreClass(object.get("storeClass").isString().stringValue());
+                if (object.get("storeClass") != null)
+                    trackInfo.setStoreClass(object.get("storeClass").isString().stringValue());
 
-            if (object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
-            else trackInfo.setVisible(false);
+                if (object.get("visible") != null) trackInfo.setVisible(object.get("visible").isBoolean().booleanValue());
+                else trackInfo.setVisible(false);
 
-            if (object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
+                if (object.get("category") != null) trackInfo.setCategory(object.get("category").isString().stringValue());
 
-            trackInfo.setPayload(object);
-            trackInfoList.add(trackInfo);
+                trackInfo.setPayload(object);
+                trackInfoList.add(trackInfo);
+            }
+        } catch (Exception e) {
+            Bootbox.alert("There was a problem processing your 'trackList.json' file: "+e.getMessage());
         }
         filterList();
     }

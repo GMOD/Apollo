@@ -40,12 +40,12 @@ class Feature implements Ontological{
             ,parentFeatureRelationships: FeatureRelationship  // relationships where I am the parent feature relationship
             ,childFeatureRelationships: FeatureRelationship // relationships where I am the child feature relationship
             ,featureCVTerms: FeatureCVTerm
-            ,featureSynonyms: FeatureSynonym
+            ,featureSynonyms: FeatureSynonym // remove?
             ,featureDBXrefs: DBXref
             ,featurePublications: Publication
             ,featurePhenotypes: Phenotype
             ,featureProperties: FeatureProperty
-            ,synonyms: Synonym
+            ,synonyms: Synonym // remove?
             ,owners:User
             ,goAnnotations: GoAnnotation
     ]
@@ -56,7 +56,7 @@ class Feature implements Ontological{
             featureGenotypes: "feature",
             featureLocations: "feature"
     ]
-    
+
     static mapping = {
             childFeatureRelationships cascade: 'all-delete-orphan'
             parentFeatureRelationships cascade: 'all-delete-orphan'
@@ -69,7 +69,7 @@ class Feature implements Ontological{
     static belongsTo = [
             User
     ]
-    
+
     public User getOwner(){
         if(owners?.size()>0){
             return owners.iterator().next()

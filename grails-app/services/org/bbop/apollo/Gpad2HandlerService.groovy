@@ -7,7 +7,12 @@ import org.grails.plugins.metrics.groovy.Timed
 
 import java.text.SimpleDateFormat
 
-class GpadHandlerService {
+/**
+ * Spec: https://github.com/geneontology/go-annotation/blob/master/specs/gpad-gpi-2-0.md
+ */
+class Gpad2HandlerService {
+
+    def configWrapperService
 
     SimpleDateFormat gpadDateFormat = new SimpleDateFormat("YYYY-MM-dd")
 
@@ -57,14 +62,8 @@ class GpadHandlerService {
         writeObject.out.write("\t")
         //5	Reference ::= ID		1	PMID:30695063
 //        writeObject.out.write(goAnnotation.notesArray)
-        if (goAnnotation.notesArray) {
-            JSONArray referenceArray = new JsonSlurper().parseText(goAnnotation.notesArray) as JSONArray
-            List<String> referenceList = referenceArray.collect()
-            writeObject.out.write(referenceList.join("|"))
-        }
-//        else{
-//            writeObject.out.write("")
-//        }
+        writeObject.out.write(goAnnotation.reference)
+        writeObject.out.write("\t")
         writeObject.out.write("\t")
         //6	Evidence_type ::= OBO_ID	Evidence and Conclusion Ontology	1	ECO:0000315
         writeObject.out.write(goAnnotation.evidenceRef)
@@ -87,8 +86,10 @@ class GpadHandlerService {
         writeObject.out.write(gpadDateFormat.format(goAnnotation.lastUpdated))
         writeObject.out.write("\t")
         //10	Assigned_by ::= Prefix		1	MGI
-        writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
-        writeObject.out.write("\t")
+//        writeObject.out.write("Apollo-${grails.util.Metadata.current['app.version']}")
+      String assignedBy = configWrapperService.getGff3Source() ?: "Apollo-${grails.util.Metadata.current['app.version']}"
+      writeObject.out.write(assignedBy)
+      writeObject.out.write("\t")
         //11	Annotation_Extensions ::= [Extension_Conj] ('|' Extension_Conj)*		0 or greater	BFO:0000066
         writeObject.out.write("")
         writeObject.out.write("\t")

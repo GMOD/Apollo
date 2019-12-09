@@ -121,7 +121,6 @@ class TrackService {
 
         // 1 - extract the appropriate region for fmin / fmax
         JSONArray filteredList = filterList(nclistArray, fmin, fmax)
-        log.debug "filtered list size ${filteredList.size()} from original ${nclistArray.size()}"
 
         // if the first featured array has a chunk, then we need to evaluate the chunks instead
         if (filteredList) {
@@ -130,7 +129,8 @@ class TrackService {
                 List<JSONArray> chunkList = []
                 for (JSONArray chunkArray in filteredList) {
                     JSONArray chunk = getChunkData(sequenceDTO, chunkArray.getInt(trackIndex.getChunk()))
-                    chunkList.add(filterList(chunk, fmin, fmax))
+                    def filteredChunkList = filterList(chunk, fmin, fmax)
+                    if(filteredChunkList) chunkList.add(filteredChunkList)
                 }
                 JSONArray chunkReturnArray = new JSONArray()
                 chunkList.each { ch ->
@@ -165,15 +165,18 @@ class TrackService {
     }
 
     @NotTransactional
-    def convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO) throws FileNotFoundException {
+    def convertIndividualNCListToObject(JSONArray featureArray, SequenceDTO sequenceDTO,long fmin,long fmax) throws FileNotFoundException {
 
         if (featureArray.size() > 3) {
-            if (featureArray[0] instanceof Integer) {
+            if (featureArray[0] instanceof Integer && !(featureArray[2] < fmin || featureArray[1] > fmax)) {
                 JSONObject jsonObject = new JSONObject()
                 TrackIndex trackIndex = trackMapperService.getIndices(sequenceDTO, featureArray.getInt(0))
 
                 jsonObject.fmin = featureArray[trackIndex.getStart()]
                 jsonObject.fmax = featureArray[trackIndex.getEnd()]
+
+
+
                 if (trackIndex.source) {
                     jsonObject.source = featureArray[trackIndex.getSource()]
                 }
@@ -206,12 +209,19 @@ class TrackService {
                 for (int subIndex = 0; subIndex < featureArray.size(); ++subIndex) {
                     def subArray = featureArray.get(subIndex)
                     if (subArray instanceof JSONArray) {
-                        def subArray2 = convertAllNCListToObject(subArray, sequenceDTO)
-                        childArray.addAll(subArray2)
+                        def subArray2 = convertAllNCListToObject(subArray, sequenceDTO,fmin,fmax)
+                        if(subArray2){
+                          childArray.addAll(subArray2)
+                        }
                     }
                     if (subArray instanceof JSONObject && subArray.containsKey("Sublist")) {
                         def subArrays2 = subArray.getJSONArray("Sublist")
-                        childArray.add(convertIndividualNCListToObject(subArrays2, sequenceDTO))
+                        if(subArrays2){
+                          def ncListChildArray = convertIndividualNCListToObject(subArrays2, sequenceDTO,fmin,fmax)
+                          if(ncListChildArray){
+                            childArray.add(ncListChildArray)
+                          }
+                        }
                     }
                 }
                 if (childArray) {
@@ -220,18 +230,24 @@ class TrackService {
                 return jsonObject
             }
         }
-        return convertAllNCListToObject(featureArray, sequenceDTO)
+        return convertAllNCListToObject(featureArray, sequenceDTO,fmin,fmax)
     }
 
     @NotTransactional
-    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO) throws FileNotFoundException {
+    JSONArray convertAllNCListToObject(JSONArray fullArray, SequenceDTO sequenceDTO,long fmin = Long.MIN_VALUE,long fmax = Long.MAX_VALUE) throws FileNotFoundException {
         JSONArray returnArray = new JSONArray()
 
         for (def jsonArray in fullArray) {
             if (jsonArray instanceof JSONArray) {
-                returnArray.add(convertIndividualNCListToObject(jsonArray, sequenceDTO))
+              if (!(jsonArray[2] < fmin || jsonArray[1] > fmax)) {
+                def convertedObject = convertIndividualNCListToObject(jsonArray, sequenceDTO,fmin,fmax)
+                if(convertedObject) {
+                  returnArray.add(convertedObject)
+                }
+              }
             }
         }
+
 
         return returnArray
     }
@@ -245,8 +261,16 @@ class TrackService {
         for (innerArray in inputArray) {
             // if there is an overlap
             if (!(innerArray[2] < fmin || innerArray[1] > fmax)) {
-                // then no
-                jsonArray.add(innerArray)
+              // if it contains a subList, filter the sublist and addd to this array, can maybe leave that there
+              int subListIndex = 0
+              for(input in innerArray){
+                if(input instanceof JSONObject && input.containsKey("Sublist")){
+                  JSONArray subArrayList = filterList(input.get("Sublist"),fmin,fmax)
+                  subArrayList.each{ jsonArray.add(it)}
+                }
+                ++subListIndex
+              }
+              jsonArray.add(innerArray)
             }
         }
 

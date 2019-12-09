@@ -12,16 +12,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
     def requestHandlingService
     def transcriptService
     def featureEventService
-
-    protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
-        JSONObject jsonFeatureContainer = new JSONObject();
-        JSONArray jsonFeatures = new JSONArray();
-        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
-        for (JSONObject feature : features) {
-            jsonFeatures.put(feature);
-        }
-        return jsonFeatureContainer;
-    }
+    def jsonWebUtilityService
 
     def setup() {
         FeatureEvent.deleteAll(FeatureEvent.all)
@@ -479,7 +470,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 1
 
         when: "when we get the feature history"
-        JSONObject historyContainer = createJSONFeatureContainer();
+        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", uniqueNameGB40787)
         List<List<FeatureEvent>> history1 = featureEventService.getHistory(uniqueNameGB40787)
         List<List<FeatureEvent>> history2 = featureEventService.getHistory(uniqueNameGB40788)
@@ -648,7 +639,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 1
 
         when: "when we get the feature history"
-        JSONObject historyContainer = createJSONFeatureContainer();
+        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", MRNA.first().uniqueName)
         historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -810,7 +801,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert CDS.count == 1
 
         when: "when we get the feature history"
-        JSONObject historyContainer = createJSONFeatureContainer();
+        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         getHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", firstMrna.uniqueName)
         historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(getHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray historyArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1009,7 +1000,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         exon787 = Exon.findByUniqueName(exon787UniqueName)
         featureLocation787 = exon787.featureLocation
 
-        JSONObject historyContainer = createJSONFeatureContainer();
+        JSONObject historyContainer = jsonWebUtilityService.createJSONFeatureContainer();
         def thisHistoryString = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40787.uniqueName)
         historyContainer = featureEventService.generateHistory(historyContainer, (JSON.parse(thisHistoryString) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray featuresArray = historyContainer.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1043,7 +1034,7 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
         assert !historyArray[2].current
 
         when: "we verify the history for the other side"
-        JSONObject historyContainer2 = createJSONFeatureContainer();
+        JSONObject historyContainer2 = jsonWebUtilityService.createJSONFeatureContainer();
         def historyString2 = getHistoryString.replaceAll("@TRANSCRIPT1_UNIQUENAME@", mrna40788.uniqueName)
         historyContainer2 = featureEventService.generateHistory(historyContainer2, (JSON.parse(historyString2) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         featuresArray = historyContainer2.getJSONArray(FeatureStringEnum.FEATURES.value)
@@ -1190,13 +1181,13 @@ class FeatureEventServiceIntegrationSpec extends AbstractIntegrationSpec {
 
 
         when: "we get the history of the two transcripts"
-        JSONObject history787Container = createJSONFeatureContainer();
+        JSONObject history787Container = jsonWebUtilityService.createJSONFeatureContainer();
         def thisHistory787String = getHistoryString.replaceAll("@TRANSCRIPT_UNIQUENAME@", mrna40787.uniqueName)
         history787Container = featureEventService.generateHistory(history787Container, (JSON.parse(thisHistory787String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray features787Array = history787Container.getJSONArray(FeatureStringEnum.FEATURES.value)
         JSONArray history787Array = features787Array.getJSONObject(0).getJSONArray(FeatureStringEnum.HISTORY.value)
 
-        JSONObject history788Container = createJSONFeatureContainer();
+        JSONObject history788Container = jsonWebUtilityService.createJSONFeatureContainer();
         def thisHistory788String = getHistoryString.replaceAll("@TRANSCRIPT_UNIQUENAME@", mrna40788.uniqueName)
         history788Container = featureEventService.generateHistory(history788Container, (JSON.parse(thisHistory788String) as JSONObject).getJSONArray(FeatureStringEnum.FEATURES.value))
         JSONArray features788Array = history788Container.getJSONArray(FeatureStringEnum.FEATURES.value)

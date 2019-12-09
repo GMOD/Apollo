@@ -23,7 +23,6 @@ import java.util.zip.GZIPOutputStream
 class IOServiceController extends AbstractApolloController {
 
     def sequenceService
-    def featureService
     def gff3HandlerService
     def fastaHandlerService
     def chadoHandlerService
@@ -34,9 +33,10 @@ class IOServiceController extends AbstractApolloController {
     def vcfHandlerService
     def trackService
     def fileService
-    def gpadHandlerService
+    def gpad2HandlerService
+    def gpiHandlerService
 
-    // fileMap of uuid / filename
+  // fileMap of uuid / filename
     // see #464
     private Map<String, DownloadFile> fileMap = new HashMap<>()
 
@@ -54,21 +54,18 @@ class IOServiceController extends AbstractApolloController {
             , path = "/IOService/write", verb = RestApiVerb.POST
     )
     @RestApiParams(params = [
-            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
-            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+    , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
 
-            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "Type of annotated genomic features to export 'FASTA','GFF3','CHADO'.")
+    , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY, description = "Type of annotated genomic features to export 'FASTA','GFF3','CHADO'.")
 
-            , @RestApiParam(name = "seqType", type = "string", paramType = RestApiParamType.QUERY, description = "Type of output sequence 'peptide','cds','cdna','genomic'.")
-            , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
-            , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "Names of references sequences to add (default is all).")
-            , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism that sequences belong to (will default to last organism).")
-            , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
-            , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
-//            , @RestApiParam(name = "exportGff3Fasta", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export reference sequence when exporting GFF3 annotations.")
-//            , @RestApiParam(name = "exportToThisOrganism", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export Full JBrowse installation when exporting as track (default false).")
-//            , @RestApiParam(name = "exportJBrowseSequence", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export JBrowse sequence when exporting JBrowse track (default false).")
-            , @RestApiParam(name = "region", type = "String", paramType = RestApiParamType.QUERY, description = "Highlighted genomic region to export in form sequence:min..max  e.g., chr3:1001..1034")
+    , @RestApiParam(name = "seqType", type = "string", paramType = RestApiParamType.QUERY, description = "Type of output sequence 'peptide','cds','cdna','genomic'.")
+    , @RestApiParam(name = "format", type = "string", paramType = RestApiParamType.QUERY, description = "'gzip' or 'text'")
+    , @RestApiParam(name = "sequences", type = "string", paramType = RestApiParamType.QUERY, description = "Names of references sequences to add (default is all).")
+    , @RestApiParam(name = "organism", type = "string", paramType = RestApiParamType.QUERY, description = "Name of organism that sequences belong to (will default to last organism).")
+    , @RestApiParam(name = "output", type = "string", paramType = RestApiParamType.QUERY, description = "Output method 'file','text'")
+    , @RestApiParam(name = "exportAllSequences", type = "boolean", paramType = RestApiParamType.QUERY, description = "Export all reference sequences for an organism (over-rides 'sequences')")
+    , @RestApiParam(name = "region", type = "String", paramType = RestApiParamType.QUERY, description = "Highlighted genomic region to export in form sequence:min..max  e.g., chr3:1001..1034")
     ]
     )
     @Timed
@@ -93,9 +90,13 @@ class IOServiceController extends AbstractApolloController {
             Boolean exportJBrowseSequence = dataObject.exportJBrowseSequence ? Boolean.valueOf(dataObject.exportJBrowseSequence) : false
             Boolean exportGff3Fasta = dataObject.exportGff3Fasta ? Boolean.valueOf(dataObject.exportGff3Fasta) : false
             String output = dataObject.output
-            String adapter = dataObject.adapter
             String format = dataObject.format
             String region = dataObject.region
+            String adapter = dataObject.adapter
+            if(region && !adapter){
+                adapter = FeatureStringEnum.HIGHLIGHTED_REGION.value
+            }
+
             def sequences = dataObject.sequences // can be array or string
             Organism organism = dataObject.organism ? preferenceService.getOrganismForTokenInDB(dataObject.organism) : preferenceService.getCurrentOrganismForCurrentUser(dataObject.getString(FeatureStringEnum.CLIENT_TOKEN.value))
 
@@ -171,13 +172,20 @@ class IOServiceController extends AbstractApolloController {
                 } else {
                     gff3HandlerService.writeFeaturesToText(outputFile.path, features, grailsApplication.config.apollo.gff3.source as String)
                 }
-            } else if (typeOfExport == FeatureStringEnum.TYPE_GPAD.value) {
+            } else if (typeOfExport == FeatureStringEnum.TYPE_GO.value) {
                 String sequenceString = organism.commonName
                 if(sequences){
                     sequenceString += "-"+sequences.join("_")
                 }
-                fileName = "GoAnnotations" + sequenceString + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
-                gpadHandlerService.writeFeaturesToText(outputFile.path, features)
+                if(sequenceType==FeatureStringEnum.TYPE_GPAD2.value){
+                  fileName = "GoAnnotations" + sequenceString + "." + sequenceType.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                  gpad2HandlerService.writeFeaturesToText(outputFile.path, features)
+                }
+              else
+              if(sequenceType==FeatureStringEnum.TYPE_GPI2.value){
+                fileName = "GoAnnotations" + sequenceString + "." + sequenceType.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                gpiHandlerService.writeFeaturesToText(outputFile.path, features)
+              }
             } else if (typeOfExport == FeatureStringEnum.TYPE_VCF.value) {
                 if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
                     fileName = "Annotations-" + sequences + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
@@ -187,9 +195,11 @@ class IOServiceController extends AbstractApolloController {
                 // call vcfHandlerService
                 vcfHandlerService.writeVariantsToText(organism, features, outputFile.path, grailsApplication.config.apollo.gff3.source as String)
             } else if (typeOfExport == FeatureStringEnum.TYPE_FASTA.getValue()) {
-                if (!exportAllSequences && sequences != null && !(sequences.class == JSONArray.class)) {
+                String singleSequenceName = (sequences.class!=JSONArray.class) ? sequences : null
+                singleSequenceName = (singleSequenceName==null && sequences.class==JSONArray.class && sequences.size()==1) ? sequences[0] : null
+                if (!exportAllSequences && singleSequenceName) {
                     String regionString = (region && adapter == FeatureStringEnum.HIGHLIGHTED_REGION.value) ? region : ""
-                    fileName = "Annotations-" + sequences + "${regionString}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
+                    fileName = "Annotations-${regionString}." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 } else {
                     fileName = "Annotations" + "." + sequenceType + "." + typeOfExport.toLowerCase() + (format == "gzip" ? ".gz" : "")
                 }

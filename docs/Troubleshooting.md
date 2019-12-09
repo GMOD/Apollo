@@ -4,13 +4,12 @@
 
 
 Typically, the default memory allowance for the Java Virtual Machine (JVM) is too low. The memory requirements for Web
-Apollo will depend on many variables, but in general, we recommend at least 1g for the heap size and 256m for the
-PermGen size as a starting point.
+Apollo will depend on many variables, but in general, we recommend at least 512g for the maximum memory and 512m for the minimum, though a 2 GB maximum seems to be optimal for most server configurations.
 
 #### Suggested Tomcat memory settings
 
 ``` 
-export CATALINA_OPTS="-Xms512m -Xmx1g \
+export CATALINA_OPTS="-Xms512m -Xmx2g \
         -XX:+CMSClassUnloadingEnabled \
         -XX:+CMSPermGenSweepingEnabled \
         -XX:+UseConcMarkSweepGC"
@@ -19,7 +18,7 @@ export CATALINA_OPTS="-Xms512m -Xmx1g \
 
 In cases where the assembled genome is highly fragmented, additional tuning of memory requirements and garbage
 collection will be necessary to maintain the system stable. Below is an example from a research group that maintains
-over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffolds (reference sequences):  
+over 40 Apollo instances with assemblies that range from 1,000 to 150,000 scaffolds (reference sequences) and over one hundred users:  
 
 ``` 
 export CATALINA_OPTS="-Xmx12288m -Xms8192m \
@@ -253,9 +252,24 @@ web-server user can write to that directory:
     }
 ```
 
+#### JSON in the URL with newer versions of Tomcat
+
+When JSON is added to the URL string (e.g., `addStores` and `addTracks`) you may get this error with newer patched versions of Tomcat 7.0.73, 8.0.39, 8.5.7:
+
+     java.lang.IllegalArgumentException: Invalid character found in the request target. The valid characters are defined in RFC 7230 and RFC 3986
+
+To fix these, the best solution we've come up with (and there may be many) is to explicitly allow these characters, which you can do starting with Tomcat versions: 7.0.76, 8.0.42, 8.5.12.
+This is done by adding the following line to `$CATALINA_HOME/conf/catalina.properties`:
+
+    tomcat.util.http.parser.HttpParser.requestTargetAllow=|{}
 
 Information on the [grails ehcache plugin](http://grails-plugins.github.io/grails-cache-ehcache/guide/usage.html) (see
 "Overriding values") and [ehcache itself](http://ehcache.org/documentation/2.8/integrations/grails).
+
+#### Java mismatch
+If you get an ```Unsupported major.minor error``` or similar, please confirm that the version of java that tomcat is 
+running ```ps -ef | grep java``` is the same as the one you used to build. Setting JAVA_HOME to the Java 8 JDK should fix most problems.
+
 
 ### Mysql invalid TimeStamp error
 

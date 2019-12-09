@@ -185,6 +185,10 @@
                             <apollo:SequencePanel ui:field="sequencePanel"/>
                         </gwt:tab>
                         <gwt:tab>
+                          <gwt:header>Search</gwt:header>
+                          <apollo:SearchPanel ui:field="searchPanel"/>
+                        </gwt:tab>
+                        <gwt:tab>
                             <gwt:header>Organism</gwt:header>
                             <apollo:OrganismPanel ui:field="organismPanel"/>
                         </gwt:tab>

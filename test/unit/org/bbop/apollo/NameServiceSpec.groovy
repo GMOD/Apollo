@@ -24,6 +24,10 @@ class NameServiceSpec extends Specification {
         assert "a" == letterPaddingStrategy.pad(0)
         assert "b" == letterPaddingStrategy.pad(1)
         assert "c" == letterPaddingStrategy.pad(2)
+        assert "z" == letterPaddingStrategy.pad(25)
+        assert "aa" == letterPaddingStrategy.pad(26)
+        assert "ab" == letterPaddingStrategy.pad(27)
+        assert "aaaz" == letterPaddingStrategy.pad(103)
 
     }
 }

@@ -1,6 +1,4 @@
 import org.bbop.apollo.FeatureType
-import org.bbop.apollo.Role
-import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.sequence.SequenceTranslationHandler
 
 
@@ -28,7 +26,7 @@ class BootStrap {
         log.info "Dialect: ${dataSource.dialect}"
 
         System.getenv().each {
-            log.info it.key + "->" + it.value
+            log.debug it.key + "->" + it.value
         }
 
         domainMarshallerService.registerObjects()

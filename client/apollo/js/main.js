@@ -709,14 +709,35 @@ return declare( [JBPlugin, HelpMixin],
         var browser=this.browser;
         var help=dijit.byId("menubar_generalhelp");
 
-        help.set("label", "Apollo Help");
+        help.set("label", "Quick commands");
         help.set("iconClass", null);
         var jbrowseUrl = "http://jbrowse.org";
 
-        browser.addGlobalMenuItem( 'help',
-                                new dijitMenuItem(
-                                    {
-                                        id: 'menubar_powered_by_jbrowse',
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'about_apollo',
+            label: 'About',
+            onClick: function() {
+              window.open("../about.jsp",'help_window').focus();
+            }
+        })
+      );
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'users_guide_apollo',
+            label: 'User Guide',
+            onClick: function() {
+              window.open("https://genomearchitect.readthedocs.io/en/latest/UsersGuide.html",'help_window').focus();
+            }
+          })
+      );
+
+      browser.addGlobalMenuItem( 'help',
+        new dijitMenuItem(
+          {
+            id: 'menubar_powered_by_jbrowse',
                                         label: 'Powered by JBrowse',
                                         // iconClass: 'jbrowseIconHelp',
                                         onClick: function()  { window.open(jbrowseUrl,'help_window').focus(); }
@@ -729,17 +750,6 @@ return declare( [JBPlugin, HelpMixin],
                     label: 'Web Service API',
                     // iconClass: 'jbrowseIconHelp',
                     onClick: function()  { window.open("web_services/api",'help_window').focus(); }
-                })
-        );
-        browser.addGlobalMenuItem( 'help',
-            new dijitMenuItem(
-                {
-                    id: 'menubar_apollo_version',
-                    label: 'Get Version',
-                    // iconClass: 'jbrowseIconHelp',
-                    onClick: function()  {
-                        window.open("../version.jsp",'help_window').focus();
-                    }
                 })
         );
         this.updateLabels();

@@ -1,16 +1,9 @@
 package org.bbop.apollo
 
-import grails.converters.JSON
 import grails.transaction.Transactional
-import grails.util.CollectionUtils
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
-import org.codehaus.groovy.grails.web.json.JSONException
-import org.codehaus.groovy.grails.web.json.JSONObject
-import org.codehaus.groovy.grails.web.json.JSONArray
-import org.grails.plugins.metrics.groovy.Timed
 
 
-//@GrailsCompileStatic
 @Transactional(readOnly = true)
 class TranscriptService {
 
@@ -168,9 +161,9 @@ class TranscriptService {
         }
     }
 
-    @Transactional
-    def updateGeneBoundaries(Transcript transcript) {
-        Gene gene = getGene(transcript)
+  @Transactional
+  def updateGeneBoundaries(Transcript transcript) {
+    Gene gene = getGene(transcript)
         if (gene == null) {
             return;
         }
@@ -293,11 +286,58 @@ class TranscriptService {
     Transcript splitTranscript(Transcript transcript, Exon leftExon, Exon rightExon) {
         List<Exon> exons = getSortedExons(transcript,true)
         Transcript splitTranscript = (Transcript) transcript.getClass().newInstance()
+
+         transcript.featureProperties.each { fp ->
+           // to do: duplicate
+           if(fp instanceof Comment){
+             Comment comment = new Comment( value: fp.value, feature: splitTranscript)
+             splitTranscript.addToFeatureProperties(comment)
+           }
+           else{
+             FeatureProperty featureProperty = new FeatureProperty(
+               type: fp.type,
+               feature: splitTranscript,
+               tag: fp.tag,
+               value: fp.value,
+               rank: fp.rank,
+             )
+             splitTranscript.addToFeatureProperties(featureProperty)
+           }
+         }
+        transcript.featurePublications.each { fp ->
+          // to do: duplicate
+          Publication publication = new Publication()
+          publication.properties = fp.properties
+          splitTranscript.addToFeaturePublications(fp)
+        }
+        transcript.featureDBXrefs.each { fp ->
+          DBXref featureDbxref = new DBXref(
+             feature:splitTranscript,
+            accession: fp.accession,
+            description: fp.description,
+            version: fp.version,
+            db: fp.db ,
+          )
+          splitTranscript.addToFeatureDBXrefs(featureDbxref)
+        }
+        splitTranscript.description = transcript.description
+
+
+
         splitTranscript.uniqueName = nameService.generateUniqueName()
         splitTranscript.name = nameService.generateUniqueName(transcript)
         splitTranscript.save()
 
-        // copying featureLocation of transcript to splitTranscript
+        if(transcript.status){
+          Status newStatus = new Status(
+            value: transcript.status.value,
+            feature: splitTranscript,
+          )
+          splitTranscript.status = newStatus
+        }
+
+
+      // copying featureLocation of transcript to splitTranscript
         transcript.featureLocations.each { featureLocation ->
             FeatureLocation newFeatureLocation = new FeatureLocation(
                     fmin: featureLocation.fmin
@@ -427,7 +467,6 @@ class TranscriptService {
 
         Gene gene1 = getGene(transcript1)
         Gene gene2 = getGene(transcript2)
-        String gene2uniquename = gene2.uniqueName
 
         if (gene1) {
             gene1.save(flush: true)
@@ -447,7 +486,7 @@ class TranscriptService {
 
                     for (Transcript transcript : gene2Transcripts) {
                         // moving all transcripts of gene2 to gene1, except for transcripts2 which needs to be deleted
-                        // only move if it overlapps.
+                        // only move if it overlaps.
                         if (transcript != transcript2) {
                             deleteTranscript(gene2, transcript)
                             featureService.addTranscriptToGene(gene1, transcript)
@@ -463,6 +502,7 @@ class TranscriptService {
 
         // Delete the empty transcript from the gene, if gene not already deleted
         if (!flag) {
+            featureService.mergeIsoformBoundaries(transcript1,transcript2)
             def childFeatures = featureRelationshipService.getChildren(transcript2)
             featureRelationshipService.deleteChildrenForTypes(transcript2)
             Feature.deleteAll(childFeatures)

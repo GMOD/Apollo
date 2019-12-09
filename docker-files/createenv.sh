@@ -14,6 +14,9 @@ echo "export WEBAPOLLO_DB_NAME=${WEBAPOLLO_DB_NAME}" >> $SET_ENV_FILE
 echo "export WEBAPOLLO_DB_USERNAME=${WEBAPOLLO_DB_USERNAME}" >> $SET_ENV_FILE
 echo "export WEBAPOLLO_DB_PASSWORD=${WEBAPOLLO_DB_PASSWORD}" >> $SET_ENV_FILE
 
+# Indicates if we want to start our own postgres server
+echo "export WEBAPOLLO_START_POSTGRES=${WEBAPOLLO_START_POSTGRES}" >> $SET_ENV_FILE
+
 # Indicates if we use Chado.  Default 'true'.
 echo "export WEBAPOLLO_USE_CHADO=${WEBAPOLLO_USE_CHADO}" >> $SET_ENV_FILE
 

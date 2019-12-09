@@ -251,6 +251,7 @@ apollo {
                     replace      : false
             ]
     ]
+    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from https://genome.ucsc.edu/goldenPath/help/blatSpec.html
     sequence_search_tools = [
             blat_nuc : [
                     search_exe  : "/usr/local/bin/blat",

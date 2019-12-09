@@ -1,4 +1,4 @@
-# Quick-start Developer's guide
+# Developer's guide
 
 Here we will introduce how to setup Apollo on your server. In general, there are two modes of deploying Apollo.
 

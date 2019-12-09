@@ -31,6 +31,7 @@ class FeatureService {
     def overlapperService
     def organismService
     def sessionFactory
+    def goAnnotationService
 
     public static final String MANUALLY_ASSOCIATE_TRANSCRIPT_TO_GENE = "Manually associate transcript to gene"
     public static final String MANUALLY_DISSOCIATE_TRANSCRIPT_FROM_GENE = "Manually dissociate transcript from gene"
@@ -1674,7 +1675,18 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         gene.setLastUpdated(new Date());
     }
 
-    @Transactional
+  @Transactional
+  def mergeIsoformBoundaries(Feature feature1,Feature feature2) {
+    int featureFmax = feature1.fmax > feature2.fmax ? feature1.fmax : feature2.fmax
+    int featureFmin = feature1.fmin < feature2.fmin ? feature1.fmin : feature2.fmin
+    featureService.setFmin(feature1, featureFmin)
+    featureService.setFmax(feature1, featureFmax)
+    featureService.setFmin(feature2, featureFmin)
+    featureService.setFmax(feature2, featureFmax)
+  }
+
+
+  @Transactional
     def setFmin(Feature feature, int fmin) {
         feature.getFeatureLocation().setFmin(fmin);
     }
@@ -1973,6 +1985,15 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             Sequence sequence = gsolFeature.featureLocation.sequence
             jsonFeature.put(FeatureStringEnum.SEQUENCE.value, sequence.name)
         }
+
+      if(gsolFeature.goAnnotations){
+        JSONArray goAnnotationsArray = goAnnotationService.convertAnnotationsToJson(gsolFeature.goAnnotations)
+//
+//        for(annotation in gsolFeature.goAnnotations){
+//          goAnnotationsArray.add((annotation as JSON) as JSONObject)
+//        }
+        jsonFeature.put(FeatureStringEnum.GO_ANNOTATIONS.value, goAnnotationsArray)
+      }
 
         durationInMilliseconds = System.currentTimeMillis() - start
 
