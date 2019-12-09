@@ -140,13 +140,13 @@ public class AnnotatorPanel extends Composite {
     @UiField
     CheckBox goOnlyCheckBox;
     @UiField
-    DbXrefPanel dbXrefPanel;
+    static DbXrefPanel dbXrefPanel;
     @UiField
-    CommentPanel commentPanel;
+    static CommentPanel commentPanel;
     @UiField
-    AttributesPanel attributesPanel;
+    static AttributesPanel attributesPanel;
     @UiField
-    PubMedIdPanel pubMedPanel;
+    static PubMedIdPanel pubMedPanel;
 
 
     // manage UI-state
@@ -494,6 +494,7 @@ public class AnnotatorPanel extends Composite {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
+                dbXrefPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
@@ -503,6 +504,7 @@ public class AnnotatorPanel extends Composite {
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
+                dbXrefPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
@@ -521,6 +523,7 @@ public class AnnotatorPanel extends Composite {
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
+                dbXrefPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
@@ -532,6 +535,7 @@ public class AnnotatorPanel extends Composite {
             case "transposable_element":
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
+                dbXrefPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
@@ -550,6 +554,7 @@ public class AnnotatorPanel extends Composite {
                 variantAllelesPanel.updateData(annotationInfo);
                 variantInfoPanel.updateData(annotationInfo);
                 alleleInfoPanel.updateData(annotationInfo);
+                dbXrefPanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(true);

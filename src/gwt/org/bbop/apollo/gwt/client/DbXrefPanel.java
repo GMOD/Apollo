@@ -39,10 +39,10 @@ public class DbXrefPanel extends Composite {
     private String oldTag, oldValue;
     private String tag, value;
 
-    interface VariantInfoPanelUiBinder extends UiBinder<Widget, DbXrefPanel> {
+    interface DbXrefPanelUiBinder extends UiBinder<Widget, DbXrefPanel> {
     }
 
-    private static VariantInfoPanelUiBinder ourUiBinder = GWT.create(VariantInfoPanelUiBinder.class);
+    private static DbXrefPanelUiBinder ourUiBinder = GWT.create(DbXrefPanelUiBinder.class);
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
@@ -57,9 +57,9 @@ public class DbXrefPanel extends Composite {
     @UiField
     TextBox valueInputBox;
     @UiField
-    Button addVariantInfoButton = new Button();
+    Button addDbXrefButton = new Button();
     @UiField
-    Button deleteVariantInfoButton = new Button();
+    Button deleteDbXrefButton = new Button();
 
     public DbXrefPanel() {
         dataGrid.setWidth("100%");
@@ -67,15 +67,15 @@ public class DbXrefPanel extends Composite {
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
         selectionModel.clear();
-        deleteVariantInfoButton.setEnabled(false);
+        deleteDbXrefButton.setEnabled(false);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                 if (selectionModel.getSelectedSet().isEmpty()) {
-                    deleteVariantInfoButton.setEnabled(false);
+                    deleteDbXrefButton.setEnabled(false);
                 } else {
-                    updateVariantInfoData(selectionModel.getSelectedObject());
-                    deleteVariantInfoButton.setEnabled(true);
+                    updateDbXrefData(selectionModel.getSelectedObject());
+                    deleteDbXrefButton.setEnabled(true);
                 }
             }
         });
@@ -97,7 +97,7 @@ public class DbXrefPanel extends Composite {
                 if (!object.getTag().equals(s)) {
                     GWT.log("Tag Changed");
                     object.setTag(s);
-                    updateVariantInfoData(object);
+                    updateDbXrefData(object);
                     triggerUpdate();
                 }
             }
@@ -117,7 +117,7 @@ public class DbXrefPanel extends Composite {
                 if (!object.getValue().equals(s)) {
                     GWT.log("Value Changed");
                     object.setValue(s);
-                    updateVariantInfoData(object);
+                    updateDbXrefData(object);
                     triggerUpdate();
                 }
             }
@@ -146,20 +146,19 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
+        GWT.log("updating annotation info: "+annotationInfo);
         if (annotationInfo == null) {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
+//        dbXrefInfoList.clear();
         dbXrefInfoList.clear();
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
-//
-//        if (dbXrefInfoList.size() > 0) {
-//            updateVariantInfoData(dbXrefInfoList.get(0));
-//        }
+        GWT.log("List size: "+dbXrefInfoList.size());
         redrawTable();
     }
 
-    public void updateVariantInfoData(DbXrefInfo v) {
+    public void updateDbXrefData(DbXrefInfo v) {
         this.internalDbXrefInfo = v;
         // tag
         this.oldTag = this.tag;
@@ -185,7 +184,7 @@ public class DbXrefPanel extends Composite {
         }
 
         if (tagValidated && valueValidated) {
-            String url = Annotator.getRootUrl() + "annotator/updateVariantInfo";
+            String url = Annotator.getRootUrl() + "annotator/updateDbXref";
             RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
             builder.setHeader("Content-type", "application/x-www-form-urlencoded");
             StringBuilder sb = new StringBuilder();
@@ -194,19 +193,19 @@ public class DbXrefPanel extends Composite {
             String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
             featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
 
-            JSONArray oldVariantInfoJsonArray = new JSONArray();
-            JSONObject oldVariantInfoJsonObject = new JSONObject();
-            oldVariantInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.oldTag));
-            oldVariantInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.oldValue));
-            oldVariantInfoJsonArray.set(0, oldVariantInfoJsonObject);
-            featureObject.put(FeatureStringEnum.OLD_VARIANT_INFO.getValue(), oldVariantInfoJsonArray);
+            JSONArray oldDbXrefJsonArray = new JSONArray();
+            JSONObject oldDbXrefJsonObject = new JSONObject();
+            oldDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.oldTag));
+            oldDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.oldValue));
+            oldDbXrefJsonArray.set(0, oldDbXrefJsonObject);
+            featureObject.put(FeatureStringEnum.OLD_VARIANT_INFO.getValue(), oldDbXrefJsonArray);
 
-            JSONArray newVariantInfoJsonArray = new JSONArray();
-            JSONObject newVariantInfoJsonObject = new JSONObject();
-            newVariantInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.tag));
-            newVariantInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.value));
-            newVariantInfoJsonArray.set(0, newVariantInfoJsonObject);
-            featureObject.put(FeatureStringEnum.NEW_VARIANT_INFO.getValue(), newVariantInfoJsonArray);
+            JSONArray newDbXrefJsonArray = new JSONArray();
+            JSONObject newDbXrefJsonObject = new JSONObject();
+            newDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.tag));
+            newDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.value));
+            newDbXrefJsonArray.set(0, newDbXrefJsonObject);
+            featureObject.put(FeatureStringEnum.NEW_VARIANT_INFO.getValue(), newDbXrefJsonArray);
 
             featuresArray.set(0, featureObject);
 
@@ -247,8 +246,8 @@ public class DbXrefPanel extends Composite {
         this.dataGrid.redraw();
     }
 
-    @UiHandler("addVariantInfoButton")
-    public void addVariantInfoButton(ClickEvent ce) {
+    @UiHandler("addDbXrefButton")
+    public void addDbXrefButton(ClickEvent ce) {
         String tag = tagInputBox.getText();
         String value = valueInputBox.getText();
 
@@ -265,7 +264,7 @@ public class DbXrefPanel extends Composite {
         if (tagValidated && valueValidated) {
             this.tagInputBox.clear();
             this.valueInputBox.clear();
-            String url = Annotator.getRootUrl() + "annotator/addVariantInfo";
+            String url = Annotator.getRootUrl() + "annotator/addDbXref";
             RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
             builder.setHeader("Content-type", "application/x-www-form-urlencoded");
             StringBuilder sb = new StringBuilder();
@@ -316,11 +315,11 @@ public class DbXrefPanel extends Composite {
         }
     }
 
-    @UiHandler("deleteVariantInfoButton")
-    public void deleteVariantInfo(ClickEvent ce) {
+    @UiHandler("deleteDbXrefButton")
+    public void deleteDbXref(ClickEvent ce) {
 
         if (this.internalDbXrefInfo != null) {
-            String url = Annotator.getRootUrl() + "annotator/deleteVariantInfo";
+            String url = Annotator.getRootUrl() + "annotator/deleteDbXref";
             RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
             builder.setHeader("Content-type", "application/x-www-form-urlencoded");
             StringBuilder sb = new StringBuilder();

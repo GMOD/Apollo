@@ -34,10 +34,10 @@
                 </b:Row>
                 <b:Row>
                     <b:Column size="MD_3">
-                        <b:Button text="Add" ui:field="addVariantInfoButton"/>
+                        <b:Button text="Add" ui:field="addDbXrefButton"/>
                     </b:Column>
                     <b:Column size="MD_3">
-                        <b:Button text="Delete" ui:field="deleteVariantInfoButton"/>
+                        <b:Button text="Delete" ui:field="deleteDbXrefButton"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
