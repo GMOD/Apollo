@@ -53,7 +53,7 @@ public class CommentPanel extends Composite {
     private String tag, comment;
 
     private static ListDataProvider<CommentInfo> dataProvider = new ListDataProvider<>();
-    private static List<CommentInfo> dbXrefInfoList = dataProvider.getList();
+    private static List<CommentInfo> commentInfoList = dataProvider.getList();
     private SingleSelectionModel<CommentInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell commentCell = new EditTextCell();
 
@@ -84,8 +84,9 @@ public class CommentPanel extends Composite {
     public void initializeTable() {
         Column<CommentInfo, String> commentColumn = new Column<CommentInfo, String>(commentCell) {
             @Override
-            public String getValue(CommentInfo dbXrefInfo) {
-                return dbXrefInfo.getComment();
+            public String getValue(CommentInfo commentInfo) {
+                GWT.log("getting comment info data: "+commentInfo.getComment());
+                return commentInfo.getComment();
             }
         };
         commentColumn.setFieldUpdater(new FieldUpdater<CommentInfo, String>() {
@@ -107,9 +108,9 @@ public class CommentPanel extends Composite {
         commentColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
         commentColumn.setSortable(true);
         dataGrid.addColumn(commentColumn, "Comment");
-        dataGrid.setColumnWidth(1, "100%");
+        dataGrid.setColumnWidth(0, "100%");
 
-        ColumnSortEvent.ListHandler<CommentInfo> sortHandler = new ColumnSortEvent.ListHandler<CommentInfo>(dbXrefInfoList);
+        ColumnSortEvent.ListHandler<CommentInfo> sortHandler = new ColumnSortEvent.ListHandler<CommentInfo>(commentInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
 
         sortHandler.setComparator(commentColumn, new Comparator<CommentInfo>() {
@@ -129,10 +130,11 @@ public class CommentPanel extends Composite {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-        dbXrefInfoList.clear();
-        dbXrefInfoList.addAll(annotationInfo.getCommentList());
+        commentInfoList.clear();
+        GWT.log("Comment list size: "+annotationInfo.getCommentList().size());
+        commentInfoList.addAll(annotationInfo.getCommentList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        GWT.log("List size: " + dbXrefInfoList.size());
+        GWT.log("List size: " + commentInfoList.size());
         redrawTable();
         setVisible(true);
     }
@@ -216,7 +218,7 @@ public class CommentPanel extends Composite {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    List<CommentInfo> newList = new ArrayList<>(dbXrefInfoList);
+                    List<CommentInfo> newList = new ArrayList<>(commentInfoList);
                     newList.add(newCommentInfo);
                     internalAnnotationInfo.setCommentList(newList);
                 }
