@@ -21,6 +21,7 @@
         .widgetBox {
             display: inline;
             margin: 5px;
+            width: 80px;
             /*width: 100%;*/
         }
 
@@ -33,11 +34,15 @@
 
         .addButton {
             margin-top: 5px;
+        }
+
+        .pmidBox {
+            border-top: #0e0e0e solid 2px;
         }</ui:style>
 
     <gwt:DockLayoutPanel>
         <gwt:center size="250">
-            <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
+                <cellview:DataGrid ui:field="dataGrid" styleName="{style.dataGrid}"/>
         </gwt:center>
         <gwt:east size="250">
             <b:Container fluid="true" addStyleNames="{style.propertyStyle}">
@@ -49,14 +54,24 @@
                         <b:TextBox placeholder="Accession" ui:field="valueInputBox" styleName="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_2">
-                        <b:Button text="Add" ui:field="addDbXrefButton" icon="PLUS_CIRCLE" enabled="false"
-                                  addStyleNames="{style.addButton}"/>
+                        <b:Button ui:field="addDbXrefButton" icon="PLUS_CIRCLE" enabled="false"
+                                  addStyleNames="{style.addButton}" pull="RIGHT"/>
                     </b:Column>
+                </b:Row>
+                <b:Row addStyleNames="{style.pmidBox}">
+                    <b:Column size="MD_5">
+                        <b:TextBox placeholder="PMID" ui:field="pmidInputBox" styleName="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_2">
+                        <b:Button ui:field="addPmidButton" icon="PLUS_CIRCLE" enabled="false"
+                                  addStyleNames="{style.addButton}" pull="RIGHT"/>
+                    </b:Column>
+
                 </b:Row>
             </b:Container>
         </gwt:east>
         <gwt:south size="30">
-                    <b:Button text="Delete" ui:field="deleteDbXrefButton" icon="MINUS_CIRCLE" enabled="false" type="WARNING"/>
+            <b:Button text="Delete" ui:field="deleteDbXrefButton" icon="MINUS_CIRCLE" enabled="false" type="WARNING"/>
         </gwt:south>
     </gwt:DockLayoutPanel>
 </ui:UiBinder>

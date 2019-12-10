@@ -46,7 +46,7 @@ public class DbXrefPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<DbXrefInfo> dataGrid = new DataGrid<>(10, tablecss);
+    DataGrid<DbXrefInfo> dataGrid = new DataGrid<>(50, tablecss);
     @UiField
     TextBox tagInputBox;
     @UiField
@@ -55,6 +55,10 @@ public class DbXrefPanel extends Composite {
     Button addDbXrefButton ;
     @UiField
     Button deleteDbXrefButton ;
+    @UiField
+    TextBox pmidInputBox;
+    @UiField
+    Button addPmidButton;
 
     private AnnotationInfo internalAnnotationInfo = null;
     private DbXrefInfo internalDbXrefInfo = null;
@@ -248,9 +252,25 @@ public class DbXrefPanel extends Composite {
         addDbXrefButton.setEnabled(validateTags());
     }
 
+    @UiHandler("pmidInputBox")
+    public void pmidInputBoxType(KeyUpEvent event){
+        addPmidButton.setEnabled(validatePmidTags());
+    }
+
+
     @UiHandler("valueInputBox")
     public void valueInputBoxType(KeyUpEvent event){
         addDbXrefButton.setEnabled(validateTags());
+    }
+
+    private boolean validatePmidTags() {
+        collectPmidTags();
+        return this.tag!=null && !this.tag.isEmpty() && this.value !=null && !this.value.isEmpty();
+    }
+
+    private void collectPmidTags() {
+        this.tag = "PMID";
+        this.value = pmidInputBox.getText();
     }
 
     private boolean validateTags() {
@@ -263,6 +283,36 @@ public class DbXrefPanel extends Composite {
         this.value = valueInputBox.getText();
     }
 
+    @UiHandler("addPmidButton")
+    public void addPmidButton(ClickEvent ce) {
+        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        if (validatePmidTags()) {
+            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
+            this.tagInputBox.clear();
+            this.valueInputBox.clear();
+            this.pmidInputBox.clear();
+
+            RequestCallback requestCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    List<DbXrefInfo> newList = new ArrayList<>(dbXrefInfoList);
+                    newList.add(newDbXrefInfo);
+                    internalAnnotationInfo.setDbXrefList(newList);
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error updating variant info property: " + exception);
+                    resetTags();
+                    // TODO: reset data
+                    redrawTable();
+                }
+            };
+            DbXrefRestService.addDbXref(requestCallBack,this.internalAnnotationInfo,newDbXrefInfo);
+        }
+    }
+
 
     @UiHandler("addDbXrefButton")
     public void addDbXrefButton(ClickEvent ce) {
@@ -271,19 +321,15 @@ public class DbXrefPanel extends Composite {
             final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
             this.tagInputBox.clear();
             this.valueInputBox.clear();
+            this.pmidInputBox.clear();
 
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    GWT.log("return value: "+returnValue.toString());
                     List<DbXrefInfo> newList = new ArrayList<>(dbXrefInfoList);
                     newList.add(newDbXrefInfo);
                     internalAnnotationInfo.setDbXrefList(newList);
-                    updateData(internalAnnotationInfo);
-                    redrawTable();
-//                    AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(internalAnnotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-//                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
                 }
 
                 @Override
