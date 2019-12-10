@@ -64,6 +64,8 @@ public class DbXrefPanel extends Composite {
     private static ListDataProvider<DbXrefInfo> dataProvider = new ListDataProvider<>();
     private static List<DbXrefInfo> dbXrefInfoList = dataProvider.getList();
     private SingleSelectionModel<DbXrefInfo> selectionModel = new SingleSelectionModel<>();
+    EditTextCell tagCell = new EditTextCell();
+    EditTextCell valueCell = new EditTextCell();
 
     public DbXrefPanel() {
 
@@ -90,7 +92,6 @@ public class DbXrefPanel extends Composite {
     }
 
     public void initializeTable() {
-        EditTextCell tagCell = new EditTextCell();
         Column<DbXrefInfo, String> tagColumn = new Column<DbXrefInfo, String>(tagCell) {
             @Override
             public String getValue(DbXrefInfo dbXrefInfo) {
@@ -100,6 +101,13 @@ public class DbXrefPanel extends Composite {
         tagColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
             public void update(int i, DbXrefInfo object, String s) {
+                if(s==null || s.trim().length()==0){
+                    Bootbox.alert("Prefix can not be blank");
+                    tagCell.clearViewData(object);
+                    dataGrid.redrawRow(i);
+                    redrawTable();
+                }
+                else
                 if (!object.getTag().equals(s)) {
                     GWT.log("Tag Changed");
                     object.setTag(s);
@@ -111,7 +119,6 @@ public class DbXrefPanel extends Composite {
         tagColumn.setSortable(true);
         tagColumn.setDefaultSortAscending(true);
 
-        EditTextCell valueCell = new EditTextCell();
         Column<DbXrefInfo, String> valueColumn = new Column<DbXrefInfo, String>(valueCell) {
             @Override
             public String getValue(DbXrefInfo dbXrefInfo) {
@@ -121,6 +128,13 @@ public class DbXrefPanel extends Composite {
         valueColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
             public void update(int i, DbXrefInfo object, String s) {
+                if(s==null || s.trim().length()==0){
+                    Bootbox.alert("Accession can not be blank");
+                    valueCell.clearViewData(object);
+                    dataGrid.redrawRow(i);
+                    redrawTable();
+                }
+                else
                 if (!object.getValue().equals(s)) {
                     GWT.log("Value Changed");
                     object.setValue(s);
@@ -164,7 +178,6 @@ public class DbXrefPanel extends Composite {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-//        dbXrefInfoList.clear();
         dbXrefInfoList.clear();
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
@@ -193,6 +206,7 @@ public class DbXrefPanel extends Composite {
 
     public void updateDbXref() {
         if (validateTags()) {
+            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
@@ -202,13 +216,15 @@ public class DbXrefPanel extends Composite {
 
                 @Override
                 public void onError(Request request, Throwable exception) {
+                    tagCell.clearViewData(newDbXrefInfo);
+                    dataGrid.redraw();
                     Bootbox.alert("Error updating variant info property: " + exception);
                     resetTags();
                     // TODO: reset data
                     redrawTable();
                 }
             };
-            DbXrefRestService.updateDbXref(requestCallBack,this.internalAnnotationInfo,new DbXrefInfo(this.oldTag,this.oldValue),new DbXrefInfo(this.tag,this.value));;
+            DbXrefRestService.updateDbXref(requestCallBack,this.internalAnnotationInfo,new DbXrefInfo(this.oldTag,this.oldValue),newDbXrefInfo);;
         }
         else{
             resetTags();
