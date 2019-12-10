@@ -4,6 +4,7 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -29,6 +30,7 @@ import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -190,16 +192,7 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateDbXref() {
-        boolean tagValidated = false;
-        boolean valueValidated = false;
-
-        if (this.tag != null && !this.tag.isEmpty()) {
-            tagValidated = true;
-        }
-        if (this.value != null && !this.value.isEmpty()) {
-            valueValidated = true;
-        }
-        if (tagValidated && valueValidated) {
+        if (validateTags()) {
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
@@ -234,29 +227,47 @@ public class DbXrefPanel extends Composite {
         this.dataGrid.redraw();
     }
 
+    @UiHandler("tagInputBox")
+    public void tagInputBoxType(KeyUpEvent event){
+        addDbXrefButton.setEnabled(validateTags());
+    }
+
+    @UiHandler("valueInputBox")
+    public void valueInputBoxType(KeyUpEvent event){
+        addDbXrefButton.setEnabled(validateTags());
+    }
+
+    private boolean validateTags() {
+        collectTags();
+        return this.tag!=null && !this.tag.isEmpty() && this.value !=null && !this.value.isEmpty();
+    }
+
+    private void collectTags() {
+        this.tag = tagInputBox.getText();
+        this.value = valueInputBox.getText();
+    }
+
+
     @UiHandler("addDbXrefButton")
     public void addDbXrefButton(ClickEvent ce) {
-        String tag = tagInputBox.getText();
-        String value = valueInputBox.getText();
-
-        boolean tagValidated = false;
-        boolean valueValidated = false;
-
-        if (this.tag != null && !this.tag.isEmpty()) {
-            tagValidated = true;
-        }
-        if (this.value != null && !this.value.isEmpty()) {
-            valueValidated = true;
-        }
-
-        if (tagValidated && valueValidated) {
+        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        if (validateTags()) {
+            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
             this.tagInputBox.clear();
             this.valueInputBox.clear();
+
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    GWT.log("return value: "+returnValue.toString());
+                    List<DbXrefInfo> newList = new ArrayList<>(dbXrefInfoList);
+                    newList.add(newDbXrefInfo);
+                    internalAnnotationInfo.setDbXrefList(newList);
+                    updateData(internalAnnotationInfo);
                     redrawTable();
+//                    AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(internalAnnotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
+//                    Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
                 }
 
                 @Override
@@ -267,7 +278,7 @@ public class DbXrefPanel extends Composite {
                     redrawTable();
                 }
             };
-            DbXrefRestService.addDbXref(requestCallBack,this.internalAnnotationInfo,new DbXrefInfo(tag,value));;
+            DbXrefRestService.addDbXref(requestCallBack,this.internalAnnotationInfo,newDbXrefInfo);
         }
     }
 
@@ -279,6 +290,7 @@ public class DbXrefPanel extends Composite {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    deleteDbXrefButton.setEnabled(false);
                     redrawTable();
                 }
 

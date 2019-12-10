@@ -28,6 +28,7 @@
             border: 2px;
             border-style: solid;
             border-color: grey;
+            padding: 0;
         }
 
         .addButton {
@@ -44,19 +45,18 @@
                     <b:Column size="MD_3">
                         <b:TextBox placeholder="Prefix" ui:field="tagInputBox" styleName="{style.prefixBox}"/>
                     </b:Column>
-                    <b:Column size="MD_6">
+                    <b:Column size="MD_5">
                         <b:TextBox placeholder="Accession" ui:field="valueInputBox" styleName="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_2">
-                        <b:Button text="Add" ui:field="addDbXrefButton" icon="PLUS_CIRCLE" addStyleNames="{style.addButton}"/>
-                    </b:Column>
-                </b:Row>
-                <b:Row>
-                    <b:Column size="MD_6">
-                        <b:Button text="Delete" ui:field="deleteDbXrefButton" icon="MINUS_CIRCLE"/>
+                        <b:Button text="Add" ui:field="addDbXrefButton" icon="PLUS_CIRCLE" enabled="false"
+                                  addStyleNames="{style.addButton}"/>
                     </b:Column>
                 </b:Row>
             </b:Container>
         </gwt:east>
+        <gwt:south size="30">
+                    <b:Button text="Delete" ui:field="deleteDbXrefButton" icon="MINUS_CIRCLE" enabled="false" type="WARNING"/>
+        </gwt:south>
     </gwt:DockLayoutPanel>
 </ui:UiBinder>
