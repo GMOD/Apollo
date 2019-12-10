@@ -51,48 +51,50 @@ public class DbXrefRestService {
         featuresArray.set(0, featureObject);
 
         JSONObject requestObject = new JSONObject();
-//        requestObject.put("operation", new JSONString("update_variant_info"));
         requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
-//            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
         requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
 
         RestService.sendRequest(requestCallback, "annotationEditor/updateDbxref", "data=" + requestObject.toString());
     }
 
-    public static void deleteDbXref(RequestCallback requestCallback, DbXrefInfo dbXrefInfo) {
-        RestService.sendRequest(requestCallback, "dbXrefInfo/delete", "data=" + DbXRefInfoConverter.convertToJson(dbXrefInfo).toString());
+    public static void addDbXref(RequestCallback requestCallback, AnnotationInfo annotationInfo, DbXrefInfo dbXrefInfo) {
+        //            0: "SEND↵destination:/app/AnnotationNotification↵content-length:310↵↵"{\"track\":\"ctgA\",\"features\":[{\"uniquename\":\"fd57cc6a-8e29-4a48-9832-82c06bcc869c\",\,\"operation\":\"update_non_primary_dbxrefs\",\"clientToken\":\"18068643442091616983\"}""
+//        "dbxrefs\":[{\"db\":\"aasd\",\"accession\":\"12312\"}],
+        JSONArray featuresArray = new JSONArray();
+        JSONObject featureObject = new JSONObject();
+        String featureUniqueName = annotationInfo.getUniqueName();
+        featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
+        JSONArray dbXrefJsonArray = new JSONArray();
+        JSONObject dbXrefJsonObject = new JSONObject();
+        dbXrefJsonObject.put(FeatureStringEnum.DB.getValue(), new JSONString(dbXrefInfo.getTag()));
+        dbXrefJsonObject.put(FeatureStringEnum.ACCESSION.getValue(), new JSONString(dbXrefInfo.getValue()));
+        dbXrefJsonArray.set(0, dbXrefJsonObject);
+        featureObject.put(FeatureStringEnum.DBXREFS.getValue(), dbXrefJsonArray);
+        featuresArray.set(0, featureObject);
+
+        JSONObject requestObject = new JSONObject();
+        requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
+        requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+        RestService.sendRequest(requestCallback, "annotationEditor/addDbxref", "data=" + requestObject.toString());
     }
 
-    public static void getDbXref(RequestCallback requestCallback, String featureUniqueName) {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("uniqueName",new JSONString(featureUniqueName));
-        RestService.sendRequest(requestCallback, "dbXrefInfo/", "data=" + jsonObject.toString());
+    public static void deleteDbXref(RequestCallback requestCallback, AnnotationInfo annotationInfo, DbXrefInfo dbXrefInfo) {
+        JSONArray featuresArray = new JSONArray();
+        JSONObject featureObject = new JSONObject();
+        String featureUniqueName = annotationInfo.getUniqueName();
+        featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
+        JSONArray dbXrefJsonArray = new JSONArray();
+        JSONObject dbXrefJsonObject = new JSONObject();
+        dbXrefJsonObject.put(FeatureStringEnum.DB.getValue(), new JSONString(dbXrefInfo.getTag()));
+        dbXrefJsonObject.put(FeatureStringEnum.ACCESSION.getValue(), new JSONString(dbXrefInfo.getValue()));
+        dbXrefJsonArray.set(0, dbXrefJsonObject);
+        featureObject.put(FeatureStringEnum.DBXREFS.getValue(), dbXrefJsonArray);
+        featuresArray.set(0, featureObject);
+
+        JSONObject requestObject = new JSONObject();
+        requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
+        requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+        RestService.sendRequest(requestCallback, "annotationEditor/deleteDbxref", "data=" + requestObject.toString());
     }
 
-    private static void lookupTerm(RequestCallback requestCallback, String url) {
-        RestService.generateBuilder(requestCallback,RequestBuilder.GET,url);
-    }
-
-    public static void lookupTerm(final Anchor anchor, String evidenceCurie) {
-        RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                JSONObject returnObject = JSONParser.parseStrict(response.getText()).isObject();
-                anchor.setHTML(returnObject.get("label").isString().stringValue());
-                if(returnObject.containsKey("definition")){
-                    anchor.setTitle(returnObject.get("definition").isString().stringValue());
-                }
-                else{
-                    anchor.setTitle(returnObject.get("label").isString().stringValue());
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Failed to do lookup: "+exception.getMessage());
-            }
-        };
-
-        DbXrefRestService.lookupTerm(requestCallback,TERM_LOOKUP_SERVER + evidenceCurie);
-    }
 }

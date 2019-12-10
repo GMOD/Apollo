@@ -193,17 +193,11 @@ public class DbXrefPanel extends Composite {
         if (this.value != null && !this.value.isEmpty()) {
             valueValidated = true;
         }
-        GWT.log("is tag value"+tagValidated);
-        GWT.log("is value value"+valueValidated);
-
         if (tagValidated && valueValidated) {
-
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    GWT.log("worked!");
-//                    Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
                     redrawTable();
                 }
 
@@ -252,54 +246,22 @@ public class DbXrefPanel extends Composite {
         if (tagValidated && valueValidated) {
             this.tagInputBox.clear();
             this.valueInputBox.clear();
-            String url = Annotator.getRootUrl() + "annotator/addDbXref";
-            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
-            builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-            StringBuilder sb = new StringBuilder();
-            JSONArray featuresArray = new JSONArray();
-            JSONObject featureObject = new JSONObject();
-            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
-            featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
-
-            JSONArray variantInfoJsonArray = new JSONArray();
-            JSONObject variantInfoJsonObject = new JSONObject();
-            variantInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(tag));
-            variantInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(value));
-            variantInfoJsonArray.set(0, variantInfoJsonObject);
-            featureObject.put(FeatureStringEnum.VARIANT_INFO.getValue(), variantInfoJsonArray);
-
-            featuresArray.set(0, featureObject);
-
-            JSONObject requestObject = new JSONObject();
-            requestObject.put("operation", new JSONString("add_variant_info"));
-            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
-            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
-            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-            sb.append("data=" + requestObject.toString());
-
-            final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
-            builder.setRequestData(sb.toString());
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
                     redrawTable();
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    Bootbox.alert("Error adding variant info property: " + exception);
+                    Bootbox.alert("Error updating variant info property: " + exception);
+                    resetTags();
+                    // TODO: reset data
                     redrawTable();
                 }
             };
-
-            try {
-                builder.setCallback(requestCallBack);
-                builder.send();
-            } catch(RequestException e) {
-                Bootbox.alert("RequestException: " + e.getMessage());
-            }
+            DbXrefRestService.addDbXref(requestCallBack,this.internalAnnotationInfo,new DbXrefInfo(tag,value));;
         }
     }
 
@@ -307,38 +269,10 @@ public class DbXrefPanel extends Composite {
     public void deleteDbXref(ClickEvent ce) {
 
         if (this.internalDbXrefInfo != null) {
-            String url = Annotator.getRootUrl() + "annotator/deleteDbXref";
-            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
-            builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-            StringBuilder sb = new StringBuilder();
-            JSONArray featuresArray = new JSONArray();
-            JSONObject featureObject = new JSONObject();
-            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
-            featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
-
-            JSONArray variantInfoJsonArray = new JSONArray();
-            JSONObject variantInfoJsonObject = new JSONObject();
-            variantInfoJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(tag));
-            variantInfoJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(value));
-            variantInfoJsonArray.set(0, variantInfoJsonObject);
-            featureObject.put(FeatureStringEnum.VARIANT_INFO.getValue(), variantInfoJsonArray);
-
-            featuresArray.set(0, featureObject);
-
-            JSONObject requestObject = new JSONObject();
-            requestObject.put("operation", new JSONString("delete_variant_info"));
-            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
-            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
-            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-            sb.append("data=" + requestObject.toString());
-
-            final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
-            builder.setRequestData(sb.toString());
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
                     redrawTable();
                 }
 
@@ -348,13 +282,7 @@ public class DbXrefPanel extends Composite {
                     redrawTable();
                 }
             };
-
-            try {
-                builder.setCallback(requestCallBack);
-                builder.send();
-            } catch(RequestException e) {
-                Bootbox.alert("RequestException: " + e.getMessage());
-            }
+            DbXrefRestService.deleteDbXref(requestCallBack,this.internalAnnotationInfo,this.internalDbXrefInfo);;
         }
     }
 }
