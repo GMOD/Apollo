@@ -1,12 +1,15 @@
 package org.bbop.apollo.gwt.client;
 
+import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -14,413 +17,242 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.dto.AlternateAlleleInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
+import org.bbop.apollo.gwt.client.dto.CommentInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.client.rest.CommentRestService;
+import org.gwtbootstrap3.client.ui.TextArea;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 /**
- * Created by deepak.unni3 on 9/12/16.
  */
 public class CommentPanel extends Composite {
 
-    private AnnotationInfo internalAnnotationInfo = null;
-    private AlternateAlleleInfo internalAlterateAlleleInfo = null;
-    private String oldBases, oldProvenance;
-    private String bases, provenance;
-    private Float oldAlleleFrequency;
-    private Float alleleFrequency;
-
-    interface VariantAllelePanelUiBinder extends UiBinder<Widget, CommentPanel> {
+    interface CommentPanelUiBinder extends UiBinder<Widget, CommentPanel> {
     }
 
-    private static VariantAllelePanelUiBinder ourUiBinder = GWT.create(VariantAllelePanelUiBinder.class);
-
+    private static CommentPanel.CommentPanelUiBinder ourUiBinder = GWT.create(CommentPanel.CommentPanelUiBinder.class);
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<AlternateAlleleInfo> dataGrid = new DataGrid<>(10, tablecss);
+    DataGrid<CommentInfo> dataGrid = new DataGrid<>(200, tablecss);
+    @UiField
+    TextArea commentInputBox;
+    @UiField
+    org.gwtbootstrap3.client.ui.Button addCommentButton;
+    @UiField
+    org.gwtbootstrap3.client.ui.Button deleteCommentButton;
 
-    private static ListDataProvider<AlternateAlleleInfo> dataProvider = new ListDataProvider<>();
-    private static List<AlternateAlleleInfo> alternateAlleleInfoList = dataProvider.getList();
-    private SingleSelectionModel<AlternateAlleleInfo> selectionModel = new SingleSelectionModel<>();
-    private Column<AlternateAlleleInfo, String> basesColumn;
-    private Column<AlternateAlleleInfo, String> alleleFrequencyColumn;
-    private Column<AlternateAlleleInfo, String> provenanceColumn;
+    private AnnotationInfo internalAnnotationInfo = null;
+    private CommentInfo internalCommentInfo = null;
+    private String oldComment;
+    private String tag, comment;
 
-//    @UiField(provided = true)
-//    DataGrid<AllelePropertyInfo> allelePropertyDataGrid = new DataGrid<>(10, tablecss);
-//
-//    private static ListDataProvider<AllelePropertyInfo> allelePropertyDataProvider = new ListDataProvider<>();
-//    private static List<AllelePropertyInfo> allelePropertyInfoList = allelePropertyDataProvider.getList();
-//    private SingleSelectionModel<AllelePropertyInfo> allelePropertySelectionModel = new SingleSelectionModel<>();
-//    private Column<AllelePropertyInfo, String> tagColumn;
-//    private Column<AllelePropertyInfo, String> valueColumn;
+    private static ListDataProvider<CommentInfo> dataProvider = new ListDataProvider<>();
+    private static List<CommentInfo> dbXrefInfoList = dataProvider.getList();
+    private SingleSelectionModel<CommentInfo> selectionModel = new SingleSelectionModel<>();
+    EditTextCell commentCell = new EditTextCell();
 
     public CommentPanel() {
+
+        initWidget(ourUiBinder.createAndBindUi(this));
+
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
         dataGrid.setSelectionModel(selectionModel);
+        selectionModel.clear();
+        deleteCommentButton.setEnabled(false);
         selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
             @Override
             public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
                 if (selectionModel.getSelectedSet().isEmpty()) {
+                    deleteCommentButton.setEnabled(false);
                 } else {
-                    updateAlleleData(selectionModel.getSelectedObject());
+                    selectCommentData(selectionModel.getSelectedObject());
+                    deleteCommentButton.setEnabled(true);
                 }
             }
         });
 
-//        allelePropertyDataGrid.setWidth("100%");
-//        initializeAllelePropertyTable();
-//        allelePropertyDataProvider.addDataDisplay(allelePropertyDataGrid);
-//        allelePropertyDataGrid.setSelectionModel(allelePropertySelectionModel);
-//        allelePropertySelectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
-//            @Override
-//            public void onSelectionChange(SelectionChangeEvent selectionChangeEvent) {
-//                if (allelePropertySelectionModel.getSelectedSet().isEmpty()) {
-//                } else {
-//                }
-//            }
-//        });
-
-        initWidget(ourUiBinder.createAndBindUi(this));
     }
 
     public void initializeTable() {
-        TextCell basesCell = new TextCell();
-        basesColumn = new Column<AlternateAlleleInfo, String>(basesCell) {
+        Column<CommentInfo, String> commentColumn = new Column<CommentInfo, String>(commentCell) {
             @Override
-            public String getValue(AlternateAlleleInfo object) {
-                if (object.getBases() != null) {
-                    return object.getBases();
-                } else {
-                    return "";
-                }
+            public String getValue(CommentInfo dbXrefInfo) {
+                return dbXrefInfo.getComment();
             }
         };
-        basesColumn.setFieldUpdater(new FieldUpdater<AlternateAlleleInfo, String>() {
+        commentColumn.setFieldUpdater(new FieldUpdater<CommentInfo, String>() {
             @Override
-            public void update(int i, AlternateAlleleInfo alternateAlleleInfo, String newValue) {
-                if (!alternateAlleleInfo.getBases().equals(newValue.toUpperCase())) {
-                    //GWT.log("update event on bases");
-                    //alternateAlleleInfo.setBases(newValue);
-                    //updateAlleleData(alternateAlleleInfo);
-                    //triggerUpdate();
+            public void update(int i, CommentInfo object, String s) {
+                if (s == null || s.trim().length() == 0) {
+                    Bootbox.alert("Accession can not be blank");
+                    commentCell.clearViewData(object);
+                    dataGrid.redrawRow(i);
+                    redrawTable();
+                } else if (!object.getComment().equals(s)) {
+                    GWT.log("Value Changed");
+                    object.setComment(s);
+                    selectCommentData(object);
+                    updateComment();
                 }
             }
         });
-        basesColumn.setSortable(true);
+        commentColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        commentColumn.setSortable(true);
+        dataGrid.addColumn(commentColumn, "Comment");
+        dataGrid.setColumnWidth(1, "100%");
 
-//        EditTextCell frequencyCell = new EditTextCell();
-//        alleleFrequencyColumn = new Column<AlternateAlleleInfo, String>(frequencyCell) {
-//            @Override
-//            public String getValue(AlternateAlleleInfo object) {
-//                if (object.getAlleleFrequency() != null) {
-//                    return String.valueOf(object.getAlleleFrequency());
-//                } else {
-//                    return "";
-//                }
-//            }
-//        };
-//        alleleFrequencyColumn.setFieldUpdater(new FieldUpdater<AlternateAlleleInfo, String>() {
-//            @Override
-//            public void update(int i, AlternateAlleleInfo alternateAlleleInfo, String newValue) {
-//                GWT.log(alternateAlleleInfo.getAlleleFrequencyAsString() + " vs " + newValue);
-//                if (!String.valueOf(alternateAlleleInfo.getAlleleFrequencyAsString()).equals(newValue)) {
-//                    GWT.log("update event on allele frequency");
-//                    try {
-//                        Float newFrequency = Float.parseFloat(newValue);
-//                        if (newFrequency >= 0.0 && newFrequency <= 1.0) {
-//                            alternateAlleleInfo.setAlleleFrequency(newFrequency);
-//                            updateAlleleData(alternateAlleleInfo);
-//                            triggerUpdate();
-//                        } else {
-//                            Bootbox.alert("Allele Frequency must be within the range 0.0 - 1.0");
-//                        }
-//                    } catch (NumberFormatException e) {
-//                        Bootbox.alert("Allele Frequency must be a number and within the range 0.0 - 1.0");
-//                    }
-//                }
-//
-//            }
-//        });
-//        alleleFrequencyColumn.setSortable(true);
-//
-//        EditTextCell provenanceCell = new EditTextCell();
-//        provenanceColumn = new Column<AlternateAlleleInfo, String>(provenanceCell) {
-//            @Override
-//            public String getValue(AlternateAlleleInfo object) {
-//                if (object.getProvenance() != null) {
-//                    return object.getProvenance();
-//                } else {
-//                    return "";
-//                }
-//            }
-//        };
-//        provenanceColumn.setFieldUpdater(new FieldUpdater<AlternateAlleleInfo, String>() {
-//            @Override
-//            public void update(int i, AlternateAlleleInfo alternateAlleleInfo, String newValue) {
-//                if (!alternateAlleleInfo.getProvenance().equals(newValue)) {
-//                    GWT.log("update event on provenance");
-//                    alternateAlleleInfo.setProvenance(newValue);
-//                    updateAlleleData(alternateAlleleInfo);
-//                    triggerUpdate();
-//                }
-//            }
-//        });
-//        provenanceColumn.setSortable(true);
-
-        dataGrid.addColumn(basesColumn, "Bases");
-//        dataGrid.addColumn(alleleFrequencyColumn, "AF");
-//        dataGrid.addColumn(provenanceColumn, "Provenance");
-
-        ColumnSortEvent.ListHandler<AlternateAlleleInfo> sortHandler = new ColumnSortEvent.ListHandler<AlternateAlleleInfo>(alternateAlleleInfoList);
+        ColumnSortEvent.ListHandler<CommentInfo> sortHandler = new ColumnSortEvent.ListHandler<CommentInfo>(dbXrefInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
 
-        sortHandler.setComparator(basesColumn, new Comparator<AlternateAlleleInfo>() {
+        sortHandler.setComparator(commentColumn, new Comparator<CommentInfo>() {
             @Override
-            public int compare(AlternateAlleleInfo o1, AlternateAlleleInfo o2) {
-                return o1.getBases().compareTo(o2.getBases());
+            public int compare(CommentInfo o1, CommentInfo o2) {
+                return o1.getComment().compareTo(o2.getComment());
             }
         });
-
-//        sortHandler.setComparator(alleleFrequencyColumn, new Comparator<AlternateAlleleInfo>() {
-//            @Override
-//            public int compare(AlternateAlleleInfo o1, AlternateAlleleInfo o2) {
-//                return o1.getAlleleFrequency().compareTo(o2.getAlleleFrequency());
-//            }
-//        });
-//
-//        sortHandler.setComparator(provenanceColumn, new Comparator<AlternateAlleleInfo>() {
-//            @Override
-//            public int compare(AlternateAlleleInfo o1, AlternateAlleleInfo o2) {
-//                return o1.getProvenance().compareTo(o2.getProvenance());
-//            }
-//        });
+        // default is ascending
+        dataGrid.getColumnSortList().push(commentColumn);
+        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
     }
 
-//    public void initializeAllelePropertyTable() {
-//        EditTextCell tagCell = new EditTextCell();
-//        tagColumn = new Column<AllelePropertyInfo, String>(tagCell) {
-//            @Override
-//            public String getValue(AllelePropertyInfo object) {
-//                return object.getTag();
-//            }
-//        };
-//        tagColumn.setFieldUpdater(new FieldUpdater<AllelePropertyInfo, String>() {
-//            @Override
-//            public void update(int i, AllelePropertyInfo object, String s) {
-//                String tag = object.getTag();
-//                if (!tag.equals(s)) {
-//                    GWT.log("Tag changed");
-//                }
-//            }
-//        });
-//        tagColumn.setSortable(true);
-//
-//        EditTextCell valueCell = new EditTextCell();
-//        valueColumn = new Column<AllelePropertyInfo, String>(valueCell) {
-//            @Override
-//            public String getValue(AllelePropertyInfo object) {
-//                return object.getValue();
-//            }
-//        };
-//        valueColumn.setFieldUpdater(new FieldUpdater<AllelePropertyInfo, String>() {
-//            @Override
-//            public void update(int i, AllelePropertyInfo object, String s) {
-//                String value = object.getValue();
-//                if (!value.equals(s)) {
-//                    GWT.log("Value changed");
-//                }
-//            }
-//        });
-//        valueColumn.setSortable(true);
-//
-//        allelePropertyDataGrid.addColumn(tagColumn, "Tag");
-//        allelePropertyDataGrid.addColumn(valueColumn, "Value");
-//
-//        ColumnSortEvent.ListHandler<AllelePropertyInfo> sortHandler = new ColumnSortEvent.ListHandler<>(allelePropertyInfoList);
-//        allelePropertyDataGrid.addColumnSortHandler(sortHandler);
-//
-//        sortHandler.setComparator(tagColumn, new Comparator<AllelePropertyInfo>() {
-//            @Override
-//            public int compare(AllelePropertyInfo o1, AllelePropertyInfo o2) {
-//                return o1.getTag().compareTo(o2.getTag());
-//            }
-//        });
-//
-//        sortHandler.setComparator(valueColumn, new Comparator<AllelePropertyInfo>() {
-//            @Override
-//            public int compare(AllelePropertyInfo o1, AllelePropertyInfo o2) {
-//                return o1.getValue().compareTo(o2.getValue());
-//            }
-//        });
-//    }
-
     public void updateData(AnnotationInfo annotationInfo) {
+        GWT.log("updating annotation info: " + annotationInfo);
         if (annotationInfo == null) {
             return;
         }
         this.internalAnnotationInfo = annotationInfo;
-        alternateAlleleInfoList.clear();
-        //allelePropertyInfoList.clear();
-        alternateAlleleInfoList.addAll(annotationInfo.getAlternateAlleles());
-        //ArrayList<AllelePropertyInfo> allelePropertyInfoArray = alternateAlleleInfo1.getAlleleInfo();
-        //allelePropertyInfoList.addAll(allelePropertyInfoArray);
-
-        if (alternateAlleleInfoList.size() > 0) {
-            updateAlleleData(alternateAlleleInfoList.get(0));
-        }
+        dbXrefInfoList.clear();
+        dbXrefInfoList.addAll(annotationInfo.getCommentList());
+        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
+        GWT.log("List size: " + dbXrefInfoList.size());
         redrawTable();
+        setVisible(true);
     }
 
-    public void updateAlleleData(AlternateAlleleInfo a) {
-//        this.internalAlterateAlleleInfo = a;
-//        // bases
-//        this.oldBases = this.bases;
-//        this.bases = this.internalAlterateAlleleInfo.getBases();
-//
-//        // allele frequency
-//        this.oldAlleleFrequency = this.alleleFrequency;
-//        this.alleleFrequency = this.internalAlterateAlleleInfo.getAlleleFrequency();
-//
-//        // provenance
-//        this.oldProvenance = this.provenance;
-//        this.provenance = this.internalAlterateAlleleInfo.getProvenance();
-
-//        redrawTable();
-//        setVisible(true);
-
+    public void updateData() {
+        updateData(null);
     }
 
-    public void triggerUpdate() {
-        GWT.log("@triggerUpdate");
-        GWT.log("old vs new bases: " + this.oldBases + "|" + this.bases);
-        GWT.log("old vs new AF: " + this.oldAlleleFrequency + "|" + this.alleleFrequency);
-        GWT.log("old vs new provenance: " + this.oldProvenance + "|" + this.provenance);
+    public void selectCommentData(CommentInfo v) {
+        this.internalCommentInfo = v;
+        // value
+        this.oldComment = this.comment;
+        this.comment = this.internalCommentInfo.getComment();
 
-        boolean baseValidated = false;
-        boolean alleleFrequencyValidated = false;
-        boolean provenanceValidated = false;
+        redrawTable();
+        setVisible(true);
+    }
 
-        if (this.bases != null) {
-            if (VariantDetailPanel.isValidDNA(this.bases)) {
-                baseValidated = true;
-            } else {
-                Bootbox.alert("Bases should only contain A, T, C, G or N");
-                baseValidated = false;
-            }
-        }
-
-        if (alleleFrequency != null) {
-            if (alleleFrequency >= 0.0 && alleleFrequency <= 1.0) {
-                alleleFrequencyValidated = true;
-            } else {
-                Bootbox.alert("Allele Frequency for an allele must be within the range 0.0 - 1.0");
-                alleleFrequencyValidated = false;
-            }
-        } else {
-            alleleFrequencyValidated = true;
-        }
-
-        if (alleleFrequency != null && (provenance == null || provenance.isEmpty())) {
-            Bootbox.alert("Provenance cannot be empty when Allele Frequency is provided");
-            provenanceValidated = false;
-        } else {
-            provenanceValidated = true;
-        }
-
-        if (baseValidated && alleleFrequencyValidated && provenanceValidated) {
-            String url = Annotator.getRootUrl() + "annotator/updateAlternateAlleles";
-            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
-            builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-            StringBuilder sb = new StringBuilder();
-
-            JSONArray featuresArray = new JSONArray();
-            JSONObject featuresObject = new JSONObject();
-            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
-            featuresObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
-
-            JSONArray oldAlternateAllelesJsonArray = new JSONArray();
-            JSONObject oldAlternateAllelesJsonObject = new JSONObject();
-            oldAlternateAllelesJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(this.oldBases));
-            if (oldAlleleFrequency != null)
-                oldAlternateAllelesJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), new JSONString(String.valueOf(this.oldAlleleFrequency)));
-            if (provenance != null)
-                oldAlternateAllelesJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(String.valueOf(this.oldProvenance)));
-            oldAlternateAllelesJsonArray.set(0, oldAlternateAllelesJsonObject);
-            featuresObject.put(FeatureStringEnum.OLD_ALTERNATE_ALLELES.getValue(), oldAlternateAllelesJsonArray);
-
-            JSONArray newAlternateAllelesJsonArray = new JSONArray();
-            JSONObject newAlternateAllelesJsonObject = new JSONObject();
-            newAlternateAllelesJsonObject.put(FeatureStringEnum.BASES.getValue(), new JSONString(this.bases));
-            if (alleleFrequency != null)
-                newAlternateAllelesJsonObject.put(FeatureStringEnum.ALLELE_FREQUENCY.getValue(), new JSONString(String.valueOf(this.alleleFrequency)));
-            if (provenance != null)
-                newAlternateAllelesJsonObject.put(FeatureStringEnum.PROVENANCE.getValue(), new JSONString(this.provenance));
-            newAlternateAllelesJsonArray.set(0, newAlternateAllelesJsonObject);
-            featuresObject.put(FeatureStringEnum.NEW_ALTERNATE_ALLELES.getValue(), newAlternateAllelesJsonArray);
-
-            featuresArray.set(0, featuresObject);
-
-            JSONObject requestObject = new JSONObject();
-            requestObject.put("operation", new JSONString("update_alternate_alleles"));
-            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
-            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
-            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-            sb.append("data=" + requestObject.toString());
-            final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
-            builder.setRequestData(sb.toString());
-            RequestCallback requestCallback = new RequestCallback() {
+    public void updateComment() {
+        if (validateTags()) {
+            final CommentInfo newCommentInfo = new CommentInfo(this.comment);
+            RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
                     redrawTable();
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
-                    Bootbox.alert("Error updating alternate allele: " + exception);
+                    dataGrid.redraw();
+                    Bootbox.alert("Error updating variant info property: " + exception);
+                    resetTags();
+                    // TODO: reset data
                     redrawTable();
                 }
             };
-
-            try {
-                builder.setCallback(requestCallback);
-                builder.send();
-                // TODO: dataGrid.setLoadingIndicator()
-                //setLoadingIndicator(dataGrid);
-            } catch (RequestException e) {
-                Bootbox.alert("RequestException: " + e.getMessage());
-            }
+            CommentRestService.updateComment(requestCallBack, this.internalAnnotationInfo, new CommentInfo(this.oldComment), newCommentInfo);
+            ;
+        } else {
+            resetTags();
         }
     }
 
-    private void setLoadingIndicator(DataGrid grid) {
-        VerticalPanel vp = new VerticalPanel();
-        AbsolutePanel ap = new AbsolutePanel();
-        HorizontalPanel hp = new HorizontalPanel();
-        AbsolutePanel ap1 = new AbsolutePanel();
-        ap1.setWidth("30px");
-        hp.add(ap1);
-        ap.setHeight("50px");
-        vp.add(ap);
-        vp.add(new Label("Loading..."));
-        vp.add(hp);
-        vp.setSpacing(10);
-
-        grid.setLoadingIndicator(vp);
+    private void resetTags() {
+        GWT.log("reseting tag");
+        this.comment = this.oldComment;
+        updateData(this.internalAnnotationInfo);
+        redrawTable();
     }
 
     public void redrawTable() {
         this.dataGrid.redraw();
+    }
+
+    @UiHandler("commentInputBox")
+    public void valueInputBoxType(KeyUpEvent event) {
+        addCommentButton.setEnabled(validateTags());
+    }
+
+
+    private boolean validateTags() {
+        collectTags();
+        return this.comment != null && !this.comment.isEmpty();
+    }
+
+    private void collectTags() {
+        this.comment = commentInputBox.getText();
+    }
+
+
+
+    @UiHandler("addCommentButton")
+    public void addCommentButton(ClickEvent ce) {
+        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        if (validateTags()) {
+            final CommentInfo newCommentInfo = new CommentInfo(this.comment);
+            this.commentInputBox.clear();
+
+            RequestCallback requestCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    List<CommentInfo> newList = new ArrayList<>(dbXrefInfoList);
+                    newList.add(newCommentInfo);
+                    internalAnnotationInfo.setCommentList(newList);
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error updating variant info property: " + exception);
+                    resetTags();
+                    // TODO: reset data
+                    redrawTable();
+                }
+            };
+            CommentRestService.addComment(requestCallBack, this.internalAnnotationInfo, newCommentInfo);
+        }
+    }
+
+    @UiHandler("deleteCommentButton")
+    public void deleteComment(ClickEvent ce) {
+
+        if (this.internalCommentInfo != null) {
+            RequestCallback requestCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    deleteCommentButton.setEnabled(false);
+                    redrawTable();
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error deleting variant info property: " + exception);
+                    redrawTable();
+                }
+            };
+            CommentRestService.deleteComment(requestCallBack, this.internalAnnotationInfo, this.internalCommentInfo);
+            ;
+        }
     }
 }

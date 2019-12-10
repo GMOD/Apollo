@@ -28,8 +28,9 @@ public class AnnotationInfo {
     private String dateLastModified;
     private String dateCreated;
     private String referenceAllele;
-    private ArrayList<AlternateAlleleInfo> alternateAlleles = new ArrayList<AlternateAlleleInfo>();
-    private ArrayList<VariantPropertyInfo> variantProperties = new ArrayList<>();
+    private List<AlternateAlleleInfo> alternateAlleles = new ArrayList<AlternateAlleleInfo>();
+    private List<VariantPropertyInfo> variantProperties = new ArrayList<>();
+    private List<CommentInfo> commentList = new ArrayList<>();
 
     public String getOwner() {
         return owner;
@@ -177,7 +178,7 @@ public class AnnotationInfo {
         }
     }
 
-    public ArrayList<AlternateAlleleInfo> getAlternateAlleles() {
+    public List<AlternateAlleleInfo> getAlternateAlleles() {
         return this.alternateAlleles;
     }
 
@@ -193,7 +194,7 @@ public class AnnotationInfo {
     }
 
     public void setVariantProperties(JSONArray variantPropertiesJsonArray) {
-        ArrayList<VariantPropertyInfo> variantPropertyInfoArray = new ArrayList<>();
+        List<VariantPropertyInfo> variantPropertyInfoArray = new ArrayList<>();
         int index = 0;
         for (int i = 0; i < variantPropertiesJsonArray.size(); i++) {
             JSONObject variantPropertyJsonObject = variantPropertiesJsonArray.get(i).isObject();
@@ -203,7 +204,7 @@ public class AnnotationInfo {
         this.variantProperties = variantPropertyInfoArray;
     }
 
-    public ArrayList<VariantPropertyInfo> getVariantProperties() { return this.variantProperties; }
+    public List<VariantPropertyInfo> getVariantProperties() { return this.variantProperties; }
 
     public JSONArray getVariantPropertiesAsJsonArray() {
         JSONArray variantPropertiesJsonArray = new JSONArray();
@@ -245,4 +246,11 @@ public class AnnotationInfo {
         this.dbXrefList = dbXrefList;
     }
 
+    public List<CommentInfo> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<CommentInfo> commentList) {
+        this.commentList = commentList;
+    }
 }
