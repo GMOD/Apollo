@@ -28,21 +28,24 @@ public class DbXrefRestService {
 
     public static void updateDbXref(RequestCallback requestCallback, AnnotationInfo annotationInfo,DbXrefInfo oldDbXrefInfo,DbXrefInfo newDbXrefInfo) {
 
+    //            0: "SEND↵destination:/app/AnnotationNotification↵content-length:310↵↵"{\"track\":\"ctgA\",\"features\":[{\"uniquename\":\"fd57cc6a-8e29-4a48-9832-82c06bcc869c\",\,\"operation\":\"update_non_primary_dbxrefs\",\"clientToken\":\"18068643442091616983\"}""
+//        "old_dbxrefs\":[{\"db\":\"aasd\",\"accession\":\"12312\"}],
         JSONArray featuresArray = new JSONArray();
         JSONObject featureObject = new JSONObject();
         String featureUniqueName = annotationInfo.getUniqueName();
         featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
         JSONArray oldDbXrefJsonArray = new JSONArray();
         JSONObject oldDbXrefJsonObject = new JSONObject();
-        oldDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(oldDbXrefInfo.getTag()));
-        oldDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(oldDbXrefInfo.getValue()));
+        oldDbXrefJsonObject.put(FeatureStringEnum.DB.getValue(), new JSONString(oldDbXrefInfo.getTag()));
+        oldDbXrefJsonObject.put(FeatureStringEnum.ACCESSION.getValue(), new JSONString(oldDbXrefInfo.getValue()));
         oldDbXrefJsonArray.set(0, oldDbXrefJsonObject);
         featureObject.put(FeatureStringEnum.OLD_DBXREFS.getValue(), oldDbXrefJsonArray);
 
+//\"new_dbxrefs\":[{\"db\":\"asdfasdfaaeee\",\"accession\":\"12312\"}]}]
         JSONArray newDbXrefJsonArray = new JSONArray();
         JSONObject newDbXrefJsonObject = new JSONObject();
-        newDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(newDbXrefInfo.getTag()));
-        newDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(newDbXrefInfo.getValue()));
+        newDbXrefJsonObject.put(FeatureStringEnum.DB.getValue(), new JSONString(newDbXrefInfo.getTag()));
+        newDbXrefJsonObject.put(FeatureStringEnum.ACCESSION.getValue(), new JSONString(newDbXrefInfo.getValue()));
         newDbXrefJsonArray.set(0, newDbXrefJsonObject);
         featureObject.put(FeatureStringEnum.NEW_DBXREFS.getValue(), newDbXrefJsonArray);
         featuresArray.set(0, featureObject);

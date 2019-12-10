@@ -101,7 +101,7 @@ public class DbXrefPanel extends Composite {
                     GWT.log("Tag Changed");
                     object.setTag(s);
                     selectDbXrefData(object);
-                    triggerUpdate();
+                    updateDbXref();
                 }
             }
         });
@@ -121,7 +121,7 @@ public class DbXrefPanel extends Composite {
                     GWT.log("Value Changed");
                     object.setValue(s);
                     selectDbXrefData(object);
-                    triggerUpdate();
+                    updateDbXref();
                 }
             }
         });
@@ -183,7 +183,7 @@ public class DbXrefPanel extends Composite {
         setVisible(true);
     }
 
-    public void triggerUpdate() {
+    public void updateDbXref() {
         boolean tagValidated = false;
         boolean valueValidated = false;
 
@@ -193,6 +193,8 @@ public class DbXrefPanel extends Composite {
         if (this.value != null && !this.value.isEmpty()) {
             valueValidated = true;
         }
+        GWT.log("is tag value"+tagValidated);
+        GWT.log("is value value"+valueValidated);
 
         if (tagValidated && valueValidated) {
 
@@ -208,75 +210,24 @@ public class DbXrefPanel extends Composite {
                 @Override
                 public void onError(Request request, Throwable exception) {
                     Bootbox.alert("Error updating variant info property: " + exception);
-//                    updateData();
+                    resetTags();
                     // TODO: reset data
                     redrawTable();
                 }
             };
-//            0: "SEND↵destination:/app/AnnotationNotification↵content-length:310↵↵"{\"track\":\"ctgA\",\"features\":[{\"uniquename\":\"fd57cc6a-8e29-4a48-9832-82c06bcc869c\",\"old_dbxrefs\":[{\"db\":\"aasd\",\"accession\":\"12312\"}],\"new_dbxrefs\":[{\"db\":\"asdfasdfaaeee\",\"accession\":\"12312\"}]}],\"operation\":\"update_non_primary_dbxrefs\",\"clientToken\":\"18068643442091616983\"}""
-//
-//            JSONArray featuresArray = new JSONArray();
-//            JSONObject featureObject = new JSONObject();
-//            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
-//            featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
-//            JSONArray oldDbXrefJsonArray = new JSONArray();
-//            JSONObject oldDbXrefJsonObject = new JSONObject();
-//            oldDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.oldTag));
-//            oldDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.oldValue));
-//            oldDbXrefJsonArray.set(0, oldDbXrefJsonObject);
-//            featureObject.put(FeatureStringEnum.OLD_DBXREFS.getValue(), oldDbXrefJsonArray);
-//
-//            JSONArray newDbXrefJsonArray = new JSONArray();
-//            JSONObject newDbXrefJsonObject = new JSONObject();
-//            newDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.tag));
-//            newDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.value));
-//            newDbXrefJsonArray.set(0, newDbXrefJsonObject);
-//            featureObject.put(FeatureStringEnum.NEW_DBXREFS.getValue(), newDbXrefJsonArray);
-//            featuresArray.set(0, featureObject);
-//
-//            JSONObject requestObject = new JSONObject();
-//            requestObject.put("operation", new JSONString("update_variant_info"));
-//            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
-////            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
-//            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-
             DbXrefRestService.updateDbXref(requestCallBack,this.internalAnnotationInfo,new DbXrefInfo(this.oldTag,this.oldValue),new DbXrefInfo(this.tag,this.value));;
-
-//            String url = Annotator.getRootUrl() + "annotationEditorController/updateDbXref";
-//            RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
-//            builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-//            StringBuilder sb = new StringBuilder();
-//            JSONArray featuresArray = new JSONArray();
-//            JSONObject featureObject = new JSONObject();
-//            String featureUniqueName = this.internalAnnotationInfo.getUniqueName();
-//            featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
-//
-//            JSONArray oldDbXrefJsonArray = new JSONArray();
-//            JSONObject oldDbXrefJsonObject = new JSONObject();
-//            oldDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.oldTag));
-//            oldDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.oldValue));
-//            oldDbXrefJsonArray.set(0, oldDbXrefJsonObject);
-//            featureObject.put(FeatureStringEnum.OLD_VARIANT_INFO.getValue(), oldDbXrefJsonArray);
-//
-//            JSONArray newDbXrefJsonArray = new JSONArray();
-//            JSONObject newDbXrefJsonObject = new JSONObject();
-//            newDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(this.tag));
-//            newDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(this.value));
-//            newDbXrefJsonArray.set(0, newDbXrefJsonObject);
-//            featureObject.put(FeatureStringEnum.NEW_VARIANT_INFO.getValue(), newDbXrefJsonArray);
-//
-//            featuresArray.set(0, featureObject);
-//
-//            JSONObject requestObject = new JSONObject();
-//            requestObject.put("operation", new JSONString("update_variant_info"));
-//            requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(this.internalAnnotationInfo.getSequence()));
-//            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
-//            requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-//            sb.append("data=" + requestObject.toString());
-//
-//            final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
-//            builder.setRequestData(sb.toString());
         }
+        else{
+            resetTags();
+        }
+    }
+
+    private void resetTags() {
+        GWT.log("reseting tag");
+        this.tag = this.oldTag;
+        this.value = this.oldValue;
+        updateData(this.internalAnnotationInfo);
+        redrawTable();
     }
 
     public void redrawTable() {
