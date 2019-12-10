@@ -1,6 +1,5 @@
 package org.bbop.apollo.gwt.client.dto;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
@@ -55,12 +54,12 @@ public class AnnotationInfoConverter {
         if(object.containsKey(FeatureStringEnum.DBXREFS.getValue())){
             annotationInfo.setDbXrefList(DbXRefInfoConverter.convertToDbXrefFromArray(object.get(FeatureStringEnum.DBXREFS.getValue()).isArray()));
         }
-//        if(object.containsKey(FeatureStringEnum.ATTRIBUTES.getValue())){
-//            annotationInfo.setAttributeProperties(object.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray());
-//        }
-//        if(object.containsKey(FeatureStringEnum.COMMENTS.getValue())){
-//            annotationInfo.setCommentProperties(object.get(FeatureStringEnum.COMMENTS.getValue()).isArray());
-//        }
+        if(object.containsKey(FeatureStringEnum.ATTRIBUTES.getValue())){
+            annotationInfo.setAttributeList(AttributeInfoConverter.convertToAttributeFromArray(object.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray()));
+        }
+        if(object.containsKey(FeatureStringEnum.COMMENTS.getValue())){
+            annotationInfo.setCommentList(CommentInfoConverter.convertToCommentFromArray(object.get(FeatureStringEnum.COMMENTS.getValue()).isArray()));
+        }
 
 
 //        List<GoAnnotation> goAnnotationList = new ArrayList<>();

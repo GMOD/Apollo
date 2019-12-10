@@ -31,6 +31,7 @@ public class AnnotationInfo {
     private List<AlternateAlleleInfo> alternateAlleles = new ArrayList<AlternateAlleleInfo>();
     private List<VariantPropertyInfo> variantProperties = new ArrayList<>();
     private List<CommentInfo> commentList = new ArrayList<>();
+    private List<AttributeInfo> attributeList= new ArrayList<>();
 
     public String getOwner() {
         return owner;
@@ -252,5 +253,13 @@ public class AnnotationInfo {
 
     public void setCommentList(List<CommentInfo> commentList) {
         this.commentList = commentList;
+    }
+
+    public List<AttributeInfo> getAttributeList() {
+        return attributeList;
+    }
+
+    public void setAttributeList(List<AttributeInfo> attributeList) {
+        this.attributeList = attributeList;
     }
 }

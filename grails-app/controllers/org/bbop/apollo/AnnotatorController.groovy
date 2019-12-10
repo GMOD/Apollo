@@ -386,6 +386,7 @@ class AnnotatorController {
                 }
                 fetchMode 'owners', FetchMode.JOIN
                 fetchMode 'featureDBXrefs', FetchMode.JOIN
+                fetchMode 'featureProperties', FetchMode.JOIN
                 fetchMode 'featureLocations', FetchMode.JOIN
                 fetchMode 'featureLocations.sequence', FetchMode.JOIN
                 fetchMode 'parentFeatureRelationships', FetchMode.JOIN
