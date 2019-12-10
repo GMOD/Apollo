@@ -11,6 +11,7 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
+import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -106,6 +107,7 @@ public class DbXrefPanel extends Composite {
             }
         });
         tagColumn.setSortable(true);
+        tagColumn.setDefaultSortAscending(true);
 
         EditTextCell valueCell = new EditTextCell();
         Column<DbXrefInfo, String> valueColumn = new Column<DbXrefInfo, String>(valueCell) {
@@ -149,6 +151,9 @@ public class DbXrefPanel extends Composite {
                 return o1.getValue().compareTo(o2.getValue());
             }
         });
+        // default is ascending
+        dataGrid.getColumnSortList().push(tagColumn);
+        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
@@ -160,14 +165,7 @@ public class DbXrefPanel extends Composite {
 //        dbXrefInfoList.clear();
         dbXrefInfoList.clear();
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
-//        dbXrefInfoList.sort(new Comparator<DbXrefInfo>() {
-//            @Override
-//            public int compare(DbXrefInfo o1, DbXrefInfo o2) {
-//                int tagCompare = o1.getTag().compareToIgnoreCase(o2.getTag());
-//                if(tagCompare!=0) return tagCompare;
-//                return o1.getValue().compareToIgnoreCase(o2.getValue());
-//            }
-//        });
+        ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
         GWT.log("List size: "+dbXrefInfoList.size());
         redrawTable();
         setVisible(true);
