@@ -46,7 +46,7 @@ public class DbXrefPanel extends Composite {
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
-    DataGrid<DbXrefInfo> dataGrid = new DataGrid<>(50, tablecss);
+    DataGrid<DbXrefInfo> dataGrid = new DataGrid<>(200, tablecss);
     @UiField
     TextBox tagInputBox;
     @UiField
