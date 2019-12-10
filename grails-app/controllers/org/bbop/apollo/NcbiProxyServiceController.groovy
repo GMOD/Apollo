@@ -20,6 +20,7 @@ class NcbiProxyServiceController {
         String db = params.db
         String id = params.id
         String operation = params.operation
+        println "params ${params}"
         String urlString
 
         switch (operation) {

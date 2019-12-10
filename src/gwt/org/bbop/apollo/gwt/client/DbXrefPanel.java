@@ -5,14 +5,16 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.*;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
-import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -22,13 +24,13 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.DbXrefInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.DbXrefRestService;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
+import org.bbop.apollo.gwt.client.rest.ProxyRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,7 +42,8 @@ import java.util.List;
 public class DbXrefPanel extends Composite {
 
 
-    interface DbXrefPanelUiBinder extends UiBinder<Widget, DbXrefPanel> { }
+    interface DbXrefPanelUiBinder extends UiBinder<Widget, DbXrefPanel> {
+    }
 
     private static DbXrefPanelUiBinder ourUiBinder = GWT.create(DbXrefPanelUiBinder.class);
 
@@ -52,9 +55,9 @@ public class DbXrefPanel extends Composite {
     @UiField
     TextBox valueInputBox;
     @UiField
-    Button addDbXrefButton ;
+    Button addDbXrefButton;
     @UiField
-    Button deleteDbXrefButton ;
+    Button deleteDbXrefButton;
     @UiField
     TextBox pmidInputBox;
     @UiField
@@ -105,14 +108,12 @@ public class DbXrefPanel extends Composite {
         tagColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
             public void update(int i, DbXrefInfo object, String s) {
-                if(s==null || s.trim().length()==0){
+                if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Prefix can not be blank");
                     tagCell.clearViewData(object);
                     dataGrid.redrawRow(i);
                     redrawTable();
-                }
-                else
-                if (!object.getTag().equals(s)) {
+                } else if (!object.getTag().equals(s)) {
                     GWT.log("Tag Changed");
                     object.setTag(s);
                     selectDbXrefData(object);
@@ -132,14 +133,12 @@ public class DbXrefPanel extends Composite {
         valueColumn.setFieldUpdater(new FieldUpdater<DbXrefInfo, String>() {
             @Override
             public void update(int i, DbXrefInfo object, String s) {
-                if(s==null || s.trim().length()==0){
+                if (s == null || s.trim().length() == 0) {
                     Bootbox.alert("Accession can not be blank");
                     valueCell.clearViewData(object);
                     dataGrid.redrawRow(i);
                     redrawTable();
-                }
-                else
-                if (!object.getValue().equals(s)) {
+                } else if (!object.getValue().equals(s)) {
                     GWT.log("Value Changed");
                     object.setValue(s);
                     selectDbXrefData(object);
@@ -177,7 +176,7 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        GWT.log("updating annotation info: "+annotationInfo);
+        GWT.log("updating annotation info: " + annotationInfo);
         if (annotationInfo == null) {
             return;
         }
@@ -185,7 +184,7 @@ public class DbXrefPanel extends Composite {
         dbXrefInfoList.clear();
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        GWT.log("List size: "+dbXrefInfoList.size());
+        GWT.log("List size: " + dbXrefInfoList.size());
         redrawTable();
         setVisible(true);
     }
@@ -210,7 +209,7 @@ public class DbXrefPanel extends Composite {
 
     public void updateDbXref() {
         if (validateTags()) {
-            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
+            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag, this.value);
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
@@ -228,9 +227,9 @@ public class DbXrefPanel extends Composite {
                     redrawTable();
                 }
             };
-            DbXrefRestService.updateDbXref(requestCallBack,this.internalAnnotationInfo,new DbXrefInfo(this.oldTag,this.oldValue),newDbXrefInfo);;
-        }
-        else{
+            DbXrefRestService.updateDbXref(requestCallBack, this.internalAnnotationInfo, new DbXrefInfo(this.oldTag, this.oldValue), newDbXrefInfo);
+            ;
+        } else {
             resetTags();
         }
     }
@@ -248,24 +247,24 @@ public class DbXrefPanel extends Composite {
     }
 
     @UiHandler("tagInputBox")
-    public void tagInputBoxType(KeyUpEvent event){
+    public void tagInputBoxType(KeyUpEvent event) {
         addDbXrefButton.setEnabled(validateTags());
     }
 
     @UiHandler("pmidInputBox")
-    public void pmidInputBoxType(KeyUpEvent event){
+    public void pmidInputBoxType(KeyUpEvent event) {
         addPmidButton.setEnabled(validatePmidTags());
     }
 
 
     @UiHandler("valueInputBox")
-    public void valueInputBoxType(KeyUpEvent event){
+    public void valueInputBoxType(KeyUpEvent event) {
         addDbXrefButton.setEnabled(validateTags());
     }
 
     private boolean validatePmidTags() {
         collectPmidTags();
-        return this.tag!=null && !this.tag.isEmpty() && this.value !=null && !this.value.isEmpty();
+        return this.tag != null && !this.tag.isEmpty() && this.value != null && !this.value.isEmpty();
     }
 
     private void collectPmidTags() {
@@ -275,7 +274,7 @@ public class DbXrefPanel extends Composite {
 
     private boolean validateTags() {
         collectTags();
-        return this.tag!=null && !this.tag.isEmpty() && this.value !=null && !this.value.isEmpty();
+        return this.tag != null && !this.tag.isEmpty() && this.value != null && !this.value.isEmpty();
     }
 
     private void collectTags() {
@@ -286,13 +285,14 @@ public class DbXrefPanel extends Composite {
     @UiHandler("addPmidButton")
     public void addPmidButton(ClickEvent ce) {
         final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        final String pmidValue = this.value;
         if (validatePmidTags()) {
-            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
+            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag, this.value);
             this.tagInputBox.clear();
             this.valueInputBox.clear();
             this.pmidInputBox.clear();
 
-            RequestCallback requestCallBack = new RequestCallback() {
+            final RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
@@ -305,11 +305,47 @@ public class DbXrefPanel extends Composite {
                 public void onError(Request request, Throwable exception) {
                     Bootbox.alert("Error updating variant info property: " + exception);
                     resetTags();
-                    // TODO: reset data
                     redrawTable();
                 }
             };
-            DbXrefRestService.addDbXref(requestCallBack,this.internalAnnotationInfo,newDbXrefInfo);
+
+            RequestCallback validationCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    String title = null;
+                    try {
+                        title = returnValue.isObject().get("PubmedArticleSet").isObject().get("PubmedArticle").isObject().get("MedlineCitation").isObject().get("Article").isObject().get("ArticleTitle").isString().stringValue();
+                    } catch (Exception e) {
+                        GWT.log("Could not find error: "+e.getMessage() );
+                        GWT.log("Return object "+returnValue.toString() );
+                        Bootbox.alert("No article found for " + pmidValue);
+                        resetTags();
+                        redrawTable();
+                        return;
+                    }
+                    Bootbox.confirm("Add article " + title, new ConfirmCallback() {
+                        @Override
+                        public void callback(boolean result) {
+                            if (result) {
+                                DbXrefRestService.addDbXref(requestCallBack, internalAnnotationInfo, newDbXrefInfo);
+                            }
+                            else{
+                                resetTags();
+                                redrawTable();
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("invalid PMID: " + pmidValue);
+
+                }
+            };
+            ProxyRestService.findPubMedId(validationCallBack, pmidValue);
+
         }
     }
 
@@ -318,7 +354,7 @@ public class DbXrefPanel extends Composite {
     public void addDbXrefButton(ClickEvent ce) {
         final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
         if (validateTags()) {
-            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag,this.value);
+            final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag, this.value);
             this.tagInputBox.clear();
             this.valueInputBox.clear();
             this.pmidInputBox.clear();
@@ -340,7 +376,7 @@ public class DbXrefPanel extends Composite {
                     redrawTable();
                 }
             };
-            DbXrefRestService.addDbXref(requestCallBack,this.internalAnnotationInfo,newDbXrefInfo);
+            DbXrefRestService.addDbXref(requestCallBack, this.internalAnnotationInfo, newDbXrefInfo);
         }
     }
 
@@ -362,7 +398,8 @@ public class DbXrefPanel extends Composite {
                     redrawTable();
                 }
             };
-            DbXrefRestService.deleteDbXref(requestCallBack,this.internalAnnotationInfo,this.internalDbXrefInfo);;
+            DbXrefRestService.deleteDbXref(requestCallBack, this.internalAnnotationInfo, this.internalDbXrefInfo);
+            ;
         }
     }
 }
