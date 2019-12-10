@@ -63,6 +63,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static org.bbop.apollo.gwt.client.AnnotatorPanel.TAB_INDEX.DETAILS;
+
 /**
  * Created by ndunn on 12/17/14.
  */
@@ -158,6 +160,37 @@ public class AnnotatorPanel extends Composite {
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
     private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
+
+    public enum TAB_INDEX {
+        DETAILS(0),
+        CODING(1),
+        ALTERNATE_ALLELES(2),
+        VARIANT_INFO(3),
+        ALLELE_INFO(4),
+        GO(5),
+        DB_XREF(6),
+        COMMENT(7),
+        ATTRIBUTES(8),
+        ;
+
+        public int index ;
+        TAB_INDEX(int index){
+            this.index = index;
+        }
+
+        public static TAB_INDEX getTabEnumForIndex(int selectedSubTabIndex) {
+            for(TAB_INDEX value: values()){
+                if(value.index==selectedSubTabIndex){
+                    return value;
+                }
+            }
+            return null;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
 
     public AnnotatorPanel() {
         sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
@@ -365,21 +398,31 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 selectedSubTabIndex = event.getSelectedItem();
-                switch (selectedSubTabIndex) {
-                    case 0:
+                GWT.log("selected tab: "+ selectedSubTabIndex);
+                TAB_INDEX tab = TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex);
+                switch (tab) {
+                    case DETAILS:
                         break;
-                    case 1:
+                    case CODING:
                         exonDetailPanel.redrawExonTable();
                         break;
-                    case 2:
+                    case ALTERNATE_ALLELES:
                         variantAllelesPanel.redrawTable();
                         break;
-                    case 3:
+                    case VARIANT_INFO:
                         variantInfoPanel.redrawTable();
-                    case 4:
+                    case ALLELE_INFO:
                         alleleInfoPanel.redrawTable();
-                    case 5:
+                    case GO:
                         goPanel.redraw();
+                    case DB_XREF:
+                        dbXrefPanel.updateData(selectedAnnotationInfo);
+                        break;
+                    case COMMENT:
+                        commentPanel.updateData(selectedAnnotationInfo);
+                        break;
+                    case ATTRIBUTES:
+                        attributesPanel.updateData(selectedAnnotationInfo);
                 }
             }
         });
@@ -718,14 +761,17 @@ public class AnnotatorPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
                 tabPanel.setVisible(showDetails && selectedAnnotationInfo!=null);
+                GWT.log("select info"+selectedAnnotationInfo);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
+                    dbXrefPanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
                     deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
                     goPanel.updateData();
+                    dbXrefPanel.updateData();
                     gotoAnnotation.setEnabled(false);
                     deleteAnnotation.setEnabled(false);
                 }

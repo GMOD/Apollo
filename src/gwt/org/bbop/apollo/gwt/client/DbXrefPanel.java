@@ -13,6 +13,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -34,34 +35,36 @@ import java.util.List;
  */
 public class DbXrefPanel extends Composite {
 
-    private AnnotationInfo internalAnnotationInfo = null;
-    private DbXrefInfo internalDbXrefInfo = null;
-    private String oldTag, oldValue;
-    private String tag, value;
 
-    interface DbXrefPanelUiBinder extends UiBinder<Widget, DbXrefPanel> {
-    }
+    interface DbXrefPanelUiBinder extends UiBinder<Widget, DbXrefPanel> { }
 
     private static DbXrefPanelUiBinder ourUiBinder = GWT.create(DbXrefPanelUiBinder.class);
 
     DataGrid.Resources tablecss = GWT.create(TableResources.TableCss.class);
     @UiField(provided = true)
     DataGrid<DbXrefInfo> dataGrid = new DataGrid<>(10, tablecss);
-
-    private static ListDataProvider<DbXrefInfo> dataProvider = new ListDataProvider<>();
-    private static List<DbXrefInfo> dbXrefInfoList = dataProvider.getList();
-    private SingleSelectionModel<DbXrefInfo> selectionModel = new SingleSelectionModel<>();
-
     @UiField
     TextBox tagInputBox;
     @UiField
     TextBox valueInputBox;
     @UiField
-    Button addDbXrefButton = new Button();
+    Button addDbXrefButton ;
     @UiField
-    Button deleteDbXrefButton = new Button();
+    Button deleteDbXrefButton ;
+
+    private AnnotationInfo internalAnnotationInfo = null;
+    private DbXrefInfo internalDbXrefInfo = null;
+    private String oldTag, oldValue;
+    private String tag, value;
+
+    private static ListDataProvider<DbXrefInfo> dataProvider = new ListDataProvider<>();
+    private static List<DbXrefInfo> dbXrefInfoList = dataProvider.getList();
+    private SingleSelectionModel<DbXrefInfo> selectionModel = new SingleSelectionModel<>();
 
     public DbXrefPanel() {
+
+        initWidget(ourUiBinder.createAndBindUi(this));
+
         dataGrid.setWidth("100%");
         initializeTable();
         dataProvider.addDataDisplay(dataGrid);
@@ -74,13 +77,12 @@ public class DbXrefPanel extends Composite {
                 if (selectionModel.getSelectedSet().isEmpty()) {
                     deleteDbXrefButton.setEnabled(false);
                 } else {
-                    updateDbXrefData(selectionModel.getSelectedObject());
+                    selectDbXrefData(selectionModel.getSelectedObject());
                     deleteDbXrefButton.setEnabled(true);
                 }
             }
         });
 
-        initWidget(ourUiBinder.createAndBindUi(this));
     }
 
     public void initializeTable() {
@@ -97,7 +99,7 @@ public class DbXrefPanel extends Composite {
                 if (!object.getTag().equals(s)) {
                     GWT.log("Tag Changed");
                     object.setTag(s);
-                    updateDbXrefData(object);
+                    selectDbXrefData(object);
                     triggerUpdate();
                 }
             }
@@ -117,15 +119,18 @@ public class DbXrefPanel extends Composite {
                 if (!object.getValue().equals(s)) {
                     GWT.log("Value Changed");
                     object.setValue(s);
-                    updateDbXrefData(object);
+                    selectDbXrefData(object);
                     triggerUpdate();
                 }
             }
         });
+        valueColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
         valueColumn.setSortable(true);
 
-        dataGrid.addColumn(tagColumn, "Tag");
-        dataGrid.addColumn(valueColumn, "Value");
+        dataGrid.addColumn(tagColumn, "Prefix");
+        dataGrid.setColumnWidth(0, "50px");
+        dataGrid.addColumn(valueColumn, "Accession");
+        dataGrid.setColumnWidth(1, "100%");
 
         ColumnSortEvent.ListHandler<DbXrefInfo> sortHandler = new ColumnSortEvent.ListHandler<DbXrefInfo>(dbXrefInfoList);
         dataGrid.addColumnSortHandler(sortHandler);
@@ -156,9 +161,14 @@ public class DbXrefPanel extends Composite {
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
         GWT.log("List size: "+dbXrefInfoList.size());
         redrawTable();
+        setVisible(true);
     }
 
-    public void updateDbXrefData(DbXrefInfo v) {
+    public void updateData() {
+        updateData(null);
+    }
+
+    public void selectDbXrefData(DbXrefInfo v) {
         this.internalDbXrefInfo = v;
         // tag
         this.oldTag = this.tag;
