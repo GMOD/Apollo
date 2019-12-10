@@ -27,6 +27,11 @@ public class DbXrefInfo {
         this.value = value;
     }
 
+    public DbXrefInfo(String tag, String value) {
+        this.tag = tag ;
+        this.value = value ;
+    }
+
     public String getTag() { return this.tag; }
 
     public void setTag(String tag) { this.tag = tag; }

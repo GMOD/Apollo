@@ -53,7 +53,7 @@ public class AnnotationInfoConverter {
         }
 
         if(object.containsKey(FeatureStringEnum.DBXREFS.getValue())){
-            annotationInfo.setDbXrefList(convertToDbXrefFromArray(object.get(FeatureStringEnum.DBXREFS.getValue()).isArray()));
+            annotationInfo.setDbXrefList(DbXRefInfoConverter.convertToDbXrefFromArray(object.get(FeatureStringEnum.DBXREFS.getValue()).isArray()));
         }
 //        if(object.containsKey(FeatureStringEnum.ATTRIBUTES.getValue())){
 //            annotationInfo.setAttributeProperties(object.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray());
@@ -102,32 +102,5 @@ public class AnnotationInfoConverter {
         return annotationInfo;
     }
 
-    private static DbXrefInfo convertToDbXrefFromObject(JSONObject jsonObject) {
-        DbXrefInfo dbXrefInfo = new DbXrefInfo();
-        dbXrefInfo.setTag(jsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue());
-        dbXrefInfo.setValue(jsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue());
-        return dbXrefInfo;
-    }
-
-    private static List<DbXrefInfo> convertToDbXrefFromArray(JSONArray array) {
-        List<DbXrefInfo> dbXrefInfoList = new ArrayList<>();
-        for(int i = 0 ; i < array.size() ; i++){
-            dbXrefInfoList.add(convertToDbXrefFromObject(array.get(i).isObject()));
-        }
-        return dbXrefInfoList;
-    }
-
-//    private static GoAnnotation generateGoAnnotation() {
-//        GoAnnotation goAnnotation = new GoAnnotation();
-//
-//        goAnnotation.setGoTerm("GO:12321");
-//        goAnnotation.setNegate(true);
-//
-//        goAnnotation.addNote("PMID:123123");
-//
-//        goAnnotation.addWithOrFrom(new WithOrFrom("UnitProt:K12312"));
-//
-//        return goAnnotation;
-//    }
 
 }

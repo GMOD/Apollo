@@ -4,12 +4,15 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.ui.Anchor;
-import org.bbop.apollo.gwt.client.dto.GoAnnotationConverter;
-import org.bbop.apollo.gwt.shared.go.GoAnnotation;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.DbXRefInfoConverter;
+import org.bbop.apollo.gwt.client.dto.DbXrefInfo;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -19,22 +22,48 @@ public class DbXrefRestService {
 
     static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
 
-    public static void saveGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
-        RestService.sendRequest(requestCallback, "goAnnotation/save", "data=" + GoAnnotationConverter.convertToJson(goAnnotation).toString());
+    public static void saveDbXref(RequestCallback requestCallback, DbXrefInfo dbXrefInfo) {
+        RestService.sendRequest(requestCallback, "dbXrefInfo/save", "data=" + DbXRefInfoConverter.convertToJson(dbXrefInfo).toString());
     }
 
-    public static void updateGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
-        RestService.sendRequest(requestCallback, "goAnnotation/update", "data=" + GoAnnotationConverter.convertToJson(goAnnotation).toString());
+    public static void updateDbXref(RequestCallback requestCallback, AnnotationInfo annotationInfo,DbXrefInfo oldDbXrefInfo,DbXrefInfo newDbXrefInfo) {
+
+        JSONArray featuresArray = new JSONArray();
+        JSONObject featureObject = new JSONObject();
+        String featureUniqueName = annotationInfo.getUniqueName();
+        featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
+        JSONArray oldDbXrefJsonArray = new JSONArray();
+        JSONObject oldDbXrefJsonObject = new JSONObject();
+        oldDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(oldDbXrefInfo.getTag()));
+        oldDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(oldDbXrefInfo.getValue()));
+        oldDbXrefJsonArray.set(0, oldDbXrefJsonObject);
+        featureObject.put(FeatureStringEnum.OLD_DBXREFS.getValue(), oldDbXrefJsonArray);
+
+        JSONArray newDbXrefJsonArray = new JSONArray();
+        JSONObject newDbXrefJsonObject = new JSONObject();
+        newDbXrefJsonObject.put(FeatureStringEnum.TAG.getValue(), new JSONString(newDbXrefInfo.getTag()));
+        newDbXrefJsonObject.put(FeatureStringEnum.VALUE.getValue(), new JSONString(newDbXrefInfo.getValue()));
+        newDbXrefJsonArray.set(0, newDbXrefJsonObject);
+        featureObject.put(FeatureStringEnum.NEW_DBXREFS.getValue(), newDbXrefJsonArray);
+        featuresArray.set(0, featureObject);
+
+        JSONObject requestObject = new JSONObject();
+//        requestObject.put("operation", new JSONString("update_variant_info"));
+        requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
+//            requestObject.put(FeatureStringEnum.CLIENT_TOKEN.getValue(), new JSONString(Annotator.getClientToken()));
+        requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
+
+        RestService.sendRequest(requestCallback, "annotationEditor/updateDbxref", "data=" + requestObject.toString());
     }
 
-    public static void deleteGoAnnotation(RequestCallback requestCallback, GoAnnotation goAnnotation) {
-        RestService.sendRequest(requestCallback, "goAnnotation/delete", "data=" + GoAnnotationConverter.convertToJson(goAnnotation).toString());
+    public static void deleteDbXref(RequestCallback requestCallback, DbXrefInfo dbXrefInfo) {
+        RestService.sendRequest(requestCallback, "dbXrefInfo/delete", "data=" + DbXRefInfoConverter.convertToJson(dbXrefInfo).toString());
     }
 
-    public static void getGoAnnotation(RequestCallback requestCallback, String featureUniqueName) {
+    public static void getDbXref(RequestCallback requestCallback, String featureUniqueName) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("uniqueName",new JSONString(featureUniqueName));
-        RestService.sendRequest(requestCallback, "goAnnotation/", "data=" + jsonObject.toString());
+        RestService.sendRequest(requestCallback, "dbXrefInfo/", "data=" + jsonObject.toString());
     }
 
     private static void lookupTerm(RequestCallback requestCallback, String url) {
