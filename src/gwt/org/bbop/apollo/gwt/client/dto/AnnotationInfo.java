@@ -224,6 +224,19 @@ public class AnnotationInfo {
         this.dateCreated = dateCreated;
     }
 
+//    public List<DbXrefInfo> getDbXrefListSorted() {
+//        List<DbXrefInfo> sortedList = new ArrayList<>(dbXrefList);
+//        sortedList.sort(new Comparator<DbXrefInfo>() {
+//            @Override
+//            public int compare(DbXrefInfo o1, DbXrefInfo o2) {
+//                int tagCompare = o1.getTag().compareToIgnoreCase(o2.getTag());
+//                if(tagCompare!=0) return tagCompare;
+//                return o1.getValue().compareToIgnoreCase(o2.getValue());
+//            }
+//        });
+//        return sortedList;
+//    }
+
     public List<DbXrefInfo> getDbXrefList() {
         return dbXrefList;
     }

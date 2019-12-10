@@ -129,7 +129,7 @@ public class DbXrefPanel extends Composite {
         valueColumn.setSortable(true);
 
         dataGrid.addColumn(tagColumn, "Prefix");
-        dataGrid.setColumnWidth(0, "50px");
+        dataGrid.setColumnWidth(0, "100px");
         dataGrid.addColumn(valueColumn, "Accession");
         dataGrid.setColumnWidth(1, "100%");
 
@@ -160,6 +160,14 @@ public class DbXrefPanel extends Composite {
 //        dbXrefInfoList.clear();
         dbXrefInfoList.clear();
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
+//        dbXrefInfoList.sort(new Comparator<DbXrefInfo>() {
+//            @Override
+//            public int compare(DbXrefInfo o1, DbXrefInfo o2) {
+//                int tagCompare = o1.getTag().compareToIgnoreCase(o2.getTag());
+//                if(tagCompare!=0) return tagCompare;
+//                return o1.getValue().compareToIgnoreCase(o2.getValue());
+//            }
+//        });
         GWT.log("List size: "+dbXrefInfoList.size());
         redrawTable();
         setVisible(true);
