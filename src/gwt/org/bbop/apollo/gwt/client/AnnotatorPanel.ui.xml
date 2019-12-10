@@ -183,10 +183,6 @@
                 <gwt:header>Attributes</gwt:header>
                 <apollo:AttributesPanel ui:field="attributesPanel"/>
             </gwt:tab>
-            <gwt:tab>
-                <gwt:header>PubMedIds</gwt:header>
-                <apollo:PubMedIdPanel ui:field="pubMedPanel"/>
-            </gwt:tab>
         </gwt:TabLayoutPanel>
     </gwt:south>
 </gwt:DockLayoutPanel>

@@ -147,8 +147,6 @@ public class AnnotatorPanel extends Composite {
     static CommentPanel commentPanel;
     @UiField
     static AttributesPanel attributesPanel;
-    @UiField
-    static PubMedIdPanel pubMedPanel;
 
 
     // manage UI-state
