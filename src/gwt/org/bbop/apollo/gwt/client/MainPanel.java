@@ -880,7 +880,7 @@ public class MainPanel extends Composite {
     private void openPanel() {
       mainDockPanel.setWidgetSize(eastDockPanel, OPEN_WIDTH);
       dockOpenClose.setIcon(IconType.CLOSE);
-      dockOpenClose.setColor("orange");
+      dockOpenClose.setColor("red");
     }
 
     private void toggleOpen() {
