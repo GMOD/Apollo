@@ -15,10 +15,8 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
-import org.bbop.apollo.AvailableStatusService;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
@@ -26,8 +24,6 @@ import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-
-import java.util.Date;
 
 /**
  * Created by ndunn on 1/9/15.
@@ -62,7 +58,7 @@ public class GeneDetailPanel extends Composite {
     @UiField
     TextBox typeField;
     @UiField
-    ListBox statusField;
+    ListBox statusListBox;
     @UiField
     InputGroupAddon statusLabelField;
 
@@ -172,17 +168,21 @@ public class GeneDetailPanel extends Composite {
                 resetStatusBox();
                 JSONArray availableStatusArray = JSONParser.parseStrict(response.getText()).isArray();
                 if(availableStatusArray.size()>0){
-                    statusField.addItem("No status selected", HasDirection.Direction.DEFAULT,null);
+                    statusListBox.addItem("No status selected", HasDirection.Direction.DEFAULT,null);
+                    String status = getInternalAnnotationInfo().getStatus();
                     for(int i = 0 ; i < availableStatusArray.size() ; i++){
                         String availableStatus = availableStatusArray.get(i).isString().stringValue();
-                        statusField.addItem(availableStatus);
+                        statusListBox.addItem(availableStatus);
+                        if(availableStatus.equals(status)){
+                            statusListBox.setSelectedIndex(i+1);
+                        }
                     }
                     statusLabelField.setVisible(true);
-                    statusField.setVisible(true);
+                    statusListBox.setVisible(true);
                 }
                 else{
                     statusLabelField.setVisible(false);
-                    statusField.setVisible(false);
+                    statusListBox.setVisible(false);
                 }
             }
 
@@ -195,7 +195,7 @@ public class GeneDetailPanel extends Composite {
     }
 
     private void resetStatusBox() {
-        statusField.clear();
+        statusListBox.clear();
     }
 
     public AnnotationInfo getInternalAnnotationInfo() {

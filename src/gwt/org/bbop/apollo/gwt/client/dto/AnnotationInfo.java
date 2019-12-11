@@ -32,6 +32,7 @@ public class AnnotationInfo {
     private List<VariantPropertyInfo> variantProperties = new ArrayList<>();
     private List<CommentInfo> commentList = new ArrayList<>();
     private List<AttributeInfo> attributeList= new ArrayList<>();
+    private String status;
 
     public String getOwner() {
         return owner;
@@ -196,7 +197,6 @@ public class AnnotationInfo {
 
     public void setVariantProperties(JSONArray variantPropertiesJsonArray) {
         List<VariantPropertyInfo> variantPropertyInfoArray = new ArrayList<>();
-        int index = 0;
         for (int i = 0; i < variantPropertiesJsonArray.size(); i++) {
             JSONObject variantPropertyJsonObject = variantPropertiesJsonArray.get(i).isObject();
             VariantPropertyInfo variantPropertyInfo = new VariantPropertyInfo(variantPropertyJsonObject);
@@ -226,19 +226,6 @@ public class AnnotationInfo {
         this.dateCreated = dateCreated;
     }
 
-//    public List<DbXrefInfo> getDbXrefListSorted() {
-//        List<DbXrefInfo> sortedList = new ArrayList<>(dbXrefList);
-//        sortedList.sort(new Comparator<DbXrefInfo>() {
-//            @Override
-//            public int compare(DbXrefInfo o1, DbXrefInfo o2) {
-//                int tagCompare = o1.getTag().compareToIgnoreCase(o2.getTag());
-//                if(tagCompare!=0) return tagCompare;
-//                return o1.getValue().compareToIgnoreCase(o2.getValue());
-//            }
-//        });
-//        return sortedList;
-//    }
-
     public List<DbXrefInfo> getDbXrefList() {
         return dbXrefList;
     }
@@ -261,5 +248,13 @@ public class AnnotationInfo {
 
     public void setAttributeList(List<AttributeInfo> attributeList) {
         this.attributeList = attributeList;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

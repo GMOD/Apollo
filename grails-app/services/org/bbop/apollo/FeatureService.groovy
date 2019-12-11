@@ -1847,6 +1847,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
+        if (gsolFeature.status) {
+            jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value)
+        }
         if (gsolFeature.featureDBXrefs) {
             jsonFeature.put(FeatureStringEnum.DBXREFS.value, generateFeatureForDBXrefs(gsolFeature.featureDBXrefs))
         }
@@ -2195,7 +2198,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
     JSONArray generateFeatureForFeatureProperties(Collection<FeatureProperty> featureProperties){
         JSONArray jsonArray = new JSONArray()
         for(featureProperty in featureProperties){
-            if(featureProperty.cvTerm != Comment.cvTerm){
+            if(featureProperty.cvTerm != Comment.cvTerm && featureProperty.cvTerm != Status.cvTerm){
                 jsonArray.add(generateFeatureForFeatureProperty(featureProperty))
             }
         }

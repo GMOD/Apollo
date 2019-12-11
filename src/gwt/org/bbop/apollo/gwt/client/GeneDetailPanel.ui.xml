@@ -43,7 +43,7 @@
                     <b:InputGroupAddon>Type</b:InputGroupAddon>
                     <b:TextBox ui:field="typeField" enabled="false" addStyleNames="{style.bolder}"/>
                     <b:InputGroupAddon ui:field="statusLabelField" addStyleNames="{style.bolder}">Status</b:InputGroupAddon>
-                    <b:ListBox ui:field="statusField" enabled="true" addStyleNames="{style.selectBox}"/>
+                    <b:ListBox ui:field="statusListBox" enabled="true" addStyleNames="{style.selectBox}"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
