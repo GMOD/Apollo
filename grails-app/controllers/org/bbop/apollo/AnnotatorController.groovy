@@ -197,6 +197,7 @@ class AnnotatorController {
         }
         Feature feature = Feature.findByUniqueName(data.uniquename)
 
+        boolean nameChange = feature.name != data.name
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
@@ -212,7 +213,6 @@ class AnnotatorController {
             Status status = Status.findOrSaveByValueAndFeature(data.status,feature)
             feature.status = status
         }
-        println "status output ${Status.findByValue(data.status)}"
 
         feature.save(flush: true, failOnError: true)
 
@@ -236,7 +236,9 @@ class AnnotatorController {
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
-        requestHandlingService.fireAnnotationEvent(annotationEvent)
+        if(nameChange){
+            requestHandlingService.fireAnnotationEvent(annotationEvent)
+        }
 
         render updateFeatureContainer
     }

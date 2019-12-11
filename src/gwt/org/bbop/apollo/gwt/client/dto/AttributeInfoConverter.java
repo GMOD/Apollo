@@ -13,8 +13,6 @@ public class AttributeInfoConverter {
 
     public static AttributeInfo convertToAttributeFromObject(JSONObject jsonObject) {
         AttributeInfo dbXrefInfo = new AttributeInfo();
-        GWT.log("json object: "+jsonObject);
-        GWT.log("json object string: "+jsonObject.toString());
         dbXrefInfo.setTag(jsonObject.get(FeatureStringEnum.TAG.getValue()).isString().stringValue());
         dbXrefInfo.setValue(jsonObject.get(FeatureStringEnum.VALUE.getValue()).isString().stringValue());
         return dbXrefInfo;

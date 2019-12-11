@@ -1106,6 +1106,7 @@ public class MainPanel extends Composite {
             annotatorPanel.nameSearchBox.setText(parentName);
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+            MainPanel.getInstance().openPanel();
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
