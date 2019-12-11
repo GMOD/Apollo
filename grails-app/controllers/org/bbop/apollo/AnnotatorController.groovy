@@ -207,7 +207,9 @@ class AnnotatorController {
             // delete old status if it existed
             Status oldStatus = data.status
             feature.status == null
-            oldStatus.delete()
+            if(oldStatus!=null) {
+                oldStatus.delete()
+            }
         }
         else{
             Status status = Status.findOrSaveByValueAndFeature(data.status,feature)

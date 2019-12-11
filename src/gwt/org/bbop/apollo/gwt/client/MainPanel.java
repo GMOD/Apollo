@@ -1066,9 +1066,9 @@ public class MainPanel extends Composite {
     public static void handleFeatureUpdated(String payload) {
 //        GWT.log("updating feature with "+payload);
         // not necessary now as they all come from the same panel
-//        if (detailTabs.getSelectedIndex() == 0) {
-//            annotatorPanel.reload();
-//        }
+        if (detailTabs.getSelectedIndex() == 0) {
+            annotatorPanel.reload();
+        }
     }
 
 

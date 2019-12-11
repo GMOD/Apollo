@@ -133,7 +133,7 @@ define([
                 this.verbose_server_notification = false;
 
                 // NOTE: this shows the old popup menu
-                this.show_old_menu = true;
+                this.show_old_menu = false;
 
                 var track = this;
 
