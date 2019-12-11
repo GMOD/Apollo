@@ -14,7 +14,6 @@
             margin-bottom: 5px;
         }
 
-
         .row {
             margin-left: 5px;
             margin-right: 5px;
@@ -23,14 +22,26 @@
             font-size: larger;
             font-weight: bolder;
         }
-    </ui:style>
+        .selectBox {
+
+        }
+
+        .topPanel {
+            margin-bottom: 5px;
+        }
+
+        .inputGroup1 {
+            width: 400px;
+        }</ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">
         <b:Row styleName="{style.row}">
-            <b:Column size="XS_12" styleName="{style.widgetPanel}">
-                <b:InputGroup >
+            <b:Column size="XS_12" styleName="{style.topPanel}">
+                <b:InputGroup addStyleNames="{style.inputGroup1}">
                     <b:InputGroupAddon>Type</b:InputGroupAddon>
                     <b:TextBox ui:field="typeField" enabled="false" addStyleNames="{style.bolder}"/>
+                    <b:InputGroupAddon ui:field="statusLabelField" addStyleNames="{style.bolder}">Status</b:InputGroupAddon>
+                    <b:ListBox ui:field="statusListBox" enabled="true" addStyleNames="{style.selectBox}"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>

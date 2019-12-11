@@ -6,6 +6,9 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.HasDirection;
+import com.google.gwt.json.client.JSONArray;
+import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -14,7 +17,10 @@ import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
+import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
+import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -48,6 +54,10 @@ public class TranscriptDetailPanel extends Composite {
     TextBox synonymsField;
     @UiField
     TextBox typeField;
+    @UiField
+    ListBox statusListBox;
+    @UiField
+    InputGroupAddon statusLabelField;
 
     private Boolean editable = false;
 
@@ -69,6 +79,12 @@ public class TranscriptDetailPanel extends Composite {
         updateTranscript();
     }
 
+    @UiHandler("statusListBox")
+    void handleStatusLabelFieldChange(ChangeEvent e) {
+        String updatedStatus = statusListBox.getSelectedValue();
+        internalAnnotationInfo.setStatus(updatedStatus);
+        updateTranscript();
+    }
 
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
@@ -93,6 +109,7 @@ public class TranscriptDetailPanel extends Composite {
             locationField.setVisible(false);
         }
 
+        loadStatuses();
         setVisible(true);
     }
 
@@ -113,6 +130,46 @@ public class TranscriptDetailPanel extends Composite {
             }
         };
         RestService.sendRequest(requestCallback, "annotator/updateFeature/", AnnotationRestService.convertAnnotationInfoToJSONObject(this.internalAnnotationInfo));
+    }
+
+    private void loadStatuses() {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetStatusBox();
+                JSONArray availableStatusArray = JSONParser.parseStrict(response.getText()).isArray();
+                if (availableStatusArray.size() > 0) {
+                    statusListBox.addItem("No status selected", HasDirection.Direction.DEFAULT, null);
+                    String status = getInternalAnnotationInfo().getStatus();
+                    for (int i = 0; i < availableStatusArray.size(); i++) {
+                        String availableStatus = availableStatusArray.get(i).isString().stringValue();
+                        statusListBox.addItem(availableStatus);
+                        if (availableStatus.equals(status)) {
+                            statusListBox.setSelectedIndex(i + 1);
+                        }
+                    }
+                    statusLabelField.setVisible(true);
+                    statusListBox.setVisible(true);
+                } else {
+                    statusLabelField.setVisible(false);
+                    statusListBox.setVisible(false);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        AvailableStatusRestService.getAvailableStatuses(requestCallback, getInternalAnnotationInfo());
+    }
+
+    private void resetStatusBox() {
+        statusListBox.clear();
+    }
+
+    public AnnotationInfo getInternalAnnotationInfo() {
+        return internalAnnotationInfo;
     }
 
     private void enableFields(boolean enabled) {
