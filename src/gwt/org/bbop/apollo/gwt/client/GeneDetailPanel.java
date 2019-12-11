@@ -22,7 +22,10 @@ import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
-import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
+import org.gwtbootstrap3.client.ui.ListBox;
+import org.gwtbootstrap3.client.ui.SuggestBox;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 /**
@@ -139,7 +142,7 @@ public class GeneDetailPanel extends Composite {
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
         suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
-        suggestedNameOracle.setFeatureType("sequence:"+annotationInfo.getType());
+        suggestedNameOracle.setFeatureType("sequence:" + annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         typeField.setText(internalAnnotationInfo.getType());
@@ -174,20 +177,19 @@ public class GeneDetailPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 resetStatusBox();
                 JSONArray availableStatusArray = JSONParser.parseStrict(response.getText()).isArray();
-                if(availableStatusArray.size()>0){
-                    statusListBox.addItem("No status selected", HasDirection.Direction.DEFAULT,null);
+                if (availableStatusArray.size() > 0) {
+                    statusListBox.addItem("No status selected", HasDirection.Direction.DEFAULT, null);
                     String status = getInternalAnnotationInfo().getStatus();
-                    for(int i = 0 ; i < availableStatusArray.size() ; i++){
+                    for (int i = 0; i < availableStatusArray.size(); i++) {
                         String availableStatus = availableStatusArray.get(i).isString().stringValue();
                         statusListBox.addItem(availableStatus);
-                        if(availableStatus.equals(status)){
-                            statusListBox.setSelectedIndex(i+1);
+                        if (availableStatus.equals(status)) {
+                            statusListBox.setSelectedIndex(i + 1);
                         }
                     }
                     statusLabelField.setVisible(true);
                     statusListBox.setVisible(true);
-                }
-                else{
+                } else {
                     statusLabelField.setVisible(false);
                     statusListBox.setVisible(false);
                 }
@@ -198,7 +200,7 @@ public class GeneDetailPanel extends Composite {
                 Bootbox.alert(exception.getMessage());
             }
         };
-        AvailableStatusRestService.getAvailableStatuses(requestCallback,getInternalAnnotationInfo());
+        AvailableStatusRestService.getAvailableStatuses(requestCallback, getInternalAnnotationInfo());
     }
 
     private void resetStatusBox() {
