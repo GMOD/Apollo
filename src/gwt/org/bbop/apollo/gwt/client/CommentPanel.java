@@ -124,7 +124,6 @@ public class CommentPanel extends Composite {
         Column<CommentInfo, String> commentColumn = new Column<CommentInfo, String>(commentCell) {
             @Override
             public String getValue(CommentInfo commentInfo) {
-                GWT.log("getting comment info data: "+commentInfo.getComment());
                 return commentInfo.getComment();
             }
         };
@@ -137,7 +136,6 @@ public class CommentPanel extends Composite {
                     dataGrid.redrawRow(i);
                     redrawTable();
                 } else if (!object.getComment().equals(s)) {
-                    GWT.log("Value Changed");
                     object.setComment(s);
                     selectCommentData(object);
                     updateComment();
@@ -165,7 +163,6 @@ public class CommentPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        GWT.log("updating annotation info: " + annotationInfo);
         if (annotationInfo == null) {
             return;
         }
@@ -193,9 +190,7 @@ public class CommentPanel extends Composite {
     }
 
     public void updateComment() {
-        GWT.log("updating comment "+this.comment);
         if (this.comment!=null && !this.comment.isEmpty()) {
-            GWT.log("completely valid man"+this.comment);
             final CommentInfo newCommentInfo = new CommentInfo(this.comment);
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override

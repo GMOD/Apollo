@@ -201,7 +201,6 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
-        println "status input ${data.status}"
 
         if(data.status==null){
             // delete old status if it existed

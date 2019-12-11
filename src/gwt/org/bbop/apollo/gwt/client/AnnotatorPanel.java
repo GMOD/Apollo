@@ -394,7 +394,6 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 selectedSubTabIndex = event.getSelectedItem();
-                GWT.log("selected tab: "+ selectedSubTabIndex);
                 TAB_INDEX tab = TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex);
                 switch (tab) {
                     case DETAILS:

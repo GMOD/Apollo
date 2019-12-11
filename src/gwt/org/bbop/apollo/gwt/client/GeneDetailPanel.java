@@ -116,13 +116,13 @@ public class GeneDetailPanel extends Composite {
 
     private void updateGene() {
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
-//        enableFields(false);
+        enableFields(false);
 
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                enableFields(true);
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                enableFields(true);
 //                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 

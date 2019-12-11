@@ -148,7 +148,6 @@ public class AttributePanel extends Composite {
                     dataGrid.redrawRow(i);
                     redrawTable();
                 } else if (!object.getTag().equals(s)) {
-                    GWT.log("Tag Changed");
                     object.setTag(s);
                     selectAttributeData(object);
                     updateAttribute();
@@ -173,7 +172,6 @@ public class AttributePanel extends Composite {
                     dataGrid.redrawRow(i);
                     redrawTable();
                 } else if (!object.getValue().equals(s)) {
-                    GWT.log("Value Changed");
                     object.setValue(s);
                     selectAttributeData(object);
                     updateAttribute();
@@ -210,7 +208,6 @@ public class AttributePanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        GWT.log("updating annotation info: " + annotationInfo);
         if (annotationInfo == null) {
             return;
         }
@@ -218,7 +215,6 @@ public class AttributePanel extends Composite {
         attributeInfoList.clear();
         attributeInfoList.addAll(annotationInfo.getAttributeList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        GWT.log("List size: " + attributeInfoList.size());
         loadCannedKeys();
         loadCannedValues();
         redrawTable();
@@ -316,7 +312,6 @@ public class AttributePanel extends Composite {
     }
 
     private void resetTags() {
-        GWT.log("reseting tag");
         this.tag = this.oldTag;
         this.value = this.oldValue;
         updateData(this.internalAnnotationInfo);

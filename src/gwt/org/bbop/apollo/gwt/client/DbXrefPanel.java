@@ -114,7 +114,6 @@ public class DbXrefPanel extends Composite {
                     dataGrid.redrawRow(i);
                     redrawTable();
                 } else if (!object.getTag().equals(s)) {
-                    GWT.log("Tag Changed");
                     object.setTag(s);
                     selectDbXrefData(object);
                     updateDbXref();
@@ -139,7 +138,6 @@ public class DbXrefPanel extends Composite {
                     dataGrid.redrawRow(i);
                     redrawTable();
                 } else if (!object.getValue().equals(s)) {
-                    GWT.log("Value Changed");
                     object.setValue(s);
                     selectDbXrefData(object);
                     updateDbXref();
@@ -176,7 +174,6 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
-        GWT.log("updating annotation info: " + annotationInfo);
         if (annotationInfo == null) {
             return;
         }
@@ -184,7 +181,6 @@ public class DbXrefPanel extends Composite {
         dbXrefInfoList.clear();
         dbXrefInfoList.addAll(annotationInfo.getDbXrefList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        GWT.log("List size: " + dbXrefInfoList.size());
         redrawTable();
         setVisible(true);
     }
@@ -235,7 +231,6 @@ public class DbXrefPanel extends Composite {
     }
 
     private void resetTags() {
-        GWT.log("reseting tag");
         this.tag = this.oldTag;
         this.value = this.oldValue;
         updateData(this.internalAnnotationInfo);
@@ -320,8 +315,6 @@ public class DbXrefPanel extends Composite {
                     try {
                         title = returnValue.isObject().get("PubmedArticleSet").isObject().get("PubmedArticle").isObject().get("MedlineCitation").isObject().get("Article").isObject().get("ArticleTitle").isString().stringValue();
                     } catch (Exception e) {
-                        GWT.log("Could not find error: "+e.getMessage() );
-                        GWT.log("Return object "+returnValue.toString() );
                         Bootbox.alert("No article found for " + pmidValue);
                         resetTags();
                         redrawTable();
