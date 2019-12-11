@@ -519,6 +519,7 @@ public class AnnotatorPanel extends Composite {
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
+        variantDetailPanel.setVisible(false);
 //        exonDetailPanel.setVisible(false);
     }
 
@@ -536,26 +537,32 @@ public class AnnotatorPanel extends Composite {
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "mRNA":
             case "miRNA":
@@ -569,12 +576,15 @@ public class AnnotatorPanel extends Composite {
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "terminator":
             case "transposable_element":
@@ -583,12 +593,15 @@ public class AnnotatorPanel extends Composite {
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "deletion":
             case "insertion":
@@ -604,12 +617,15 @@ public class AnnotatorPanel extends Composite {
                 dbXrefPanel.updateData(annotationInfo);
                 commentPanel.updateData(annotationInfo);
                 attributePanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(true);
-                tabPanel.getTabWidget(3).getParent().setVisible(true);
-                tabPanel.getTabWidget(4).getParent().setVisible(true);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
