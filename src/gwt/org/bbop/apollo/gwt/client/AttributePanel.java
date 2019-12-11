@@ -3,6 +3,7 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
@@ -97,6 +98,28 @@ public class AttributePanel extends Composite {
             }
         });
 
+    }
+
+    @UiHandler("cannedValueSelectorBox")
+    public void cannedValueSelectorBoxChange(ChangeEvent changeEvent) {
+        if(cannedValueSelectorBox.isItemSelected(0)){
+            this.valueInputBox.clear();
+        }
+        else{
+            this.valueInputBox.setText(cannedValueSelectorBox.getSelectedValue());
+        }
+        addAttributeButton.setEnabled(validateTags());
+    }
+
+    @UiHandler("cannedTagSelectorBox")
+    public void cannedKeySelectorBoxChange(ChangeEvent changeEvent) {
+        if(cannedTagSelectorBox.isItemSelected(0)){
+            this.tagInputBox.clear();
+        }
+        else{
+            this.tagInputBox.setText(cannedTagSelectorBox.getSelectedValue());
+        }
+        addAttributeButton.setEnabled(validateTags());
     }
 
     private void resetCannedTags() {
@@ -345,12 +368,14 @@ public class AttributePanel extends Composite {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     attributeInfoList.add(newAttributeInfo);
                     internalAnnotationInfo.setAttributeList(attributeInfoList);
+                    addAttributeButton.setEnabled(validateTags());
                 }
 
                 @Override
                 public void onError(Request request, Throwable exception) {
                     Bootbox.alert("Error updating variant info property: " + exception);
                     resetTags();
+                    addAttributeButton.setEnabled(validateTags());
                     // TODO: reset data
                     redrawTable();
                 }

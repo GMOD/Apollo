@@ -7,9 +7,7 @@ import org.codehaus.groovy.grails.web.json.JSONArray
 class CannedAttributeService {
 
     JSONArray getCannedKeys(Organism organism, List<FeatureType> featureTypeList) {
-
-        JSONArray cannedKeys = new JSONArray();
-
+        JSONArray cannedKeysJSONArray = new JSONArray();
         List<CannedKey> cannedKeyList = new ArrayList<>()
         if (featureTypeList) {
             cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
@@ -20,21 +18,28 @@ class CannedAttributeService {
         List<CannedKeyOrganismFilter> cannedKeyOrganismFilters = CannedKeyOrganismFilter.findAllByCannedKeyInList(cannedKeyList)
         if (cannedKeyOrganismFilters) {
             CannedKeyOrganismFilter.findAllByOrganismAndCannedKeyInList(organism, cannedKeyList).each {
-                cannedKeys.put(it.cannedKey.label)
+                cannedKeysJSONArray.put(it.cannedKey.label)
+            }
+            // we have to add anything from cannedCommentList that isn't in another one
+            List<CannedKey> cannedKeysToExclude = CannedKeyOrganismFilter.findAllByOrganismNotEqualAndCannedKeyInList(organism, cannedKeyList).cannedKey
+            for(CannedKey cannedKey in cannedKeyList){
+                if(!cannedKeysJSONArray.contains(cannedKey.label) && !cannedKeysToExclude.contains(cannedKey)){
+                    cannedKeysJSONArray.put(cannedKey.label)
+                }
             }
         }
         // otherwise ignore them
         else {
             cannedKeyList.each {
-                cannedKeys.put(it.label)
+                cannedKeysJSONArray.put(it.label)
             }
         }
-        return cannedKeys
+        return cannedKeysJSONArray
     }
 
     JSONArray getCannedValues(Organism organism, List<FeatureType> featureTypeList) {
 
-        JSONArray cannedValues = new JSONArray();
+        JSONArray cannedValuesJSONArray = new JSONArray();
 
         List<CannedValue> cannedValueList = new ArrayList<>()
         if (featureTypeList) {
@@ -46,15 +51,22 @@ class CannedAttributeService {
         List<CannedValueOrganismFilter> cannedValueOrganismFilters = CannedValueOrganismFilter.findAllByCannedValueInList(cannedValueList)
         if (cannedValueOrganismFilters) {
             CannedValueOrganismFilter.findAllByOrganismAndCannedValueInList(organism, cannedValueList).each {
-                cannedValues.put(it.cannedValue.label)
+                cannedValuesJSONArray.put(it.cannedValue.label)
+            }
+            // we have to add anything from cannedValueList that isn't in another one
+            List<CannedValue> cannedValuesToExclude = CannedValueOrganismFilter.findAllByOrganismNotEqualAndCannedValueInList(organism, cannedValueList).cannedValue
+            for(CannedValue cannedValue in cannedValueList){
+                if(!cannedValuesJSONArray.contains(cannedValue.label) && !cannedValuesToExclude.contains(cannedValue)){
+                    cannedValuesJSONArray.put(cannedValue.label)
+                }
             }
         }
         // otherwise ignore them
         else {
             cannedValueList.each {
-                cannedValues.put(it.label)
+                cannedValuesJSONArray.put(it.label)
             }
         }
-        return cannedValues
+        return cannedValuesJSONArray
     }
 }
