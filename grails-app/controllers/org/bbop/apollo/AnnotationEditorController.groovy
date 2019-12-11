@@ -54,6 +54,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def organismService
     def jsonWebUtilityService
     def cannedCommentService
+    def cannedAttributeService
     def brokerMessagingTemplate
 
 
@@ -995,6 +996,28 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         render jre as JSON
     }
 
+    private String getOntologyIdForType(String type){
+        JSONObject cvTerm = new JSONObject()
+        if(type.toUpperCase()==Gene.cvTerm.toUpperCase()){
+            JSONObject cvTermName = new JSONObject()
+            cvTermName.put(FeatureStringEnum.NAME.value,FeatureStringEnum.CV.value)
+            cvTerm.put(FeatureStringEnum.CV.value,cvTermName)
+            cvTerm.put(FeatureStringEnum.NAME.value,type)
+        }
+        else{
+            JSONObject cvTermName = new JSONObject()
+            cvTermName.put(FeatureStringEnum.NAME.value,FeatureStringEnum.SEQUENCE.value)
+            cvTerm.put(FeatureStringEnum.CV.value,cvTermName)
+            cvTerm.put(FeatureStringEnum.NAME.value,type)
+        }
+        return featureService.convertJSONToOntologyId(cvTerm)
+    }
+
+    private List<FeatureType> getFeatureTypeListForType(String type){
+        String ontologyId = getOntologyIdForType(type)
+        return FeatureType.findAllByOntologyId(ontologyId)
+    }
+
     @RestApiMethod(description = "Get canned comments", path = "/annotationEditor/getCannedComments", verb = RestApiVerb.POST)
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
@@ -1010,22 +1033,46 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
 
         Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        JSONObject cvTerm = new JSONObject()
-        if(type.toUpperCase()==Gene.cvTerm.toUpperCase()){
-            JSONObject cvTermName = new JSONObject()
-            cvTermName.put(FeatureStringEnum.NAME.value,FeatureStringEnum.CV.value)
-            cvTerm.put(FeatureStringEnum.CV.value,cvTermName)
-            cvTerm.put(FeatureStringEnum.NAME.value,type)
-        }
-        else{
-            JSONObject cvTermName = new JSONObject()
-            cvTermName.put(FeatureStringEnum.NAME.value,FeatureStringEnum.SEQUENCE.value)
-            cvTerm.put(FeatureStringEnum.CV.value,cvTermName)
-            cvTerm.put(FeatureStringEnum.NAME.value,type)
-        }
-        String ontologyId = featureService.convertJSONToOntologyId(cvTerm)
-        List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(ontologyId)
+        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
         render cannedCommentService.getCannedComments(organism,featureTypeList) as JSON
+    }
+
+    @RestApiMethod(description = "Get canned keys", path = "/annotationEditor/getCannedKeys", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    ])
+    def getCannedKeys() {
+        log.debug "canned key data ${params.data}"
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+        render cannedAttributeService.getCannedKeys(organism,featureTypeList) as JSON
+    }
+
+    @RestApiMethod(description = "Get canned values", path = "/annotationEditor/getCannedValues", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    ])
+    def getCannedValues() {
+        log.debug "canned value data ${params.data}"
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+        render cannedAttributeService.getCannedValues(organism,featureTypeList) as JSON
     }
 
     @RestApiMethod(description = "Search sequences", path = "/annotationEditor/searchSequences", verb = RestApiVerb.POST)
