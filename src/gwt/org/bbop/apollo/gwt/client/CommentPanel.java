@@ -23,6 +23,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.CommentInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.CommentRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextArea;
@@ -53,8 +54,6 @@ public class CommentPanel extends Composite {
     org.gwtbootstrap3.client.ui.Button deleteCommentButton;
     @UiField
     ListBox cannedCommentSelectorBox;
-    @UiField
-    Button addCannedCommentButton;
 
     private AnnotationInfo internalAnnotationInfo = null;
     private CommentInfo internalCommentInfo = null;
@@ -66,6 +65,7 @@ public class CommentPanel extends Composite {
     private SingleSelectionModel<CommentInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell commentCell = new EditTextCell();
     private static List<String> cannedComments = new ArrayList<>();
+
 
     public CommentPanel() {
 
@@ -88,10 +88,31 @@ public class CommentPanel extends Composite {
                 }
             }
         });
-
-//        cannedCommentSelectorBox.insertItem("- Add Canned Comment -",null,0);
         cannedCommentSelectorBox.insertItem("- Add Canned Comment -", HasDirection.Direction.LTR,null,0);
+    }
 
+    public void loadCannedComments(){
+        RequestCallback cannedCommentCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetCannedComments();
+                JSONArray cannedCommentArray = JSONParser.parseStrict(response.getText()).isArray();
+                for(int i = 0 ; i < cannedCommentArray.size() ; i++){
+                    String cannedComment = cannedCommentArray.get(i).isObject().get(FeatureStringEnum.COMMENT.getValue()).isString().stringValue();
+                    cannedCommentSelectorBox.addItem(cannedComment);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        CommentRestService.getCannedComments(cannedCommentCallback,getInternalAnnotation());
+    }
+
+    private AnnotationInfo getInternalAnnotation(){
+        return this.internalAnnotationInfo;
     }
 
     private void resetCannedComments(){
@@ -141,23 +162,6 @@ public class CommentPanel extends Composite {
         dataGrid.getColumnSortList().push(commentColumn);
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
 
-        RequestCallback cannedCommentCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                resetCannedComments();
-                JSONArray cannedCommentArray = JSONParser.parseStrict(response.getText()).isArray();
-                for(int i = 0 ; i < cannedCommentArray.size() ; i++){
-                    String cannedComment = cannedCommentArray.get(i).isString().stringValue();
-                    cannedCommentSelectorBox.addItem(cannedComment);
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert(exception.getMessage());
-            }
-        };
-        CommentRestService.getCannedComments(cannedCommentCallback,this.internalAnnotationInfo);
     }
 
     public void updateData(AnnotationInfo annotationInfo) {
@@ -167,10 +171,9 @@ public class CommentPanel extends Composite {
         }
         this.internalAnnotationInfo = annotationInfo;
         commentInfoList.clear();
-        GWT.log("Comment list size: "+annotationInfo.getCommentList().size());
         commentInfoList.addAll(annotationInfo.getCommentList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
-        GWT.log("List size: " + commentInfoList.size());
+        loadCannedComments();
         redrawTable();
         setVisible(true);
     }
@@ -228,44 +231,18 @@ public class CommentPanel extends Composite {
 
     @UiHandler("cannedCommentSelectorBox")
     public void cannedCommentSelectorBoxChange(ChangeEvent changeEvent) {
-        addCannedCommentButton.setEnabled(!cannedCommentSelectorBox.isItemSelected(0));
-        // TODO: set the internal one as well
+        if(cannedCommentSelectorBox.isItemSelected(0)){
+            this.commentInputBox.clear();
+        }
+        else{
+            this.commentInputBox.setText(cannedCommentSelectorBox.getSelectedValue());
+        }
     }
 
     @UiHandler("commentInputBox")
     public void valueInputBoxType(KeyUpEvent event) {
         addCommentButton.setEnabled(validateTags());
     }
-
-    @UiHandler("addCannedCommentButton")
-    public void addCannedCommentButton(ClickEvent ce) {
-        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
-        if (validateTags()) {
-            final CommentInfo newCommentInfo = new CommentInfo(this.comment);
-            this.commentInputBox.clear();
-            valueInputBoxType(null);
-
-            RequestCallback requestCallBack = new RequestCallback() {
-                @Override
-                public void onResponseReceived(Request request, Response response) {
-                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    commentInfoList.add(newCommentInfo);
-                    internalAnnotationInfo.setCommentList(commentInfoList);
-                    redrawTable();
-                }
-
-                @Override
-                public void onError(Request request, Throwable exception) {
-                    Bootbox.alert("Error updating variant info property: " + exception);
-                    resetTags();
-                    // TODO: reset data
-                    redrawTable();
-                }
-            };
-            CommentRestService.addComment(requestCallBack, this.internalAnnotationInfo, newCommentInfo);
-        }
-    }
-
 
     private boolean validateTags() {
         collectTags();

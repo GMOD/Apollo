@@ -55,14 +55,9 @@
                     </b:Column>
                 </b:Row>
                 <b:Row addStyleNames="{style.commentBox}">
-                    <b:Column size="MD_10">
+                    <b:Column size="MD_11">
                         <b:ListBox ui:field="cannedCommentSelectorBox" styleName="{style.widgetBox}" />
                     </b:Column>
-                    <b:Column size="MD_2">
-                        <b:Button ui:field="addCannedCommentButton" icon="PLUS_CIRCLE" enabled="false"
-                                  addStyleNames="{style.addButton}" pull="RIGHT"/>
-                    </b:Column>
-
                 </b:Row>
             </b:Container>
         </gwt:east>

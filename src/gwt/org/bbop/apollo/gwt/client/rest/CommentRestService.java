@@ -5,6 +5,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
+import org.bbop.apollo.gwt.client.MainPanel;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.CommentInfoConverter;
 import org.bbop.apollo.gwt.client.dto.DbXRefInfoConverter;
@@ -74,7 +75,8 @@ public class CommentRestService {
 
     public static void getCannedComments(RequestCallback requestCallback, AnnotationInfo internalAnnotationInfo) {
         JSONObject jsonObject = new JSONObject();
-
+        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(internalAnnotationInfo.getType()));
+        jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
         RestService.sendRequest(requestCallback, "annotationEditor/getCannedComments", "data=" +jsonObject.toString() );
     }
 }
