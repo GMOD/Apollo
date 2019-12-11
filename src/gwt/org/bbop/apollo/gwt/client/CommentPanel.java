@@ -154,7 +154,9 @@ public class CommentPanel extends Composite {
     }
 
     public void updateComment() {
-        if (validateTags()) {
+        GWT.log("updating comment "+this.comment);
+        if (this.comment!=null && !this.comment.isEmpty()) {
+            GWT.log("completely valid man"+this.comment);
             final CommentInfo newCommentInfo = new CommentInfo(this.comment);
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
@@ -179,7 +181,6 @@ public class CommentPanel extends Composite {
     }
 
     private void resetTags() {
-        GWT.log("reseting tag");
         this.comment = this.oldComment;
         updateData(this.internalAnnotationInfo);
         redrawTable();

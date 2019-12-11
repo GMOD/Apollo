@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -15,32 +16,18 @@ import org.bbop.apollo.gwt.shared.FeatureStringEnum;
  */
 public class CommentRestService {
 
-    static String TERM_LOOKUP_SERVER = "http://api.geneontology.org/api/ontology/term/"; // ECO%3A0000315
-
-    public static void saveComment(RequestCallback requestCallback, CommentInfo commentInfo) {
-        RestService.sendRequest(requestCallback, "commentInfo/save", "data=" + CommentInfoConverter.convertToJson(commentInfo).toString());
-    }
-
     public static void updateComment(RequestCallback requestCallback, AnnotationInfo annotationInfo,CommentInfo oldCommentInfo,CommentInfo newCommentInfo) {
-
-    //            0: "SEND↵destination:/app/AnnotationNotification↵content-length:310↵↵"{\"track\":\"ctgA\",\"features\":[{\"uniquename\":\"fd57cc6a-8e29-4a48-9832-82c06bcc869c\",\,\"operation\":\"update_non_primary_dbxrefs\",\"clientToken\":\"18068643442091616983\"}""
-//        "old_dbxrefs\":[{\"db\":\"aasd\",\"accession\":\"12312\"}],
         JSONArray featuresArray = new JSONArray();
         JSONObject featureObject = new JSONObject();
         String featureUniqueName = annotationInfo.getUniqueName();
         featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
         JSONArray oldCommentJsonArray = new JSONArray();
-        JSONObject oldCommentJsonObject = new JSONObject();
-        oldCommentJsonObject.put(FeatureStringEnum.COMMENT.getValue(), new JSONString(oldCommentInfo.getComment()));
-        oldCommentJsonArray.set(0, oldCommentJsonObject);
-        featureObject.put(FeatureStringEnum.OLD_DBXREFS.getValue(), oldCommentJsonArray);
+        oldCommentJsonArray.set(0, new JSONString(oldCommentInfo.getComment()));
+        featureObject.put(FeatureStringEnum.OLD_COMMENTS.getValue(), oldCommentJsonArray);
 
-//\"new_dbxrefs\":[{\"db\":\"asdfasdfaaeee\",\"accession\":\"12312\"}]}]
         JSONArray newCommentJsonArray = new JSONArray();
-        JSONObject newCommentJsonObject = new JSONObject();
-        newCommentJsonObject.put(FeatureStringEnum.COMMENT.getValue(), new JSONString(newCommentInfo.getComment()));
-        newCommentJsonArray.set(0, newCommentJsonObject);
-        featureObject.put(FeatureStringEnum.NEW_DBXREFS.getValue(), newCommentJsonArray);
+        newCommentJsonArray.set(0, new JSONString(newCommentInfo.getComment()));
+        featureObject.put(FeatureStringEnum.NEW_COMMENTS.getValue(), newCommentJsonArray);
         featuresArray.set(0, featureObject);
 
         JSONObject requestObject = new JSONObject();
