@@ -55,6 +55,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def jsonWebUtilityService
     def cannedCommentService
     def cannedAttributeService
+    def availableStatusService
     def brokerMessagingTemplate
 
 
@@ -1073,6 +1074,25 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         String type = inputObject.getString(FeatureStringEnum.TYPE.value)
         List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
         render cannedAttributeService.getCannedValues(organism,featureTypeList) as JSON
+    }
+
+    @RestApiMethod(description = "Get available statuses", path = "/annotationEditor/getAvailableStatuses", verb = RestApiVerb.POST)
+    @RestApiParams(params = [
+            @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+    ])
+    def getAvailableStatuses() {
+        log.debug "get available statuses${params.data}"
+        JSONObject inputObject = permissionService.handleInput(request, params)
+        if (!permissionService.hasPermissions(inputObject, PermissionEnum.READ)) {
+            render status: HttpStatus.UNAUTHORIZED
+            return
+        }
+
+        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+        render availableStatusService.getAvailableStatuses(organism,featureTypeList) as JSON
     }
 
     @RestApiMethod(description = "Search sequences", path = "/annotationEditor/searchSequences", verb = RestApiVerb.POST)

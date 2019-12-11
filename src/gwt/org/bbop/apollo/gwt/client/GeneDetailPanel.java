@@ -7,6 +7,8 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.HasDirection;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -16,13 +18,13 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
+import org.bbop.apollo.AvailableStatusService;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
+import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
-import org.gwtbootstrap3.client.ui.Label;
-import org.gwtbootstrap3.client.ui.SuggestBox;
-import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.Date;
@@ -59,6 +61,10 @@ public class GeneDetailPanel extends Composite {
     TextBox synonymsField;
     @UiField
     TextBox typeField;
+    @UiField
+    ListBox statusField;
+    @UiField
+    InputGroupAddon statusLabelField;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
@@ -66,13 +72,6 @@ public class GeneDetailPanel extends Composite {
         nameField = new SuggestBox(suggestedNameOracle);
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
-//        nameField.addValueChangeHandler(new ValueChangeHandler<String>() {
-//            @Override
-//            public void onValueChange(ValueChangeEvent<String> event) {
-//                handleNameChange();
-//            }
-//        });
 
         nameField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
@@ -160,8 +159,47 @@ public class GeneDetailPanel extends Composite {
             locationField.setVisible(false);
         }
 
+        loadStatuses();
+
 
         setVisible(true);
+    }
+
+    private void loadStatuses() {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetStatusBox();
+                JSONArray availableStatusArray = JSONParser.parseStrict(response.getText()).isArray();
+                if(availableStatusArray.size()>0){
+                    statusField.addItem("No status selected", HasDirection.Direction.DEFAULT,null);
+                    for(int i = 0 ; i < availableStatusArray.size() ; i++){
+                        String availableStatus = availableStatusArray.get(i).isString().stringValue();
+                        statusField.addItem(availableStatus);
+                    }
+                    statusLabelField.setVisible(true);
+                    statusField.setVisible(true);
+                }
+                else{
+                    statusLabelField.setVisible(false);
+                    statusField.setVisible(false);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        AvailableStatusRestService.getAvailableStatuses(requestCallback,getInternalAnnotationInfo());
+    }
+
+    private void resetStatusBox() {
+        statusField.clear();
+    }
+
+    public AnnotationInfo getInternalAnnotationInfo() {
+        return internalAnnotationInfo;
     }
 
     public void setEditable(boolean editable) {
