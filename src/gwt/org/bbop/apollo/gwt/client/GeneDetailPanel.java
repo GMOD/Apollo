@@ -4,24 +4,26 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.HasDirection;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
+import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
+import org.gwtbootstrap3.client.ui.InputGroupAddon;
+import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.SuggestBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
@@ -50,6 +52,18 @@ public class GeneDetailPanel extends Composite {
     TextBox sequenceField;
     @UiField
     TextBox userField;
+    @UiField
+    TextBox dateCreatedField;
+    @UiField
+    TextBox lastUpdatedField;
+    @UiField
+    TextBox synonymsField;
+    @UiField
+    TextBox typeField;
+    @UiField
+    ListBox statusListBox;
+    @UiField
+    InputGroupAddon statusLabelField;
 
     private SuggestedNameOracle suggestedNameOracle = new SuggestedNameOracle();
 
@@ -57,13 +71,6 @@ public class GeneDetailPanel extends Composite {
         nameField = new SuggestBox(suggestedNameOracle);
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
-//        nameField.addValueChangeHandler(new ValueChangeHandler<String>() {
-//            @Override
-//            public void onValueChange(ValueChangeEvent<String> event) {
-//                handleNameChange();
-//            }
-//        });
 
         nameField.addSelectionHandler(new SelectionHandler<SuggestOracle.Suggestion>() {
             @Override
@@ -93,6 +100,13 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
+    @UiHandler("statusListBox")
+    void handleStatusLabelFieldChange(ChangeEvent e) {
+        String updatedStatus = statusListBox.getSelectedValue();
+        internalAnnotationInfo.setStatus(updatedStatus);
+        updateGene();
+    }
+
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled);
         symbolField.setEnabled(enabled);
@@ -109,7 +123,7 @@ public class GeneDetailPanel extends Composite {
             public void onResponseReceived(Request request, Response response) {
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 enableFields(true);
-                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+//                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
             }
 
             @Override
@@ -128,12 +142,15 @@ public class GeneDetailPanel extends Composite {
     public void updateData(AnnotationInfo annotationInfo) {
         this.internalAnnotationInfo = annotationInfo;
         suggestedNameOracle.setOrganismName(MainPanel.getInstance().getCurrentOrganism().getName());
-        suggestedNameOracle.setFeatureType("sequence:"+annotationInfo.getType());
+        suggestedNameOracle.setFeatureType("sequence:" + annotationInfo.getType());
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
+        typeField.setText(internalAnnotationInfo.getType());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
+        dateCreatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateCreated()));
+        lastUpdatedField.setText(DateFormatService.formatTimeAndDate(internalAnnotationInfo.getDateLastModified()));
 
         if (internalAnnotationInfo.getMin() != null) {
             String locationText = internalAnnotationInfo.getMin().toString();
@@ -148,8 +165,50 @@ public class GeneDetailPanel extends Composite {
             locationField.setVisible(false);
         }
 
+        loadStatuses();
+
 
         setVisible(true);
+    }
+
+    private void loadStatuses() {
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetStatusBox();
+                JSONArray availableStatusArray = JSONParser.parseStrict(response.getText()).isArray();
+                if (availableStatusArray.size() > 0) {
+                    statusListBox.addItem("No status selected", HasDirection.Direction.DEFAULT, null);
+                    String status = getInternalAnnotationInfo().getStatus();
+                    for (int i = 0; i < availableStatusArray.size(); i++) {
+                        String availableStatus = availableStatusArray.get(i).isString().stringValue();
+                        statusListBox.addItem(availableStatus);
+                        if (availableStatus.equals(status)) {
+                            statusListBox.setSelectedIndex(i + 1);
+                        }
+                    }
+                    statusLabelField.setVisible(true);
+                    statusListBox.setVisible(true);
+                } else {
+                    statusLabelField.setVisible(false);
+                    statusListBox.setVisible(false);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        AvailableStatusRestService.getAvailableStatuses(requestCallback, getInternalAnnotationInfo());
+    }
+
+    private void resetStatusBox() {
+        statusListBox.clear();
+    }
+
+    public AnnotationInfo getInternalAnnotationInfo() {
+        return internalAnnotationInfo;
     }
 
     public void setEditable(boolean editable) {

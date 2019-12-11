@@ -80,7 +80,7 @@ public class MainPanel extends Composite {
 
 
     @UiField
-    Button dockOpenClose;
+    static Button dockOpenClose;
     @UiField(provided = false)
     static NamedFrame frame;
     @UiField
@@ -871,7 +871,7 @@ public class MainPanel extends Composite {
         }
     }
 
-    private void closePanel() {
+    static void closePanel() {
         mainDockPanel.setWidgetSize(eastDockPanel, CLOSE_WIDTH);
         dockOpenClose.setIcon(IconType.WINDOW_MAXIMIZE);
         dockOpenClose.setColor("green");
@@ -880,7 +880,7 @@ public class MainPanel extends Composite {
     private void openPanel() {
       mainDockPanel.setWidgetSize(eastDockPanel, OPEN_WIDTH);
       dockOpenClose.setIcon(IconType.CLOSE);
-      dockOpenClose.setColor("orange");
+      dockOpenClose.setColor("red");
     }
 
     private void toggleOpen() {
@@ -1064,6 +1064,8 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureUpdated(String payload) {
+//        GWT.log("updating feature with "+payload);
+        // not necessary now as they all come from the same panel
         if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
@@ -1106,6 +1108,7 @@ public class MainPanel extends Composite {
             annotatorPanel.nameSearchBox.setText(parentName);
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+            MainPanel.getInstance().openPanel();
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
@@ -1191,6 +1194,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
+        $wnd.closeAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::closePanel());
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
         $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;

@@ -23,6 +23,7 @@ public class AnnotationRestService extends RestService {
         jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(annotationInfo.getName()));
         jsonObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(annotationInfo.getUniqueName()));
         jsonObject.put(FeatureStringEnum.SYMBOL.getValue(), annotationInfo.getSymbol() != null ? new JSONString(annotationInfo.getSymbol()) : new JSONString(""));
+        jsonObject.put(FeatureStringEnum.STATUS.getValue(), annotationInfo.getStatus() != null ? new JSONString(annotationInfo.getStatus()) : null);
         jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), annotationInfo.getDescription() != null ? new JSONString(annotationInfo.getDescription()) : new JSONString(""));
         jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(annotationInfo.getType()));
         jsonObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));

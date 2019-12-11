@@ -132,6 +132,9 @@ define([
                 this.verbose_render = false;
                 this.verbose_server_notification = false;
 
+                // NOTE: this shows the old popup menu
+                this.show_old_menu = false;
+
                 var track = this;
 
 
@@ -536,7 +539,7 @@ define([
                             track.selectionAdded(selection,track.selectionManager);
                         }
 
-                        if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureUpdated(JSON.stringify(changeData.features));
 
 
 
@@ -674,7 +677,7 @@ define([
                         })
                         .click(function (event) {
                             if (event.altKey) {
-                                track.getAnnotationInfoEditor();
+                                track.getNewAnnotationInfoEditor();
                             }
                             if (event.metaKey) {
                                 track.getSequence();
@@ -2352,9 +2355,30 @@ define([
                 track.executeUpdateOperation(postData);
             },
 
-            getAnnotationInfoEditor: function () {
+            getOldAnnotationInfoEditor: function () {
                 var selected = this.selectionManager.getSelection();
                 this.getAnnotationInfoEditorForSelectedFeatures(selected);
+            },
+
+            getNewAnnotationInfoEditor: function () {
+                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
+                var selected = this.selectionManager.getSelection();
+                var selectedFeature = selected[0].feature;
+                var selectedFeatureDetails = selectedFeature.afeature;
+                while(selectedFeature  ){
+                    if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
+                        return ;
+                    }
+                    else
+                    if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_name);
+                        return ;
+                    }
+                    selectedFeature = selectedFeature._parent ;
+                    selectedFeatureDetails = selectedFeature.afeature ;
+                }
+                alert('Unable to focus on object');
             },
 
             changeAnnotationType: function(type) {
@@ -6931,7 +6955,6 @@ define([
             initAnnotContextMenu: function () {
 
                 // TODO: this list is duplicated
-                var topTypes = ['repeat_region','transposable_element','gene','pseudogene', 'SNV', 'SNP', 'MNV', 'MNP', 'indel', 'insertion', 'deletion','terminator'];
 
                 var thisB = this;
                 contextMenuItems = new Array();
@@ -6967,79 +6990,71 @@ define([
                 }));
                 contextMenuItems["zoom_to_base_level"] = index++;
 
-                annot_context_menu.addChild(new dijit.MenuItem({
-                    label: "View in Annotator Panel",
-                    onClick: function (event) {
-                        var selected = thisB.selectionManager.getSelection();
-                        var selectedFeature = selected[0].feature;
-                        var selectedFeatureDetails = selectedFeature.afeature;
-                        while(selectedFeature  ){
-                            if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                                thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
-                                return ;
+
+              // annot_context_menu.addChild(new dijit.MenuItem({
+              //   label: "View Go Annotations",
+              //   onClick: function (event) {
+              //     var selected = thisB.selectionManager.getSelection();
+              //     var selectedFeature = selected[0].feature;
+              //     var selectedFeatureDetails = selectedFeature.afeature;
+              //     while(selectedFeature  ){
+              //       if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
+              //         thisB.getApollo().viewGoPanel(selectedFeatureDetails.name);
+              //         return ;
+              //       }
+              //       else
+              //       if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
+              //         thisB.getApollo().viewGoPanel(selectedFeatureDetails.parent_name);
+              //         return ;
+              //       }
+              //       selectedFeature = selectedFeature._parent ;
+              //       selectedFeatureDetails = selectedFeature.afeature ;
+              //     }
+              //     alert('Unable to focus on object');
+              //   }
+              // }));
+              // contextMenuItems["view_go_annotation"] = index++;
+
+
+
+                // annot_context_menu.addChild(new dijit.MenuSeparator());
+                // index++;
+                // annot_context_menu.addChild(new dijit.MenuItem({
+                //         label: "Information Editor (alt-click)",
+                //         onClick: function (event) {
+                //             thisB.getOldAnnotationInfoEditor();
+                //         }
+                //     }));
+                //     contextMenuItems["annotation_info_editor"] = index++;
+                if (permission & Permission.WRITE) {
+                    if(thisB.show_old_menu){
+                        annot_context_menu.addChild(new dijit.MenuItem({
+                            label: "Old Information Editor ",
+                            onClick: function (event) {
+                                thisB.getOldAnnotationInfoEditor();
                             }
-                            else
-                            if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-                                thisB.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_name);
-                                return ;
-                            }
-                            selectedFeature = selectedFeature._parent ;
-                            selectedFeatureDetails = selectedFeature.afeature ;
-                        }
-                        alert('Unable to focus on object');
+                        }));
                     }
-                }));
-                contextMenuItems["view_in_annotator_panel"] = index++;
 
-              annot_context_menu.addChild(new dijit.MenuItem({
-                label: "View Go Annotations",
-                onClick: function (event) {
-                  var selected = thisB.selectionManager.getSelection();
-                  var selectedFeature = selected[0].feature;
-                  var selectedFeatureDetails = selectedFeature.afeature;
-                  while(selectedFeature  ){
-                    if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                      thisB.getApollo().viewGoPanel(selectedFeatureDetails.name);
-                      return ;
-                    }
-                    else
-                    if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-                      thisB.getApollo().viewGoPanel(selectedFeatureDetails.parent_name);
-                      return ;
-                    }
-                    selectedFeature = selectedFeature._parent ;
-                    selectedFeatureDetails = selectedFeature.afeature ;
-                  }
-                  alert('Unable to focus on object');
-                }
-              }));
-              contextMenuItems["view_go_annotation"] = index++;
-
-
-              if (!(permission & Permission.WRITE)) {
-                annot_context_menu.addChild(new dijit.MenuSeparator());
-                index++;
-                annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Information Editor (alt-click)",
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Edit Annotation (alt-click)",
                         onClick: function (event) {
-                            thisB.getAnnotationInfoEditor();
+                            thisB.getNewAnnotationInfoEditor();
                         }
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
-                }
-                if (permission & Permission.WRITE) {
-                    //annot_context_menu.addChild(new dijit.MenuSeparator());
-                    //index++;
+
                     annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Edit Information (alt-click)",
+                        label: "Close editor",
                         onClick: function (event) {
-                            thisB.getAnnotationInfoEditor();
+                            thisB.getApollo().closeAnnotatorPanel();
                         }
                     }));
+                    contextMenuItems["close_editor"] = index++;
 
                     var changeAnnotationMenu = new dijitMenu();
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
-                        label: "gene",
+                    label: "gene",
                         onClick: function(event) {
                             thisB.changeAnnotationType("mRNA");
                         }

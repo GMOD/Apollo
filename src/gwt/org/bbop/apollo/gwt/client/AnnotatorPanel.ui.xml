@@ -138,7 +138,7 @@
             </gwt:center>
         </gwt:DockLayoutPanel>
     </gwt:center>
-    <gwt:south size="280">
+    <gwt:south size="400">
         <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
             <gwt:tab>
                 <gwt:header>Details</gwt:header>
@@ -170,6 +170,18 @@
             <gwt:tab>
                 <gwt:header>GO</gwt:header>
                 <apollo:GoPanel ui:field="goPanel"/>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>DbXref</gwt:header>
+                <apollo:DbXrefPanel ui:field="dbXrefPanel"/>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>Comment</gwt:header>
+                <apollo:CommentPanel ui:field="commentPanel"/>
+            </gwt:tab>
+            <gwt:tab>
+                <gwt:header>Attributes</gwt:header>
+                <apollo:AttributePanel ui:field="attributePanel"/>
             </gwt:tab>
         </gwt:TabLayoutPanel>
     </gwt:south>
