@@ -65,6 +65,7 @@ public class CommentPanel extends Composite {
     private static List<CommentInfo> commentInfoList = dataProvider.getList();
     private SingleSelectionModel<CommentInfo> selectionModel = new SingleSelectionModel<>();
     EditTextCell commentCell = new EditTextCell();
+    private static List<String> cannedComments = new ArrayList<>();
 
     public CommentPanel() {
 
@@ -91,6 +92,11 @@ public class CommentPanel extends Composite {
 //        cannedCommentSelectorBox.insertItem("- Add Canned Comment -",null,0);
         cannedCommentSelectorBox.insertItem("- Add Canned Comment -", HasDirection.Direction.LTR,null,0);
 
+    }
+
+    private void resetCannedComments(){
+        cannedCommentSelectorBox.clear();
+        cannedCommentSelectorBox.insertItem("- Add Canned Comment -", HasDirection.Direction.LTR,null,0);
     }
 
     public void initializeTable() {
@@ -134,6 +140,24 @@ public class CommentPanel extends Composite {
         // default is ascending
         dataGrid.getColumnSortList().push(commentColumn);
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
+
+        RequestCallback cannedCommentCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetCannedComments();
+                JSONArray cannedCommentArray = JSONParser.parseStrict(response.getText()).isArray();
+                for(int i = 0 ; i < cannedCommentArray.size() ; i++){
+                    String cannedComment = cannedCommentArray.get(i).isString().stringValue();
+                    cannedCommentSelectorBox.addItem(cannedComment);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        CommentRestService.getCannedComments(cannedCommentCallback,this.internalAnnotationInfo);
     }
 
     public void updateData(AnnotationInfo annotationInfo) {

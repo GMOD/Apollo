@@ -72,4 +72,9 @@ public class CommentRestService {
         RestService.sendRequest(requestCallback, "annotationEditor/deleteComments", "data=" + requestObject.toString());
     }
 
+    public static void getCannedComments(RequestCallback requestCallback, AnnotationInfo internalAnnotationInfo) {
+        JSONObject jsonObject = new JSONObject();
+
+        RestService.sendRequest(requestCallback, "annotationEditor/getCannedComments", "data=" +jsonObject.toString() );
+    }
 }
