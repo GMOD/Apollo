@@ -27,12 +27,10 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AttributeInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AttributeRestService;
-import org.bbop.apollo.gwt.client.rest.ProxyRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.Comparator;
 import java.util.List;
@@ -119,7 +117,7 @@ public class AttributePanel extends Composite {
             @Override
             public void update(int i, AttributeInfo object, String s) {
                 if (s == null || s.trim().length() == 0) {
-                    Bootbox.alert("Prefix can not be blank");
+                    Bootbox.alert("Tag can not be blank");
                     tagCell.clearViewData(object);
                     dataGrid.redrawRow(i);
                     redrawTable();
@@ -144,7 +142,7 @@ public class AttributePanel extends Composite {
             @Override
             public void update(int i, AttributeInfo object, String s) {
                 if (s == null || s.trim().length() == 0) {
-                    Bootbox.alert("Accession can not be blank");
+                    Bootbox.alert("Value can not be blank");
                     valueCell.clearViewData(object);
                     dataGrid.redrawRow(i);
                     redrawTable();
@@ -218,7 +216,7 @@ public class AttributePanel extends Composite {
     }
 
     public void updateAttribute() {
-        if (validateTags()) {
+        if (validateTags(false)) {
             final AttributeInfo newAttributeInfo = new AttributeInfo(this.tag, this.value);
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
@@ -268,7 +266,11 @@ public class AttributePanel extends Composite {
     }
 
     private boolean validateTags() {
-        collectTags();
+        return validateTags(true);
+    }
+
+    private boolean validateTags(boolean collectTags) {
+        if(collectTags) collectTags();
         return this.tag != null && !this.tag.isEmpty() && this.value != null && !this.value.isEmpty();
     }
 
@@ -309,12 +311,15 @@ public class AttributePanel extends Composite {
 
     @UiHandler("deleteAttributeButton")
     public void deleteAttribute(ClickEvent ce) {
+        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
 
-        if (this.internalAttributeInfo != null) {
+        if (internalAttributeInfo != null) {
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    attributeInfoList.remove(internalAttributeInfo);
+                    internalAnnotationInfo.setAttributeList(attributeInfoList);
                     deleteAttributeButton.setEnabled(false);
                     redrawTable();
                 }

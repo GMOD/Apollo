@@ -208,7 +208,7 @@ public class DbXrefPanel extends Composite {
     }
 
     public void updateDbXref() {
-        if (validateTags()) {
+        if (validateTags(false)) {
             final DbXrefInfo newDbXrefInfo = new DbXrefInfo(this.tag, this.value);
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
@@ -273,7 +273,11 @@ public class DbXrefPanel extends Composite {
     }
 
     private boolean validateTags() {
-        collectTags();
+        return validateTags(true);
+    }
+
+    private boolean validateTags(boolean collectTags) {
+        if(collectTags) collectTags();
         return this.tag != null && !this.tag.isEmpty() && this.value != null && !this.value.isEmpty();
     }
 
