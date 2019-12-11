@@ -1277,52 +1277,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     properties.put(jsonProperty);
                 }
 
+                JSONArray cannedKeys = cannedAttributeService.getCannedKeys(sequence.organism,featureTypeList)
+                JSONArray cannedValues = cannedAttributeService.getCannedValues(sequence.organism,featureTypeList)
+                newFeature.put(FeatureStringEnum.CANNED_KEYS.value, cannedKeys)
+                newFeature.put(FeatureStringEnum.CANNED_VALUES.value, cannedValues)
 
-
-                List<CannedKey> cannedKeyList = new ArrayList<>()
-                JSONArray cannedKeys = new JSONArray();
-                newFeature.put(FeatureStringEnum.CANNED_KEYS.value, cannedKeys);
-                if (featureTypeList) {
-                    cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
-                }
-                cannedKeyList.addAll(CannedKey.executeQuery("select cc from CannedKey cc where cc.featureTypes is empty"))
-
-//                // if there are organism filters for these canned comments for this organism, then apply them
-                List<CannedKeyOrganismFilter> cannedKeyOrganismFilters = CannedKeyOrganismFilter.findAllByCannedKeyInList(cannedKeyList)
-                if (cannedKeyOrganismFilters) {
-                    CannedKeyOrganismFilter.findAllByOrganismAndCannedKeyInList(sequence.organism, cannedKeyList).each {
-                        cannedKeys.put(it.cannedKey.label)
-                    }
-                }
-//                // otherwise ignore them
-                else {
-                    cannedKeyList.each {
-                        cannedKeys.put(it.label)
-                    }
-                }
-
-                // handle canned Values
-                List<CannedValue> cannedValueList = new ArrayList<>()
-                JSONArray cannedValues = new JSONArray();
-                newFeature.put(FeatureStringEnum.CANNED_VALUES.value, cannedValues);
-                if (featureTypeList) {
-                    cannedValueList.addAll(CannedValue.executeQuery("select cc from CannedValue cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
-                }
-                cannedValueList.addAll(CannedValue.executeQuery("select cc from CannedValue cc where cc.featureTypes is empty"))
-
-//                // if there are organism filters for these canned comments for this organism, then apply them
-                List<CannedValueOrganismFilter> cannedValueOrganismFilters = CannedValueOrganismFilter.findAllByCannedValueInList(cannedValueList)
-                if (cannedValueOrganismFilters) {
-                    CannedValueOrganismFilter.findAllByOrganismAndCannedValueInList(sequence.organism, cannedValueList).each {
-                        cannedValues.put(it.cannedValue.label)
-                    }
-                }
-//                // otherwise ignore them
-                else {
-                    cannedValueList.each {
-                        cannedValues.put(it.label)
-                    }
-                }
             }
             if (configWrapperService.hasDbxrefs() || configWrapperService.hasPubmedIds() || configWrapperService.hasGoIds()) {
                 JSONArray dbxrefs = new JSONArray();
