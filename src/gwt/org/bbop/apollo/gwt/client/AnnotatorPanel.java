@@ -534,6 +534,8 @@ public class AnnotatorPanel extends Composite {
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
@@ -544,6 +546,8 @@ public class AnnotatorPanel extends Composite {
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
@@ -563,6 +567,8 @@ public class AnnotatorPanel extends Composite {
                 transcriptDetailPanel.updateData(annotationInfo);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(true);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
@@ -575,6 +581,8 @@ public class AnnotatorPanel extends Composite {
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(false);
@@ -594,6 +602,8 @@ public class AnnotatorPanel extends Composite {
                 variantInfoPanel.updateData(annotationInfo);
                 alleleInfoPanel.updateData(annotationInfo);
                 dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
                 tabPanel.getTabWidget(0).getParent().setVisible(true);
                 tabPanel.getTabWidget(1).getParent().setVisible(false);
                 tabPanel.getTabWidget(2).getParent().setVisible(true);
@@ -762,12 +772,16 @@ public class AnnotatorPanel extends Composite {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
                     dbXrefPanel.updateData(selectedAnnotationInfo);
+                    commentPanel.updateData(selectedAnnotationInfo);
+                    attributePanel.updateData(selectedAnnotationInfo);
                     gotoAnnotation.setEnabled(true);
                     deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
                     goPanel.updateData();
                     dbXrefPanel.updateData();
+                    commentPanel.updateData();
+                    attributePanel.updateData();
                     gotoAnnotation.setEnabled(false);
                     deleteAnnotation.setEnabled(false);
                 }
