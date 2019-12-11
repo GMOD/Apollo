@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.i18n.client.HasDirection;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -96,6 +97,15 @@ public class AttributePanel extends Composite {
             }
         });
 
+        resetCannedTagsAndValues();
+
+    }
+
+    private void resetCannedTagsAndValues() {
+        cannedTagSelectorBox.clear();
+        cannedTagSelectorBox.insertItem("Select canned tag", HasDirection.Direction.DEFAULT,null,0);
+        cannedValueSelectorBox.clear();
+        cannedValueSelectorBox.insertItem("Select canned value", HasDirection.Direction.DEFAULT,null,0);
     }
 
     public void initializeTable() {

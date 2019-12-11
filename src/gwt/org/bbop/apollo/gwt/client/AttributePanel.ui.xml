@@ -48,10 +48,10 @@
             <b:Container fluid="true" addStyleNames="{style.propertyStyle}">
                 <b:Row>
                     <b:Column size="MD_3">
-                        <b:TextBox placeholder="Prefix" ui:field="tagInputBox" styleName="{style.prefixBox}"/>
+                        <b:TextBox placeholder="Tag" ui:field="tagInputBox" styleName="{style.prefixBox}"/>
                     </b:Column>
                     <b:Column size="MD_5">
-                        <b:TextBox placeholder="Accession" ui:field="valueInputBox" styleName="{style.widgetBox}"/>
+                        <b:TextBox placeholder="Value" ui:field="valueInputBox" styleName="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_2">
                         <b:Button ui:field="addAttributeButton" icon="PLUS_CIRCLE" enabled="false"
