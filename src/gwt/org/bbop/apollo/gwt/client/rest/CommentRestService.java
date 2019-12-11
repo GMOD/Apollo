@@ -79,4 +79,18 @@ public class CommentRestService {
         jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
         RestService.sendRequest(requestCallback, "annotationEditor/getCannedComments", "data=" +jsonObject.toString() );
     }
+
+    public static void getCannedKeys(RequestCallback requestCallback, AnnotationInfo internalAnnotationInfo) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(internalAnnotationInfo.getType()));
+        jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+        RestService.sendRequest(requestCallback, "annotationEditor/getCannedKeys", "data=" +jsonObject.toString() );
+    }
+
+    public static void getCannedValues(RequestCallback requestCallback, AnnotationInfo internalAnnotationInfo) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(internalAnnotationInfo.getType()));
+        jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+        RestService.sendRequest(requestCallback, "annotationEditor/getCannedValues", "data=" +jsonObject.toString() );
+    }
 }

@@ -9,6 +9,7 @@ import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.HasDirection;
+import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -27,6 +28,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AttributeInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AttributeRestService;
+import org.bbop.apollo.gwt.client.rest.CommentRestService;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
@@ -95,13 +97,14 @@ public class AttributePanel extends Composite {
             }
         });
 
-        resetCannedTagsAndValues();
-
     }
 
-    private void resetCannedTagsAndValues() {
+    private void resetCannedTags() {
         cannedTagSelectorBox.clear();
         cannedTagSelectorBox.insertItem("Select canned tag", HasDirection.Direction.DEFAULT,null,0);
+    }
+
+    private void resetCannedValues() {
         cannedValueSelectorBox.clear();
         cannedValueSelectorBox.insertItem("Select canned value", HasDirection.Direction.DEFAULT,null,0);
     }
@@ -193,6 +196,8 @@ public class AttributePanel extends Composite {
         attributeInfoList.addAll(annotationInfo.getAttributeList());
         ColumnSortEvent.fire(dataGrid, dataGrid.getColumnSortList());
         GWT.log("List size: " + attributeInfoList.size());
+        loadCannedKeys();
+        loadCannedValues();
         redrawTable();
         setVisible(true);
     }
@@ -213,6 +218,51 @@ public class AttributePanel extends Composite {
 
         redrawTable();
         setVisible(true);
+    }
+
+    public void loadCannedKeys(){
+        RequestCallback cannedKeyCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetCannedTags();
+                JSONArray cannedKeyArray = JSONParser.parseStrict(response.getText()).isArray();
+                for(int i = 0 ; i < cannedKeyArray.size() ; i++){
+                    String cannedKey = cannedKeyArray.get(i).isString().stringValue();
+                    cannedTagSelectorBox.addItem(cannedKey);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        CommentRestService.getCannedKeys(cannedKeyCallback,getInternalAnnotation());
+    }
+
+    public void loadCannedValues(){
+        RequestCallback cannedValueCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                resetCannedValues();
+                JSONArray cannedValueArray = JSONParser.parseStrict(response.getText()).isArray();
+                for(int i = 0 ; i < cannedValueArray.size() ; i++){
+                    String cannedValue = cannedValueArray.get(i).isString().stringValue();
+                    cannedValueSelectorBox.addItem(cannedValue);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert(exception.getMessage());
+            }
+        };
+        CommentRestService.getCannedValues(cannedValueCallback,getInternalAnnotation());
+    }
+
+
+    private AnnotationInfo getInternalAnnotation(){
+        return this.internalAnnotationInfo;
     }
 
     public void updateAttribute() {
