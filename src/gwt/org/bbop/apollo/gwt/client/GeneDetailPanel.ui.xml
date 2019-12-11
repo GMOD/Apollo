@@ -33,7 +33,7 @@
         }
 
         .inputGroup1 {
-            width: 300px;
+            width: 400px;
         }</ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">

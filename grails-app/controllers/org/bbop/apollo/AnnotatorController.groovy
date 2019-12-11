@@ -184,6 +184,7 @@ class AnnotatorController {
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature name")
             , @RestApiParam(name = "symbol", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature symbol")
             , @RestApiParam(name = "description", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature description")
+            , @RestApiParam(name = "status", type = "string", paramType = RestApiParamType.QUERY, description = "Updated status")
     ]
     )
     @Transactional
@@ -199,6 +200,19 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
+        println "status input ${data.status}"
+
+        if(data.status==null){
+            // delete old status if it existed
+            Status oldStatus = data.status
+            feature.status == null
+            oldStatus.delete()
+        }
+        else{
+            Status status = Status.findOrSaveByValueAndFeature(data.status,feature)
+            feature.status = status
+        }
+        println "status output ${Status.findByValue(data.status)}"
 
         feature.save(flush: true, failOnError: true)
 

@@ -97,6 +97,13 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
+    @UiHandler("statusListBox")
+    void handleStatusLabelFieldChange(ChangeEvent e) {
+        String updatedStatus = statusListBox.getSelectedValue();
+        internalAnnotationInfo.setStatus(updatedStatus);
+        updateGene();
+    }
+
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled);
         symbolField.setEnabled(enabled);
