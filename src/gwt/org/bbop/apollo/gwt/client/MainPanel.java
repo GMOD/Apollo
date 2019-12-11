@@ -80,7 +80,7 @@ public class MainPanel extends Composite {
 
 
     @UiField
-    Button dockOpenClose;
+    static Button dockOpenClose;
     @UiField(provided = false)
     static NamedFrame frame;
     @UiField
@@ -871,7 +871,7 @@ public class MainPanel extends Composite {
         }
     }
 
-    private void closePanel() {
+    static void closePanel() {
         mainDockPanel.setWidgetSize(eastDockPanel, CLOSE_WIDTH);
         dockOpenClose.setIcon(IconType.WINDOW_MAXIMIZE);
         dockOpenClose.setColor("green");
@@ -1194,6 +1194,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
+        $wnd.closeAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::closePanel());
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
         $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;

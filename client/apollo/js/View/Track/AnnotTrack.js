@@ -7037,12 +7037,20 @@ define([
                     }
 
                     annot_context_menu.addChild(new dijit.MenuItem({
-                        label: "Information Editor (alt-click)",
+                        label: "Edit Annotation (alt-click)",
                         onClick: function (event) {
                             thisB.getNewAnnotationInfoEditor();
                         }
                     }));
                     contextMenuItems["annotation_info_editor"] = index++;
+
+                    annot_context_menu.addChild(new dijit.MenuItem({
+                        label: "Close editor",
+                        onClick: function (event) {
+                            thisB.getApollo().closeAnnotatorPanel();
+                        }
+                    }));
+                    contextMenuItems["close_editor"] = index++;
 
                     var changeAnnotationMenu = new dijitMenu();
                     changeAnnotationMenu.addChild(new dijitMenuItem( {
