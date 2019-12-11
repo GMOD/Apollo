@@ -539,7 +539,7 @@ define([
                             track.selectionAdded(selection,track.selectionManager);
                         }
 
-                        if (this.runningApollo()) this.getApollo().handleFeatureDeleted(JSON.stringify(changeData.features));
+                        if (this.runningApollo()) this.getApollo().handleFeatureUpdated(JSON.stringify(changeData.features));
 
 
 
