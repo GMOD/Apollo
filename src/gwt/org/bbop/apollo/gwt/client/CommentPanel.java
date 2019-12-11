@@ -3,9 +3,11 @@ package org.bbop.apollo.gwt.client;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.HasDirection;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
@@ -21,7 +23,10 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.CommentInfo;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.CommentRestService;
+import org.gwtbootstrap3.client.ui.Button;
+import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextArea;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.ArrayList;
@@ -46,6 +51,10 @@ public class CommentPanel extends Composite {
     org.gwtbootstrap3.client.ui.Button addCommentButton;
     @UiField
     org.gwtbootstrap3.client.ui.Button deleteCommentButton;
+    @UiField
+    ListBox cannedCommentSelectorBox;
+    @UiField
+    Button addCannedCommentButton;
 
     private AnnotationInfo internalAnnotationInfo = null;
     private CommentInfo internalCommentInfo = null;
@@ -78,6 +87,9 @@ public class CommentPanel extends Composite {
                 }
             }
         });
+
+//        cannedCommentSelectorBox.insertItem("- Add Canned Comment -",null,0);
+        cannedCommentSelectorBox.insertItem("- Add Canned Comment -", HasDirection.Direction.LTR,null,0);
 
     }
 
@@ -190,9 +202,44 @@ public class CommentPanel extends Composite {
         this.dataGrid.redraw();
     }
 
+    @UiHandler("cannedCommentSelectorBox")
+    public void cannedCommentSelectorBoxChange(ChangeEvent changeEvent) {
+        addCannedCommentButton.setEnabled(!cannedCommentSelectorBox.isItemSelected(0));
+        // TODO: set the internal one as well
+    }
+
     @UiHandler("commentInputBox")
     public void valueInputBoxType(KeyUpEvent event) {
         addCommentButton.setEnabled(validateTags());
+    }
+
+    @UiHandler("addCannedCommentButton")
+    public void addCannedCommentButton(ClickEvent ce) {
+        final AnnotationInfo internalAnnotationInfo = this.internalAnnotationInfo;
+        if (validateTags()) {
+            final CommentInfo newCommentInfo = new CommentInfo(this.comment);
+            this.commentInputBox.clear();
+            valueInputBoxType(null);
+
+            RequestCallback requestCallBack = new RequestCallback() {
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                    commentInfoList.add(newCommentInfo);
+                    internalAnnotationInfo.setCommentList(commentInfoList);
+                    redrawTable();
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    Bootbox.alert("Error updating variant info property: " + exception);
+                    resetTags();
+                    // TODO: reset data
+                    redrawTable();
+                }
+            };
+            CommentRestService.addComment(requestCallBack, this.internalAnnotationInfo, newCommentInfo);
+        }
     }
 
 

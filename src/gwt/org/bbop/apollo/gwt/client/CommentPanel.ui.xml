@@ -21,7 +21,7 @@
         .widgetBox {
         display: inline;
         margin: 5px;
-        width: 100%;
+        width: 150px;
         }
 
         .propertyStyle {
@@ -35,7 +35,7 @@
         margin-top: 5px;
         }
 
-        .pmidBox {
+        .commentBox {
         border-top: #0e0e0e solid 2px;
         }</ui:style>
 
@@ -53,6 +53,16 @@
                         <b:Button ui:field="addCommentButton" icon="PLUS_CIRCLE" enabled="false"
                                   addStyleNames="{style.addButton}" pull="RIGHT"/>
                     </b:Column>
+                </b:Row>
+                <b:Row addStyleNames="{style.commentBox}">
+                    <b:Column size="MD_10">
+                        <b:ListBox ui:field="cannedCommentSelectorBox" styleName="{style.widgetBox}" />
+                    </b:Column>
+                    <b:Column size="MD_2">
+                        <b:Button ui:field="addCannedCommentButton" icon="PLUS_CIRCLE" enabled="false"
+                                  addStyleNames="{style.addButton}" pull="RIGHT"/>
+                    </b:Column>
+
                 </b:Row>
             </b:Container>
         </gwt:east>
