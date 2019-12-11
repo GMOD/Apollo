@@ -52,6 +52,7 @@ class FeaturePropertyService {
     @Transactional
     boolean deleteComment(Feature feature, String commentString) {
         Comment comment = Comment.findByFeatureAndValue(feature, commentString)
+        println "founda  comment to dleete ${comment}"
         if (comment) {
             feature.removeFromFeatureProperties(comment)
             Comment.deleteAll(comment)

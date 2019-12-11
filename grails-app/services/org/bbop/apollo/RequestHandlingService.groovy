@@ -396,9 +396,10 @@ class RequestHandlingService {
             JSONArray commentsArray = jsonFeature.getJSONArray(FeatureStringEnum.COMMENTS.value)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-          JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            println "deleting comments ${commentsArray} on feature $feature"
 
-          for (int commentIndex = 0; commentIndex < commentsArray.size(); commentIndex++) {
+            for (int commentIndex = 0; commentIndex < commentsArray.size(); commentIndex++) {
                 String commentString = commentsArray.getString(commentIndex);
                 featurePropertyService.deleteComment(feature, commentString)
             }

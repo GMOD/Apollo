@@ -47,7 +47,7 @@ public class CommentRestService {
         requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
         requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
 
-        RestService.sendRequest(requestCallback, "annotationEditor/updateDbxref", "data=" + requestObject.toString());
+        RestService.sendRequest(requestCallback, "annotationEditor/updateComments", "data=" + requestObject.toString());
     }
 
     public static void addComment(RequestCallback requestCallback, AnnotationInfo annotationInfo, CommentInfo commentInfo) {
@@ -57,17 +57,15 @@ public class CommentRestService {
         JSONObject featureObject = new JSONObject();
         String featureUniqueName = annotationInfo.getUniqueName();
         featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
-        JSONArray dbXrefJsonArray = new JSONArray();
-        JSONObject dbXrefJsonObject = new JSONObject();
-        dbXrefJsonObject.put(FeatureStringEnum.COMMENT.getValue(), new JSONString(commentInfo.getComment()));
-        dbXrefJsonArray.set(0, dbXrefJsonObject);
-        featureObject.put(FeatureStringEnum.DBXREFS.getValue(), dbXrefJsonArray);
+        JSONArray commentsJsonArray = new JSONArray();
+        commentsJsonArray.set(0, new JSONString(commentInfo.getComment()));
+        featureObject.put(FeatureStringEnum.COMMENTS.getValue(), commentsJsonArray);
         featuresArray.set(0, featureObject);
 
         JSONObject requestObject = new JSONObject();
         requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
         requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-        RestService.sendRequest(requestCallback, "annotationEditor/addDbxref", "data=" + requestObject.toString());
+        RestService.sendRequest(requestCallback, "annotationEditor/addComments", "data=" + requestObject.toString());
     }
 
     public static void deleteComment(RequestCallback requestCallback, AnnotationInfo annotationInfo, CommentInfo commentInfo) {
@@ -77,15 +75,14 @@ public class CommentRestService {
         featureObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(featureUniqueName));
         JSONArray dbXrefJsonArray = new JSONArray();
         JSONObject dbXrefJsonObject = new JSONObject();
-        dbXrefJsonObject.put(FeatureStringEnum.COMMENT.getValue(), new JSONString(commentInfo.getComment()));
-        dbXrefJsonArray.set(0, dbXrefJsonObject);
-        featureObject.put(FeatureStringEnum.DBXREFS.getValue(), dbXrefJsonArray);
+        dbXrefJsonArray.set(0, new JSONString(commentInfo.getComment()));
+        featureObject.put(FeatureStringEnum.COMMENTS.getValue(), dbXrefJsonArray);
         featuresArray.set(0, featureObject);
 
         JSONObject requestObject = new JSONObject();
         requestObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
         requestObject.put(FeatureStringEnum.FEATURES.getValue(), featuresArray);
-        RestService.sendRequest(requestCallback, "annotationEditor/deleteDbxref", "data=" + requestObject.toString());
+        RestService.sendRequest(requestCallback, "annotationEditor/deleteComments", "data=" + requestObject.toString());
     }
 
 }

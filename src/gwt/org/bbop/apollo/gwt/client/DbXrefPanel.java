@@ -296,9 +296,8 @@ public class DbXrefPanel extends Composite {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    List<DbXrefInfo> newList = new ArrayList<>(dbXrefInfoList);
-                    newList.add(newDbXrefInfo);
-                    internalAnnotationInfo.setDbXrefList(newList);
+                    dbXrefInfoList.add(newDbXrefInfo);
+                    internalAnnotationInfo.setDbXrefList(dbXrefInfoList);
                 }
 
                 @Override
@@ -363,9 +362,8 @@ public class DbXrefPanel extends Composite {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    List<DbXrefInfo> newList = new ArrayList<>(dbXrefInfoList);
-                    newList.add(newDbXrefInfo);
-                    internalAnnotationInfo.setDbXrefList(newList);
+                    dbXrefInfoList.add(newDbXrefInfo);
+                    internalAnnotationInfo.setDbXrefList(dbXrefInfoList);
                 }
 
                 @Override

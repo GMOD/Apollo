@@ -173,7 +173,6 @@ public class CommentPanel extends Composite {
                 }
             };
             CommentRestService.updateComment(requestCallBack, this.internalAnnotationInfo, new CommentInfo(this.oldComment), newCommentInfo);
-            ;
         } else {
             resetTags();
         }
@@ -213,14 +212,15 @@ public class CommentPanel extends Composite {
         if (validateTags()) {
             final CommentInfo newCommentInfo = new CommentInfo(this.comment);
             this.commentInputBox.clear();
+            valueInputBoxType(null);
 
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                    List<CommentInfo> newList = new ArrayList<>(commentInfoList);
-                    newList.add(newCommentInfo);
-                    internalAnnotationInfo.setCommentList(newList);
+                    commentInfoList.add(newCommentInfo);
+                    internalAnnotationInfo.setCommentList(commentInfoList);
+                    redrawTable();
                 }
 
                 @Override
@@ -238,12 +238,16 @@ public class CommentPanel extends Composite {
     @UiHandler("deleteCommentButton")
     public void deleteComment(ClickEvent ce) {
 
+        final CommentInfo commentToDelete = this.internalCommentInfo;
+
         if (this.internalCommentInfo != null) {
             RequestCallback requestCallBack = new RequestCallback() {
                 @Override
                 public void onResponseReceived(Request request, Response response) {
                     JSONValue returnValue = JSONParser.parseStrict(response.getText());
                     deleteCommentButton.setEnabled(false);
+                    commentInfoList.remove(commentToDelete);
+                    internalAnnotationInfo.setCommentList(commentInfoList);
                     redrawTable();
                 }
 
@@ -253,7 +257,7 @@ public class CommentPanel extends Composite {
                     redrawTable();
                 }
             };
-            CommentRestService.deleteComment(requestCallBack, this.internalAnnotationInfo, this.internalCommentInfo);
+            CommentRestService.deleteComment(requestCallBack, this.internalAnnotationInfo, commentToDelete);
             ;
         }
     }
