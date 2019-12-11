@@ -181,7 +181,7 @@
             </gwt:tab>
             <gwt:tab>
                 <gwt:header>Attributes</gwt:header>
-                <apollo:AttributesPanel ui:field="attributesPanel"/>
+                <apollo:AttributePanel ui:field="attributePanel"/>
             </gwt:tab>
         </gwt:TabLayoutPanel>
     </gwt:south>

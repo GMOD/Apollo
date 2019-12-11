@@ -63,8 +63,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.bbop.apollo.gwt.client.AnnotatorPanel.TAB_INDEX.DETAILS;
-
 /**
  * Created by ndunn on 12/17/14.
  */
@@ -146,7 +144,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     static CommentPanel commentPanel;
     @UiField
-    static AttributesPanel attributesPanel;
+    static AttributePanel attributePanel;
 
 
     // manage UI-state
@@ -420,7 +418,7 @@ public class AnnotatorPanel extends Composite {
                         commentPanel.updateData(selectedAnnotationInfo);
                         break;
                     case ATTRIBUTES:
-                        attributesPanel.updateData(selectedAnnotationInfo);
+                        attributePanel.updateData(selectedAnnotationInfo);
                 }
             }
         });
