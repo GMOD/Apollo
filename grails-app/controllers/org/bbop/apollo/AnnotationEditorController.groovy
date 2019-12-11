@@ -53,6 +53,7 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     def annotationEditorService
     def organismService
     def jsonWebUtilityService
+    def cannedCommentService
     def brokerMessagingTemplate
 
 
@@ -1006,7 +1007,25 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
             render status: HttpStatus.UNAUTHORIZED
             return
         }
-        render CannedComment.listOrderByComment() as JSON
+
+        Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
+        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        JSONObject cvTerm = new JSONObject()
+        if(type.toUpperCase()==Gene.cvTerm.toUpperCase()){
+            JSONObject cvTermName = new JSONObject()
+            cvTermName.put(FeatureStringEnum.NAME.value,FeatureStringEnum.CV.value)
+            cvTerm.put(FeatureStringEnum.CV.value,cvTermName)
+            cvTerm.put(FeatureStringEnum.NAME.value,type)
+        }
+        else{
+            JSONObject cvTermName = new JSONObject()
+            cvTermName.put(FeatureStringEnum.NAME.value,FeatureStringEnum.SEQUENCE.value)
+            cvTerm.put(FeatureStringEnum.CV.value,cvTermName)
+            cvTerm.put(FeatureStringEnum.NAME.value,type)
+        }
+        String ontologyId = featureService.convertJSONToOntologyId(cvTerm)
+        List<FeatureType> featureTypeList = FeatureType.findAllByOntologyId(ontologyId)
+        render cannedCommentService.getCannedComments(organism,featureTypeList) as JSON
     }
 
     @RestApiMethod(description = "Search sequences", path = "/annotationEditor/searchSequences", verb = RestApiVerb.POST)
@@ -1275,28 +1294,9 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
                     comments.put(comment.value);
                 }
 
-                JSONArray cannedComments = new JSONArray();
+
+                JSONArray cannedComments = cannedCommentService.getCannedComments(sequence.organism,featureTypeList)
                 newFeature.put(FeatureStringEnum.CANNED_COMMENTS.value, cannedComments);
-
-                List<CannedComment> cannedCommentList = new ArrayList<>()
-                if (featureTypeList) {
-                    cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc join cc.featureTypes ft where ft in (:featureTypeList)", [featureTypeList: featureTypeList]))
-                }
-                cannedCommentList.addAll(CannedComment.executeQuery("select cc from CannedComment cc where cc.featureTypes is empty"))
-
-                // if there are organism filters for these canned comments for this organism, then apply them
-                List<CannedCommentOrganismFilter> cannedCommentOrganismFilters = CannedCommentOrganismFilter.findAllByCannedCommentInList(cannedCommentList)
-                if (cannedCommentOrganismFilters) {
-                    CannedCommentOrganismFilter.findAllByOrganismAndCannedCommentInList(sequence.organism, cannedCommentList).each {
-                        cannedComments.put(it.cannedComment.comment)
-                    }
-                }
-                // otherwise ignore them
-                else {
-                    cannedCommentList.each {
-                        cannedComments.put(it.comment)
-                    }
-                }
             }
 
             JSONArray suggestedNames = new JSONArray();

@@ -98,7 +98,7 @@ public class CommentPanel extends Composite {
                 resetCannedComments();
                 JSONArray cannedCommentArray = JSONParser.parseStrict(response.getText()).isArray();
                 for(int i = 0 ; i < cannedCommentArray.size() ; i++){
-                    String cannedComment = cannedCommentArray.get(i).isObject().get(FeatureStringEnum.COMMENT.getValue()).isString().stringValue();
+                    String cannedComment = cannedCommentArray.get(i).isString().stringValue();
                     cannedCommentSelectorBox.addItem(cannedComment);
                 }
             }

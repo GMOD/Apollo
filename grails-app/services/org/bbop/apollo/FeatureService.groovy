@@ -1603,7 +1603,9 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         String cvString = jsonCVTerm.getJSONObject(FeatureStringEnum.CV.value).getString(FeatureStringEnum.NAME.value)
         String cvTermString = jsonCVTerm.getString(FeatureStringEnum.NAME.value)
 
+        println "convertin from ${jsonCVTerm} ${cvString} ${cvTermString}"
         if (cvString.equalsIgnoreCase(FeatureStringEnum.CV.value) || cvString.equalsIgnoreCase(FeatureStringEnum.SEQUENCE.value)) {
+            println "looking for ${cvTermString}"
             switch (cvTermString.toUpperCase()) {
                 case MRNA.cvTerm.toUpperCase(): return MRNA.ontologyId
                 case MiRNA.cvTerm.toUpperCase(): return MiRNA.ontologyId
