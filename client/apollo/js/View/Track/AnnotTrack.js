@@ -7763,6 +7763,7 @@ define([
              */
             updateRemoveVariantEffect: function(){
                 var menuItem = this.getMenuItem("remove_variant_effect");
+                if(!menuItem) return ;
                 var selected = this.selectionManager.getSelection();
                 menuItem.set("disabled", true);
                 if (selected.length === 0) {
