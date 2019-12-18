@@ -124,7 +124,7 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-//    @UiField
+    //    @UiField
 //    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
@@ -206,7 +206,6 @@ public class AnnotatorPanel extends Composite {
                     if (event.getContext().getSubIndex() == 0) {
                         // subIndex from dataGrid will be 0 only when top-level cell values are clicked
                         // ie. gene, pseudogene
-                        GWT.log("Safe to call updateAnnotationInfo");
                         updateAnnotationInfo(annotationInfo);
                     }
                 }
@@ -290,6 +289,24 @@ public class AnnotatorPanel extends Composite {
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
+                            if (annotationInfoList.size() == 1) {
+                                String type = annotationInfoList.get(0).getType();
+                                if (!type.equals("gene") && !type.equals("pseudogene")) {
+                                    selectedAnnotationInfo = annotationInfoList.get(0);
+                                    updateAnnotationInfo(selectedAnnotationInfo);
+                                }
+//                                selectedAnnotationInfo = annotationInfoList.get(0);
+//                                String type = selectedAnnotationInfo.getType();
+//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
+//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
+//                                if(showingTranscripts.contains(selectedAnnotationInfo.getUniqueName())){
+//                                    updateAnnotationInfo(selectedAnnotationInfo);
+//                                    String type = selectedAnnotationInfo.getType();
+//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
+//                                        addOpenTranscript(selectedAnnotationInfo.getUniqueName());
+//                                    }
+//                                }
+                            }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
@@ -298,7 +315,6 @@ public class AnnotatorPanel extends Composite {
 //                                    Window.alert("setting data: "+selectedAnnotationInfo.getName());
                                         // refind and update internally
                                         for (AnnotationInfo annotationInfo : annotationInfoList) {
-                                            GWT.log("top-level: " + annotationInfo.getType());
                                             // will be found if a top-level selection
                                             if (annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
                                                 selectedAnnotationInfo = annotationInfo;
@@ -310,7 +326,6 @@ public class AnnotatorPanel extends Composite {
                                             // if a child, we need to get the index I think?
                                             final String thisUniqueName = selectedChildUniqueName;
                                             for (AnnotationInfo annotationInfoChild : annotationInfo.getChildAnnotations()) {
-                                                GWT.log("next-level: " + annotationInfoChild.getType());
                                                 if (annotationInfoChild.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
 //                                                    selectedAnnotationInfo = annotationInfo;
                                                     selectedAnnotationInfo = getChildAnnotation(annotationInfo, thisUniqueName);
@@ -518,7 +533,6 @@ public class AnnotatorPanel extends Composite {
             return;
         }
         String type = annotationInfo.getType();
-        GWT.log("annotation type: " + type);
         hideDetailPanels();
         switch (type) {
             case "gene":
@@ -654,11 +668,11 @@ public class AnnotatorPanel extends Composite {
         }
     }
 
-    public void addOpenTranscript(String uniqueName){
+    public void addOpenTranscript(String uniqueName) {
         showingTranscripts.add(uniqueName);
     }
 
-    public void removeOpenTranscript(String uniqueName){
+    public void removeOpenTranscript(String uniqueName) {
         showingTranscripts.remove(uniqueName);
     }
 
@@ -775,7 +789,6 @@ public class AnnotatorPanel extends Composite {
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
                 tabPanel.setVisible(showDetails && selectedAnnotationInfo != null);
-                GWT.log("select info" + selectedAnnotationInfo);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
@@ -828,14 +841,14 @@ public class AnnotatorPanel extends Composite {
     }
 
     private Boolean isSearchDirty() {
-        if(typeList.getSelectedIndex()>0) return true;
-        if(userField.getSelectedIndex()>0) return true;
-        if(goOnlyCheckBox.getValue()) return true;
-        if(uniqueNameCheckBox.getValue()) return true;
-        if(nameSearchBox.getText().trim().length()>0) return true;
-        if(sequenceList.getValue().trim().length()>0) return true;
+        if (typeList.getSelectedIndex() > 0) return true;
+        if (userField.getSelectedIndex() > 0) return true;
+        if (goOnlyCheckBox.getValue()) return true;
+        if (uniqueNameCheckBox.getValue()) return true;
+        if (nameSearchBox.getText().trim().length() > 0) return true;
+        if (sequenceList.getValue().trim().length() > 0) return true;
 
-        return false ;
+        return false;
     }
 
     @UiHandler(value = {"pageSizeSelector"})
@@ -845,7 +858,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox","uniqueNameCheckBox"})
+    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -890,7 +903,7 @@ public class AnnotatorPanel extends Composite {
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
-    public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo){
+    public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo) {
         selectedAnnotationInfo = annotationInfo;
         updateAnnotationInfo(selectedAnnotationInfo);
     }
@@ -942,9 +955,7 @@ public class AnnotatorPanel extends Composite {
         protected void buildRowImpl(AnnotationInfo rowValue, int absRowIndex) {
             buildAnnotationRow(rowValue, absRowIndex, false);
 
-            GWT.log("show transcript size: "+showingTranscripts.size());
             if (showingTranscripts.contains(rowValue.getUniqueName())) {
-                GWT.log("showing transcripts IS included"+rowValue.getUniqueName());
                 // add some random rows
                 Set<AnnotationInfo> annotationInfoSet = rowValue.getChildAnnotations();
                 if (annotationInfoSet.size() > 0) {
@@ -953,9 +964,6 @@ public class AnnotatorPanel extends Composite {
                     }
                 }
             }
-            else{
-                GWT.log("showing transcripts is not included"+rowValue.getUniqueName());
-            }
 
         }
 
@@ -963,8 +971,6 @@ public class AnnotatorPanel extends Composite {
 
             TableRowBuilder row = startRow();
             TableCellBuilder td = row.startTD();
-
-            GWT.log("buildingg rows with "+ absRowIndex + " "+ showTranscripts);
 
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             if (showTranscripts) {
