@@ -84,8 +84,8 @@
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup>
-                    <b:InputGroupAddon>Synonyms</b:InputGroupAddon>
-                    <b:TextBox enabled="false" ui:field="synonymsField"/>
+                    <b:InputGroupAddon>Synonyms ('|' separated)</b:InputGroupAddon>
+                    <b:TextBox enabled="true" ui:field="synonymsField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
