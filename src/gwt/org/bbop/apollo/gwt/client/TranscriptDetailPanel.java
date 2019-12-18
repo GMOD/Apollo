@@ -215,14 +215,6 @@ public class TranscriptDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-                GWT.log("updated data: " + updatedInfo.getType() + " " + updatedInfo.getUniqueName());
-//                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
-//                    @Override
-//                    public boolean execute() {
-//                        MainPanel.getInstance().setSelectedAnnotationInfo(updatedInfo);
-//                        return true ;
-//                    }
-//                }, 1000);
                 enableFields(true);
             }
 

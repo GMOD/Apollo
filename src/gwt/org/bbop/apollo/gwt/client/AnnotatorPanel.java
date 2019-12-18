@@ -285,25 +285,12 @@ public class AnnotatorPanel extends Composite {
                             } else {
                                 requestIndex = localRequestValue;
                             }
-                            Integer annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
-
+                            int annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
                             JSONArray jsonArray = returnValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
 
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
-//                            if (annotationInfoList.size() == 1) {
-//                                selectedAnnotationInfo = annotationInfoList.get(0);
-//                                String type = selectedAnnotationInfo.getType();
-//                                if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                    addOpenTranscript(selectedAnnotationInfo.getUniqueName());
-////                                    if (1 < dataGrid.getRowCount()) {
-////                                        dataGrid.redrawRow(1);
-////                                    }
-////                                    toggleOpen(1, selectedAnnotationInfo);
-//                                }
-//
-//                            }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
@@ -655,19 +642,10 @@ public class AnnotatorPanel extends Composite {
 
     }
 
-//    public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
-//        // this method is for firing AnnotationInfoChangeEvent for single level features such as transposable_element and repeat_region
-//        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-//        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-//    }
-
     public void toggleOpen(int index, AnnotationInfo annotationInfo) {
-        GWT.log("toggling open for some reason?"+index + " "+annotationInfo.getType() + " "+annotationInfo.getUniqueName());
         if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
-            GWT.log("removing annotation unqiue name: "+annotationInfo.getUniqueName());
             showingTranscripts.remove(annotationInfo.getUniqueName());
         } else {
-            GWT.log("ADDINGG annotation unqiue name: "+annotationInfo.getUniqueName());
             showingTranscripts.add(annotationInfo.getUniqueName());
         }
 
@@ -679,7 +657,6 @@ public class AnnotatorPanel extends Composite {
 
     public void addOpenTranscript(String uniqueName){
         showingTranscripts.add(uniqueName);
-//        reload();
     }
 
     public void removeOpenTranscript(String uniqueName){
