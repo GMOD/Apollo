@@ -1,6 +1,7 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.i18n.client.HasDirection;
 import com.google.gwt.uibinder.client.UiBinder;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -16,14 +17,15 @@ import com.google.gwt.user.client.ui.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
+import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by deepak.unni3 on 8/2/16.
@@ -59,6 +61,12 @@ public class VariantDetailPanel extends Composite {
     ListBox statusListBox;
     @UiField
     InputGroupAddon statusLabelField;
+    @UiField
+    Button deleteAnnotation;
+    @UiField
+    Button gotoAnnotation;
+    @UiField
+    Button annotationIdButton;
 
     public VariantDetailPanel() {
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -111,6 +119,85 @@ public class VariantDetailPanel extends Composite {
         String updatedDescription = descriptionField.getText();
         internalAnnotationInfo.setDescription(updatedDescription);
         updateVariant();
+    }
+
+
+    @UiHandler("annotationIdButton")
+    void getAnnotationInfo(ClickEvent clickEvent) {
+        Bootbox.alert(internalAnnotationInfo.getUniqueName());
+    }
+
+    @UiHandler("gotoAnnotation")
+    void gotoAnnotation(ClickEvent clickEvent) {
+        Integer min = internalAnnotationInfo.getMin() - 50;
+        Integer max = internalAnnotationInfo.getMax() + 50;
+        min = min < 0 ? 0 : min;
+        MainPanel.updateGenomicViewerForLocation(internalAnnotationInfo.getSequence(), min, max, false, false);
+    }
+
+    private Set<AnnotationInfo> getDeletableChildren(AnnotationInfo selectedAnnotationInfo) {
+        String type = selectedAnnotationInfo.getType();
+        if (type.equalsIgnoreCase(FeatureStringEnum.GENE.getValue()) || type.equalsIgnoreCase(FeatureStringEnum.PSEUDOGENE.getValue())) {
+            return selectedAnnotationInfo.getChildAnnotations();
+        }
+        return new HashSet<>();
+    }
+
+    @UiHandler("deleteAnnotation")
+    void deleteAnnotation(ClickEvent clickEvent) {
+        final Set<AnnotationInfo> deletableChildren = getDeletableChildren(internalAnnotationInfo);
+        String confirmString = "";
+        if (deletableChildren.size() > 0) {
+            confirmString = "Delete the " + deletableChildren.size() + " annotation" + (deletableChildren.size() > 1 ? "s" : "") + " belonging to the " + internalAnnotationInfo.getType() + " " + internalAnnotationInfo.getName() + "?";
+        } else {
+            confirmString = "Delete the " + internalAnnotationInfo.getType() + " " + internalAnnotationInfo.getName() + "?";
+        }
+
+
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == 200) {
+                    // parse to make sure we return the complete amount
+                    try {
+                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                        GWT.log("Return: "+returnValue.toString());
+                        Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
+                            @Override
+                            public void callback(boolean result) {
+                                if(result){
+                                    Window.Location.reload();
+                                }
+                            }
+                        });
+                    } catch (Exception e) {
+                        Bootbox.alert(e.getMessage());
+                    }
+                } else {
+                    Bootbox.alert("Problem with deletion: " + response.getText());
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Problem with deletion: " + exception.getMessage());
+            }
+        };
+
+        Bootbox.confirm(confirmString, new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if (result) {
+                    if (deletableChildren.size() == 0) {
+                        Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
+                        annotationInfoSet.add(internalAnnotationInfo);
+                        AnnotationRestService.deleteAnnotations(requestCallback, annotationInfoSet);
+                    } else {
+                        JSONObject jsonObject = AnnotationRestService.deleteAnnotations(requestCallback, deletableChildren);
+                    }
+                }
+            }
+        });
     }
 
     private void enableFields(boolean enabled) {
