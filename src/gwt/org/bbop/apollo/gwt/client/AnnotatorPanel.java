@@ -124,10 +124,6 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-    //    @UiField
-//    static Button gotoAnnotation;
-//    @UiField
-//    static Button deleteAnnotation;
     @UiField
     Button toggleAnnotation;
     @UiField
@@ -791,16 +787,12 @@ public class AnnotatorPanel extends Composite {
                     dbXrefPanel.updateData(selectedAnnotationInfo);
                     commentPanel.updateData(selectedAnnotationInfo);
                     attributePanel.updateData(selectedAnnotationInfo);
-//                    gotoAnnotation.setEnabled(true);
-//                    deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
                     goPanel.updateData();
                     dbXrefPanel.updateData();
                     commentPanel.updateData();
                     attributePanel.updateData();
-//                    gotoAnnotation.setEnabled(false);
-//                    deleteAnnotation.setEnabled(false);
                 }
             }
         });
@@ -862,14 +854,6 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-//    @UiHandler("gotoAnnotation")
-//    void gotoAnnotation(ClickEvent clickEvent) {
-//        Integer min = selectedAnnotationInfo.getMin() - 50;
-//        Integer max = selectedAnnotationInfo.getMax() + 50;
-//        min = min < 0 ? 0 : min;
-//        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
-//    }
-
 
     private void handleDetails() {
         if (showDetails) {
@@ -889,71 +873,6 @@ public class AnnotatorPanel extends Composite {
         handleDetails();
     }
 
-//    @UiHandler("deleteAnnotation")
-//    void deleteAnnotation(ClickEvent clickEvent) {
-//        final Set<AnnotationInfo> deletableChildren = getDeletableChildren(selectedAnnotationInfo);
-//        String confirmString = "";
-//        if (deletableChildren.size() > 0) {
-//            confirmString = "Delete the " + deletableChildren.size() + " annotation" + (deletableChildren.size() > 1 ? "s" : "") + " belonging to the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
-//        } else {
-//            confirmString = "Delete the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
-//        }
-//
-//
-//        final RequestCallback requestCallback = new RequestCallback() {
-//            @Override
-//            public void onResponseReceived(Request request, Response response) {
-//                if (response.getStatusCode() == 200) {
-//                    // parse to make sure we return the complete amount
-//                    try {
-//                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
-//                        GWT.log("Return: "+returnValue.toString());
-//                        Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
-//                            @Override
-//                            public void callback(boolean result) {
-//                                if(result){
-//                                    Window.Location.reload();
-//                                }
-//                            }
-//                        });
-//                    } catch (Exception e) {
-//                        Bootbox.alert(e.getMessage());
-//                    }
-//                } else {
-//                    Bootbox.alert("Problem with deletion: " + response.getText());
-//                }
-//            }
-//
-//            @Override
-//            public void onError(Request request, Throwable exception) {
-//                Bootbox.alert("Problem with deletion: " + exception.getMessage());
-//            }
-//        };
-//
-//        Bootbox.confirm(confirmString, new ConfirmCallback() {
-//            @Override
-//            public void callback(boolean result) {
-//                if (result) {
-//                    if (deletableChildren.size() == 0) {
-//                        Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
-//                        annotationInfoSet.add(selectedAnnotationInfo);
-//                        AnnotationRestService.deleteAnnotations(requestCallback, annotationInfoSet);
-//                    } else {
-//                        JSONObject jsonObject = AnnotationRestService.deleteAnnotations(requestCallback, deletableChildren);
-//                    }
-//                }
-//            }
-//        });
-//    }
-
-
-    private Set<AnnotationInfo> getDeletableChildren(AnnotationInfo selectedAnnotationInfo) {
-        String type = selectedAnnotationInfo.getType();
-        if (type.equalsIgnoreCase(FeatureStringEnum.GENE.getValue()) || type.equalsIgnoreCase(FeatureStringEnum.PSEUDOGENE.getValue())) {
-            return selectedAnnotationInfo.getChildAnnotations();
-        }
-        return new HashSet<>();
-    }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
         for (AnnotationInfo childAnnotation : annotationInfo.getChildAnnotations()) {
@@ -971,8 +890,6 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
-//        gotoAnnotation.setEnabled(true);
-//        deleteAnnotation.setEnabled(true);
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 

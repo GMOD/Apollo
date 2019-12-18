@@ -34,15 +34,18 @@
             display: inline;
             /*margin: 5px;*/
             background-color: grey;
-            border-radius: 10px;
-            padding: 5px;
-            width: 90px;
+            border-radius: 5px;
+            /*padding: 5px;*/
+            /*width: 90px;*/
+            padding-left: 5px;
+            padding-bottom: 5px;
 
             /*border: solid black 5px;*/
         }
 
         .idCheckBox{
             display: inline;
+            font-weight: bolder;
             /*margin: 5px;*/
             /*background-color: grey;*/
             /*border-radius: 10px;*/
@@ -80,18 +83,18 @@
         <gwt:north size="130">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
-                    <b:Column size="MD_5">
+                    <b:Column size="MD_4">
                         <b:TextBox placeholder="Annotation Name"
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_1">
-                        <b:CheckBox ui:field="uniqueNameCheckBox" styleName="{style.idCheckBox}" text="ID"/>
+                    <b:Column size="MD_2">
+                        <b:CheckBox ui:field="uniqueNameCheckBox" addStyleNames="{style.idCheckBox}" text="Search ID"/>
                     </b:Column>
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="typeList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_3">
-                        <b:CheckBox ui:field="goOnlyCheckBox" addStyleNames="{style.checkBox}" text="GO Only"/>
+                    <b:Column size="MD_2">
+                        <b:CheckBox ui:field="goOnlyCheckBox" addStyleNames="{style.idCheckBox}" text="GO Only"/>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowPadding}">
