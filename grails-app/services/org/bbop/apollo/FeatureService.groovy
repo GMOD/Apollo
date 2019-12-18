@@ -1845,7 +1845,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
-        println "doing a json lite ${gsolFeature.featureSynonyms}"
         if (gsolFeature.featureSynonyms) {
             String synonymString = ""
             for(def fs in  gsolFeature.featureSynonyms){
