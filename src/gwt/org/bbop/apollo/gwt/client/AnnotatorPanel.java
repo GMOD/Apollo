@@ -53,7 +53,6 @@ import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.constants.ButtonType;
-import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
 import java.util.Date;
@@ -285,21 +284,12 @@ public class AnnotatorPanel extends Composite {
                             } else {
                                 requestIndex = localRequestValue;
                             }
-                            Integer annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
-
+                            int annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
                             JSONArray jsonArray = returnValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
 
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
-                            if (annotationInfoList.size() == 1) {
-                                selectedAnnotationInfo = annotationInfoList.get(0);
-                                String type = selectedAnnotationInfo.getType();
-                                if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-                                    toggleOpen(1, selectedAnnotationInfo);
-                                }
-
-                            }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
@@ -651,12 +641,6 @@ public class AnnotatorPanel extends Composite {
 
     }
 
-    public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
-        // this method is for firing AnnotationInfoChangeEvent for single level features such as transposable_element and repeat_region
-        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-    }
-
     public void toggleOpen(int index, AnnotationInfo annotationInfo) {
         if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
             showingTranscripts.remove(annotationInfo.getUniqueName());
@@ -668,6 +652,14 @@ public class AnnotatorPanel extends Composite {
         if (index < dataGrid.getRowCount()) {
             dataGrid.redrawRow(index);
         }
+    }
+
+    public void addOpenTranscript(String uniqueName){
+        showingTranscripts.add(uniqueName);
+    }
+
+    public void removeOpenTranscript(String uniqueName){
+        showingTranscripts.remove(uniqueName);
     }
 
     private void initializeTable() {
@@ -840,7 +832,6 @@ public class AnnotatorPanel extends Composite {
         if(userField.getSelectedIndex()>0) return true;
         if(goOnlyCheckBox.getValue()) return true;
         if(uniqueNameCheckBox.getValue()) return true;
-        if(uniqueNameCheckBox.getValue()) return true;
         if(nameSearchBox.getText().trim().length()>0) return true;
         if(sequenceList.getValue().trim().length()>0) return true;
 
@@ -877,23 +868,8 @@ public class AnnotatorPanel extends Composite {
 
 
     private void handleDetails() {
-//        if (showDetails) {
-//            toggleAnnotation.setText("Hide Details");
-//            toggleAnnotation.setIcon(IconType.EYE_SLASH);
-//        } else {
-//            toggleAnnotation.setText("Show Details");
-//            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
-//        }
-
         tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject() != null);
     }
-//
-//    @UiHandler("toggleAnnotation")
-//    void toggleAnnotation(ClickEvent clickEvent) {
-//        showDetails = !showDetails;
-//        handleDetails();
-//    }
-
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
         for (AnnotationInfo childAnnotation : annotationInfo.getChildAnnotations()) {
@@ -914,11 +890,16 @@ public class AnnotatorPanel extends Composite {
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
+    public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo){
+        selectedAnnotationInfo = annotationInfo;
+        updateAnnotationInfo(selectedAnnotationInfo);
+    }
+
     // used by javascript function
     public void displayTranscript(int geneIndex, String uniqueName) {
 
         // for some reason doesn't like call enableGoto
-        enableGoto(geneIndex, uniqueName);
+//        enableGoto(geneIndex, uniqueName);
 
         // for some reason doesn't like call gotoAnnotation
         Integer min = selectedAnnotationInfo.getMin() - 50;
@@ -961,7 +942,9 @@ public class AnnotatorPanel extends Composite {
         protected void buildRowImpl(AnnotationInfo rowValue, int absRowIndex) {
             buildAnnotationRow(rowValue, absRowIndex, false);
 
+            GWT.log("show transcript size: "+showingTranscripts.size());
             if (showingTranscripts.contains(rowValue.getUniqueName())) {
+                GWT.log("showing transcripts IS included"+rowValue.getUniqueName());
                 // add some random rows
                 Set<AnnotationInfo> annotationInfoSet = rowValue.getChildAnnotations();
                 if (annotationInfoSet.size() > 0) {
@@ -970,12 +953,18 @@ public class AnnotatorPanel extends Composite {
                     }
                 }
             }
+            else{
+                GWT.log("showing transcripts is not included"+rowValue.getUniqueName());
+            }
+
         }
 
         private void buildAnnotationRow(final AnnotationInfo rowValue, int absRowIndex, boolean showTranscripts) {
 
             TableRowBuilder row = startRow();
             TableCellBuilder td = row.startTD();
+
+            GWT.log("buildingg rows with "+ absRowIndex + " "+ showTranscripts);
 
             td.style().outlineStyle(Style.OutlineStyle.NONE).endStyle();
             if (showTranscripts) {
