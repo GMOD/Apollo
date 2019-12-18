@@ -73,6 +73,7 @@
         .pageSizeSelector {
             display: inline;
             width: 40px;
+            margin-top: 5px;
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
@@ -97,29 +98,13 @@
                     <b:Column size="MD_5">
                         <b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_3">
+                    <b:Column size="MD_7">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
-                    </b:Column>
-                    <b:Column size="MD_4">
-                        <b:Button text="Show All" ui:field="showAllSequences" styleName="{style.widgetBox}"/>
                     </b:Column>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="MD_6">
-<!--                        <b:ButtonGroup>-->
-<!--                            <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"-->
-<!--                                      text="Go to Annotation"-->
-<!--                                      ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.action-buttons}"/>-->
-<!--                            <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"-->
-<!--                                      text="Delete Annotation"-->
-<!--                                      ui:field="deleteAnnotation" enabled="false"-->
-<!--                                      addStyleNames="{style.action-buttons}"/>-->
-<!--                        </b:ButtonGroup>-->
-                        <b:Label text="Rows" styleName="{style.pageSizeLabel}"/>
-                        <b:ListBox title="Rows"
-                                       ui:field="pageSizeSelector" styleName="{style.pageSizeSelector}"
-                        >
-                        </b:ListBox>
+                    <b:Column size="MD_4">
+                        <b:Button text="Show All" ui:field="showAllSequences" styleName="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_6">
                         <b:Button  text="Details"
@@ -137,6 +122,10 @@
                     <table style="width:100%">
                         <tr>
                             <td style="width:20%">
+                                <b:Label text="Rows" styleName="{style.pageSizeLabel}"/>
+                                <b:ListBox title="Rows"
+                                           ui:field="pageSizeSelector" styleName="{style.pageSizeSelector}"
+                                />
                             </td>
                             <td align="center">
                                 <apollo:WebApolloSimplePager ui:field="pager" styleName="{style.pager}"/>
