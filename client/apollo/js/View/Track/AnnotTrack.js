@@ -2367,12 +2367,12 @@ define([
                 var selectedFeatureDetails = selectedFeature.afeature;
                 while(selectedFeature  ){
                     if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
                         return ;
                     }
                     else
                     if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_name);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id);
                         return ;
                     }
                     selectedFeature = selectedFeature._parent ;
@@ -7763,6 +7763,7 @@ define([
              */
             updateRemoveVariantEffect: function(){
                 var menuItem = this.getMenuItem("remove_variant_effect");
+                if(!menuItem) return ;
                 var selected = this.selectionManager.getSelection();
                 menuItem.set("disabled", true);
                 if (selected.length === 0) {

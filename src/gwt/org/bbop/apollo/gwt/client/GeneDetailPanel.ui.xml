@@ -29,7 +29,11 @@
         }
 
         .selectBox {
-
+            display: inline;
+        }
+        .action-buttons {
+            margin-right: 10px;
+            display: inline;
         }
 
         .inputGroup1 {
@@ -37,6 +41,20 @@
         }</ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.topPanel}">
+                <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"
+                          text="Go"
+                          ui:field="gotoAnnotation" enabled="true" addStyleNames="{style.action-buttons}"/>
+                <b:Button type="PRIMARY" icon="INFO_CIRCLE" title="ID" iconSize="LARGE"
+                          text="ID"
+                          ui:field="annotationIdButton" enabled="true" addStyleNames="{style.action-buttons}"/>
+                <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
+                          text="Delete" pull="RIGHT"
+                          ui:field="deleteAnnotation" enabled="true"
+                          addStyleNames="{style.action-buttons}"/>
+            </b:Column>
+        </b:Row>
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.topPanel}">
                 <b:InputGroup addStyleNames="{style.inputGroup1}">

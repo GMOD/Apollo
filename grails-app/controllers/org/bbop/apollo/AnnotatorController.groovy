@@ -296,9 +296,10 @@ class AnnotatorController {
  * @param max
  * @param sortorder
  * @param sort
+ * @param searchUniqueName
  * @return
  */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken,Boolean showOnlyGoAnnotations) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken,Boolean showOnlyGoAnnotations,Boolean searchUniqueName) {
         try {
             JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -369,7 +370,12 @@ class AnnotatorController {
                     order('lastUpdated', sortorder)
                 }
                 if (annotationName) {
-                    ilike('name', '%' + annotationName + '%')
+                    if(searchUniqueName){
+                        ilike('uniqueName', '%' + annotationName + '%')
+                    }
+                    else{
+                        ilike('name', '%' + annotationName + '%')
+                    }
                 }
                 if (user) {
                     owners {

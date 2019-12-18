@@ -29,9 +29,8 @@ import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
@@ -44,19 +43,18 @@ import org.bbop.apollo.gwt.client.event.UserChangeEvent;
 import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -127,12 +125,8 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-    @UiField
-    static Button gotoAnnotation;
-    @UiField
-    static Button deleteAnnotation;
-    @UiField
-    Button toggleAnnotation;
+//    @UiField
+//    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
@@ -145,10 +139,14 @@ public class AnnotatorPanel extends Composite {
     static CommentPanel commentPanel;
     @UiField
     static AttributePanel attributePanel;
+    @UiField
+    CheckBox uniqueNameCheckBox;
+    @UiField
+    Button showAllSequences;
 
 
     // manage UI-state
-    private Boolean showDetails = true ;
+    private Boolean showDetails = true;
 
     static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -169,14 +167,15 @@ public class AnnotatorPanel extends Composite {
         ATTRIBUTES(8),
         ;
 
-        public int index ;
-        TAB_INDEX(int index){
+        public int index;
+
+        TAB_INDEX(int index) {
             this.index = index;
         }
 
         public static TAB_INDEX getTabEnumForIndex(int selectedSubTabIndex) {
-            for(TAB_INDEX value: values()){
-                if(value.index==selectedSubTabIndex){
+            for (TAB_INDEX value : values()) {
+                if (value.index == selectedSubTabIndex) {
                     return value;
                 }
             }
@@ -236,10 +235,12 @@ public class AnnotatorPanel extends Composite {
                 String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName;
                 url += "&request=" + requestIndex;
                 url += "&offset=" + start + "&max=" + length;
-                url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue();
+                url += "&annotationName=" + nameSearchBox.getText();
+                url += "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
+                url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
@@ -469,9 +470,9 @@ public class AnnotatorPanel extends Composite {
 
     }
 
-    void selectGoPanel(){
-      goPanel.redraw();
-      tabPanel.selectTab(5);
+    void selectGoPanel() {
+        goPanel.redraw();
+        tabPanel.selectTab(5);
     }
 
 
@@ -781,24 +782,20 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
-                tabPanel.setVisible(showDetails && selectedAnnotationInfo!=null);
-                GWT.log("select info"+selectedAnnotationInfo);
+                tabPanel.setVisible(showDetails && selectedAnnotationInfo != null);
+                GWT.log("select info" + selectedAnnotationInfo);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
                     dbXrefPanel.updateData(selectedAnnotationInfo);
                     commentPanel.updateData(selectedAnnotationInfo);
                     attributePanel.updateData(selectedAnnotationInfo);
-                    gotoAnnotation.setEnabled(true);
-                    deleteAnnotation.setEnabled(true);
                 } else {
                     exonDetailPanel.updateData();
                     goPanel.updateData();
                     dbXrefPanel.updateData();
                     commentPanel.updateData();
                     attributePanel.updateData();
-                    gotoAnnotation.setEnabled(false);
-                    deleteAnnotation.setEnabled(false);
                 }
             }
         });
@@ -825,6 +822,8 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
+        showAllSequences.setEnabled(isSearchDirty());
+        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
@@ -836,6 +835,18 @@ public class AnnotatorPanel extends Composite {
         reload(false);
     }
 
+    private Boolean isSearchDirty() {
+        if(typeList.getSelectedIndex()>0) return true;
+        if(userField.getSelectedIndex()>0) return true;
+        if(goOnlyCheckBox.getValue()) return true;
+        if(uniqueNameCheckBox.getValue()) return true;
+        if(uniqueNameCheckBox.getValue()) return true;
+        if(nameSearchBox.getText().trim().length()>0) return true;
+        if(sequenceList.getValue().trim().length()>0) return true;
+
+        return false ;
+    }
+
     @UiHandler(value = {"pageSizeSelector"})
     public void changePageSize(ChangeEvent changeEvent) {
         pageSize = Integer.parseInt(pageSizeSelector.getSelectedValue());
@@ -843,7 +854,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField","goOnlyCheckBox"})
+    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox","uniqueNameCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -857,101 +868,32 @@ public class AnnotatorPanel extends Composite {
     public void setShowAllSequences(ClickEvent clickEvent) {
         nameSearchBox.setText("");
         sequenceList.setText("");
+        userField.setSelectedIndex(0);
+        typeList.setSelectedIndex(0);
+        uniqueNameCheckBox.setValue(false);
+        goOnlyCheckBox.setValue(false);
         reload();
     }
 
-    @UiHandler("gotoAnnotation")
-    void gotoAnnotation(ClickEvent clickEvent) {
-        Integer min = selectedAnnotationInfo.getMin() - 50;
-        Integer max = selectedAnnotationInfo.getMax() + 50;
-        min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
+
+    private void handleDetails() {
+//        if (showDetails) {
+//            toggleAnnotation.setText("Hide Details");
+//            toggleAnnotation.setIcon(IconType.EYE_SLASH);
+//        } else {
+//            toggleAnnotation.setText("Show Details");
+//            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
+//        }
+
+        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject() != null);
     }
+//
+//    @UiHandler("toggleAnnotation")
+//    void toggleAnnotation(ClickEvent clickEvent) {
+//        showDetails = !showDetails;
+//        handleDetails();
+//    }
 
-
-    private void handleDetails(){
-        if(showDetails) {
-            toggleAnnotation.setText("Hide Details");
-            toggleAnnotation.setIcon(IconType.EYE_SLASH);
-        } else{
-            toggleAnnotation.setText("Show Details");
-            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
-        }
-
-        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject()!=null);
-    }
-
-    @UiHandler("toggleAnnotation")
-    void toggleAnnotation(ClickEvent clickEvent) {
-        showDetails = !showDetails;
-        handleDetails();
-    }
-
-    @UiHandler("deleteAnnotation")
-    void deleteAnnotation(ClickEvent clickEvent) {
-        final Set<AnnotationInfo> deletableChildren = getDeletableChildren(selectedAnnotationInfo);
-        String confirmString = "";
-        if (deletableChildren.size() > 0) {
-            confirmString = "Delete the " + deletableChildren.size() + " annotation" + (deletableChildren.size() > 1 ? "s" : "") + " belonging to the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
-        } else {
-            confirmString = "Delete the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
-        }
-
-
-        final RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                if (response.getStatusCode() == 200) {
-                    // parse to make sure we return the complete amount
-                    try {
-                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                        GWT.log("Return: "+returnValue.toString());
-                        Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
-                            @Override
-                            public void callback(boolean result) {
-                                if(result){
-                                    Window.Location.reload();
-                                }
-                            }
-                        });
-                    } catch (Exception e) {
-                        Bootbox.alert(e.getMessage());
-                    }
-                } else {
-                    Bootbox.alert("Problem with deletion: " + response.getText());
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Problem with deletion: " + exception.getMessage());
-            }
-        };
-
-        Bootbox.confirm(confirmString, new ConfirmCallback() {
-            @Override
-            public void callback(boolean result) {
-                if (result) {
-                    if (deletableChildren.size() == 0) {
-                        Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
-                        annotationInfoSet.add(selectedAnnotationInfo);
-                        AnnotationRestService.deleteAnnotations(requestCallback, annotationInfoSet);
-                    } else {
-                        JSONObject jsonObject = AnnotationRestService.deleteAnnotations(requestCallback, deletableChildren);
-                    }
-                }
-            }
-        });
-    }
-
-
-    private Set<AnnotationInfo> getDeletableChildren(AnnotationInfo selectedAnnotationInfo) {
-        String type = selectedAnnotationInfo.getType();
-        if (type.equalsIgnoreCase(FeatureStringEnum.GENE.getValue()) || type.equalsIgnoreCase(FeatureStringEnum.PSEUDOGENE.getValue())) {
-            return selectedAnnotationInfo.getChildAnnotations();
-        }
-        return new HashSet<>();
-    }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
         for (AnnotationInfo childAnnotation : annotationInfo.getChildAnnotations()) {
@@ -969,8 +911,6 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
-        gotoAnnotation.setEnabled(true);
-        deleteAnnotation.setEnabled(true);
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
     }
 
@@ -978,7 +918,7 @@ public class AnnotatorPanel extends Composite {
     public void displayTranscript(int geneIndex, String uniqueName) {
 
         // for some reason doesn't like call enableGoto
-        enableGoto(geneIndex,uniqueName);
+        enableGoto(geneIndex, uniqueName);
 
         // for some reason doesn't like call gotoAnnotation
         Integer min = selectedAnnotationInfo.getMin() - 50;
@@ -991,13 +931,13 @@ public class AnnotatorPanel extends Composite {
     public void displayFeature(int featureIndex) {
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - featureIndex));
         String type = annotationInfo.getType();
-        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator") ) {
+        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator")) {
             // do nothing
         } else {
             exonDetailPanel.updateData(annotationInfo);
         }
-        gotoAnnotation.setEnabled(true);
-        deleteAnnotation.setEnabled(true);
+//        gotoAnnotation.setEnabled(true);
+//        deleteAnnotation.setEnabled(true);
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;

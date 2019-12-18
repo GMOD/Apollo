@@ -1098,14 +1098,12 @@ public class MainPanel extends Composite {
     }
 
     /**
-     * Features array handed in
-     *
-     * @param parentName
      */
     public static Boolean viewInAnnotationPanel(String parentName) {
         try {
             annotatorPanel.sequenceList.setText("");
             annotatorPanel.nameSearchBox.setText(parentName);
+            annotatorPanel.uniqueNameCheckBox.setValue(true);
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
             MainPanel.getInstance().openPanel();
