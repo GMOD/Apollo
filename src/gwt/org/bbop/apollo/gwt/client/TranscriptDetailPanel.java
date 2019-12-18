@@ -1,12 +1,12 @@
 package org.bbop.apollo.gwt.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.HasDirection;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
@@ -19,7 +19,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -41,7 +40,8 @@ public class TranscriptDetailPanel extends Composite {
 
     private AnnotationInfo internalAnnotationInfo;
 
-    interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> { }
+    interface AnnotationDetailPanelUiBinder extends UiBinder<Widget, TranscriptDetailPanel> {
+    }
 
     private static AnnotationDetailPanelUiBinder ourUiBinder = GWT.create(AnnotationDetailPanelUiBinder.class);
 
@@ -142,11 +142,11 @@ public class TranscriptDetailPanel extends Composite {
                     // parse to make sure we return the complete amount
                     try {
                         JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                        GWT.log("Return: "+returnValue.toString());
+                        GWT.log("Return: " + returnValue.toString());
                         Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
                             @Override
                             public void callback(boolean result) {
-                                if(result){
+                                if (result) {
                                     Window.Location.reload();
                                 }
                             }
@@ -210,11 +210,19 @@ public class TranscriptDetailPanel extends Composite {
 
     private void updateTranscript() {
         final AnnotationInfo updatedInfo = this.internalAnnotationInfo;
+        MainPanel.getInstance().setSelectedAnnotationInfo(updatedInfo);
         enableFields(false);
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-//                Annotator.eventBus.fireEvent(new AnnotationInfoChangeEvent(updatedInfo, AnnotationInfoChangeEvent.Action.UPDATE));
+                GWT.log("updated data: " + updatedInfo.getType() + " " + updatedInfo.getUniqueName());
+//                Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+//                    @Override
+//                    public boolean execute() {
+//                        MainPanel.getInstance().setSelectedAnnotationInfo(updatedInfo);
+//                        return true ;
+//                    }
+//                }, 1000);
                 enableFields(true);
             }
 
