@@ -183,6 +183,7 @@ class AnnotatorController {
             , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature name")
             , @RestApiParam(name = "symbol", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature symbol")
+            , @RestApiParam(name = "synonyms", type = "string", paramType = RestApiParamType.QUERY, description = "Updated synonyms pipe (|) separated")
             , @RestApiParam(name = "description", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature description")
             , @RestApiParam(name = "status", type = "string", paramType = RestApiParamType.QUERY, description = "Updated status")
     ]
@@ -201,6 +202,47 @@ class AnnotatorController {
         feature.name = data.name
         feature.symbol = data.symbol
         feature.description = data.description
+
+        if(data.synonyms){
+            def oldSynonymNames = feature.featureSynonyms.synonym.name
+            def newSynonymNames = data.synonyms.split("\\|")
+            def synonymsToAdd = newSynonymNames - oldSynonymNames
+            def synonymsToRemove = oldSynonymNames - newSynonymNames
+            // add missing
+
+            for(syn in synonymsToRemove){
+                def featureSynonymsToRemove = FeatureSynonym.executeQuery("select fs from FeatureSynonym fs where fs.feature = :feature and fs.synonym.name = :name",[feature: feature,,name:syn])
+                println "features to remove ${featureSynonymsToRemove.size()} ${featureSynonymsToRemove}"
+                for(fs in featureSynonymsToRemove){
+                    feature.removeFromFeatureSynonyms(fs)
+                    fs.delete()
+                }
+//                Synonym synonym = new Synonym(
+//                        name: syn,
+//                ).save(failOnError: true)
+//                FeatureSynonym featureSynonym = new FeatureSynonym(
+//                        feature: feature,
+//                        synonym: synonym,
+//                ).save(failOnError: true)
+//                feature.addToFeatureSynonyms(featureSynonym)
+            }
+
+            for(syn in synonymsToAdd){
+                Synonym synonym = new Synonym(
+                      name: syn,
+                ).save(failOnError: true)
+                FeatureSynonym featureSynonym = new FeatureSynonym(
+                        feature: feature,
+                        synonym: synonym,
+                ).save(failOnError: true)
+                feature.addToFeatureSynonyms(featureSynonym)
+            }
+
+
+            // remove old
+
+        }
+//        feature.featureSynonyms = data.synonyms
 
         if(data.status==null){
             // delete old status if it existed
@@ -408,6 +450,7 @@ class AnnotatorController {
                     fetchMode 'goAnnotations', FetchMode.JOIN
                 }
                 fetchMode 'owners', FetchMode.JOIN
+                fetchMode 'featureSynonyms', FetchMode.JOIN
                 fetchMode 'featureDBXrefs', FetchMode.JOIN
                 fetchMode 'featureProperties', FetchMode.JOIN
                 fetchMode 'featureLocations', FetchMode.JOIN

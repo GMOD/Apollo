@@ -131,11 +131,6 @@ public class GeneDetailPanel extends Composite {
 
     }
 
-    private boolean validateSynonyms(String updatedName) {
-
-        return false;
-    }
-
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
         String updatedName = descriptionField.getText();
@@ -154,6 +149,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setEnabled(enabled);
         symbolField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
+        synonymsField.setEnabled(enabled);
     }
 
 

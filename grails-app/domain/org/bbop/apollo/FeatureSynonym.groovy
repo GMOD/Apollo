@@ -4,6 +4,9 @@ package org.bbop.apollo
 class FeatureSynonym {
 
     static constraints = {
+        publication nullable: true
+        isCurrent nullable: true
+        isInternal nullable: true
     }
 
     Publication publication;
