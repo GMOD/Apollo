@@ -52,6 +52,7 @@ import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
@@ -124,8 +125,8 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-    @UiField
-    Button toggleAnnotation;
+//    @UiField
+//    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
@@ -140,6 +141,8 @@ public class AnnotatorPanel extends Composite {
     static AttributePanel attributePanel;
     @UiField
     CheckBox uniqueNameCheckBox;
+    @UiField
+    Button showAllSequences;
 
 
     // manage UI-state
@@ -819,6 +822,8 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
+        showAllSequences.setEnabled(isSearchDirty());
+        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
@@ -828,6 +833,18 @@ public class AnnotatorPanel extends Composite {
 
     public void reload() {
         reload(false);
+    }
+
+    private Boolean isSearchDirty() {
+        if(typeList.getSelectedIndex()>0) return true;
+        if(userField.getSelectedIndex()>0) return true;
+        if(goOnlyCheckBox.getValue()) return true;
+        if(uniqueNameCheckBox.getValue()) return true;
+        if(uniqueNameCheckBox.getValue()) return true;
+        if(nameSearchBox.getText().trim().length()>0) return true;
+        if(sequenceList.getValue().trim().length()>0) return true;
+
+        return false ;
     }
 
     @UiHandler(value = {"pageSizeSelector"})
@@ -851,27 +868,31 @@ public class AnnotatorPanel extends Composite {
     public void setShowAllSequences(ClickEvent clickEvent) {
         nameSearchBox.setText("");
         sequenceList.setText("");
+        userField.setSelectedIndex(0);
+        typeList.setSelectedIndex(0);
+        uniqueNameCheckBox.setValue(false);
+        goOnlyCheckBox.setValue(false);
         reload();
     }
 
 
     private void handleDetails() {
-        if (showDetails) {
-            toggleAnnotation.setText("Hide Details");
-            toggleAnnotation.setIcon(IconType.EYE_SLASH);
-        } else {
-            toggleAnnotation.setText("Show Details");
-            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
-        }
+//        if (showDetails) {
+//            toggleAnnotation.setText("Hide Details");
+//            toggleAnnotation.setIcon(IconType.EYE_SLASH);
+//        } else {
+//            toggleAnnotation.setText("Show Details");
+//            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
+//        }
 
         tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject() != null);
     }
-
-    @UiHandler("toggleAnnotation")
-    void toggleAnnotation(ClickEvent clickEvent) {
-        showDetails = !showDetails;
-        handleDetails();
-    }
+//
+//    @UiHandler("toggleAnnotation")
+//    void toggleAnnotation(ClickEvent clickEvent) {
+//        showDetails = !showDetails;
+//        handleDetails();
+//    }
 
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
