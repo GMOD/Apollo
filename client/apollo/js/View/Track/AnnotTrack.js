@@ -2366,13 +2366,16 @@ define([
                 var selectedFeature = selected[0].feature;
                 var selectedFeatureDetails = selectedFeature.afeature;
                 while(selectedFeature  ){
+                    console.log('selected feature',selectedFeature,selectedFeatureDetails.type.name,selectedFeatureDetails.parent_type)
                     if(topTypes.indexOf(selectedFeatureDetails.type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.name);
+                        console.log('loading unique name of child',selectedFeatureDetails);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.uniquename);
                         return ;
                     }
                     else
                     if(topTypes.indexOf(selectedFeatureDetails.parent_type.name)>=0){
-                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_name);
+                        console.log('loading unique name of parent',selectedFeatureDetails);
+                        this.getApollo().viewInAnnotationPanel(selectedFeatureDetails.parent_id);
                         return ;
                     }
                     selectedFeature = selectedFeature._parent ;

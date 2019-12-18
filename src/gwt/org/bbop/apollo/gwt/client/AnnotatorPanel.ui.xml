@@ -41,6 +41,17 @@
             /*border: solid black 5px;*/
         }
 
+        .idCheckBox{
+            display: inline;
+            /*margin: 5px;*/
+            /*background-color: grey;*/
+            /*border-radius: 10px;*/
+            /*padding: 5px;*/
+            /*width: 90px;*/
+
+            /*border: solid black 5px;*/
+        }
+
         .rowPadding {
             margin-bottom: 40px;
         }
@@ -65,12 +76,15 @@
         }
     </ui:style>
     <gwt:DockLayoutPanel ui:field="splitPanel">
-        <gwt:north size="120">
+        <gwt:north size="130">
             <b:Container fluid="true" styleName="{style.northPanel}" ui:field="northPanelContainer">
                 <b:Row styleName="{style.rowPadding}">
-                    <b:Column size="MD_6">
+                    <b:Column size="MD_5">
                         <b:TextBox placeholder="Annotation Name"
                                    ui:field="nameSearchBox" addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
+                    <b:Column size="MD_1">
+                        <b:CheckBox ui:field="uniqueNameCheckBox" styleName="{style.idCheckBox}" text="ID"/>
                     </b:Column>
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="typeList" addStyleNames="{style.widgetBox}"/>
@@ -83,31 +97,31 @@
                     <b:Column size="MD_5">
                         <b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_1">
-                        <b:Button text="All" ui:field="showAllSequences" styleName="{style.widgetBox}"/>
-                    </b:Column>
                     <b:Column size="MD_3">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
+                    <b:Column size="MD_4">
+                        <b:Button text="Show All" ui:field="showAllSequences" styleName="{style.widgetBox}"/>
+                    </b:Column>
                 </b:Row>
                 <b:Row>
-                    <b:Column size="MD_8">
-                        <b:ButtonGroup>
-                            <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"
-                                      text="Go to Annotation"
-                                      ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.action-buttons}"/>
-                            <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
-                                      text="Delete Annotation"
-                                      ui:field="deleteAnnotation" enabled="false"
-                                      addStyleNames="{style.action-buttons}"/>
-                        </b:ButtonGroup>
+                    <b:Column size="MD_6">
+<!--                        <b:ButtonGroup>-->
+<!--                            <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"-->
+<!--                                      text="Go to Annotation"-->
+<!--                                      ui:field="gotoAnnotation" enabled="false" addStyleNames="{style.action-buttons}"/>-->
+<!--                            <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"-->
+<!--                                      text="Delete Annotation"-->
+<!--                                      ui:field="deleteAnnotation" enabled="false"-->
+<!--                                      addStyleNames="{style.action-buttons}"/>-->
+<!--                        </b:ButtonGroup>-->
                         <b:Label text="Rows" styleName="{style.pageSizeLabel}"/>
                         <b:ListBox title="Rows"
                                        ui:field="pageSizeSelector" styleName="{style.pageSizeSelector}"
                         >
                         </b:ListBox>
                     </b:Column>
-                    <b:Column size="MD_2">
+                    <b:Column size="MD_6">
                         <b:Button  text="Details"
                                   ui:field="toggleAnnotation" enabled="true" dataToggle="BUTTON"
                                   addStyleNames="{style.action-buttons}"/>
@@ -138,7 +152,7 @@
             </gwt:center>
         </gwt:DockLayoutPanel>
     </gwt:center>
-    <gwt:south size="400">
+    <gwt:south size="440">
         <gwt:TabLayoutPanel barHeight="35" ui:field="tabPanel">
             <gwt:tab>
                 <gwt:header>Details</gwt:header>
