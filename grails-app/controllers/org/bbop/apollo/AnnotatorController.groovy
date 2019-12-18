@@ -232,8 +232,6 @@ class AnnotatorController {
             feature.addToFeatureSynonyms(featureSynonym)
         }
 
-//        feature.featureSynonyms = data.synonyms
-
         if (data.status == null) {
             // delete old status if it existed
             Status oldStatus = data.status
