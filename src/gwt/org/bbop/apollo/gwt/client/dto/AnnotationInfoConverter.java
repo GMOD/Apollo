@@ -38,6 +38,9 @@ public class AnnotationInfoConverter {
         if (object.get(FeatureStringEnum.DESCRIPTION.getValue()) != null) {
             annotationInfo.setDescription(object.get(FeatureStringEnum.DESCRIPTION.getValue()).isString().stringValue());
         }
+        if (object.get(FeatureStringEnum.SYNONYMS.getValue()) != null) {
+            annotationInfo.setSynonyms(object.get(FeatureStringEnum.SYNONYMS.getValue()).isString().stringValue());
+        }
         if (object.get(FeatureStringEnum.STATUS.getValue()) != null) {
             annotationInfo.setStatus(object.get(FeatureStringEnum.STATUS.getValue()).isString().stringValue());
         }

@@ -185,6 +185,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         typeField.setText(internalAnnotationInfo.getType());
+        synonymsField.setText(internalAnnotationInfo.getSynonyms());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
@@ -332,6 +333,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setEnabled(editable);
         symbolField.setEnabled(editable);
         descriptionField.setEnabled(editable);
+        synonymsField.setEnabled(editable);
 
     }
 }
