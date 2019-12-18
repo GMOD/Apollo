@@ -304,9 +304,7 @@ class SuggestedNameController {
             JSONObject nameJson = permissionService.handleInput(request, params)
             log.debug "Showing suggested name ${nameJson}"
             String featureTypeString = nameJson.featureType
-            println "feature type ${featureTypeString}"
             Organism organism = Organism.findByCommonName(nameJson.organism)
-            println "organism ${organism}"
 //            def names = SuggestedName.findAllByNameIlike(nameJson.query + "%")
 //            // if name has a feature type it must match
 //            def filteredNames = names.findAll{ name ->
