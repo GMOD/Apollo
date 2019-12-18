@@ -101,6 +101,34 @@ public class TranscriptDetailPanel extends Composite {
         updateTranscript();
     }
 
+    @UiHandler("synonymsField")
+    void handleSynonymsChange(ChangeEvent e) {
+        final AnnotationInfo updateAnnotationInfo = this.internalAnnotationInfo;
+        final String updatedName = synonymsField.getText().trim();
+        String[] synonyms = updatedName.split("\\|");
+        String infoString = "";
+        for(String s : synonyms){
+            infoString += "'"+ s.trim() + "' ";
+        }
+        infoString = infoString.trim();
+        Bootbox.confirm(synonyms.length + " synonyms: " + infoString, new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    updateAnnotationInfo.setSynonyms(updatedName);
+                    synonymsField.setText(updatedName);
+                    updateTranscript();
+                }
+                else{
+                    synonymsField.setText(updateAnnotationInfo.getSynonyms());
+                }
+            }
+        });
+
+
+
+    }
+
 
     @UiHandler("annotationIdButton")
     void getAnnotationInfo(ClickEvent clickEvent) {
@@ -184,6 +212,7 @@ public class TranscriptDetailPanel extends Composite {
         this.internalAnnotationInfo = annotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
+        synonymsField.setText(internalAnnotationInfo.getSynonyms());
         userField.setText(internalAnnotationInfo.getOwner());
         typeField.setText(internalAnnotationInfo.getType());
         sequenceField.setText(internalAnnotationInfo.getSequence());
@@ -269,11 +298,13 @@ public class TranscriptDetailPanel extends Composite {
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled && editable);
         descriptionField.setEnabled(enabled && editable);
+        synonymsField.setEnabled(enabled && editable);
     }
 
     public void setEditable(boolean editable) {
         this.editable = editable;
         nameField.setEnabled(this.editable);
         descriptionField.setEnabled(this.editable);
+        synonymsField.setEnabled(this.editable);
     }
 }

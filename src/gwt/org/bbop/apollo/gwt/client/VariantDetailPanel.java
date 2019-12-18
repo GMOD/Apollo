@@ -56,6 +56,8 @@ public class VariantDetailPanel extends Composite {
     @UiField
     TextBox lastUpdatedField;
     @UiField
+    TextBox synonymsField;
+    @UiField
     TextBox typeField;
     @UiField
     ListBox statusListBox;
@@ -84,6 +86,7 @@ public class VariantDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         referenceAlleleField.setText(internalAnnotationInfo.getReferenceAllele());
         descriptionField.setText(internalAnnotationInfo.getDescription());
+        synonymsField.setText(internalAnnotationInfo.getSynonyms());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
         typeField.setText(internalAnnotationInfo.getType());
@@ -119,6 +122,34 @@ public class VariantDetailPanel extends Composite {
         String updatedDescription = descriptionField.getText();
         internalAnnotationInfo.setDescription(updatedDescription);
         updateVariant();
+    }
+
+    @UiHandler("synonymsField")
+    void handleSynonymsChange(ChangeEvent e) {
+        final AnnotationInfo updateAnnotationInfo = this.internalAnnotationInfo;
+        final String updatedName = synonymsField.getText().trim();
+        String[] synonyms = updatedName.split("\\|");
+        String infoString = "";
+        for(String s : synonyms){
+            infoString += "'"+ s.trim() + "' ";
+        }
+        infoString = infoString.trim();
+        Bootbox.confirm(synonyms.length + " synonyms: " + infoString, new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    updateAnnotationInfo.setSynonyms(updatedName);
+                    synonymsField.setText(updatedName);
+                    updateVariant();
+                }
+                else{
+                    synonymsField.setText(updateAnnotationInfo.getSynonyms());
+                }
+            }
+        });
+
+
+
     }
 
 
@@ -203,6 +234,7 @@ public class VariantDetailPanel extends Composite {
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
+        synonymsField.setEnabled(enabled);
     }
 
 
