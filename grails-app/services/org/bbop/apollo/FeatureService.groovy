@@ -2730,7 +2730,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             gene.featureProperties.each { mainGene.addToFeatureProperties(it) }
             gene.featureSynonyms.each { mainGene.addToFeatureSynonyms(it) }
             gene.owners.each { mainGene.addToOwners(it) }
-            gene.synonyms.each { mainGene.addToSynonyms(it) }
         }
 
         mainGene.save(flush: true)
