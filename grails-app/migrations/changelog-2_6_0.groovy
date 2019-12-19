@@ -5,8 +5,8 @@ databaseChangeLog = {
             columnExists(columnName: "type_id", tableName: "synonym")
             columnExists(columnName: "synonymsgml", tableName: "synonym")
         }
-        dropColumn(tableName: "synonym",columnName: "type_id", type:"varchar(255)")
-        dropColumn(tableName: "synonym",columnName: "synonymsgml", type:"varchar(255)")
+        dropColumn(tableName: "synonym",columnName: "type_id")
+        dropColumn(tableName: "synonym",columnName: "synonymsgml")
     }
 
     changeSet(author: "nathandunn", id: "1459788030180-2") {
