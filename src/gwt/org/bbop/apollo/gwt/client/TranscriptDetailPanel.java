@@ -243,6 +243,8 @@ public class TranscriptDetailPanel extends Composite {
         RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
+                JSONObject jsonObject = JSONParser.parseStrict(response.getText()).isObject();
+//                GWT.log("response array: "+jsonObject.toString());
                 enableFields(true);
             }
 
