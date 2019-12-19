@@ -45,7 +45,6 @@ class Feature implements Ontological{
             ,featurePublications: Publication
             ,featurePhenotypes: Phenotype
             ,featureProperties: FeatureProperty
-            ,synonyms: Synonym // remove?
             ,owners:User
             ,goAnnotations: GoAnnotation
     ]

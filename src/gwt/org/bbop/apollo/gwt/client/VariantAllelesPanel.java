@@ -1,37 +1,27 @@
 package org.bbop.apollo.gwt.client;
 
-import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.NumberCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.*;
-import org.bbop.apollo.gwt.client.dto.AllelePropertyInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
-import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.gwtbootstrap3.client.ui.TextBox;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AlternateAlleleInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.gwtbootstrap3.client.ui.Container;
-import org.gwtbootstrap3.client.ui.Pager;
+import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 /**

@@ -1845,6 +1845,23 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
+        if (gsolFeature.featureSynonyms) {
+            String synonymString = ""
+            for(def fs in  gsolFeature.featureSynonyms){
+                synonymString += "|" + fs.synonym.name
+            }
+            jsonFeature.put(FeatureStringEnum.SYNONYMS.value, synonymString.substring(1));
+        }
+        if (gsolFeature.status) {
+            jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value)
+        }
+        if (gsolFeature.featureDBXrefs) {
+            jsonFeature.put(FeatureStringEnum.DBXREFS.value, generateFeatureForDBXrefs(gsolFeature.featureDBXrefs))
+        }
+        if (gsolFeature.featureProperties) {
+            jsonFeature.put(FeatureStringEnum.COMMENTS.value, generateFeatureForComments(gsolFeature.featureProperties))
+            jsonFeature.put(FeatureStringEnum.ATTRIBUTES.value, generateFeatureForFeatureProperties(gsolFeature.featureProperties))
+        }
 
         if (gsolFeature instanceof SequenceAlteration) {
 
@@ -1955,6 +1972,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+        println "converting features to json ${gsolFeature}"
         JSONObject jsonFeature = new JSONObject()
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id)
@@ -1972,6 +1990,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description)
+        }
+        println "has feture synonyms: ${gsolFeature.featureSynonyms}"
+        if (gsolFeature.featureSynonyms) {
+            jsonFeature.put(FeatureStringEnum.SYNONYMS.value, gsolFeature.featureSynonyms.synonym.name)
+            println "adding : ${jsonFeature as JSON}"
         }
 
         long start = System.currentTimeMillis()
@@ -2173,6 +2196,54 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         jsonFeature.put(FeatureStringEnum.DATE_LAST_MODIFIED.value, gsolFeature.lastUpdated.time)
         jsonFeature.put(FeatureStringEnum.DATE_CREATION.value, gsolFeature.dateCreated.time)
         return jsonFeature
+    }
+
+    JSONArray generateFeatureForDBXrefs(Collection<DBXref> dBXrefs){
+        JSONArray jsonArray = new JSONArray()
+        for(DBXref dbXref in dBXrefs){
+            jsonArray.add(generateFeatureForDBXref(dbXref))
+        }
+        return jsonArray
+    }
+
+    JSONArray generateFeatureForFeatureProperties(Collection<FeatureProperty> featureProperties){
+        JSONArray jsonArray = new JSONArray()
+        for(featureProperty in featureProperties){
+            if(featureProperty.cvTerm != Comment.cvTerm && featureProperty.cvTerm != Status.cvTerm){
+                jsonArray.add(generateFeatureForFeatureProperty(featureProperty))
+            }
+        }
+        return jsonArray
+    }
+
+    JSONArray generateFeatureForComments(Collection<FeatureProperty> featureProperties){
+        JSONArray jsonArray = new JSONArray()
+        for(featureProperty in featureProperties){
+            if(featureProperty instanceof Comment){
+                jsonArray.add(generateFeatureForComment((Comment) featureProperty))
+            }
+        }
+        return jsonArray
+    }
+
+    JSONObject generateFeatureForComment(Comment comment){
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put(FeatureStringEnum.COMMENT.value,comment.value)
+        return jsonObject
+    }
+
+    JSONObject generateFeatureForDBXref(DBXref dBXref){
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put(FeatureStringEnum.TAG.value,dBXref.db.name)
+        jsonObject.put(FeatureStringEnum.VALUE.value,dBXref.accession)
+        return jsonObject
+    }
+
+    JSONObject generateFeatureForFeatureProperty(FeatureProperty featureProperty){
+        JSONObject jsonObject = new JSONObject()
+        jsonObject.put(FeatureStringEnum.TAG.value,featureProperty.tag)
+        jsonObject.put(FeatureStringEnum.VALUE.value,featureProperty.value)
+        return jsonObject
     }
 
     JSONObject generateJSONFeatureStringForType(String ontologyId) {
@@ -2659,12 +2730,12 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             gene.featureProperties.each { mainGene.addToFeatureProperties(it) }
             gene.featureSynonyms.each { mainGene.addToFeatureSynonyms(it) }
             gene.owners.each { mainGene.addToOwners(it) }
-            gene.synonyms.each { mainGene.addToSynonyms(it) }
         }
 
         mainGene.save(flush: true)
         return mainGene
     }
+
 
     private class SequenceAlterationInContextPositionComparator<SequenceAlterationInContext> implements Comparator<SequenceAlterationInContext> {
         @Override
