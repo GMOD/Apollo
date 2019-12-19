@@ -10,7 +10,6 @@ import org.bbop.apollo.gwt.shared.GlobalPermissionEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.bbop.apollo.report.AnnotatorSummary
 import org.codehaus.groovy.grails.web.json.JSONArray
-import org.codehaus.groovy.grails.web.json.JSONException
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.hibernate.FetchMode
 import org.restapidoc.annotation.RestApi
@@ -183,6 +182,7 @@ class AnnotatorController {
             , @RestApiParam(name = "uniquename", type = "string", paramType = RestApiParamType.QUERY, description = "Uniquename (UUID) of the feature we are editing")
             , @RestApiParam(name = "name", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature name")
             , @RestApiParam(name = "symbol", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature symbol")
+            , @RestApiParam(name = "synonyms", type = "string", paramType = RestApiParamType.QUERY, description = "Updated synonyms pipe (|) separated")
             , @RestApiParam(name = "description", type = "string", paramType = RestApiParamType.QUERY, description = "Updated feature description")
             , @RestApiParam(name = "status", type = "string", paramType = RestApiParamType.QUERY, description = "Updated status")
     ]
@@ -202,16 +202,45 @@ class AnnotatorController {
         feature.symbol = data.symbol
         feature.description = data.description
 
-        if(data.status==null){
+        def oldSynonymNames = feature.featureSynonyms ? feature.featureSynonyms.synonym.name.sort() : []
+        def newSynonymNames = data.synonyms ? data.synonyms.split("\\|").sort() : []
+        def synonymsToAdd = newSynonymNames.findAll{ n -> !oldSynonymNames.contains(n)}
+        def synonymsToRemove = oldSynonymNames.findAll{ n -> !newSynonymNames.contains(n)}
+
+        println "old synonym names ${oldSynonymNames} ${newSynonymNames} ${synonymsToAdd} ${synonymsToRemove}"
+        // add missing
+
+        for (syn in synonymsToRemove) {
+            def featureSynonymsToRemove = FeatureSynonym.executeQuery("select fs from FeatureSynonym fs where fs.feature = :feature and fs.synonym.name = :name", [feature: feature, , name: syn])
+            println "features to remove ${featureSynonymsToRemove.size()} ${featureSynonymsToRemove}"
+            for (fs in featureSynonymsToRemove) {
+                feature.removeFromFeatureSynonyms(fs)
+                Synonym synonym = fs.synonym
+                fs.delete()
+                synonym.delete()
+            }
+        }
+
+        for (syn in synonymsToAdd) {
+            Synonym synonym = new Synonym(
+                    name: syn,
+            ).save(failOnError: true)
+            FeatureSynonym featureSynonym = new FeatureSynonym(
+                    feature: feature,
+                    synonym: synonym,
+            ).save(failOnError: true)
+            feature.addToFeatureSynonyms(featureSynonym)
+        }
+
+        if (data.status == null) {
             // delete old status if it existed
             Status oldStatus = data.status
             feature.status == null
-            if(oldStatus!=null) {
+            if (oldStatus != null) {
                 oldStatus.delete()
             }
-        }
-        else{
-            Status status = Status.findOrSaveByValueAndFeature(data.status,feature)
+        } else {
+            Status status = Status.findOrSaveByValueAndFeature(data.status, feature)
             feature.status = status
         }
 
@@ -237,7 +266,7 @@ class AnnotatorController {
                 , operation: AnnotationEvent.Operation.UPDATE
                 , sequenceAlterationEvent: false
         )
-        if(nameChange){
+        if (nameChange) {
             requestHandlingService.fireAnnotationEvent(annotationEvent)
         }
 
@@ -299,7 +328,7 @@ class AnnotatorController {
  * @param searchUniqueName
  * @return
  */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken,Boolean showOnlyGoAnnotations,Boolean searchUniqueName) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName) {
         try {
             JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -359,8 +388,8 @@ class AnnotatorController {
                         eq('organism', organism)
                     }
                 }
-                if( showOnlyGoAnnotations){
-                    goAnnotations{
+                if (showOnlyGoAnnotations) {
+                    goAnnotations {
                     }
                 }
                 if (sort == "name") {
@@ -370,10 +399,9 @@ class AnnotatorController {
                     order('lastUpdated', sortorder)
                 }
                 if (annotationName) {
-                    if(searchUniqueName){
+                    if (searchUniqueName) {
                         ilike('uniqueName', '%' + annotationName + '%')
-                    }
-                    else{
+                    } else {
                         ilike('name', '%' + annotationName + '%')
                     }
                 }
@@ -404,10 +432,11 @@ class AnnotatorController {
                 if (sort == "date") {
                     order('lastUpdated', sortorder)
                 }
-                if( showOnlyGoAnnotations){
+                if (showOnlyGoAnnotations) {
                     fetchMode 'goAnnotations', FetchMode.JOIN
                 }
                 fetchMode 'owners', FetchMode.JOIN
+                fetchMode 'featureSynonyms', FetchMode.JOIN
                 fetchMode 'featureDBXrefs', FetchMode.JOIN
                 fetchMode 'featureProperties', FetchMode.JOIN
                 fetchMode 'featureLocations', FetchMode.JOIN
@@ -592,12 +621,12 @@ class AnnotatorController {
  * This is a public passthrough to version
  */
     def version() {
-      println "version "
+        println "version "
     }
 
-  def about(){
-    println "about . . . . "
-  }
+    def about() {
+        println "about . . . . "
+    }
 /**
  * This is a very specific method for the GWT interface.
  * An additional method should be added.
@@ -619,7 +648,7 @@ class AnnotatorController {
         try {
             String returnString = trackService.updateCommonDataDirectory(directory) as String
             log.info "Returning common data directory ${returnString}"
-            if(returnString){
+            if (returnString) {
                 returnObject.error = returnString
             }
         } catch (e) {

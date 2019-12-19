@@ -21,7 +21,6 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.client.ui.Widget;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.RestService;
@@ -104,6 +103,34 @@ public class GeneDetailPanel extends Composite {
         updateGene();
     }
 
+    @UiHandler("synonymsField")
+    void handleSynonymsChange(ChangeEvent e) {
+        final AnnotationInfo updateAnnotationInfo = this.internalAnnotationInfo;
+        final String updatedName = synonymsField.getText().trim();
+        String[] synonyms = updatedName.split("\\|");
+        String infoString = "";
+        for(String s : synonyms){
+            infoString += "'"+ s.trim() + "' ";
+        }
+        infoString = infoString.trim();
+        Bootbox.confirm(synonyms.length + " synonyms: " + infoString, new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    updateAnnotationInfo.setSynonyms(updatedName);
+                    synonymsField.setText(updatedName);
+                    updateGene();
+                }
+                else{
+                    synonymsField.setText(updateAnnotationInfo.getSynonyms());
+                }
+            }
+        });
+
+
+
+    }
+
     @UiHandler("descriptionField")
     void handleDescriptionChange(ChangeEvent e) {
         String updatedName = descriptionField.getText();
@@ -122,6 +149,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setEnabled(enabled);
         symbolField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
+        synonymsField.setEnabled(enabled);
     }
 
 
@@ -157,6 +185,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setText(internalAnnotationInfo.getName());
         symbolField.setText(internalAnnotationInfo.getSymbol());
         typeField.setText(internalAnnotationInfo.getType());
+        synonymsField.setText(internalAnnotationInfo.getSynonyms());
         descriptionField.setText(internalAnnotationInfo.getDescription());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
@@ -304,6 +333,7 @@ public class GeneDetailPanel extends Composite {
         nameField.setEnabled(editable);
         symbolField.setEnabled(editable);
         descriptionField.setEnabled(editable);
+        synonymsField.setEnabled(editable);
 
     }
 }

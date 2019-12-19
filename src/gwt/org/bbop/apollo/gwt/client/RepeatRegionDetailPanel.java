@@ -7,9 +7,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.http.client.*;
-import com.google.gwt.i18n.client.Dictionary;
 import com.google.gwt.json.client.*;
-import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
@@ -95,6 +93,34 @@ public class RepeatRegionDetailPanel extends Composite {
         return new HashSet<>();
     }
 
+    @UiHandler("synonymsField")
+    void handleSynonymsChange(ChangeEvent e) {
+        final AnnotationInfo updateAnnotationInfo = this.internalAnnotationInfo;
+        final String updatedName = synonymsField.getText().trim();
+        String[] synonyms = updatedName.split("\\|");
+        String infoString = "";
+        for(String s : synonyms){
+            infoString += "'"+ s.trim() + "' ";
+        }
+        infoString = infoString.trim();
+        Bootbox.confirm(synonyms.length + " synonyms: " + infoString, new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+                if(result){
+                    updateAnnotationInfo.setSynonyms(updatedName);
+                    synonymsField.setText(updatedName);
+                    updateEntity();
+                }
+                else{
+                    synonymsField.setText(updateAnnotationInfo.getSynonyms());
+                }
+            }
+        });
+
+
+
+    }
+
     @UiHandler("deleteAnnotation")
     void deleteAnnotation(ClickEvent clickEvent) {
         final Set<AnnotationInfo> deletableChildren = getDeletableChildren(internalAnnotationInfo);
@@ -176,6 +202,7 @@ public class RepeatRegionDetailPanel extends Composite {
     private void enableFields(boolean enabled) {
         nameField.setEnabled(enabled);
         descriptionField.setEnabled(enabled);
+        synonymsField.setEnabled(enabled);
     }
     
     private void updateEntity() {
@@ -204,6 +231,7 @@ public class RepeatRegionDetailPanel extends Composite {
         this.internalAnnotationInfo = annotationInfo;
         nameField.setText(internalAnnotationInfo.getName());
         descriptionField.setText(internalAnnotationInfo.getDescription());
+        synonymsField.setText(internalAnnotationInfo.getSynonyms());
         sequenceField.setText(internalAnnotationInfo.getSequence());
         userField.setText(internalAnnotationInfo.getOwner());
         typeField.setText(internalAnnotationInfo.getType());
@@ -272,5 +300,6 @@ public class RepeatRegionDetailPanel extends Composite {
     public void setEditable(boolean editable) {
         nameField.setEnabled(editable);
         descriptionField.setEnabled(editable);
+        synonymsField.setEnabled(editable);
     }
 }

@@ -33,6 +33,7 @@ public class AnnotationInfo {
     private List<CommentInfo> commentList = new ArrayList<>();
     private List<AttributeInfo> attributeList= new ArrayList<>();
     private String status;
+    private String synonyms;
 
     public String getOwner() {
         return owner;
@@ -256,5 +257,13 @@ public class AnnotationInfo {
 
     public String getStatus() {
         return status;
+    }
+
+    public void setSynonyms(String synonyms) {
+        this.synonyms = synonyms;
+    }
+
+    public String getSynonyms() {
+        return synonyms;
     }
 }

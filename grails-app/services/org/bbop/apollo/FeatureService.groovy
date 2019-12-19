@@ -1845,6 +1845,13 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description);
         }
+        if (gsolFeature.featureSynonyms) {
+            String synonymString = ""
+            for(def fs in  gsolFeature.featureSynonyms){
+                synonymString += "|" + fs.synonym.name
+            }
+            jsonFeature.put(FeatureStringEnum.SYNONYMS.value, synonymString.substring(1));
+        }
         if (gsolFeature.status) {
             jsonFeature.put(FeatureStringEnum.STATUS.value, gsolFeature.status.value)
         }
@@ -1965,6 +1972,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
+        println "converting features to json ${gsolFeature}"
         JSONObject jsonFeature = new JSONObject()
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id)
@@ -1982,6 +1990,11 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         }
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description)
+        }
+        println "has feture synonyms: ${gsolFeature.featureSynonyms}"
+        if (gsolFeature.featureSynonyms) {
+            jsonFeature.put(FeatureStringEnum.SYNONYMS.value, gsolFeature.featureSynonyms.synonym.name)
+            println "adding : ${jsonFeature as JSON}"
         }
 
         long start = System.currentTimeMillis()
@@ -2717,7 +2730,6 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
             gene.featureProperties.each { mainGene.addToFeatureProperties(it) }
             gene.featureSynonyms.each { mainGene.addToFeatureSynonyms(it) }
             gene.owners.each { mainGene.addToOwners(it) }
-            gene.synonyms.each { mainGene.addToSynonyms(it) }
         }
 
         mainGene.save(flush: true)

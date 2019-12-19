@@ -292,13 +292,13 @@ public class Gff3HandlerService {
         }
         if(configWrapperService.exportSubFeatureAttrs() || feature.class.name in requestHandlingService.viewableAnnotationList+requestHandlingService.viewableAnnotationTranscriptList+requestHandlingService.viewableAlterations) {
             if (writeObject.attributesToExport.contains(FeatureStringEnum.SYNONYMS.value)) {
-                Iterator<Synonym> synonymIter = feature.synonyms.iterator();
+                Iterator<FeatureSynonym> synonymIter = feature.featureSynonyms.iterator();
                 if (synonymIter.hasNext()) {
                     StringBuilder synonyms = new StringBuilder();
-                    synonyms.append(synonymIter.next().getName());
+                    synonyms.append(synonymIter.next().synonym.name);
                     while (synonymIter.hasNext()) {
                         synonyms.append(",");
-                        synonyms.append(encodeString(synonymIter.next().getName()));
+                        synonyms.append(encodeString(synonymIter.next().synonym.name));
                     }
                     attributes.put(FeatureStringEnum.EXPORT_ALIAS.value, synonyms.toString());
                 }

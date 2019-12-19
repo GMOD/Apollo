@@ -27,6 +27,7 @@ public class AnnotationRestService extends RestService {
         jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), annotationInfo.getDescription() != null ? new JSONString(annotationInfo.getDescription()) : new JSONString(""));
         jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(annotationInfo.getType()));
         jsonObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
+        jsonObject.put(FeatureStringEnum.SYNONYMS.getValue(), new JSONString(annotationInfo.getSynonyms()));
 
         if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
             if (annotationInfo.getReferenceAllele() != null)
@@ -87,6 +88,7 @@ public class AnnotationRestService extends RestService {
     featureObject.put(FeatureStringEnum.LOCATION.getValue(),generateLocationObject(annotationInfo));
     featureObject.put(FeatureStringEnum.TYPE.getValue(),generateTypeObject(annotationInfo.getType()));
     featureObject.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString("created with blat hit") );
+    featureObject.put(FeatureStringEnum.SYNONYMS.getValue(),new JSONString(annotationInfo.getSynonyms()) );
 
 
     sendRequest(requestCallback, "annotationEditor/addTranscript", "data=" + jsonObject.toString());
