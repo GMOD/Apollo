@@ -10,8 +10,8 @@ databaseChangeLog = {
     }
 
     changeSet(author: "nathandunn", id: "1459788030180-2") {
-        dropNotNullConstraint(tableName: "feature_synonym",columnName:"publication_id")
-        dropNotNullConstraint(tableName: "feature_synonym",columnName:"is_internal")
-        dropNotNullConstraint(tableName: "feature_synonym",columnName:"is_current")
+        dropNotNullConstraint(tableName: "feature_synonym",columnName:"publication_id", columnDataType:"bigint")
+        dropNotNullConstraint(tableName: "feature_synonym",columnName:"is_internal", columnDataType:"bigint")
+        dropNotNullConstraint(tableName: "feature_synonym",columnName:"is_current", columnDataType:"bigint")
     }
 }
