@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
@@ -27,7 +28,7 @@ public class AnnotationRestService extends RestService {
         jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), annotationInfo.getDescription() != null ? new JSONString(annotationInfo.getDescription()) : new JSONString(""));
         jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(annotationInfo.getType()));
         jsonObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
-        jsonObject.put(FeatureStringEnum.SYNONYMS.getValue(), new JSONString(annotationInfo.getSynonyms()));
+        jsonObject.put(FeatureStringEnum.SYNONYMS.getValue(), annotationInfo.getSynonyms() != null ? new JSONString(annotationInfo.getSynonyms()) : null );
 
         if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
             if (annotationInfo.getReferenceAllele() != null)
