@@ -20,6 +20,7 @@ class FeatureEventService {
     def transcriptService
     def featureService
     def requestHandlingService
+    def jsonWebUtilityService
 
     /**
      *
@@ -595,7 +596,7 @@ class FeatureEventService {
 
         // firing update annotation event
         if (transcriptsToUpdate.size() > 0) {
-            JSONObject updateFeatureContainer = requestHandlingService.createJSONFeatureContainer()
+            JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
             transcriptsToUpdate.each {
                 Transcript transcript = Transcript.findByUniqueName(it)
                 updateFeatureContainer.getJSONArray(FeatureStringEnum.FEATURES.value).put(featureService.convertFeatureToJSON(transcript))
@@ -886,6 +887,7 @@ class FeatureEventService {
                 historyItem.put(AbstractApolloController.REST_OPERATION, transaction.operation.name());
                 historyItem.put(FeatureStringEnum.EDITOR.value, transaction.getEditor()?.username);
                 historyItem.put(FeatureStringEnum.DATE.value, dateFormat.format(transaction.dateCreated));
+                historyItem.put(FeatureStringEnum.STRUCTURAL_EDIT.value, transaction.operation.getIsStructural());
                 if (transaction.current) {
                     historyItem.put(FeatureStringEnum.CURRENT.value, true);
                 } else {

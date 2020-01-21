@@ -30,9 +30,7 @@ class SequenceController {
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def sequenceService
-    def featureService
     def requestHandlingService
-    def transcriptService
     def permissionService
     def preferenceService
     def reportService
@@ -146,11 +144,16 @@ class SequenceController {
 
     @Transactional
     def lookupSequenceByName(String q, String clientToken) {
-        Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
-        def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
-            it.name
+        try {
+          Organism organism = preferenceService.getCurrentOrganismForCurrentUser(clientToken)
+          def sequences = Sequence.findAllByNameIlikeAndOrganism(q + "%", organism, ["sort": "name", "order": "asc", "max": 20]).collect() {
+              it.name
+          }
+          render sequences as JSON
+        } catch (e) {
+          log.warn(e.getMessage())
+          render new JSONArray() as JSON
         }
-        render sequences as JSON
     }
 
     /**

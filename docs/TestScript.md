@@ -52,13 +52,28 @@ Note: The following steps are meant for testing purposes only, not for training 
    
    Check the ability to set and clear highlights, show plus/minus strands, show track label, resize quantitative tracks, color by CDS, and changing the color scheme (dark, light, grid, no grid).
 
-2.4) Tools
+2.4) Search Panel
 
-   From _Tools_ menu, query the genome with BLAT, using an amino acid or nucleotide sequence. For example: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
+2.4.1) Confirm that an organism with a blatdb define displays the search panel and that an organism does not is hidden.
+
+2.4.1.1)  Confirm that on changing organisms the Search Panel is only shown when blatdb is defined.
+
+2.4.1.2)  Confirm that on reloading organisms Search Panel is only shown in some instances.
+
+2.4.2) For Honeybee, click on the Search panel and query the genome with BLAT, using an amino acid or nucleotide sequence. For example: Housekeeping gene Calpain small subunit 1 CPNS1, CAPNS1, CAPN4, CAPNS (UniProt).
 
    >sp|P04632|CPNS1_HUMAN Calpain small subunit 1 MFLVNSFLKGGGGGGGGGGGLGGGLGNVLGGLISGAGGGGGGGGGGGGGGGGGGGGTAMRILGGVISAISEAAAQYNPEPPPPRTHYSNIEANESEEVRQFRRLFAQLAGDDMEVSATELMNILNKVVTRHPDLKTDGFGIDTCRSMVAVMDSDTTGKLGFEEFKYLWNNIKRWQAIYKQFDTDRSGTICSSELPGAFEAAGFHLNEHLYNMIIRRYSDESGNMDFDNFISCLVRLDAMFRAFKSLDKDGTGQIQVNIQEWLQLTMYS
-   
-   Clear the highlighted region using the option from the _View_ menu.
+  
+2.4.2.1) Click on multiple hits and confirm that it navigates to those hits.
+
+2.4.2.2) Click on `Create annotation from hit` and confirm that an annotation is creating with the same dimensions and the same strand.
+
+2.4.2.3) Open the genomic annotation sequence via the pop using nucleotide sequences.  Click on `Search sequences` and confirm that the sequences are loaded into the search panel.   
+Click on search sequence and confirm that hits are generated and repeat the steps in 2.4.2.  
+
+2.4.2.4) Repeat 2.4.2 with a genomic annotation using nucleotide sequences.  In this example, view the sequences form that annotation and click on `Search sequences`.
+
+
 
 2.5) Help
 
@@ -76,7 +91,7 @@ Note: The following steps are meant for testing purposes only, not for training 
 
 4.2) Drag and drop an HTML BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under HTML Alignment).
 
-4.1) Drag and drop an Canvas BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under Canvas Alignment).
+4.3) Right-click and create a new gene using a Canvas BAM split-read to the “User-created Annotations” (U-cA) area (in volvox data under Canvas Alignment).
 
 5) Zoom in (double click) to inspect last exon (5'-3') of the displayed gene and:
 
@@ -339,4 +354,27 @@ boundary using the arrows in the display.  Modify a number explicitly and click 
 16.7.4) Repeat adding variant effects but do this for multiple variants on the same gene.
 
 16.7.5) Click on the effected gene and click on "Remove variant effects" and confirm that all alterations are removed from within the effected area.
+
+### F) Test Docker load
+
+17.0) Run against docker built on quay.io and/or Docker hub
+
+17.1) Load docker with a sample files directory and database: 
+
+    docker run -it -v /jbrowse/root/directory/:/data -v /postgres/data/directory:/var/lib/postgresql -p 8888:8080 quay.io/gmod/apollo:latest
+    
+17.2) Confirm that we can load a genome and tracks from the existing directory (e.g,. Honeybee)
+
+17.2.1) Confirm that we can create an annotation.
+
+17.3) Confirm that we can load a new genome with an existing fasta file (volvox.fa in the sample data)
+
+17.3.1) Confirm that we can add a new track to that genome with an existing fasta file (volvox.gff in the sample data)
+
+17.3.2) Confirm that we can create an annotation with the new track.
+
+17.3.3) Confirm that we can do a search against that annotation with the new track.
+
+17.3.4) Confirm that we can create an annotation with that search result.
+
 

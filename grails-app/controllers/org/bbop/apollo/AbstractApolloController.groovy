@@ -29,16 +29,6 @@ abstract class AbstractApolloController {
     }
 
 
-    protected JSONObject createJSONFeatureContainer(JSONObject... features) throws JSONException {
-        JSONObject jsonFeatureContainer = new JSONObject();
-        JSONArray jsonFeatures = new JSONArray();
-        jsonFeatureContainer.put(FeatureStringEnum.FEATURES.value, jsonFeatures);
-        for (JSONObject feature : features) {
-            jsonFeatures.put(feature);
-        }
-        return jsonFeatureContainer;
-    }
-
     protected def findPost() {
         for (p in params) {
             String key = p.key

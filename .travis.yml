@@ -4,12 +4,17 @@ dist: trusty
 language: java
 
 node_js:
-  - "iojs"
+  - "12"
 
 env:
-  - DB=postgres
-  - DB=mysql
-  - DB=h2
+  - DB=postgres TEST_SUITE=apollo
+  - DB=mysql TEST_SUITE=apollo
+  - DB=h2 TEST_SUITE=apollo
+  - DB=h2 TEST_SUITE=javascript
+  - DB=h2 TEST_SUITE=python-apollo
+
+python:
+  - 3.6
 
 addons:
   postgresql: "9.3"
@@ -49,9 +54,33 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace
-  #- node web-app/jbrowse/src/dojo/dojo.js load=build --require "web-app/jbrowse/src/JBrowse/init.js" --profile "web-app/jbrowse/plugins/WebApollo/js/WebApollo"
-  - jshint client/apollo/js
-after_success:
-  - ./grailsw coveralls
+  - |
+    if [[ $TEST_SUITE == "apollo" ]]; then
+      travis_wait ./gradlew installJBrowseWebOnly gwtc installJBrowseTools && ./grailsw refresh-dependencies --stacktrace && ./grailsw test-app -coverage -xml --stacktrace && ./grailsw coveralls
+    fi
+  - |
+    if [[ $TEST_SUITE == "javascript" ]]; then
+      jshint client/apollo/js
+    fi
+  - |
+    if [[ $TEST_SUITE == "python-apollo" ]]; then
+      set -ex
+      cp test/config/python-apollo.travis apollo-config.groovy
+      ./grailsw run-app &
+      git clone --single-branch --branch 4.1 --depth=1 https://github.com/galaxy-genome-annotation/python-apollo
+      cd python-apollo
+      pyenv global 3.6.3
+      sed -i 's|8888|8080/apollo|' `pwd`/test-data/arrow.yml
+      export ARROW_GLOBAL_CONFIG_PATH=`pwd`/test-data/arrow.yml
+      virtualenv .venv
+      . .venv/bin/activate
+      pip install .
+      pip install nose
+      ./bootstrap_apollo.sh --nodocker
+      python setup.py nosetests
+      killall java || true
+    fi
 
+# jobs:
+#   allow_failures:
+#     - env: DB=h2 TEST_SUITE=python-apollo

@@ -32,7 +32,7 @@ class SequenceSearchService {
             JsonBuilder json = new JsonBuilder ()
             json.matches results, { TabDelimittedAlignment result ->
                 "identity" result.percentId
-                "significance" result.eValue
+                "significance" result.getEValue()
                 "subject"({
                     "location" ({
                         "fmin" result.subjectStart

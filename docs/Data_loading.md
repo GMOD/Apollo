@@ -2,7 +2,7 @@
 
 ## Automated Configuration and upload
 
-Still slightly experimental in 2.4.0, admin users may upload FASTA files to create new genomes and upload most track types.
+Admin users may upload FASTA files to create new genomes and upload most track types in a similar manner if a default configuration is desirable.   
 
 ![](images/AddGenomeSmall.png)
 

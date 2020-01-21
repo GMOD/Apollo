@@ -190,7 +190,7 @@ class GroupController {
         String[] names = dataObject.name.split(",")
         log.info( "adding groups ${names as JSON}")
 
-        List<UserGroup> groups = groupService.createGroups(dataObject.metadata,currentUser,names)
+        List<UserGroup> groups = groupService.createGroups(dataObject?.metadata?.toString(), currentUser, names)
         println "usring add groups ${groups as JSON}"
 
         if(groups.size()==1){

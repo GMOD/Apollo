@@ -423,6 +423,11 @@ public class AnnotatorPanel extends Composite {
 
     }
 
+    void selectGoPanel(){
+      goPanel.redraw();
+      tabPanel.selectTab(5);
+    }
+
 
     private void initializeUsers() {
         userField.clear();

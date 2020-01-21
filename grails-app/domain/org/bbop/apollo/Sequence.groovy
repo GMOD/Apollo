@@ -20,7 +20,6 @@ class Sequence {
     ]
 
     static mapping = {
-        cache usage: 'read-only'
         end column: 'sequence_end'
         start column: 'sequence_start'
         featureLocations cascade: 'all-delete-orphan'

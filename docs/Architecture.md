@@ -1,8 +1,8 @@
 ## Architecture notes
 
-### Overview and quick-start
+### Overview and developer's guide
 
-See the [build doc](Apollo2Build.md) for the official quick-start guide.
+See the [build doc](Apollo2Build.md) for the official developer's guide.
 
 Minimally, the apollo application can be launched by running `apollo run-local`. This starts up a temporary tomcat
 server automatically. It will also simply use a in-memory H2 database if a different database configuration isn't setup

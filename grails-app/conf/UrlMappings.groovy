@@ -16,14 +16,13 @@ class UrlMappings {
             }
         }
 
-
-     //  "/annotator/export/"(controller: "annotator", action:"export")
-
         "/"(redirect: '/annotator/index')
         "500"(view: '/error')
         "/menu"(view: '/menu')
         "/version.jsp"(controller: 'annotator', view: "version")
         "/${clientToken}/version.jsp"(controller: 'annotator', view: "version")
+        "/about.jsp"(controller: 'annotator', view: "about")
+        "/${clientToken}/about.jsp"(controller: 'annotator', view: "about")
 
         "/track/nclist/${organismString}/${trackName}/${sequence}:${fmin}..${fmax}.json"(controller: "track", action: "nclist")
         "/track/nclist/${organismString}/${trackName}/?loc=${sequence}:${fmin}..${fmax}"(controller: "track", action: "nclist")

@@ -53,26 +53,26 @@
                                     <b:ListBox ui:field="aspectField"/>
                                     <gwt:HTML ui:field="aspectLabel" />
                                 </b:Column>
-                                <b:Column size="MD_6">
+                                <b:Column size="MD_8">
                                     <b:Label>Go Term</b:Label>
                                     <b:SuggestBox ui:field="goTermField"/>
                                     <gwt:Anchor ui:field="goTermLink" target="_blank"/>
                                 </b:Column>
-                                <b:Column size="MD_3">
-                                    <b:Label>Evidence Code</b:Label>
-                                    <b:SuggestBox ui:field="evidenceCodeField"/>
-                                    <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
-                                </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">
-                                <b:Column size="MD_8">
-                                    <b:Label>Relation between Gene Product and GO Term</b:Label>
+                                <b:Column size="MD_6">
+                                    <b:Label>Relationship between Gene Product and GO Term</b:Label>
 <!--                                    <b:SuggestBox ui:field="geneProductRelationshipField"/>-->
                                     <b:ListBox ui:field="geneProductRelationshipField"/>
                                     <gwt:Anchor ui:field="geneProductRelationshipLink" target="_blank"/>
                                 </b:Column>
                                 <b:Column size="MD_2">
                                     <b:CheckBox text="Not" width="100%" ui:field="notQualifierCheckBox"/>
+                                </b:Column>
+                                <b:Column size="MD_3">
+                                  <b:Label>Evidence and Conclusion Ontology</b:Label>
+                                  <b:SuggestBox ui:field="evidenceCodeField"/>
+                                  <gwt:Anchor ui:field="evidenceCodeLink" target="_blank"/>
                                 </b:Column>
                             </b:Row>
                             <b:Row addStyleNames="{style.row}">

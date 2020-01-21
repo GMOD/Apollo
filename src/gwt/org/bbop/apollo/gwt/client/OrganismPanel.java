@@ -113,12 +113,16 @@ public class OrganismPanel extends Composite {
     TextBox organismUploadNonDefaultTranslationTable;
     @UiField
     static TextBox nameSearchBox;
+    @UiField
+    HTML dbUploadDescription;
+    @UiField
+    FileUpload organismUploadDatabase;
 
-    boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
-    boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
+    private boolean creatingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
+    private boolean savingNewOrganism = false; // a special flag for handling the clearSelection event when filling out new organism info
 
-    final LoadingDialog loadingDialog;
-    final ErrorDialog errorDialog;
+    final private LoadingDialog loadingDialog;
+    final private ErrorDialog errorDialog;
 
     static private ListDataProvider<OrganismInfo> dataProvider = new ListDataProvider<>();
     private static List<OrganismInfo> organismInfoList = new ArrayList<>();
@@ -138,6 +142,7 @@ public class OrganismPanel extends Composite {
         newOrganismForm.setAction(RestService.fixUrl("organism/addOrganismWithSequence"));
 
         uploadDescription.setHTML("<small>" + SequenceTypeEnum.generateSuffixDescription() + "</small>");
+        dbUploadDescription.setHTML("2bit blat file");
 
         newOrganismForm.addSubmitHandler(new FormPanel.SubmitHandler() {
             @Override
@@ -326,8 +331,14 @@ public class OrganismPanel extends Composite {
         species.setText(organismInfo.getSpecies());
         species.setEnabled(isEditable);
 
-        sequenceFile.setText(organismInfo.getDirectory());
-        sequenceFile.setEnabled(isEditable);
+        if (organismInfo.getNumFeatures() == 0) {
+          sequenceFile.setText(organismInfo.getDirectory() );
+          sequenceFile.setEnabled(isEditable);
+        }
+        else{
+          sequenceFile.setText(organismInfo.getDirectory() + " (remove " + organismInfo.getNumFeatures() + " annotations to change)" );
+          sequenceFile.setEnabled(false);
+        }
 
         publicMode.setValue(organismInfo.getPublicMode());
         publicMode.setEnabled(isEditable);
@@ -649,10 +660,27 @@ public class OrganismPanel extends Composite {
 
     @UiHandler("sequenceFile")
     public void handleOrganismDirectory(ChangeEvent changeEvent) {
+      try {
         if (singleSelectionModel.getSelectedObject() != null) {
-            singleSelectionModel.getSelectedObject().setDirectory(sequenceFile.getText());
-            updateOrganismInfo();
+          Bootbox.confirm("Changing the source directory will remove all existing annotations.  Continue?", new ConfirmCallback() {
+            @Override
+            public void callback(boolean result) {
+              if(result) {
+                singleSelectionModel.getSelectedObject().setDirectory(sequenceFile.getText());
+                updateOrganismInfo();
+              }
+            }
+          });
         }
+      } catch (Exception e) {
+        Bootbox.alert("There was a problem updating the organism: "+e.getMessage());
+        Bootbox.confirm("Reload", new ConfirmCallback() {
+          @Override
+          public void callback(boolean result) {
+            if(result) Window.Location.reload();
+          }
+        });
+      }
     }
 
     private void updateOrganismInfo() {

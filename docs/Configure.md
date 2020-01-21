@@ -18,11 +18,12 @@ that are defined in the Config.groovy file:
 ``` 
 // default apollo settings
 apollo {
-
+    gff3.source = "." // also for GPAD
     // other translation codes are of the form ncbi_KEY_translation_table.txt
     // under the web-app/translation_tables  directory
     // to add your own add them to that directory and over-ride the translation code here
     get_translation_code = 1
+   
     proxies = [
             [
                     referenceUrl : 'http://golr.geneontology.org/select',
@@ -40,6 +41,7 @@ apollo {
                     replace      : false
             ]
     ]
+    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from https://genome.ucsc.edu/goldenPath/help/blatSpec.html
     sequence_search_tools = [
             blat_nuc : [
                     search_exe  : "/usr/local/bin/blat",
@@ -74,13 +76,18 @@ grails {
 }
 ```
 
-### JBrowse Plugins
+### JBrowse Plugins and Configuration
 
-You can add / remove jbrowse plugins by copying a jbrowse section into your ```apollo-config.groovy```. 
+You can configure the installed Apollo JBrowse by modifying the `jbrowse` section of your ```apollo-config.groovy``` that overrides the JBrowse [configuration file](https://github.com/GMOD/Apollo/blob/develop/grails-app/conf/Config.groovy).
 
-There are two sections, ```plugins``` and ```main```, which specifies the jbrowse version.
+There are two sections, ```plugins``` and ```git```, which specifies the JBrowse version.
+
+```
+ git {
+        url = "https://github.com/gmod/jbrowse"
+        branch = "1.16.6-release"
+```
    
-The main section can either contain a ```git``` block or a ```url``` block, both of which require ```url```.
 If a git block a ```tag``` or ```branch``` can be specified.  
 
 In the ```plugins``` section, options are ```included``` (part of the JBrowse release), ```url``` (requiring a url parameter), 
@@ -89,7 +96,6 @@ or ```git```, which can include a ```tag``` or ```branch``` as above.
 Options for ```alwaysRecheck``` and ```alwaysRepull``` always check the branch and tag and always pull respectiviely. 
 
 See `sample-*.groovy` for example sections: https://github.com/GMOD/Apollo/blob/develop/sample-h2-apollo-config.groovy#L112-L146
-
 
 
 ### Translation tables
@@ -152,6 +158,8 @@ log4j.main = {
 }
 ```
 
+To add debug-level logging you would replace `warn 'grails.app'` with two lines `debug 'grails.app'` and `debug 'org.bbop.apollo'`.  To see database-level logging you would also add: `trace 'org.hibernate.type'` and `debug 'org.hibernate.SQL'`. 
+
 Additional links for log4j:
 
 - Advanced log4j configuration:
@@ -160,9 +168,9 @@ Additional links for log4j:
 
 ### Add attribute for the original id of the object
 
-In the apollo config override set `store_orig_id=true` to store an `orid_id` attribute on the top-level feature that 
+In the apollo `store_orig_id=true` is set to true by default.  To store an `orid_id` attribute on the top-level feature that 
 represents the original id from the genomic evidence.  This is useful for re-merging code as Apollo will generate its own IDs because 
-annotations will be based on multiple evidence sources.
+annotations will be based on multiple evidence sources.  To turn this off, override it by setting it to false `store_orig_id = false`.
 
 
 ### Canned Elements
@@ -182,10 +190,11 @@ Apollo can be configured to work with various sequence search tools. UCSC's BLAT
 can customize it as follows by making modifications in the ```apollo-config.groovy``` file.  Here we replace blat with blast 
 (there is an existing wrapper for Blast).  The database for each file will be passed in via params (globally) or using the 
 ```Blat database``` field in the organism tab.  For blast the database will be the root name of the blast database files 
-without the suffix.
+without the suffix.   Retrieve [blat binaries from ucsc](https://genome.ucsc.edu/goldenPath/help/blatSpec.html).
 
 ``` 
 apollo{
+    fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // get from https://genome.ucsc.edu/goldenPath/help/blatSpec.html
 	sequence_search_tools {
         blat_nuc {
             search_exe = "/usr/local/bin/blastn"
@@ -211,8 +220,9 @@ apollo{
 ```
 
 When you setup your organism in the web interface, you can then enter the location of the sequence search database for
-BLAT.
+BLAT.  
 
+If you setup `fa_to_twobit_exe` with the proper path, fasta uploads for new genomes will automatically be indexed and populated.
 
 Note: If the BLAT binaries reside elsewhere on your system, edit the search_exe location in the config to point to your
 BLAT executable.
@@ -316,9 +326,9 @@ forwarded to the tomcat server.  This setup is not necessary, but it is a very s
 
 Note that we use the SockJS library, which will downgrade to long-polling if websockets are not available, but since
 websockets are preferable, it helps to take some extra steps to ensure that the websocket calls are proxied or forwarded
-in some way too.
+in some way too.  Using Tomcat 8 or above is recommended.
 
-Use Tomcat 8 or above as Tomcat 7 has been deprecated.
+If using a separate Oauth2 provider, a more [detailed example of handling both the proxy and the authentication with OpenID Connect](OpenIDConnectAuthentication.md) has also been provided.
 
 
 ### Installing secure certificates. 
@@ -550,9 +560,19 @@ To configure them, add them to the ```apollo-config.groovy``` and set active to 
             ["name":"Remote User Authenticator",
              "className":"remoteUserAuthenticatorService",
              "active":false,
+             "params":["default_group": "annotators"]
             ]
         ]
     }
+
+The `Username Password Authenticator` is the default method for storing username passwords, where databases are stored secured within the database.  
+
+The `Remote User Authentication` method uses a separate Apache authorization proxy, which is used by [the Galaxy Community](https://galaxyproject.org/admin/config/apache-external-user-auth/).   
+Furthermore, users and groups can be inserted / updated via [web services](Web_services.md), which are wrapped by the [Apollo python library](https://pypi.org/project/apollo/). 
+The `default_group` parameter adds a user to a default group on login so that a user has access to at least some genomes.  
+
+A [more detailed guide using OpenIDConnect authorization](OpenIDConnectAuthentication.md) explains usage of both the proxy and an authentication strategy.
+
 
 ### URL modifications
 
@@ -608,6 +628,40 @@ Following are a few recommendations for adding tracks via dot notation in Apollo
 - avoid specifying `baseUrl`
 
 Since Apollo is aware of the organism data folder, specifying it explicitly in the `urlTemplate` can cause issues with URL redirects.
+
+### Setting Track Style by type
+
+For the default track type (`FeatureTrack`) to set the feature style by type (for example, if you have multiple feature types on a single track and you want to distinguish them,
+ you have to set the track `className` as `{type}` in the style section of the `trackList.json` file for that track:
+
+```
+ 
+ "style": {
+        "className": "{type}",
+      },
+```      
+
+You then have to specify a custom CSS file for that type in the `trackList.json`:
+
+ `"css":"data/custom.css"`
+ 
+And that file has to go at the same level as `trackList.json`.
+ 
+An example CSS entry to specify the feature type `lnc_RNA` might be:
+
+```
+ .minus-lnc_RNA .neat-UTR,
+ .plus-lnc_RNA .neat-UTR,
+ .lnc_RNA .neat-UTR{
+         height: 12px;
+         margin-top: 2px;
+         color: rgb(200,2,3);
+         background-color: rgb(5,4,255) !important;
+ }
+ ```
+ 
+For Canvas and HTML track configuration options, please see the [JBrowse documentation](http://jbrowse.org/docs/html_features.html) for additional details.
+
 
 ### Hiding JBrowse tracks from the public
 

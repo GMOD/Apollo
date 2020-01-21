@@ -99,7 +99,8 @@ jbrowse {
    git {
 //       url= "https://github.com/NAL-i5K/jbrowse"
        url= "https://github.com/GMOD/jbrowse"
-       tag = "1.16.3-release"
+//       tag = "1.16.3-release"
+       tag = "1.16.5-release"
 //        branch = "master"
 //	  tag = "1.15.4-release"
 //	  tag = "e9a005cf86a40ad4b2a4aaebcbf914a866ff7f3b"

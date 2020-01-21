@@ -15,7 +15,6 @@ class Organism implements JsonMetadata {
         genus nullable: true
         valid nullable: true
         blatdb nullable: true
-        metadata nullable: true
         commonName nullable: false
         genomeFasta nullable: true
         obsolete nullable: true
@@ -76,6 +75,7 @@ class Organism implements JsonMetadata {
     static mapping = {
         publicMode defaultValue: true
         obsolete defaultValue: false
+        metadata type: 'text'
     }
 
 }

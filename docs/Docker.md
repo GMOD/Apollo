@@ -19,7 +19,7 @@ Install [docker](https://docs.docker.com/engine/installation/) for your system i
 
 Choose an option:
 
-- To test a versioned release to test installation, e.g.: `docker run -it -p 8888:8080  -v /directory/to/jbrowse/files:/data quay.io/gmod/apollo:2.4.0`  [Other available versions](https://quay.io/repository/gmod/apollo?tab=tags)
+- To test a versioned release to test installation, e.g.: `docker run -it -p 8888:8080  -v /directory/to/jbrowse/files:/data quay.io/gmod/apollo:2.5.0`  [Other available versions](https://quay.io/repository/gmod/apollo?tab=tags)
 
 - Install a latest release to test installation: `docker run -it -p 8888:8080 -v /directory/to/jbrowse/files:/data gmod/apollo:latest` 
   -  To make sure you have the latest pull with ```docker pull gmod/apollo``` to fetch newer versions
@@ -40,7 +40,11 @@ You can configure options if need be (though default will work) by setting envir
 
     - `docker run -it -e APOLLO_ADMIN_PASSWORD=superdupersecrect -v /jbrowse/root/directory/:/data -v postgres-data:/var/lib/postgresql  -p 8888:8080 quay.io/gmod/apollo:latest`
 
-In all cases, Apollo will be available at [http://localhost:8888/](http://localhost:8888/) (or 8888 if you don't configure the port)
+In all cases, Apollo will be available at [http://localhost:8888/](http://localhost:8888/) (or 8888 if you don't configure the port).
+
+Additional options coudl be to set memory (required for running production off a mac) ` --memory=4g`, running a docker daemon `d` or adding debugging to the server ` -e "WEBAPOLLO_DEBUG=true"`.  For example (after creating the local `apollo_shared_dir`): 
+
+    docker run --memory=4g -d -it -p 8888:8080 -v `pwd`/apollo_shared_dir/:`pwd`/apollo_shared_dir/ -e "WEBAPOLLO_DEBUG=true"  -v /postgres/data/directory:/var/lib/postgresql quay.io/gmod/apollo:latest 
 
 When you use the above mount directory ```/jbrowse/root/directory``` and your genome is in 
 ```/jbrowse/root/directory/myawesomegenome``` you'll point to the directory: ```/data/myawesomegenome```.
@@ -71,7 +75,7 @@ The default credentials in this image are:
 1. Add an organism per the [instructions under Figure 2](http://genomearchitect.readthedocs.io/en/latest/Apollo2Build.html#login-to-the-web-interface).   Using yeast as an example, if you copy the data into `jbrowse-data/yeast` then on the server 
 you'll add the directory: `/data/yeast`. 
 
-![](./img/small-sample.png)
+![](images/organism_add.png)
 
 ## Apollo Run-time OPTIONS
 

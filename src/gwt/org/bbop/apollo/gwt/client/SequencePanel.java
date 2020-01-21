@@ -91,7 +91,7 @@ public class SequencePanel extends Composite {
     @UiField
     Button exportFastaButton;
     @UiField
-    Button exportGpadButton;
+    Button exportGoButton;
     @UiField
     Button selectSelectedButton;
     @UiField
@@ -344,13 +344,13 @@ public class SequencePanel extends Composite {
         dataGrid.setVisibleRangeAndClearData(dataGrid.getVisibleRange(), true);
     }
 
-    @UiHandler(value = {"exportGff3Button", "exportVcfButton", "exportFastaButton", "exportChadoButton","exportGpadButton"})
+    @UiHandler(value = {"exportGff3Button", "exportVcfButton", "exportFastaButton", "exportChadoButton", "exportGoButton"})
     public void handleExportTypeChanged(ClickEvent clickEvent) {
         exportGff3Button.setType(ButtonType.DEFAULT);
         exportVcfButton.setType(ButtonType.DEFAULT);
         exportFastaButton.setType(ButtonType.DEFAULT);
         exportChadoButton.setType(ButtonType.DEFAULT);
-        exportGpadButton.setType(ButtonType.DEFAULT);
+        exportGoButton.setType(ButtonType.DEFAULT);
 //        exportJbrowseButton.setType(ButtonType.DEFAULT);
         Button selectedButton = (Button) clickEvent.getSource();
         switch (selectedButton.getText()) {
@@ -366,8 +366,8 @@ public class SequencePanel extends Composite {
             case "CHADO":
                 exportChadoButton.setType(ButtonType.PRIMARY);
                 break;
-            case "GPAD":
-                exportGpadButton.setType(ButtonType.PRIMARY);
+            case "GO":
+                exportGoButton.setType(ButtonType.PRIMARY);
                 break;
 //            case "JBROWSE":
 //                exportJbrowseButton.setType(ButtonType.PRIMARY);
@@ -418,8 +418,8 @@ public class SequencePanel extends Composite {
             type = exportFastaButton.getText();
         } else if (exportChadoButton.getType().equals(ButtonType.PRIMARY)) {
             type = exportChadoButton.getText();
-        } else if (exportGpadButton.getType().equals(ButtonType.PRIMARY)) {
-            type = exportGpadButton.getText();
+        } else if (exportGoButton.getType().equals(ButtonType.PRIMARY)) {
+            type = exportGoButton.getText();
         }
 //        else if (exportJbrowseButton.getType().equals(ButtonType.DANGER.PRIMARY)) {
 //            type = exportJbrowseButton.getText();
