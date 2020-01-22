@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import htsjdk.variant.vcf.VCFFileReader
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -16,6 +17,7 @@ import org.restapidoc.pojo.RestApiVerb
 import javax.servlet.http.HttpServletResponse
 
 @RestApi(name = "VCF Services", description = "Methods for retrieving VCF track data as JSON")
+@Transactional(readOnly = true)
 class VcfController {
 
     def preferenceService
