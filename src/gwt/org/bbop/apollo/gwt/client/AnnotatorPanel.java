@@ -33,10 +33,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
-import org.bbop.apollo.gwt.client.dto.UserInfo;
-import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
@@ -85,6 +82,7 @@ public class AnnotatorPanel extends Composite {
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
+    private boolean queryViewInRangeOnly = false ;
 
     @UiField
     TextBox nameSearchBox;
@@ -142,6 +140,8 @@ public class AnnotatorPanel extends Composite {
     CheckBox uniqueNameCheckBox;
     @UiField
     Button showAllSequences;
+    @UiField
+    Button showCurrentView;
 
 
     // manage UI-state
@@ -185,6 +185,7 @@ public class AnnotatorPanel extends Composite {
             return index;
         }
     }
+
 
     public AnnotatorPanel() {
         sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
@@ -239,6 +240,10 @@ public class AnnotatorPanel extends Composite {
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
+                if (queryViewInRangeOnly) {
+                    url += "&range=" + MainPanel.getRange();
+                    queryViewInRangeOnly = false ;
+                }
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
@@ -827,8 +832,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
-        showAllSequences.setEnabled(isSearchDirty());
-        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
+        showAllSequences.setEnabled(true);
+//        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
+        showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
@@ -865,6 +871,13 @@ public class AnnotatorPanel extends Composite {
 
     @UiHandler("nameSearchBox")
     public void searchName(KeyUpEvent keyUpEvent) {
+        reload();
+    }
+
+
+    @UiHandler("showCurrentView")
+    public void setShowCurrentView(ClickEvent clickEvent) {
+        queryViewInRangeOnly = true;
         reload();
     }
 

@@ -328,7 +328,7 @@ class AnnotatorController {
  * @param searchUniqueName
  * @return
  */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName,String range) {
         try {
             JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -386,6 +386,33 @@ class AnnotatorController {
                             order('name', sortorder)
                         }
                         eq('organism', organism)
+                    }
+                    if(range){
+                        Sequence sequenceNameRange = Sequence.findByName(range.split(":")[0])
+                        Integer fmin = Integer.parseInt(range.split(":")[1].split("\\.\\.")[0])
+                        Integer fmax = Integer.parseInt(range.split(":")[1].split("\\.\\.")[1])
+                        eq('sequence', sequenceNameRange)
+                        or{
+                            // case A, left-edge or overlaps
+                            and{
+                                lte("fmin",fmin)
+                                gte("fmax",fmin)
+                            }
+                            // case B, inbetween
+                            and{
+                                gte("fmin",fmin)
+                                lte("fmax",fmax)
+                            }
+//                            // case C, overlaps
+//                            and{
+//                                lte("fmin",fmin)
+//                                gte("fmax",fmax)
+//                            }
+                            and{
+                                lte("fmin",fmax)
+                                gte("fmax",fmax)
+                            }
+                        }
                     }
                 }
                 if (showOnlyGoAnnotations) {
