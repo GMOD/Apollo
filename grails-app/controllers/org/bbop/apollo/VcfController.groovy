@@ -23,6 +23,13 @@ class VcfController {
     def vcfService
     def trackService
 
+    def beforeInterceptor = {
+        if (params.action == "featuresByLocation") {
+            response.setHeader("Access-Control-Allow-Origin", "*")
+        }
+    }
+
+
     @RestApiMethod(description = "Get VCF track data for a given range as JSON", path = "/vcf/<organism_name>/<track_name>/<sequence_name>:<fmin>..<fmax>.<type>?includeGenotypes=<includeGenotypes>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [
             @RestApiParam(name = "organismString", type = "string", paramType = RestApiParamType.QUERY, description = "Organism common name or ID (required)"),
