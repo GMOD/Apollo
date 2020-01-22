@@ -321,6 +321,7 @@ public class MainPanel extends Composite {
                 currentStartBp = start;
                 currentEndBp = end;
                 handlingNavEvent = false;
+                GWT.log("setting start / end" + currentStartBp + " " + currentEndBp);
             }
 
             @Override
@@ -1292,6 +1293,12 @@ public class MainPanel extends Composite {
 
     public String getCommonDataDirectory() {
         return commonDataDirectory;
+    }
+
+
+    public static String getRange(){
+        GWT.log("returning " + getCurrentSequenceAsJson() + " " + currentStartBp + " " + currentEndBp);
+        return currentSequence.getName() + ":" +  currentStartBp  + ".." + currentEndBp;
     }
 
     SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {

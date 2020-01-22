@@ -33,10 +33,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
-import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
-import org.bbop.apollo.gwt.client.dto.UserInfo;
-import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.dto.*;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
 import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
 import org.bbop.apollo.gwt.client.event.UserChangeEvent;
@@ -142,6 +139,8 @@ public class AnnotatorPanel extends Composite {
     CheckBox uniqueNameCheckBox;
     @UiField
     Button showAllSequences;
+    @UiField
+    CheckBox showCurrentView;
 
 
     // manage UI-state
@@ -239,6 +238,10 @@ public class AnnotatorPanel extends Composite {
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
+                GWT.log("showing current view, "+showCurrentView.getValue());
+                if (showCurrentView.getValue()) {
+                    url += "&range=" + MainPanel.getRange();
+                }
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
