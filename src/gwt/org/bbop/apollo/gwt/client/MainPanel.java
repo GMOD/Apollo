@@ -321,7 +321,6 @@ public class MainPanel extends Composite {
                 currentStartBp = start;
                 currentEndBp = end;
                 handlingNavEvent = false;
-                GWT.log("setting start / end" + currentStartBp + " " + currentEndBp);
             }
 
             @Override
@@ -1287,7 +1286,6 @@ public class MainPanel extends Composite {
     public void removeOpenTranscript(String uniqueName){ annotatorPanel.removeOpenTranscript(uniqueName);}
 
     public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo){
-        GWT.log("setting the selected annotaiton info: "+annotationInfo.getType()+ " "+ annotationInfo.getUniqueName());
         annotatorPanel.setSelectedAnnotationInfo(annotationInfo);
     }
 
@@ -1297,7 +1295,7 @@ public class MainPanel extends Composite {
 
 
     public static String getRange(){
-        GWT.log("returning " + getCurrentSequenceAsJson() + " " + currentStartBp + " " + currentEndBp);
+        if(currentSequence == null ) return null ;
         return currentSequence.getName() + ":" +  currentStartBp  + ".." + currentEndBp;
     }
 
