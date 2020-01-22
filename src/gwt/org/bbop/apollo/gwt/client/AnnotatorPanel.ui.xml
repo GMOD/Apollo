@@ -103,7 +103,7 @@
                         <b:Button text="Show All" ui:field="showAllSequences" addStyleNames="{style.showAllButtonRow}"/>
                     </b:Column>
                     <b:Column size="MD_2">
-                        <b:CheckBox text="Show Current View" ui:field="showCurrentView" addStyleNames="{style.showAllButtonRow}"/>
+                        <b:Button text="Show Visible Only" ui:field="showCurrentView" addStyleNames="{style.showAllButtonRow}"/>
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.topRowPadding}">

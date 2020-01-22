@@ -82,6 +82,7 @@ public class AnnotatorPanel extends Composite {
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
+    private boolean queryViewInRangeOnly = false ;
 
     @UiField
     TextBox nameSearchBox;
@@ -140,7 +141,7 @@ public class AnnotatorPanel extends Composite {
     @UiField
     Button showAllSequences;
     @UiField
-    CheckBox showCurrentView;
+    Button showCurrentView;
 
 
     // manage UI-state
@@ -184,6 +185,7 @@ public class AnnotatorPanel extends Composite {
             return index;
         }
     }
+
 
     public AnnotatorPanel() {
         sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
@@ -238,9 +240,9 @@ public class AnnotatorPanel extends Composite {
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
-                GWT.log("showing current view, "+showCurrentView.getValue());
-                if (showCurrentView.getValue()) {
+                if (queryViewInRangeOnly) {
                     url += "&range=" + MainPanel.getRange();
+                    queryViewInRangeOnly = false ;
                 }
 
 
@@ -830,8 +832,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
-        showAllSequences.setEnabled(isSearchDirty());
-        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
+        showAllSequences.setEnabled(true);
+//        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
+        showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
@@ -861,7 +864,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox","showCurrentView"})
+    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -872,6 +875,12 @@ public class AnnotatorPanel extends Composite {
     }
 
 
+    @UiHandler("showCurrentView")
+    public void setShowCurrentView(ClickEvent clickEvent) {
+        queryViewInRangeOnly = true;
+        reload();
+    }
+
     @UiHandler("showAllSequences")
     public void setShowAllSequences(ClickEvent clickEvent) {
         nameSearchBox.setText("");
@@ -880,7 +889,6 @@ public class AnnotatorPanel extends Composite {
         typeList.setSelectedIndex(0);
         uniqueNameCheckBox.setValue(false);
         goOnlyCheckBox.setValue(false);
-        showCurrentView.setValue(false);
         reload();
     }
 
