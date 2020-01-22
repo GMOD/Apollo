@@ -861,7 +861,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox"})
+    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox","showCurrentView"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -871,6 +871,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
+
     @UiHandler("showAllSequences")
     public void setShowAllSequences(ClickEvent clickEvent) {
         nameSearchBox.setText("");
@@ -879,6 +880,7 @@ public class AnnotatorPanel extends Composite {
         typeList.setSelectedIndex(0);
         uniqueNameCheckBox.setValue(false);
         goOnlyCheckBox.setValue(false);
+        showCurrentView.setValue(false);
         reload();
     }
 

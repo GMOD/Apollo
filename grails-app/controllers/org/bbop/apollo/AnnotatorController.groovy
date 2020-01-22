@@ -388,12 +388,31 @@ class AnnotatorController {
                         eq('organism', organism)
                     }
                     if(range){
-                        String sequenceNameRange = range.split(":")[0]
-                        String fmin = range.split(":")[1].split("..")[0]
-                        String fmax = range.split(":")[1].split("..")[1]
+                        Sequence sequenceNameRange = Sequence.findByName(range.split(":")[0])
+                        Integer fmin = Integer.parseInt(range.split(":")[1].split("\\.\\.")[0])
+                        Integer fmax = Integer.parseInt(range.split(":")[1].split("\\.\\.")[1])
                         eq('sequence', sequenceNameRange)
-                        gte("fmin",fmin)
-                        lte("fmax",fmax)
+                        or{
+                            // case A, left-edge or overlaps
+                            and{
+                                lte("fmin",fmin)
+                                gte("fmax",fmin)
+                            }
+                            // case B, inbetween
+                            and{
+                                gte("fmin",fmin)
+                                lte("fmax",fmax)
+                            }
+//                            // case C, overlaps
+//                            and{
+//                                lte("fmin",fmin)
+//                                gte("fmax",fmax)
+//                            }
+                            and{
+                                lte("fmin",fmax)
+                                gte("fmax",fmax)
+                            }
+                        }
                     }
                 }
                 if (showOnlyGoAnnotations) {
