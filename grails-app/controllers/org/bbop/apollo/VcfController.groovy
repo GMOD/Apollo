@@ -17,7 +17,7 @@ import org.restapidoc.pojo.RestApiVerb
 import javax.servlet.http.HttpServletResponse
 
 @RestApi(name = "VCF Services", description = "Methods for retrieving VCF track data as JSON")
-@Transactional(readOnly = true)
+@Transactional
 class VcfController {
 
     def preferenceService
