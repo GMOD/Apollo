@@ -127,13 +127,14 @@ class IOServiceController extends AbstractApolloController {
 
                 log.debug "IOService query: ${System.currentTimeMillis() - st}ms"
             } else {
-                queryParams['viewableAnnotationList'] = requestHandlingService.viewableAnnotationList
-                // captures 3 level indirection, joins feature locations only. joining other things slows it down
-                def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
-                // request nonCoding transcripts that can lack an exon
                 queryParams['viewableAnnotationList'] = requestHandlingService.nonCodingAnnotationTranscriptList
-                queryParams['geneIds'] = genes.id
-                def genesNoExon = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations where fl.sequence.organism = :organism and f.id not in (:geneIds)  and child.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences) " : ""),queryParams)
+                // request nonCoding transcripts that can lack an exon
+                def genesNoExon = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations where fl.sequence.organism = :organism and child.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences) " : ""),queryParams)
+                queryParams['geneIds'] = genesNoExon.id
+
+                // captures 3 level indirection, joins feature locations only. joining other things slows it down
+                queryParams['viewableAnnotationList'] = requestHandlingService.viewableAnnotationList
+                def genes = Gene.executeQuery("select distinct f from Gene f join fetch f.featureLocations fl join fetch f.parentFeatureRelationships pr join fetch pr.childFeature child join fetch child.featureLocations join fetch child.childFeatureRelationships join fetch child.parentFeatureRelationships cpr join fetch cpr.childFeature subchild join fetch subchild.featureLocations join fetch subchild.childFeatureRelationships left join fetch subchild.parentFeatureRelationships where fl.sequence.organism = :organism  and f.id not in (:geneIds) and f.class in (:viewableAnnotationList)" + (sequences ? " and fl.sequence.name in (:sequences)" : ""), queryParams)
 //                 captures rest of feats
                 def otherFeats = Feature.createCriteria().list() {
                     featureLocations {
