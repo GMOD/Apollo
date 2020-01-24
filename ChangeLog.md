@@ -1,4 +1,9 @@
 
+## 2.6.0
+
+Infrastructure Changes
+
+- Upgrade to [JBrowse 1.16.7](https://github.com/GMOD/jbrowse/releases/tag/1.16.7-release)
 
 ## 2.5.0
 
