@@ -211,7 +211,7 @@ class AnnotatorController {
         // add missing
 
         for (syn in synonymsToRemove) {
-            def featureSynonymsToRemove = FeatureSynonym.executeQuery("select fs from FeatureSynonym fs where fs.feature = :feature and fs.synonym.name = :name", [feature: feature, , name: syn])
+            def featureSynonymsToRemove = FeatureSynonym.executeQuery("select fs from FeatureSynonym fs where fs.feature = :feature and fs.synonym.name = :name", [feature: feature, name: syn])
             println "features to remove ${featureSynonymsToRemove.size()} ${featureSynonymsToRemove}"
             for (fs in featureSynonymsToRemove) {
                 feature.removeFromFeatureSynonyms(fs)
@@ -416,6 +416,10 @@ class AnnotatorController {
                             }
                         }
                     }
+                }
+                if (status!="") {
+                    // should work in null or non-null state
+                    eq("status",status)
                 }
                 if (showOnlyGoAnnotations) {
                     goAnnotations {
