@@ -877,8 +877,8 @@ public class AnnotatorPanel extends Composite {
 
     public void reload(Boolean forceReload) {
         showAllSequences.setEnabled(true);
-//        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
         showAllSequences.setType(ButtonType.DEFAULT);
+        initializeStatus();
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
