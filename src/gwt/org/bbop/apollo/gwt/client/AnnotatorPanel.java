@@ -493,22 +493,19 @@ public class AnnotatorPanel extends Composite {
         final RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
-
                 if (response.getStatusCode() == 401) {
                     return;
                 }
-
                 statusField.setEnabled(true);
                 statusField.clear();
                 statusField.addItem("Any Status", "");
-
+                statusField.addItem("No Status Assigned", FeatureStringEnum.NO_STATUS_ASSIGNED.getValue());
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
                 for (int i = 0; array != null && i < array.size(); i++) {
                     String status = array.get(i).isString().stringValue();
                     statusField.addItem(status, status);
                 }
-
             }
 
             @Override

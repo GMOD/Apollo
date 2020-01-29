@@ -419,8 +419,13 @@ class AnnotatorController {
                 }
                 if (statusString!="") {
                     // should work in null or non-null state
-                    status {
-                        eq("value",statusString)
+                    if(statusString==FeatureStringEnum.NO_STATUS_ASSIGNED.value){
+                        isNull("status")
+                    }
+                    else{
+                        status {
+                            eq("value",statusString)
+                        }
                     }
                 }
                 if (showOnlyGoAnnotations) {

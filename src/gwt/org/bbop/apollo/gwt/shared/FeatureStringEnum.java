@@ -21,6 +21,7 @@ public enum FeatureStringEnum {
         TIMEACCESSION,
         DEFAULT,
         TIMELASTMODIFIED,
+        NO_STATUS_ASSIGNED,
         RESIDUES,
         CHILDREN,
         CDS("CDS"),
