@@ -240,7 +240,7 @@ public class AnnotatorPanel extends Composite {
                 url += "&annotationName=" + nameSearchBox.getText();
                 url += "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
-                url += "&status=" + statusField.getSelectedValue();
+                url += "&statusString=" + statusField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();

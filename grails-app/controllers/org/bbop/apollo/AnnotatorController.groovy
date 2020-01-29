@@ -330,7 +330,7 @@ class AnnotatorController {
  * @param searchUniqueName
  * @return
  */
-    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName,String range,String status) {
+    def findAnnotationsForSequence(String sequenceName, String request, String annotationName, String type, String user, Integer offset, Integer max, String sortorder, String sort, String clientToken, Boolean showOnlyGoAnnotations, Boolean searchUniqueName,String range,String statusString) {
         try {
             JSONObject returnObject = jsonWebUtilityService.createJSONFeatureContainer()
             returnObject.clientToken = clientToken
@@ -417,9 +417,11 @@ class AnnotatorController {
                         }
                     }
                 }
-                if (status!="") {
+                if (statusString!="") {
                     // should work in null or non-null state
-                    eq("status",status)
+                    status {
+                        eq("value",statusString)
+                    }
                 }
                 if (showOnlyGoAnnotations) {
                     goAnnotations {
