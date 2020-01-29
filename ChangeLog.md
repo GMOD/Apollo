@@ -4,6 +4,8 @@
 Infrastructure Changes
 
 - Upgrade to [JBrowse 1.16.7](https://github.com/GMOD/jbrowse/releases/tag/1.16.7-release)
+- Upgrade to [Node 13](https://github.com/GMOD/Apollo/issues/2358)
+
 
 ## 2.5.0
 
