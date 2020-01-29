@@ -129,12 +129,9 @@
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                     <b:Column size="MD_3">
-<!--                        <b:CheckBox ui:field="statusNotField" addStyleNames="{style.widgetBox}"/>-->
                         <b:ListBox ui:field="statusField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
                 </b:Row>
-                <!--                    </b:PanelBody>-->
-                <!--                </b:Panel>-->
             </b:Container>
         </gwt:north>
         <gwt:center>

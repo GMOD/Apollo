@@ -37,10 +37,7 @@ import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
-import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
@@ -307,17 +304,6 @@ public class AnnotatorPanel extends Composite {
                                     selectedAnnotationInfo = annotationInfoList.get(0);
                                     updateAnnotationInfo(selectedAnnotationInfo);
                                 }
-//                                selectedAnnotationInfo = annotationInfoList.get(0);
-//                                String type = selectedAnnotationInfo.getType();
-//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                if(showingTranscripts.contains(selectedAnnotationInfo.getUniqueName())){
-//                                    updateAnnotationInfo(selectedAnnotationInfo);
-//                                    String type = selectedAnnotationInfo.getType();
-//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                        addOpenTranscript(selectedAnnotationInfo.getUniqueName());
-//                                    }
-//                                }
                             }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -439,6 +425,13 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
+                initializeStatus();
+            }
+        });
+
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
@@ -494,8 +487,9 @@ public class AnnotatorPanel extends Composite {
     }
 
     private void initializeStatus() {
+        statusField.setEnabled(false);
         statusField.clear();
-        statusField.addItem("Any Status", "");
+        statusField.addItem("Loading...", "");
         final RequestCallback requestCallback = new RequestCallback() {
             @Override
             public void onResponseReceived(Request request, Response response) {
@@ -503,6 +497,10 @@ public class AnnotatorPanel extends Composite {
                 if (response.getStatusCode() == 401) {
                     return;
                 }
+
+                statusField.setEnabled(true);
+                statusField.clear();
+                statusField.addItem("Any Status", "");
 
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
@@ -878,7 +876,6 @@ public class AnnotatorPanel extends Composite {
     public void reload(Boolean forceReload) {
         showAllSequences.setEnabled(true);
         showAllSequences.setType(ButtonType.DEFAULT);
-        initializeStatus();
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
@@ -899,6 +896,13 @@ public class AnnotatorPanel extends Composite {
         if (sequenceList.getValue().trim().length() > 0) return true;
 
         return false;
+    }
+
+    @UiHandler(value = {"statusField"})
+    public void updateStatus(ChangeEvent changeEvent){
+        reload();
+
+//        initializeStatus();
     }
 
     @UiHandler(value = {"pageSizeSelector"})
