@@ -80,7 +80,9 @@ public class AvailableStatusRestService {
 
     public static void getAvailableStatuses(RequestCallback requestCallback, String type,String organismId) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(type));
+        if(type!=null){
+            jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(type));
+        }
         jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(organismId));
         RestService.sendRequest(requestCallback, "annotationEditor/getAvailableStatuses", "data=" +jsonObject.toString() );
     }

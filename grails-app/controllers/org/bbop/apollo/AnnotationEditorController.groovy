@@ -1092,8 +1092,11 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
 
         Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
-        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+        String type = null
+        if(inputObject.containsKey(FeatureStringEnum.TYPE.value)){
+            type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        }
+        List<FeatureType> featureTypeList = type ? getFeatureTypeListForType(type) : []
         println "type ${type} ${featureTypeList}"
         render availableStatusService.getAvailableStatuses(organism,featureTypeList) as JSON
     }

@@ -44,7 +44,6 @@ import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
 import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
-import org.bbop.apollo.gwt.client.rest.OrganismRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -325,7 +324,6 @@ public class AnnotatorPanel extends Composite {
                                 @Override
                                 public void execute() {
                                     if (selectedAnnotationInfo != null) {
-//                                    Window.alert("setting data: "+selectedAnnotationInfo.getName());
                                         // refind and update internally
                                         for (AnnotationInfo annotationInfo : annotationInfoList) {
                                             // will be found if a top-level selection
@@ -520,16 +518,16 @@ public class AnnotatorPanel extends Composite {
                 Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
             }
         };
-        Scheduler.get().scheduleFixedPeriod(new Scheduler.RepeatingCommand() {
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
             @Override
             public boolean execute() {
                 if (MainPanel.getInstance().getCurrentOrganism() != null) {
-                    AvailableStatusRestService.getAvailableStatuses(requestCallback );
+                    AvailableStatusRestService.getAvailableStatuses(requestCallback);
                     return false;
                 }
                 return true;
             }
-        },200);
+        }, 1000);
     }
 
     private void initializeUsers() {
