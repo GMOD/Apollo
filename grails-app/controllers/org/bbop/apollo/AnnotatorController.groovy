@@ -422,9 +422,21 @@ class AnnotatorController {
                     if(statusString==FeatureStringEnum.NO_STATUS_ASSIGNED.value){
                         isNull("status")
                     }
-                    else{
+                    else
+                    if(statusString==FeatureStringEnum.ANY_STATUS_ASSIGNED.value){
                         status {
-                            eq("value",statusString)
+                        }
+                    }
+                    else{
+                        if(statusString.startsWith(FeatureStringEnum.NOT.value+":")){
+                            status {
+                                ne("value",statusString.split(":")[1])
+                            }
+                        }
+                        else{
+                            status {
+                                eq("value",statusString)
+                            }
                         }
                     }
                 }

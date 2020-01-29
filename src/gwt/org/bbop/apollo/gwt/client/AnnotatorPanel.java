@@ -498,13 +498,18 @@ public class AnnotatorPanel extends Composite {
                 }
                 statusField.setEnabled(true);
                 statusField.clear();
-                statusField.addItem("Any Status", "");
+                statusField.addItem("All Statuses", "");
                 statusField.addItem("No Status Assigned", FeatureStringEnum.NO_STATUS_ASSIGNED.getValue());
+                statusField.addItem("Any Status Assigned", FeatureStringEnum.ANY_STATUS_ASSIGNED.getValue());
                 JSONValue returnValue = JSONParser.parseStrict(response.getText());
                 JSONArray array = returnValue.isArray();
                 for (int i = 0; array != null && i < array.size(); i++) {
                     String status = array.get(i).isString().stringValue();
                     statusField.addItem(status, status);
+                }
+                for (int i = 0; array != null && i < array.size(); i++) {
+                    String status = array.get(i).isString().stringValue();
+                    statusField.addItem("Assigned NOT "+status, FeatureStringEnum.NOT.getValue()+":"+status);
                 }
             }
 
