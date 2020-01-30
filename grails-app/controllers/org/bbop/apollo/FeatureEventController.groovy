@@ -121,9 +121,6 @@ class FeatureEventController {
             } else if (params.sort == "dateCreated") {
                 order('dateCreated', params.order)
             }
-//            else if (params.sort == "status") {
-//                order('status', params.order)
-//            }
 
             if (params.ownerName && params.ownerName != "null") {
                 owners {

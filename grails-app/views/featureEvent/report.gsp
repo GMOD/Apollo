@@ -109,7 +109,6 @@
             <g:sortableColumn property="name" title="Name" params="${filters}"/>
             <g:sortableColumn property="owners" title="Owner" params="${filters}"/>
             <g:sortableColumn property="cvTerm" title="Feature type" params="${filters}"/>
-%{--            <g:sortableColumn property="status" title="Status" params="${filters}"/>--}%
             <th>Status</th>
         </tr>
         </thead>

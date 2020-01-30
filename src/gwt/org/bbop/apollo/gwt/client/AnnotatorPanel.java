@@ -903,8 +903,6 @@ public class AnnotatorPanel extends Composite {
     @UiHandler(value = {"statusField"})
     public void updateStatus(ChangeEvent changeEvent){
         reload();
-
-//        initializeStatus();
     }
 
     @UiHandler(value = {"pageSizeSelector"})
