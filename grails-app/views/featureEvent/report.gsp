@@ -48,6 +48,14 @@
             <div class="col-sm-2  form-group">
                 <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name" />
             </div>
+            <div class="col-sm-2  form-group">
+                ${status}
+                <g:select name='status' value="${status}"
+                          noSelection="${["": 'All Status']}"
+                          from='${availableStatuses}'
+                          optionKey="value" optionValue="value" onchange="doSearch();">
+                </g:select>
+            </div>
         </div>
         <div class="row col-sm-12">
             <div class="col-sm-2">
@@ -83,6 +91,7 @@
                 </button>
             </div>
         </div>
+
         <g:hiddenField name="sort" value="${params.sort}"/>
         <g:hiddenField name="order" value="${params.order}"/>
     </div>
@@ -101,6 +110,7 @@
             <g:sortableColumn property="name" title="Name" params="${filters}"/>
             <g:sortableColumn property="owners" title="Owner" params="${filters}"/>
             <g:sortableColumn property="cvTerm" title="Feature type" params="${filters}"/>
+            <g:sortableColumn property="status" title="Status" params="${filters}"/>
         </tr>
         </thead>
         <tbody>
@@ -109,7 +119,7 @@
             <tr class="${(i % 2) == 0 ? 'even' : 'odd'}">
                 <td>
                     <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.lastUpdated}"/>
-                    (v ${feature.version})
+                    (v. ${feature.version})
                 </td>
                 <td>
                     <g:formatDate format="dd-MMM-yy HH:mm (E z)" date="${feature.dateCreated}"/>
@@ -145,6 +155,9 @@
                 </td>
                 <td>
                     ${feature.cvTerm}
+                </td>
+                <td>
+                    ${feature.status?.value}
                 </td>
             </tr>
         </g:each>

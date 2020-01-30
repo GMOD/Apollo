@@ -2,6 +2,7 @@ package org.bbop.apollo
 
 import grails.converters.JSON
 import grails.transaction.Transactional
+import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
 import org.codehaus.groovy.grails.web.json.JSONArray
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -86,7 +87,7 @@ class FeatureEventController {
     def report(Integer max) {
 
         params.max = Math.min(max ?: 15, 100)
-        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser,PermissionEnum.ADMINISTRATE)
+        def organisms = permissionService.getOrganismsWithMinimumPermission(permissionService.currentUser, PermissionEnum.ADMINISTRATE)
 
         def c = Feature.createCriteria()
 
@@ -114,12 +115,13 @@ class FeatureEventController {
                         }
                     }
                 }
-            }
-            else if (params.sort == "lastUpdated") {
+            } else if (params.sort == "lastUpdated") {
                 order('lastUpdated', params.order)
-            }
-            else if (params.sort == "dateCreated") {
+            } else if (params.sort == "dateCreated") {
                 order('dateCreated', params.order)
+            }
+            else if (params.sort == "status") {
+                order('status', params.order)
             }
 
             if (params.ownerName && params.ownerName != "null") {
@@ -130,6 +132,22 @@ class FeatureEventController {
             if (params.featureType && params.featureType != "null") {
                 ilike('class', '%' + params.featureType)
             }
+            if(params.status){
+                if(params.status==FeatureStringEnum.ANY_STATUS_ASSIGNED.value.replaceAll("_"," ").capitalize()){
+                    status {
+
+                    }
+                }
+                else
+                if(params.status==FeatureStringEnum.NO_STATUS_ASSIGNED.value.replaceAll("_"," ").capitalize()){
+                    isNull("status")
+                }
+                else{
+                    status{
+                        eq("value",params.status)
+                    }
+                }
+            }
             if (params.organismName && params.organismName != "null") {
                 featureLocations {
                     sequence {
@@ -138,8 +156,7 @@ class FeatureEventController {
                         }
                     }
                 }
-            }
-            else{
+            } else {
                 featureLocations {
                     sequence {
                         organism {
@@ -159,9 +176,9 @@ class FeatureEventController {
             if (params.afterDate) {
                 Calendar calendar = GregorianCalendar.getInstance()
                 calendar.setTime(params.afterDate)
-                calendar.set(Calendar.HOUR,0)
-                calendar.set(Calendar.MINUTE,0)
-                calendar.set(Calendar.SECOND,0)
+                calendar.set(Calendar.HOUR, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
                 gte('lastUpdated', calendar.getTime())
             }
             if (params.beforeDate) {
@@ -169,9 +186,9 @@ class FeatureEventController {
                 // set the before date to the very end of day
                 Calendar calendar = GregorianCalendar.getInstance()
                 calendar.setTime(params.beforeDate)
-                calendar.set(Calendar.HOUR,23)
-                calendar.set(Calendar.MINUTE,59)
-                calendar.set(Calendar.SECOND,59)
+                calendar.set(Calendar.HOUR, 23)
+                calendar.set(Calendar.MINUTE, 59)
+                calendar.set(Calendar.SECOND, 59)
                 lte('lastUpdated', calendar.getTime())
             }
             log.debug "afterDateDate ${params.afterDateDate}"
@@ -181,9 +198,9 @@ class FeatureEventController {
             if (params.dateCreatedAfterDate) {
                 Calendar calendar = GregorianCalendar.getInstance()
                 calendar.setTime(params.dateCreatedAfterDate)
-                calendar.set(Calendar.HOUR,0)
-                calendar.set(Calendar.MINUTE,0)
-                calendar.set(Calendar.SECOND,0)
+                calendar.set(Calendar.HOUR, 0)
+                calendar.set(Calendar.MINUTE, 0)
+                calendar.set(Calendar.SECOND, 0)
                 gte('dateCreated', calendar.getTime())
             }
             if (params.dateCreatedBeforeDate) {
@@ -191,9 +208,9 @@ class FeatureEventController {
                 // set the before date to the very end of day
                 Calendar calendar = GregorianCalendar.getInstance()
                 calendar.setTime(params.dateCreatedBeforeDate)
-                calendar.set(Calendar.HOUR,23)
-                calendar.set(Calendar.MINUTE,59)
-                calendar.set(Calendar.SECOND,59)
+                calendar.set(Calendar.HOUR, 23)
+                calendar.set(Calendar.MINUTE, 59)
+                calendar.set(Calendar.SECOND, 59)
                 lte('dateCreated', calendar.getTime())
             }
             log.debug "dateCreatedAfterDateDate ${params.dateCreatedAfterDateDate}"
@@ -217,8 +234,29 @@ class FeatureEventController {
         Date dateCreatedBeforeDate = params.dateCreatedBeforeDate ?: today
         Date dateCreatedAfterDate = params.dateCreatedAfterDate ?: veryOldDate
 
+        def availableStatuses = [FeatureStringEnum.ANY_STATUS_ASSIGNED.value.replace("_", " ").capitalize()
+                                 , FeatureStringEnum.NO_STATUS_ASSIGNED.value.replace("_", " ").capitalize()] + AvailableStatus.all
 
-        render view: "report", model: [organisms: organisms,dateCreatedAfterDate: dateCreatedAfterDate, dateCreatedBeforeDate: dateCreatedBeforeDate,afterDate: afterDate, beforeDate: beforeDate, sequenceName: params.sequenceName, features: list, featureCount: list.totalCount, organismName: params.organismName, featureTypes: featureTypes, featureType: params.featureType, ownerName: params.ownerName, filters: filters, sort: params.sort]
+
+        render view: "report",
+                model: [
+                        availableStatuses    : availableStatuses,
+                        status               : params.status,
+                        organisms            : organisms,
+                        dateCreatedAfterDate : dateCreatedAfterDate,
+                        dateCreatedBeforeDate: dateCreatedBeforeDate,
+                        afterDate            : afterDate,
+                        beforeDate           : beforeDate,
+                        sequenceName         : params.sequenceName,
+                        features             : list,
+                        featureCount         : list.totalCount,
+                        organismName         : params.organismName,
+                        featureTypes         : featureTypes,
+                        featureType          : params.featureType,
+                        ownerName            : params.ownerName,
+                        filters              : filters,
+                        sort                 : params.sort
+                ]
     }
 
     def index(Integer max) {
