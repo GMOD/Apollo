@@ -122,15 +122,16 @@
                     </b:Column>
                 </b:Row>
                 <b:Row styleName="{style.rowPadding}">
-                    <b:Column size="MD_5">
+                    <b:Column size="MD_4">
                         <b:SuggestBox ui:field="sequenceList" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
-                    <b:Column size="MD_7">
+                    <b:Column size="MD_3">
                         <b:ListBox ui:field="userField" addStyleNames="{style.widgetBox}"/>
                     </b:Column>
+                    <b:Column size="MD_3">
+                        <b:ListBox ui:field="statusField" addStyleNames="{style.widgetBox}"/>
+                    </b:Column>
                 </b:Row>
-                <!--                    </b:PanelBody>-->
-                <!--                </b:Panel>-->
             </b:Container>
         </gwt:north>
         <gwt:center>

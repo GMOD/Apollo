@@ -33,13 +33,14 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
-import org.bbop.apollo.gwt.client.dto.*;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
-import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
+import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
+import org.bbop.apollo.gwt.client.dto.UserInfo;
+import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
+import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
@@ -82,7 +83,7 @@ public class AnnotatorPanel extends Composite {
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
-    private boolean queryViewInRangeOnly = false ;
+    private boolean queryViewInRangeOnly = false;
 
     @UiField
     TextBox nameSearchBox;
@@ -142,6 +143,8 @@ public class AnnotatorPanel extends Composite {
     Button showAllSequences;
     @UiField
     Button showCurrentView;
+    @UiField
+    ListBox statusField;
 
 
     // manage UI-state
@@ -237,12 +240,13 @@ public class AnnotatorPanel extends Composite {
                 url += "&annotationName=" + nameSearchBox.getText();
                 url += "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
+                url += "&statusString=" + statusField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
                 url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
                 if (queryViewInRangeOnly) {
                     url += "&range=" + MainPanel.getRange();
-                    queryViewInRangeOnly = false ;
+                    queryViewInRangeOnly = false;
                 }
 
 
@@ -300,24 +304,12 @@ public class AnnotatorPanel extends Composite {
                                     selectedAnnotationInfo = annotationInfoList.get(0);
                                     updateAnnotationInfo(selectedAnnotationInfo);
                                 }
-//                                selectedAnnotationInfo = annotationInfoList.get(0);
-//                                String type = selectedAnnotationInfo.getType();
-//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                if(showingTranscripts.contains(selectedAnnotationInfo.getUniqueName())){
-//                                    updateAnnotationInfo(selectedAnnotationInfo);
-//                                    String type = selectedAnnotationInfo.getType();
-//                                    if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-//                                        addOpenTranscript(selectedAnnotationInfo.getUniqueName());
-//                                    }
-//                                }
                             }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
                                 public void execute() {
                                     if (selectedAnnotationInfo != null) {
-//                                    Window.alert("setting data: "+selectedAnnotationInfo.getName());
                                         // refind and update internally
                                         for (AnnotationInfo annotationInfo : annotationInfoList) {
                                             // will be found if a top-level selection
@@ -433,6 +425,13 @@ public class AnnotatorPanel extends Composite {
             }
         });
 
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
+                initializeStatus();
+            }
+        });
+
         Annotator.eventBus.addHandler(AnnotationInfoChangeEvent.TYPE, new AnnotationInfoChangeEventHandler() {
             @Override
             public void onAnnotationChanged(AnnotationInfoChangeEvent annotationInfoChangeEvent) {
@@ -474,6 +473,8 @@ public class AnnotatorPanel extends Composite {
             public void execute() {
                 initializeUsers();
                 userField.setVisible(true);
+                initializeStatus();
+                statusField.setVisible(true);
             }
         });
 
@@ -485,6 +486,49 @@ public class AnnotatorPanel extends Composite {
         tabPanel.selectTab(5);
     }
 
+    private void initializeStatus() {
+        statusField.setEnabled(false);
+        statusField.clear();
+        statusField.addItem("Loading...", "");
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == 401) {
+                    return;
+                }
+                statusField.setEnabled(true);
+                statusField.clear();
+                statusField.addItem("All Statuses", "");
+                statusField.addItem("No Status Assigned", FeatureStringEnum.NO_STATUS_ASSIGNED.getValue());
+                statusField.addItem("Any Status Assigned", FeatureStringEnum.ANY_STATUS_ASSIGNED.getValue());
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+                for (int i = 0; array != null && i < array.size(); i++) {
+                    String status = array.get(i).isString().stringValue();
+                    statusField.addItem(status, status);
+                }
+                for (int i = 0; array != null && i < array.size(); i++) {
+                    String status = array.get(i).isString().stringValue();
+                    statusField.addItem("Assigned NOT "+status, FeatureStringEnum.NOT.getValue()+":"+status);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
+            }
+        };
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if (MainPanel.getInstance().getCurrentOrganism() != null) {
+                    AvailableStatusRestService.getAvailableStatuses(requestCallback);
+                    return false;
+                }
+                return true;
+            }
+        }, 1000);
+    }
 
     private void initializeUsers() {
         userField.clear();
@@ -833,7 +877,6 @@ public class AnnotatorPanel extends Composite {
 
     public void reload(Boolean forceReload) {
         showAllSequences.setEnabled(true);
-//        showAllSequences.setType(isSearchDirty() ? ButtonType.INFO : ButtonType.DEFAULT);
         showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
@@ -855,6 +898,11 @@ public class AnnotatorPanel extends Composite {
         if (sequenceList.getValue().trim().length() > 0) return true;
 
         return false;
+    }
+
+    @UiHandler(value = {"statusField"})
+    public void updateStatus(ChangeEvent changeEvent){
+        reload();
     }
 
     @UiHandler(value = {"pageSizeSelector"})
