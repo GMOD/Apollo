@@ -79,6 +79,7 @@ class FeatureEventController {
         render returnList as JSON
     }
 
+
     /**
      * Permissions handled upstream
      * @param max
@@ -133,13 +134,13 @@ class FeatureEventController {
                 ilike('class', '%' + params.featureType)
             }
             if(params.status){
-                if(params.status==FeatureStringEnum.ANY_STATUS_ASSIGNED.value.replaceAll("_"," ").capitalize()){
+                if(params.status==FeatureStringEnum.ANY_STATUS_ASSIGNED.pretty){
                     status {
 
                     }
                 }
                 else
-                if(params.status==FeatureStringEnum.NO_STATUS_ASSIGNED.value.replaceAll("_"," ").capitalize()){
+                if(params.status==FeatureStringEnum.NO_STATUS_ASSIGNED.pretty){
                     isNull("status")
                 }
                 else{
@@ -234,8 +235,7 @@ class FeatureEventController {
         Date dateCreatedBeforeDate = params.dateCreatedBeforeDate ?: today
         Date dateCreatedAfterDate = params.dateCreatedAfterDate ?: veryOldDate
 
-        def availableStatuses = [FeatureStringEnum.ANY_STATUS_ASSIGNED.value.replace("_", " ").capitalize()
-                                 , FeatureStringEnum.NO_STATUS_ASSIGNED.value.replace("_", " ").capitalize()] + AvailableStatus.all
+        def availableStatuses = [FeatureStringEnum.ANY_STATUS_ASSIGNED.pretty, FeatureStringEnum.NO_STATUS_ASSIGNED.pretty] + AvailableStatus.all.value
 
 
         render view: "report",

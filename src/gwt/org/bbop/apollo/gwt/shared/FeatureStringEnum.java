@@ -207,4 +207,9 @@ public enum FeatureStringEnum {
                 return value;
         }
 
+        public String getPretty() {
+                String pretty1 = value.replaceAll("_"," ");
+                return pretty1.substring(0,1).toUpperCase() + pretty1.substring(1);
+        }
+
 }

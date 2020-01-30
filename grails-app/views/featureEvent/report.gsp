@@ -49,11 +49,10 @@
                 <g:textField class="form-control input-sm" name="sequenceName" maxlength="50" value="${sequenceName}" placeholder="Sequence Name" />
             </div>
             <div class="col-sm-2  form-group">
-                ${status}
                 <g:select name='status' value="${status}"
                           noSelection="${["": 'All Status']}"
                           from='${availableStatuses}'
-                          optionKey="value" optionValue="value" onchange="doSearch();">
+                          onchange="doSearch();">
                 </g:select>
             </div>
         </div>
