@@ -604,27 +604,27 @@ div.annot-sequence  {
     z-index: 15;
 }
 
-.colorCds .cds-frame0 {
+.Apollo.colorCds .cds-frame0 {
     background-color: #FF8080;
 }
 
-.colorCds .cds-frame1 {
+.Apollo.colorCds .cds-frame1 {
     background-color: #80FF80;
 }
 
-.colorCds .cds-frame2 {
+.Apollo.colorCds .cds-frame2 {
     background-color: #8080FF;
 }
 
-.colorCds .neg-cds-frame0 {
+.Apollo.colorCds .neg-cds-frame0 {
     background-color: #8080FF;
 }
 
-.colorCds .neg-cds-frame1 {
+.Apollo.colorCds .neg-cds-frame1 {
     background-color: #80FF80;
 }
 
-.colorCds .neg-cds-frame2 {
+.Apollo.colorCds .neg-cds-frame2 {
     background-color: #FF8080;
 }
 
