@@ -21,6 +21,9 @@ public enum FeatureStringEnum {
         TIMEACCESSION,
         DEFAULT,
         TIMELASTMODIFIED,
+        NOT,
+        NO_STATUS_ASSIGNED,
+        ANY_STATUS_ASSIGNED,
         RESIDUES,
         CHILDREN,
         CDS("CDS"),
@@ -202,6 +205,11 @@ public enum FeatureStringEnum {
 
         public String getValue() {
                 return value;
+        }
+
+        public String getPretty() {
+                String pretty1 = value.replaceAll("_"," ");
+                return pretty1.substring(0,1).toUpperCase() + pretty1.substring(1);
         }
 
 }

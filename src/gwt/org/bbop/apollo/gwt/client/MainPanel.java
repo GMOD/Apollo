@@ -48,9 +48,10 @@ public class MainPanel extends Composite {
 
 
     private static final int DEFAULT_TAB_COUNT = 8;
+    private static final int CLOSE_WIDTH = 25;
+    private static final int OPEN_WIDTH = 700;
 
-    interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> {
-    }
+    interface MainPanelUiBinder extends UiBinder<Widget, MainPanel> { }
 
     private static MainPanelUiBinder ourUiBinder = GWT.create(MainPanelUiBinder.class);
 
@@ -79,7 +80,7 @@ public class MainPanel extends Composite {
 
 
     @UiField
-    Button dockOpenClose;
+    static Button dockOpenClose;
     @UiField(provided = false)
     static NamedFrame frame;
     @UiField
@@ -98,8 +99,8 @@ public class MainPanel extends Composite {
     static GroupPanel userGroupPanel;
     @UiField
     static DockLayoutPanel eastDockPanel;
-    @UiField(provided = true)
-    static SplitLayoutPanel mainSplitPanel;
+    @UiField
+    static DockLayoutPanel mainDockPanel;
     @UiField
     static TabLayoutPanel detailTabs;
     @UiField
@@ -167,14 +168,6 @@ public class MainPanel extends Composite {
         instance = this;
         sequenceSuggestBox = new SuggestBox(new ReferenceSequenceOracle());
 
-        mainSplitPanel = new SplitLayoutPanel() {
-            @Override
-            public void onResize() {
-                super.onResize();
-                Annotator.setPreference(FeatureStringEnum.DOCK_WIDTH.getValue(), mainSplitPanel.getWidgetSize(eastDockPanel));
-            }
-        };
-
         exportStaticMethod();
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -226,7 +219,7 @@ public class MainPanel extends Composite {
             String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
             if (dockWidth != null && toggleOpen) {
                 Integer dockWidthInt = Integer.parseInt(dockWidth);
-                mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
+                mainDockPanel.setWidgetSize(eastDockPanel, dockWidthInt);
             }
         } catch (NumberFormatException e) {
             GWT.log("Error setting preference: " + e.fillInStackTrace().toString());
@@ -878,24 +871,20 @@ public class MainPanel extends Composite {
         }
     }
 
-    private void closePanel() {
-        mainSplitPanel.setWidgetSize(eastDockPanel, 20);
-        dockOpenClose.setIcon(IconType.CHEVRON_LEFT);
+    static void closePanel() {
+        mainDockPanel.setWidgetSize(eastDockPanel, CLOSE_WIDTH);
+        dockOpenClose.setIcon(IconType.WINDOW_MAXIMIZE);
+        dockOpenClose.setColor("green");
     }
 
     private void openPanel() {
-        String dockWidth = Annotator.getPreference(FeatureStringEnum.DOCK_WIDTH.getValue());
-        if (dockWidth != null) {
-            Integer dockWidthInt = Integer.parseInt(dockWidth);
-            mainSplitPanel.setWidgetSize(eastDockPanel, dockWidthInt);
-        } else {
-            mainSplitPanel.setWidgetSize(eastDockPanel, 550);
-        }
-        dockOpenClose.setIcon(IconType.CHEVRON_RIGHT);
+      mainDockPanel.setWidgetSize(eastDockPanel, OPEN_WIDTH);
+      dockOpenClose.setIcon(IconType.CLOSE);
+      dockOpenClose.setColor("red");
     }
 
     private void toggleOpen() {
-        if (mainSplitPanel.getWidgetSize(eastDockPanel) < 100) {
+        if (mainDockPanel.getWidgetSize(eastDockPanel) < 100) {
             toggleOpen = false;
         }
 
@@ -905,7 +894,7 @@ public class MainPanel extends Composite {
             openPanel();
         }
 
-        mainSplitPanel.animate(400);
+        mainDockPanel.animate(50);
 
         toggleOpen = !toggleOpen;
         Annotator.setPreference(FeatureStringEnum.DOCK_OPEN.getValue(), toggleOpen);
@@ -1075,6 +1064,8 @@ public class MainPanel extends Composite {
      * @param payload
      */
     public static void handleFeatureUpdated(String payload) {
+//        GWT.log("updating feature with "+payload);
+        // not necessary now as they all come from the same panel
         if (detailTabs.getSelectedIndex() == 0) {
             annotatorPanel.reload();
         }
@@ -1107,16 +1098,15 @@ public class MainPanel extends Composite {
     }
 
     /**
-     * Features array handed in
-     *
-     * @param parentName
      */
     public static Boolean viewInAnnotationPanel(String parentName) {
         try {
             annotatorPanel.sequenceList.setText("");
             annotatorPanel.nameSearchBox.setText(parentName);
+            annotatorPanel.uniqueNameCheckBox.setValue(true);
             annotatorPanel.reload();
             detailTabs.selectTab(TabPanelIndex.ANNOTATIONS.getIndex());
+            MainPanel.getInstance().openPanel();
             return true ;
         } catch (Exception e) {
             Bootbox.alert("Problem viewing annotation");
@@ -1202,6 +1192,7 @@ public class MainPanel extends Composite {
         $wnd.getCurrentUser = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentUserAsJson());
         $wnd.getCurrentSequence = $entry(@org.bbop.apollo.gwt.client.MainPanel::getCurrentSequenceAsJson());
         $wnd.viewInAnnotationPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewInAnnotationPanel(Ljava/lang/String;));
+        $wnd.closeAnnotatorPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::closePanel());
         $wnd.viewGoPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewGoPanel(Ljava/lang/String;));
         $wnd.viewSearchPanel = $entry(@org.bbop.apollo.gwt.client.MainPanel::viewSearchPanel(Ljava/lang/String;Ljava/lang/String;));
     }-*/;
@@ -1291,9 +1282,21 @@ public class MainPanel extends Composite {
         return currentSequence;
     }
 
+    public void addOpenTranscript(String uniqueName){ annotatorPanel.addOpenTranscript(uniqueName);}
+    public void removeOpenTranscript(String uniqueName){ annotatorPanel.removeOpenTranscript(uniqueName);}
+
+    public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo){
+        annotatorPanel.setSelectedAnnotationInfo(annotationInfo);
+    }
 
     public String getCommonDataDirectory() {
         return commonDataDirectory;
+    }
+
+
+    public static String getRange(){
+        if(currentSequence == null ) return null ;
+        return currentSequence.getName() + ":" +  currentStartBp  + ".." + currentEndBp;
     }
 
     SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {

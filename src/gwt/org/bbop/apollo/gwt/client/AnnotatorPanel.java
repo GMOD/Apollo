@@ -29,34 +29,29 @@ import com.google.gwt.text.shared.SafeHtmlRenderer;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.Window;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.*;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfo;
 import org.bbop.apollo.gwt.client.dto.AnnotationInfoConverter;
 import org.bbop.apollo.gwt.client.dto.UserInfo;
 import org.bbop.apollo.gwt.client.dto.UserInfoConverter;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEvent;
-import org.bbop.apollo.gwt.client.event.AnnotationInfoChangeEventHandler;
-import org.bbop.apollo.gwt.client.event.UserChangeEvent;
-import org.bbop.apollo.gwt.client.event.UserChangeEventHandler;
+import org.bbop.apollo.gwt.client.event.*;
 import org.bbop.apollo.gwt.client.oracles.ReferenceSequenceOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
-import org.bbop.apollo.gwt.client.rest.AnnotationRestService;
+import org.bbop.apollo.gwt.client.rest.AvailableStatusRestService;
 import org.bbop.apollo.gwt.client.rest.UserRestService;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
 import org.bbop.apollo.gwt.shared.PermissionEnum;
 import org.gwtbootstrap3.client.ui.Button;
-import org.gwtbootstrap3.client.ui.*;
 import org.gwtbootstrap3.client.ui.CheckBox;
 import org.gwtbootstrap3.client.ui.Label;
 import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.constants.IconType;
+import org.gwtbootstrap3.client.ui.*;
+import org.gwtbootstrap3.client.ui.constants.ButtonType;
 import org.gwtbootstrap3.extras.bootbox.client.Bootbox;
-import org.gwtbootstrap3.extras.bootbox.client.callback.ConfirmCallback;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -88,6 +83,7 @@ public class AnnotatorPanel extends Composite {
 
     private final String COLLAPSE_ICON_UNICODE = "\u25BC";
     private final String EXPAND_ICON_UNICODE = "\u25C0";
+    private boolean queryViewInRangeOnly = false;
 
     @UiField
     TextBox nameSearchBox;
@@ -127,22 +123,32 @@ public class AnnotatorPanel extends Composite {
     DockLayoutPanel splitPanel;
     @UiField
     Container northPanelContainer;
-    @UiField
-    static Button gotoAnnotation;
-    @UiField
-    static Button deleteAnnotation;
-    @UiField
-    Button toggleAnnotation;
+    //    @UiField
+//    Button toggleAnnotation;
     @UiField
     com.google.gwt.user.client.ui.ListBox pageSizeSelector;
     @UiField
     GoPanel goPanel;
     @UiField
     CheckBox goOnlyCheckBox;
+    @UiField
+    static DbXrefPanel dbXrefPanel;
+    @UiField
+    static CommentPanel commentPanel;
+    @UiField
+    static AttributePanel attributePanel;
+    @UiField
+    CheckBox uniqueNameCheckBox;
+    @UiField
+    Button showAllSequences;
+    @UiField
+    Button showCurrentView;
+    @UiField
+    ListBox statusField;
 
 
     // manage UI-state
-    private Boolean showDetails = true ;
+    private Boolean showDetails = true;
 
     static AnnotationInfo selectedAnnotationInfo;
     private MultiWordSuggestOracle sequenceOracle = new ReferenceSequenceOracle();
@@ -150,6 +156,39 @@ public class AnnotatorPanel extends Composite {
     private static AsyncDataProvider<AnnotationInfo> dataProvider;
     private SingleSelectionModel<AnnotationInfo> singleSelectionModel = new SingleSelectionModel<>();
     private final Set<String> showingTranscripts = new HashSet<String>();
+
+    public enum TAB_INDEX {
+        DETAILS(0),
+        CODING(1),
+        ALTERNATE_ALLELES(2),
+        VARIANT_INFO(3),
+        ALLELE_INFO(4),
+        GO(5),
+        DB_XREF(6),
+        COMMENT(7),
+        ATTRIBUTES(8),
+        ;
+
+        public int index;
+
+        TAB_INDEX(int index) {
+            this.index = index;
+        }
+
+        public static TAB_INDEX getTabEnumForIndex(int selectedSubTabIndex) {
+            for (TAB_INDEX value : values()) {
+                if (value.index == selectedSubTabIndex) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+    }
+
 
     public AnnotatorPanel() {
         sequenceList = new org.gwtbootstrap3.client.ui.SuggestBox(sequenceOracle);
@@ -171,7 +210,6 @@ public class AnnotatorPanel extends Composite {
                     if (event.getContext().getSubIndex() == 0) {
                         // subIndex from dataGrid will be 0 only when top-level cell values are clicked
                         // ie. gene, pseudogene
-                        GWT.log("Safe to call updateAnnotationInfo");
                         updateAnnotationInfo(annotationInfo);
                     }
                 }
@@ -199,10 +237,17 @@ public class AnnotatorPanel extends Composite {
                 String url = Annotator.getRootUrl() + "annotator/findAnnotationsForSequence/?sequenceName=" + sequenceName;
                 url += "&request=" + requestIndex;
                 url += "&offset=" + start + "&max=" + length;
-                url += "&annotationName=" + nameSearchBox.getText() + "&type=" + typeList.getSelectedValue();
+                url += "&annotationName=" + nameSearchBox.getText();
+                url += "&type=" + typeList.getSelectedValue();
                 url += "&user=" + userField.getSelectedValue();
+                url += "&statusString=" + statusField.getSelectedValue();
                 url += "&clientToken=" + Annotator.getClientToken();
                 url += "&showOnlyGoAnnotations=" + goOnlyCheckBox.getValue();
+                url += "&searchUniqueName=" + uniqueNameCheckBox.getValue();
+                if (queryViewInRangeOnly) {
+                    url += "&range=" + MainPanel.getRange();
+                    queryViewInRangeOnly = false;
+                }
 
 
                 ColumnSortList.ColumnSortInfo nameSortInfo = sortList.get(0);
@@ -247,30 +292,26 @@ public class AnnotatorPanel extends Composite {
                             } else {
                                 requestIndex = localRequestValue;
                             }
-                            Integer annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
-
+                            int annotationCount = (int) returnValue.isObject().get(FeatureStringEnum.ANNOTATION_COUNT.getValue()).isNumber().doubleValue();
                             JSONArray jsonArray = returnValue.isObject().get(FeatureStringEnum.FEATURES.getValue()).isArray();
 
                             dataGrid.setRowCount(annotationCount, true);
                             final List<AnnotationInfo> annotationInfoList = AnnotationInfoConverter.convertFromJsonArray(jsonArray);
                             dataGrid.setRowData(start, annotationInfoList);
                             if (annotationInfoList.size() == 1) {
-                                selectedAnnotationInfo = annotationInfoList.get(0);
-                                String type = selectedAnnotationInfo.getType();
-                                if (!type.equals("repeat_region") && !type.equals("transposable_element")) {
-                                    toggleOpen(1, selectedAnnotationInfo);
+                                String type = annotationInfoList.get(0).getType();
+                                if (!type.equals("gene") && !type.equals("pseudogene")) {
+                                    selectedAnnotationInfo = annotationInfoList.get(0);
+                                    updateAnnotationInfo(selectedAnnotationInfo);
                                 }
-
                             }
 
                             Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                                 @Override
                                 public void execute() {
                                     if (selectedAnnotationInfo != null) {
-//                                    Window.alert("setting data: "+selectedAnnotationInfo.getName());
                                         // refind and update internally
                                         for (AnnotationInfo annotationInfo : annotationInfoList) {
-                                            GWT.log("top-level: " + annotationInfo.getType());
                                             // will be found if a top-level selection
                                             if (annotationInfo.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
                                                 selectedAnnotationInfo = annotationInfo;
@@ -282,7 +323,6 @@ public class AnnotatorPanel extends Composite {
                                             // if a child, we need to get the index I think?
                                             final String thisUniqueName = selectedChildUniqueName;
                                             for (AnnotationInfo annotationInfoChild : annotationInfo.getChildAnnotations()) {
-                                                GWT.log("next-level: " + annotationInfoChild.getType());
                                                 if (annotationInfoChild.getUniqueName().equals(selectedAnnotationInfo.getUniqueName())) {
 //                                                    selectedAnnotationInfo = annotationInfo;
                                                     selectedAnnotationInfo = getChildAnnotation(annotationInfo, thisUniqueName);
@@ -357,22 +397,38 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelection(SelectionEvent<Integer> event) {
                 selectedSubTabIndex = event.getSelectedItem();
-                switch (selectedSubTabIndex) {
-                    case 0:
+                TAB_INDEX tab = TAB_INDEX.getTabEnumForIndex(selectedSubTabIndex);
+                switch (tab) {
+                    case DETAILS:
                         break;
-                    case 1:
+                    case CODING:
                         exonDetailPanel.redrawExonTable();
                         break;
-                    case 2:
+                    case ALTERNATE_ALLELES:
                         variantAllelesPanel.redrawTable();
                         break;
-                    case 3:
+                    case VARIANT_INFO:
                         variantInfoPanel.redrawTable();
-                    case 4:
+                    case ALLELE_INFO:
                         alleleInfoPanel.redrawTable();
-                    case 5:
+                    case GO:
                         goPanel.redraw();
+                    case DB_XREF:
+                        dbXrefPanel.updateData(selectedAnnotationInfo);
+                        break;
+                    case COMMENT:
+                        commentPanel.updateData(selectedAnnotationInfo);
+                        break;
+                    case ATTRIBUTES:
+                        attributePanel.updateData(selectedAnnotationInfo);
                 }
+            }
+        });
+
+        Annotator.eventBus.addHandler(OrganismChangeEvent.TYPE, new OrganismChangeEventHandler() {
+            @Override
+            public void onOrganismChanged(OrganismChangeEvent authenticationEvent) {
+                initializeStatus();
             }
         });
 
@@ -417,17 +473,62 @@ public class AnnotatorPanel extends Composite {
             public void execute() {
                 initializeUsers();
                 userField.setVisible(true);
+                initializeStatus();
+                statusField.setVisible(true);
             }
         });
 
 
     }
 
-    void selectGoPanel(){
-      goPanel.redraw();
-      tabPanel.selectTab(5);
+    void selectGoPanel() {
+        goPanel.redraw();
+        tabPanel.selectTab(5);
     }
 
+    private void initializeStatus() {
+        statusField.setEnabled(false);
+        statusField.clear();
+        statusField.addItem("Loading...", "");
+        final RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onResponseReceived(Request request, Response response) {
+                if (response.getStatusCode() == 401) {
+                    return;
+                }
+                statusField.setEnabled(true);
+                statusField.clear();
+                statusField.addItem("All Statuses", "");
+                statusField.addItem("No Status Assigned", FeatureStringEnum.NO_STATUS_ASSIGNED.getValue());
+                statusField.addItem("Any Status Assigned", FeatureStringEnum.ANY_STATUS_ASSIGNED.getValue());
+                JSONValue returnValue = JSONParser.parseStrict(response.getText());
+                JSONArray array = returnValue.isArray();
+                for (int i = 0; array != null && i < array.size(); i++) {
+                    String status = array.get(i).isString().stringValue();
+                    statusField.addItem(status, status);
+                }
+                for (int i = 0; array != null && i < array.size(); i++) {
+                    String status = array.get(i).isString().stringValue();
+                    statusField.addItem("Assigned NOT "+status, FeatureStringEnum.NOT.getValue()+":"+status);
+                }
+            }
+
+            @Override
+            public void onError(Request request, Throwable exception) {
+                Bootbox.alert("Error retrieving users: " + exception.fillInStackTrace());
+            }
+        };
+        Scheduler.get().scheduleFixedDelay(new Scheduler.RepeatingCommand() {
+            @Override
+            public boolean execute() {
+                if (MainPanel.getInstance().getCurrentOrganism() != null) {
+                    AvailableStatusRestService.getAvailableStatuses(requestCallback);
+                    return false;
+                }
+                return true;
+            }
+        }, 1000);
+    }
 
     private void initializeUsers() {
         userField.clear();
@@ -472,6 +573,7 @@ public class AnnotatorPanel extends Composite {
         geneDetailPanel.setVisible(false);
         transcriptDetailPanel.setVisible(false);
         repeatRegionDetailPanel.setVisible(false);
+        variantDetailPanel.setVisible(false);
 //        exonDetailPanel.setVisible(false);
     }
 
@@ -480,29 +582,40 @@ public class AnnotatorPanel extends Composite {
             return;
         }
         String type = annotationInfo.getType();
-        GWT.log("annotation type: " + type);
         hideDetailPanels();
         switch (type) {
             case "gene":
             case "pseudogene":
                 geneDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(true);
+                dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "transcript":
                 transcriptDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
+                dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "mRNA":
             case "miRNA":
@@ -513,23 +626,35 @@ public class AnnotatorPanel extends Composite {
             case "ncRNA":
                 transcriptDetailPanel.updateData(annotationInfo);
                 exonDetailPanel.updateData(annotationInfo, selectedAnnotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(true);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "terminator":
             case "transposable_element":
             case "repeat_region":
                 repeatRegionDetailPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(false);
-                tabPanel.getTabWidget(3).getParent().setVisible(false);
-                tabPanel.getTabWidget(4).getParent().setVisible(false);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             case "deletion":
             case "insertion":
@@ -542,12 +667,18 @@ public class AnnotatorPanel extends Composite {
                 variantAllelesPanel.updateData(annotationInfo);
                 variantInfoPanel.updateData(annotationInfo);
                 alleleInfoPanel.updateData(annotationInfo);
-                tabPanel.getTabWidget(0).getParent().setVisible(true);
-                tabPanel.getTabWidget(1).getParent().setVisible(false);
-                tabPanel.getTabWidget(2).getParent().setVisible(true);
-                tabPanel.getTabWidget(3).getParent().setVisible(true);
-                tabPanel.getTabWidget(4).getParent().setVisible(true);
-                tabPanel.getTabWidget(5).getParent().setVisible(false);
+                dbXrefPanel.updateData(annotationInfo);
+                commentPanel.updateData(annotationInfo);
+                attributePanel.updateData(annotationInfo);
+                tabPanel.getTabWidget(TAB_INDEX.DETAILS.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.CODING.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.ALTERNATE_ALLELES.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.VARIANT_INFO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ALLELE_INFO.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.GO.index).getParent().setVisible(false);
+                tabPanel.getTabWidget(TAB_INDEX.DB_XREF.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.COMMENT.index).getParent().setVisible(true);
+                tabPanel.getTabWidget(TAB_INDEX.ATTRIBUTES.index).getParent().setVisible(true);
                 break;
             default:
                 GWT.log("not sure what to do with " + type);
@@ -573,12 +704,6 @@ public class AnnotatorPanel extends Composite {
 
     }
 
-    public static void fireAnnotationInfoChangeEvent(AnnotationInfo annotationInfo) {
-        // this method is for firing AnnotationInfoChangeEvent for single level features such as transposable_element and repeat_region
-        AnnotationInfoChangeEvent annotationInfoChangeEvent = new AnnotationInfoChangeEvent(annotationInfo, AnnotationInfoChangeEvent.Action.SET_FOCUS);
-        Annotator.eventBus.fireEvent(annotationInfoChangeEvent);
-    }
-
     public void toggleOpen(int index, AnnotationInfo annotationInfo) {
         if (showingTranscripts.contains(annotationInfo.getUniqueName())) {
             showingTranscripts.remove(annotationInfo.getUniqueName());
@@ -590,6 +715,14 @@ public class AnnotatorPanel extends Composite {
         if (index < dataGrid.getRowCount()) {
             dataGrid.redrawRow(index);
         }
+    }
+
+    public void addOpenTranscript(String uniqueName) {
+        showingTranscripts.add(uniqueName);
+    }
+
+    public void removeOpenTranscript(String uniqueName) {
+        showingTranscripts.remove(uniqueName);
     }
 
     private void initializeTable() {
@@ -681,7 +814,7 @@ public class AnnotatorPanel extends Composite {
         dateColumn = new Column<AnnotationInfo, String>(new TextCell()) {
             @Override
             public String getValue(AnnotationInfo annotationInfo) {
-                return annotationInfo.getDate();
+                return annotationInfo.getDateLastModified();
             }
         };
         dateColumn.setSortable(true);
@@ -704,17 +837,19 @@ public class AnnotatorPanel extends Composite {
             @Override
             public void onSelectionChange(SelectionChangeEvent event) {
                 selectedAnnotationInfo = singleSelectionModel.getSelectedObject();
-                tabPanel.setVisible(showDetails && selectedAnnotationInfo!=null);
+                tabPanel.setVisible(showDetails && selectedAnnotationInfo != null);
                 if (selectedAnnotationInfo != null) {
                     exonDetailPanel.updateData(selectedAnnotationInfo);
                     goPanel.updateData(selectedAnnotationInfo);
-                    gotoAnnotation.setEnabled(true);
-                    deleteAnnotation.setEnabled(true);
+                    dbXrefPanel.updateData(selectedAnnotationInfo);
+                    commentPanel.updateData(selectedAnnotationInfo);
+                    attributePanel.updateData(selectedAnnotationInfo);
                 } else {
                     exonDetailPanel.updateData();
                     goPanel.updateData();
-                    gotoAnnotation.setEnabled(false);
-                    deleteAnnotation.setEnabled(false);
+                    dbXrefPanel.updateData();
+                    commentPanel.updateData();
+                    attributePanel.updateData();
                 }
             }
         });
@@ -741,6 +876,8 @@ public class AnnotatorPanel extends Composite {
     }
 
     public void reload(Boolean forceReload) {
+        showAllSequences.setEnabled(true);
+        showAllSequences.setType(ButtonType.DEFAULT);
         if (MainPanel.annotatorPanel.isVisible() || forceReload) {
             hideDetailPanels();
             pager.setPageStart(0);
@@ -752,6 +889,22 @@ public class AnnotatorPanel extends Composite {
         reload(false);
     }
 
+    private Boolean isSearchDirty() {
+        if (typeList.getSelectedIndex() > 0) return true;
+        if (userField.getSelectedIndex() > 0) return true;
+        if (goOnlyCheckBox.getValue()) return true;
+        if (uniqueNameCheckBox.getValue()) return true;
+        if (nameSearchBox.getText().trim().length() > 0) return true;
+        if (sequenceList.getValue().trim().length() > 0) return true;
+
+        return false;
+    }
+
+    @UiHandler(value = {"statusField"})
+    public void updateStatus(ChangeEvent changeEvent){
+        reload();
+    }
+
     @UiHandler(value = {"pageSizeSelector"})
     public void changePageSize(ChangeEvent changeEvent) {
         pageSize = Integer.parseInt(pageSizeSelector.getSelectedValue());
@@ -759,7 +912,7 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
-    @UiHandler(value = {"typeList", "userField","goOnlyCheckBox"})
+    @UiHandler(value = {"typeList", "userField", "goOnlyCheckBox", "uniqueNameCheckBox"})
     public void searchType(ChangeEvent changeEvent) {
         reload();
     }
@@ -769,104 +922,27 @@ public class AnnotatorPanel extends Composite {
         reload();
     }
 
+
+    @UiHandler("showCurrentView")
+    public void setShowCurrentView(ClickEvent clickEvent) {
+        queryViewInRangeOnly = true;
+        reload();
+    }
+
     @UiHandler("showAllSequences")
     public void setShowAllSequences(ClickEvent clickEvent) {
         nameSearchBox.setText("");
         sequenceList.setText("");
+        userField.setSelectedIndex(0);
+        typeList.setSelectedIndex(0);
+        uniqueNameCheckBox.setValue(false);
+        goOnlyCheckBox.setValue(false);
         reload();
     }
 
-    @UiHandler("gotoAnnotation")
-    void gotoAnnotation(ClickEvent clickEvent) {
-        Integer min = selectedAnnotationInfo.getMin() - 50;
-        Integer max = selectedAnnotationInfo.getMax() + 50;
-        min = min < 0 ? 0 : min;
-        MainPanel.updateGenomicViewerForLocation(selectedAnnotationInfo.getSequence(), min, max, false, false);
-    }
 
-
-    private void handleDetails(){
-        if(showDetails) {
-            toggleAnnotation.setText("Hide Details");
-            toggleAnnotation.setIcon(IconType.EYE_SLASH);
-        } else{
-            toggleAnnotation.setText("Show Details");
-            toggleAnnotation.setIcon(IconType.INFO_CIRCLE);
-        }
-
-        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject()!=null);
-    }
-
-    @UiHandler("toggleAnnotation")
-    void toggleAnnotation(ClickEvent clickEvent) {
-        showDetails = !showDetails;
-        handleDetails();
-    }
-
-    @UiHandler("deleteAnnotation")
-    void deleteAnnotation(ClickEvent clickEvent) {
-        final Set<AnnotationInfo> deletableChildren = getDeletableChildren(selectedAnnotationInfo);
-        String confirmString = "";
-        if (deletableChildren.size() > 0) {
-            confirmString = "Delete the " + deletableChildren.size() + " annotation" + (deletableChildren.size() > 1 ? "s" : "") + " belonging to the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
-        } else {
-            confirmString = "Delete the " + selectedAnnotationInfo.getType() + " " + selectedAnnotationInfo.getName() + "?";
-        }
-
-
-        final RequestCallback requestCallback = new RequestCallback() {
-            @Override
-            public void onResponseReceived(Request request, Response response) {
-                if (response.getStatusCode() == 200) {
-                    // parse to make sure we return the complete amount
-                    try {
-                        JSONValue returnValue = JSONParser.parseStrict(response.getText());
-                        GWT.log("Return: "+returnValue.toString());
-                        Bootbox.confirm("Success.  Reload page to reflect results?", new ConfirmCallback() {
-                            @Override
-                            public void callback(boolean result) {
-                                if(result){
-                                    Window.Location.reload();
-                                }
-                            }
-                        });
-                    } catch (Exception e) {
-                        Bootbox.alert(e.getMessage());
-                    }
-                } else {
-                    Bootbox.alert("Problem with deletion: " + response.getText());
-                }
-            }
-
-            @Override
-            public void onError(Request request, Throwable exception) {
-                Bootbox.alert("Problem with deletion: " + exception.getMessage());
-            }
-        };
-
-        Bootbox.confirm(confirmString, new ConfirmCallback() {
-            @Override
-            public void callback(boolean result) {
-                if (result) {
-                    if (deletableChildren.size() == 0) {
-                        Set<AnnotationInfo> annotationInfoSet = new HashSet<>();
-                        annotationInfoSet.add(selectedAnnotationInfo);
-                        AnnotationRestService.deleteAnnotations(requestCallback, annotationInfoSet);
-                    } else {
-                        JSONObject jsonObject = AnnotationRestService.deleteAnnotations(requestCallback, deletableChildren);
-                    }
-                }
-            }
-        });
-    }
-
-
-    private Set<AnnotationInfo> getDeletableChildren(AnnotationInfo selectedAnnotationInfo) {
-        String type = selectedAnnotationInfo.getType();
-        if (type.equalsIgnoreCase(FeatureStringEnum.GENE.getValue()) || type.equalsIgnoreCase(FeatureStringEnum.PSEUDOGENE.getValue())) {
-            return selectedAnnotationInfo.getChildAnnotations();
-        }
-        return new HashSet<>();
+    private void handleDetails() {
+        tabPanel.setVisible(showDetails && singleSelectionModel.getSelectedObject() != null);
     }
 
     private static AnnotationInfo getChildAnnotation(AnnotationInfo annotationInfo, String uniqueName) {
@@ -885,16 +961,19 @@ public class AnnotatorPanel extends Composite {
         selectedAnnotationInfo = getChildAnnotation(annotationInfo, uniqueName);
         exonDetailPanel.updateData(selectedAnnotationInfo);
         updateAnnotationInfo(selectedAnnotationInfo);
-        gotoAnnotation.setEnabled(true);
-        deleteAnnotation.setEnabled(true);
         selectedChildUniqueName = selectedAnnotationInfo.getUniqueName();
+    }
+
+    public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo) {
+        selectedAnnotationInfo = annotationInfo;
+        updateAnnotationInfo(selectedAnnotationInfo);
     }
 
     // used by javascript function
     public void displayTranscript(int geneIndex, String uniqueName) {
 
         // for some reason doesn't like call enableGoto
-        enableGoto(geneIndex,uniqueName);
+//        enableGoto(geneIndex, uniqueName);
 
         // for some reason doesn't like call gotoAnnotation
         Integer min = selectedAnnotationInfo.getMin() - 50;
@@ -907,13 +986,13 @@ public class AnnotatorPanel extends Composite {
     public void displayFeature(int featureIndex) {
         AnnotationInfo annotationInfo = dataGrid.getVisibleItem(Math.abs(dataGrid.getVisibleRange().getStart() - featureIndex));
         String type = annotationInfo.getType();
-        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator") ) {
+        if (type.equals("transposable_element") || type.equals("repeat_region") || type.equals("terminator")) {
             // do nothing
         } else {
             exonDetailPanel.updateData(annotationInfo);
         }
-        gotoAnnotation.setEnabled(true);
-        deleteAnnotation.setEnabled(true);
+//        gotoAnnotation.setEnabled(true);
+//        deleteAnnotation.setEnabled(true);
         Integer min = selectedAnnotationInfo.getMin() - 50;
         Integer max = selectedAnnotationInfo.getMax() + 50;
         min = min < 0 ? 0 : min;
@@ -946,6 +1025,7 @@ public class AnnotatorPanel extends Composite {
                     }
                 }
             }
+
         }
 
         private void buildAnnotationRow(final AnnotationInfo rowValue, int absRowIndex, boolean showTranscripts) {
@@ -1024,11 +1104,11 @@ public class AnnotatorPanel extends Composite {
             if (showTranscripts) {
                 DivBuilder div = td.startDiv();
                 div.style().trustedColor("green").endStyle();
-                Date date = new Date(Long.parseLong(rowValue.getDate()));
+                Date date = new Date(Long.parseLong(rowValue.getDateLastModified()));
                 div.text(outputFormat.format(date));
                 td.endDiv();
             } else {
-                Date date = new Date(Long.parseLong(rowValue.getDate()));
+                Date date = new Date(Long.parseLong(rowValue.getDateLastModified()));
                 td.text(outputFormat.format(date));
             }
             td.endTD();

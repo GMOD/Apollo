@@ -4,7 +4,7 @@ dist: trusty
 language: java
 
 node_js:
-  - "12"
+  - "13"
 
 env:
   - DB=postgres TEST_SUITE=apollo

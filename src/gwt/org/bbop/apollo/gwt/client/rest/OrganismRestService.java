@@ -146,4 +146,7 @@ public class OrganismRestService {
         RestService.sendRequest(requestCallback,"annotator/setCurrentSequence/"+ newSequenceId);
     }
 
+//    public static void loadAvailableStatusesForOrganism(RequestCallback requestCallback,String organismId) {
+//        RestService.sendRequest(requestCallback,"annotationEditor/getAvailableStatuses/?"+FeatureStringEnum.ORGANISM_ID.getValue()+"="+organismId);
+//    }
 }

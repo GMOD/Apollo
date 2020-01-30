@@ -4,7 +4,6 @@ import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import org.bbop.apollo.gwt.client.VariantDetailPanel;
 import org.bbop.apollo.gwt.shared.FeatureStringEnum;
-import org.bbop.apollo.gwt.shared.go.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +38,12 @@ public class AnnotationInfoConverter {
         if (object.get(FeatureStringEnum.DESCRIPTION.getValue()) != null) {
             annotationInfo.setDescription(object.get(FeatureStringEnum.DESCRIPTION.getValue()).isString().stringValue());
         }
+        if (object.get(FeatureStringEnum.SYNONYMS.getValue()) != null) {
+            annotationInfo.setSynonyms(object.get(FeatureStringEnum.SYNONYMS.getValue()).isString().stringValue());
+        }
+        if (object.get(FeatureStringEnum.STATUS.getValue()) != null) {
+            annotationInfo.setStatus(object.get(FeatureStringEnum.STATUS.getValue()).isString().stringValue());
+        }
         if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
             // If annotation is a variant annotation
             if (object.get(FeatureStringEnum.REFERENCE_ALLELE.getValue()) != null) {
@@ -51,6 +56,17 @@ public class AnnotationInfoConverter {
                 annotationInfo.setVariantProperties(object.get(FeatureStringEnum.VARIANT_INFO.getValue()).isArray());
             }
         }
+
+        if(object.containsKey(FeatureStringEnum.DBXREFS.getValue())){
+            annotationInfo.setDbXrefList(DbXRefInfoConverter.convertToDbXrefFromArray(object.get(FeatureStringEnum.DBXREFS.getValue()).isArray()));
+        }
+        if(object.containsKey(FeatureStringEnum.ATTRIBUTES.getValue())){
+            annotationInfo.setAttributeList(AttributeInfoConverter.convertToAttributeFromArray(object.get(FeatureStringEnum.ATTRIBUTES.getValue()).isArray()));
+        }
+        if(object.containsKey(FeatureStringEnum.COMMENTS.getValue())){
+            annotationInfo.setCommentList(CommentInfoConverter.convertToCommentFromArray(object.get(FeatureStringEnum.COMMENTS.getValue()).isArray()));
+        }
+
 
 //        List<GoAnnotation> goAnnotationList = new ArrayList<>();
 //        goAnnotationList.add(generateGoAnnotation());
@@ -67,7 +83,8 @@ public class AnnotationInfoConverter {
         if (object.get(FeatureStringEnum.OWNER.getValue()) != null) {
             annotationInfo.setOwner(object.get(FeatureStringEnum.OWNER.getValue()).isString().stringValue());
         }
-        annotationInfo.setDate(object.get(FeatureStringEnum.DATE_LAST_MODIFIED.getValue()).toString());
+        annotationInfo.setDateCreated(object.get(FeatureStringEnum.DATE_CREATION.getValue()).toString());
+        annotationInfo.setDateLastModified(object.get(FeatureStringEnum.DATE_LAST_MODIFIED.getValue()).toString());
         List<String> noteList = new ArrayList<>();
         if (object.get(FeatureStringEnum.NOTES.getValue()) != null) {
             JSONArray jsonArray = object.get(FeatureStringEnum.NOTES.getValue()).isArray();
@@ -77,6 +94,7 @@ public class AnnotationInfoConverter {
             }
         }
         annotationInfo.setNoteList(noteList);
+
 
         if (processChildren && object.get(FeatureStringEnum.CHILDREN.getValue()) != null) {
             JSONArray jsonArray = object.get(FeatureStringEnum.CHILDREN.getValue()).isArray();
@@ -89,17 +107,5 @@ public class AnnotationInfoConverter {
         return annotationInfo;
     }
 
-//    private static GoAnnotation generateGoAnnotation() {
-//        GoAnnotation goAnnotation = new GoAnnotation();
-//
-//        goAnnotation.setGoTerm("GO:12321");
-//        goAnnotation.setNegate(true);
-//
-//        goAnnotation.addNote("PMID:123123");
-//
-//        goAnnotation.addWithOrFrom(new WithOrFrom("UnitProt:K12312"));
-//
-//        return goAnnotation;
-//    }
 
 }

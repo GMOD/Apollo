@@ -8,11 +8,11 @@
 - In GH Create / Tag a Release reflecting ChangeLog.md with summary.
 
 - Update servers / images:
-    - Update demo, download new release and build
-    - Update docker images (https://github.com/GMOD/docker-apollo), retag for docker hub, and create a release
-    - Update AWS images and resubmit.
-    - Update AWS  training image.
+    - Update demo, download new release and build.
+    - Confirm docker images are updated automatically on [quay.io](https://quay.io/repository/gmod/apollo?tab=builds) and [docker hub](https://hub.docker.com/r/gmod/apollo/tags).  With docker hub, will need to pull and tag and push stable and release number.
+    - (1) Update AWS empty images and data image, (2)  create newer versions of the images from the running instances, (3) test, (4) distribute to N. Virginia and N. California.
     
-- Update genomearchitect to reflect zenodo and version.
-- Generate and update link on master to reflect zenodo link if appropriate.
-- Do announcement on gmod-ajax, apollo, and other lists.
+Zenodo:     
+  - Update README.md to reflect zenodo.
+  - Generate and update link on master to reflect zenodo link if appropriate.
+  - Do announcement on gmod-ajax, apollo, and other lists.

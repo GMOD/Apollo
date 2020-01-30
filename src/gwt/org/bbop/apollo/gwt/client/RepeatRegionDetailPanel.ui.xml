@@ -17,14 +17,64 @@
             margin-left: 5px;
             margin-right: 5px;
         }
-    </ui:style>
+        .bolder {
+            font-size: larger;
+            font-weight: bolder;
+        }
+        .selectBox {
+
+        }
+        .action-buttons {
+            margin-right: 10px;
+            display: inline;
+        }
+
+        .topPanel {
+            margin-bottom: 5px;
+        }
+
+        .inputGroup1 {
+            width: 400px;
+        }</ui:style>
 
     <b:Container fluid="true" styleName="{style.container}">
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.topPanel}">
+                <b:Button type="PRIMARY" icon="ARROW_CIRCLE_O_RIGHT" title="Go To" iconSize="LARGE"
+                          text="Go"
+                          ui:field="gotoAnnotation" enabled="true" addStyleNames="{style.action-buttons}"/>
+                <b:Button type="PRIMARY" icon="INFO_CIRCLE" title="ID" iconSize="LARGE"
+                          text="ID"
+                          ui:field="annotationIdButton" enabled="true" addStyleNames="{style.action-buttons}"/>
+                <b:Button type="DANGER" icon="TRASH_O" title="Go To" iconSize="LARGE"
+                          text="Delete" pull="RIGHT"
+                          ui:field="deleteAnnotation" enabled="true"
+                          addStyleNames="{style.action-buttons}"/>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.topPanel}">
+                <b:InputGroup addStyleNames="{style.inputGroup1}">
+                    <b:InputGroupAddon>Type</b:InputGroupAddon>
+                    <b:TextBox ui:field="typeField" enabled="false" addStyleNames="{style.bolder}"/>
+                    <b:InputGroupAddon ui:field="statusLabelField" addStyleNames="{style.bolder}">Status</b:InputGroupAddon>
+                    <b:ListBox ui:field="statusListBox" enabled="true" addStyleNames="{style.selectBox}"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
         <b:Row styleName="{style.row}">
             <b:Column size="XS_12" styleName="{style.widgetPanel}">
                 <b:InputGroup >
                     <b:InputGroupAddon>Name</b:InputGroupAddon>
                     <b:TextBox autoComplete="false" ui:field="nameField" />
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Synonyms</b:InputGroupAddon>
+                    <b:TextBox enabled="false" ui:field="synonymsField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>
@@ -57,6 +107,22 @@
                 <b:InputGroup>
                     <b:InputGroupAddon>Owner</b:InputGroupAddon>
                     <b:TextBox enabled="false" ui:field="userField"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Created</b:InputGroupAddon>
+                    <b:TextBox enabled="false" ui:field="dateCreatedField"/>
+                </b:InputGroup>
+            </b:Column>
+        </b:Row>
+        <b:Row styleName="{style.row}">
+            <b:Column size="XS_12" styleName="{style.widgetPanel}">
+                <b:InputGroup>
+                    <b:InputGroupAddon>Updated</b:InputGroupAddon>
+                    <b:TextBox enabled="false" ui:field="lastUpdatedField"/>
                 </b:InputGroup>
             </b:Column>
         </b:Row>

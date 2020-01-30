@@ -1,5 +1,6 @@
 package org.bbop.apollo.gwt.client.rest;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONNumber;
@@ -23,9 +24,11 @@ public class AnnotationRestService extends RestService {
         jsonObject.put(FeatureStringEnum.NAME.getValue(), new JSONString(annotationInfo.getName()));
         jsonObject.put(FeatureStringEnum.UNIQUENAME.getValue(), new JSONString(annotationInfo.getUniqueName()));
         jsonObject.put(FeatureStringEnum.SYMBOL.getValue(), annotationInfo.getSymbol() != null ? new JSONString(annotationInfo.getSymbol()) : new JSONString(""));
+        jsonObject.put(FeatureStringEnum.STATUS.getValue(), annotationInfo.getStatus() != null ? new JSONString(annotationInfo.getStatus()) : null);
         jsonObject.put(FeatureStringEnum.DESCRIPTION.getValue(), annotationInfo.getDescription() != null ? new JSONString(annotationInfo.getDescription()) : new JSONString(""));
         jsonObject.put(FeatureStringEnum.TYPE.getValue(), new JSONString(annotationInfo.getType()));
         jsonObject.put(FeatureStringEnum.TRACK.getValue(), new JSONString(annotationInfo.getSequence()));
+        jsonObject.put(FeatureStringEnum.SYNONYMS.getValue(), annotationInfo.getSynonyms() != null ? new JSONString(annotationInfo.getSynonyms()) : null );
 
         if (VariantDetailPanel.variantTypes.contains(annotationInfo.getType())) {
             if (annotationInfo.getReferenceAllele() != null)
@@ -86,6 +89,7 @@ public class AnnotationRestService extends RestService {
     featureObject.put(FeatureStringEnum.LOCATION.getValue(),generateLocationObject(annotationInfo));
     featureObject.put(FeatureStringEnum.TYPE.getValue(),generateTypeObject(annotationInfo.getType()));
     featureObject.put(FeatureStringEnum.DESCRIPTION.getValue(),new JSONString("created with blat hit") );
+    featureObject.put(FeatureStringEnum.SYNONYMS.getValue(),new JSONString(annotationInfo.getSynonyms()) );
 
 
     sendRequest(requestCallback, "annotationEditor/addTranscript", "data=" + jsonObject.toString());

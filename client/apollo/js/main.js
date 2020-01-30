@@ -717,7 +717,7 @@ return declare( [JBPlugin, HelpMixin],
         new dijitMenuItem(
           {
             id: 'about_apollo',
-            label: 'About',
+            label: 'About Apollo',
             onClick: function() {
               window.open("../about.jsp",'help_window').focus();
             }
@@ -733,6 +733,15 @@ return declare( [JBPlugin, HelpMixin],
             }
           })
       );
+        browser.addGlobalMenuItem( 'help',
+            new dijitMenuItem(
+                {
+                    id: 'request_feature_report_bug',
+                    label: 'Request feature / report bug',
+                    // iconClass: 'jbrowseIconHelp',
+                    onClick: function()  { window.open("https://github.com/gmod/apollo/issues/new",'_blank').focus(); }
+                })
+        );
 
       browser.addGlobalMenuItem( 'help',
         new dijitMenuItem(

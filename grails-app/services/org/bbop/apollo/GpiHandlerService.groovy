@@ -58,7 +58,7 @@ class GpiHandlerService {
         writeObject.out.write(goAnnotation.feature.name)
         writeObject.out.write("\t")
 //      4	DB_Object_Synonyms ::= [Label] ('|' Label)*		0 or greater	AMOT|KIAA1071
-        writeObject.out.write(goAnnotation.feature?.synonyms?.name?.join("|"))
+        writeObject.out.write(goAnnotation.feature?.featureSynonyms?.synonym?.name?.join("|"))
         writeObject.out.write("\t")
 //      5	DB_Object_Type ::= OBO_ID	Sequence Ontology	1	SO:0000104
         writeObject.out.write(goAnnotation.feature.ontologyId)

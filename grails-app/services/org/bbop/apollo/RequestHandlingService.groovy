@@ -54,9 +54,8 @@ class RequestHandlingService {
             Pseudogene.class.name
     ]
 
-    public static final List<String> viewableAnnotationTranscriptList = [
+    public static final List<String> nonCodingAnnotationTranscriptList = [
             Transcript.class.name,
-            MRNA.class.name,
             TRNA.class.name,
             SnRNA.class.name,
             SnoRNA.class.name,
@@ -64,6 +63,8 @@ class RequestHandlingService {
             RRNA.class.name,
             MiRNA.class.name,
     ]
+
+    public static final List<String> viewableAnnotationTranscriptList = [MRNA.class.name] + nonCodingAnnotationTranscriptList
 
     public static final List<String> viewableAlterations = [
             DeletionArtifact.class.name,
@@ -86,14 +87,6 @@ class RequestHandlingService {
     final List<String> viewableAnnotationList = viewableAnnotationFeatureList + viewableAnnotationTranscriptParentList + viewableSequenceAlterationList
     public static
     final List<String> viewableAnnotationTypesList = viewableAnnotationFeatureList + viewableAnnotationTranscriptList + viewableAnnotationTranscriptParentList
-
-    private String underscoreToCamelCase(String underscore) {
-        if (!underscore || underscore.isAllWhitespace()) {
-            return ''
-        }
-        return underscore.replaceAll(/_\w/) { it[1].toUpperCase() }
-    }
-
 
     JSONObject setSymbol(JSONObject inputObject) {
         JSONObject updateFeatureContainer = jsonWebUtilityService.createJSONFeatureContainer()
@@ -396,9 +389,9 @@ class RequestHandlingService {
             JSONArray commentsArray = jsonFeature.getJSONArray(FeatureStringEnum.COMMENTS.value)
             String uniqueName = jsonFeature.get(FeatureStringEnum.UNIQUENAME.value)
             Feature feature = Feature.findByUniqueName(uniqueName)
-          JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
+            JSONObject originalFeatureJsonObject = featureService.convertFeatureToJSON(feature)
 
-          for (int commentIndex = 0; commentIndex < commentsArray.size(); commentIndex++) {
+            for (int commentIndex = 0; commentIndex < commentsArray.size(); commentIndex++) {
                 String commentString = commentsArray.getString(commentIndex);
                 featurePropertyService.deleteComment(feature, commentString)
             }
