@@ -12,7 +12,7 @@ RUN apt-get -qq update --fix-missing && \
 	postgresql postgresql-client xmlstarlet netcat libpng-dev \
 	zlib1g-dev libexpat1-dev ant curl ssl-cert zip unzip
 
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get -qq update --fix-missing && \
 	apt-get --no-install-recommends -y install nodejs && \
 	apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /apollo/
