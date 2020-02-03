@@ -47,17 +47,5 @@ class FeatureEvent {
         oldFeaturesJsonArray type: "text"
     }
 
-//    static hasOne = [
-//            feature : Feature
-//    ]
-
-//    static belongsTo = [
-//            feature: Feature
-//    ]
-
-//    static hasMany = [
-//            newFeatures: Feature
-//            ,oldFeatures: Feature
-//    ]
 
 }

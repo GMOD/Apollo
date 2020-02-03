@@ -1286,12 +1286,17 @@ public class MainPanel extends Composite {
     public void removeOpenTranscript(String uniqueName){ annotatorPanel.removeOpenTranscript(uniqueName);}
 
     public void setSelectedAnnotationInfo(AnnotationInfo annotationInfo){
-        GWT.log("setting the selected annotaiton info: "+annotationInfo.getType()+ " "+ annotationInfo.getUniqueName());
         annotatorPanel.setSelectedAnnotationInfo(annotationInfo);
     }
 
     public String getCommonDataDirectory() {
         return commonDataDirectory;
+    }
+
+
+    public static String getRange(){
+        if(currentSequence == null ) return null ;
+        return currentSequence.getName() + ":" +  currentStartBp  + ".." + currentEndBp;
     }
 
     SequenceInfo setCurrentSequenceAndEnds(SequenceInfo newSequence) {

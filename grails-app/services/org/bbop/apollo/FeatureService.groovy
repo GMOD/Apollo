@@ -1972,7 +1972,7 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
      */
     @Timed
     JSONObject convertFeatureToJSON(Feature gsolFeature, boolean includeSequence = false) {
-        println "converting features to json ${gsolFeature}"
+        log.debug "converting features to json ${gsolFeature}"
         JSONObject jsonFeature = new JSONObject()
         if (gsolFeature.id) {
             jsonFeature.put(FeatureStringEnum.ID.value, gsolFeature.id)
@@ -1991,10 +1991,8 @@ public void setTranslationEnd(Transcript transcript, int translationEnd) {
         if (gsolFeature.description) {
             jsonFeature.put(FeatureStringEnum.DESCRIPTION.value, gsolFeature.description)
         }
-        println "has feture synonyms: ${gsolFeature.featureSynonyms}"
         if (gsolFeature.featureSynonyms) {
             jsonFeature.put(FeatureStringEnum.SYNONYMS.value, gsolFeature.featureSynonyms.synonym.name)
-            println "adding : ${jsonFeature as JSON}"
         }
 
         long start = System.currentTimeMillis()

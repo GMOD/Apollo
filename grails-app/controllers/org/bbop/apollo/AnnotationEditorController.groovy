@@ -1080,6 +1080,8 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
     @RestApiParams(params = [
             @RestApiParam(name = "username", type = "email", paramType = RestApiParamType.QUERY)
             , @RestApiParam(name = "password", type = "password", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "organismId", type = "string", paramType = RestApiParamType.QUERY)
+            , @RestApiParam(name = "type", type = "string", paramType = RestApiParamType.QUERY)
     ])
     def getAvailableStatuses() {
         log.debug "get available statuses${params.data}"
@@ -1090,8 +1092,12 @@ class AnnotationEditorController extends AbstractApolloController implements Ann
         }
 
         Organism organism = Organism.findById(inputObject.getLong(FeatureStringEnum.ORGANISM_ID.value))
-        String type = inputObject.getString(FeatureStringEnum.TYPE.value)
-        List<FeatureType> featureTypeList = getFeatureTypeListForType(type)
+        String type = null
+        if(inputObject.containsKey(FeatureStringEnum.TYPE.value)){
+            type = inputObject.getString(FeatureStringEnum.TYPE.value)
+        }
+        List<FeatureType> featureTypeList = type ? getFeatureTypeListForType(type) : []
+        log.debug "type ${type} ${featureTypeList}"
         render availableStatusService.getAvailableStatuses(organism,featureTypeList) as JSON
     }
 

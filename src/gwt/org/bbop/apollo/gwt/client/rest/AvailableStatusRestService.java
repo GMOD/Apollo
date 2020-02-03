@@ -71,9 +71,19 @@ public class AvailableStatusRestService {
     }
 
     public static void getAvailableStatuses(RequestCallback requestCallback, AnnotationInfo internalAnnotationInfo) {
+        getAvailableStatuses(requestCallback,internalAnnotationInfo.getType(),MainPanel.getInstance().getCurrentOrganism().getId());
+    }
+
+    public static void getAvailableStatuses(RequestCallback requestCallback) {
+        getAvailableStatuses(requestCallback,null,MainPanel.getInstance().getCurrentOrganism().getId());
+    }
+
+    public static void getAvailableStatuses(RequestCallback requestCallback, String type,String organismId) {
         JSONObject jsonObject = new JSONObject();
-        jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(internalAnnotationInfo.getType()));
-        jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(MainPanel.getInstance().getCurrentOrganism().getId()));
+        if(type!=null){
+            jsonObject.put(FeatureStringEnum.TYPE.getValue(),new JSONString(type));
+        }
+        jsonObject.put(FeatureStringEnum.ORGANISM_ID.getValue(), new JSONString(organismId));
         RestService.sendRequest(requestCallback, "annotationEditor/getAvailableStatuses", "data=" +jsonObject.toString() );
     }
 

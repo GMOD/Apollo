@@ -1,6 +1,7 @@
 package org.bbop.apollo
 
 import grails.converters.JSON
+import grails.transaction.Transactional
 import htsjdk.variant.vcf.VCFFileReader
 import org.bbop.apollo.gwt.shared.FeatureStringEnum
 import org.bbop.apollo.gwt.shared.PermissionEnum
@@ -16,12 +17,20 @@ import org.restapidoc.pojo.RestApiVerb
 import javax.servlet.http.HttpServletResponse
 
 @RestApi(name = "VCF Services", description = "Methods for retrieving VCF track data as JSON")
+@Transactional
 class VcfController {
 
     def preferenceService
     def permissionService
     def vcfService
     def trackService
+
+    def beforeInterceptor = {
+        if (params.action == "featuresByLocation") {
+            response.setHeader("Access-Control-Allow-Origin", "*")
+        }
+    }
+
 
     @RestApiMethod(description = "Get VCF track data for a given range as JSON", path = "/vcf/<organism_name>/<track_name>/<sequence_name>:<fmin>..<fmax>.<type>?includeGenotypes=<includeGenotypes>&ignoreCache=<ignoreCache>", verb = RestApiVerb.GET)
     @RestApiParams(params = [

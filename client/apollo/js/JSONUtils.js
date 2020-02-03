@@ -9,7 +9,7 @@ define([ 'dojo/_base/declare',
 function JSONUtils() {
 }
 
-JSONUtils.verbose_conversion = false;
+JSONUtils.verbose_conversion = false ;
 JSONUtils.variantTypes = [ "SNV", "SNP", "MNV", "MNP", "INDEL", "SUBSTITUTION", "INSERTION", "DELETION" ];
 JSONUtils.regulatorTypes = [ "TERMINATOR" ];
 
@@ -317,13 +317,15 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
     if (JSONUtils.verbose_conversion)  {
         console.log('parent type',type,'subfeature type',test_feature.get('type'))
     }
-    if(  (type==='mRNA' && test_feature.get('type')==='gene')
-        || (type.endsWith('RNA') && test_feature.get('type').endsWith('gene') )
-        || (type.endsWith('transcript') && test_feature.get('type').endsWith('gene') )
-    ){
-        var subfeatures = test_feature.get('subfeatures');
-        if(subfeatures && subfeatures.length===1){
-            return subfeatures[0];
+    if(test_feature.get('type')){
+        if(  (type==='mRNA' && test_feature.get('type')==='gene')
+            || (type.endsWith('RNA') && test_feature.get('type').endsWith('gene') )
+            || (type.endsWith('transcript') && test_feature.get('type').endsWith('gene') )
+        ){
+            var subfeatures = test_feature.get('subfeatures');
+            if(subfeatures && subfeatures.length===1){
+                return subfeatures[0];
+            }
         }
     }
     return null ;
