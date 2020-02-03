@@ -81,7 +81,7 @@ class AnnotatorService {
                 }
                 println "A current organism is ${currentOrganism as JSON}"
                 Organism organism = Organism.findById(currentOrganism.id)
-                currentOrganism.officialGeneSetTrack = organism.officialGeneSetTrack
+                currentOrganism.officialGeneSetTrack = organism?.officialGeneSetTrack
                 println "B current organism is ${currentOrganism as JSON}"
                 appStateObject.put("currentOrganism", currentOrganism)
 
