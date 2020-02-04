@@ -64,7 +64,7 @@ class DomainMarshallerService {
         returnArray['goRefLabel'] = it.goRefLabel
         returnArray['evidenceRefLabel'] = it.evidenceRefLabel
         returnArray['geneProductRelationshipRef'] = it.geneProductRelationshipRef
-        returnArray['negate'] = it.negate
+        returnArray['negate'] = it.setAlternate
         returnArray['withOrFromArray'] = it.withOrFromArray
         returnArray['notesArray'] = it.notesArray
         returnArray['reference'] = it.reference
