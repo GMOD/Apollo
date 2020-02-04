@@ -331,6 +331,25 @@ JSONUtils.getPreferredSubFeature = function(type,test_feature){
     return null ;
 };
 
+function copyOfficialData(fromFeature,toFeature){
+    console.log('OFFICIAL input fromFeature',fromFeature,JSON.stringify(fromFeature),JSON.stringify(fromFeature.data));
+    console.log('input fromFeature data keys',Object.keys(fromFeature.data),JSON.stringify(Object.keys(fromFeature.data)));
+    console.log('input toFeature',toFeature,JSON.stringify(toFeature));
+    console.log('copying over official stuff',fromFeature)
+    for(var key of Object.keys(fromFeature.data)) {
+        // var key = fromFeature.data[keyIndex];
+        // console.log('index',key,fromFeature.data[key]);
+        // toFeature[key] = fromFeature.data[key];
+        if (key === 'note') {
+            toFeature['description'] = fromFeature.data[key];
+        }
+    }
+    console.log('offical afeature output',toFeature,JSON.stringify(toFeature));
+
+
+    return toFeature;
+}
+
 /**
 *  creates a feature in ApolloEditorService JSON format
 *  takes as argument:
@@ -428,16 +447,8 @@ JSONUtils.createApolloFeature = function( jfeature, specified_type, useName, spe
     afeature.orig_id = id ;
 
     // add all other properties if there
-    console.log('input jfeature',jfeature,JSON.stringify(jfeature),JSON.stringify(jfeature.data));
-    console.log('input jfeature data keys',Object.keys(jfeature.data),JSON.stringify(Object.keys(jfeature.data)));
-  console.log('input afeature',afeature,JSON.stringify(afeature));
-  for(var key of Object.keys(jfeature.data)) {
-    // var key = jfeature.data[keyIndex];
-    // console.log('index',key,jfeature.data[key]);
-    // afeature[key] = jfeature.data[key];
-    if (key === 'note') {
-      afeature['description'] = jfeature.data[key];
-    }
+  if(official){
+      copyOfficialData(jfeature,afeature);
   }
 
   console.log('output afeature',afeature,JSON.stringify(afeature));
