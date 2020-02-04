@@ -24,7 +24,6 @@ import org.bbop.apollo.gwt.client.dto.GeneProductConverter;
 import org.bbop.apollo.gwt.client.oracles.BiolinkOntologyOracle;
 import org.bbop.apollo.gwt.client.resources.TableResources;
 import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
-import org.bbop.apollo.gwt.client.rest.GeneProductRestService;
 import org.bbop.apollo.gwt.shared.geneProduct.GeneProduct;
 import org.bbop.apollo.gwt.shared.geneProduct.Reference;
 import org.bbop.apollo.gwt.shared.geneProduct.WithOrFrom;
