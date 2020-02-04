@@ -8219,10 +8219,6 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                else {
-                    menuItem.set("disabled", false);
-                    return;
-                }
                 menuItem.set("disabled", false);
             },
 
@@ -8242,10 +8238,6 @@ define([
                     menuItem.set("disabled", true);
                     return;
                 }
-                else {
-                    menuItem.set("disabled", false);
-                    return;
-                }
                 menuItem.set("disabled", false);
             },
 
@@ -8261,10 +8253,6 @@ define([
                 }
                 if (JSONUtils.variantTypes.includes(currentType.toUpperCase())) {
                     menuItem.set("disabled", true);
-                    return;
-                }
-                else {
-                    menuItem.set("disabled", false);
                     return;
                 }
                 menuItem.set("disabled", false);
