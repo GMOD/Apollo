@@ -338,11 +338,15 @@ function copyOfficialData(fromFeature,toFeature){
     console.log('copying over official stuff',fromFeature)
     for(var key of Object.keys(fromFeature.data)) {
         // var key = fromFeature.data[keyIndex];
-        // console.log('index',key,fromFeature.data[key]);
+        console.log('index',key,fromFeature.data[key]);
         // toFeature[key] = fromFeature.data[key];
-        if (key === 'note') {
+        if (key === 'note' || key === 'description') {
             toFeature['description'] = fromFeature.data[key];
         }
+        // this is set for the output GFF3
+        // if(key === 'source'){
+        //     toFeature['source'] = fromFeature.data[key];
+        // }
     }
     console.log('offical afeature output',toFeature,JSON.stringify(toFeature));
 
